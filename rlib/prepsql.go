@@ -1351,7 +1351,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// Vehicle
 	//==========================================
-	flds = "VID,TCID,BID,VehicleType,VehicleMake,VehicleModel,VehicleColor,VehicleYear,LicensePlateState,LicensePlateNumber,ParkingPermitNumber,DtStart,DtStop,CreateTS,CreateBy,LastModTime,LastModBy"
+	flds = "VID,TCID,BID,VehicleType,VehicleMake,VehicleModel,VehicleColor,VehicleYear,VIN,LicensePlateState,LicensePlateNumber,ParkingPermitNumber,DtStart,DtStop,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["Vehicle"] = flds
 	RRdb.Prepstmt.GetVehicle, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Vehicle where VID=?")
 	Errcheck(err)

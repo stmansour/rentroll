@@ -950,6 +950,7 @@ CREATE TABLE Vehicle (
     VehicleModel VARCHAR(80) NOT NULL DEFAULT '',
     VehicleColor VARCHAR(80) NOT NULL DEFAULT '',
     VehicleYear BIGINT NOT NULL DEFAULT 0,
+    VIN VARCHAR(20) NOT NULL DEFAULT '',
     LicensePlateState VARCHAR(80) NOT NULL DEFAULT '',
     LicensePlateNumber VARCHAR(80) NOT NULL DEFAULT '',
     ParkingPermitNumber VARCHAR(80) NOT NULL DEFAULT '',

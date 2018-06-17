@@ -784,7 +784,7 @@ func ReadUsers(rows *sql.Rows, a *User) error {
 // ReadVehicle reads a full Vehicle structure from the database based on the supplied row object
 func ReadVehicle(row *sql.Row, a *Vehicle) error {
 	err := row.Scan(&a.VID, &a.TCID, &a.BID, &a.VehicleType, &a.VehicleMake, &a.VehicleModel, &a.VehicleColor, &a.VehicleYear,
-		&a.LicensePlateState, &a.LicensePlateNumber, &a.ParkingPermitNumber, &a.DtStart, &a.DtStop,
+		&a.VIN, &a.LicensePlateState, &a.LicensePlateNumber, &a.ParkingPermitNumber, &a.DtStart, &a.DtStop,
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	SkipSQLNoRowsError(&err)
 	return err
@@ -793,6 +793,6 @@ func ReadVehicle(row *sql.Row, a *Vehicle) error {
 // ReadVehicles reads a full Vehicle structure from the database based on the supplied rows object
 func ReadVehicles(rows *sql.Rows, a *Vehicle) error {
 	return rows.Scan(&a.VID, &a.TCID, &a.BID, &a.VehicleType, &a.VehicleMake, &a.VehicleModel, &a.VehicleColor, &a.VehicleYear,
-		&a.LicensePlateState, &a.LicensePlateNumber, &a.ParkingPermitNumber, &a.DtStart, &a.DtStop,
+		&a.VIN, &a.LicensePlateState, &a.LicensePlateNumber, &a.ParkingPermitNumber, &a.DtStart, &a.DtStop,
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }

@@ -144,6 +144,8 @@ func createRandomCar(t *rlib.Transactant, dbConf *GenDBConf) rlib.Vehicle {
 	v.VehicleMake = IG.Cars[j].Make
 	v.VehicleModel = IG.Cars[j].Model
 	v.VehicleYear = int64(IG.Cars[j].Year)
+	v.VIN = GenerateRandomVIN()
+	v.VehicleColor = GenerateRandomCarColor()
 	v.LicensePlateState = GenerateRandomState()
 	v.LicensePlateNumber = GenerateRandomLicensePlate()
 	v.ParkingPermitNumber = fmt.Sprintf("%07d", IG.Rand.Intn(10000000))

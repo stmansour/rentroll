@@ -131,11 +131,11 @@ type RAVehiclesFlowData struct {
 	VID                 int64
 	TMPTCID             int64
 	VIN                 string
-	Type                string
-	Make                string
-	Model               string
-	Color               string
-	Year                string
+	VehicleType         string
+	VehicleMake         string
+	VehicleModel        string
+	VehicleColor        string
+	VehicleYear         int64
 	LicensePlateState   string
 	LicensePlateNumber  string
 	ParkingPermitNumber string

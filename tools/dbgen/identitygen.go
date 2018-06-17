@@ -25,6 +25,13 @@ type CarInfo struct {
 	Model string
 }
 
+// WMIInfo describes the world car manufacturers information
+// in a VIN
+type WMIInfo struct {
+	Code         string
+	Manufacturer string
+}
+
 // IG is the struct containing info for doing Identity Generation
 var IG struct {
 	FirstNames []string   // array of first names
@@ -41,6 +48,7 @@ var IG struct {
 	CatNames   []string   // array of cat names
 	CatColors  []string   // array of cat colors
 	Cars       []CarInfo  // array of info about cars
+	Mfgs       []WMIInfo  // array of auto manufacturers worldwide
 	Rand       *rand.Rand // random number generator to use
 }
 
@@ -83,6 +91,26 @@ func loadCars(fname string, c *[]CarInfo) {
 	}
 }
 
+// loadWMI loads the list of WMI codes and mfg
+//------------------------------------------------
+func loadWMI(fname string, c *[]WMIInfo) {
+	funcname := "loadWMI"
+	csvFile, _ := os.Open(fname)
+	reader := csv.NewReader(bufio.NewReader(csvFile))
+	for {
+		line, err := reader.Read()
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			rlib.LogAndPrintError(funcname, err)
+		}
+		var mfg WMIInfo
+		mfg.Code = line[0] // this is the only thing we need.
+		mfg.Manufacturer = line[1]
+		*c = append(*c, mfg)
+	}
+}
+
 // IGInit initializes the Identity Generation code
 //-----------------------------------------------------------------------------
 func IGInit(r *rand.Rand) {
@@ -106,6 +134,7 @@ func IGInit(r *rand.Rand) {
 	}
 
 	loadCars("./idgen/cars.csv", &IG.Cars)
+	loadWMI("./idgen/wmi.csv", &IG.Mfgs)
 	for i := 0; i < len(n); i++ {
 		initOpen(n[i].FName, n[i].PM)
 	}
@@ -125,6 +154,7 @@ func IGInit(r *rand.Rand) {
 	// rlib.Console("CatNames: %d\n", len(IG.CatNames))
 	// rlib.Console("DogColors: %d\n", len(IG.DogColors))
 	// rlib.Console("CatColors: %d\n", len(IG.CatColors))
+	// rlib.Console("WMIs: %d\n", len(IG.Mfgs))
 }
 
 // GenerateRandomLicensePlate returns a string with a random license plate
@@ -147,10 +177,89 @@ func GenerateRandomLicensePlate() string {
 	return string(l)
 }
 
+// GenerateRandomVIN returns a string with a random Vehicle Identification
+// Number.  A VIN is a 17-digit alpha-numeric string constructed as follows:
+//
+//                 11111111
+// Digit: 12345678901234567
+// VIN:   1G6AF5SX6D0125409
+//                 |      |<-- 10 : 17 = Vehicle Identifier Section
+//            |   |<----------  4 :  9 = Vehicle Descriptor Section
+//        |  |<---------------  1 :  3 = World Manufacturer Identifier
+//
+// World Manufacturer Identifier  (1:3)
+//     1. Position one represents the nation of origin, or the final point of
+//        assembly. For instance, cars made in the U.S. start with 1,4 or 5,
+//        Canada is 2, Mexico is 3, Japan is J, South Korea is K, England is S,
+//        Germany is W, and Sweden or Finland is Y.  So, it can be:
+//     2. Manufacturer. In some cases, it's the letter that begins the
+//        manufacturer's name. For example, A is for Audi, B is for BMW, G is
+//        for General Motors, L is for Lincoln and N is for Nissan. But that
+//        "A" can also stand for Jaguar or Mitsubishi and an "R" can also mean
+//        Audi. It may sound confusing, but the next digit ties it all
+//        together.
+//      3. Position three, when combined with the first two digits, indicates
+//         the vehicle's type or manufacturing division. In our example, 1G6
+//         means a Cadillac passenger car. 1G1 means Chevrolet passenger cars
+//         and 1GC means Chevrolet trucks. There have been many variations on
+//         the World Manufacturer Identifier as brands have come and gone.
+//         This Wikipedia page has a list of WMI codes:
+//         https://en.wikibooks.org/wiki/Vehicle_Identification_Numbers_(VIN_codes)/World_Manufacturer_Identifier_(WMI)
+//
+// Vehicle Descriptor Section (4:9)
+//      1. Positions 4-8 describe the car with such information as the model,
+//         body type, restraint system, transmission type and engine code.
+//
+//      2. Position 9, the "check" digit, is used to detect invalid VINs,
+//         based on a mathematical formula that was developed by the
+//         Department of Transportation.  This code will just choose a random
+//         digit or letter.
+//
+// Vehicle Identifier Section (10:17)
+//      Varies by Manufacturer.  As an example, here's the info for Cadillac:
+//
+//         Position 10 indicates the model year. The letters from B-Y
+//         correspond to the model years 1981-2000. There is no I, O, Q, U or
+//         Z. From 2001-'09, the numbers one through nine were used in place
+//         of numbers. The alphabet started over from A in 2010 and will
+//         continue until 2030. The letter or number in position 11 indicates
+//         the manufacturing plant in which the vehicle was assembled. Each
+//         automaker has its own set of plant codes. The last 6 digits
+//         (positions 12 through 17) are the production sequence numbers. This
+//         is the number each car receives on the assembly line. In the case
+//         of our Cadillac ATS, it was the 125,409th car to roll off the
+//         assembly line in Lansing, Michigan.
+//-----------------------------------------------------------------------------
+func GenerateRandomVIN() string {
+	wmi := IG.Mfgs[IG.Rand.Intn(len(IG.Mfgs))].Code
+	vds := randomAlphaNumeric(5)
+	vis := randomAlphaNumeric(8)
+	return wmi + vds + vis
+}
+
+func randomAlphaNumeric(n int) string {
+	var b []byte
+	for i := 0; i < n; i++ {
+		j := IG.Rand.Intn(36)
+		if j < 10 {
+			b = append(b, Digits[j])
+			continue
+		}
+		b = append(b, Alphabet[j-10])
+	}
+	return string(b)
+}
+
 // GenerateRandomSSN returns a random social security number
 //-----------------------------------------------------------------------------
 func GenerateRandomSSN() string {
 	return fmt.Sprintf("%03d-%02d-%04d", IG.Rand.Intn(1000), IG.Rand.Intn(100), IG.Rand.Intn(10000))
+}
+
+// GenerateRandomCarColor returns a random social security number
+//-----------------------------------------------------------------------------
+func GenerateRandomCarColor() string {
+	return IG.CarColors[IG.Rand.Intn(len(IG.CarColors))]
 }
 
 // GenerateRandomDriversLicense returns a random drivers license number

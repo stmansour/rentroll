@@ -2498,6 +2498,7 @@ CREATE TABLE `Vehicle` (
   `VehicleModel` varchar(80) NOT NULL DEFAULT '',
   `VehicleColor` varchar(80) NOT NULL DEFAULT '',
   `VehicleYear` bigint(20) NOT NULL DEFAULT '0',
+  `VIN` varchar(20) NOT NULL DEFAULT '',
   `LicensePlateState` varchar(80) NOT NULL DEFAULT '',
   `LicensePlateNumber` varchar(80) NOT NULL DEFAULT '',
   `ParkingPermitNumber` varchar(80) NOT NULL DEFAULT '',
@@ -2529,4 +2530,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-06-15 12:15:28
+-- Dump completed on 2018-06-16 16:59:33

@@ -826,6 +826,7 @@ type Vehicle struct {
 	VehicleModel        string
 	VehicleColor        string
 	VehicleYear         int64
+	VIN                 string
 	LicensePlateState   string
 	LicensePlateNumber  string
 	ParkingPermitNumber string
