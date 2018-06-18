@@ -35,13 +35,12 @@ type RPerson struct {
 	State                     string
 	PostalCode                string
 	Country                   string
-	EmployerName              string
-	EmployerStreetAddress     string
-	EmployerCity              string
-	EmployerState             string
-	EmployerPostalCode        string
-	EmployerEmail             string
-	EmployerPhone             string
+	CompanyAddress            string
+	CompanyCity               string
+	CompanyState              string
+	CompanyPostalCode         string
+	CompanyEmail              string
+	CompanyPhone              string
 	Website                   string
 	Occupation                string
 	ApplicationFee            float64       // if non-zero this Prospect is an applicant
@@ -97,12 +96,11 @@ type RPersonForm struct {
 	City                      string
 	PostalCode                string
 	Country                   string
-	EmployerName              string
-	EmployerStreetAddress     string
-	EmployerCity              string
-	EmployerPostalCode        string
-	EmployerEmail             string
-	EmployerPhone             string
+	CompanyAddress            string
+	CompanyCity               string
+	CompanyPostalCode         string
+	CompanyEmail              string
+	CompanyPhone              string
 	Website                   string
 	Occupation                string
 	ApplicationFee            float64       // if non-zero this Prospect is an applicant
@@ -138,7 +136,7 @@ type RPersonForm struct {
 // in structure form rather than as a single string value.
 type RPersonOther struct {
 	State               string
-	EmployerState       string
+	CompanyState        string
 	EligibleFutureUser  bool
 	EligibleFuturePayor bool
 }
@@ -564,7 +562,7 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	xp.Trn.State = gxpo.State
 	xp.Usr.EligibleFutureUser = gxpo.EligibleFutureUser
-	xp.Psp.EmployerState = gxpo.EmployerState
+	xp.Psp.CompanyState = gxpo.CompanyState
 	xp.Pay.EligibleFuturePayor = gxpo.EligibleFuturePayor
 
 	//===============================================================
