@@ -86,10 +86,10 @@ func TestConversion2() {
 
 // RPersonOther stands for other person struct
 type RPersonOther struct {
-	IsCompany     rlib.W2uiHTMLSelect // 1 => the entity is a company, 0 = not a company
-	BID           rlib.W2uiHTMLSelect
-	State         rlib.W2uiHTMLSelect
-	EmployerState rlib.W2uiHTMLSelect
+	IsCompany    rlib.W2uiHTMLSelect // 1 => the entity is a company, 0 = not a company
+	BID          rlib.W2uiHTMLSelect
+	State        rlib.W2uiHTMLSelect
+	CompanyState rlib.W2uiHTMLSelect
 	// EligibleFutureUser  rlib.W2uiHTMLSelect
 	// EligibleFuturePayor rlib.W2uiHTMLSelect
 }
@@ -106,7 +106,7 @@ func testConversion3() {
 	}
 	fmt.Printf("Successfully unmarshalled w:  %#v\n", w)
 
-	s1 := `{"recid":0, "IsCompany":{"id":"Person","text":"Person"}, "City":"", "State":{"id":"AZ", "text":"AZ"}, "EmployerState":"", "EmployerPostalCode":"", "EligibleFutureUser":{"id":"no", "text":"no"}, "Industry":"", "EligibleFuturePayor":{"id":"no", "text":"no"}, "LastModTime":"2/1/2017","LastModBy":0 }`
+	s1 := `{"recid":0, "IsCompany":{"id":"Person","text":"Person"}, "City":"", "State":{"id":"AZ", "text":"AZ"}, "CompanyState":"", "CompanyPostalCode":"", "EligibleFutureUser":{"id":"no", "text":"no"}, "Industry":"", "EligibleFuturePayor":{"id":"no", "text":"no"}, "LastModTime":"2/1/2017","LastModBy":0 }`
 	var gxpo RPersonOther
 	err = json.Unmarshal([]byte(s1), &gxpo)
 	if err != nil {

@@ -49,58 +49,95 @@ type RAPeopleFlowData struct {
 	BID     int64
 	TCID    int64
 
+	// Transactant fields
 	// Role
 	IsRenter    bool
 	IsOccupant  bool
 	IsGuarantor bool
 
 	// Applicant information
-	FirstName    string
-	MiddleName   string
-	LastName     string
-	DateofBirth  rlib.JSONDate
-	IsCompany    bool
-	SSN          string
-	DriverLicNo  string
-	CellPhone    string
-	PrimaryEmail string
-	Employer     string
-	WorkPhone    string
-	Address      string
-	Address2     string
-	City         string
-	State        string
-	Country      string
-	PostalCode   string
-	Position     string
-	GrossIncome  float64
+	FirstName      string
+	MiddleName     string
+	LastName       string
+	PreferredName  string
+	IsCompany      bool
+	CompanyName    string
+	SSN            string
+	DriversLicense string
+	PrimaryEmail   string
+	SecondaryEmail string
+	WorkPhone      string
+	CellPhone      string
+	Address        string
+	Address2       string
+	City           string
+	State          string
+	PostalCode     string
+	Country        string
+	Website        string
+
+	// User fields
+	DateofBirth rlib.JSONDate
+
+	// Emergency contact information
+	EmergencyContactName    string
+	EmergencyContactAddress string
+	EmergencyContactPhone   string
+	EmergencyEmail          string
+	AlternateAddress        string
+	EligibleFutureUser      bool
+	Industry                string
+	SourceSLSID             int64
+
+	// Payor fields
+	CreditLimit         float64
+	TaxpayorID          string
+	ThirdPartySource    int64
+	GrossIncome         float64
+	EligibleFuturePayor bool
+
+	// Prospect fields
+	CompanyAddress    string
+	CompanyCity       string
+	CompanyState      string
+	CompanyPostalCode string
+	CompanyEmail      string
+	CompanyPhone      string
+	Occupation        string
 
 	// Current Address information
 	CurrentAddress           string
 	CurrentLandLordName      string
 	CurrentLengthOfResidency int
 	CurrentLandLordPhoneNo   string
-	CurrentReasonForMoving   string // Reason for moving
+	CurrentReasonForMoving   int64 // Reason for moving
 
 	// Prior Address information
 	PriorAddress           string
 	PriorLandLordName      string
 	PriorLengthOfResidency int
 	PriorLandLordPhoneNo   string
-	PriorReasonForMoving   string // Reason for moving
+	PriorReasonForMoving   int64 // Reason for moving
 
 	// Have you ever been
-	Evicted       bool // Evicted
-	EvictedDes    string
-	Convicted     bool // Arrested or convicted of a Convicted
-	ConvictedDes  string
-	Bankruptcy    bool // Declared Bankruptcy
-	BankruptcyDes string
-
-	// Emergency contact information
-	EmergencyContactName    string
-	EmergencyContactPhone   string
-	EmergencyContactAddress string
+	Evicted                bool // Evicted
+	EvictedDes             string
+	Convicted              bool // Arrested or convicted of a Convicted
+	ConvictedDes           string
+	Bankruptcy             bool // Declared Bankruptcy
+	BankruptcyDes          string
+	ApplicationFee         float64
+	DesiredUsageStartDate  rlib.JSONDate
+	RentableTypePreference int64
+	FLAGS                  int64
+	Approver               int64
+	DeclineReasonSLSID     int64
+	OtherPreferences       string
+	FollowUpDate           rlib.JSONDate
+	CSAgent                int64
+	OutcomeSLSID           int64
+	FloatingDeposit        float64
+	RAID                   int
 
 	// RA Application information
 	Comment string // In an effort to accommodate you, please advise us of any special needs

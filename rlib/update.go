@@ -478,7 +478,7 @@ func UpdatePayor(ctx context.Context, a *Payor) error {
 	}
 	d := hex.EncodeToString(d1)
 
-	fields := []interface{}{a.BID, a.CreditLimit, a.TaxpayorID, a.AccountRep, a.EligibleFuturePayor,
+	fields := []interface{}{a.BID, a.CreditLimit, a.TaxpayorID, a.ThirdPartySource, a.EligibleFuturePayor,
 		a.FLAGS, b, d, a.GrossIncome, a.LastModBy, a.TCID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdatePayor)
@@ -504,8 +504,8 @@ func UpdateProspect(ctx context.Context, a *Prospect) error {
 		a.LastModBy = sess.UID
 	}
 
-	fields := []interface{}{a.BID, a.EmployerName, a.EmployerStreetAddress, a.EmployerCity, a.EmployerState, a.EmployerPostalCode,
-		a.EmployerEmail, a.EmployerPhone, a.Occupation, a.ApplicationFee, a.DesiredUsageStartDate, a.RentableTypePreference,
+	fields := []interface{}{a.BID, a.CompanyAddress, a.CompanyCity, a.CompanyState, a.CompanyPostalCode,
+		a.CompanyEmail, a.CompanyPhone, a.Occupation, a.ApplicationFee, a.DesiredUsageStartDate, a.RentableTypePreference,
 		a.FLAGS, a.EvictedDes, a.ConvictedDes, a.BankruptcyDes,
 		a.Approver, a.DeclineReasonSLSID, a.OtherPreferences, a.FollowUpDate, a.CSAgent, a.OutcomeSLSID, a.FloatingDeposit,
 		a.RAID, a.LastModBy, a.TCID}

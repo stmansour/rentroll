@@ -39,7 +39,7 @@ type PeopleCSV struct {
 	PostalCode                string
 	Country                   string
 	Points                    string
-	AccountRep                string
+	ThirdPartySource          string
 	DateofBirth               string
 	EmergencyContactName      string
 	EmergencyContactAddress   string
@@ -51,13 +51,12 @@ type PeopleCSV struct {
 	SourceSLSID               string
 	CreditLimit               string
 	TaxpayorID                string
-	EmployerName              string
-	EmployerStreetAddress     string
-	EmployerCity              string
-	EmployerState             string
-	EmployerPostalCode        string
-	EmployerEmail             string
-	EmployerPhone             string
+	CompanyAddress            string
+	CompanyCity               string
+	CompanyState              string
+	CompanyPostalCode         string
+	CompanyEmail              string
+	CompanyPhone              string
 	Occupation                string
 	ApplicationFee            string
 	Notes                     string
