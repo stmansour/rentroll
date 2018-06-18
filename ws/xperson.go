@@ -134,6 +134,16 @@ type RPersonForm struct {
 	BID                       int64
 	BUD                       rlib.XJSONBud
 	IsCompany                 bool // 1 => the entity is a company, 0 = not a company
+	CurrentAddress            string
+	CurrentLandLordName       string
+	CurrentLandLordPhoneNo    string
+	CurrentReasonForMoving    int64
+	CurrentLengthOfResidency  string
+	PriorAddress              string
+	PriorLandLordName         string
+	PriorLandLordPhoneNo      string
+	PriorReasonForMoving      int64
+	PriorLengthOfResidency    string
 	// FloatingDeposit           float64       // d $(GLCASH) _, c $(GLGENRCV) _; assign to a shell of a Rental Agreement
 	// RAID                      int64         // created to hold On Account amount of Floating Deposit
 }

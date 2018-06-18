@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"context"
 	"encoding/csv"
 	"fmt"
 	"io"
@@ -10,6 +11,7 @@ import (
 	"os"
 	"rentroll/rlib"
 	"strconv"
+	"time"
 )
 
 // Alphabet contains caps of the alphabet
@@ -34,22 +36,24 @@ type WMIInfo struct {
 
 // IG is the struct containing info for doing Identity Generation
 var IG struct {
-	FirstNames []string   // array of first names
-	LastNames  []string   // array of last names
-	Streets    []string   // array of street names
-	Cities     []string   // array of cities
-	States     []string   // array of states
-	Companies  []string   // array of random company names
-	CarColors  []string   // array of colors
-	Dogs       []string   // array of dog breeds
-	Cats       []string   // array of cat breeds
-	DogNames   []string   // array of dog names
-	DogColors  []string   // array of dog colors
-	CatNames   []string   // array of cat names
-	CatColors  []string   // array of cat colors
-	Cars       []CarInfo  // array of info about cars
-	Mfgs       []WMIInfo  // array of auto manufacturers worldwide
-	Rand       *rand.Rand // random number generator to use
+	FirstNames  []string        // array of first names
+	LastNames   []string        // array of last names
+	Streets     []string        // array of street names
+	Cities      []string        // array of cities
+	States      []string        // array of states
+	Companies   []string        // array of random company names
+	CarColors   []string        // array of colors
+	Dogs        []string        // array of dog breeds
+	Cats        []string        // array of cat breeds
+	DogNames    []string        // array of dog names
+	DogColors   []string        // array of dog colors
+	CatNames    []string        // array of cat names
+	CatColors   []string        // array of cat colors
+	Occupations []string        // career occupations
+	Cars        []CarInfo       // array of info about cars
+	Mfgs        []WMIInfo       // array of auto manufacturers worldwide
+	Rand        *rand.Rand      // random number generator to use
+	WhyLeaving  rlib.StringList // strings for why leaving last residence
 }
 
 func initOpen(fname string, pm *[]string) {
@@ -114,6 +118,7 @@ func loadWMI(fname string, c *[]WMIInfo) {
 // IGInit initializes the Identity Generation code
 //-----------------------------------------------------------------------------
 func IGInit(r *rand.Rand) {
+	var err error
 	var n = []struct {
 		FName string
 		PM    *[]string
@@ -131,6 +136,7 @@ func IGInit(r *rand.Rand) {
 		{"./idgen/dognames.txt", &IG.DogNames},
 		{"./idgen/dogcolors.txt", &IG.DogColors},
 		{"./idgen/catcolors.txt", &IG.CatColors},
+		{"./idgen/occupation.txt", &IG.Occupations},
 	}
 
 	loadCars("./idgen/cars.csv", &IG.Cars)
@@ -140,6 +146,13 @@ func IGInit(r *rand.Rand) {
 	}
 
 	IG.Rand = r
+
+	ctx := context.Background()
+	if err = rlib.GetStringListByName(ctx, 1, "WhyLeaving", &IG.WhyLeaving); err != nil {
+		rlib.Console("Error getting StringList: WhyLeaving: %s\n", err.Error())
+		os.Exit(1)
+	}
+
 	// rlib.Console("FirstNames: %d\n", len(IG.FirstNames))
 	// rlib.Console("LastNames: %d\n", len(IG.LastNames))
 	// rlib.Console("Cities: %d\n", len(IG.Cities))
@@ -250,6 +263,24 @@ func randomAlphaNumeric(n int) string {
 	return string(b)
 }
 
+// GenerateRandomOccupation returns a random career occupation
+//-----------------------------------------------------------------------------
+func GenerateRandomOccupation() string {
+	return IG.Occupations[IG.Rand.Intn(len(IG.Occupations))]
+}
+
+// GenerateRandomDurationString returns a random duration
+//-----------------------------------------------------------------------------
+func GenerateRandomDurationString() string {
+	return fmt.Sprintf("%v", time.Duration(IG.Rand.Intn(10))*365*24*time.Hour+time.Duration(1+IG.Rand.Intn(11))*24*time.Hour)
+}
+
+// GenerateRandomOneLineAddress returns a random full address in a single line
+//-----------------------------------------------------------------------------
+func GenerateRandomOneLineAddress() string {
+	return GenerateRandomAddress() + ", " + GenerateRandomCity() + ", " + GenerateRandomState() + " " + fmt.Sprintf("%05d", rand.Intn(100000))
+}
+
 // GenerateRandomSSN returns a random social security number
 //-----------------------------------------------------------------------------
 func GenerateRandomSSN() string {
@@ -308,6 +339,19 @@ func GenerateRandomDogColor() string {
 //-----------------------------------------------------------------------------
 func GenerateRandomCatColor() string {
 	return IG.CatColors[IG.Rand.Intn(len(IG.CatColors))]
+}
+
+// GenerateRandomName returns a string with a random first and last name
+//-----------------------------------------------------------------------------
+func GenerateRandomName() string {
+	return GenerateRandomFirstName() + " " + GenerateRandomLastName()
+}
+
+// GenerateRandomFullName returns a string with a random first, middle, and
+// last name
+//-----------------------------------------------------------------------------
+func GenerateRandomFullName() string {
+	return GenerateRandomFirstName() + " " + GenerateRandomFirstName() + " " + GenerateRandomLastName()
 }
 
 // GenerateRandomFirstName returns a string with a random first name

@@ -108,14 +108,14 @@ type RAPeopleFlowData struct {
 	// Current Address information
 	CurrentAddress           string
 	CurrentLandLordName      string
-	CurrentLengthOfResidency int
+	CurrentLengthOfResidency string
 	CurrentLandLordPhoneNo   string
 	CurrentReasonForMoving   int64 // Reason for moving
 
 	// Prior Address information
 	PriorAddress           string
 	PriorLandLordName      string
-	PriorLengthOfResidency int
+	PriorLengthOfResidency string
 	PriorLandLordPhoneNo   string
 	PriorReasonForMoving   int64 // Reason for moving
 
@@ -136,8 +136,8 @@ type RAPeopleFlowData struct {
 	FollowUpDate           rlib.JSONDate
 	CSAgent                int64
 	OutcomeSLSID           int64
-	FloatingDeposit        float64
-	RAID                   int
+	// FloatingDeposit        float64
+	// RAID                   int
 
 	// RA Application information
 	Comment string // In an effort to accommodate you, please advise us of any special needs

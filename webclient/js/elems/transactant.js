@@ -66,7 +66,7 @@ window.getTransactantInitRecord = function (BID, BUD) {
         PriorAddress: "",
         PriorLandLordName: "",
         PriorLandLordPhoneNo: "",
-        PriorLengthOfResidency: 0,
+        PriorLengthOfResidency: "",
         PriorReasonForMoving: "",
         Evicted: false,
         EvictedDes: "",
@@ -148,12 +148,12 @@ window.buildTransactElements = function() {
         {field: 'CurrentAddress',            type: 'text',      required: false, html: {page: 3, column: 0}},  // Current Address
         {field: 'CurrentLandLordName',       type: 'text',      required: false, html: {page: 3, column: 0}},  // Current landlord's name
         {field: 'CurrentLandLordPhoneNo',    type: 'text',      required: false, html: {page: 3, column: 0}},  // Current landlord's phone number
-        {field: 'CurrentLengthOfResidency',  type: 'int',       required: false, html: {page: 3, column: 0}},  // Length of residency at current address
+        {field: 'CurrentLengthOfResidency',  type: 'text',      required: false, html: {page: 3, column: 0}},  // Length of residency at current address
         {field: 'CurrentReasonForMoving',    type: 'list',      required: false, html: {page: 3, column: 0}},  // Reason of moving from current address // TODO(Akshay): stringlist "WhyLeaving"
         {field: 'PriorAddress',              type: 'text',      required: false, html: {page: 3, column: 0}},  // Prior Address
         {field: 'PriorLandLordName',         type: 'text',      required: false, html: {page: 3, column: 0}},  // Prior landlord's name
         {field: 'PriorLandLordPhoneNo',      type: 'text',      required: false, html: {page: 3, column: 0}},  // Prior landlord's phone number
-        {field: 'PriorLengthOfResidency',    type: 'int',       required: false, html: {page: 3, column: 0}},  // Length of residency at Prior address
+        {field: 'PriorLengthOfResidency',    type: 'text',      required: false, html: {page: 3, column: 0}},  // Length of residency at Prior address
         {field: 'PriorReasonForMoving',      type: 'list',      required: false, html: {page: 3, column: 0}},  // Reason of moving from Prior address // TODO(Akshay): stringlist "WhyLeaving"
         {field: 'Evicted',                   type: 'checkbox',  required: false, html: {page: 3, column: 0}},  // have you ever been Evicted
         {field: 'EvictedDes',                type: 'text',      required: false, html: {page: 3, column: 0}},
