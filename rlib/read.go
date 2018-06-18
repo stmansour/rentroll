@@ -369,8 +369,8 @@ func ReadPaymentTypes(rows *sql.Rows, a *PaymentType) error {
 
 // ReadProspect reads a full Prospect structure from the database based on the supplied row object
 func ReadProspect(row *sql.Row, a *Prospect) error {
-	err := row.Scan(&a.TCID, &a.BID, &a.EmployerName, &a.EmployerStreetAddress,
-		&a.EmployerCity, &a.EmployerState, &a.EmployerPostalCode, &a.EmployerEmail, &a.EmployerPhone, &a.Occupation,
+	err := row.Scan(&a.TCID, &a.BID, &a.EmployerName, &a.CompanyAddress,
+		&a.CompanyCity, &a.CompanyState, &a.CompanyPostalCode, &a.CompanyEmail, &a.CompanyPhone, &a.Occupation,
 		&a.ApplicationFee, &a.DesiredUsageStartDate, &a.RentableTypePreference, &a.FLAGS,
 		&a.EvictedDes, &a.ConvictedDes, &a.BankruptcyDes, &a.Approver, &a.DeclineReasonSLSID,
 		&a.OtherPreferences, &a.FollowUpDate, &a.CSAgent, &a.OutcomeSLSID, &a.FloatingDeposit, &a.RAID,
@@ -381,8 +381,8 @@ func ReadProspect(row *sql.Row, a *Prospect) error {
 
 // ReadProspects reads a full Prospect structure from the database based on the supplied rows object
 func ReadProspects(rows *sql.Rows, a *Prospect) error {
-	return rows.Scan(&a.TCID, &a.BID, &a.EmployerName, &a.EmployerStreetAddress,
-		&a.EmployerCity, &a.EmployerState, &a.EmployerPostalCode, &a.EmployerEmail, &a.EmployerPhone, &a.Occupation,
+	return rows.Scan(&a.TCID, &a.BID, &a.EmployerName, &a.CompanyAddress,
+		&a.CompanyCity, &a.CompanyState, &a.CompanyPostalCode, &a.CompanyEmail, &a.CompanyPhone, &a.Occupation,
 		&a.ApplicationFee, &a.DesiredUsageStartDate, &a.RentableTypePreference, &a.FLAGS,
 		&a.EvictedDes, &a.ConvictedDes, &a.BankruptcyDes, &a.Approver, &a.DeclineReasonSLSID,
 		&a.OtherPreferences, &a.FollowUpDate, &a.CSAgent, &a.OutcomeSLSID, &a.FloatingDeposit, &a.RAID,

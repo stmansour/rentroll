@@ -2576,8 +2576,8 @@ func InsertProspect(ctx context.Context, a *Prospect) (int64, error) {
 	}
 
 	// transaction... context
-	fields := []interface{}{a.TCID, a.BID, a.EmployerName, a.EmployerStreetAddress, a.EmployerCity,
-		a.EmployerState, a.EmployerPostalCode, a.EmployerEmail, a.EmployerPhone, a.Occupation, a.ApplicationFee,
+	fields := []interface{}{a.TCID, a.BID, a.EmployerName, a.CompanyAddress, a.CompanyCity,
+		a.CompanyState, a.CompanyPostalCode, a.CompanyEmail, a.CompanyPhone, a.Occupation, a.ApplicationFee,
 		a.DesiredUsageStartDate, a.RentableTypePreference, a.FLAGS,
 		a.EvictedDes, a.ConvictedDes, a.BankruptcyDes, a.Approver, a.DeclineReasonSLSID, a.OtherPreferences,
 		a.FollowUpDate, a.CSAgent, a.OutcomeSLSID, a.FloatingDeposit, a.RAID, a.CreateBy, a.LastModBy}

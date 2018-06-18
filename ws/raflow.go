@@ -97,13 +97,13 @@ type RAPeopleFlowData struct {
 	EligibleFuturePayor bool
 
 	// Prospect fields
-	EmployerStreetAddress string
-	EmployerCity          string
-	EmployerState         string
-	EmployerPostalCode    string
-	EmployerEmail         string
-	EmployerPhone         string
-	Occupation            string
+	CompanyAddress    string
+	CompanyCity       string
+	CompanyState      string
+	CompanyPostalCode string
+	CompanyEmail      string
+	CompanyPhone      string
+	Occupation        string
 
 	// Current Address information
 	CurrentAddress           string

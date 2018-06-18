@@ -1278,12 +1278,12 @@ CREATE TABLE `Prospect` (
   `TCID` bigint(20) NOT NULL,
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `EmployerName` varchar(100) NOT NULL DEFAULT '',
-  `EmployerStreetAddress` varchar(100) NOT NULL DEFAULT '',
-  `EmployerCity` varchar(100) NOT NULL DEFAULT '',
-  `EmployerState` varchar(100) NOT NULL DEFAULT '',
-  `EmployerPostalCode` varchar(100) NOT NULL DEFAULT '',
-  `EmployerEmail` varchar(100) NOT NULL DEFAULT '',
-  `EmployerPhone` varchar(100) NOT NULL DEFAULT '',
+  `CompanyAddress` varchar(100) NOT NULL DEFAULT '',
+  `CompanyCity` varchar(100) NOT NULL DEFAULT '',
+  `CompanyState` varchar(100) NOT NULL DEFAULT '',
+  `CompanyPostalCode` varchar(100) NOT NULL DEFAULT '',
+  `CompanyEmail` varchar(100) NOT NULL DEFAULT '',
+  `CompanyPhone` varchar(100) NOT NULL DEFAULT '',
   `Occupation` varchar(100) NOT NULL DEFAULT '',
   `ApplicationFee` decimal(19,4) NOT NULL DEFAULT '0.0000',
   `DesiredUsageStartDate` date NOT NULL DEFAULT '1970-01-01',
@@ -2528,4 +2528,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-06-15 15:03:05
+-- Dump completed on 2018-06-18 10:51:46
