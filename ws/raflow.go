@@ -63,7 +63,7 @@ type RAPeopleFlowData struct {
 	IsCompany      bool
 	CompanyName    string
 	SSN            string
-	DriversLicense    string
+	DriversLicense string
 	PrimaryEmail   string
 	SecondaryEmail string
 	WorkPhone      string
@@ -83,7 +83,7 @@ type RAPeopleFlowData struct {
 	EmergencyContactName    string
 	EmergencyContactAddress string
 	EmergencyContactPhone   string
-	EmergencyContactEmail   string
+	EmergencyEmail          string
 	AlternateAddress        string
 	EligibleFutureUser      bool
 	Industry                string
