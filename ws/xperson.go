@@ -35,17 +35,17 @@ type RPerson struct {
 	State                     string
 	PostalCode                string
 	Country                   string
-	EmployerName              string
-	EmployerStreetAddress     string
-	EmployerCity              string
-	EmployerState             string
-	EmployerPostalCode        string
-	EmployerEmail             string
-	EmployerPhone             string
+	CompanyAddress            string
+	CompanyCity               string
+	CompanyState              string
+	CompanyPostalCode         string
+	CompanyEmail              string
+	CompanyPhone              string
 	Website                   string
 	Occupation                string
 	SSN                       string
 	DriversLicense            string
+	GrossIncome               float64
 	ApplicationFee            float64       // if non-zero this Prospect is an applicant
 	DesiredUsageStartDate     rlib.JSONDate // predicted rent start date
 	RentableTypePreference    int64         // RentableType
@@ -70,7 +70,7 @@ type RPerson struct {
 	SourceSLSID               int64
 	CreditLimit               float64
 	TaxpayorID                string
-	AccountRep                int64
+	ThirdPartySource          int64
 	EligibleFuturePayor       bool
 	LastModTime               rlib.JSONDateTime
 	LastModBy                 int64
@@ -99,16 +99,16 @@ type RPersonForm struct {
 	City                      string
 	PostalCode                string
 	Country                   string
-	EmployerName              string
-	EmployerStreetAddress     string
-	EmployerCity              string
-	EmployerPostalCode        string
-	EmployerEmail             string
-	EmployerPhone             string
+	CompanyAddress            string
+	CompanyCity               string
+	CompanyPostalCode         string
+	CompanyEmail              string
+	CompanyPhone              string
 	Website                   string
 	Occupation                string
 	SSN                       string
 	DriversLicense            string
+	GrossIncome               float64
 	ApplicationFee            float64       // if non-zero this Prospect is an applicant
 	DesiredUsageStartDate     rlib.JSONDate // predicted rent start date
 	RentableTypePreference    int64         // RentableType
@@ -132,7 +132,7 @@ type RPersonForm struct {
 	SourceSLSID               int64
 	CreditLimit               float64
 	TaxpayorID                string
-	AccountRep                int64
+	ThirdPartySource          int64
 	BID                       int64
 	BUD                       rlib.XJSONBud
 	IsCompany                 bool // 1 => the entity is a company, 0 = not a company
@@ -142,7 +142,7 @@ type RPersonForm struct {
 // in structure form rather than as a single string value.
 type RPersonOther struct {
 	State               string
-	EmployerState       string
+	CompanyState        string
 	EligibleFutureUser  bool
 	EligibleFuturePayor bool
 }
@@ -568,7 +568,7 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	xp.Trn.State = gxpo.State
 	xp.Usr.EligibleFutureUser = gxpo.EligibleFutureUser
-	xp.Psp.EmployerState = gxpo.EmployerState
+	xp.Psp.CompanyState = gxpo.CompanyState
 	xp.Pay.EligibleFuturePayor = gxpo.EligibleFuturePayor
 
 	//===============================================================

@@ -852,13 +852,12 @@ CREATE TABLE Prospect (
     -- ProspectID BIGINT NOT NULL AUTO_INCREMENT,           -- unique id of this Prospect
     TCID BIGINT NOT NULL,                                   -- associated Transactant (has Name and all contact info)
     BID BIGINT NOT NULL DEFAULT 0,                          -- which business
-    EmployerName  VARCHAR(100) NOT NULL DEFAULT '',
-    EmployerStreetAddress VARCHAR(100) NOT NULL DEFAULT '',
-    EmployerCity VARCHAR(100) NOT NULL DEFAULT '',
-    EmployerState VARCHAR(100) NOT NULL DEFAULT '',
-    EmployerPostalCode VARCHAR(100) NOT NULL DEFAULT '',
-    EmployerEmail VARCHAR(100) NOT NULL DEFAULT '',
-    EmployerPhone VARCHAR(100) NOT NULL DEFAULT '',
+    CompanyAddress VARCHAR(100) NOT NULL DEFAULT '',
+    CompanyCity VARCHAR(100) NOT NULL DEFAULT '',
+    CompanyState VARCHAR(100) NOT NULL DEFAULT '',
+    CompanyPostalCode VARCHAR(100) NOT NULL DEFAULT '',
+    CompanyEmail VARCHAR(100) NOT NULL DEFAULT '',
+    CompanyPhone VARCHAR(100) NOT NULL DEFAULT '',
     Occupation VARCHAR(100) NOT NULL DEFAULT '',
     ApplicationFee DECIMAL(19,4) NOT NULL DEFAULT 0.0,           -- if non-zero this Prospect is an applicant
     DesiredUsageStartDate DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- User's initial indication of move in date, actual move in date is in Rental Agreement
@@ -925,9 +924,9 @@ CREATE TABLE User (
 CREATE TABLE Payor (
     TCID BIGINT NOT NULL,                                        -- associated Transactant
     BID BIGINT NOT NULL DEFAULT 0,                               -- which business
-    TaxpayorID VARCHAR(25) NOT NULL DEFAULT '',
-    CreditLimit DECIMAL(19,4) NOT NULL DEFAULT 0.0,
-    AccountRep BIGINT NOT NULL DEFAULT 0,                        -- Accord (renting company) Phonebook UID of account rep
+    TaxpayorID VARCHAR(25) NOT NULL DEFAULT '',     
+    CreditLimit DECIMAL(19,4) NOT NULL DEFAULT 0.0,     
+    ThirdPartySource BIGINT NOT NULL DEFAULT 0,                        -- Accord (renting company) Phonebook UID of account rep
     EligibleFuturePayor TINYINT(1) NOT NULL DEFAULT 1,           -- yes/no
     FLAGS BIGINT NOT NULL DEFAULT 0,                             /*
                                                                   */

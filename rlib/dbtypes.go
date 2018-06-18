@@ -720,13 +720,12 @@ type Transactant struct {
 type Prospect struct {
 	TCID                   int64
 	BID                    int64
-	EmployerName           string
-	EmployerStreetAddress  string
-	EmployerCity           string
-	EmployerState          string
-	EmployerPostalCode     string
-	EmployerEmail          string
-	EmployerPhone          string
+	CompanyAddress         string
+	CompanyCity            string
+	CompanyState           string
+	CompanyPostalCode      string
+	CompanyEmail           string
+	CompanyPhone           string
 	Occupation             string
 	ApplicationFee         float64   // if non-zero this Prospect is an applicant
 	DesiredUsageStartDate  time.Time // predicted rent start date
@@ -778,7 +777,7 @@ type Payor struct {
 	BID                 int64
 	CreditLimit         float64
 	TaxpayorID          string
-	AccountRep          int64
+	ThirdPartySource    int64
 	EligibleFuturePayor bool
 	FLAGS               uint64
 	SSN                 string // encrypted in database, decrypted here

@@ -1,6 +1,6 @@
--- MySQL dump 10.13  Distrib 5.7.22, for osx10.12 (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.22, for Linux (x86_64)
 --
--- Host: localhost    Database: rentroll
+-- Host: 127.0.0.1    Database: rentroll
 -- ------------------------------------------------------
 -- Server version	5.7.22
 
@@ -1240,7 +1240,7 @@ CREATE TABLE `Payor` (
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `TaxpayorID` varchar(25) NOT NULL DEFAULT '',
   `CreditLimit` decimal(19,4) NOT NULL DEFAULT '0.0000',
-  `AccountRep` bigint(20) NOT NULL DEFAULT '0',
+  `ThirdPartySource` bigint(20) NOT NULL DEFAULT '0',
   `EligibleFuturePayor` tinyint(1) NOT NULL DEFAULT '1',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
   `SSN` char(128) NOT NULL DEFAULT '',
@@ -1274,13 +1274,12 @@ DROP TABLE IF EXISTS `Prospect`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Prospect` (
   `BID` bigint(20) NOT NULL DEFAULT '0',
-  `EmployerName` varchar(100) NOT NULL DEFAULT '',
-  `EmployerStreetAddress` varchar(100) NOT NULL DEFAULT '',
-  `EmployerCity` varchar(100) NOT NULL DEFAULT '',
-  `EmployerState` varchar(100) NOT NULL DEFAULT '',
-  `EmployerPostalCode` varchar(100) NOT NULL DEFAULT '',
-  `EmployerEmail` varchar(100) NOT NULL DEFAULT '',
-  `EmployerPhone` varchar(100) NOT NULL DEFAULT '',
+  `CompanyAddress` varchar(100) NOT NULL DEFAULT '',
+  `CompanyCity` varchar(100) NOT NULL DEFAULT '',
+  `CompanyState` varchar(100) NOT NULL DEFAULT '',
+  `CompanyPostalCode` varchar(100) NOT NULL DEFAULT '',
+  `CompanyEmail` varchar(100) NOT NULL DEFAULT '',
+  `CompanyPhone` varchar(100) NOT NULL DEFAULT '',
   `Occupation` varchar(100) NOT NULL DEFAULT '',
   `ApplicationFee` decimal(19,4) NOT NULL DEFAULT '0.0000',
   `DesiredUsageStartDate` date NOT NULL DEFAULT '1970-01-01',
@@ -1312,7 +1311,7 @@ CREATE TABLE `Prospect` (
 
 LOCK TABLES `Prospect` WRITE;
 /*!40000 ALTER TABLE `Prospect` DISABLE KEYS */;
-INSERT INTO `Prospect` VALUES (1,'','','','','','','','',0.0000,'1900-01-01',0,0,'','','',0,0,'','1900-01-01',0,0,0.0000,0,'2017-06-13 19:39:18',0,'2017-06-14 18:26:50',0,1),(1,'','','','','','','','',0.0000,'1900-01-01',0,0,'','','',0,0,'','1900-01-01',0,0,0.0000,0,'2017-06-13 19:40:59',0,'2017-06-14 18:26:50',0,2),(1,'','','','','','','','',0.0000,'1900-01-01',0,0,'','','',0,0,'','1900-01-01',0,0,0.0000,0,'2017-06-15 16:35:44',0,'2017-06-15 16:35:44',0,3),(1,'','','','','','','','',0.0000,'1900-01-01',0,0,'','','',0,0,'','1900-01-01',0,0,0.0000,0,'2017-06-15 16:36:27',0,'2017-06-15 16:36:27',0,4),(1,'','','','','','','','',0.0000,'1900-01-01',0,0,'','','',0,0,'','1900-01-01',0,0,0.0000,0,'2017-06-15 16:38:32',0,'2017-06-15 16:38:32',0,5),(1,'','','','','','','','',0.0000,'1900-01-01',0,0,'','','',0,0,'','1900-01-01',0,0,0.0000,0,'2017-06-15 16:50:13',0,'2017-06-15 16:50:13',0,6);
+INSERT INTO `Prospect` VALUES (1,'','','','','','','',0.0000,'1900-01-01',0,0,'','','',0,0,'','1900-01-01',0,0,0.0000,0,'2017-06-13 19:39:18',0,'2017-06-14 18:26:50',0,1),(1,'','','','','','','',0.0000,'1900-01-01',0,0,'','','',0,0,'','1900-01-01',0,0,0.0000,0,'2017-06-13 19:40:59',0,'2017-06-14 18:26:50',0,2),(1,'','','','','','','',0.0000,'1900-01-01',0,0,'','','',0,0,'','1900-01-01',0,0,0.0000,0,'2017-06-15 16:35:44',0,'2017-06-15 16:35:44',0,3),(1,'','','','','','','',0.0000,'1900-01-01',0,0,'','','',0,0,'','1900-01-01',0,0,0.0000,0,'2017-06-15 16:36:27',0,'2017-06-15 16:36:27',0,4),(1,'','','','','','','',0.0000,'1900-01-01',0,0,'','','',0,0,'','1900-01-01',0,0,0.0000,0,'2017-06-15 16:38:32',0,'2017-06-15 16:38:32',0,5),(1,'','','','','','','',0.0000,'1900-01-01',0,0,'','','',0,0,'','1900-01-01',0,0,0.0000,0,'2017-06-15 16:50:13',0,'2017-06-15 16:50:13',0,6);
 /*!40000 ALTER TABLE `Prospect` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2525,4 +2524,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-06-16 16:59:20
+-- Dump completed on 2018-06-18 15:49:14

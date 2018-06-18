@@ -159,6 +159,10 @@ func SvcUIVal(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	case "app.TaskListDefinitions":
 		tlds, err := GetTLDs(r.Context(), d.BID)
 		SvcUIErrAndVarResponse(w, funcname, err, tlds)
+	case "app.Applicants":
+		var a []rlib.StringList
+		a, err := rlib.GetAllStringLists(r.Context(), d.BID)
+		SvcUIErrAndVarResponse(w, funcname, err, a)
 	default:
 		e := fmt.Errorf("Unknown variable requested: %s", d.DetVal)
 		SvcErrorReturn(w, e, funcname)
