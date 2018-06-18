@@ -412,7 +412,7 @@ DBNAME="rentroll"
 # ALTER TABLE Prospect CHANGE EmployerEmail CompanyEmail VARCHAR(100) NOT NULL DEFAULT '';
 # ALTER TABLE Prospect CHANGE EmployerPhone CompanyPhone VARCHAR(100) NOT NULL DEFAULT '';
 # Remove EmployerName column
-# ALTER TABLE Prospect DROP EmployerName;
+# ALTER TABLE Prospect DROP COLUMN EmployerName;
 
 #=====================================================
 #  Put modifications to schema in the lines below
