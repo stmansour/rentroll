@@ -1,6 +1,6 @@
 Accord RentRoll Onesite Importer
-Date: 6/1/2018
-Time: 10:38PM IST
+Date: 6/18/2018
+Time: 1:52PM PDT
 Import File: ./onesite.csv
 
 Summary
@@ -28,10 +28,10 @@ Austin, TX 78738 USA
                               Rent     Proration                     To      Child                                    
 RTID        Style    Name     Cycle    Cycle      GSRPC  Available?  Budget  Type?  Dt1 - Dt2 : Market Rate           
 ----------  -------  -------  -------  ---------  -----  ----------  ------  -----  ----------------------------------
-RT00000001  A1-HOSP  A1-HOSP  monthly  daily      daily  Yes         Yes     No     06/01/2018 - 12/31/9999: $  700.00
-RT00000002  HRP2     HRP2     monthly  daily      daily  Yes         Yes     No     06/01/2018 - 12/31/9999: $  940.00
-RT00000003  A2-Corp  A2-Corp  monthly  daily      daily  Yes         Yes     No     06/01/2018 - 12/31/9999: $  700.00
-RT00000004  A6-HOSP  A6-HOSP  monthly  daily      daily  Yes         Yes     No     06/01/2018 - 12/31/9999: $  800.00
+RT00000001  A1-HOSP  A1-HOSP  monthly  daily      daily  Yes         Yes     No     06/18/2018 - 12/31/9999: $  700.00
+RT00000002  HRP2     HRP2     monthly  daily      daily  Yes         Yes     No     06/18/2018 - 12/31/9999: $  940.00
+RT00000003  A2-Corp  A2-Corp  monthly  daily      daily  Yes         Yes     No     06/18/2018 - 12/31/9999: $  700.00
+RT00000004  A6-HOSP  A6-HOSP  monthly  daily      daily  Yes         Yes     No     06/18/2018 - 12/31/9999: $  800.00
 ==============================================================
 REX Rentables
 JGM First, LLC

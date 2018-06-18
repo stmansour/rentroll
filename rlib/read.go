@@ -376,7 +376,10 @@ func ReadProspect(row *sql.Row, a *Prospect) error {
 		&a.CompanyCity, &a.CompanyState, &a.CompanyPostalCode, &a.CompanyEmail, &a.CompanyPhone, &a.Occupation,
 		&a.ApplicationFee, &a.DesiredUsageStartDate, &a.RentableTypePreference, &a.FLAGS,
 		&a.EvictedDes, &a.ConvictedDes, &a.BankruptcyDes, &a.Approver, &a.DeclineReasonSLSID,
-		&a.OtherPreferences, &a.FollowUpDate, &a.CSAgent, &a.OutcomeSLSID, &a.FloatingDeposit, &a.RAID,
+		&a.OtherPreferences, &a.FollowUpDate, &a.CSAgent, &a.OutcomeSLSID,
+		&a.CurrentAddress, &a.CurrentLandLordName, &a.CurrentLandLordPhoneNo, &a.CurrentReasonForMoving,
+		&a.CurrentLengthOfResidency, &a.PriorAddress, &a.PriorLandLordName, &a.PriorLandLordPhoneNo,
+		&a.PriorReasonForMoving, &a.PriorLengthOfResidency,
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	SkipSQLNoRowsError(&err)
 	return err
@@ -388,7 +391,10 @@ func ReadProspects(rows *sql.Rows, a *Prospect) error {
 		&a.CompanyCity, &a.CompanyState, &a.CompanyPostalCode, &a.CompanyEmail, &a.CompanyPhone, &a.Occupation,
 		&a.ApplicationFee, &a.DesiredUsageStartDate, &a.RentableTypePreference, &a.FLAGS,
 		&a.EvictedDes, &a.ConvictedDes, &a.BankruptcyDes, &a.Approver, &a.DeclineReasonSLSID,
-		&a.OtherPreferences, &a.FollowUpDate, &a.CSAgent, &a.OutcomeSLSID, &a.FloatingDeposit, &a.RAID,
+		&a.OtherPreferences, &a.FollowUpDate, &a.CSAgent, &a.OutcomeSLSID,
+		&a.CurrentAddress, &a.CurrentLandLordName, &a.CurrentLandLordPhoneNo, &a.CurrentReasonForMoving,
+		&a.CurrentLengthOfResidency, &a.PriorAddress, &a.PriorLandLordName, &a.PriorLandLordPhoneNo,
+		&a.PriorReasonForMoving, &a.PriorLengthOfResidency,
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 

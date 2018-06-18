@@ -1,6 +1,6 @@
--- MySQL dump 10.13  Distrib 5.7.22, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.22, for osx10.12 (x86_64)
 --
--- Host: 127.0.0.1    Database: rentroll
+-- Host: localhost    Database: rentroll
 -- ------------------------------------------------------
 -- Server version	5.7.22
 
@@ -1290,8 +1290,16 @@ CREATE TABLE `Prospect` (
   `FollowUpDate` date NOT NULL DEFAULT '1970-01-01',
   `CSAgent` bigint(20) NOT NULL DEFAULT '0',
   `OutcomeSLSID` bigint(20) NOT NULL DEFAULT '0',
-  `FloatingDeposit` decimal(19,4) NOT NULL DEFAULT '0.0000',
-  `RAID` bigint(20) NOT NULL DEFAULT '0',
+  `CurrentAddress` varchar(200) NOT NULL DEFAULT '',
+  `CurrentLandLordName` varchar(100) NOT NULL DEFAULT '',
+  `CurrentLandLordPhoneNo` varchar(20) NOT NULL DEFAULT '',
+  `CurrentReasonForMoving` bigint(20) NOT NULL DEFAULT '0',
+  `CurrentLengthOfResidency` varchar(100) NOT NULL DEFAULT '',
+  `PriorAddress` varchar(200) NOT NULL DEFAULT '',
+  `PriorLandLordName` varchar(100) NOT NULL DEFAULT '',
+  `PriorLandLordPhoneNo` varchar(20) NOT NULL DEFAULT '',
+  `PriorReasonForMoving` bigint(20) NOT NULL DEFAULT '0',
+  `PriorLengthOfResidency` varchar(100) NOT NULL DEFAULT '',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -2408,6 +2416,7 @@ CREATE TABLE `Transactant` (
   `Country` varchar(100) NOT NULL DEFAULT '',
   `Website` varchar(100) NOT NULL DEFAULT '',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
+  `Comment` varchar(2048) NOT NULL DEFAULT '',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -2511,4 +2520,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-06-18 15:49:12
+-- Dump completed on 2018-06-18 11:21:15

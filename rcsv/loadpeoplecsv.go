@@ -59,8 +59,8 @@ const (
 	FollowUpDate              = iota
 	CSAgent                   = iota
 	OutcomeSLSID              = iota
-	FloatingDeposit           = iota
-	RAID                      = iota
+	// FloatingDeposit           = iota
+	// RAID                      = iota
 )
 
 // csvCols is an array that defines all the columns that should be in this csv file
@@ -111,8 +111,8 @@ var csvCols = []CSVColumn{
 	{"FollowUpDate", FollowUpDate},
 	{"CSAgent", CSAgent},
 	{"OutcomeSLSID", OutcomeSLSID},
-	{"FloatingDeposit", FloatingDeposit},
-	{"RAID", RAID},
+	// {"FloatingDeposit", FloatingDeposit},
+	// {"RAID", RAID},
 }
 
 func rcsvCopyString(p *string, s string) error {
@@ -122,8 +122,8 @@ func rcsvCopyString(p *string, s string) error {
 
 // CSV file format:
 //  |<------------------------------------------------------------------  TRANSACTANT ----------------------------------------------------------------------------->|  |<-------------------------------------------------------------------------------------------------------------  rlib.User  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------>|<----------------------------------------------------------------------------- rlib.Payor ------------------------------------------------->|
-//   0   1          2           3         4            5          6             7               8          9          10       11        12    13     14          15       16      17       18        19        20       21                 22                  23                   24          25           26                    27                       28                         29              30                31                          32        33            34           35         36            37                     38            39             40                  41             42             43          44             45    46                     47                      48        49                  50                51            52       53            54               55
-// 	BUD, FirstName, MiddleName, LastName, CompanyName, IsCompany, PrimaryEmail, SecondaryEmail, WorkPhone, CellPhone, Address, Address2, City, State, PostalCode, Country, Points, VehicleMake, VehicleModel, VehicleColor, VehicleYear, LicensePlateState, LicensePlateNumber, ParkingPermitNumber, ThirdPartySource, DateofBirth, EmergencyContactName, EmergencyContactAddress, EmergencyContactTelephone, EmergencyEmail, AlternateAddress, EligibleFutureUser, Industry, SourceSLSID, CreditLimit, TaxpayorID, CompanyAddress, CompanyCity, CompanyState, CompanyPostalCode, CompanyEmail, CompanyPhone, Occupation, ApplicationFee,Notes,DesiredUsageStartDate, RentableTypePreference, Approver, DeclineReasonSLSID, OtherPreferences, FollowUpDate, CSAgent, OutcomeSLSID, FloatingDeposit, RAID
+//   0   1          2           3         4            5          6             7               8          9          10       11        12    13     14          15       16      17       18        19        20       21                 22                  23                   24          25           26                    27                       28                         29              30                31                          32        33            34           35         36            37                     38            39             40                  41             42             43          44             45    46                     47                      48        49                  50                51            52       53
+// 	BUD, FirstName, MiddleName, LastName, CompanyName, IsCompany, PrimaryEmail, SecondaryEmail, WorkPhone, CellPhone, Address, Address2, City, State, PostalCode, Country, Points, VehicleMake, VehicleModel, VehicleColor, VehicleYear, LicensePlateState, LicensePlateNumber, ParkingPermitNumber, ThirdPartySource, DateofBirth, EmergencyContactName, EmergencyContactAddress, EmergencyContactTelephone, EmergencyEmail, AlternateAddress, EligibleFutureUser, Industry, SourceSLSID, CreditLimit, TaxpayorID, CompanyAddress, CompanyCity, CompanyState, CompanyPostalCode, CompanyEmail, CompanyPhone, Occupation, ApplicationFee,Notes,DesiredUsageStartDate, RentableTypePreference, Approver, DeclineReasonSLSID, OtherPreferences, FollowUpDate, CSAgent, OutcomeSLSID
 // 	Edna,,Krabappel,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 // 	Ned,,Flanders,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 // 	Moe,,Szyslak,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
@@ -202,8 +202,8 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 		{FollowUpDate, nil, nil},
 		{CSAgent, nil, nil},
 		{OutcomeSLSID, nil, nil},
-		{FloatingDeposit, nil, nil},
-		{RAID, nil, nil},
+		// {FloatingDeposit, nil, nil},
+		// {RAID, nil, nil},
 	}
 
 	ignoreDupPhone := false
@@ -221,6 +221,10 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 
 	for i := 0; i < len(sa); i++ {
 		s := strings.TrimSpace(sa[i])
+		if i >= len(rcsvPeopleHandlers) {
+			rlib.Ulog("Could not find handler for column: %s  col. index = %d\n", sa[i], i)
+			continue
+		}
 		if rcsvPeopleHandlers[i].p != nil {
 			rcsvPeopleHandlers[i].Handler(rcsvPeopleHandlers[i].p, s)
 			continue
@@ -369,21 +373,21 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 				pr.OutcomeSLSID = y
 			}
 
-		case FloatingDeposit:
-			if len(s) > 0 {
-				if x, err = strconv.ParseFloat(strings.TrimSpace(s), 64); err != nil {
-					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid FloatingDeposit value: %s", funcname, lineno, s)
-				}
-				pr.FloatingDeposit = x
-			}
-		case RAID:
-			if len(s) > 0 {
-				var y int64
-				if y, err = strconv.ParseInt(strings.TrimSpace(s), 10, 64); err != nil {
-					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid RAID value: %s", funcname, lineno, s)
-				}
-				pr.RAID = y
-			}
+		// case FloatingDeposit:
+		// 	if len(s) > 0 {
+		// 		if x, err = strconv.ParseFloat(strings.TrimSpace(s), 64); err != nil {
+		// 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid FloatingDeposit value: %s", funcname, lineno, s)
+		// 		}
+		// 		pr.FloatingDeposit = x
+		// 	}
+		// case RAID:
+		// 	if len(s) > 0 {
+		// 		var y int64
+		// 		if y, err = strconv.ParseInt(strings.TrimSpace(s), 10, 64); err != nil {
+		// 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid RAID value: %s", funcname, lineno, s)
+		// 		}
+		// 		pr.RAID = y
+		// 	}
 		default:
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Unknown field, column %d", funcname, lineno, i)
 		}

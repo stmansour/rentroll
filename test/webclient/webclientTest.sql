@@ -1,6 +1,6 @@
--- MySQL dump 10.13  Distrib 5.7.22, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.22, for osx10.12 (x86_64)
 --
--- Host: 127.0.0.1    Database: rentroll
+-- Host: localhost    Database: rentroll
 -- ------------------------------------------------------
 -- Server version	5.7.22
 
@@ -1297,8 +1297,16 @@ CREATE TABLE `Prospect` (
   `FollowUpDate` date NOT NULL DEFAULT '1970-01-01',
   `CSAgent` bigint(20) NOT NULL DEFAULT '0',
   `OutcomeSLSID` bigint(20) NOT NULL DEFAULT '0',
-  `FloatingDeposit` decimal(19,4) NOT NULL DEFAULT '0.0000',
-  `RAID` bigint(20) NOT NULL DEFAULT '0',
+  `CurrentAddress` varchar(200) NOT NULL DEFAULT '',
+  `CurrentLandLordName` varchar(100) NOT NULL DEFAULT '',
+  `CurrentLandLordPhoneNo` varchar(20) NOT NULL DEFAULT '',
+  `CurrentReasonForMoving` bigint(20) NOT NULL DEFAULT '0',
+  `CurrentLengthOfResidency` varchar(100) NOT NULL DEFAULT '',
+  `PriorAddress` varchar(200) NOT NULL DEFAULT '',
+  `PriorLandLordName` varchar(100) NOT NULL DEFAULT '',
+  `PriorLandLordPhoneNo` varchar(20) NOT NULL DEFAULT '',
+  `PriorReasonForMoving` bigint(20) NOT NULL DEFAULT '0',
+  `PriorLengthOfResidency` varchar(100) NOT NULL DEFAULT '',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -2422,6 +2430,7 @@ CREATE TABLE `Transactant` (
   `Country` varchar(100) NOT NULL DEFAULT '',
   `Website` varchar(100) NOT NULL DEFAULT '',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
+  `Comment` varchar(2048) NOT NULL DEFAULT '',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -2436,7 +2445,7 @@ CREATE TABLE `Transactant` (
 
 LOCK TABLES `Transactant` WRITE;
 /*!40000 ALTER TABLE `Transactant` DISABLE KEYS */;
-INSERT INTO `Transactant` VALUES (1,1,0,'John0000','Q','Doe0000','J0000','',0,'jdoe0000@example.com','','','(561) 425-4574','','','','','','','',0,'2018-02-06 12:10:18',0,'2018-02-06 12:10:18',0),(2,1,0,'John0001','Q','Doe0001','J0001','',0,'jdoe0001@example.com','','','(547) 632-8826','','','','','','','',0,'2018-02-06 12:10:18',0,'2018-02-06 12:10:18',0),(3,1,0,'John0002','Q','Doe0002','J0002','',0,'jdoe0002@example.com','','','(315) 924-1282','','','','','','','',0,'2018-02-06 12:10:18',0,'2018-02-06 12:10:18',0),(4,1,0,'John0003','Q','Doe0003','J0003','',0,'jdoe0003@example.com','','','(402) 706-3256','','','','','','','',0,'2018-02-06 12:10:18',0,'2018-02-06 12:10:18',0),(5,1,0,'John0004','Q','Doe0004','J0004','',0,'jdoe0004@example.com','','','(284) 782-3037','','','','','','','',0,'2018-02-06 12:10:18',0,'2018-02-06 12:10:18',0),(6,1,0,'John0005','Q','Doe0005','J0005','',0,'jdoe0005@example.com','','','(333) 108-4394','','','','','','','',0,'2018-02-06 12:10:18',0,'2018-02-06 12:10:18',0),(7,1,0,'John0006','Q','Doe0006','J0006','',0,'jdoe0006@example.com','','','(598) 973-4133','','','','','','','',0,'2018-02-06 12:10:18',0,'2018-02-06 12:10:18',0),(8,1,0,'John0007','Q','Doe0007','J0007','',0,'jdoe0007@example.com','','','(596) 222-1495','','','','','','','',0,'2018-02-06 12:10:18',0,'2018-02-06 12:10:18',0),(9,1,0,'John0008','Q','Doe0008','J0008','',0,'jdoe0008@example.com','','','(822) 202-9916','','','','','','','',0,'2018-02-06 12:10:18',0,'2018-02-06 12:10:18',0),(10,1,0,'John0009','Q','Doe0009','J0009','',0,'jdoe0009@example.com','','','(761) 556-2649','','','','','','','',0,'2018-02-06 12:10:18',0,'2018-02-06 12:10:18',0);
+INSERT INTO `Transactant` VALUES (1,1,0,'John0000','Q','Doe0000','J0000','',0,'jdoe0000@example.com','','','(561) 425-4574','','','','','','','',0,'','2018-02-06 12:10:18',0,'2018-02-06 12:10:18',0),(2,1,0,'John0001','Q','Doe0001','J0001','',0,'jdoe0001@example.com','','','(547) 632-8826','','','','','','','',0,'','2018-02-06 12:10:18',0,'2018-02-06 12:10:18',0),(3,1,0,'John0002','Q','Doe0002','J0002','',0,'jdoe0002@example.com','','','(315) 924-1282','','','','','','','',0,'','2018-02-06 12:10:18',0,'2018-02-06 12:10:18',0),(4,1,0,'John0003','Q','Doe0003','J0003','',0,'jdoe0003@example.com','','','(402) 706-3256','','','','','','','',0,'','2018-02-06 12:10:18',0,'2018-02-06 12:10:18',0),(5,1,0,'John0004','Q','Doe0004','J0004','',0,'jdoe0004@example.com','','','(284) 782-3037','','','','','','','',0,'','2018-02-06 12:10:18',0,'2018-02-06 12:10:18',0),(6,1,0,'John0005','Q','Doe0005','J0005','',0,'jdoe0005@example.com','','','(333) 108-4394','','','','','','','',0,'','2018-02-06 12:10:18',0,'2018-02-06 12:10:18',0),(7,1,0,'John0006','Q','Doe0006','J0006','',0,'jdoe0006@example.com','','','(598) 973-4133','','','','','','','',0,'','2018-02-06 12:10:18',0,'2018-02-06 12:10:18',0),(8,1,0,'John0007','Q','Doe0007','J0007','',0,'jdoe0007@example.com','','','(596) 222-1495','','','','','','','',0,'','2018-02-06 12:10:18',0,'2018-02-06 12:10:18',0),(9,1,0,'John0008','Q','Doe0008','J0008','',0,'jdoe0008@example.com','','','(822) 202-9916','','','','','','','',0,'','2018-02-06 12:10:18',0,'2018-02-06 12:10:18',0),(10,1,0,'John0009','Q','Doe0009','J0009','',0,'jdoe0009@example.com','','','(761) 556-2649','','','','','','','',0,'','2018-02-06 12:10:18',0,'2018-02-06 12:10:18',0);
 /*!40000 ALTER TABLE `Transactant` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2526,4 +2535,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-06-18 15:49:30
+-- Dump completed on 2018-06-18 11:21:35

@@ -710,6 +710,7 @@ type Transactant struct {
 	   1<<2 VIP                      -- Is this person a VIP
 	*/
 	FLAGS       int64
+	Comment     string
 	LastModTime time.Time
 	LastModBy   int64
 	CreateTS    time.Time // when was this record created
@@ -718,34 +719,44 @@ type Transactant struct {
 
 // Prospect contains info over and above
 type Prospect struct {
-	TCID                   int64
-	BID                    int64
-	CompanyAddress         string
-	CompanyCity            string
-	CompanyState           string
-	CompanyPostalCode      string
-	CompanyEmail           string
-	CompanyPhone           string
-	Occupation             string
-	ApplicationFee         float64   // if non-zero this Prospect is an applicant
-	DesiredUsageStartDate  time.Time // predicted rent start date
-	RentableTypePreference int64     // RentableType
-	FLAGS                  uint64    // 0 = Approved/NotApproved,
-	EvictedDes             string    // explanation when FLAGS & (1<<2) > 0
-	ConvictedDes           string    // explanation when FLAGS & (1<<3) > 0
-	BankruptcyDes          string    // explanation when FLAGS & (1<<4) > 0
-	Approver               int64     // UID from Directory
-	DeclineReasonSLSID     int64     // SLSid of reason
-	OtherPreferences       string    // arbitrary text
-	FollowUpDate           time.Time // automatically fill out this date to sysdate + 24hrs
-	CSAgent                int64     // Accord Directory UserID - for the CSAgent
-	OutcomeSLSID           int64     // id of string from a list of outcomes. Melissa to provide reasons
-	FloatingDeposit        float64   // d $(GLCASH) _, c $(GLGENRCV) _; assign to a shell of a Rental Agreement
-	RAID                   int64     // created to hold On Account amount of Floating Deposit
-	LastModTime            time.Time
-	LastModBy              int64
-	CreateTS               time.Time // when was this record created
-	CreateBy               int64     // employee UID (from phonebook) that created it
+	TCID                     int64
+	BID                      int64
+	CompanyAddress           string
+	CompanyCity              string
+	CompanyState             string
+	CompanyPostalCode        string
+	CompanyEmail             string
+	CompanyPhone             string
+	Occupation               string
+	ApplicationFee           float64   // if non-zero this Prospect is an applicant
+	DesiredUsageStartDate    time.Time // predicted rent start date
+	RentableTypePreference   int64     // RentableType
+	FLAGS                    uint64    // 0 = Approved/NotApproved,
+	EvictedDes               string    // explanation when FLAGS & (1<<2) > 0
+	ConvictedDes             string    // explanation when FLAGS & (1<<3) > 0
+	BankruptcyDes            string    // explanation when FLAGS & (1<<4) > 0
+	Approver                 int64     // UID from Directory
+	DeclineReasonSLSID       int64     // SLSid of reason
+	OtherPreferences         string    // arbitrary text
+	FollowUpDate             time.Time // automatically fill out this date to sysdate + 24hrs
+	CSAgent                  int64     // Accord Directory UserID - for the CSAgent
+	OutcomeSLSID             int64     // id of string from a list of outcomes. Melissa to provide reasons
+	CurrentAddress           string
+	CurrentLandLordName      string
+	CurrentLandLordPhoneNo   string
+	CurrentReasonForMoving   int64
+	CurrentLengthOfResidency string
+	PriorAddress             string
+	PriorLandLordName        string
+	PriorLandLordPhoneNo     string
+	PriorReasonForMoving     int64
+	PriorLengthOfResidency   string
+	LastModTime              time.Time
+	LastModBy                int64
+	CreateTS                 time.Time // when was this record created
+	CreateBy                 int64     // employee UID (from phonebook) that created it
+	// FloatingDeposit        float64   // d $(GLCASH) _, c $(GLGENRCV) _; assign to a shell of a Rental Agreement
+	// RAID                   int64     // created to hold On Account amount of Floating Deposit
 }
 
 // User contains all info common to a person

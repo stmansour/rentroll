@@ -416,6 +416,20 @@ DBNAME="rentroll"
 # ALTER TABLE Prospect CHANGE EmployerPhone CompanyPhone VARCHAR(100) NOT NULL DEFAULT '';
 # ALTER TABLE Prospect DROP COLUMN EmployerName;
 
+# June 18, 2018
+# ALTER TABLE Prospect ADD CurrentAddress VARCHAR(200) NOT NULL DEFAULT '' AFTER OutcomeSLSID;
+# ALTER TABLE Prospect ADD CurrentLandLordName VARCHAR(100) NOT NULL DEFAULT '' AFTER CurrentAddress;
+# ALTER TABLE Prospect ADD CurrentLandLordPhoneNo VARCHAR(20) NOT NULL DEFAULT '' AFTER CurrentLandLordName;
+# ALTER TABLE Prospect ADD CurrentReasonForMoving BIGINT NOT NULL DEFAULT 0 AFTER CurrentLandLordPhoneNo;
+# ALTER TABLE Prospect ADD CurrentLengthOfResidency VARCHAR(100) NOT NULL DEFAULT '' AFTER CurrentReasonForMoving;
+# ALTER TABLE Prospect ADD PriorAddress VARCHAR(200) NOT NULL DEFAULT '' AFTER CurrentLengthOfResidency;
+# ALTER TABLE Prospect ADD PriorLandLordName VARCHAR(100) NOT NULL DEFAULT '' AFTER PriorAddress;
+# ALTER TABLE Prospect ADD PriorLandLordPhoneNo VARCHAR(20) NOT NULL DEFAULT '' AFTER PriorLandLordName;
+# ALTER TABLE Prospect ADD PriorReasonForMoving BIGINT NOT NULL DEFAULT 0 AFTER PriorLandLordPhoneNo;
+# ALTER TABLE Prospect ADD PriorLengthOfResidency VARCHAR(100) NOT NULL DEFAULT '' AFTER PriorReasonForMoving;
+# ALTER TABLE Transactant ADD Comment VARCHAR(2048) NOT NULL DEFAULT '' AFTER FLAGS;
+# ALTER TABLE Prospect DROP COLUMN FloatingDeposit, DROP COLUMN RAID;
+
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================

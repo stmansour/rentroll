@@ -293,7 +293,7 @@ func createTransactants(ctx context.Context, dbConf *GenDBConf) error {
 			FollowUpDate:       now.AddDate(0, 0, 2),
 			CSAgent:            int64(IG.Rand.Intn(280)),
 			OutcomeSLSID:       0,
-			FloatingDeposit:    0,
+			//FloatingDeposit:    0, // removed june 18, 2018
 		}
 		_, err = rlib.InsertProspect(ctx, &pr)
 		if err != nil {
