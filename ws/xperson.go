@@ -35,7 +35,6 @@ type RPerson struct {
 	State                     string
 	PostalCode                string
 	Country                   string
-	EmployerName              string
 	CompanyAddress            string
 	CompanyCity               string
 	CompanyState              string
@@ -97,7 +96,6 @@ type RPersonForm struct {
 	City                      string
 	PostalCode                string
 	Country                   string
-	EmployerName              string
 	CompanyAddress            string
 	CompanyCity               string
 	CompanyPostalCode         string

@@ -852,7 +852,6 @@ CREATE TABLE Prospect (
     -- ProspectID BIGINT NOT NULL AUTO_INCREMENT,           -- unique id of this Prospect
     TCID BIGINT NOT NULL,                                   -- associated Transactant (has Name and all contact info)
     BID BIGINT NOT NULL DEFAULT 0,                          -- which business
-    EmployerName  VARCHAR(100) NOT NULL DEFAULT '',
     CompanyAddress VARCHAR(100) NOT NULL DEFAULT '',
     CompanyCity VARCHAR(100) NOT NULL DEFAULT '',
     CompanyState VARCHAR(100) NOT NULL DEFAULT '',

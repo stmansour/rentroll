@@ -272,7 +272,6 @@ func createTransactants(ctx context.Context, dbConf *GenDBConf) error {
 		var pr = rlib.Prospect{
 			TCID:                   t.TCID,
 			BID:                    t.BID,
-			EmployerName:           t.CompanyName,
 			CompanyAddress:         GenerateRandomAddress(),
 			CompanyCity:            ec,
 			CompanyState:           GenerateRandomState(),

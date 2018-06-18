@@ -1,4 +1,4 @@
-TCID	EmployerName	CompanyAddress	CompanyCity	CompanyState	CompanyPostalCode	CompanyEmail	CompanyPhone	Occupation	ApplicationFee	LastModBy
+TCID	CompanyAddress	CompanyCity	CompanyState	CompanyPostalCode	CompanyEmail	CompanyPhone	Occupation	ApplicationFee	LastModBy
 1									0.0000	0
 2									0.0000	0
 3									0.0000	0

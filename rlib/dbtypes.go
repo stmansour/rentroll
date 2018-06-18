@@ -720,7 +720,6 @@ type Transactant struct {
 type Prospect struct {
 	TCID                   int64
 	BID                    int64
-	EmployerName           string
 	CompanyAddress         string
 	CompanyCity            string
 	CompanyState           string

@@ -50,7 +50,7 @@ mysqlverify "j"  "-d depository.csv"   		"Depositories"	            	"select DEP
 mysqlverify "n"  "-p people.csv"       		"Transactants"	            	"select TCID,BID,FirstName,MiddleName,LastName,CompanyName,IsCompany,PrimaryEmail,SecondaryEmail,WorkPhone,CellPhone,Address,Address2,City,State,PostalCode,Country,LastModBy from Transactant;"
 mysqlverify "o"  ""			                "Users"	                        "select TCID,Points,DateofBirth,EmergencyContactName,EmergencyContactAddress,EmergencyContactTelephone,EmergencyEmail,AlternateAddress,EligibleFutureUser,Industry,SourceSLSID from User;"
 mysqlverify "p"  ""			                "Payors"	                	"select TCID,CreditLimit,TaxpayorID,ThirdPartySource,LastModBy from Payor;"
-mysqlverify "q"  ""			                "Prospects"	            		"select TCID,EmployerName,CompanyAddress,CompanyCity,CompanyState,CompanyPostalCode,CompanyEmail,CompanyPhone,Occupation,ApplicationFee,LastModBy from Prospect;"
+mysqlverify "q"  ""			                "Prospects"	            		"select TCID,CompanyAddress,CompanyCity,CompanyState,CompanyPostalCode,CompanyEmail,CompanyPhone,Occupation,ApplicationFee,LastModBy from Prospect;"
 mysqlverify "na"  "-V vehicle.csv"       	"Vehicles"	            		"select VID,TCID,VehicleType,VehicleMake,VehicleModel,VehicleColor,VehicleYear,LicensePlateState,LicensePlateNumber,ParkingPermitNumber,DtStart,DtStop,LastModBy from Vehicle;"
 mysqlverify "k"  "-r rentable.csv"     		"Rentables"	            		"select RID,BID,RentableName,AssignmentTime,LastModBy from Rentable;"
 mysqlverify "l"  " "                   		"RentableTypeRef"	    		"select RID,BID,RTID,OverrideRentCycle,OverrideProrationCycle,DtStart,DtStop,LastModBy from RentableTypeRef;"

@@ -404,13 +404,15 @@ DBNAME="rentroll"
 # ALTER TABLE Payor CHANGE AccountRep ThirdPartySource BIGINT(20) NOT NULL DEFAULT 0;
 
 # June 18, 2018
-# Rename EmployerStreetAddress to CompanyAddress
+# Rename Column name
 # ALTER TABLE Prospect CHANGE EmployerStreetAddress CompanyAddress VARCHAR(100) NOT NULL DEFAULT '';
 # ALTER TABLE Prospect CHANGE EmployerCity CompanyCity VARCHAR(100) NOT NULL DEFAULT '';
 # ALTER TABLE Prospect CHANGE EmployerState CompanyState VARCHAR(100) NOT NULL DEFAULT '';
 # ALTER TABLE Prospect CHANGE EmployerPostalCode CompanyPostalCode VARCHAR(100) NOT NULL DEFAULT '';
 # ALTER TABLE Prospect CHANGE EmployerEmail CompanyEmail VARCHAR(100) NOT NULL DEFAULT '';
 # ALTER TABLE Prospect CHANGE EmployerPhone CompanyPhone VARCHAR(100) NOT NULL DEFAULT '';
+# Remove EmployerName column
+# ALTER TABLE Prospect DROP EmployerName;
 
 #=====================================================
 #  Put modifications to schema in the lines below

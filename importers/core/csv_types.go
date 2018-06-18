@@ -51,7 +51,6 @@ type PeopleCSV struct {
 	SourceSLSID               string
 	CreditLimit               string
 	TaxpayorID                string
-	EmployerName              string
 	CompanyAddress            string
 	CompanyCity               string
 	CompanyState              string

@@ -1276,7 +1276,6 @@ DROP TABLE IF EXISTS `Prospect`;
 CREATE TABLE `Prospect` (
   `TCID` bigint(20) NOT NULL,
   `BID` bigint(20) NOT NULL DEFAULT '0',
-  `EmployerName` varchar(100) NOT NULL DEFAULT '',
   `CompanyAddress` varchar(100) NOT NULL DEFAULT '',
   `CompanyCity` varchar(100) NOT NULL DEFAULT '',
   `CompanyState` varchar(100) NOT NULL DEFAULT '',
@@ -2525,4 +2524,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-06-18 10:51:49
+-- Dump completed on 2018-06-18 11:56:13
