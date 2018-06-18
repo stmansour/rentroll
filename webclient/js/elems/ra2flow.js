@@ -1,6 +1,6 @@
 /*global
    $,addDateNavToToolbar,getCurrentBID,w2ui,w2utils,
-   manageParentRentableW2UIItems,RACompConfig,
+   manageParentRentableW2UIItems,RACompConfig, LoadRAFlowTemplate
 */
 
 "use strict";
@@ -58,58 +58,12 @@ window.buildRA2FlowElements = function() {
                         w2ui.ra2flowGrid.error(w2utils.lang(url + ' failed:  ' + data.message));
                         return;
                     }
-                    w2ui.toplayout.content('right', w2ui.newraLayout);
-                    w2ui.toplayout.show('right', true);
-                    w2ui.toplayout.sizeTo('right', 950);
 
-                    $.get('/webclient/html/raflowtmpl.html', function(htmldata) {
-                        w2ui.newraLayout.content('main', htmldata);
-                        w2ui.toplayout.render();
-                        $(".ra-form-component").hide();
-                        $("#progressbar #steps-list li").removeClass("active done"); // remove activeClass from all li
+                    // set the record in app raflow
+                    app.raflow.data[data.record.FlowID]= data.record;
 
-                        setTimeout(function() {
-                            $("#ra-form footer button#previous").prop("disabled", true);
-
-                            // mark this flag as is this new record
-                            // record created already
-                            app.new_form_rec = false;
-
-                            // as new content will be loaded for this form
-                            // mark form dirty flag as false
-                            app.form_is_dirty = false;
-
-                            // set this flow id as in active
-                            app.raflow.activeFlowID = data.record.FlowID;
-                            app.raflow.data[app.raflow.activeFlowID]= data.record;
-
-                            // set BID in raflow settings
-                            app.raflow.BID = bid;
-
-                            // calculate parent rentable items
-                            manageParentRentableW2UIItems();
-
-                            // show "done" mark on each li of navigation bar
-                            for (var comp in app.raFlowPartTypes) {
-                                // if required fields are fulfilled then mark this slide as done
-                                if (requiredFieldsFulFilled(comp)) {
-                                    // hide active component
-                                    $("#progressbar #steps-list li[data-target='#" + comp + "']").addClass("done");
-                                }
-
-                                // reset w2ui component as well
-                                if(RACompConfig[comp].w2uiComp in w2ui) {
-                                    // clear inputs
-                                    w2ui[RACompConfig[comp].w2uiComp].clear();
-                                }
-                            }
-
-                            // mark first slide as active
-                            $(".ra-form-component#dates").show();
-                            $("#progressbar #steps-list li[data-target='#dates']").removeClass("done").addClass("active");
-                            loadRADatesForm();
-                        }, 0);
-                    });
+                    // load ra flow template
+                    LoadRAFlowTemplate(bid, data.record.FlowID);
                 })
                 .fail(function(/*data*/){
                     w2ui.ra2flowGrid.error("Get Rental Agreement Flow failed.");

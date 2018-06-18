@@ -78,7 +78,7 @@ window.loadRAPetsGrid = function () {
                 { field: 'TMPPETID',                type: 'int',    required: true  },
                 { field: 'BID',                     type: 'int',    required: true,     html: { caption: 'BID', page: 0, column: 0 } },
                 { field: 'PETID',                   type: 'int',    required: true,     html: { caption: 'PETID', page: 0, column: 0 } },
-                { field: 'TMPTCID',                 type: 'list',   required: true,     options: {items: app.raflow.peopleW2UIItems, selected: {}} },
+                { field: 'TMPTCID',                 type: 'list',   required: true,     options: {items: [], selected: {}} },
                 { field: 'Name',                    type: 'text',   required: true  },
                 { field: 'Breed',                   type: 'text',   required: true  },
                 { field: 'Type',                    type: 'text',   required: true  },
@@ -107,6 +107,7 @@ window.loadRAPetsGrid = function () {
                             $.extend(TMPTCIDSel, item);
                         }
                     });
+                    f.get("TMPTCID").options.items = app.raflow.peopleW2UIItems;
                     f.get("TMPTCID").options.selected = TMPTCIDSel;
 
                     // hide delete button if it is NewRecord
