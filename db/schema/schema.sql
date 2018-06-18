@@ -412,7 +412,7 @@ CREATE TABLE OtherDeliverables (
     ODID BIGINT NOT NULL AUTO_INCREMENT,                      -- Unique ID for this OtherDeliverables
     BID BIGINT NOT NULL DEFAULT 0,                            -- Business
     Name VARCHAR(256),                                        -- Description of the other deliverables. Ex: 2 Seaworld tickets
-    Active SMALLINT NOT NULL DEFAULT 0,                       -- Flag: Is this list still active?  0 = not active, 1 = active
+    Active TINYINT(1) NOT NULL DEFAULT 0,                       -- Flag: Is this list still active?  0 = not active, 1 = active
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                      -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
@@ -867,7 +867,7 @@ CREATE TABLE Prospect (
                                                                     1<<2 - Previously Evicted: 0 = no, 1 = yes
                                                                     1<<3 - Previously Convicted of a felony: 0 = no, 1 = yes
                                                                     1<<4 - Previously declared bankruptcy: 0 = no, 1 = yes
-    */     
+    */
     EvictedDes VARCHAR(2048) NOT NULL DEFAULT '',                -- explanation when FLAGS & (1<<2) > 0
     ConvictedDes VARCHAR(2048) NOT NULL DEFAULT '',              -- explanation when FLAGS & (1<<3) > 0
     BankruptcyDes VARCHAR(2048) NOT NULL DEFAULT '',             -- explanation when FLAGS & (1<<4) > 0
@@ -949,6 +949,7 @@ CREATE TABLE Vehicle (
     VehicleModel VARCHAR(80) NOT NULL DEFAULT '',
     VehicleColor VARCHAR(80) NOT NULL DEFAULT '',
     VehicleYear BIGINT NOT NULL DEFAULT 0,
+    VIN VARCHAR(20) NOT NULL DEFAULT '',
     LicensePlateState VARCHAR(80) NOT NULL DEFAULT '',
     LicensePlateNumber VARCHAR(80) NOT NULL DEFAULT '',
     ParkingPermitNumber VARCHAR(80) NOT NULL DEFAULT '',
@@ -1421,6 +1422,7 @@ CREATE TABLE Flow (
     BID BIGINT NOT NULL DEFAULT 0,                                                         -- Business id
     UserRefNo VARCHAR(50) NOT NULL DEFAULT '',                                             -- reference id to share with the user(s)
     FlowType VARCHAR(50) NOT NULL DEFAULT '',                                              -- for which flow we're storing data ("RA=Rental Agreement Flow")
+    ID BIGINT NOT NULL DEFAULT 0,                                                          -- ID associated with flow type, typically a permanent table ID, RAID for flow "RA"
     Data JSON DEFAULT NULL,                                                                -- JSON Data for each flow type
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was it last updated
     LastModBy BIGINT NOT NULL DEFAULT 0,                                                   -- who modified it last

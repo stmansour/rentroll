@@ -1,6 +1,9 @@
 package rlib
 
-import "database/sql"
+import (
+	"database/sql"
+	"encoding/hex"
+)
 
 // As the database structures change, having the calls that Read from the database into these structures located
 // in one place simplifies maintenance
@@ -171,14 +174,14 @@ func ReadExpenses(rows *sql.Rows, a *Expense) error {
 
 // ReadFlow reads a full Flow structure from the database based on the supplied row object
 func ReadFlow(row *sql.Row, a *Flow) error {
-	err := row.Scan(&a.FlowID, &a.BID, &a.UserRefNo, &a.FlowType, &a.Data, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	err := row.Scan(&a.FlowID, &a.BID, &a.UserRefNo, &a.FlowType, &a.ID, &a.Data, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	SkipSQLNoRowsError(&err)
 	return err
 }
 
 // ReadFlows reads a full Flow structure from the database based on the supplied rows object
 func ReadFlows(rows *sql.Rows, a *Flow) error {
-	return rows.Scan(&a.FlowID, &a.BID, &a.UserRefNo, &a.FlowType, &a.Data, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	return rows.Scan(&a.FlowID, &a.BID, &a.UserRefNo, &a.FlowType, &a.ID, &a.Data, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 
 //------------------
@@ -733,10 +736,27 @@ func ReadTransactantTypeDowns(rows *sql.Rows, a *TransactantTypeDown) error {
 
 // ReadPayor reads a full Payor structure from the database based on the supplied row object
 func ReadPayor(row *sql.Row, a *Payor) error {
+	var b1, d1 string
 	err := row.Scan(&a.TCID, &a.BID, &a.CreditLimit, &a.TaxpayorID, &a.ThirdPartySource, &a.EligibleFuturePayor,
-		&a.FLAGS, &a.SSN, &a.DriversLicense, &a.GrossIncome, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+		&a.FLAGS, &b1, &d1, &a.GrossIncome, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	SkipSQLNoRowsError(&err)
-	return err
+	if err != nil {
+		return err
+	}
+	b, err := hex.DecodeString(b1)
+	if err != nil {
+		return err
+	}
+	a.SSN, err = DecryptOrEmpty(b)
+	if err != nil {
+		return err
+	}
+	d, err := hex.DecodeString(d1)
+	a.DriversLicense, err = DecryptOrEmpty(d)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // ReadPayors reads a full Payor structure from the database based on the supplied rows object
@@ -764,7 +784,7 @@ func ReadUsers(rows *sql.Rows, a *User) error {
 // ReadVehicle reads a full Vehicle structure from the database based on the supplied row object
 func ReadVehicle(row *sql.Row, a *Vehicle) error {
 	err := row.Scan(&a.VID, &a.TCID, &a.BID, &a.VehicleType, &a.VehicleMake, &a.VehicleModel, &a.VehicleColor, &a.VehicleYear,
-		&a.LicensePlateState, &a.LicensePlateNumber, &a.ParkingPermitNumber, &a.DtStart, &a.DtStop,
+		&a.VIN, &a.LicensePlateState, &a.LicensePlateNumber, &a.ParkingPermitNumber, &a.DtStart, &a.DtStop,
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	SkipSQLNoRowsError(&err)
 	return err
@@ -773,6 +793,6 @@ func ReadVehicle(row *sql.Row, a *Vehicle) error {
 // ReadVehicles reads a full Vehicle structure from the database based on the supplied rows object
 func ReadVehicles(rows *sql.Rows, a *Vehicle) error {
 	return rows.Scan(&a.VID, &a.TCID, &a.BID, &a.VehicleType, &a.VehicleMake, &a.VehicleModel, &a.VehicleColor, &a.VehicleYear,
-		&a.LicensePlateState, &a.LicensePlateNumber, &a.ParkingPermitNumber, &a.DtStart, &a.DtStop,
+		&a.VIN, &a.LicensePlateState, &a.LicensePlateNumber, &a.ParkingPermitNumber, &a.DtStart, &a.DtStop,
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }

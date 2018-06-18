@@ -538,7 +538,7 @@ type OtherDeliverables struct {
 	ODID        int64     // Unique ID for this OtherDeliverables
 	BID         int64     // Business
 	Name        string    // Description of the other deliverables. Ex: 2 Seaworld tickets
-	Active      int64     // Flag: Is this list still active?  dropdown interface lists only the active ones
+	Active      bool      // Flag: Is this list still active?  dropdown interface lists only the active ones
 	LastModTime time.Time // when was this record last written
 	LastModBy   int64     // employee UID (from phonebook) that modified it
 	CreateTS    time.Time // when was this record created
@@ -825,6 +825,7 @@ type Vehicle struct {
 	VehicleModel        string
 	VehicleColor        string
 	VehicleYear         int64
+	VIN                 string
 	LicensePlateState   string
 	LicensePlateNumber  string
 	ParkingPermitNumber string
@@ -1424,6 +1425,7 @@ type Flow struct {
 	FlowID      int64           // primary auto increment key
 	UserRefNo   string          // user reference string
 	FlowType    string          // RA="Rental Agreement Flow" etc...
+	ID          int64           // id from permanent table, for FlowType "RA" it would be RAID
 	Data        json.RawMessage // json data in mysql
 	LastModTime time.Time       // last modified time
 	LastModBy   int64           // last modified by whom
@@ -1836,6 +1838,7 @@ type RRprepSQL struct {
 	UpdateClosePeriod                       *sql.Stmt
 	DeleteClosePeriod                       *sql.Stmt
 	GetFlowMetaDataInRange                  *sql.Stmt
+	GetFlowForRAID                          *sql.Stmt
 }
 
 // DeleteBusinessFromDB deletes information from all tables if it is part of the supplied BID.
