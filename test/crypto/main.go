@@ -17,15 +17,16 @@ import (
 
 // App is the global application structure
 var App struct {
-	dbdir  *sql.DB        // phonebook db
-	dbrr   *sql.DB        //rentroll db
-	DBDir  string         // phonebook database
-	DBRR   string         //rentroll database
-	DBUser string         // user for all databases
-	PortRR int            // rentroll port
-	Bud    string         // Biz Unit Descriptor
-	Xbiz   rlib.XBusiness // lots of info about this biz
-	NoAuth bool
+	dbdir   *sql.DB        // phonebook db
+	dbrr    *sql.DB        //rentroll db
+	DBDir   string         // phonebook database
+	DBRR    string         //rentroll database
+	DBUser  string         // user for all databases
+	PortRR  int            // rentroll port
+	Bud     string         // Biz Unit Descriptor
+	Xbiz    rlib.XBusiness // lots of info about this biz
+	NoAuth  bool
+	Verbose bool
 }
 
 func readCommandLineArgs() {
@@ -35,6 +36,7 @@ func readCommandLineArgs() {
 	pBud := flag.String("b", "REX", "Business Unit Identifier (Bud)")
 	portPtr := flag.Int("p", 8270, "port on which RentRoll server listens")
 	noauth := flag.Bool("noauth", false, "if specified, inhibit authentication")
+	verb := flag.Bool("v", false, "verbose output - shows the ciphertext")
 
 	flag.Parse()
 
@@ -44,6 +46,7 @@ func readCommandLineArgs() {
 	App.PortRR = *portPtr
 	App.Bud = *pBud
 	App.NoAuth = *noauth
+	App.Verbose = *verb
 }
 
 func main() {
@@ -113,6 +116,9 @@ func DoTest(ctx context.Context) {
 	}
 	// We do not print the encssn, it is different every time, even with the same input string and key
 	fmt.Printf("raw ssn:          %s\n", rawssn)
+	if App.Verbose {
+		fmt.Printf("ciphertext:       %x\n", encssn)
+	}
 	fmt.Printf("ssn:              %s\n", ssn)
 	fmt.Printf("decrypted ssn:    %s\n", decssn)
 

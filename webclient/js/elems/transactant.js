@@ -24,8 +24,6 @@ window.getTransactantInitRecord = function (BID, BUD) {
         CompanyName: "",
         PrimaryEmail: "",
         SecondaryEmail: "",
-        SSN: "",
-        DriverLicNo: "",
         WorkPhone: "",
         CellPhone: "",
         Address: "",
@@ -51,6 +49,8 @@ window.getTransactantInitRecord = function (BID, BUD) {
         TaxpayorID: "",
         ThirdPartySource: 0,
         GrossIncome: 0,
+        SSN: "",
+        DriversLicense: "",
         EligibleFuturePayor: true,
         CompanyAddress: "",
         CompanyCity: "",
@@ -111,7 +111,7 @@ window.buildTransactElements = function() {
         {field: 'IsCompany',                 type: 'checkbox',  required: true,  html: {page: 0, column: 0}},
         {field: 'CompanyName',              type: 'text',      required: false, html: {page: 0, column: 0}},
         {field: 'SSN',                       type: 'text',      required: false, html: {page: 0, column: 0}},  // Social security number of applicants
-        {field: 'DriverLicNo',               type: 'text',      required: false, html: {page: 0, column: 0}},  // Driving licence number of applicants
+        {field: 'DriversLicense',               type: 'text',      required: false, html: {page: 0, column: 0}},  // Driving licence number of applicants
         {field: 'PrimaryEmail',              type: 'email',     required: false, html: {page: 0, column: 0}},
         {field: 'SecondaryEmail',            type: 'email',     required: false, html: {page: 0, column: 0}},
         {field: 'WorkPhone',                 type: 'phone',     required: false, html: {page: 0, column: 0}},

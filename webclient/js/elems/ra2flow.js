@@ -112,7 +112,7 @@ window.buildRA2FlowElements = function() {
                     });
                 })
                 .fail(function(/*data*/){
-                    w2ui.ra2flowGrid.error("Save Tasklist failed.");
+                    w2ui.ra2flowGrid.error("Get Rental Agreement Flow failed.");
                     return;
                 });
             };
