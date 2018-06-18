@@ -8,7 +8,6 @@ import (
 	"rentroll/rlib"
 	"strconv"
 	"strings"
-	"time"
 )
 
 //-------------------------------------------------------------------
@@ -286,34 +285,6 @@ func saveRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "getRA2Flow"
 	var flow rlib.Flow
-	currentDateTime := time.Now()
-	nextYearDateTime := currentDateTime.AddDate(1, 0, 0)
-
-	//-------------------------------------------------------------
-	// This is the datastructure we need to fill out and save...
-	//-------------------------------------------------------------
-	var raf = RAFlowJSONData{
-		Dates: RADatesFlowData{
-			BID:             d.BID,
-			RentStart:       rlib.JSONDate(currentDateTime),
-			RentStop:        rlib.JSONDate(nextYearDateTime),
-			AgreementStart:  rlib.JSONDate(currentDateTime),
-			AgreementStop:   rlib.JSONDate(nextYearDateTime),
-			PossessionStart: rlib.JSONDate(currentDateTime),
-			PossessionStop:  rlib.JSONDate(nextYearDateTime),
-		},
-		People:      []RAPeopleFlowData{},
-		Pets:        []RAPetsFlowData{},
-		Vehicles:    []RAVehiclesFlowData{},
-		Rentables:   []RARentablesFlowData{},
-		ParentChild: []RAParentChildFlowData{},
-		Tie: RATieFlowData{
-			Pets:     []RATiePetsData{},
-			Vehicles: []RATieVehiclesData{},
-			People:   []RATiePeopleData{},
-		},
-		Meta: RAFlowMetaInfo{RAID: d.ID},
-	}
 
 	if d.ID < 1 {
 		SvcErrorReturn(w, fmt.Errorf("Invalid RAID: %d", d.ID), funcname)
@@ -338,6 +309,32 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		g.Status = "success"
 		SvcWriteResponse(d.BID, &g, w)
 		return
+	}
+
+	//-------------------------------------------------------------
+	// This is the datastructure we need to fill out and save...
+	//-------------------------------------------------------------
+	var raf = RAFlowJSONData{
+		Dates: RADatesFlowData{
+			BID:             d.BID,
+			RentStart:       rlib.JSONDate(ra.RentStart),
+			RentStop:        rlib.JSONDate(ra.RentStop),
+			AgreementStart:  rlib.JSONDate(ra.AgreementStart),
+			AgreementStop:   rlib.JSONDate(ra.AgreementStop),
+			PossessionStart: rlib.JSONDate(ra.PossessionStart),
+			PossessionStop:  rlib.JSONDate(ra.PossessionStop),
+		},
+		People:      []RAPeopleFlowData{},
+		Pets:        []RAPetsFlowData{},
+		Vehicles:    []RAVehiclesFlowData{},
+		Rentables:   []RARentablesFlowData{},
+		ParentChild: []RAParentChildFlowData{},
+		Tie: RATieFlowData{
+			Pets:     []RATiePetsData{},
+			Vehicles: []RATieVehiclesData{},
+			People:   []RATiePeopleData{},
+		},
+		Meta: RAFlowMetaInfo{RAID: d.ID},
 	}
 
 	//-------------------------------------------------------------------------

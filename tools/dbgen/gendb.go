@@ -761,6 +761,7 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 		//-------------------------------------------------------
 		var lm rlib.LedgerMarker
 		lm.RAID = ra.RAID
+		lm.State = rlib.LMINITIAL
 		lm.Dt = d1.AddDate(0, 0, -14)
 		_, err = rlib.InsertLedgerMarker(ctx, &lm)
 		if err != nil {
