@@ -2,6 +2,7 @@ package rlib
 
 import (
 	"context"
+	"encoding/hex"
 	"extres"
 )
 
@@ -466,9 +467,19 @@ func UpdatePayor(ctx context.Context, a *Payor) error {
 		// user from session, CreateBy, LastModBy
 		a.LastModBy = sess.UID
 	}
+	b1, err := Encrypt(a.SSN)
+	if err != nil {
+		return err
+	}
+	b := hex.EncodeToString(b1)
+	d1, err := Encrypt(a.DriversLicense)
+	if err != nil {
+		return err
+	}
+	d := hex.EncodeToString(d1)
 
 	fields := []interface{}{a.BID, a.CreditLimit, a.TaxpayorID, a.AccountRep, a.EligibleFuturePayor,
-		a.FLAGS, a.SSN, a.DriversLicense, a.GrossIncome, a.LastModBy, a.TCID}
+		a.FLAGS, b, d, a.GrossIncome, a.LastModBy, a.TCID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdatePayor)
 		defer stmt.Close()
@@ -1270,7 +1281,9 @@ func UpdateVehicle(ctx context.Context, a *Vehicle) error {
 		a.LastModBy = sess.UID
 	}
 
-	fields := []interface{}{a.TCID, a.BID, a.VehicleType, a.VehicleMake, a.VehicleModel, a.VehicleColor, a.VehicleYear, a.LicensePlateState, a.LicensePlateNumber, a.ParkingPermitNumber, a.DtStart, a.DtStop, a.LastModBy, a.VID}
+	fields := []interface{}{a.TCID, a.BID, a.VehicleType, a.VehicleMake, a.VehicleModel, a.VehicleColor, a.VIN,
+		a.VehicleYear, a.LicensePlateState, a.LicensePlateNumber, a.ParkingPermitNumber, a.DtStart, a.DtStop,
+		a.LastModBy, a.VID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateVehicle)
 		defer stmt.Close()

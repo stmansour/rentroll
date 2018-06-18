@@ -3,6 +3,7 @@ package rlib
 import (
 	"context"
 	"database/sql"
+	"encoding/hex"
 	"extres"
 )
 
@@ -693,7 +694,7 @@ func InsertFlow(ctx context.Context, a *Flow) (int64, error) {
 
 	// as a.Data is type of json.RawMessage - convert it to byte stream so that it can be inserted
 	// in mysql `json` type column
-	fields := []interface{}{a.BID, a.UserRefNo, a.FlowType, []byte(a.Data), a.CreateBy, a.LastModBy}
+	fields := []interface{}{a.BID, a.UserRefNo, a.FlowType, a.ID, []byte(a.Data), a.CreateBy, a.LastModBy}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertFlow)
 		defer stmt.Close()
@@ -2484,7 +2485,10 @@ func InsertTransactant(ctx context.Context, a *Transactant) (int64, error) {
 	}
 
 	// transaction... context
-	fields := []interface{}{a.BID, a.NLID, a.FirstName, a.MiddleName, a.LastName, a.PreferredName, a.CompanyName, a.IsCompany, a.PrimaryEmail, a.SecondaryEmail, a.WorkPhone, a.CellPhone, a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.Website, a.FLAGS, a.CreateBy, a.LastModBy}
+	fields := []interface{}{a.BID, a.NLID, a.FirstName, a.MiddleName, a.LastName, a.PreferredName,
+		a.CompanyName, a.IsCompany, a.PrimaryEmail, a.SecondaryEmail, a.WorkPhone, a.CellPhone,
+		a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.Website, a.FLAGS,
+		a.CreateBy, a.LastModBy}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertTransactant)
 		defer stmt.Close()
@@ -2510,10 +2514,11 @@ func InsertTransactant(ctx context.Context, a *Transactant) (int64, error) {
 func InsertPayor(ctx context.Context, a *Payor) (int64, error) {
 
 	var (
-		rid = int64(0)
+		rid int64
 		err error
 		// res sql.Result
 	)
+	rid = a.TCID
 
 	// session... context
 	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
@@ -2527,9 +2532,22 @@ func InsertPayor(ctx context.Context, a *Payor) (int64, error) {
 		a.LastModBy = a.CreateBy
 	}
 
+	b1, err := Encrypt(a.SSN)
+	if err != nil {
+		return rid, err
+	}
+	b := hex.EncodeToString(b1)
+	d1, err := Encrypt(a.DriversLicense)
+	if err != nil {
+		return rid, err
+	}
+	d := hex.EncodeToString(d1)
+	// Console("Encrypted SSN: %s\n", b)
+	// Console("Encrypted DriversLicense: %s\n", d)
+
 	// transaction... context
 	fields := []interface{}{a.TCID, a.BID, a.CreditLimit, a.TaxpayorID, a.AccountRep, a.EligibleFuturePayor,
-		a.FLAGS, a.SSN, a.DriversLicense, a.GrossIncome, a.CreateBy, a.LastModBy}
+		a.FLAGS, b, d, a.GrossIncome, a.CreateBy, a.LastModBy}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertPayor)
 		defer stmt.Close()
@@ -2676,7 +2694,7 @@ func InsertVehicle(ctx context.Context, a *Vehicle) (int64, error) {
 	}
 
 	// transaction... context
-	fields := []interface{}{a.TCID, a.BID, a.VehicleType, a.VehicleMake, a.VehicleModel, a.VehicleColor, a.VehicleYear, a.LicensePlateState, a.LicensePlateNumber, a.ParkingPermitNumber, a.DtStart, a.DtStop, a.CreateBy, a.LastModBy}
+	fields := []interface{}{a.TCID, a.BID, a.VehicleType, a.VehicleMake, a.VehicleModel, a.VehicleColor, a.VehicleYear, a.VIN, a.LicensePlateState, a.LicensePlateNumber, a.ParkingPermitNumber, a.DtStart, a.DtStop, a.CreateBy, a.LastModBy}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertVehicle)
 		defer stmt.Close()

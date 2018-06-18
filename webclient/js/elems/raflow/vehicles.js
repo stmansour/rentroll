@@ -20,20 +20,21 @@ window.getVehicleFormInitalRecord = function (previousFormRecord) {
         nyd = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
 
     var defaultFormData = {
-        recid:                  0,
+        recid:                   0,
         TMPVID:                  0,
-        VID:                    0,
-        BID:                    BID,
-        TCID:                   0,
+        VID:                     0,
+        BID:                   BID,
+        TMPTCID:                 0,
         VIN:                    "",
-        Type:                   "",
-        Make:                   "",
-        Model:                  "",
-        Color:                  "",
+        VehicleType:            "",
+        VehicleMake:            "",
+        VehicleModel:           "",
+        VehicleColor:           "",
+        VehicleYear:             0,
         LicensePlateState:      "",
         LicensePlateNumber:     "",
         ParkingPermitNumber:    "",
-        ParkingPermitFee:       0,
+        ParkingPermitFee:        0,
         DtStart:                w2uiDateControlString(t),
         DtStop:                 w2uiDateControlString(nyd)
     };
@@ -75,22 +76,23 @@ window.loadRAVehiclesGrid = function () {
                 }
             },
             fields  : [
-                { field: 'recid',               type: 'int',    required: false, html: { caption: 'recid', page: 0, column: 0 } },
+                { field: 'recid',               type: 'int',    required: false,    html: { caption: 'recid', page: 0, column: 0 } },
                 { field: 'TMPVID',              type: 'int',    required: true  },
-                { field: 'Type',                type: 'text',   required: true  },
-                { field: 'Make',                type: 'text',   required: true  },
-                { field: 'Model',               type: 'text',   required: true  },
-                { field: 'Color',               type: 'text',   required: true  },
-                { field: 'Year',                type: 'text',   required: true  },
-                { field: 'LicensePlateState',   type: 'text',   required: true  },
-                { field: 'LicensePlateNumber',  type: 'text',   required: true  },
-                { field: 'VIN',                 type: 'text',   required: true  },
-                { field: 'ParkingPermitNumber', type: 'text',   required: true  },
-                { field: 'ParkingPermitFee',    type: 'money',  required: true  },
-                { field: 'DtStart',             type: 'date',   required: false, html: { caption: 'DtStart', page: 0, column: 0 } },
-                { field: 'DtStop',              type: 'date',   required: false, html: { caption: 'DtStop', page: 0, column: 0 } },
-                { field: 'LastModTime',         type: 'time',   required: false, html: { caption: 'LastModTime', page: 0, column: 0 } },
-                { field: 'LastModBy',           type: 'int',    required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
+                { field: 'TMPTCID',             type: 'list',   required: true,     options: {items: app.raflow.peopleW2UIItems, selected: {}} },
+                { field: 'VehicleType',         type: 'text',   required: true  },
+                { field: 'VehicleMake',         type: 'text',   required: true  },
+                { field: 'VehicleModel',        type: 'text',   required: true  },
+                { field: 'VehicleColor',        type: 'text',   required: false },
+                { field: 'VehicleYear',         type: 'int',    required: false },
+                { field: 'LicensePlateState',   type: 'text',   required: false },
+                { field: 'LicensePlateNumber',  type: 'text',   required: false },
+                { field: 'VIN',                 type: 'text',   required: false },
+                { field: 'ParkingPermitNumber', type: 'text',   required: false },
+                { field: 'ParkingPermitFee',    type: 'money',  required: false },
+                { field: 'DtStart',             type: 'date',   required: false,    html: { caption: 'DtStart', page: 0, column: 0 } },
+                { field: 'DtStop',              type: 'date',   required: false,    html: { caption: 'DtStop', page: 0, column: 0 } },
+                { field: 'LastModTime',         type: 'time',   required: false,    html: { caption: 'LastModTime', page: 0, column: 0 } },
+                { field: 'LastModBy',           type: 'int',    required: false,    html: { caption: 'LastModBy', page: 0, column: 0 } },
             ],
             onRefresh: function(event) {
                 event.onComplete = function() {
@@ -99,6 +101,15 @@ window.loadRAVehiclesGrid = function () {
 
                     // there is NO VID actually, so have to work around with recid key
                     formRefreshCallBack(f, "recid", header);
+
+                    // selection of contact person
+                    var TMPTCIDSel = {};
+                    app.raflow.peopleW2UIItems.forEach(function(item) {
+                        if (item.id === f.record.TMPTCID) {
+                            $.extend(TMPTCIDSel, item);
+                        }
+                    });
+                    f.get("TMPTCID").options.selected = TMPTCIDSel;
 
                     // hide delete button if it is NewRecord
                     var isNewRecord = (w2ui.RAVehiclesGrid.get(f.record.recid, true) === null);
@@ -244,88 +255,37 @@ window.loadRAVehiclesGrid = function () {
             multiSelect: false,
             style   : 'border: 0px solid black; display: block;',
             columns : [
+                {field: 'recid', hidden: true },
+                {field: 'TMPVID', hidden: true },
+                {field: 'VID', hidden: true },
+                {field: 'BID', hidden: true },
                 {
-                    field: 'recid',
-                    hidden: true
+                    field: 'TMPTCID',
+                    caption: 'Contact<br>Person',
+                    size: '150px',
+                    render: function (record/*, index, col_index*/) {
+                        var html = '';
+                        if (record) {
+                            var items = app.raflow.peopleW2UIItems;
+                            for (var s in items) {
+                                if (items[s].id == record.TMPTCID) html = items[s].text;
+                            }
+                        }
+                        return html;
+                    }
                 },
-                {
-                    field: 'TMPVID',
-                    hidden: true
-                },
-                {
-                    field: 'VID',
-                    hidden: true
-                },
-                {
-                    field: 'BID',
-                    hidden: true
-                },
-                {
-                    field: 'TCID',
-                    hidden: true
-                },
-                {
-                    field: 'Type',
-                    caption: 'Type',
-                    size: '80px',
-                    editable: {type: 'text'}
-                },
-                {
-                    field: 'VIN',
-                    caption: 'VIN',
-                    size: '80px'
-                },
-                {
-                    field: 'Make',
-                    caption: 'Make',
-                    size: '80px'
-                },
-                {
-                    field: 'Model',
-                    caption: 'Model',
-                    size: '80px'
-                },
-                {
-                    field: 'Color',
-                    caption: 'Color',
-                    size: '80px'
-                },
-                {
-                    field: 'Year',
-                    caption: 'Year',
-                    size: '80px'
-                },
-                {
-                    field: 'LicensePlateState',
-                    caption: 'License Plate<br>State',
-                    size: '100px'
-                },
-                {
-                    field: 'LicensePlateNumber',
-                    caption: 'License Plate<br>Number',
-                    size: '100px'
-                },
-                {
-                    field: 'ParkingPermitNumber',
-                    caption: 'Parking Permit <br>Number',
-                    size: '100px'
-                },
-                {
-                    field: 'ParkingPermitFee',
-                    caption: 'Parking Permit <br>Fee',
-                    size: '100px',
-                    render: 'money'
-                },
-                {
-                    field: 'DtStart',
-                    caption: 'DtStart',
-                    size: '100px'
-                },
-                {
-                    field: 'DtStop',
-                    caption: 'DtStop',
-                    size: '100px'
-                }
+                {field: 'VehicleType',         caption: 'Type',    size: '80px', editable: {type: 'text'} },
+                {field: 'VIN',                 caption: 'VIN',     size: '80px'},
+                {field: 'VehicleMake',         caption: 'Make',    size: '80px'},
+                {field: 'VehicleModel',        caption: 'Model',   size: '80px'},
+                {field: 'VehicleColor',        caption: 'Color',   size: '80px'},
+                {field: 'VehicleYear',         caption: 'Year',    size: '80px'},
+                {field: 'LicensePlateState',   caption: 'License Plate<br>State',    size: '100px'},
+                {field: 'LicensePlateNumber',  caption: 'License Plate<br>Number',   size: '100px'},
+                {field: 'ParkingPermitNumber', caption: 'Parking Permit <br>Number', size: '100px'},
+                {field: 'ParkingPermitFee',    caption: 'Parking Permit <br>Fee',    size: '100px', render: 'money'},
+                {field: 'DtStart',             caption: 'DtStart', size: '100px'},
+                {field: 'DtStop',              caption: 'DtStop',  size: '100px'}
             ],
             onChange: function (event) {
                 event.onComplete = function () {

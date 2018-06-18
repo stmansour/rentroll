@@ -111,7 +111,7 @@ type RAPetsFlowData struct {
 	TMPPETID             int64
 	BID                  int64
 	PETID                int64
-	TCID                 int64
+	TMPTCID              int64
 	Name                 string
 	Type                 string
 	Breed                string
@@ -129,13 +129,13 @@ type RAVehiclesFlowData struct {
 	TMPVID              int64
 	BID                 int64
 	VID                 int64
-	TCID                int64
+	TMPTCID             int64
 	VIN                 string
-	Type                string
-	Make                string
-	Model               string
-	Color               string
-	Year                string
+	VehicleType         string
+	VehicleMake         string
+	VehicleModel        string
+	VehicleColor        string
+	VehicleYear         int64
 	LicensePlateState   string
 	LicensePlateNumber  string
 	ParkingPermitNumber string

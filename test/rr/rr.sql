@@ -599,6 +599,7 @@ CREATE TABLE `Flow` (
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `UserRefNo` varchar(50) NOT NULL DEFAULT '',
   `FlowType` varchar(50) NOT NULL DEFAULT '',
+  `ID` bigint(20) NOT NULL DEFAULT '0',
   `Data` json DEFAULT NULL,
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
@@ -1182,7 +1183,7 @@ CREATE TABLE `OtherDeliverables` (
   `ODID` bigint(20) NOT NULL AUTO_INCREMENT,
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `Name` varchar(256) DEFAULT NULL,
-  `Active` smallint(6) NOT NULL DEFAULT '0',
+  `Active` tinyint(1) NOT NULL DEFAULT '0',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -2496,6 +2497,7 @@ CREATE TABLE `Vehicle` (
   `VehicleModel` varchar(80) NOT NULL DEFAULT '',
   `VehicleColor` varchar(80) NOT NULL DEFAULT '',
   `VehicleYear` bigint(20) NOT NULL DEFAULT '0',
+  `VIN` varchar(20) NOT NULL DEFAULT '',
   `LicensePlateState` varchar(80) NOT NULL DEFAULT '',
   `LicensePlateNumber` varchar(80) NOT NULL DEFAULT '',
   `ParkingPermitNumber` varchar(80) NOT NULL DEFAULT '',
@@ -2527,4 +2529,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-06-14 18:03:19
+-- Dump completed on 2018-06-16 16:59:31
