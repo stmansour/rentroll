@@ -199,16 +199,6 @@ window.loadRAPeopleForm = function () {
 
                             var raBGInfoGridRecord = grid.get(event.recid); // record from the w2ui grid
 
-                            getStringListData(BID, BUD).done(function (data) {
-                                form.get('SourceSLSID').options.items = getSLStringList(BID, "HowFound");
-                                form.get('DeclineReasonSLSID').options.items = getSLStringList(BID, "ApplDeny");
-                                form.get('CurrentReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
-                                form.get('PriorReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
-                                form.refresh(); // need to refresh for changes
-                            }).fail(function (data) {
-                                form.message(data.message);
-                            });
-
                             // show slider content in w2ui comp
                             showSliderContentW2UIComp(form, RACompConfig.people.sliderWidth);
 
@@ -383,8 +373,20 @@ window.loadRAPeopleForm = function () {
                 };
             },
             onRefresh: function (event) {
-                var form = this;
                 event.onComplete = function () {
+                    var form = this,
+                        BID = getCurrentBID(),
+                        BUD = getBUDfromBID(BID);
+
+                    getStringListData(BID, BUD).done(function (data) {
+                        form.get('SourceSLSID').options.items = getSLStringList(BID, "HowFound");
+                        form.get('DeclineReasonSLSID').options.items = getSLStringList(BID, "ApplDeny");
+                        form.get('CurrentReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
+                        form.get('PriorReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
+                    }).fail(function (data) {
+                        form.message(data.message);
+                    });
+
                     // hide delete button if it is NewRecord
                     var isNewRecord = (w2ui.RAPeopleGrid.get(form.record.recid, true) === null);
                     if (isNewRecord) {
@@ -407,9 +409,6 @@ window.loadRAPeopleForm = function () {
 
     // load existing info in PeopleForm and PeopleGrid
     setTimeout(function () {
-        var BID = getCurrentBID(),
-            BUD = getBUDfromBID(BID);
-
         // Operation on RAPeopleGrid
         ReassignPeopleGridRecords();
     }, 500);
@@ -533,17 +532,6 @@ window.openNewTransactantForm = function () {
     form.header = 'Background Information';
     form.record = getTransactantInitRecord(BID, BUD);
     setTransactantDefaultRole(form.record);
-
-    getStringListData(BID, BUD).done(function (data) {
-        form.get('SourceSLSID').options.items = getSLStringList(BID, "HowFound");
-        form.get('DeclineReasonSLSID').options.items = getSLStringList(BID, "ApplDeny");
-        form.get('CurrentReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
-        form.get('PriorReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
-        form.refresh(); // need to refresh for changes
-    }).fail(function (data) {
-        form.message(data.message);
-    });
-
 
     showSliderContentW2UIComp(form, RACompConfig.people.sliderWidth);
 

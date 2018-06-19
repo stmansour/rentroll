@@ -1,5 +1,5 @@
 /* global
-    transactantFields, transactantTabs
+    transactantFields, transactantTabs, getSLStringList, getStringListData
 */
 "use strict";
 
@@ -124,7 +124,7 @@ window.buildTransactElements = function() {
         {field: 'CurrentLandLordName',       type: 'text',      required: false, html: {page: 3, column: 0}},  // Current landlord's name
         {field: 'CurrentLandLordPhoneNo',    type: 'text',      required: false, html: {page: 3, column: 0}},  // Current landlord's phone number
         {field: 'CurrentLengthOfResidency',  type: 'text',      required: false, html: {page: 3, column: 0}},  // Length of residency at current address
-        {field: 'CurrentReasonForMoving',    type: 'list',      required: false, html: {page: 3, column: 0}},  // Reason of moving from current address // TODO(Akshay): stringlist "WhyLeaving"
+        {field: 'CurrentReasonForMoving',    type: 'list',      required: false, html: {page: 3, column: 0}},  // Reason of moving from current address
         {field: 'DateofBirth',               type: 'date',      required: false, html: {page: 1, column: 0}},
         {field: 'DeclineReasonSLSID',        type: 'list',      required: false, html: {page: 3, column: 0}},  // ApplDeny String list
         {field: 'DesiredUsageStartDate',     type: 'date',      required: false, html: {page: 3, column: 0}},
@@ -134,7 +134,7 @@ window.buildTransactElements = function() {
         {field: 'EmergencyContactAddress',   type: 'text',      required: false, html: {page: 1, column: 0}},
         {field: 'EmergencyContactName',      type: 'text',      required: false, html: {page: 1, column: 0}},
         {field: 'EmergencyContactTelephone', type: 'text',      required: false, html: {page: 1, column: 0}},
-        {field: 'EmergencyContactEmail',            type: 'text',      required: false, html: {page: 1, column: 0}},
+        {field: 'EmergencyContactEmail',     type: 'text',      required: false, html: {page: 1, column: 0}},
         {field: 'Evicted',                   type: 'checkbox',  required: false, html: {page: 3, column: 0}},  // have you ever been Evicted
         {field: 'EvictedDes',                type: 'text',      required: false, html: {page: 3, column: 0}},
         {field: 'FirstName',                 type: 'text',      required: false, html: {page: 0, column: 0}},
@@ -163,7 +163,7 @@ window.buildTransactElements = function() {
         {field: 'PriorLandLordName',         type: 'text',      required: false, html: {page: 3, column: 0}},  // Prior landlord's name
         {field: 'PriorLandLordPhoneNo',      type: 'text',      required: false, html: {page: 3, column: 0}},  // Prior landlord's phone number
         {field: 'PriorLengthOfResidency',    type: 'text',      required: false, html: {page: 3, column: 0}},  // Length of residency at Prior address
-        {field: 'PriorReasonForMoving',      type: 'list',      required: false, html: {page: 3, column: 0}},  // Reason of moving from Prior address // TODO(Akshay): stringlist "WhyLeaving"
+        {field: 'PriorReasonForMoving',      type: 'list',      required: false, html: {page: 3, column: 0}},  // Reason of moving from Prior address
         {field: 'RentableTypePreference',    type: 'text',      required: false, html: {page: 3, column: 0}},
         {field: 'SecondaryEmail',            type: 'email',     required: false, html: {page: 0, column: 0}},
         {field: 'SourceSLSID',               type: 'list',      required: false, html: {page: 1, column: 0}}, // "HowFound" string list
@@ -174,7 +174,7 @@ window.buildTransactElements = function() {
         {field: 'ThirdPartySource',          type: 'text',      required: false, html: {page: 2, column: 0}},
         {field: 'TMPTCID',                   type: 'int',       required: true,  html: {page: 0, column: 0}},
         {field: 'Website',                   type: 'text',      required: false, html: {page: 0, column: 0}},
-        {field: 'WorkPhone',                 type: 'phone',     required: false, html: {page: 0, column: 0}},
+        {field: 'WorkPhone',                 type: 'phone',     required: false, html: {page: 0, column: 0}}
     ];
 
     app.transactantTabs = [
@@ -421,7 +421,9 @@ window.buildTransactElements = function() {
             event.onComplete = function() {
                 var f = this,
                     r = f.record,
-                    header="";
+                    header="",
+                    BID = getCurrentBID(),
+                    BUD = getBUDfromBID(BID);
 
                 // custom header
                 if (r.TCID) {
@@ -435,6 +437,15 @@ window.buildTransactElements = function() {
                 }
 
                 formRefreshCallBack(f, "TCID", header);
+
+                getStringListData(BID, BUD).done(function (data) {
+                    f.get('SourceSLSID').options.items = getSLStringList(BID, "HowFound");
+                    f.get('DeclineReasonSLSID').options.items = getSLStringList(BID, "ApplDeny");
+                    f.get('CurrentReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
+                    f.get('PriorReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
+                }).fail(function (data) {
+                    f.message(data.message);
+                });
             };
         },
         onChange: function(event) {
