@@ -434,23 +434,23 @@ DBNAME="rentroll"
 # ALTER TABLE Prospect DROP COLUMN ApplicationFee;
 # ALTER TABLE User CHANGE EmergencyEmail EmergencyContactEmail VARCHAR(100) NOT NULL DEFAULT '';
 
+# CREATE TABLE BusinessProperties (
+#    BPID BIGINT NOT NULL AUTO_INCREMENT,
+#    BID BIGINT NOT NULL DEFAULT 0,                              -- Business
+#    Name VARCHAR(100) NOT NULL DEFAULT '',                      -- Property Name
+#    FLAGS BIGINT NOT NULL DEFAULT 0,                            -- last bit =0(EDI disabled), =1(EDI enabled)
+#    Data JSON DEFAULT NULL,                                     -- JSON Data for this property
+#    LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
+#    LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
+#    CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,      -- when was this record created
+#    CreateBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that created this record
+#    PRIMARY KEY (BPID)
+# );
 
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================
 cat >${MODFILE} <<EOF
-CREATE TABLE BusinessProperties (
-    BPID BIGINT NOT NULL AUTO_INCREMENT,
-    BID BIGINT NOT NULL DEFAULT 0,                              -- Business
-    Name VARCHAR(100) NOT NULL DEFAULT '',                      -- Property Name
-    FLAGS BIGINT NOT NULL DEFAULT 0,                            -- last bit =0(EDI disabled), =1(EDI enabled)
-    Data JSON DEFAULT NULL,                                     -- JSON Data for this property
-    LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,      -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that created this record
-    PRIMARY KEY (BPID)
-);
 EOF
 
 #==============================================================================
