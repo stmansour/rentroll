@@ -1,4 +1,4 @@
-TCID	Points	DateofBirth	EmergencyContactName	EmergencyContactAddress	EmergencyContactTelephone	EmergencyEmail	AlternateAddress	EligibleFutureUser	Industry	SourceSLSID
+TCID	Points	DateofBirth	EmergencyContactName	EmergencyContactAddress	EmergencyContactTelephone	EmergencyContactEmail	AlternateAddress	EligibleFutureUser	Industry	SourceSLSID
 1	0	2042-01-02						0		0
 2	0	2045-02-03						0		0
 3	0	2056-03-04						0		0

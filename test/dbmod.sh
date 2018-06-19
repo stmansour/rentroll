@@ -432,6 +432,7 @@ DBNAME="rentroll"
 
 # June 19, 2018
 # ALTER TABLE Prospect DROP COLUMN ApplicationFee;
+# ALTER TABLE User CHANGE EmergencyEmail EmergencyContactEmail VARCHAR(100) NOT NULL DEFAULT '';
 
 
 #=====================================================

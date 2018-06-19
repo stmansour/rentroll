@@ -44,7 +44,7 @@ type PeopleCSV struct {
 	EmergencyContactName      string
 	EmergencyContactAddress   string
 	EmergencyContactTelephone string
-	EmergencyEmail            string
+	EmergencyContactEmail     string
 	AlternateAddress          string
 	EligibleFutureUser        string
 	Industry                  string

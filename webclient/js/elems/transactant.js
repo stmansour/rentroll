@@ -40,7 +40,7 @@ window.getTransactantInitRecord = function (BID, BUD) {
         EmergencyContactName: "",
         EmergencyContactAddress: "",
         EmergencyContactTelephone: "",
-        EmergencyEmail: "",
+        EmergencyContactEmail: "",
         AlternateAddress: "",
         EligibleFutureUser: true,
         Industry: "",
@@ -134,7 +134,7 @@ window.buildTransactElements = function() {
         {field: 'EmergencyContactAddress',   type: 'text',      required: false, html: {page: 1, column: 0}},
         {field: 'EmergencyContactName',      type: 'text',      required: false, html: {page: 1, column: 0}},
         {field: 'EmergencyContactTelephone', type: 'text',      required: false, html: {page: 1, column: 0}},
-        {field: 'EmergencyEmail',            type: 'text',      required: false, html: {page: 1, column: 0}},
+        {field: 'EmergencyContactEmail',            type: 'text',      required: false, html: {page: 1, column: 0}},
         {field: 'Evicted',                   type: 'checkbox',  required: false, html: {page: 3, column: 0}},  // have you ever been Evicted
         {field: 'EvictedDes',                type: 'text',      required: false, html: {page: 3, column: 0}},
         {field: 'FirstName',                 type: 'text',      required: false, html: {page: 0, column: 0}},

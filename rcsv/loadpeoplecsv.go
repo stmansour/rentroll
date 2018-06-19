@@ -35,7 +35,7 @@ const (
 	EmergencyContactName      = iota
 	EmergencyContactAddress   = iota
 	EmergencyContactTelephone = iota
-	EmergencyEmail            = iota
+	EmergencyContactEmail     = iota
 	AlternateAddress          = iota
 	EligibleFutureUser        = iota
 	Industry                  = iota
@@ -86,7 +86,7 @@ var csvCols = []CSVColumn{
 	{"EmergencyContactName", EmergencyContactName},
 	{"EmergencyContactAddress", EmergencyContactAddress},
 	{"EmergencyContactTelephone", EmergencyContactTelephone},
-	{"EmergencyEmail", EmergencyEmail},
+	{"EmergencyContactEmail", EmergencyContactEmail},
 	{"AlternateAddress", AlternateAddress},
 	{"EligibleFutureUser", EligibleFutureUser},
 	{"Industry", Industry},
@@ -121,7 +121,7 @@ func rcsvCopyString(p *string, s string) error {
 // CSV file format:
 //  |<------------------------------------------------------------------  TRANSACTANT ----------------------------------------------------------------------------->|  |<-------------------------------------------------------------------------------------------------------------  rlib.User  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------>|<----------------------------------------------------------------------------- rlib.Payor ------------------------------------------------->|
 //   0   1          2           3         4            5          6             7               8          9          10       11        12    13     14          15       16      17       18        19        20       21                 22                  23                   24          25           26                    27                       28                         29              30                31                          32        33            34           35         36            37                     38            39             40                  41             42             43          44             45    46                     47                      48        49                  50                51            52       53
-// 	BUD, FirstName, MiddleName, LastName, CompanyName, IsCompany, PrimaryEmail, SecondaryEmail, WorkPhone, CellPhone, Address, Address2, City, State, PostalCode, Country, Points, VehicleMake, VehicleModel, VehicleColor, VehicleYear, LicensePlateState, LicensePlateNumber, ParkingPermitNumber, ThirdPartySource, DateofBirth, EmergencyContactName, EmergencyContactAddress, EmergencyContactTelephone, EmergencyEmail, AlternateAddress, EligibleFutureUser, Industry, SourceSLSID, CreditLimit, TaxpayorID, CompanyAddress, CompanyCity, CompanyState, CompanyPostalCode, CompanyEmail, CompanyPhone, Occupation, Notes,DesiredUsageStartDate, RentableTypePreference, Approver, DeclineReasonSLSID, OtherPreferences, FollowUpDate, CSAgent, OutcomeSLSID
+// 	BUD, FirstName, MiddleName, LastName, CompanyName, IsCompany, PrimaryEmail, SecondaryEmail, WorkPhone, CellPhone, Address, Address2, City, State, PostalCode, Country, Points, VehicleMake, VehicleModel, VehicleColor, VehicleYear, LicensePlateState, LicensePlateNumber, ParkingPermitNumber, ThirdPartySource, DateofBirth, EmergencyContactName, EmergencyContactAddress, EmergencyContactTelephone, EmergencyContactEmail, AlternateAddress, EligibleFutureUser, Industry, SourceSLSID, CreditLimit, TaxpayorID, CompanyAddress, CompanyCity, CompanyState, CompanyPostalCode, CompanyEmail, CompanyPhone, Occupation, Notes,DesiredUsageStartDate, RentableTypePreference, Approver, DeclineReasonSLSID, OtherPreferences, FollowUpDate, CSAgent, OutcomeSLSID
 // 	Edna,,Krabappel,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 // 	Ned,,Flanders,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 // 	Moe,,Szyslak,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
@@ -176,7 +176,7 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 		{EmergencyContactName, rcsvCopyString, &t.EmergencyContactName},
 		{EmergencyContactAddress, rcsvCopyString, &t.EmergencyContactAddress},
 		{EmergencyContactTelephone, rcsvCopyString, &t.EmergencyContactTelephone},
-		{EmergencyEmail, rcsvCopyString, &t.EmergencyEmail},
+		{EmergencyContactEmail, rcsvCopyString, &t.EmergencyContactEmail},
 		{AlternateAddress, rcsvCopyString, &t.AlternateAddress},
 		{EligibleFutureUser, nil, nil},
 		{Industry, rcsvCopyString, &t.Industry},

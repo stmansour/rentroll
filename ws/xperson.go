@@ -62,7 +62,7 @@ type RPerson struct {
 	EmergencyContactName      string
 	EmergencyContactAddress   string
 	EmergencyContactTelephone string
-	EmergencyEmail            string
+	EmergencyContactEmail     string
 	AlternateAddress          string
 	EligibleFutureUser        bool
 	Industry                  string
@@ -122,7 +122,7 @@ type RPersonForm struct {
 	EmergencyContactName      string
 	EmergencyContactAddress   string
 	EmergencyContactTelephone string
-	EmergencyEmail            string
+	EmergencyContactEmail     string
 	AlternateAddress          string
 	Industry                  string
 	SourceSLSID               int64

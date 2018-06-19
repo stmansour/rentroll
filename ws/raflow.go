@@ -83,7 +83,7 @@ type RAPeopleFlowData struct {
 	EmergencyContactName    string
 	EmergencyContactAddress string
 	EmergencyContactPhone   string
-	EmergencyEmail          string
+	EmergencyContactEmail   string
 	AlternateAddress        string
 	EligibleFutureUser      bool
 	Industry                string

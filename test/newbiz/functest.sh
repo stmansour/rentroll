@@ -48,7 +48,7 @@ mysqlverify "h"  "-s specialties.csv"  		"RentableSpecialtyTypes"    	"select * 
 mysqlverify "i"  "-D bldg.csv"         		"Buildings"	            		"select BLDGID,BID,Address,Address2,City,State,PostalCode,Country,LastModBy from Building;"
 mysqlverify "j"  "-d depository.csv"   		"Depositories"	            	"select DEPID,BID,LID,Name,AccountNo,LastModBy from Depository;"
 mysqlverify "n"  "-p people.csv"       		"Transactants"	            	"select TCID,BID,FirstName,MiddleName,LastName,CompanyName,IsCompany,PrimaryEmail,SecondaryEmail,WorkPhone,CellPhone,Address,Address2,City,State,PostalCode,Country,LastModBy from Transactant;"
-mysqlverify "o"  ""			                "Users"	                        "select TCID,Points,DateofBirth,EmergencyContactName,EmergencyContactAddress,EmergencyContactTelephone,EmergencyEmail,AlternateAddress,EligibleFutureUser,Industry,SourceSLSID from User;"
+mysqlverify "o"  ""			                "Users"	                        "select TCID,Points,DateofBirth,EmergencyContactName,EmergencyContactAddress,EmergencyContactTelephone,EmergencyContactEmail,AlternateAddress,EligibleFutureUser,Industry,SourceSLSID from User;"
 mysqlverify "p"  ""			                "Payors"	                	"select TCID,CreditLimit,TaxpayorID,ThirdPartySource,LastModBy from Payor;"
 mysqlverify "q"  ""			                "Prospects"	            		"select TCID,CompanyAddress,CompanyCity,CompanyState,CompanyPostalCode,CompanyEmail,CompanyPhone,Occupation,LastModBy from Prospect;"
 mysqlverify "na"  "-V vehicle.csv"       	"Vehicles"	            		"select VID,TCID,VehicleType,VehicleMake,VehicleModel,VehicleColor,VehicleYear,LicensePlateState,LicensePlateNumber,ParkingPermitNumber,DtStart,DtStop,LastModBy from Vehicle;"

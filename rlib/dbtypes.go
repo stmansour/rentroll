@@ -767,7 +767,7 @@ type User struct {
 	EmergencyContactName      string
 	EmergencyContactAddress   string
 	EmergencyContactTelephone string
-	EmergencyEmail            string
+	EmergencyContactEmail     string
 	AlternateAddress          string
 	EligibleFutureUser        bool
 	FLAGS                     uint64

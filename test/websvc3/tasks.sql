@@ -2448,7 +2448,7 @@ CREATE TABLE `User` (
   `EmergencyContactName` varchar(100) NOT NULL DEFAULT '',
   `EmergencyContactAddress` varchar(100) NOT NULL DEFAULT '',
   `EmergencyContactTelephone` varchar(100) NOT NULL DEFAULT '',
-  `EmergencyEmail` varchar(100) NOT NULL DEFAULT '',
+  `EmergencyContactEmail` varchar(100) NOT NULL DEFAULT '',
   `AlternateAddress` varchar(100) NOT NULL DEFAULT '',
   `EligibleFutureUser` tinyint(1) NOT NULL DEFAULT '1',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
@@ -2520,4 +2520,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-06-19 11:02:02
+-- Dump completed on 2018-06-19 12:18:30
