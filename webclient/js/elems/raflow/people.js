@@ -7,12 +7,12 @@
     openNewTransactantForm, getRAAddTransactantFormInitRec,
     acceptTransactant, loadRAPeopleForm,
     setRATransactantFormHeader, showHideRATransactantFormFields,
-    setNotRequiredFields, getRATransanctantDetailAJAX, getRAPeopleGridRecord,
+    setNotRequiredFields, getRAPeopleGridRecord,
     updateRATransactantFormCheckboxes, getRATransactantFormInitRecord, loadRATransactantForm, ReassignPeopleGridRecords,
     manageBGInfoFormFields, addDummyBackgroundInfo, savePeopleCompData, getPeopleLocalData, setPeopleLocalData,
     getPeopleLocalDataByTCID, setTransactantDefaultRole, transactantTabs, transactantFields,
     savePetsCompData, saveVehiclesCompData, setRAFlowCompData, getStringListData, getSLStringList, updateRATransactantFormCheckboxes,
-    managePeopleW2UIItems, removeRAFlowPersonAJAX,
+    managePeopleW2UIItems, removeRAFlowPersonAJAX, saveRAFlowPersonAJAX
 */
 
 "use strict";
@@ -445,13 +445,13 @@ window.removeRAFlowPersonAJAX = function (TMPTCID) {
     });
 };
 
-// get Transanctant detail from the server
-window.getRATransanctantDetailAJAX = function (TCID) {
+// save Transanctant in raflow
+window.saveRAFlowPersonAJAX = function (TCID) {
     var bid = getCurrentBID();
 
     // temporary data
     var data = {
-        "cmd": "get",
+        "cmd": "save",
         "TCID": TCID,
         "FlowID": app.raflow.activeFlowID
     };
@@ -559,8 +559,8 @@ window.acceptTransactant = function () {
     // if not found then push it in the data
     if (tcidIndex < 0) {
 
-        // get transanctant information from the server
-        getRATransanctantDetailAJAX(TCID)
+        // save transanctant information in raflow json
+        saveRAFlowPersonAJAX(TCID)
         .done(function (data) {
 
             if (data.status === 'success') {

@@ -764,8 +764,8 @@ func SvcGetRAFlowPersonHandler(w http.ResponseWriter, r *http.Request, d *Servic
 	fmt.Printf("Request: %s:  BID = %d,  FlowID = %d\n", d.wsSearchReq.Cmd, d.BID, d.ID)
 
 	switch d.wsSearchReq.Cmd {
-	case "get":
-		GetRAFlowPersonDetails(w, r, d)
+	case "save":
+		SaveRAFlowPersonDetails(w, r, d)
 		break
 	case "delete":
 		DeleteRAFlowPerson(w, r, d)
@@ -777,19 +777,19 @@ func SvcGetRAFlowPersonHandler(w http.ResponseWriter, r *http.Request, d *Servic
 	}
 }
 
-// GetRAFlowPersonDetails returns person details with list of pets and vehicles
+// SaveRAFlowPersonDetails saves person details with list of pets and vehicles
 // It modifies raflow json doc by writing fetched pets and vehicles data
 // wsdoc {
-//  @Title Get Person details with list of Pets & Vehicles
+//  @Title Save Person details with list of Pets & Vehicles
 //  @URL /v1/raflow-persondetails/:BUI/
 //  @Method  GET
-//  @Synopsis Get Person Details for RAFlow
-//  @Description Get details about person with pets and vehicles
+//  @Synopsis Save Person Details for RAFlow
+//  @Description Save details about person with pets and vehicles
 //  @Input RAPersonDetailsRequest
 //  @Response FlowResponse
 // wsdoc }
-func GetRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	const funcname = "GetRAFlowPersonDetails"
+func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SaveRAFlowPersonDetails"
 	var (
 		raFlowData           RAFlowJSONData
 		foo                  RAPersonDetailsRequest
