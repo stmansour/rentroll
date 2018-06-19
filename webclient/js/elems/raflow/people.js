@@ -207,6 +207,8 @@ window.loadRAPeopleForm = function () {
 
                             form.record = getPeopleLocalData(raBGInfoGridRecord.TMPTCID);
                             form.record.recid = raBGInfoGridRecord.recid;
+                            form.record.BID = BID;
+                            form.record.BUD = BUD;
 
                             // Set the form title
                             setRATransactantFormHeader(form.record);
