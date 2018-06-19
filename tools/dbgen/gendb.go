@@ -241,8 +241,8 @@ func createTransactants(ctx context.Context, dbConf *GenDBConf) error {
 			EmergencyEmail:            GenerateRandomEmail(eclast, ecfirst),
 			AlternateAddress:          GenerateRandomAddress() + "," + GenerateRandomCity() + "," + GenerateRandomState() + " " + fmt.Sprintf("%05d", rand.Intn(100000)),
 			EligibleFutureUser:        IG.Rand.Intn(2) > 0,
-			// Industry:
-			// SourceSLSID:
+			Industry:                  GenerateRandomIndustry(),
+			SourceSLSID:               int64(IG.Rand.Intn(len(IG.HowFound.S))),
 		}
 
 		_, err = rlib.InsertUser(ctx, &u)
@@ -258,10 +258,11 @@ func createTransactants(ctx context.Context, dbConf *GenDBConf) error {
 			BID:                 t.BID,
 			CreditLimit:         float64(IG.Rand.Intn(30000)),
 			TaxpayorID:          fmt.Sprintf("%08d", IG.Rand.Intn(10000000)),
-			AccountRep:          int64(IG.Rand.Intn(250)),
+			ThirdPartySource:    int64(IG.Rand.Intn(250)),
 			EligibleFuturePayor: true,
 			SSN:                 GenerateRandomSSN(),
 			DriversLicense:      GenerateRandomDriversLicense(),
+			GrossIncome:         float64(10000 + IG.Rand.Intn(140000)),
 		}
 		_, err = rlib.InsertPayor(ctx, &p)
 		if err != nil {
@@ -276,25 +277,34 @@ func createTransactants(ctx context.Context, dbConf *GenDBConf) error {
 		var pr = rlib.Prospect{
 			TCID:                   t.TCID,
 			BID:                    t.BID,
-			EmployerName:           t.CompanyName,
-			EmployerStreetAddress:  GenerateRandomAddress(),
-			EmployerCity:           ec,
-			EmployerState:          GenerateRandomState(),
-			EmployerPostalCode:     fmt.Sprintf("%05d", rand.Intn(100000)),
-			EmployerEmail:          GenerateRandomEmail(ec, cmp),
-			EmployerPhone:          GenerateRandomPhoneNumber(),
-			Occupation:             "",
+			CompanyAddress:         GenerateRandomAddress(),
+			CompanyCity:            ec,
+			CompanyState:           GenerateRandomState(),
+			CompanyPostalCode:      fmt.Sprintf("%05d", rand.Intn(100000)),
+			CompanyEmail:           GenerateRandomEmail(ec, cmp),
+			CompanyPhone:           GenerateRandomPhoneNumber(),
+			Occupation:             GenerateRandomOccupation(),
 			ApplicationFee:         0,
 			DesiredUsageStartDate:  now,
 			RentableTypePreference: 0,
-			FLAGS:              0,
-			Approver:           int64(IG.Rand.Intn(280)),
-			DeclineReasonSLSID: 0,
-			OtherPreferences:   "",
-			FollowUpDate:       now.AddDate(0, 0, 2),
-			CSAgent:            int64(IG.Rand.Intn(280)),
-			OutcomeSLSID:       0,
-			FloatingDeposit:    0,
+			FLAGS:                    0,
+			Approver:                 int64(IG.Rand.Intn(280)),
+			DeclineReasonSLSID:       0,
+			OtherPreferences:         "",
+			FollowUpDate:             now.AddDate(0, 0, 2),
+			CSAgent:                  int64(IG.Rand.Intn(280)),
+			OutcomeSLSID:             0,
+			CurrentAddress:           GenerateRandomOneLineAddress(),
+			CurrentLandLordName:      GenerateRandomName(),
+			CurrentLandLordPhoneNo:   GenerateRandomPhoneNumber(),
+			CurrentReasonForMoving:   IG.WhyLeaving.S[IG.Rand.Intn(len(IG.WhyLeaving.S))].SLSID,
+			CurrentLengthOfResidency: GenerateRandomDurationString(),
+			PriorAddress:             GenerateRandomOneLineAddress(),
+			PriorLandLordName:        GenerateRandomName(),
+			PriorLandLordPhoneNo:     GenerateRandomPhoneNumber(),
+			PriorReasonForMoving:     IG.WhyLeaving.S[IG.Rand.Intn(len(IG.WhyLeaving.S))].SLSID,
+			PriorLengthOfResidency:   GenerateRandomDurationString(),
+			//FloatingDeposit:    0, // removed june 18, 2018
 		}
 		_, err = rlib.InsertProspect(ctx, &pr)
 		if err != nil {
@@ -761,6 +771,7 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 		//-------------------------------------------------------
 		var lm rlib.LedgerMarker
 		lm.RAID = ra.RAID
+		lm.State = rlib.LMINITIAL
 		lm.Dt = d1.AddDate(0, 0, -14)
 		_, err = rlib.InsertLedgerMarker(ctx, &lm)
 		if err != nil {

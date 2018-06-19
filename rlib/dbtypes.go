@@ -710,6 +710,7 @@ type Transactant struct {
 	   1<<2 VIP                      -- Is this person a VIP
 	*/
 	FLAGS       int64
+	Comment     string
 	LastModTime time.Time
 	LastModBy   int64
 	CreateTS    time.Time // when was this record created
@@ -718,35 +719,44 @@ type Transactant struct {
 
 // Prospect contains info over and above
 type Prospect struct {
-	TCID                   int64
-	BID                    int64
-	EmployerName           string
-	EmployerStreetAddress  string
-	EmployerCity           string
-	EmployerState          string
-	EmployerPostalCode     string
-	EmployerEmail          string
-	EmployerPhone          string
-	Occupation             string
-	ApplicationFee         float64   // if non-zero this Prospect is an applicant
-	DesiredUsageStartDate  time.Time // predicted rent start date
-	RentableTypePreference int64     // RentableType
-	FLAGS                  uint64    // 0 = Approved/NotApproved,
-	EvictedDes             string    // explanation when FLAGS & (1<<2) > 0
-	ConvictedDes           string    // explanation when FLAGS & (1<<3) > 0
-	BankruptcyDes          string    // explanation when FLAGS & (1<<4) > 0
-	Approver               int64     // UID from Directory
-	DeclineReasonSLSID     int64     // SLSid of reason
-	OtherPreferences       string    // arbitrary text
-	FollowUpDate           time.Time // automatically fill out this date to sysdate + 24hrs
-	CSAgent                int64     // Accord Directory UserID - for the CSAgent
-	OutcomeSLSID           int64     // id of string from a list of outcomes. Melissa to provide reasons
-	FloatingDeposit        float64   // d $(GLCASH) _, c $(GLGENRCV) _; assign to a shell of a Rental Agreement
-	RAID                   int64     // created to hold On Account amount of Floating Deposit
-	LastModTime            time.Time
-	LastModBy              int64
-	CreateTS               time.Time // when was this record created
-	CreateBy               int64     // employee UID (from phonebook) that created it
+	TCID                     int64
+	BID                      int64
+	CompanyAddress           string
+	CompanyCity              string
+	CompanyState             string
+	CompanyPostalCode        string
+	CompanyEmail             string
+	CompanyPhone             string
+	Occupation               string
+	ApplicationFee           float64   // if non-zero this Prospect is an applicant
+	DesiredUsageStartDate    time.Time // predicted rent start date
+	RentableTypePreference   int64     // RentableType
+	FLAGS                    uint64    // 0 = Approved/NotApproved,
+	EvictedDes               string    // explanation when FLAGS & (1<<2) > 0
+	ConvictedDes             string    // explanation when FLAGS & (1<<3) > 0
+	BankruptcyDes            string    // explanation when FLAGS & (1<<4) > 0
+	Approver                 int64     // UID from Directory
+	DeclineReasonSLSID       int64     // SLSid of reason
+	OtherPreferences         string    // arbitrary text
+	FollowUpDate             time.Time // automatically fill out this date to sysdate + 24hrs
+	CSAgent                  int64     // Accord Directory UserID - for the CSAgent
+	OutcomeSLSID             int64     // id of string from a list of outcomes. Melissa to provide reasons
+	CurrentAddress           string
+	CurrentLandLordName      string
+	CurrentLandLordPhoneNo   string
+	CurrentReasonForMoving   int64
+	CurrentLengthOfResidency string
+	PriorAddress             string
+	PriorLandLordName        string
+	PriorLandLordPhoneNo     string
+	PriorReasonForMoving     int64
+	PriorLengthOfResidency   string
+	LastModTime              time.Time
+	LastModBy                int64
+	CreateTS                 time.Time // when was this record created
+	CreateBy                 int64     // employee UID (from phonebook) that created it
+	// FloatingDeposit        float64   // d $(GLCASH) _, c $(GLGENRCV) _; assign to a shell of a Rental Agreement
+	// RAID                   int64     // created to hold On Account amount of Floating Deposit
 }
 
 // User contains all info common to a person
@@ -778,7 +788,7 @@ type Payor struct {
 	BID                 int64
 	CreditLimit         float64
 	TaxpayorID          string
-	AccountRep          int64
+	ThirdPartySource    int64
 	EligibleFuturePayor bool
 	FLAGS               uint64
 	SSN                 string // encrypted in database, decrypted here
@@ -939,6 +949,28 @@ type Business struct {
 	// ParkingPermitInUse    int64     // yes/no  0 = no, 1 = yes
 	CreateTS time.Time // when was this record created
 	CreateBy int64     // employee UID (from phonebook) that created it
+}
+
+// BusinessProperties defines properties for a business. The value
+// of the property is defined as JSON data in the Data field. It should
+// be unmarshaled into a struct that corresponds to the Name
+type BusinessProperties struct {
+	BPID        int64
+	BID         int64
+	Name        string          // "general" or whatever sub-category you want
+	Data        json.RawMessage // json data in mysql -- marshaled BizProps
+	FLAGS       int64           // FLAGS
+	LastModTime time.Time       // when was this record last written
+	LastModBy   int64           // employee UID (from phonebook) that modified it
+	CreateTS    time.Time       // when was this record created
+	CreateBy    int64           // employee UID (from phonebook) that created it
+}
+
+// BizProps is the golang struct for a category of business properties.
+// This struct will be marshaled into JSON data and stored in BusinessProperties
+type BizProps struct {
+	PetFees     []string // AR names of all Pet Fees
+	VehicleFees []string // AR names of all Vehicle Fees
 }
 
 // Building defines the location of a Building that is part of a Business
@@ -1840,6 +1872,11 @@ type RRprepSQL struct {
 	DeleteClosePeriod                       *sql.Stmt
 	GetFlowMetaDataInRange                  *sql.Stmt
 	GetFlowForRAID                          *sql.Stmt
+	GetBusinessProperties                   *sql.Stmt
+	GetBusinessPropertiesByName             *sql.Stmt
+	InsertBusinessProperties                *sql.Stmt
+	UpdateBusinessPropertiesData            *sql.Stmt
+	DeleteBusinessProperties                *sql.Stmt
 }
 
 // DeleteBusinessFromDB deletes information from all tables if it is part of the supplied BID.

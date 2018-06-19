@@ -274,6 +274,36 @@ LOCK TABLES `BusinessPaymentTypes` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `BusinessProperties`
+--
+
+DROP TABLE IF EXISTS `BusinessProperties`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `BusinessProperties` (
+  `BPID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `BID` bigint(20) NOT NULL DEFAULT '0',
+  `Name` varchar(100) NOT NULL DEFAULT '',
+  `FLAGS` bigint(20) NOT NULL DEFAULT '0',
+  `Data` json DEFAULT NULL,
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
+  `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`BPID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `BusinessProperties`
+--
+
+LOCK TABLES `BusinessProperties` WRITE;
+/*!40000 ALTER TABLE `BusinessProperties` DISABLE KEYS */;
+/*!40000 ALTER TABLE `BusinessProperties` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `ClosePeriod`
 --
 
@@ -1235,7 +1265,7 @@ CREATE TABLE `Payor` (
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `TaxpayorID` varchar(25) NOT NULL DEFAULT '',
   `CreditLimit` decimal(19,4) NOT NULL DEFAULT '0.0000',
-  `AccountRep` bigint(20) NOT NULL DEFAULT '0',
+  `ThirdPartySource` bigint(20) NOT NULL DEFAULT '0',
   `EligibleFuturePayor` tinyint(1) NOT NULL DEFAULT '1',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
   `SSN` char(128) NOT NULL DEFAULT '',
@@ -1269,13 +1299,12 @@ DROP TABLE IF EXISTS `Prospect`;
 CREATE TABLE `Prospect` (
   `TCID` bigint(20) NOT NULL,
   `BID` bigint(20) NOT NULL DEFAULT '0',
-  `EmployerName` varchar(100) NOT NULL DEFAULT '',
-  `EmployerStreetAddress` varchar(100) NOT NULL DEFAULT '',
-  `EmployerCity` varchar(100) NOT NULL DEFAULT '',
-  `EmployerState` varchar(100) NOT NULL DEFAULT '',
-  `EmployerPostalCode` varchar(100) NOT NULL DEFAULT '',
-  `EmployerEmail` varchar(100) NOT NULL DEFAULT '',
-  `EmployerPhone` varchar(100) NOT NULL DEFAULT '',
+  `CompanyAddress` varchar(100) NOT NULL DEFAULT '',
+  `CompanyCity` varchar(100) NOT NULL DEFAULT '',
+  `CompanyState` varchar(100) NOT NULL DEFAULT '',
+  `CompanyPostalCode` varchar(100) NOT NULL DEFAULT '',
+  `CompanyEmail` varchar(100) NOT NULL DEFAULT '',
+  `CompanyPhone` varchar(100) NOT NULL DEFAULT '',
   `Occupation` varchar(100) NOT NULL DEFAULT '',
   `ApplicationFee` decimal(19,4) NOT NULL DEFAULT '0.0000',
   `DesiredUsageStartDate` date NOT NULL DEFAULT '1970-01-01',
@@ -1290,8 +1319,16 @@ CREATE TABLE `Prospect` (
   `FollowUpDate` date NOT NULL DEFAULT '1970-01-01',
   `CSAgent` bigint(20) NOT NULL DEFAULT '0',
   `OutcomeSLSID` bigint(20) NOT NULL DEFAULT '0',
-  `FloatingDeposit` decimal(19,4) NOT NULL DEFAULT '0.0000',
-  `RAID` bigint(20) NOT NULL DEFAULT '0',
+  `CurrentAddress` varchar(200) NOT NULL DEFAULT '',
+  `CurrentLandLordName` varchar(100) NOT NULL DEFAULT '',
+  `CurrentLandLordPhoneNo` varchar(20) NOT NULL DEFAULT '',
+  `CurrentReasonForMoving` bigint(20) NOT NULL DEFAULT '0',
+  `CurrentLengthOfResidency` varchar(100) NOT NULL DEFAULT '',
+  `PriorAddress` varchar(200) NOT NULL DEFAULT '',
+  `PriorLandLordName` varchar(100) NOT NULL DEFAULT '',
+  `PriorLandLordPhoneNo` varchar(20) NOT NULL DEFAULT '',
+  `PriorReasonForMoving` bigint(20) NOT NULL DEFAULT '0',
+  `PriorLengthOfResidency` varchar(100) NOT NULL DEFAULT '',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -1306,7 +1343,7 @@ CREATE TABLE `Prospect` (
 
 LOCK TABLES `Prospect` WRITE;
 /*!40000 ALTER TABLE `Prospect` DISABLE KEYS */;
-INSERT INTO `Prospect` VALUES (1,1,'','','','','','','','',1000.7500,'0000-00-00',0,0,'','','',1,0,'','0000-00-00',0,0,0.0000,1,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(2,1,'','','','','','','','',0.0000,'0000-00-00',0,0,'','','',2,0,'','0000-00-00',0,0,0.0000,2,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(3,1,'','','','','','','','',1100.7500,'0000-00-00',0,0,'','','',3,0,'','0000-00-00',0,0,0.0000,3,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(4,1,'','','','','','','','',0.0000,'0000-00-00',0,0,'','','',4,0,'','0000-00-00',0,0,0.0000,4,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(5,1,'','','','','','','','',0.0000,'0000-00-00',0,0,'','','',5,0,'','0000-00-00',0,0,0.0000,5,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(6,1,'','','','','','','','',1200.7500,'0000-00-00',0,0,'','','',6,0,'','0000-00-00',0,0,0.0000,6,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(7,1,'','','','','','','','',1300.7500,'0000-00-00',0,0,'','','',7,0,'','0000-00-00',0,0,0.0000,7,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(8,1,'','','','','','','','',0.0000,'0000-00-00',0,0,'','','',8,0,'','0000-00-00',0,0,0.0000,8,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(9,1,'','','','','','','','',0.0000,'0000-00-00',0,0,'','','',9,0,'','0000-00-00',0,0,0.0000,9,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(10,1,'','','','','','','','',0.0000,'0000-00-00',0,0,'','','',10,0,'','0000-00-00',0,0,0.0000,10,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(11,1,'','','','','','','','',0.0000,'0000-00-00',0,0,'','','',0,0,'','0000-00-00',0,0,0.0000,0,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(12,1,'','','','','','','','',0.0000,'0000-00-00',0,0,'','','',0,0,'','0000-00-00',0,0,0.0000,0,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(13,1,'','','','','','','','',0.0000,'0000-00-00',0,0,'','','',0,0,'','0000-00-00',0,0,0.0000,0,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(14,1,'','','','','','','','',0.0000,'0000-00-00',0,0,'','','',0,0,'','0000-00-00',0,0,0.0000,0,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(15,1,'','','','','','','','',0.0000,'0000-00-00',0,0,'','','',0,0,'','0000-00-00',0,0,0.0000,0,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0);
+INSERT INTO `Prospect` VALUES (1,1,'','','','','','','',1000.7500,'0000-00-00',0,0,'','','',1,0,'','0000-00-00',0,0,'','','',0,'','','','',0,'','2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(2,1,'','','','','','','',0.0000,'0000-00-00',0,0,'','','',2,0,'','0000-00-00',0,0,'','','',0,'','','','',0,'','2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(3,1,'','','','','','','',1100.7500,'0000-00-00',0,0,'','','',3,0,'','0000-00-00',0,0,'','','',0,'','','','',0,'','2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(4,1,'','','','','','','',0.0000,'0000-00-00',0,0,'','','',4,0,'','0000-00-00',0,0,'','','',0,'','','','',0,'','2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(5,1,'','','','','','','',0.0000,'0000-00-00',0,0,'','','',5,0,'','0000-00-00',0,0,'','','',0,'','','','',0,'','2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(6,1,'','','','','','','',1200.7500,'0000-00-00',0,0,'','','',6,0,'','0000-00-00',0,0,'','','',0,'','','','',0,'','2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(7,1,'','','','','','','',1300.7500,'0000-00-00',0,0,'','','',7,0,'','0000-00-00',0,0,'','','',0,'','','','',0,'','2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(8,1,'','','','','','','',0.0000,'0000-00-00',0,0,'','','',8,0,'','0000-00-00',0,0,'','','',0,'','','','',0,'','2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(9,1,'','','','','','','',0.0000,'0000-00-00',0,0,'','','',9,0,'','0000-00-00',0,0,'','','',0,'','','','',0,'','2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(10,1,'','','','','','','',0.0000,'0000-00-00',0,0,'','','',10,0,'','0000-00-00',0,0,'','','',0,'','','','',0,'','2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(11,1,'','','','','','','',0.0000,'0000-00-00',0,0,'','','',0,0,'','0000-00-00',0,0,'','','',0,'','','','',0,'','2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(12,1,'','','','','','','',0.0000,'0000-00-00',0,0,'','','',0,0,'','0000-00-00',0,0,'','','',0,'','','','',0,'','2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(13,1,'','','','','','','',0.0000,'0000-00-00',0,0,'','','',0,0,'','0000-00-00',0,0,'','','',0,'','','','',0,'','2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(14,1,'','','','','','','',0.0000,'0000-00-00',0,0,'','','',0,0,'','0000-00-00',0,0,'','','',0,'','','','',0,'','2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(15,1,'','','','','','','',0.0000,'0000-00-00',0,0,'','','',0,0,'','0000-00-00',0,0,'','','',0,'','','','',0,'','2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0);
 /*!40000 ALTER TABLE `Prospect` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2408,6 +2445,7 @@ CREATE TABLE `Transactant` (
   `Country` varchar(100) NOT NULL DEFAULT '',
   `Website` varchar(100) NOT NULL DEFAULT '',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
+  `Comment` varchar(2048) NOT NULL DEFAULT '',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -2422,7 +2460,7 @@ CREATE TABLE `Transactant` (
 
 LOCK TABLES `Transactant` WRITE;
 /*!40000 ALTER TABLE `Transactant` DISABLE KEYS */;
-INSERT INTO `Transactant` VALUES (1,1,1,'Joshua','Cudworth','Jones','Billy Bob','ABC Corporation',0,'JJones@abc.com','quintilian@nethersole.uk','','123-456-7890','123 South Rexford','','Beverly Hills','CA','90210','USA','',0,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(2,1,2,'','','','','ABC Corporation',1,'info@abc.com','','','123-983-2244','10 S. ABC Pkwy','','Hollywood','CA','90220','USA','',0,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(3,1,0,'Amanda','','Smith','','',0,'asmith@gmail.com','','','123-456-7891','2211 Hyannis Circle','','Glendale','CA','90210','USA','',0,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(4,1,0,'Christoph','','Jones','','ARC Energy',0,'cjones@arcenergy.com','','','123-456-7892','1957 Billow Way','','LA','CA','90210','USA','',0,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(5,1,0,'','','','','ARC Energy',1,'info@arcenergy.com','','','123-945-3715','9000 Zap Ave','','LA','CA','90220','USA','',0,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(6,1,0,'Cindy','','Jones','','',0,'CindyJ@rexford.com','','','123-456-7893','309 1/2 South Rexford','','Beverly Hills','CA','90210','USA','',0,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(7,1,0,'Edith','','Jones','','',0,'EdithJ@rexford.com','','','123-456-8516','309 1/2 South Rexford','','Beverly Hills','CA','90210','USA','',0,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(8,1,0,'Ed','','Jones','','',0,'edj@rexford.com','','','123-456-7894','311 South Rexford','','Beverly Hills','CA','90210','USA','',0,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(9,1,0,'Amanda','','Curry','','',0,'acurry@rexford.com','','','123-456-2337','311 South Rexford','','Beverly Hills','CA','90210','USA','',0,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(10,1,0,'Jeb','','Night','','',0,'jnight@rexford.com','','','123-456-8519','311 South Rexford','','Beverly Hills','CA','90210','USA','',0,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(11,1,0,'Chris','P','Bacon','','',0,'chris@bacon.com','','','123-456-6571','311 South Rexford','','Beverly Hills','CA','90210','USA','',0,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(12,1,0,'Betty','','Diddit','','',0,'betty@diddit.com','','','123-456-9435','311 South Rexford','','Beverly Hills','CA','90210','USA','',0,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(13,1,0,'Betty','','Diddent','','',0,'betty@diddent.com','','','123-456-0055','311 South Rexford','','Beverly Hills','CA','90210','USA','',0,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(14,1,0,'Leeloo','','Kaixin','','',0,'leeloo@kaixin.com','','','123-456-0066','311 South Rexford','','Beverly Hills','CA','90210','USA','',0,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(15,1,0,'','','','','School of Construction',1,'info@soc.com','','','123-456-9467','3000 Grand Avenue','','Glendale','CA','90210','USA','',0,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0);
+INSERT INTO `Transactant` VALUES (1,1,1,'Joshua','Cudworth','Jones','Billy Bob','ABC Corporation',0,'JJones@abc.com','quintilian@nethersole.uk','','123-456-7890','123 South Rexford','','Beverly Hills','CA','90210','USA','',0,'','2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(2,1,2,'','','','','ABC Corporation',1,'info@abc.com','','','123-983-2244','10 S. ABC Pkwy','','Hollywood','CA','90220','USA','',0,'','2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(3,1,0,'Amanda','','Smith','','',0,'asmith@gmail.com','','','123-456-7891','2211 Hyannis Circle','','Glendale','CA','90210','USA','',0,'','2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(4,1,0,'Christoph','','Jones','','ARC Energy',0,'cjones@arcenergy.com','','','123-456-7892','1957 Billow Way','','LA','CA','90210','USA','',0,'','2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(5,1,0,'','','','','ARC Energy',1,'info@arcenergy.com','','','123-945-3715','9000 Zap Ave','','LA','CA','90220','USA','',0,'','2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(6,1,0,'Cindy','','Jones','','',0,'CindyJ@rexford.com','','','123-456-7893','309 1/2 South Rexford','','Beverly Hills','CA','90210','USA','',0,'','2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(7,1,0,'Edith','','Jones','','',0,'EdithJ@rexford.com','','','123-456-8516','309 1/2 South Rexford','','Beverly Hills','CA','90210','USA','',0,'','2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(8,1,0,'Ed','','Jones','','',0,'edj@rexford.com','','','123-456-7894','311 South Rexford','','Beverly Hills','CA','90210','USA','',0,'','2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(9,1,0,'Amanda','','Curry','','',0,'acurry@rexford.com','','','123-456-2337','311 South Rexford','','Beverly Hills','CA','90210','USA','',0,'','2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(10,1,0,'Jeb','','Night','','',0,'jnight@rexford.com','','','123-456-8519','311 South Rexford','','Beverly Hills','CA','90210','USA','',0,'','2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(11,1,0,'Chris','P','Bacon','','',0,'chris@bacon.com','','','123-456-6571','311 South Rexford','','Beverly Hills','CA','90210','USA','',0,'','2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(12,1,0,'Betty','','Diddit','','',0,'betty@diddit.com','','','123-456-9435','311 South Rexford','','Beverly Hills','CA','90210','USA','',0,'','2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(13,1,0,'Betty','','Diddent','','',0,'betty@diddent.com','','','123-456-0055','311 South Rexford','','Beverly Hills','CA','90210','USA','',0,'','2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(14,1,0,'Leeloo','','Kaixin','','',0,'leeloo@kaixin.com','','','123-456-0066','311 South Rexford','','Beverly Hills','CA','90210','USA','',0,'','2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(15,1,0,'','','','','School of Construction',1,'info@soc.com','','','123-456-9467','3000 Grand Avenue','','Glendale','CA','90210','USA','',0,'','2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0);
 /*!40000 ALTER TABLE `Transactant` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2513,4 +2551,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-06-16 16:59:40
+-- Dump completed on 2018-06-18 23:43:34

@@ -448,6 +448,22 @@ CREATE TABLE Business (
 --    ParkingPermitInUse SMALLINT NOT NULL DEFAULT 0,           -- yes/no  0 = no, 1 = yes
 
 -- ===========================================
+--   Business Properties
+-- ===========================================
+CREATE TABLE BusinessProperties (
+    BPID BIGINT NOT NULL AUTO_INCREMENT,
+    BID BIGINT NOT NULL DEFAULT 0,                              -- Business
+    Name VARCHAR(100) NOT NULL DEFAULT '',                      -- Property Name
+    FLAGS BIGINT NOT NULL DEFAULT 0,                            -- last bit =0(EDI disabled), =1(EDI enabled)
+    Data JSON DEFAULT NULL,                                     -- JSON Data for this property
+    LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
+    LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,      -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that created this record
+    PRIMARY KEY (BPID)
+);
+
+-- ===========================================
 --   TASKLIST AND TASK
 -- ===========================================
 CREATE TABLE Task (
@@ -834,6 +850,7 @@ CREATE TABLE Transactant (
                                                                1<<1 AcceptGeneralEmail       -- Will user accept email
                                                                1<<2 VIP                      -- Is this person a VIP
                                                             */
+    Comment VARCHAR(2048) NOT NULL DEFAULT '',              -- company notes for this person
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,  -- when was this record created
@@ -849,16 +866,14 @@ CREATE TABLE Transactant (
 -- ===========================================
 
 CREATE TABLE Prospect (
-    -- ProspectID BIGINT NOT NULL AUTO_INCREMENT,           -- unique id of this Prospect
-    TCID BIGINT NOT NULL,                                   -- associated Transactant (has Name and all contact info)
-    BID BIGINT NOT NULL DEFAULT 0,                          -- which business
-    EmployerName  VARCHAR(100) NOT NULL DEFAULT '',
-    EmployerStreetAddress VARCHAR(100) NOT NULL DEFAULT '',
-    EmployerCity VARCHAR(100) NOT NULL DEFAULT '',
-    EmployerState VARCHAR(100) NOT NULL DEFAULT '',
-    EmployerPostalCode VARCHAR(100) NOT NULL DEFAULT '',
-    EmployerEmail VARCHAR(100) NOT NULL DEFAULT '',
-    EmployerPhone VARCHAR(100) NOT NULL DEFAULT '',
+    TCID BIGINT NOT NULL,                                        -- associated Transactant (has Name and all contact info)
+    BID BIGINT NOT NULL DEFAULT 0,                               -- which business
+    CompanyAddress VARCHAR(100) NOT NULL DEFAULT '',
+    CompanyCity VARCHAR(100) NOT NULL DEFAULT '',
+    CompanyState VARCHAR(100) NOT NULL DEFAULT '',
+    CompanyPostalCode VARCHAR(100) NOT NULL DEFAULT '',
+    CompanyEmail VARCHAR(100) NOT NULL DEFAULT '',
+    CompanyPhone VARCHAR(100) NOT NULL DEFAULT '',
     Occupation VARCHAR(100) NOT NULL DEFAULT '',
     ApplicationFee DECIMAL(19,4) NOT NULL DEFAULT 0.0,           -- if non-zero this Prospect is an applicant
     DesiredUsageStartDate DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- User's initial indication of move in date, actual move in date is in Rental Agreement
@@ -878,8 +893,18 @@ CREATE TABLE Prospect (
     FollowUpDate DATE NOT NULL DEFAULT '1970-01-01 00:00:00',    -- automatically fill out this date to sysdate + 24hrs
     CSAgent BIGINT NOT NULL DEFAULT 0,                           -- Accord Directory UserID - for the CSAgent
     OutcomeSLSID BIGINT NOT NULL DEFAULT 0,                      -- id of string from a list of outcomes.
-    FloatingDeposit DECIMAL (19,4) NOT NULL DEFAULT 0.0,         --  d $(GLCASH) _, c $(GLGENRCV) _; assign to a shell of a Rental Agreement
-    RAID BIGINT NOT NULL DEFAULT 0,                              -- created to hold On Account amount of Floating Deposit  -- Make this 0 after Prospect becomes Transactant
+    CurrentAddress VARCHAR(200) NOT NULL DEFAULT '',             -- address of residence at the time this rental application was filled out
+    CurrentLandLordName VARCHAR(100) NOT NULL DEFAULT '',        -- landlord            "
+    CurrentLandLordPhoneNo VARCHAR(20) NOT NULL DEFAULT '',      -- phone number        ""
+    CurrentReasonForMoving BIGINT NOT NULL DEFAULT 0,            -- string list id
+    CurrentLengthOfResidency VARCHAR(100) NOT NULL DEFAULT '',   -- length of stay is just a string
+    PriorAddress VARCHAR(200) NOT NULL DEFAULT '',               -- address of residence prior to "current residence"
+    PriorLandLordName VARCHAR(100) NOT NULL DEFAULT '',          -- landlord            "
+    PriorLandLordPhoneNo VARCHAR(20) NOT NULL DEFAULT '',        -- phone number        ""
+    PriorReasonForMoving BIGINT NOT NULL DEFAULT 0,              -- string list id
+    PriorLengthOfResidency VARCHAR(100) NOT NULL DEFAULT '',     -- length of stay is just a string
+    -- FloatingDeposit DECIMAL (19,4) NOT NULL DEFAULT 0.0,         -- d $(GLCASH) _, c $(GLGENRCV) _; assign to a shell of a Rental Agreement
+    -- RAID BIGINT NOT NULL DEFAULT 0,                              -- created to hold On Account amount of Floating Deposit  -- Make this 0 after Prospect becomes Transactant
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,       -- when was this record created
@@ -925,9 +950,9 @@ CREATE TABLE User (
 CREATE TABLE Payor (
     TCID BIGINT NOT NULL,                                        -- associated Transactant
     BID BIGINT NOT NULL DEFAULT 0,                               -- which business
-    TaxpayorID VARCHAR(25) NOT NULL DEFAULT '',
-    CreditLimit DECIMAL(19,4) NOT NULL DEFAULT 0.0,
-    AccountRep BIGINT NOT NULL DEFAULT 0,                        -- Accord (renting company) Phonebook UID of account rep
+    TaxpayorID VARCHAR(25) NOT NULL DEFAULT '',     
+    CreditLimit DECIMAL(19,4) NOT NULL DEFAULT 0.0,     
+    ThirdPartySource BIGINT NOT NULL DEFAULT 0,                        -- Accord (renting company) Phonebook UID of account rep
     EligibleFuturePayor TINYINT(1) NOT NULL DEFAULT 1,           -- yes/no
     FLAGS BIGINT NOT NULL DEFAULT 0,                             /*
                                                                   */

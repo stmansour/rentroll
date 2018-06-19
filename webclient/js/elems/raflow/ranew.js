@@ -2,7 +2,7 @@
     getRAFlowAllParts, initRAFlowAjax, requiredFieldsFulFilled,
     RACompConfig, w2ui,
     getFlowDataAjax, manageParentRentableW2UIItems,
-    managePeopleW2UIItems
+    managePeopleW2UIItems, LoadRAFlowTemplate
 */
 
 "use strict";
@@ -19,13 +19,32 @@ window.setToNewRAForm = function (bid, FlowID) {
         return false;
     }
 
+    // load ra flow template
+    LoadRAFlowTemplate(bid, FlowID);
+};
+
+//-----------------------------------------------------------------------------
+// LoadRAFlowTemplate - load RA flow with data and green checkmark and
+//                      necessary settings, it loads dateForm by default
+//
+// @params
+//   FlowID = Id of the Flow
+//-----------------------------------------------------------------------------
+window.LoadRAFlowTemplate = function(bid, FlowID) {
+
+    // set the toplayout content
     w2ui.toplayout.content('right', w2ui.newraLayout);
     w2ui.toplayout.show('right', true);
     w2ui.toplayout.sizeTo('right', 950);
 
-    $.get('/webclient/html/raflowtmpl.html', function(data) {
-        w2ui.newraLayout.content('main', data);
-        w2ui.toplayout.render();
+    $.get('/webclient/html/raflowtmpl.html', function(htmlData) {
+        // set the content of template HTML into main content of layout
+        w2ui.newraLayout.content('main', htmlData);
+
+        // render the new ra layout
+        w2ui.newraLayout.render();
+
+        // reset wizard steps
         $(".ra-form-component").hide();
         $("#progressbar #steps-list li").removeClass("active done"); // remove activeClass from all li
 

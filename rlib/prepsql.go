@@ -191,6 +191,23 @@ func buildPreparedStatements() {
 	Errcheck(err)
 
 	//==========================================
+	// Business Properties
+	//==========================================
+	flds = "BPID,BID,Name,Data,FLAGS,CreateTS,CreateBy,LastModTime,LastModBy"
+	RRdb.DBFields["BusinessProperties"] = flds
+	RRdb.Prepstmt.GetBusinessProperties, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM BusinessProperties where BPID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetBusinessPropertiesByName, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM BusinessProperties WHERE Name=? AND BID=?")
+	Errcheck(err)
+	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
+	RRdb.Prepstmt.InsertBusinessProperties, err = RRdb.Dbrr.Prepare("INSERT INTO BusinessProperties (" + s1 + ") VALUES(" + s2 + ")")
+	Errcheck(err)
+	RRdb.Prepstmt.UpdateBusinessPropertiesData, err = RRdb.Dbrr.Prepare("UPDATE BusinessProperties SET Data = JSON_REPLACE(Data, CONCAT('$.', ?), CAST(? AS JSON)) where BPID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteBusinessProperties, err = RRdb.Dbrr.Prepare("DELETE from BusinessProperties WHERE BPID=?")
+	Errcheck(err)
+
+	//==========================================
 	// Close Period
 	//==========================================
 	flds = "CPID,BID,TLID,Dt,CreateTS,CreateBy,LastModTime,LastModBy"
@@ -660,7 +677,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// PAYOR
 	//==========================================
-	flds = "TCID,BID,CreditLimit,TaxpayorID,AccountRep,EligibleFuturePayor,FLAGS,SSN,DriversLicense,GrossIncome,CreateTS,CreateBy,LastModTime,LastModBy"
+	flds = "TCID,BID,CreditLimit,TaxpayorID,ThirdPartySource,EligibleFuturePayor,FLAGS,SSN,DriversLicense,GrossIncome,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["Payor"] = flds
 	RRdb.Prepstmt.GetPayor, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Payor where TCID=?")
 	Errcheck(err)
@@ -675,7 +692,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// PROSPECT
 	//==========================================
-	flds = "TCID,BID,EmployerName,EmployerStreetAddress,EmployerCity,EmployerState,EmployerPostalCode,EmployerEmail,EmployerPhone,Occupation,ApplicationFee,DesiredUsageStartDate,RentableTypePreference,FLAGS,EvictedDes,ConvictedDes,BankruptcyDes,Approver,DeclineReasonSLSID,OtherPreferences,FollowUpDate,CSAgent,OutcomeSLSID,FloatingDeposit,RAID,CreateTS,CreateBy,LastModTime,LastModBy"
+	flds = "TCID,BID,CompanyAddress,CompanyCity,CompanyState,CompanyPostalCode,CompanyEmail,CompanyPhone,Occupation,ApplicationFee,DesiredUsageStartDate,RentableTypePreference,FLAGS,EvictedDes,ConvictedDes,BankruptcyDes,Approver,DeclineReasonSLSID,OtherPreferences,FollowUpDate,CSAgent,OutcomeSLSID,CurrentAddress,CurrentLandLordName,CurrentLandLordPhoneNo,CurrentReasonForMoving,CurrentLengthOfResidency,PriorAddress,PriorLandLordName,PriorLandLordPhoneNo,PriorReasonForMoving,PriorLengthOfResidency,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["Prospect"] = flds
 	RRdb.Prepstmt.GetProspect, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Prospect where TCID=?")
 	Errcheck(err)

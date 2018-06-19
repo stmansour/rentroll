@@ -78,7 +78,7 @@ window.loadRAVehiclesGrid = function () {
             fields  : [
                 { field: 'recid',               type: 'int',    required: false,    html: { caption: 'recid', page: 0, column: 0 } },
                 { field: 'TMPVID',              type: 'int',    required: true  },
-                { field: 'TMPTCID',             type: 'list',   required: true,     options: {items: app.raflow.peopleW2UIItems, selected: {}} },
+                { field: 'TMPTCID',             type: 'list',   required: true,     options: {items: [], selected: {}} },
                 { field: 'VehicleType',         type: 'text',   required: true  },
                 { field: 'VehicleMake',         type: 'text',   required: true  },
                 { field: 'VehicleModel',        type: 'text',   required: true  },
@@ -109,6 +109,7 @@ window.loadRAVehiclesGrid = function () {
                             $.extend(TMPTCIDSel, item);
                         }
                     });
+                    f.get("TMPTCID").options.items = app.raflow.peopleW2UIItems;
                     f.get("TMPTCID").options.selected = TMPTCIDSel;
 
                     // hide delete button if it is NewRecord
@@ -117,6 +118,18 @@ window.loadRAVehiclesGrid = function () {
                         $(f.box).find("button[name=delete]").addClass("hidden");
                     } else {
                         $(f.box).find("button[name=delete]").removeClass("hidden");
+                    }
+
+                    // get RAID for active flow
+                    var RAID = app.raflow.data[app.raflow.activeFlowID].ID;
+                    console.debug("RAID", RAID);
+                    if (RAID > 0) {
+                        $(f.box).find("input[name=ParkingPermitNumber]").prop("disabled", false);
+                        // $(f.box).find("input[name=ParkingPermitFee]").prop("disabled", false);
+                    } else {
+                        // if RAID is not available then disable
+                        $(f.box).find("input[name=ParkingPermitNumber]").prop("disabled", true);
+                        // $(f.box).find("input[name=ParkingPermitFee]").prop("disabled", true);
                     }
                 };
             },
