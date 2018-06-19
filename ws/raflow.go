@@ -3,6 +3,7 @@ package ws
 import (
 	"bytes"
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -83,7 +84,7 @@ type RAPeopleFlowData struct {
 	EmergencyContactName    string
 	EmergencyContactAddress string
 	EmergencyContactPhone   string
-	EmergencyEmail          string
+	EmergencyContactEmail   string
 	AlternateAddress        string
 	EligibleFutureUser      bool
 	Industry                string
@@ -126,7 +127,6 @@ type RAPeopleFlowData struct {
 	ConvictedDes           string
 	Bankruptcy             bool // Declared Bankruptcy
 	BankruptcyDes          string
-	ApplicationFee         float64
 	DesiredUsageStartDate  rlib.JSONDate
 	RentableTypePreference int64
 	FLAGS                  int64
@@ -742,78 +742,132 @@ type RAPersonDetailsRequest struct {
 	FlowID int64
 }
 
-// RAPersonDetailsResponse is struct for response for person details
-type RAPersonDetailsResponse struct {
-	Flow   rlib.Flow `json:"flow"`
-	Record RPerson   `json:"record"`
-	Status string    `json:"status"`
+// RAFlowRemovePersonRequest is struct for request to remove person from json data
+type RAFlowRemovePersonRequest struct {
+	TMPTCID int64
+	FlowID  int64
 }
 
-// SvcGetRAFlowPersonDetails returns person details with list of pets and vehicles
+// SvcGetRAFlowPersonHandler handles operation on person of raflow json data
+//           0    1     2   3
+// uri /v1/raflow-person/BID/flowID
+// The server command can be:
+//      get
+//      delete
+//-----------------------------------------------------------------------------------
+func SvcGetRAFlowPersonHandler(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcGetRAFlowPersonHandler"
+	var (
+		err error
+	)
+	fmt.Printf("Entered %s\n", funcname)
+	fmt.Printf("Request: %s:  BID = %d,  FlowID = %d\n", d.wsSearchReq.Cmd, d.BID, d.ID)
+
+	switch d.wsSearchReq.Cmd {
+	case "save":
+		SaveRAFlowPersonDetails(w, r, d)
+		break
+	case "delete":
+		DeleteRAFlowPerson(w, r, d)
+		break
+	default:
+		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+}
+
+// SaveRAFlowPersonDetails saves person details with list of pets and vehicles
 // It modifies raflow json doc by writing fetched pets and vehicles data
 // wsdoc {
-//  @Title Get Person details with list of Pets & Vehicles
+//  @Title Save Person details with list of Pets & Vehicles
 //  @URL /v1/raflow-persondetails/:BUI/
 //  @Method  GET
-//  @Synopsis Get Person Details for RAFlow
-//  @Description Get details about person with pets and vehicles
+//  @Synopsis Save Person Details for RAFlow
+//  @Description Save details about person with pets and vehicles
 //  @Input RAPersonDetailsRequest
 //  @Response FlowResponse
 // wsdoc }
-func SvcGetRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	const funcname = "SvcGetRAFlowPersonDetails"
+func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SaveRAFlowPersonDetails"
 	var (
-		raFlowData RAFlowJSONData
-		foo        RAPersonDetailsRequest
-		g          FlowResponse
+		raFlowData           RAFlowJSONData
+		foo                  RAPersonDetailsRequest
+		newRAFlowMeta        RAFlowMetaInfo // we might need to update meta info
+		shouldModifyMetaData bool
+		g                    FlowResponse
+		err                  error
+		tx                   *sql.Tx
+		ctx                  context.Context
 	)
 	fmt.Printf("Entered %s\n", funcname)
 
+	// ===============================================
+	// defer function to handle transactaion rollback
+	// ===============================================
+	defer func() {
+		if err != nil {
+			// if tx is not nil then roll back
+			if tx != nil {
+				tx.Rollback()
+			}
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+	}()
+
+	// http method check
 	if r.Method != "POST" {
-		err := fmt.Errorf("Only POST method is allowed")
-		SvcErrorReturn(w, err, funcname)
+		err = fmt.Errorf("Only POST method is allowed")
 		return
 	}
 
 	// unmarshal data into request data struct
-	if err := json.Unmarshal([]byte(d.data), &foo); err != nil {
-		SvcErrorReturn(w, err, funcname)
+	if err = json.Unmarshal([]byte(d.data), &foo); err != nil {
+		return
+	}
+
+	//-------------------------------------------------------
+	// GET THE NEW `tx`, UPDATED CTX FROM THE REQUEST CONTEXT
+	//-------------------------------------------------------
+	tx, ctx, err = rlib.NewTransactionWithContext(r.Context())
+	if err != nil {
 		return
 	}
 
 	// get flow and it must exist
-	flow, err := rlib.GetFlow(r.Context(), foo.FlowID)
+	var flow rlib.Flow
+	flow, err = rlib.GetFlow(ctx, foo.FlowID)
 	if err != nil {
-		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
 	// get unmarshalled raflow data into struct
 	err = json.Unmarshal(flow.Data, &raFlowData)
 	if err != nil {
-		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
 	// ----------------------------------------------
 	// get person details with given TCID
 	// ----------------------------------------------
+	personTMPTCID := int64(0)
 
 	// this is for accept Transactant, so find it by TCID
 	tcidExistInJSONData := false
 	for i := range raFlowData.People {
 		if raFlowData.People[i].TCID == foo.TCID {
 			tcidExistInJSONData = true
-			continue
+			personTMPTCID = raFlowData.People[i].TMPTCID
+			break
 		}
 	}
 
 	if !tcidExistInJSONData {
 		newRAFlowPerson := RAPeopleFlowData{}
 		var xp rlib.XPerson
-		err = rlib.GetXPerson(r.Context(), foo.TCID, &xp)
+		err = rlib.GetXPerson(ctx, foo.TCID, &xp)
 		if err != nil {
-			SvcErrorReturn(w, err, funcname)
 			return
 		}
 
@@ -839,21 +893,25 @@ func SvcGetRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *Servic
 		}
 
 		// custom tmp tcid
-		raFlowData.Meta.LastTMPTCID++
-		newRAFlowPerson.TMPTCID = raFlowData.Meta.LastTMPTCID
+		newRAFlowPerson.TMPTCID = raFlowData.Meta.LastTMPTCID + 1
+		newRAFlowMeta.LastTMPTCID = newRAFlowPerson.TMPTCID
+		personTMPTCID = newRAFlowPerson.TMPTCID
+
+		// we need to update meta at the end, as new TMPTCID assigned
+		shouldModifyMetaData = true
+
+		// append in json list
 		raFlowData.People = append(raFlowData.People, newRAFlowPerson)
 
 		var modPeopleData []byte
 		modPeopleData, err = json.Marshal(&raFlowData.People)
 		if err != nil {
-			SvcErrorReturn(w, err, funcname)
 			return
 		}
 
 		// update flow with this modified people part
-		err = rlib.UpdateFlowData(r.Context(), "people", modPeopleData, &flow)
+		err = rlib.UpdateFlowData(ctx, "people", modPeopleData, &flow)
 		if err != nil {
-			SvcErrorReturn(w, err, funcname)
 			return
 		}
 	}
@@ -864,9 +922,8 @@ func SvcGetRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *Servic
 
 	// get the list of pets
 	var petList []rlib.RentalAgreementPet
-	petList, err = rlib.GetPetsByTransactant(r.Context(), foo.TCID)
+	petList, err = rlib.GetPetsByTransactant(ctx, foo.TCID)
 	if err != nil {
-		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -886,10 +943,17 @@ func SvcGetRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *Servic
 			var newRAFlowPet RAPetsFlowData
 			rlib.MigrateStructVals(&petList[i], &newRAFlowPet)
 
-			raFlowData.Meta.LastTMPPETID++
-			newRAFlowPet.TMPPETID = raFlowData.Meta.LastTMPPETID
+			// assign new TMPPETID & mark in meta info
+			newRAFlowPet.TMPPETID = raFlowData.Meta.LastTMPPETID + 1
+			newRAFlowMeta.LastTMPPETID = newRAFlowPet.TMPPETID
+
+			// reference of TMPTCID for the person
+			newRAFlowPet.TMPTCID = personTMPTCID
+
+			// append in pets list of json data
 			raFlowData.Pets = append(raFlowData.Pets, newRAFlowPet)
 			shouldModifyPetsData = true
+			shouldModifyMetaData = true // as new TMPPETID
 		}
 	}
 
@@ -897,14 +961,12 @@ func SvcGetRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *Servic
 		var modPetsData []byte
 		modPetsData, err = json.Marshal(&raFlowData.Pets)
 		if err != nil {
-			SvcErrorReturn(w, err, funcname)
 			return
 		}
 
 		// update flow with this modified pets part
-		err = rlib.UpdateFlowData(r.Context(), "pets", modPetsData, &flow)
+		err = rlib.UpdateFlowData(ctx, "pets", modPetsData, &flow)
 		if err != nil {
-			SvcErrorReturn(w, err, funcname)
 			return
 		}
 	}
@@ -915,9 +977,8 @@ func SvcGetRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *Servic
 
 	// get the list of pets
 	var vehicleList []rlib.Vehicle
-	vehicleList, err = rlib.GetVehiclesByTransactant(r.Context(), foo.TCID)
+	vehicleList, err = rlib.GetVehiclesByTransactant(ctx, foo.TCID)
 	if err != nil {
-		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -937,10 +998,17 @@ func SvcGetRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *Servic
 			var newRAFlowVehicle RAVehiclesFlowData
 			rlib.MigrateStructVals(&vehicleList[i], &newRAFlowVehicle)
 
-			raFlowData.Meta.LastTMPVID++
-			newRAFlowVehicle.TMPVID = raFlowData.Meta.LastTMPVID
+			// assign new TMPVID
+			newRAFlowVehicle.TMPVID = raFlowData.Meta.LastTMPVID + 1
+			newRAFlowMeta.LastTMPVID = newRAFlowVehicle.TMPVID
+
+			// reference of TMPTCID to this vehicle
+			newRAFlowVehicle.TMPTCID = personTMPTCID
+
+			// append in vehicles list of json data
 			raFlowData.Vehicles = append(raFlowData.Vehicles, newRAFlowVehicle)
 			shouldModifyVehiclesData = true
+			shouldModifyMetaData = true // as new TMPVID assigned
 		}
 	}
 
@@ -949,14 +1017,30 @@ func SvcGetRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *Servic
 		var modVData []byte
 		modVData, err = json.Marshal(&raFlowData.Vehicles)
 		if err != nil {
-			SvcErrorReturn(w, err, funcname)
 			return
 		}
 
 		// update flow with this modified vehicles part
-		err = rlib.UpdateFlowData(r.Context(), "vehicles", modVData, &flow)
+		err = rlib.UpdateFlowData(ctx, "vehicles", modVData, &flow)
 		if err != nil {
-			SvcErrorReturn(w, err, funcname)
+			return
+		}
+	}
+
+	// ----------------------------------------------
+	// update meta info if required
+	// ----------------------------------------------
+	if shouldModifyMetaData {
+		// get marshalled data
+		var modMetaData []byte
+		modMetaData, err = json.Marshal(&newRAFlowMeta)
+		if err != nil {
+			return
+		}
+
+		// update flow with this modified meta part
+		err = rlib.UpdateFlowData(ctx, "meta", modMetaData, &flow)
+		if err != nil {
 			return
 		}
 	}
@@ -966,9 +1050,192 @@ func SvcGetRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *Servic
 	// ----------------------------------------------
 
 	// get the modified flow
-	flow, err = rlib.GetFlow(r.Context(), flow.FlowID)
+	flow, err = rlib.GetFlow(ctx, flow.FlowID)
 	if err != nil {
-		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// ------------------
+	// COMMIT TRANSACTION
+	// ------------------
+	if err = tx.Commit(); err != nil {
+		return
+	}
+
+	// set the response
+	g.Record = flow
+	g.Status = "success"
+	SvcWriteResponse(d.BID, &g, w)
+}
+
+// DeleteRAFlowPerson remove person from raflow data as well as removes
+// associated pets and vehicles data too
+// wsdoc {
+//  @Title Remvoe Person with list of associated Pets & Vehicles
+//  @URL /v1/raflow-person/:BUI/:FlowID
+//  @Method POST
+//  @Synopsis Remove Person from RAFlow json data
+//  @Description Remove details about person with associated pets and vehicles
+//  @Input RAFlowRemovePersonRequest
+//  @Response FlowResponse
+// wsdoc }
+func DeleteRAFlowPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "DeleteRAFlowPerson"
+	var (
+		raFlowData RAFlowJSONData
+		foo        RAFlowRemovePersonRequest
+		g          FlowResponse
+		err        error
+		tx         *sql.Tx
+		ctx        context.Context
+	)
+	fmt.Printf("Entered %s\n", funcname)
+
+	// ===============================================
+	// defer function to handle transactaion rollback
+	// ===============================================
+	defer func() {
+		if err != nil {
+			if tx != nil {
+				tx.Rollback()
+			}
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+	}()
+
+	// http method check
+	if r.Method != "POST" {
+		err = fmt.Errorf("Only POST method is allowed")
+		return
+	}
+
+	// unmarshal data into request data struct
+	if err = json.Unmarshal([]byte(d.data), &foo); err != nil {
+		return
+	}
+
+	//-------------------------------------------------------
+	// GET THE NEW `tx`, UPDATED CTX FROM THE REQUEST CONTEXT
+	//-------------------------------------------------------
+	tx, ctx, err = rlib.NewTransactionWithContext(r.Context())
+	if err != nil {
+		return
+	}
+
+	// get flow and it must exist
+	var flow rlib.Flow
+	flow, err = rlib.GetFlow(ctx, foo.FlowID)
+	if err != nil {
+		return
+	}
+
+	// get unmarshalled raflow data into struct
+	err = json.Unmarshal(flow.Data, &raFlowData)
+	if err != nil {
+		return
+	}
+
+	// ----------------------------------------------
+	// get person details with given TMPTCID
+	// ----------------------------------------------
+	personTMPTCID := int64(0)
+
+	// this is for accept Transactant, so find it by TMPTCID
+	tcidExistInJSONData := false
+	for i := range raFlowData.People {
+		if raFlowData.People[i].TMPTCID == foo.TMPTCID {
+			tcidExistInJSONData = true
+			personTMPTCID = raFlowData.People[i].TMPTCID
+
+			// remove the element then
+			raFlowData.People = append(raFlowData.People[:i], raFlowData.People[i+1:]...)
+
+			break
+		}
+	}
+
+	if tcidExistInJSONData {
+		var modPeopleData []byte
+		modPeopleData, err = json.Marshal(&raFlowData.People)
+		if err != nil {
+			return
+		}
+
+		// update flow with this modified people part
+		err = rlib.UpdateFlowData(ctx, "people", modPeopleData, &flow)
+		if err != nil {
+			return
+		}
+	}
+
+	// ----------------------------------------------
+	// remove associated pets
+	// ----------------------------------------------
+	shouldModifyPetsData := false
+	for i := range raFlowData.Pets {
+		if raFlowData.Pets[i].TMPTCID == personTMPTCID {
+			shouldModifyPetsData = true
+			// remove this pet from the list
+			raFlowData.Pets = append(raFlowData.Pets[:i], raFlowData.Pets[i+1:]...)
+		}
+	}
+
+	if shouldModifyPetsData {
+		var modPetsData []byte
+		modPetsData, err = json.Marshal(&raFlowData.Pets)
+		if err != nil {
+			return
+		}
+
+		// update flow with this modified pets part
+		err = rlib.UpdateFlowData(ctx, "pets", modPetsData, &flow)
+		if err != nil {
+			return
+		}
+	}
+
+	// ----------------------------------------------
+	// remove associated vehicles
+	// ----------------------------------------------
+	shouldModifyVehiclesData := false
+	for i := range raFlowData.Vehicles {
+		if raFlowData.Vehicles[i].TMPTCID == personTMPTCID {
+			shouldModifyVehiclesData = true
+			// remove this pet from the list
+			raFlowData.Vehicles = append(raFlowData.Vehicles[:i], raFlowData.Vehicles[i+1:]...)
+		}
+	}
+
+	if shouldModifyVehiclesData {
+		// get marshalled data
+		var modVData []byte
+		modVData, err = json.Marshal(&raFlowData.Vehicles)
+		if err != nil {
+			return
+		}
+
+		// update flow with this modified vehicles part
+		err = rlib.UpdateFlowData(ctx, "vehicles", modVData, &flow)
+		if err != nil {
+			return
+		}
+	}
+
+	// ----------------------------------------------
+	// return response
+	// ----------------------------------------------
+
+	// get the modified flow
+	flow, err = rlib.GetFlow(ctx, flow.FlowID)
+	if err != nil {
+		return
+	}
+
+	// ------------------
+	// COMMIT TRANSACTION
+	// ------------------
+	if err = tx.Commit(); err != nil {
 		return
 	}
 

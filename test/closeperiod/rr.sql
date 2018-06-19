@@ -1,6 +1,6 @@
--- MySQL dump 10.13  Distrib 5.7.22, for osx10.12 (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.22, for Linux (x86_64)
 --
--- Host: localhost    Database: rentroll
+-- Host: 127.0.0.1    Database: rentroll
 -- ------------------------------------------------------
 -- Server version	5.7.22
 
@@ -1313,7 +1313,6 @@ CREATE TABLE `Prospect` (
   `CompanyEmail` varchar(100) NOT NULL DEFAULT '',
   `CompanyPhone` varchar(100) NOT NULL DEFAULT '',
   `Occupation` varchar(100) NOT NULL DEFAULT '',
-  `ApplicationFee` decimal(19,4) NOT NULL DEFAULT '0.0000',
   `DesiredUsageStartDate` date NOT NULL DEFAULT '1970-01-01',
   `RentableTypePreference` bigint(20) NOT NULL DEFAULT '0',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
@@ -2498,7 +2497,7 @@ CREATE TABLE `User` (
   `EmergencyContactName` varchar(100) NOT NULL DEFAULT '',
   `EmergencyContactAddress` varchar(100) NOT NULL DEFAULT '',
   `EmergencyContactTelephone` varchar(100) NOT NULL DEFAULT '',
-  `EmergencyEmail` varchar(100) NOT NULL DEFAULT '',
+  `EmergencyContactEmail` varchar(100) NOT NULL DEFAULT '',
   `AlternateAddress` varchar(100) NOT NULL DEFAULT '',
   `EligibleFutureUser` tinyint(1) NOT NULL DEFAULT '1',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
@@ -2570,4 +2569,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-06-18 23:43:17
+-- Dump completed on 2018-06-19 12:18:18
