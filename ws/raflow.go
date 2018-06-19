@@ -83,7 +83,7 @@ type RAPeopleFlowData struct {
 	EmergencyContactName    string
 	EmergencyContactAddress string
 	EmergencyContactPhone   string
-	EmergencyEmail          string
+	EmergencyContactEmail   string
 	AlternateAddress        string
 	EligibleFutureUser      bool
 	Industry                string
@@ -126,7 +126,6 @@ type RAPeopleFlowData struct {
 	ConvictedDes           string
 	Bankruptcy             bool // Declared Bankruptcy
 	BankruptcyDes          string
-	ApplicationFee         float64
 	DesiredUsageStartDate  rlib.JSONDate
 	RentableTypePreference int64
 	FLAGS                  int64
