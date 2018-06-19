@@ -217,26 +217,14 @@ func InsertBuildingWithID(ctx context.Context, a *Building) (int64, error) {
 // InsertBusiness writes a new Business record.
 // returns the new Business ID and any associated error
 func InsertBusiness(ctx context.Context, a *Business) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy); err != nil {
+		return rid, err
 	}
-
-	// transaction... context
+	a.LastModBy = a.CreateBy
 
 	// TODO(Sudip): keep mind this FLAGS insertion in fields, this might be removed in the future
 	fields := []interface{}{a.Designation, a.Name, a.DefaultRentCycle, a.DefaultProrationCycle, a.DefaultGSRPC, a.ClosePeriodTLID, a.FLAGS, a.CreateBy, a.LastModBy}
@@ -261,6 +249,46 @@ func InsertBusiness(ctx context.Context, a *Business) (int64, error) {
 
 		// build business list and cache again
 		RRdb.BUDlist, RRdb.BizCache = BuildBusinessDesignationMap()
+	}
+	return rid, err
+}
+
+// InsertBusinessProperties inserts the property with data provided in "a".
+func InsertBusinessProperties(ctx context.Context, a *BusinessProperties) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
+
+	if err = insertSessionProblem(ctx, &a.CreateBy); err != nil {
+		return rid, err
+	}
+	a.LastModBy = a.CreateBy
+
+	// make sure that json is valid before inserting it in database
+	if !(IsValidJSONConversion(a.Data)) {
+		return rid, ErrFlowInvalidJSONData
+	}
+
+	// as a.Data is type of json.RawMessage - convert it to byte stream so that it can be inserted
+	// in mysql `json` type column
+	fields := []interface{}{a.BID, a.Name, []byte(a.Data), a.FLAGS, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertBusinessProperties)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertBusinessProperties.Exec(fields...)
+	}
+
+	// After getting result...
+	if nil == err {
+		x, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(x)
+			a.BPID = rid
+		}
+	} else {
+		err = insertError(err, "BusinessProperties", *a)
 	}
 	return rid, err
 }
@@ -686,7 +714,7 @@ func InsertFlow(ctx context.Context, a *Flow) (int64, error) {
 	}
 
 	// make sure that json is valid before inserting it in database
-	if !(IsFlowDataValidJSON(a.Data)) {
+	if !(IsValidJSONConversion(a.Data)) {
 		return rid, ErrFlowInvalidJSONData
 	}
 

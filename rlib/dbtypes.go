@@ -951,6 +951,28 @@ type Business struct {
 	CreateBy int64     // employee UID (from phonebook) that created it
 }
 
+// BusinessProperties defines properties for a business. The value
+// of the property is defined as JSON data in the Data field. It should
+// be unmarshaled into a struct that corresponds to the Name
+type BusinessProperties struct {
+	BPID        int64
+	BID         int64
+	Name        string          // "general" or whatever sub-category you want
+	Data        json.RawMessage // json data in mysql -- marshaled BizProps
+	FLAGS       int64           // FLAGS
+	LastModTime time.Time       // when was this record last written
+	LastModBy   int64           // employee UID (from phonebook) that modified it
+	CreateTS    time.Time       // when was this record created
+	CreateBy    int64           // employee UID (from phonebook) that created it
+}
+
+// BizProps is the golang struct for a category of business properties.
+// This struct will be marshaled into JSON data and stored in BusinessProperties
+type BizProps struct {
+	PetFees     []string // AR names of all Pet Fees
+	VehicleFees []string // AR names of all Vehicle Fees
+}
+
 // Building defines the location of a Building that is part of a Business
 type Building struct {
 	BLDGID      int64
@@ -1850,6 +1872,11 @@ type RRprepSQL struct {
 	DeleteClosePeriod                       *sql.Stmt
 	GetFlowMetaDataInRange                  *sql.Stmt
 	GetFlowForRAID                          *sql.Stmt
+	GetBusinessProperties                   *sql.Stmt
+	GetBusinessPropertiesByName             *sql.Stmt
+	InsertBusinessProperties                *sql.Stmt
+	UpdateBusinessPropertiesData            *sql.Stmt
+	DeleteBusinessProperties                *sql.Stmt
 }
 
 // DeleteBusinessFromDB deletes information from all tables if it is part of the supplied BID.

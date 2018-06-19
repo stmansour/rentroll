@@ -274,6 +274,36 @@ LOCK TABLES `BusinessPaymentTypes` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `BusinessProperties`
+--
+
+DROP TABLE IF EXISTS `BusinessProperties`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `BusinessProperties` (
+  `BPID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `BID` bigint(20) NOT NULL DEFAULT '0',
+  `Name` varchar(100) NOT NULL DEFAULT '',
+  `FLAGS` bigint(20) NOT NULL DEFAULT '0',
+  `Data` json DEFAULT NULL,
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
+  `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`BPID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `BusinessProperties`
+--
+
+LOCK TABLES `BusinessProperties` WRITE;
+/*!40000 ALTER TABLE `BusinessProperties` DISABLE KEYS */;
+/*!40000 ALTER TABLE `BusinessProperties` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `ClosePeriod`
 --
 
@@ -2524,4 +2554,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-06-18 11:21:33
+-- Dump completed on 2018-06-18 23:43:29

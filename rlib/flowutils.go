@@ -20,9 +20,9 @@ func IsByteDataValidJSON(b []byte) bool {
 	return json.Unmarshal(b, &raw) == nil
 }
 
-// IsFlowDataValidJSON checks that passed flow data is valid json or not
+// IsValidJSONConversion checks that passed flow data is valid json or not
 // This data will be inserted/updated to data with json type column
-func IsFlowDataValidJSON(raw json.RawMessage) bool {
+func IsValidJSONConversion(raw json.RawMessage) bool {
 	_, err := json.Marshal(&raw)
 	return err == nil
 }

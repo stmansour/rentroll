@@ -6,6 +6,23 @@ import (
 	"extres"
 )
 
+// updateSessionProblem is a convenience function that replaces 8 lines
+// of code with about 4. Since these lines are needed for every update call
+// it saves a lot of lines.  Added this routine at the time Task,TaskList,
+// TaskDescriptor and  TaskListDefinition were added.
+//-----------------------------------------------------------------------------
+func updateSessionProblem(ctx context.Context, id *int64) error {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+		(*id) = sess.UID
+		return nil
+	}
+	return nil
+}
+
 func updateError(err error, n string, a interface{}) error {
 	if nil != err {
 		Ulog("Update%s: error updating %s:  %v\n", n, n, err)
@@ -43,15 +60,10 @@ func UpdateAR(ctx context.Context, a *AR) error {
 func UpdateAssessment(ctx context.Context, a *Assessment) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = insertSessionProblem(ctx, &a.CreateBy); err != nil {
+		return err
 	}
+	a.LastModBy = a.CreateBy
 
 	a.Amount = Round(a.Amount, .5, 2)
 	fields := []interface{}{a.PASMID, a.RPASMID, a.AGRCPTID, a.BID, a.RID, a.ATypeLID, a.RAID, a.Amount, a.Start, a.Stop, a.RentCycle, a.ProrationCycle, a.InvoiceNo, a.AcctRule, a.ARID, a.FLAGS, a.Comment, a.LastModBy, a.ASMID}
@@ -69,15 +81,10 @@ func UpdateAssessment(ctx context.Context, a *Assessment) error {
 func UpdateBusiness(ctx context.Context, a *Business) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = insertSessionProblem(ctx, &a.CreateBy); err != nil {
+		return err
 	}
+	a.LastModBy = a.CreateBy
 
 	// TODO(Sudip): keep mind this FLAGS insertion in fields, this might be removed in the future
 	fields := []interface{}{a.Designation, a.Name, a.DefaultRentCycle, a.DefaultProrationCycle, a.DefaultGSRPC, a.ClosePeriodTLID, a.FLAGS, a.LastModBy, a.BID}
@@ -93,6 +100,33 @@ func UpdateBusiness(ctx context.Context, a *Business) error {
 	RRdb.BUDlist, RRdb.BizCache = BuildBusinessDesignationMap()
 
 	return updateError(err, "Business", *a)
+}
+
+// UpdateBusinessPropertiesData updates the flow Data json column
+func UpdateBusinessPropertiesData(ctx context.Context, jsonDataKey string, jsonData []byte, a *BusinessProperties) error {
+	var err error
+
+	if err = insertSessionProblem(ctx, &a.CreateBy); err != nil {
+		return err
+	}
+	a.LastModBy = a.CreateBy
+
+	// make sure that json is valid before inserting it in database
+	if !(IsByteDataValidJSON(jsonData)) {
+		return ErrFlowInvalidJSONData
+	}
+
+	// as a.Data is type of json.RawMessage - convert it to byte stream so that it can be inserted
+	// in mysql `json` type column
+	fields := []interface{}{jsonDataKey, jsonData, a.BPID}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.UpdateBusinessPropertiesData)
+		defer stmt.Close()
+		_, err = stmt.Exec(fields...)
+	} else {
+		_, err = RRdb.Prepstmt.UpdateBusinessPropertiesData.Exec(fields...)
+	}
+	return updateError(err, "BusinessProperties", *a)
 }
 
 // UpdateClosePeriod updates an ClosePeriod record
