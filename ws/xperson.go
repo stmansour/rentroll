@@ -200,11 +200,11 @@ func SvcTransactantTypeDown(w http.ResponseWriter, r *http.Request, d *ServiceDa
 		g   TransactantsTypedownResponse
 		err error
 	)
-	fmt.Printf("Entered %s\n", funcname)
+	rlib.Console("Entered %s\n", funcname)
 
-	fmt.Printf("handle typedown: GetTransactantsTypeDown( bid=%d, search=%s, limit=%d\n", d.BID, d.wsTypeDownReq.Search, d.wsTypeDownReq.Max)
+	rlib.Console("handle typedown: GetTransactantsTypeDown( bid=%d, search=%s, limit=%d\n", d.BID, d.wsTypeDownReq.Search, d.wsTypeDownReq.Max)
 	g.Records, err = rlib.GetTransactantTypeDown(r.Context(), d.BID, d.wsTypeDownReq.Search, d.wsTypeDownReq.Max)
-	fmt.Printf("GetTransactantTypeDown returned %d matches\n", len(g.Records))
+	rlib.Console("GetTransactantTypeDown returned %d matches\n", len(g.Records))
 	g.Total = int64(len(g.Records))
 	if err != nil {
 		e := fmt.Errorf("Error getting typedown matches: %s", err.Error())
@@ -295,7 +295,7 @@ func SvcSearchHandlerTransactants(w http.ResponseWriter, r *http.Request, d *Ser
 		err error
 		g   SearchTransactantsResponse
 	)
-	fmt.Printf("Entered %s\n", funcname)
+	rlib.Console("Entered %s\n", funcname)
 
 	const (
 		limitClause int = 100
@@ -332,11 +332,11 @@ func SvcSearchHandlerTransactants(w http.ResponseWriter, r *http.Request, d *Ser
 	countQuery := rlib.RenderSQLQuery(transactantsQuery, qc)
 	g.Total, err = rlib.GetQueryCount(countQuery) // total number of rows that match the criteria
 	if err != nil {
-		fmt.Printf("Error from rlib.GetQueryCount: %s\n", err.Error())
+		rlib.Console("Error from rlib.GetQueryCount: %s\n", err.Error())
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
-	fmt.Printf("g.Total = %d\n", g.Total)
+	rlib.Console("g.Total = %d\n", g.Total)
 
 	// FETCH the records WITH LIMIT AND OFFSET
 	// limit the records to fetch from server, page by page
@@ -354,7 +354,7 @@ func SvcSearchHandlerTransactants(w http.ResponseWriter, r *http.Request, d *Ser
 
 	// get formatted query with substitution of select, where, order clause
 	qry := rlib.RenderSQLQuery(transactantsQueryWithLimit, qc)
-	fmt.Printf("db query = %s\n", qry)
+	rlib.Console("db query = %s\n", qry)
 
 	// execute the query
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
@@ -411,14 +411,14 @@ func SvcFormHandlerXPerson(w http.ResponseWriter, r *http.Request, d *ServiceDat
 	var (
 		err error
 	)
-	fmt.Printf("Entered %s\n", funcname)
+	rlib.Console("Entered %s\n", funcname)
 
 	if d.TCID, err = SvcExtractIDFromURI(r.RequestURI, "TCID", 3, w); err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
-	fmt.Printf("Request: %s:  BID = %d,  TCID = %d\n", d.wsSearchReq.Cmd, d.BID, d.TCID)
+	rlib.Console("Request: %s:  BID = %d,  TCID = %d\n", d.wsSearchReq.Cmd, d.BID, d.TCID)
 
 	switch d.wsSearchReq.Cmd {
 	case "get":
@@ -530,10 +530,10 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	)
 
 	target := `"record":`
-	fmt.Printf("Entered %s\n", funcname)
-	fmt.Printf("record data = %s\n", d.data)
+	rlib.Console("Entered %s\n", funcname)
+	rlib.Console("record data = %s\n", d.data)
 	i := strings.Index(d.data, target)
-	fmt.Printf("record is at index = %d\n", i)
+	rlib.Console("record is at index = %d\n", i)
 	if i < 0 {
 		e := fmt.Errorf("saveXPerson: cannot find %s in form json", target)
 		SvcErrorReturn(w, e, funcname)
@@ -541,7 +541,7 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	s := d.data[i+len(target):]
 	s = s[:len(s)-1]
-	fmt.Printf("data to unmarshal is:  %s\n", s)
+	rlib.Console("data to unmarshal is:  %s\n", s)
 
 	//===============================================================
 	//------------------------------
@@ -552,17 +552,17 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	err = json.Unmarshal([]byte(s), &gxp)
 	if err != nil {
-		fmt.Printf("Data unmarshal error: %s\n", err.Error())
+		rlib.Console("Data unmarshal error: %s\n", err.Error())
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
 		SvcErrorReturn(w, e, funcname)
 		return
 	}
-	fmt.Printf("saveXPersonL Start migration\n")
+	rlib.Console("saveXPersonL Start migration\n")
 	rlib.MigrateStructVals(&gxp, &xp.Trn)
 	rlib.MigrateStructVals(&gxp, &xp.Usr)
 	rlib.MigrateStructVals(&gxp, &xp.Psp)
 	rlib.MigrateStructVals(&gxp, &xp.Pay)
-	fmt.Printf("saveXPersonL Finished migration\n")
+	rlib.Console("saveXPersonL Finished migration\n")
 
 	//---------------------------
 	// Handle all the list data
@@ -570,7 +570,7 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var gxpo RPersonOther
 	err = json.Unmarshal([]byte(s), &gxpo)
 	if err != nil {
-		fmt.Printf("Data unmarshal error: %s\n", err.Error())
+		rlib.Console("Data unmarshal error: %s\n", err.Error())
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
 		SvcErrorReturn(w, e, funcname)
 		return
@@ -591,7 +591,7 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			return
 		}
 	} else {
-		fmt.Printf("Updating Transactant record with TCID: %d\n", xp.Trn.TCID)
+		rlib.Console("Updating Transactant record with TCID: %d\n", xp.Trn.TCID)
 		if xpUpdatePerson(w, r, &xp) {
 			return
 		}
@@ -630,7 +630,6 @@ func getXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	g.Record.BID = d.BID
 	g.Record.BUD = rlib.GetBUDFromBIDList(d.BID)
 	g.Status = "success"
-	rlib.Console("Drivers License: %s\nSSN: %s\n", g.Record.DriversLicense, g.Record.SSN)
 	SvcWriteResponse(d.BID, &g, w)
 }
 
@@ -650,15 +649,15 @@ func deleteXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		del DeletePersonForm
 	)
 
-	fmt.Printf("Entered %s\n", funcname)
-	fmt.Printf("record data = %s\n", d.data)
+	rlib.Console("Entered %s\n", funcname)
+	rlib.Console("record data = %s\n", d.data)
 
 	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
-	// fmt.Printf("del = %#v\n", del)
+	// rlib.Console("del = %#v\n", del)
 
 	// delete Prospect
 	if err := rlib.DeleteProspect(r.Context(), del.TCID); err != nil {
