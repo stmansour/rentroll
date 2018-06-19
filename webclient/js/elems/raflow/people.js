@@ -289,7 +289,7 @@ window.loadRAPeopleForm = function () {
                         }
                     })
                     .fail(function (data) {
-                        console.log("failure " + data);
+                        console.error("failure " + data);
                     });
                 },
                 delete: function () {
@@ -345,7 +345,7 @@ window.loadRAPeopleForm = function () {
                         }
                     })
                     .fail(function (data) {
-                        console.log("failure " + data);
+                        console.error("failure " + data);
                     });
                 },
                 reset: function () {
@@ -473,7 +473,7 @@ window.getRATransanctantDetail = function (TCID) {
             }
         },
         error: function () {
-            console.log("Error:" + JSON.stringify(data));
+            console.error("Error:" + JSON.stringify(data));
         }
     });
 };
@@ -574,11 +574,11 @@ window.acceptTransactant = function () {
                 w2ui.RAPeopleForm.actions.reset();
 
             } else {
-                console.log(data.message);
+                console.error(data.message);
             }
         })
         .fail(function (data) {
-            console.log("failure" + data);
+            console.error("failure" + data);
         });
     } else {
         var recid = compData[tcidIndex].recid;

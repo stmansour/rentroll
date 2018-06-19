@@ -61,7 +61,7 @@ window.getTransactantInitRecord = function (BID, BUD) {
         CurrentAddress: "",
         CurrentLandLordName: "",
         CurrentLandLordPhoneNo: "",
-        CurrentLengthOfResidency: 0,
+        CurrentLengthOfResidency: "",
         CurrentReasonForMoving: "",
         PriorAddress: "",
         PriorLandLordName: "",
@@ -85,7 +85,6 @@ window.getTransactantInitRecord = function (BID, BUD) {
         CSAgent: 0,
         OutcomeSLSID: 0,
         FloatingDeposit: 0.00,
-        RAID: 0,
         Comment: ""
     };
 };
@@ -493,7 +492,6 @@ window.getStringListData = function (BID, BUD) {
     return $.get("/v1/uival/" + BID + "/app.Applicants", null, null, "json").done(function(data) {
         // if it doesn't meet this condition, then save the data
         if (!('status' in data && data.status !== "success")) {
-            console.log(data);
             app.StringList[BUD] = data;
         }
     });
