@@ -50,10 +50,12 @@ var IG struct {
 	CatNames    []string        // array of cat names
 	CatColors   []string        // array of cat colors
 	Occupations []string        // career occupations
+	Industries  []string        // industry area of focus
 	Cars        []CarInfo       // array of info about cars
 	Mfgs        []WMIInfo       // array of auto manufacturers worldwide
 	Rand        *rand.Rand      // random number generator to use
 	WhyLeaving  rlib.StringList // strings for why leaving last residence
+	HowFound    rlib.StringList // strings for how the applicant found out about the property
 }
 
 func initOpen(fname string, pm *[]string) {
@@ -137,6 +139,7 @@ func IGInit(r *rand.Rand) {
 		{"./idgen/dogcolors.txt", &IG.DogColors},
 		{"./idgen/catcolors.txt", &IG.CatColors},
 		{"./idgen/occupation.txt", &IG.Occupations},
+		{"./idgen/industries.txt", &IG.Industries},
 	}
 
 	loadCars("./idgen/cars.csv", &IG.Cars)
@@ -150,6 +153,10 @@ func IGInit(r *rand.Rand) {
 	ctx := context.Background()
 	if err = rlib.GetStringListByName(ctx, 1, "WhyLeaving", &IG.WhyLeaving); err != nil {
 		rlib.Console("Error getting StringList: WhyLeaving: %s\n", err.Error())
+		os.Exit(1)
+	}
+	if err = rlib.GetStringListByName(ctx, 1, "HowFound", &IG.HowFound); err != nil {
+		rlib.Console("Error getting StringList: HowFound: %s\n", err.Error())
 		os.Exit(1)
 	}
 
@@ -267,6 +274,12 @@ func randomAlphaNumeric(n int) string {
 //-----------------------------------------------------------------------------
 func GenerateRandomOccupation() string {
 	return IG.Occupations[IG.Rand.Intn(len(IG.Occupations))]
+}
+
+// GenerateRandomIndustry returns a random career industry
+//-----------------------------------------------------------------------------
+func GenerateRandomIndustry() string {
+	return IG.Industries[IG.Rand.Intn(len(IG.Industries))]
 }
 
 // GenerateRandomDurationString returns a random duration

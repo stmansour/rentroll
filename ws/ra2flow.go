@@ -454,6 +454,7 @@ func addRAPtoFlow(ctx context.Context, tcid int64, raf *RAFlowJSONData, chk, isR
 	if isOccupant {
 		rap.IsOccupant = true
 	}
+	rlib.Console("\n\n\n\n\n############\n\naddRAPtoFlow: TMPTCID = %d, SSN = %s, DriversLicense = %s\n\n#########\n\n\n\n\n", rap.TMPTCID, rap.SSN, rap.DriversLicense)
 	raf.People = append(raf.People, rap)
 	return nil
 }

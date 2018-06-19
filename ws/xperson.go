@@ -630,6 +630,7 @@ func getXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	g.Record.BID = d.BID
 	g.Record.BUD = rlib.GetBUDFromBIDList(d.BID)
 	g.Status = "success"
+	rlib.Console("Drivers License: %s\nSSN: %s\n", g.Record.DriversLicense, g.Record.SSN)
 	SvcWriteResponse(d.BID, &g, w)
 }
 
