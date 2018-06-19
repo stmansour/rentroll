@@ -67,8 +67,6 @@ type PeopleCSV struct {
 	FollowUpDate              string
 	CSAgent                   string
 	OutcomeSLSID              string
-	FloatingDeposit           string
-	RAID                      string
 }
 
 // RentableCSV is struct that is used
