@@ -7,12 +7,12 @@
     openNewTransactantForm, getRAAddTransactantFormInitRec,
     acceptTransactant, loadRAPeopleForm,
     setRATransactantFormHeader, showHideRATransactantFormFields,
-    setNotRequiredFields, getRATransanctantDetail, getRAPeopleGridRecord,
+    setNotRequiredFields, getRATransanctantDetailAJAX, getRAPeopleGridRecord,
     updateRATransactantFormCheckboxes, getRATransactantFormInitRecord, loadRATransactantForm, ReassignPeopleGridRecords,
     manageBGInfoFormFields, addDummyBackgroundInfo, savePeopleCompData, getPeopleLocalData, setPeopleLocalData,
     getPeopleLocalDataByTCID, setTransactantDefaultRole, transactantTabs, transactantFields,
     savePetsCompData, saveVehiclesCompData, setRAFlowCompData, getStringListData, getSLStringList, updateRATransactantFormCheckboxes,
-    managePeopleW2UIItems
+    managePeopleW2UIItems, removeRAFlowPersonAJAX,
 */
 
 "use strict";
@@ -294,46 +294,13 @@ window.loadRAPeopleForm = function () {
                 },
                 delete: function () {
                     var form = this;
-                    var TCID = form.record.TCID;
+                    var TMPTCID = form.record.TMPTCID;
 
-                    // get local data from TMPPETID
-                    var compData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
-                    var itemIndex = getPeopleLocalData(form.record.TMPTCID, true);
-                    compData.splice(itemIndex, 1);
-
-                    savePeopleCompData()
-                    .done(function (data) {
+                    removeRAFlowPersonAJAX(TMPTCID)
+                    .done(function(data) {
                         if (data.status === 'success') {
-
+                            // clear the form
                             form.clear();
-
-                            // now if this is existed transactanct then remove
-                            // pets, vehicles too associated with it.
-                            if (TCID > 0) {
-                                // 1. pets
-                                var petsCompData = getRAFlowCompData("pets", app.raflow.activeFlowID) || [];
-                                petsCompData = petsCompData.filter(function(petItem) {
-                                    return petItem.TCID != TCID;
-                                });
-
-                                // set data locally
-                                setRAFlowCompData("pets", app.raflow.activeFlowID, petsCompData);
-
-                                // save data on server
-                                savePetsCompData();
-
-                                // 2. vehicles
-                                var vehiclesCompData = getRAFlowCompData("vehicles", app.raflow.activeFlowID) || [];
-                                vehiclesCompData = vehiclesCompData.filter(function(vehicleItem) {
-                                    return vehicleItem.TCID != TCID;
-                                });
-
-                                // set data locally
-                                setRAFlowCompData("vehicles", app.raflow.activeFlowID, vehiclesCompData);
-
-                                // save data on server
-                                saveVehiclesCompData();
-                            }
 
                             // update RAPeopleGrid
                             ReassignPeopleGridRecords();
@@ -447,19 +414,50 @@ window.setNotRequiredFields = function (listOfNotRequiredFields, required) {
     }
 };
 
-// getRATransanctantDetail
-// get Transanctant detail from the server
-window.getRATransanctantDetail = function (TCID) {
+// remove person with associated pets, vehicles from json data via Ajax
+window.removeRAFlowPersonAJAX = function (TMPTCID) {
     var bid = getCurrentBID();
 
     // temporary data
     var data = {
+        "cmd": "delete",
+        "TMPTCID": TMPTCID,
+        "FlowID": app.raflow.activeFlowID
+    };
+
+    return $.ajax({
+        url: "/v1/raflow-person/" + bid.toString() + "/" + app.raflow.activeFlowID.toString(),
+        method: "POST",
+        contentType: "application/json",
+        dataType: "json",
+        data: JSON.stringify(data),
+        success: function (data) {
+            if (data.status != "error") {
+                // update the local copy of flow for the active one
+                app.raflow.data[data.record.FlowID] = data.record;
+            } else {
+                console.error(data.message);
+            }
+        },
+        error: function () {
+            console.error("Error:" + JSON.stringify(data));
+        }
+    });
+};
+
+// get Transanctant detail from the server
+window.getRATransanctantDetailAJAX = function (TCID) {
+    var bid = getCurrentBID();
+
+    // temporary data
+    var data = {
+        "cmd": "get",
         "TCID": TCID,
         "FlowID": app.raflow.activeFlowID
     };
 
     return $.ajax({
-        url: "/v1/raflow-persondetails/" + bid.toString() + "/" + app.raflow.activeFlowID.toString(),
+        url: "/v1/raflow-person/" + bid.toString() + "/" + app.raflow.activeFlowID.toString(),
         method: "POST",
         contentType: "application/json",
         dataType: "json",
@@ -562,7 +560,7 @@ window.acceptTransactant = function () {
     if (tcidIndex < 0) {
 
         // get transanctant information from the server
-        getRATransanctantDetail(TCID)
+        getRATransanctantDetailAJAX(TCID)
         .done(function (data) {
 
             if (data.status === 'success') {
