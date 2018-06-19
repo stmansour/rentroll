@@ -297,12 +297,12 @@ func createTransactants(ctx context.Context, dbConf *GenDBConf) error {
 			CurrentAddress:           GenerateRandomOneLineAddress(),
 			CurrentLandLordName:      GenerateRandomName(),
 			CurrentLandLordPhoneNo:   GenerateRandomPhoneNumber(),
-			CurrentReasonForMoving:   int64(IG.Rand.Intn(len(IG.WhyLeaving.S))),
+			CurrentReasonForMoving:   IG.WhyLeaving.S[IG.Rand.Intn(len(IG.WhyLeaving.S))].SLSID,
 			CurrentLengthOfResidency: GenerateRandomDurationString(),
 			PriorAddress:             GenerateRandomOneLineAddress(),
 			PriorLandLordName:        GenerateRandomName(),
 			PriorLandLordPhoneNo:     GenerateRandomPhoneNumber(),
-			PriorReasonForMoving:     int64(IG.Rand.Intn(len(IG.WhyLeaving.S))),
+			PriorReasonForMoving:     IG.WhyLeaving.S[IG.Rand.Intn(len(IG.WhyLeaving.S))].SLSID,
 			PriorLengthOfResidency:   GenerateRandomDurationString(),
 			//FloatingDeposit:    0, // removed june 18, 2018
 		}

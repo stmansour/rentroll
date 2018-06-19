@@ -11,7 +11,6 @@ import (
 	"os"
 	"rentroll/rlib"
 	"strconv"
-	"time"
 )
 
 // Alphabet contains caps of the alphabet
@@ -285,7 +284,10 @@ func GenerateRandomIndustry() string {
 // GenerateRandomDurationString returns a random duration
 //-----------------------------------------------------------------------------
 func GenerateRandomDurationString() string {
-	return fmt.Sprintf("%v", time.Duration(IG.Rand.Intn(10))*365*24*time.Hour+time.Duration(1+IG.Rand.Intn(11))*24*time.Hour)
+	if IG.Rand.Intn(100) > 90 {
+		return fmt.Sprintf("%d months", 2+IG.Rand.Intn(10))
+	}
+	return fmt.Sprintf("%d years %d months", 1+IG.Rand.Intn(10), 2+IG.Rand.Intn(10))
 }
 
 // GenerateRandomOneLineAddress returns a random full address in a single line
