@@ -539,7 +539,7 @@ func UpdateProspect(ctx context.Context, a *Prospect) error {
 	}
 
 	fields := []interface{}{a.BID, a.CompanyAddress, a.CompanyCity, a.CompanyState, a.CompanyPostalCode,
-		a.CompanyEmail, a.CompanyPhone, a.Occupation, a.ApplicationFee, a.DesiredUsageStartDate, a.RentableTypePreference,
+		a.CompanyEmail, a.CompanyPhone, a.Occupation, a.DesiredUsageStartDate, a.RentableTypePreference,
 		a.FLAGS, a.EvictedDes, a.ConvictedDes, a.BankruptcyDes,
 		a.Approver, a.DeclineReasonSLSID, a.OtherPreferences, a.FollowUpDate, a.CSAgent, a.OutcomeSLSID,
 		a.CurrentAddress, a.CurrentLandLordName, a.CurrentLandLordPhoneNo, a.CurrentReasonForMoving,
@@ -1292,7 +1292,7 @@ func UpdateUser(ctx context.Context, a *User) error {
 	}
 
 	fields := []interface{}{a.BID, a.Points, a.DateofBirth, a.EmergencyContactName, a.EmergencyContactAddress,
-		a.EmergencyContactTelephone, a.EmergencyEmail, a.AlternateAddress, a.EligibleFutureUser, a.FLAGS,
+		a.EmergencyContactTelephone, a.EmergencyContactEmail, a.AlternateAddress, a.EligibleFutureUser, a.FLAGS,
 		a.Industry, a.SourceSLSID, a.LastModBy, a.TCID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateUser)

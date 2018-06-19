@@ -2623,7 +2623,7 @@ func InsertProspect(ctx context.Context, a *Prospect) (int64, error) {
 
 	// transaction... context
 	fields := []interface{}{a.TCID, a.BID, a.CompanyAddress, a.CompanyCity,
-		a.CompanyState, a.CompanyPostalCode, a.CompanyEmail, a.CompanyPhone, a.Occupation, a.ApplicationFee,
+		a.CompanyState, a.CompanyPostalCode, a.CompanyEmail, a.CompanyPhone, a.Occupation,
 		a.DesiredUsageStartDate, a.RentableTypePreference, a.FLAGS,
 		a.EvictedDes, a.ConvictedDes, a.BankruptcyDes, a.Approver, a.DeclineReasonSLSID, a.OtherPreferences,
 		a.FollowUpDate, a.CSAgent, a.OutcomeSLSID,
@@ -2678,7 +2678,7 @@ func InsertUser(ctx context.Context, a *User) (int64, error) {
 
 	// transaction... context
 	fields := []interface{}{a.TCID, a.BID, a.Points, a.DateofBirth, a.EmergencyContactName, a.EmergencyContactAddress,
-		a.EmergencyContactTelephone, a.EmergencyEmail, a.AlternateAddress, a.EligibleFutureUser, a.FLAGS, a.Industry,
+		a.EmergencyContactTelephone, a.EmergencyContactEmail, a.AlternateAddress, a.EligibleFutureUser, a.FLAGS, a.Industry,
 		a.SourceSLSID, a.CreateBy, a.LastModBy}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertUser)
