@@ -219,13 +219,18 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                     case "LeaseStatus":
                         valueForCell = appSettings.RSLeaseStatus[valueForCell];
                         break;
+                    case "EpochDue":
+                    case "EpochPreDue":
+                        valueForCell = win.dtFormatISOToW2ui(record[w2uiGridColumn.field]);
+                        break;
+                    
                 }
 
-                // Check visibility and default value of cell in the grid
-                cy.get(selectors.getCellSelector(testConfig.grid, rowNo, columnNo))
-                    .scrollIntoView()
-                    .should('be.visible')
-                    .should('contain', valueForCell);
+                
+                    cy.get(selectors.getCellSelector(testConfig.grid, rowNo, columnNo))
+                        .scrollIntoView()
+                        .should('be.visible')
+                        .should('contain', valueForCell);
             }
         });
 
@@ -668,7 +673,7 @@ export function testGridInTabbedDetailForm(gridName, layoutName, routeName, test
     });
 }
 
-export function testDetailFormWithGrid(recordsAPIResponse, testConfig) {
+export function testDetailFormWithGrid(recordsAPIResponse, testConfig, appSettings, windowObject) {
     cy.log("Tests for detail record form");
 
     // -- detail record testing --
@@ -689,6 +694,11 @@ export function testDetailFormWithGrid(recordsAPIResponse, testConfig) {
             cy.route(testConfig.methodType, getDetailRecordAPIEndPoint('payorstmt', id)).as('getGridRecordsInDetailedForm');
             testConfig.skipColumns = [];
             break;
+        case "tldsGrid":
+            cy.route(testConfig.methodType, getDetailRecordAPIEndPoint('tld', id)).as('getDetailRecord');
+            cy.route(testConfig.methodType, getDetailRecordAPIEndPoint('tds', id)).as('getGridRecordsInDetailedForm');
+            // testConfig.skipColumns = [];
+            break;
     }
 
     // click on the first record of grid
@@ -696,20 +706,60 @@ export function testDetailFormWithGrid(recordsAPIResponse, testConfig) {
 
     // perform tests on record detail form
     cy.get('@getDetailRecord').then(function (xhr) {
-        cy.log(xhr);
-
         let recordDetailFromAPIResponse = xhr.response.body.record;
         cy.log(recordDetailFromAPIResponse);
 
-        cy.get('#RAInfo').within(() => {
+        let parentElement = "";
+
+        if(testConfig.grid === "stmtGrid" || testConfig.grid === "payorstmtGrid") {
+            parentElement = "#RAInfo";
+        } else if(testConfig.grid === "tldsGrid"){
+            parentElement = "div[name='" + testConfig.form + "']";
+        }
+        cy.get(parentElement).within(() => {
             if(testConfig.grid === "stmtGrid"){
                 cy.get('#bannerPayors').should('be.visible').should('contain', recordDetailFromAPIResponse.Payors);
                 cy.get('#RentalAgreementDates').should('be.visible').should('contain', recordDetailFromAPIResponse.AgreementStart).should('contain', recordDetailFromAPIResponse.AgreementStop);
                 cy.get('#PossessionDates').should('be.visible').should('contain', recordDetailFromAPIResponse.PossessionStart).should('contain', recordDetailFromAPIResponse.PossessionStop);
                 cy.get('#RentDates').should('be.visible').should('contain', recordDetailFromAPIResponse.RentStart).should('contain', recordDetailFromAPIResponse.RentStop);
+            
             }else if(testConfig.grid === "payorstmtGrid"){
                 cy.get('#bannerTCID').should('be.visible').should('contain', recordDetailFromAPIResponse.FirstName).should('contain', recordDetailFromAPIResponse.MiddleName).should('contain', recordDetailFromAPIResponse.LastName);
                 // cy.get('#payorstmtaddr').should('be.visible').should('contain', recordDetailFromAPIResponse.Address); TODO(Akshay): Uncomment afterwards
+            
+            }else if(testConfig.grid === "tldsGrid"){
+
+                let fieldID;
+                let fieldValue;
+
+                cy.get('.w2ui-form-box')
+                    .find('input.w2ui-input:not(:hidden)') // get all input field from the form in DOM which doesn't have type as hidden
+                    .each(($el, index, $list) => {
+                    
+                        // get id of the field
+                        fieldID = $el.context.id;
+
+                        if($list[index].getAttribute("type") === "text") {
+                            cy.get('#'+fieldID).scrollIntoView()
+                                .should('be.visible')
+                                .should('have.value', recordDetailFromAPIResponse[fieldID]);
+                        }
+                        else if($list[index].getAttribute("type") === "datetime") {
+                            cy.get('#'+fieldID).scrollIntoView()
+                                .should('be.visible')
+                                .should('have.value', windowObject.dtFormatISOToW2ui(recordDetailFromAPIResponse[fieldID]));
+                        }
+                        else if($list[index].getAttribute("type") === "list") {
+                            cy.get('#'+fieldID).scrollIntoView()
+                                .should('be.visible')
+                                .should('have.value', appSettings.w2ui.listItems.cycleFreq[recordDetailFromAPIResponse[fieldID]].text);
+                        }
+                        else if($list[index].getAttribute("type") === "checkbox"){
+                            fieldValue = $el[0].checked;
+                            let condition = fieldValue ? "be.checked" : "not.be.checked";
+                            cy.get('#'+fieldID).scrollIntoView().should(condition);   
+                        }
+                    });
             }
         });
 
@@ -720,8 +770,6 @@ export function testDetailFormWithGrid(recordsAPIResponse, testConfig) {
 
     // perform tests on record detail form
     cy.get('@getGridRecordsInDetailedForm').then(function (xhr) {
-        cy.log(xhr);
-
         let recordDetailFromAPIResponse = xhr.response.body.records;
         if (recordDetailFromAPIResponse.length > 0) {
             testConfig.grid = testConfig.gridInForm;
