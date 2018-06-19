@@ -126,7 +126,6 @@ type RAPeopleFlowData struct {
 	ConvictedDes           string
 	Bankruptcy             bool // Declared Bankruptcy
 	BankruptcyDes          string
-	ApplicationFee         float64
 	DesiredUsageStartDate  rlib.JSONDate
 	RentableTypePreference int64
 	FLAGS                  int64

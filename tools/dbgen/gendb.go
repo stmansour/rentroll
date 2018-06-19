@@ -284,7 +284,6 @@ func createTransactants(ctx context.Context, dbConf *GenDBConf) error {
 			CompanyEmail:           GenerateRandomEmail(ec, cmp),
 			CompanyPhone:           GenerateRandomPhoneNumber(),
 			Occupation:             GenerateRandomOccupation(),
-			ApplicationFee:         0,
 			DesiredUsageStartDate:  now,
 			RentableTypePreference: 0,
 			FLAGS:                    0,

@@ -505,7 +505,7 @@ func UpdateProspect(ctx context.Context, a *Prospect) error {
 	}
 
 	fields := []interface{}{a.BID, a.CompanyAddress, a.CompanyCity, a.CompanyState, a.CompanyPostalCode,
-		a.CompanyEmail, a.CompanyPhone, a.Occupation, a.ApplicationFee, a.DesiredUsageStartDate, a.RentableTypePreference,
+		a.CompanyEmail, a.CompanyPhone, a.Occupation, a.DesiredUsageStartDate, a.RentableTypePreference,
 		a.FLAGS, a.EvictedDes, a.ConvictedDes, a.BankruptcyDes,
 		a.Approver, a.DeclineReasonSLSID, a.OtherPreferences, a.FollowUpDate, a.CSAgent, a.OutcomeSLSID,
 		a.CurrentAddress, a.CurrentLandLordName, a.CurrentLandLordPhoneNo, a.CurrentReasonForMoving,

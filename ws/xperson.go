@@ -46,7 +46,6 @@ type RPerson struct {
 	SSN                    string
 	DriversLicense         string
 	GrossIncome            float64
-	ApplicationFee         float64       // if non-zero this Prospect is an applicant
 	DesiredUsageStartDate  rlib.JSONDate // predicted rent start date
 	RentableTypePreference int64         // RentableType
 	FLAGS                  uint64        // 0 = Approved/NotApproved,
@@ -109,7 +108,6 @@ type RPersonForm struct {
 	SSN                       string
 	DriversLicense            string
 	GrossIncome               float64
-	ApplicationFee            float64       // if non-zero this Prospect is an applicant
 	DesiredUsageStartDate     rlib.JSONDate // predicted rent start date
 	RentableTypePreference    int64         // RentableType
 	FLAGS                     uint64        // 0 = Approved/NotApproved,

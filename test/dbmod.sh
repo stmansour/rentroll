@@ -430,6 +430,10 @@ DBNAME="rentroll"
 # ALTER TABLE Transactant ADD Comment VARCHAR(2048) NOT NULL DEFAULT '' AFTER FLAGS;
 # ALTER TABLE Prospect DROP COLUMN FloatingDeposit, DROP COLUMN RAID;
 
+# June 19, 2018
+# ALTER TABLE Prospect DROP COLUMN ApplicationFee;
+
+
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================

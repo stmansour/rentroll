@@ -859,7 +859,6 @@ CREATE TABLE Prospect (
     CompanyEmail VARCHAR(100) NOT NULL DEFAULT '',
     CompanyPhone VARCHAR(100) NOT NULL DEFAULT '',
     Occupation VARCHAR(100) NOT NULL DEFAULT '',
-    ApplicationFee DECIMAL(19,4) NOT NULL DEFAULT 0.0,           -- if non-zero this Prospect is an applicant
     DesiredUsageStartDate DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- User's initial indication of move in date, actual move in date is in Rental Agreement
     RentableTypePreference BIGINT NOT NULL DEFAULT 0,            -- This would be "model" preference  (Rentable Type name) for room or residence, but could apply to all rentables
     FLAGS BIGINT NOT NULL DEFAULT 0,                             /* 1<<0 did they fill out an appl

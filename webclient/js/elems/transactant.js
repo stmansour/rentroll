@@ -75,7 +75,6 @@ window.getTransactantInitRecord = function (BID, BUD) {
         Bankruptcy: false,
         BankruptcyDes: "",
         Occupation: "",
-        ApplicationFee: 0.00,
         DesiredUsageStartDate: "1/1/1900",
         RentableTypePreference: 0,
         FLAGS: 0,
@@ -99,7 +98,6 @@ window.buildTransactElements = function() {
         {field: 'Address',                   type: 'text',      required: false, html: {page: 0, column: 0}},
         {field: 'Address2',                  type: 'text',      required: false, html: {page: 0, column: 0}},
         {field: 'AlternateAddress',          type: 'text',      required: false, html: {page: 1, column: 0}},
-        {field: 'ApplicationFee',            type: 'money',     required: false, html: {page: 3, column: 0}},
         {field: 'Approver',                  type: 'int',       required: false, html: {page: 3, column: 0}},
         {field: 'Bankruptcy',                type: 'checkbox',  required: false, html: {page: 3, column: 0}},  // have you ever been Declared Bankruptcy
         {field: 'BankruptcyDes',             type: 'text',      required: false, html: {page: 3, column: 0}},
@@ -166,7 +164,6 @@ window.buildTransactElements = function() {
         {field: 'PriorLandLordPhoneNo',      type: 'text',      required: false, html: {page: 3, column: 0}},  // Prior landlord's phone number
         {field: 'PriorLengthOfResidency',    type: 'text',      required: false, html: {page: 3, column: 0}},  // Length of residency at Prior address
         {field: 'PriorReasonForMoving',      type: 'list',      required: false, html: {page: 3, column: 0}},  // Reason of moving from Prior address // TODO(Akshay): stringlist "WhyLeaving"
-        {field: 'RAID',                      type: 'w2int',     required: false, html: {page: 3, column: 0}},
         {field: 'RentableTypePreference',    type: 'text',      required: false, html: {page: 3, column: 0}},
         {field: 'SecondaryEmail',            type: 'email',     required: false, html: {page: 0, column: 0}},
         {field: 'SourceSLSID',               type: 'list',      required: false, html: {page: 1, column: 0}}, // "HowFound" string list

@@ -728,7 +728,6 @@ type Prospect struct {
 	CompanyEmail             string
 	CompanyPhone             string
 	Occupation               string
-	ApplicationFee           float64   // if non-zero this Prospect is an applicant
 	DesiredUsageStartDate    time.Time // predicted rent start date
 	RentableTypePreference   int64     // RentableType
 	FLAGS                    uint64    // 0 = Approved/NotApproved,

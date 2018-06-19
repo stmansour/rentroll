@@ -58,7 +58,6 @@ type PeopleCSV struct {
 	CompanyEmail              string
 	CompanyPhone              string
 	Occupation                string
-	ApplicationFee            string
 	Notes                     string
 	DesiredUsageStartDate     string
 	RentableTypePreference    string
