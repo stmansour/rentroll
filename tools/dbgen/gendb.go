@@ -304,7 +304,6 @@ func createTransactants(ctx context.Context, dbConf *GenDBConf) error {
 			PriorLandLordPhoneNo:     GenerateRandomPhoneNumber(),
 			PriorReasonForMoving:     IG.WhyLeaving.S[IG.Rand.Intn(len(IG.WhyLeaving.S))].SLSID,
 			PriorLengthOfResidency:   GenerateRandomDurationString(),
-			//FloatingDeposit:    0, // removed june 18, 2018
 		}
 		_, err = rlib.InsertProspect(ctx, &pr)
 		if err != nil {

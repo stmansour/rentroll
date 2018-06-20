@@ -84,7 +84,6 @@ window.getTransactantInitRecord = function (BID, BUD) {
         FollowUpDate: "1/1/1900",
         CSAgent: 0,
         OutcomeSLSID: 0,
-        FloatingDeposit: 0.00,
         Comment: ""
     };
 };
@@ -138,7 +137,6 @@ window.buildTransactElements = function() {
         {field: 'EvictedDes',                type: 'text',      required: false, html: {page: 3, column: 0}},
         {field: 'FirstName',                 type: 'text',      required: false, html: {page: 0, column: 0}},
         {field: 'FLAGS',                     type: 'int',       required: false, html: {page: 3, column: 0}},
-        {field: 'FloatingDeposit',           type: 'w2float',   required: false, html: {page: 3, column: 0}},
         {field: 'FollowUpDate',              type: 'date',      required: false, html: {page: 3, column: 0}},
         {field: 'GrossIncome',               type: 'money',     required: false, html: {page: 2, column: 0}},
         {field: 'Industry',                  type: 'text',      required: false, html: {page: 1, column: 0}},

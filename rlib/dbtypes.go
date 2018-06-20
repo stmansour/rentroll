@@ -754,8 +754,6 @@ type Prospect struct {
 	LastModBy                int64
 	CreateTS                 time.Time // when was this record created
 	CreateBy                 int64     // employee UID (from phonebook) that created it
-	// FloatingDeposit        float64   // d $(GLCASH) _, c $(GLGENRCV) _; assign to a shell of a Rental Agreement
-	// RAID                   int64     // created to hold On Account amount of Floating Deposit
 }
 
 // User contains all info common to a person

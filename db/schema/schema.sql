@@ -902,8 +902,6 @@ CREATE TABLE Prospect (
     PriorLandLordPhoneNo VARCHAR(20) NOT NULL DEFAULT '',        -- phone number        ""
     PriorReasonForMoving BIGINT NOT NULL DEFAULT 0,              -- string list id
     PriorLengthOfResidency VARCHAR(100) NOT NULL DEFAULT '',     -- length of stay is just a string
-    -- FloatingDeposit DECIMAL (19,4) NOT NULL DEFAULT 0.0,         -- d $(GLCASH) _, c $(GLGENRCV) _; assign to a shell of a Rental Agreement
-    -- RAID BIGINT NOT NULL DEFAULT 0,                              -- created to hold On Account amount of Floating Deposit  -- Make this 0 after Prospect becomes Transactant
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,       -- when was this record created

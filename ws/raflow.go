@@ -136,8 +136,6 @@ type RAPeopleFlowData struct {
 	FollowUpDate           rlib.JSONDate
 	CSAgent                int64
 	OutcomeSLSID           int64
-	// FloatingDeposit        float64
-	// RAID                   int
 
 	// RA Application information
 	Comment string // In an effort to accommodate you, please advise us of any special needs
