@@ -71,6 +71,16 @@ type RPerson struct {
 	TaxpayorID                string
 	ThirdPartySource          int64
 	EligibleFuturePayor       bool
+	CurrentAddress            string
+	CurrentLandLordName       string
+	CurrentLandLordPhoneNo    string
+	CurrentReasonForMoving    int64
+	CurrentLengthOfResidency  string
+	PriorAddress              string
+	PriorLandLordName         string
+	PriorLandLordPhoneNo      string
+	PriorReasonForMoving      int64
+	PriorLengthOfResidency    string
 	LastModTime               rlib.JSONDateTime
 	LastModBy                 int64
 	CreateTS                  rlib.JSONDateTime
