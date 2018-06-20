@@ -5,7 +5,7 @@ import * as selectors from '../support/utils/get_selectors';
 import * as common from '../support/utils/common';
 
 // --- Collections ---
-const section = require('../support/components/taskListDefinitions'); // Task List Definitions
+const section = require('../support/components/taskLists'); // Task Lists
 
 // this contain app variable of the application
 let appSettings;
@@ -14,7 +14,7 @@ let appSettings;
 let testConfig;
 
 // -- Start Cypress UI tests for AIR Roller Application --
-describe('AIR Roller UI Tests - Task List Definitions', function () {
+describe('AIR Roller UI Tests - Task Lists', function () {
 
     // // records list of module from the API response
     let recordsAPIResponse;
@@ -128,20 +128,6 @@ describe('AIR Roller UI Tests - Task List Definitions', function () {
             // -- Close the form. And assert that form isn't visible. --
             common.closeFormTests(selectors.getFormSelector(testConfig.form));
         }
-    });
-
-    /************************************************************
-    * Click Add new in toolbar
-    *
-    * Expect:
-    * Each field must set to be its default value
-    * Button must be visible(Save, Save and Add Another etc.)
-    ************************************************************/
-    it('Check default value of fields for new record form', function () {
-        // ---------------------------------------
-        // ----- Tests for add new record form ---
-        // ---------------------------------------
-        common.testAddNewRecordForm(testConfig);
     });
 
     // -- Perform operation after all tests finish. It runs once after all tests in the block --
