@@ -84,6 +84,7 @@ window.getTransactantInitRecord = function (BID, BUD) {
         FollowUpDate: "1/1/1900",
         CSAgent: 0,
         OutcomeSLSID: 0,
+        CommissionableThirdParty: "",
         Comment: ""
     };
 };
@@ -123,6 +124,7 @@ window.buildTransactElements = function() {
         {field: 'CurrentLandLordPhoneNo',    type: 'text',      required: false, html: {page: 3, column: 0}},  // Current landlord's phone number
         {field: 'CurrentLengthOfResidency',  type: 'text',      required: false, html: {page: 3, column: 0}},  // Length of residency at current address
         {field: 'CurrentReasonForMoving',    type: 'list',      required: false, html: {page: 3, column: 0}},  // Reason of moving from current address
+        {field: 'CommissionableThirdParty',  type: 'text',      required: false, html: {page: 3, column: 0}},
         {field: 'DateofBirth',               type: 'date',      required: false, html: {page: 1, column: 0}},
         {field: 'DeclineReasonSLSID',        type: 'list',      required: false, html: {page: 3, column: 0}},  // ApplDeny String list
         {field: 'DesiredUsageStartDate',     type: 'date',      required: false, html: {page: 3, column: 0}},

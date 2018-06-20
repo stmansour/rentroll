@@ -902,6 +902,7 @@ CREATE TABLE Prospect (
     PriorLandLordPhoneNo VARCHAR(20) NOT NULL DEFAULT '',        -- phone number        ""
     PriorReasonForMoving BIGINT NOT NULL DEFAULT 0,              -- string list id
     PriorLengthOfResidency VARCHAR(100) NOT NULL DEFAULT '',     -- length of stay is just a string
+    CommissionableThirdParty TEXT NOT NULL DEFAULT '',           -- Sometimes bookings come into Isola Bella from 3rd parties and they get a commission
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,       -- when was this record created

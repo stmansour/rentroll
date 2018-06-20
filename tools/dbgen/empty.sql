@@ -1,6 +1,6 @@
--- MySQL dump 10.13  Distrib 5.7.22, for osx10.12 (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.22, for Linux (x86_64)
 --
--- Host: localhost    Database: rentroll
+-- Host: 127.0.0.1    Database: rentroll
 -- ------------------------------------------------------
 -- Server version	5.7.22
 
@@ -14,13 +14,6 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-
-
-DROP DATABASE IF EXISTS rentroll;
-CREATE DATABASE rentroll;
-USE rentroll;
-GRANT ALL PRIVILEGES ON rentroll.* TO 'ec2-user'@'localhost';
-set GLOBAL sql_mode='ALLOW_INVALID_DATES';
 
 --
 -- Table structure for table `AR`
@@ -1336,6 +1329,7 @@ CREATE TABLE `Prospect` (
   `PriorLandLordPhoneNo` varchar(20) NOT NULL DEFAULT '',
   `PriorReasonForMoving` bigint(20) NOT NULL DEFAULT '0',
   `PriorLengthOfResidency` varchar(100) NOT NULL DEFAULT '',
+  `CommissionableThirdParty` text NOT NULL,
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -2556,4 +2550,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-06-19 13:58:16
+-- Dump completed on 2018-06-20 14:15:59

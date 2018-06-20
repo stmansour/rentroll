@@ -446,6 +446,9 @@ DBNAME="rentroll"
 # ALTER TABLE Prospect DROP COLUMN ApplicationFee;
 # ALTER TABLE User CHANGE EmergencyEmail EmergencyContactEmail VARCHAR(100) NOT NULL DEFAULT '';
 
+# June 20, 2018
+# ALTER TABLE Prospect ADD CommissionableThirdParty TEXT NOT NULL DEFAULT '' AFTER PriorLengthOfResidency;
+
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================

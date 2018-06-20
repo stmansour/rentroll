@@ -79,6 +79,7 @@ type RPerson struct {
 	PriorLandLordPhoneNo      string
 	PriorReasonForMoving      int64
 	PriorLengthOfResidency    string
+	CommissionableThirdParty string
 	LastModTime               rlib.JSONDateTime
 	LastModBy                 int64
 	CreateTS                  rlib.JSONDateTime
@@ -150,6 +151,7 @@ type RPersonForm struct {
 	PriorLandLordPhoneNo      string
 	PriorReasonForMoving      int64
 	PriorLengthOfResidency    string
+	CommissionableThirdParty string
 }
 
 // RPersonOther contains the data from selections boxes in the UI. These come back

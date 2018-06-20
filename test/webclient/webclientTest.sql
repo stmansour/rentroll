@@ -1336,6 +1336,7 @@ CREATE TABLE `Prospect` (
   `PriorLandLordPhoneNo` varchar(20) NOT NULL DEFAULT '',
   `PriorReasonForMoving` bigint(20) NOT NULL DEFAULT '0',
   `PriorLengthOfResidency` varchar(100) NOT NULL DEFAULT '',
+  `CommissionableThirdParty` text NOT NULL,
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -2564,4 +2565,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-06-19 12:18:28
+-- Dump completed on 2018-06-20 14:16:14
