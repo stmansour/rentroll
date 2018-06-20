@@ -8,6 +8,7 @@ import (
 	"rentroll/rlib"
 	"strconv"
 	"strings"
+	"time"
 )
 
 //-------------------------------------------------------------------
@@ -371,6 +372,42 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	//-------------------------------------------------------------------------
+	// Add Rentables
+	//-------------------------------------------------------------------------
+	now := time.Now()
+	o, err := rlib.GetRentalAgreementRentables(r.Context(), ra.RAID, &ra.AgreementStart, &ra.AgreementStop)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+	for i := 0; i < len(o); i++ {
+		rnt, err := rlib.GetRentable(r.Context(), o[i].RID)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+		rtr, err := rlib.GetRentableTypeRefForDate(r.Context(), o[i].RID, &now)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+		var rt rlib.RentableType
+		if err = rlib.GetRentableType(r.Context(), rtr.RTID, &rt); err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+		var rfd = RARentablesFlowData{
+			BID:          o[i].BID,
+			RID:          o[i].RID,
+			RTID:         rtr.RTID,
+			RTFLAGS:      rt.FLAGS,
+			RentableName: rnt.RentableName,
+			RentCycle:    rt.RentCycle,
+		}
+		raf.Rentables = append(raf.Rentables, rfd)
+	}
+
+	//-------------------------------------------------------------------------
 	// Save the flow to the db
 	//-------------------------------------------------------------------------
 	raflowJSONData, err := json.Marshal(&raf)
@@ -454,7 +491,6 @@ func addRAPtoFlow(ctx context.Context, tcid int64, raf *RAFlowJSONData, chk, isR
 	if isOccupant {
 		rap.IsOccupant = true
 	}
-	rlib.Console("\n\n\n\n\n############\n\naddRAPtoFlow: TMPTCID = %d, SSN = %s, DriversLicense = %s\n\n#########\n\n\n\n\n", rap.TMPTCID, rap.SSN, rap.DriversLicense)
 	raf.People = append(raf.People, rap)
 	return nil
 }
