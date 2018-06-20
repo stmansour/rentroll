@@ -247,6 +247,8 @@ window.buildTransactElements = function() {
             event.onComplete = function () {
                 var yes_args = [this, event.recid],
                     no_args = [this],
+                    BID = getCurrentBID(),
+                    BUD = getBUDfromBID(BID),
                     no_callBack = function(grid) {
                         grid.select(app.last.grid_sel_recid);
                         return false;
@@ -256,6 +258,12 @@ window.buildTransactElements = function() {
                         // keep highlighting current row in any case
                         grid.select(app.last.grid_sel_recid);
                         var rec = grid.get(recid);
+
+                        // get stringListData for list fields
+                        getStringListData(BID, BUD).fail(function (data) {
+                            this.message(data.message);
+                        });
+
                         setToForm('transactantForm', '/v1/person/' + rec.BID + '/' + rec.TCID, 700, true);
                     };
 
@@ -278,6 +286,12 @@ window.buildTransactElements = function() {
 
                     var record = getTransactantInitRecord(BID, BUD);
                     w2ui.transactantForm.record = record;
+
+                    // get stringListData for list fields
+                    getStringListData(BID, BUD).fail(function (data) {
+                        this.message(data.message);
+                    });
+
                     w2ui.transactantForm.refresh();
                     setToForm('transactantForm', '/v1/person/' + BID + '/0', 700);
                 };
@@ -447,14 +461,10 @@ window.buildTransactElements = function() {
                 f.get("IsGuarantor").hidden = true;
                 $("div[name=transanctant-role-tile]").hide();
 
-                getStringListData(BID, BUD).done(function (data) {
-                    f.get('SourceSLSID').options.items = getSLStringList(BID, "HowFound");
-                    f.get('DeclineReasonSLSID').options.items = getSLStringList(BID, "ApplDeny");
-                    f.get('CurrentReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
-                    f.get('PriorReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
-                }).fail(function (data) {
-                    f.message(data.message);
-                });
+                f.get('SourceSLSID').options.items = getSLStringList(BID, "HowFound");
+                f.get('DeclineReasonSLSID').options.items = getSLStringList(BID, "ApplDeny");
+                f.get('CurrentReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
+                f.get('PriorReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
             };
         },
         onChange: function(event) {
@@ -463,7 +473,7 @@ window.buildTransactElements = function() {
                 $("#EvictedDes").prop("disabled", !this.record.Evicted);
                 $("#ConvictedDes").prop("disabled", !this.record.Convicted);
                 $("#BankruptcyDes").prop("disabled", !this.record.Bankruptcy);
-                
+
                 // formRecDiffer: 1=current record, 2=original record, 3=diff object
                 var diff = formRecDiffer(this.record, app.active_form_original, {});
                 // if diff == {} then make dirty flag as false, else true

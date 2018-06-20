@@ -199,6 +199,11 @@ window.loadRAPeopleForm = function () {
 
                             var raBGInfoGridRecord = grid.get(event.recid); // record from the w2ui grid
 
+                            // get stringListData for list fields
+                            getStringListData(BID, BUD).fail(function (data) {
+                                form.message(data.message);
+                            });
+
                             // show slider content in w2ui comp
                             showSliderContentW2UIComp(form, RACompConfig.people.sliderWidth);
 
@@ -347,14 +352,11 @@ window.loadRAPeopleForm = function () {
                         BID = getCurrentBID(),
                         BUD = getBUDfromBID(BID);
 
-                    getStringListData(BID, BUD).done(function (data) {
-                        form.get('SourceSLSID').options.items = getSLStringList(BID, "HowFound");
-                        form.get('DeclineReasonSLSID').options.items = getSLStringList(BID, "ApplDeny");
-                        form.get('CurrentReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
-                        form.get('PriorReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
-                    }).fail(function (data) {
-                        form.message(data.message);
-                    });
+                    // Set list field value
+                    form.get('SourceSLSID').options.items = getSLStringList(BID, "HowFound");
+                    form.get('DeclineReasonSLSID').options.items = getSLStringList(BID, "ApplDeny");
+                    form.get('CurrentReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
+                    form.get('PriorReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
 
                     // hide delete button if it is NewRecord
                     var isNewRecord = (w2ui.RAPeopleGrid.get(form.record.recid, true) === null);
@@ -525,13 +527,14 @@ window.openNewTransactantForm = function () {
         BUD = getBUDfromBID(BID),
         form = w2ui.RATransactantForm;
 
-    // For new form TCID is 0
-    var TCID = 0;
-    var recid = w2ui.RAPeopleGrid.records.length + 1;
-
     form.header = 'Background Information';
     form.record = getTransactantInitRecord(BID, BUD);
     setTransactantDefaultRole(form.record);
+
+    // get stringListData for list fields
+    getStringListData(BID, BUD).fail(function (data) {
+        form.message(data.message);
+    });
 
     showSliderContentW2UIComp(form, RACompConfig.people.sliderWidth);
 
