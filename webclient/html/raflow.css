@@ -265,11 +265,11 @@ i.remove-item {
     color: red;
 }
 
-section[name="RATransactantForm"] .w2ui-form-box .w2ui-field > label {
+section[name="RATransactantForm"] .w2ui-form-box .w2ui-field > label, div[name="transactantForm"] .w2ui-form-box .w2ui-field > label {
     width: 160px;
 }
 
-section[name="RATransactantForm"] .w2ui-form-box .w2ui-field > div {
+section[name="RATransactantForm"] .w2ui-form-box .w2ui-field > div, div[name="transactantForm"] .w2ui-form-box .w2ui-field > div{
     margin-left: 168px;
 }
 
