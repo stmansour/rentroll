@@ -5,8 +5,6 @@ import (
 	"database/sql"
 	"encoding/hex"
 	"extres"
-	"log"
-	"runtime/debug"
 )
 
 // insertSessionProblem is a convenience function that replaces 8 lines
@@ -1031,10 +1029,10 @@ func InsertLedgerMarker(ctx context.Context, a *LedgerMarker) (int64, error) {
 		return rid, err
 	}
 
-	if a.BID == 0 {
-		debug.PrintStack()
-		log.Fatal(err)
-	}
+	// if a.BID == 0 {
+	// 	debug.PrintStack()
+	// 	log.Fatal(err)
+	// }
 
 	fields := []interface{}{a.LID, a.BID, a.RAID, a.RID, a.TCID, a.Dt, a.Balance, a.State, a.CreateBy, a.LastModBy}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
@@ -1059,23 +1057,12 @@ func InsertLedgerMarker(ctx context.Context, a *LedgerMarker) (int64, error) {
 
 // InsertLedgerEntry writes a new LedgerEntry to the database
 func InsertLedgerEntry(ctx context.Context, a *LedgerEntry) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -1103,23 +1090,12 @@ func InsertLedgerEntry(ctx context.Context, a *LedgerEntry) (int64, error) {
 
 // InsertLedger writes a new GLAccount to the database
 func InsertLedger(ctx context.Context, a *GLAccount) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	//                                            PLID, BID,     RAID,  TCID,   GLNumber,   Status,   Name,   AcctType,   AllowPost,  FLAGS,   Description, CreateBy, LastModBy
@@ -1152,23 +1128,12 @@ func InsertLedger(ctx context.Context, a *GLAccount) (int64, error) {
 
 // InsertNote writes a new Note to the database
 func InsertNote(ctx context.Context, a *Note) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
