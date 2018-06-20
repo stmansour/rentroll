@@ -343,6 +343,10 @@ window.buildTransactElements = function() {
             save: function () {
                 var tgrid = w2ui.transactantsGrid;
                 tgrid.selectNone();
+                // clean dirty flag of form
+                app.form_is_dirty = false;
+                // clear the grid select recid
+                app.last.grid_sel_recid  =-1;
                 console.log('before: tgrid.getSelection() = ' + tgrid.getSelection() );
                 this.save({}, function (data) {
                     if (data.status == 'error') {
