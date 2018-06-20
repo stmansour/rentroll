@@ -770,6 +770,7 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 		// required...
 		//-------------------------------------------------------
 		var lm rlib.LedgerMarker
+		lm.BID = ra.BID
 		lm.RAID = ra.RAID
 		lm.State = rlib.LMINITIAL
 		lm.Dt = d1.AddDate(0, 0, -14)
