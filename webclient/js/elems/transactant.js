@@ -441,6 +441,12 @@ window.buildTransactElements = function() {
 
                 formRefreshCallBack(f, "TCID", header);
 
+                // Hide Transanctant role checkboxes
+                f.get("IsRenter").hidden = true;
+                f.get("IsGuarantor").hidden = true;
+                f.get("IsGuarantor").hidden = true;
+                $("div[name=transanctant-role-tile]").hide();
+
                 getStringListData(BID, BUD).done(function (data) {
                     f.get('SourceSLSID').options.items = getSLStringList(BID, "HowFound");
                     f.get('DeclineReasonSLSID').options.items = getSLStringList(BID, "ApplDeny");
@@ -453,6 +459,11 @@ window.buildTransactElements = function() {
         },
         onChange: function(event) {
             event.onComplete = function() {
+                // Enable/Disable checkbox description text area
+                $("#EvictedDes").prop("disabled", !this.record.Evicted);
+                $("#ConvictedDes").prop("disabled", !this.record.Convicted);
+                $("#BankruptcyDes").prop("disabled", !this.record.Bankruptcy);
+                
                 // formRecDiffer: 1=current record, 2=original record, 3=diff object
                 var diff = formRecDiffer(this.record, app.active_form_original, {});
                 // if diff == {} then make dirty flag as false, else true
@@ -461,6 +472,8 @@ window.buildTransactElements = function() {
                 } else {
                     app.form_is_dirty = true;
                 }
+
+
             };
         },
         onSubmit: function(target, data){
