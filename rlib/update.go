@@ -11,13 +11,14 @@ import (
 // it saves a lot of lines.  Added this routine at the time Task,TaskList,
 // TaskDescriptor and  TaskListDefinition were added.
 //-----------------------------------------------------------------------------
-func updateSessionProblem(ctx context.Context, id *int64) error {
+func updateSessionProblem(ctx context.Context, id1, id2 *int64) error {
 	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
 		}
-		(*id) = sess.UID
+		(*id1) = sess.UID
+		(*id2) = sess.UID
 		return nil
 	}
 	return nil
@@ -60,10 +61,9 @@ func UpdateAR(ctx context.Context, a *AR) error {
 func UpdateAssessment(ctx context.Context, a *Assessment) error {
 	var err error
 
-	if err = insertSessionProblem(ctx, &a.CreateBy); err != nil {
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
 		return err
 	}
-	a.LastModBy = a.CreateBy
 
 	a.Amount = Round(a.Amount, .5, 2)
 	fields := []interface{}{a.PASMID, a.RPASMID, a.AGRCPTID, a.BID, a.RID, a.ATypeLID, a.RAID, a.Amount, a.Start, a.Stop, a.RentCycle, a.ProrationCycle, a.InvoiceNo, a.AcctRule, a.ARID, a.FLAGS, a.Comment, a.LastModBy, a.ASMID}
@@ -81,10 +81,9 @@ func UpdateAssessment(ctx context.Context, a *Assessment) error {
 func UpdateBusiness(ctx context.Context, a *Business) error {
 	var err error
 
-	if err = insertSessionProblem(ctx, &a.CreateBy); err != nil {
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
 		return err
 	}
-	a.LastModBy = a.CreateBy
 
 	// TODO(Sudip): keep mind this FLAGS insertion in fields, this might be removed in the future
 	fields := []interface{}{a.Designation, a.Name, a.DefaultRentCycle, a.DefaultProrationCycle, a.DefaultGSRPC, a.ClosePeriodTLID, a.FLAGS, a.LastModBy, a.BID}
@@ -106,10 +105,9 @@ func UpdateBusiness(ctx context.Context, a *Business) error {
 func UpdateBusinessPropertiesData(ctx context.Context, jsonDataKey string, jsonData []byte, a *BusinessProperties) error {
 	var err error
 
-	if err = insertSessionProblem(ctx, &a.CreateBy); err != nil {
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
 		return err
 	}
-	a.LastModBy = a.CreateBy
 
 	// make sure that json is valid before inserting it in database
 	if !(IsByteDataValidJSON(jsonData)) {

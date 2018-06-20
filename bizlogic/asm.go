@@ -622,7 +622,7 @@ func InsertAssessment(ctx context.Context, a *rlib.Assessment, exp int) []BizErr
 
 	if a.RentCycle == rlib.RECURNONE { // for nonrecurring, use existng struct: a
 		rlib.ProcessJournalEntry(ctx, a, &xbiz, &d1, &d2, true)
-	} else if exp != 0 && a.PASMID == 0 { // only expand if we're asked and if we're not an instance
+	} else if exp != 0 && a.PASMID == 0 && 0 == (a.FLAGS&(1<<6)) { // only expand if we're asked and if we're not an instance, and not a single instanced assessment
 		// rlib.Console("C1\n")
 		now := rlib.DateAtTimeZero(time.Now())
 		dt := rlib.DateAtTimeZero(a.Start)

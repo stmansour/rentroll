@@ -44,5 +44,7 @@
     "PTypeCheckName": "Check",
     "PeopleCount": 30,
     "RACount": 23,
-    "RandNames" : true
+    "RandNames" : true,
+    "PetFees": ["Pet Fee","Pet Rent"],
+    "VehicleFees": []
 }

@@ -8,17 +8,18 @@ import (
 )
 
 // insertSessionProblem is a convenience function that replaces 8 lines
-// of code with about 4. Since these lines are needed for every insert call
+// of code with about 3. Since these lines are needed for every insert call
 // it saves a lot of lines.  Added this routine at the time Task,TaskList,
 // TaskDescriptor and  TaskListDefinition were added.
 //-----------------------------------------------------------------------------
-func insertSessionProblem(ctx context.Context, id *int64) error {
+func insertSessionProblem(ctx context.Context, id1, id2 *int64) error {
 	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
 		}
-		(*id) = sess.UID
+		(*id1) = sess.UID
+		(*id2) = sess.UID
 		return nil
 	}
 	return nil
@@ -221,10 +222,9 @@ func InsertBusiness(ctx context.Context, a *Business) (int64, error) {
 	var err error
 	var res sql.Result
 
-	if err = insertSessionProblem(ctx, &a.CreateBy); err != nil {
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
 		return rid, err
 	}
-	a.LastModBy = a.CreateBy
 
 	// TODO(Sudip): keep mind this FLAGS insertion in fields, this might be removed in the future
 	fields := []interface{}{a.Designation, a.Name, a.DefaultRentCycle, a.DefaultProrationCycle, a.DefaultGSRPC, a.ClosePeriodTLID, a.FLAGS, a.CreateBy, a.LastModBy}
@@ -259,10 +259,9 @@ func InsertBusinessProperties(ctx context.Context, a *BusinessProperties) (int64
 	var err error
 	var res sql.Result
 
-	if err = insertSessionProblem(ctx, &a.CreateBy); err != nil {
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
 		return rid, err
 	}
-	a.LastModBy = a.CreateBy
 
 	// make sure that json is valid before inserting it in database
 	if !(IsValidJSONConversion(a.Data)) {
@@ -1022,26 +1021,19 @@ func InsertJournalMarker(ctx context.Context, a *JournalMarker) (int64, error) {
 
 // InsertLedgerMarker writes a new LedgerMarker record to the database
 func InsertLedgerMarker(ctx context.Context, a *LedgerMarker) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
-	// transaction... context
+	// if a.BID == 0 {
+	// 	debug.PrintStack()
+	// 	log.Fatal(err)
+	// }
+
 	fields := []interface{}{a.LID, a.BID, a.RAID, a.RID, a.TCID, a.Dt, a.Balance, a.State, a.CreateBy, a.LastModBy}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertLedgerMarker)
@@ -1065,23 +1057,12 @@ func InsertLedgerMarker(ctx context.Context, a *LedgerMarker) (int64, error) {
 
 // InsertLedgerEntry writes a new LedgerEntry to the database
 func InsertLedgerEntry(ctx context.Context, a *LedgerEntry) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -1109,23 +1090,12 @@ func InsertLedgerEntry(ctx context.Context, a *LedgerEntry) (int64, error) {
 
 // InsertLedger writes a new GLAccount to the database
 func InsertLedger(ctx context.Context, a *GLAccount) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	//                                            PLID, BID,     RAID,  TCID,   GLNumber,   Status,   Name,   AcctType,   AllowPost,  FLAGS,   Description, CreateBy, LastModBy
@@ -1158,23 +1128,12 @@ func InsertLedger(ctx context.Context, a *GLAccount) (int64, error) {
 
 // InsertNote writes a new Note to the database
 func InsertNote(ctx context.Context, a *Note) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -2369,10 +2328,9 @@ func InsertTask(ctx context.Context, a *Task) error {
 	var err error
 	var res sql.Result
 
-	if err = insertSessionProblem(ctx, &a.CreateBy); err != nil {
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
 		return err
 	}
-	a.LastModBy = a.CreateBy
 
 	fields := []interface{}{a.BID, a.TLID, a.Name, a.Worker, a.DtDue, a.DtPreDue, a.DtDone, a.DtPreDone, a.FLAGS, a.DoneUID, a.PreDoneUID, a.Comment, a.CreateBy, a.LastModBy}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
@@ -2401,10 +2359,9 @@ func InsertTaskList(ctx context.Context, a *TaskList) error {
 	var err error
 	var res sql.Result
 
-	if err = insertSessionProblem(ctx, &a.CreateBy); err != nil {
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
 		return err
 	}
-	a.LastModBy = a.CreateBy
 	fields := []interface{}{a.BID, a.PTLID, a.TLDID, a.Name, a.Cycle, a.DtDue, a.DtPreDue, a.DtDone, a.DtPreDone, a.FLAGS, a.DoneUID, a.PreDoneUID, a.EmailList, a.DtLastNotify, a.DurWait, a.Comment, a.CreateBy, a.LastModBy}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertTaskList)
@@ -2431,10 +2388,9 @@ func InsertTaskDescriptor(ctx context.Context, a *TaskDescriptor) error {
 	var err error
 	var res sql.Result
 
-	if err = insertSessionProblem(ctx, &a.CreateBy); err != nil {
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
 		return err
 	}
-	a.LastModBy = a.CreateBy
 	fields := []interface{}{a.BID, a.TLDID, a.Name, a.Worker, a.EpochDue, a.EpochPreDue, a.FLAGS, a.Comment, a.LastModBy, a.TDID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertTaskDescriptor)
@@ -2461,10 +2417,9 @@ func InsertTaskListDefinition(ctx context.Context, a *TaskListDefinition) error 
 	var err error
 	var res sql.Result
 
-	if err = insertSessionProblem(ctx, &a.CreateBy); err != nil {
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
 		return err
 	}
-	a.LastModBy = a.CreateBy
 
 	fields := []interface{}{a.BID, a.Name, a.Cycle, a.Epoch, a.EpochDue, a.EpochPreDue, a.FLAGS, a.EmailList, a.DurWait, a.Comment, a.LastModBy, a.TLDID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
