@@ -370,6 +370,26 @@ window.loadRAPeopleForm = function () {
                     $("#ConvictedDes").prop("disabled", !this.record.Convicted);
                     $("#BankruptcyDes").prop("disabled", !this.record.Bankruptcy);
                 };
+            },
+            onValidate: function (event) {
+                if (!this.record.IsCompany && this.record.FirstName === '') {
+                    event.errors.push({
+                        field: this.get('FirstName'),
+                        error: 'FirstName required when "Person or Company" field is set to Person'
+                    });
+                }
+                if (!this.record.IsCompany && this.record.LastName === '') {
+                    event.errors.push({
+                        field: this.get('LastName'),
+                        error: 'LastName required when "Person or Company" field is set to Person'
+                    });
+                }
+                if (this.record.IsCompany && this.record.CompanyName === '') {
+                    event.errors.push({
+                        field: this.get('CompanyName'),
+                        error: 'Company Name required when "Person or Company" field is set to Company'
+                    });
+                }
             }
         });
     }

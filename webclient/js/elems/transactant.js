@@ -62,12 +62,12 @@ window.getTransactantInitRecord = function (BID, BUD) {
         CurrentLandLordName: "",
         CurrentLandLordPhoneNo: "",
         CurrentLengthOfResidency: "",
-        CurrentReasonForMoving: "",
+        CurrentReasonForMoving: 0,
         PriorAddress: "",
         PriorLandLordName: "",
         PriorLandLordPhoneNo: "",
         PriorLengthOfResidency: "",
-        PriorReasonForMoving: "",
+        PriorReasonForMoving: 0,
         Evicted: false,
         EvictedDes: "",
         Convicted: false,
@@ -356,12 +356,12 @@ window.buildTransactElements = function() {
         actions: {
             save: function () {
                 var tgrid = w2ui.transactantsGrid;
+                console.log('before: tgrid.getSelection() = ' + tgrid.getSelection() );
                 tgrid.selectNone();
                 // clean dirty flag of form
                 app.form_is_dirty = false;
                 // clear the grid select recid
                 app.last.grid_sel_recid  =-1;
-                console.log('before: tgrid.getSelection() = ' + tgrid.getSelection() );
                 this.save({}, function (data) {
                     if (data.status == 'error') {
                         console.log('ERROR: '+ data.message);
