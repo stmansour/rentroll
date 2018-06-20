@@ -404,6 +404,37 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			RentableName: rnt.RentableName,
 			RentCycle:    rt.RentCycle,
 		}
+
+		//---------------------------------------------------------
+		// Add the assessments associated with the Rentable...
+		// For this we want to load all 1-time fees and all
+		// recurring fees.
+		//---------------------------------------------------------
+		asms, err := rlib.GetAssessmentsByRAIDRID(r.Context(), rfd.BID, ra.RAID, rfd.RID)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+		for j := 0; j < len(asms); j++ {
+			ar, err := rlib.GetAR(r.Context(), asms[j].ARID)
+			if err != nil {
+				SvcErrorReturn(w, err, funcname)
+				return
+			}
+			var fee = RARentableFeesData{
+				BID:             rfd.BID,
+				RID:             rfd.RID,
+				ARID:            asms[j].ARID,
+				ARName:          ar.Name,
+				ContractAmount:  asms[j].Amount,
+				RentCycle:       asms[j].RentCycle,
+				RentPeriodStart: rlib.JSONDate(asms[j].Start),
+				RentPeriodStop:  rlib.JSONDate(asms[j].Stop),
+				UsePeriodStart:  rlib.JSONDate(asms[j].Start),
+				UsePeriodStop:   rlib.JSONDate(asms[j].Stop),
+			}
+			rfd.Fees = append(rfd.Fees, fee)
+		}
 		raf.Rentables = append(raf.Rentables, rfd)
 	}
 
