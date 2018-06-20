@@ -26,11 +26,11 @@ func getValidatorFromTag(tagValue, fieldName string) Validator {
 	// switch case of numerous validation type
 	switch args[0] {
 	case "string":
-		return getStringValidatorFromTagValues(args[1:], fieldName)
+		return getStringValidatorFromTagValues(strings.Join(args[1:], ","), fieldName)
 	case "email":
-		return getEmailValidatorFromTagValues(args[1:], fieldName)
+		return getEmailValidatorFromTagValues(strings.Join(args[1:], ","), fieldName)
 	case "number":
-		return getNumberValidatorFromTagValues(args[1:], fieldName)
+		return getNumberValidatorFromTagValues(strings.Join(args[1:], ","), fieldName)
 	default:
 		return DefaultValidator{}
 	}

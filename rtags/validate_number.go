@@ -3,6 +3,7 @@ package rtags
 import (
 	"fmt"
 	"rentroll/rlib"
+	"strconv"
 	"strings"
 )
 
@@ -50,42 +51,38 @@ func (v NumberValidator) Validate(val interface{}) error {
 
 // getNumberValidatorFromTagValues returns instantiated `NumberValidator`
 // from passed tag value options
-func getNumberValidatorFromTagValues(tagOptions []string, fieldName string) NumberValidator {
-	validator := NumberValidator{}
+func getNumberValidatorFromTagValues(tagOptions, fieldName string) NumberValidator {
+	validator := NumberValidator{
+		Min: NumberMin{Value: 0, Skip: false},
+		Max: NumberMax{Value: 0, Skip: false},
+	}
 
-	// loop over the list of options with values
-	for _, opt := range tagOptions {
-		switch {
-		case strings.Contains(opt, "min"): // min option
-			mn := NumberMin{Value: 0, Skip: false}
+	var err error
 
-			_, err := fmt.Sscanf(opt, "min=%d", &mn.Value)
-			if err != nil {
-				// NOTE: this should be marked as critical level
-				rlib.Console("Field: `%s`, Option `min` value does not match `min=NUMBER` format in `number` validation type: %s\n", fieldName, err.Error())
-
-				// mark skip as true in case of error
-				mn.Skip = true
-			}
-
-			// assign struct
-			validator.Min = mn
-
-		case strings.Contains(opt, "max"): // max option
-			mx := NumberMax{Value: 0, Skip: false}
-
-			_, err := fmt.Sscanf(opt, "max=%d", &mx.Value)
-			if err != nil {
-				// NOTE: this should be marked as critical level
-				rlib.Console("Field: `%s`, Option `max` value does not match `max=NUMBER` format in `number` validation type: %s\n", fieldName, err.Error())
-
-				// mark skip as true in case of error
-				mx.Skip = true
-			}
-
-			// assign struct
-			validator.Max = mx
+	// min option
+	minStr := strings.Split(tagOptions, "min=")
+	if len(minStr) > 1 {
+		nStr := strings.Split(minStr[1], ",")[0]
+		validator.Min.Value, err = strconv.ParseInt(nStr, 10, 64)
+		if err != nil {
+			rlib.Console("Field: %s, Option `min` value parsing error: %s", fieldName, err.Error())
+			validator.Min.Skip = true
 		}
+	} else { // in case not found then
+		validator.Min.Skip = true
+	}
+
+	// max option
+	maxStr := strings.Split(tagOptions, "max=")
+	if len(maxStr) > 1 {
+		nStr := strings.Split(maxStr[1], ",")[0]
+		validator.Max.Value, err = strconv.ParseInt(nStr, 10, 64)
+		if err != nil {
+			rlib.Console("Field: %s, Option `max` value parsing error: %s", fieldName, err.Error())
+			validator.Max.Skip = true
+		}
+	} else { // in case not found then
+		validator.Max.Skip = true
 	}
 
 	return validator

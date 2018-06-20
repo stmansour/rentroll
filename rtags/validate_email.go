@@ -29,6 +29,6 @@ func (v EmailValidator) Validate(val interface{}) error {
 
 // getEmailValidatorFromTagValues returns instantiated `EmailValidator`
 // from passed tag value options
-func getEmailValidatorFromTagValues(tagOptions []string, fieldName string) EmailValidator {
+func getEmailValidatorFromTagValues(tagOptions, fieldName string) EmailValidator {
 	return EmailValidator{}
 }
