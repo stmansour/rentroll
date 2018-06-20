@@ -265,11 +265,11 @@ i.remove-item {
     color: red;
 }
 
-section[name="RABGInfoForm"] .w2ui-form-box .w2ui-field > label {
+section[name="RATransactantForm"] .w2ui-form-box .w2ui-field > label {
     width: 160px;
 }
 
-section[name="RABGInfoForm"] .w2ui-form-box .w2ui-field > div {
+section[name="RATransactantForm"] .w2ui-form-box .w2ui-field > div {
     margin-left: 168px;
 }
 
@@ -289,7 +289,7 @@ section[name="RABGInfoForm"] .w2ui-form-box .w2ui-field > div {
 }
 
 .bgInfoCheckboxes {
-    margin-left: 132px;
+    margin-left: 172px;
 }
 
 .ra-people-section-title {
