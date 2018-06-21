@@ -11,50 +11,37 @@ import (
 	"strings"
 )
 
-// RPerson contains attributes of Transactant, User, Payor, Prospect, Applicant
-type RPerson struct {
-	Recid         int64 `json:"recid"` // this is to support the w2ui form
-	TCID          int64
-	BID           int64
-	BUD           rlib.XJSONBud
-	NLID          int64
-	FirstName     string
-	MiddleName    string
-	LastName      string
-	PreferredName string
-	CompanyName   string // sometimes the entity will be a company
-	// IsCompany                 rlib.XJSONCompanyOrPerson // 1 => the entity is a company, 0 = not a company
-	IsCompany                 bool // 1 => the entity is a company, 0 = not a company
-	PrimaryEmail              string
-	SecondaryEmail            string
-	WorkPhone                 string
-	CellPhone                 string
-	Address                   string
-	Address2                  string
-	City                      string
-	State                     string
-	PostalCode                string
-	Country                   string
-	CompanyAddress            string
-	CompanyCity               string
-	CompanyState              string
-	CompanyPostalCode         string
-	CompanyEmail              string
-	CompanyPhone              string
-	Website                   string
-	Occupation                string
-	SSN                       string
-	DriversLicense            string
-	GrossIncome               float64
-	DesiredUsageStartDate     rlib.JSONDate // predicted rent start date
-	RentableTypePreference    int64         // RentableType
-	FLAGS                     uint64        // 0 = Approved/NotApproved,
-	Approver                  int64         // UID from Directory
-	DeclineReasonSLSID        int64         // SLSid of reason
-	OtherPreferences          string        // arbitrary text
-	FollowUpDate              rlib.JSONDate // automatically fill out this date to sysdate + 24hrs
-	CSAgent                   int64         // Accord Directory UserID - for the CSAgent
-	OutcomeSLSID              int64         // id of string from a list of outcomes. Melissa to provide reasons
+// RPersonForm contains attributes of Transactant, User, Payor, Prospect, Applicant
+// RPersonForm is the expected return data format for updating a person.
+//  Note that "list" data values are handled separately
+//	in RPersonOther.  See note in grentable.go above grentableForm for further details.
+type RPersonForm struct {
+	Recid int64 `json:"recid"` // this is to support the w2ui form
+	TCID  int64
+	BID   int64
+	BUD   rlib.XJSONBud
+	NLID  int64
+
+	// --------------- Transactant --------------
+	FirstName      string
+	MiddleName     string
+	LastName       string
+	PreferredName  string
+	IsCompany      bool   // 1 => the entity is a company, 0 = not a company
+	CompanyName    string // sometimes the entity will be a company
+	PrimaryEmail   string
+	SecondaryEmail string
+	WorkPhone      string
+	CellPhone      string
+	Address        string
+	Address2       string
+	City           string
+	State          string
+	PostalCode     string
+	Country        string
+	Website        string
+
+	// --------------- User ---------------
 	Points                    int64
 	DateofBirth               rlib.JSONDate
 	EmergencyContactName      string
@@ -65,93 +52,51 @@ type RPerson struct {
 	EligibleFutureUser        bool
 	Industry                  string
 	SourceSLSID               int64
-	CreditLimit               float64
-	TaxpayorID                string
-	ThirdPartySource          int64
-	EligibleFuturePayor       bool
-	CurrentAddress            string
-	CurrentLandLordName       string
-	CurrentLandLordPhoneNo    string
-	CurrentReasonForMoving    int64
-	CurrentLengthOfResidency  string
-	PriorAddress              string
-	PriorLandLordName         string
-	PriorLandLordPhoneNo      string
-	PriorReasonForMoving      int64
-	PriorLengthOfResidency    string
-	CommissionableThirdParty string
-	LastModTime               rlib.JSONDateTime
-	LastModBy                 int64
-	CreateTS                  rlib.JSONDateTime
-	CreateBy                  int64
-}
 
-// RPersonForm is the expected return data format for updating a person.
-//  Note that "list" data values are handled separately
-//	in RPersonOther.  See note in grentable.go above grentableForm for further details.
-type RPersonForm struct {
-	Recid                     int64 `json:"recid"` // this is to support the w2ui form
-	TCID                      int64
-	NLID                      int64
-	FirstName                 string
-	MiddleName                string
-	LastName                  string
-	PreferredName             string
-	CompanyName               string // sometimes the entity will be a company
-	PrimaryEmail              string
-	SecondaryEmail            string
-	WorkPhone                 string
-	CellPhone                 string
-	Address                   string
-	Address2                  string
-	City                      string
-	PostalCode                string
-	Country                   string
-	CompanyAddress            string
-	CompanyCity               string
-	CompanyPostalCode         string
-	CompanyEmail              string
-	CompanyPhone              string
-	Website                   string
-	Occupation                string
-	SSN                       string
-	DriversLicense            string
-	GrossIncome               float64
-	DesiredUsageStartDate     rlib.JSONDate // predicted rent start date
-	RentableTypePreference    int64         // RentableType
-	FLAGS                     uint64        // 0 = Approved/NotApproved,
-	Approver                  int64         // UID from Directory
-	DeclineReasonSLSID        int64         // SLSid of reason
-	OtherPreferences          string        // arbitrary text
-	FollowUpDate              rlib.JSONDate // automatically fill out this date to sysdate + 24hrs
-	CSAgent                   int64         // Accord Directory UserID - for the CSAgent
-	OutcomeSLSID              int64         // id of string from a list of outcomes. Melissa to provide reasons
-	Points                    int64
-	DateofBirth               rlib.JSONDate
-	EmergencyContactName      string
-	EmergencyContactAddress   string
-	EmergencyContactTelephone string
-	EmergencyContactEmail     string
-	AlternateAddress          string
-	Industry                  string
-	SourceSLSID               int64
-	CreditLimit               float64
-	TaxpayorID                string
-	ThirdPartySource          int64
-	BID                       int64
-	BUD                       rlib.XJSONBud
-	IsCompany                 bool // 1 => the entity is a company, 0 = not a company
-	CurrentAddress            string
-	CurrentLandLordName       string
-	CurrentLandLordPhoneNo    string
-	CurrentReasonForMoving    int64
-	CurrentLengthOfResidency  string
-	PriorAddress              string
-	PriorLandLordName         string
-	PriorLandLordPhoneNo      string
-	PriorReasonForMoving      int64
-	PriorLengthOfResidency    string
+	// --------------- Payor -------------------
+	CreditLimit         float64
+	TaxpayorID          string
+	GrossIncome         float64
+	SSN                 string
+	DriversLicense      string
+	ThirdPartySource    int64
+	EligibleFuturePayor bool
+
+	// -------------- Prospect ----------------
+	CompanyAddress           string
+	CompanyCity              string
+	CompanyState             string
+	CompanyPostalCode        string
+	CompanyEmail             string
+	CompanyPhone             string
+	Occupation               string
+	CurrentAddress           string
+	CurrentLandLordName      string
+	CurrentLandLordPhoneNo   string
+	CurrentReasonForMoving   int64
+	CurrentLengthOfResidency string
+	PriorAddress             string
+	PriorLandLordName        string
+	PriorLandLordPhoneNo     string
+	PriorReasonForMoving     int64
+	PriorLengthOfResidency   string
+	EvictedDes               string
+	ConvictedDes             string
+	BankruptcyDes            string
+	DesiredUsageStartDate    rlib.JSONDate // predicted rent start date
+	RentableTypePreference   int64         // RentableType
+	Approver                 int64         // UID from Directory
+	DeclineReasonSLSID       int64         // SLSid of reason
+	OtherPreferences         string        // arbitrary text
+	FollowUpDate             rlib.JSONDate // automatically fill out this date to sysdate + 24hrs
+	CSAgent                  int64         // Accord Directory UserID - for the CSAgent
+	OutcomeSLSID             int64         // id of string from a list of outcomes. Melissa to provide reasons
 	CommissionableThirdParty string
+	FLAGS                    uint64 // 0 = Approved/NotApproved,
+	CreateTS                 rlib.JSONDateTime
+	CreateBy                 int64
+	LastModTime              rlib.JSONDateTime
+	LastModBy                int64
 }
 
 // RPersonOther contains the data from selections boxes in the UI. These come back
@@ -165,8 +110,8 @@ type RPersonOther struct {
 
 // GetTransactantResponse is the response data to requests to get a transactant
 type GetTransactantResponse struct {
-	Status string  `json:"status"`
-	Record RPerson `json:"record"`
+	Status string      `json:"status"`
+	Record RPersonForm `json:"record"`
 }
 
 // SearchTransactantsResponse is the data structure for the response to a search for people
