@@ -24,39 +24,37 @@ type RPerson struct {
 	PreferredName string
 	CompanyName   string // sometimes the entity will be a company
 	// IsCompany                 rlib.XJSONCompanyOrPerson // 1 => the entity is a company, 0 = not a company
-	IsCompany              bool // 1 => the entity is a company, 0 = not a company
-	PrimaryEmail           string
-	SecondaryEmail         string
-	WorkPhone              string
-	CellPhone              string
-	Address                string
-	Address2               string
-	City                   string
-	State                  string
-	PostalCode             string
-	Country                string
-	CompanyAddress         string
-	CompanyCity            string
-	CompanyState           string
-	CompanyPostalCode      string
-	CompanyEmail           string
-	CompanyPhone           string
-	Website                string
-	Occupation             string
-	SSN                    string
-	DriversLicense         string
-	GrossIncome            float64
-	DesiredUsageStartDate  rlib.JSONDate // predicted rent start date
-	RentableTypePreference int64         // RentableType
-	FLAGS                  uint64        // 0 = Approved/NotApproved,
-	Approver               int64         // UID from Directory
-	DeclineReasonSLSID     int64         // SLSid of reason
-	OtherPreferences       string        // arbitrary text
-	FollowUpDate           rlib.JSONDate // automatically fill out this date to sysdate + 24hrs
-	CSAgent                int64         // Accord Directory UserID - for the CSAgent
-	OutcomeSLSID           int64         // id of string from a list of outcomes. Melissa to provide reasons
-	// FloatingDeposit           float64       // d $(GLCASH) _, c $(GLGENRCV) _; assign to a shell of a Rental Agreement
-	// RAID                      int64         // created to hold On Account amount of Floating Deposit
+	IsCompany                 bool // 1 => the entity is a company, 0 = not a company
+	PrimaryEmail              string
+	SecondaryEmail            string
+	WorkPhone                 string
+	CellPhone                 string
+	Address                   string
+	Address2                  string
+	City                      string
+	State                     string
+	PostalCode                string
+	Country                   string
+	CompanyAddress            string
+	CompanyCity               string
+	CompanyState              string
+	CompanyPostalCode         string
+	CompanyEmail              string
+	CompanyPhone              string
+	Website                   string
+	Occupation                string
+	SSN                       string
+	DriversLicense            string
+	GrossIncome               float64
+	DesiredUsageStartDate     rlib.JSONDate // predicted rent start date
+	RentableTypePreference    int64         // RentableType
+	FLAGS                     uint64        // 0 = Approved/NotApproved,
+	Approver                  int64         // UID from Directory
+	DeclineReasonSLSID        int64         // SLSid of reason
+	OtherPreferences          string        // arbitrary text
+	FollowUpDate              rlib.JSONDate // automatically fill out this date to sysdate + 24hrs
+	CSAgent                   int64         // Accord Directory UserID - for the CSAgent
+	OutcomeSLSID              int64         // id of string from a list of outcomes. Melissa to provide reasons
 	Points                    int64
 	DateofBirth               rlib.JSONDate
 	EmergencyContactName      string
@@ -71,6 +69,17 @@ type RPerson struct {
 	TaxpayorID                string
 	ThirdPartySource          int64
 	EligibleFuturePayor       bool
+	CurrentAddress            string
+	CurrentLandLordName       string
+	CurrentLandLordPhoneNo    string
+	CurrentReasonForMoving    int64
+	CurrentLengthOfResidency  string
+	PriorAddress              string
+	PriorLandLordName         string
+	PriorLandLordPhoneNo      string
+	PriorReasonForMoving      int64
+	PriorLengthOfResidency    string
+	CommissionableThirdParty string
 	LastModTime               rlib.JSONDateTime
 	LastModBy                 int64
 	CreateTS                  rlib.JSONDateTime
@@ -142,8 +151,7 @@ type RPersonForm struct {
 	PriorLandLordPhoneNo      string
 	PriorReasonForMoving      int64
 	PriorLengthOfResidency    string
-	// FloatingDeposit           float64       // d $(GLCASH) _, c $(GLGENRCV) _; assign to a shell of a Rental Agreement
-	// RAID                      int64         // created to hold On Account amount of Floating Deposit
+	CommissionableThirdParty string
 }
 
 // RPersonOther contains the data from selections boxes in the UI. These come back

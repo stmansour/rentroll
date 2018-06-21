@@ -694,7 +694,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// PROSPECT
 	//==========================================
-	flds = "TCID,BID,CompanyAddress,CompanyCity,CompanyState,CompanyPostalCode,CompanyEmail,CompanyPhone,Occupation,DesiredUsageStartDate,RentableTypePreference,FLAGS,EvictedDes,ConvictedDes,BankruptcyDes,Approver,DeclineReasonSLSID,OtherPreferences,FollowUpDate,CSAgent,OutcomeSLSID,CurrentAddress,CurrentLandLordName,CurrentLandLordPhoneNo,CurrentReasonForMoving,CurrentLengthOfResidency,PriorAddress,PriorLandLordName,PriorLandLordPhoneNo,PriorReasonForMoving,PriorLengthOfResidency,CreateTS,CreateBy,LastModTime,LastModBy"
+	flds = "TCID,BID,CompanyAddress,CompanyCity,CompanyState,CompanyPostalCode,CompanyEmail,CompanyPhone,Occupation,DesiredUsageStartDate,RentableTypePreference,FLAGS,EvictedDes,ConvictedDes,BankruptcyDes,Approver,DeclineReasonSLSID,OtherPreferences,FollowUpDate,CSAgent,OutcomeSLSID,CurrentAddress,CurrentLandLordName,CurrentLandLordPhoneNo,CurrentReasonForMoving,CurrentLengthOfResidency,PriorAddress,PriorLandLordName,PriorLandLordPhoneNo,PriorReasonForMoving,PriorLengthOfResidency,CommissionableThirdParty,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["Prospect"] = flds
 	RRdb.Prepstmt.GetProspect, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Prospect where TCID=?")
 	Errcheck(err)

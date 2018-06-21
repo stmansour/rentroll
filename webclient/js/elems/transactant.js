@@ -62,12 +62,12 @@ window.getTransactantInitRecord = function (BID, BUD) {
         CurrentLandLordName: "",
         CurrentLandLordPhoneNo: "",
         CurrentLengthOfResidency: "",
-        CurrentReasonForMoving: "",
+        CurrentReasonForMoving: 0,
         PriorAddress: "",
         PriorLandLordName: "",
         PriorLandLordPhoneNo: "",
         PriorLengthOfResidency: "",
-        PriorReasonForMoving: "",
+        PriorReasonForMoving: 0,
         Evicted: false,
         EvictedDes: "",
         Convicted: false,
@@ -84,7 +84,7 @@ window.getTransactantInitRecord = function (BID, BUD) {
         FollowUpDate: "1/1/1900",
         CSAgent: 0,
         OutcomeSLSID: 0,
-        FloatingDeposit: 0.00,
+        CommissionableThirdParty: "",
         Comment: ""
     };
 };
@@ -124,6 +124,7 @@ window.buildTransactElements = function() {
         {field: 'CurrentLandLordPhoneNo',    type: 'text',      required: false, html: {page: 3, column: 0}},  // Current landlord's phone number
         {field: 'CurrentLengthOfResidency',  type: 'text',      required: false, html: {page: 3, column: 0}},  // Length of residency at current address
         {field: 'CurrentReasonForMoving',    type: 'list',      required: false, html: {page: 3, column: 0}},  // Reason of moving from current address
+        {field: 'CommissionableThirdParty',  type: 'text',      required: false, html: {page: 3, column: 0}},
         {field: 'DateofBirth',               type: 'date',      required: false, html: {page: 1, column: 0}},
         {field: 'DeclineReasonSLSID',        type: 'list',      required: false, html: {page: 3, column: 0}},  // ApplDeny String list
         {field: 'DesiredUsageStartDate',     type: 'date',      required: false, html: {page: 3, column: 0}},
@@ -138,7 +139,6 @@ window.buildTransactElements = function() {
         {field: 'EvictedDes',                type: 'text',      required: false, html: {page: 3, column: 0}},
         {field: 'FirstName',                 type: 'text',      required: false, html: {page: 0, column: 0}},
         {field: 'FLAGS',                     type: 'int',       required: false, html: {page: 3, column: 0}},
-        {field: 'FloatingDeposit',           type: 'w2float',   required: false, html: {page: 3, column: 0}},
         {field: 'FollowUpDate',              type: 'date',      required: false, html: {page: 3, column: 0}},
         {field: 'GrossIncome',               type: 'money',     required: false, html: {page: 2, column: 0}},
         {field: 'Industry',                  type: 'text',      required: false, html: {page: 1, column: 0}},
@@ -247,6 +247,8 @@ window.buildTransactElements = function() {
             event.onComplete = function () {
                 var yes_args = [this, event.recid],
                     no_args = [this],
+                    BID = getCurrentBID(),
+                    BUD = getBUDfromBID(BID),
                     no_callBack = function(grid) {
                         grid.select(app.last.grid_sel_recid);
                         return false;
@@ -256,6 +258,12 @@ window.buildTransactElements = function() {
                         // keep highlighting current row in any case
                         grid.select(app.last.grid_sel_recid);
                         var rec = grid.get(recid);
+
+                        // get stringListData for list fields
+                        getStringListData(BID, BUD).fail(function (data) {
+                            this.message(data.message);
+                        });
+
                         setToForm('transactantForm', '/v1/person/' + rec.BID + '/' + rec.TCID, 700, true);
                     };
 
@@ -278,6 +286,12 @@ window.buildTransactElements = function() {
 
                     var record = getTransactantInitRecord(BID, BUD);
                     w2ui.transactantForm.record = record;
+
+                    // get stringListData for list fields
+                    getStringListData(BID, BUD).fail(function (data) {
+                        this.message(data.message);
+                    });
+
                     w2ui.transactantForm.refresh();
                     setToForm('transactantForm', '/v1/person/' + BID + '/0', 700);
                 };
@@ -342,8 +356,12 @@ window.buildTransactElements = function() {
         actions: {
             save: function () {
                 var tgrid = w2ui.transactantsGrid;
-                tgrid.selectNone();
                 console.log('before: tgrid.getSelection() = ' + tgrid.getSelection() );
+                tgrid.selectNone();
+                // clean dirty flag of form
+                app.form_is_dirty = false;
+                // clear the grid select recid
+                app.last.grid_sel_recid  =-1;
                 this.save({}, function (data) {
                     if (data.status == 'error') {
                         console.log('ERROR: '+ data.message);
@@ -437,18 +455,25 @@ window.buildTransactElements = function() {
 
                 formRefreshCallBack(f, "TCID", header);
 
-                getStringListData(BID, BUD).done(function (data) {
-                    f.get('SourceSLSID').options.items = getSLStringList(BID, "HowFound");
-                    f.get('DeclineReasonSLSID').options.items = getSLStringList(BID, "ApplDeny");
-                    f.get('CurrentReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
-                    f.get('PriorReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
-                }).fail(function (data) {
-                    f.message(data.message);
-                });
+                // Hide Transanctant role checkboxes
+                f.get("IsRenter").hidden = true;
+                f.get("IsGuarantor").hidden = true;
+                f.get("IsGuarantor").hidden = true;
+                $("div[name=transanctant-role-tile]").hide();
+
+                f.get('SourceSLSID').options.items = getSLStringList(BID, "HowFound");
+                f.get('DeclineReasonSLSID').options.items = getSLStringList(BID, "ApplDeny");
+                f.get('CurrentReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
+                f.get('PriorReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
             };
         },
         onChange: function(event) {
             event.onComplete = function() {
+                // Enable/Disable checkbox description text area
+                $("#EvictedDes").prop("disabled", !this.record.Evicted);
+                $("#ConvictedDes").prop("disabled", !this.record.Convicted);
+                $("#BankruptcyDes").prop("disabled", !this.record.Bankruptcy);
+
                 // formRecDiffer: 1=current record, 2=original record, 3=diff object
                 var diff = formRecDiffer(this.record, app.active_form_original, {});
                 // if diff == {} then make dirty flag as false, else true
@@ -457,6 +482,8 @@ window.buildTransactElements = function() {
                 } else {
                     app.form_is_dirty = true;
                 }
+
+
             };
         },
         onSubmit: function(target, data){

@@ -58,8 +58,6 @@ const (
 	FollowUpDate              = iota
 	CSAgent                   = iota
 	OutcomeSLSID              = iota
-	// FloatingDeposit           = iota
-	// RAID                      = iota
 )
 
 // csvCols is an array that defines all the columns that should be in this csv file
@@ -109,8 +107,6 @@ var csvCols = []CSVColumn{
 	{"FollowUpDate", FollowUpDate},
 	{"CSAgent", CSAgent},
 	{"OutcomeSLSID", OutcomeSLSID},
-	// {"FloatingDeposit", FloatingDeposit},
-	// {"RAID", RAID},
 }
 
 func rcsvCopyString(p *string, s string) error {
@@ -199,8 +195,6 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 		{FollowUpDate, nil, nil},
 		{CSAgent, nil, nil},
 		{OutcomeSLSID, nil, nil},
-		// {FloatingDeposit, nil, nil},
-		// {RAID, nil, nil},
 	}
 
 	ignoreDupPhone := false
@@ -362,22 +356,6 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 				}
 				pr.OutcomeSLSID = y
 			}
-
-		// case FloatingDeposit:
-		// 	if len(s) > 0 {
-		// 		if x, err = strconv.ParseFloat(strings.TrimSpace(s), 64); err != nil {
-		// 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid FloatingDeposit value: %s", funcname, lineno, s)
-		// 		}
-		// 		pr.FloatingDeposit = x
-		// 	}
-		// case RAID:
-		// 	if len(s) > 0 {
-		// 		var y int64
-		// 		if y, err = strconv.ParseInt(strings.TrimSpace(s), 10, 64); err != nil {
-		// 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid RAID value: %s", funcname, lineno, s)
-		// 		}
-		// 		pr.RAID = y
-		// 	}
 		default:
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Unknown field, column %d", funcname, lineno, i)
 		}
