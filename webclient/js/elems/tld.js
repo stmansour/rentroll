@@ -59,6 +59,7 @@ window.getTLDInitRecord = function (BID, previousFormRecord){
         CreateBy: app.uid,
         LastModTime: y.toString(),
         LastModBy: app.uid,
+        EmailList: '',
     };
 
     // if called after 'save and add another' action there previous form record is passed as Object

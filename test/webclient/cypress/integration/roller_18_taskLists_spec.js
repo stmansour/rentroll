@@ -4,8 +4,8 @@ import * as constants from '../support/utils/constants';
 import * as selectors from '../support/utils/get_selectors';
 import * as common from '../support/utils/common';
 
-// --- Setup --
-const section = require('../support/components/rentableTypes'); // Rentable types
+// --- Collections ---
+const section = require('../support/components/taskLists'); // Task Lists
 
 // this contain app variable of the application
 let appSettings;
@@ -14,7 +14,7 @@ let appSettings;
 let testConfig;
 
 // -- Start Cypress UI tests for AIR Roller Application --
-describe('AIR Roller UI Tests - Rentable Types', function () {
+describe('AIR Roller UI Tests - Task Lists', function () {
 
     // // records list of module from the API response
     let recordsAPIResponse;
@@ -22,14 +22,6 @@ describe('AIR Roller UI Tests - Rentable Types', function () {
     let noRecordsInAPIResponse;
 
     // -- Perform operation before all tests starts. It runs once before all tests in the block --
-    /********************************
-    * Login into application
-    * Select node from left sidebar
-    * Route the response for grid records
-    *
-    * Expect:
-    * Grid records response must have status flag as success.
-    ********************************/
     before(function () {
 
         testConfig = section.conf;
@@ -115,60 +107,100 @@ describe('AIR Roller UI Tests - Rentable Types', function () {
         common.testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, testConfig);
     });
 
-    /*******************************
-    * Click on first record of grid
+    /************************************************************
+    * Click Add new in toolbar
     *
     * Expect:
-    * Each field must have value set same as detail record api response.
-    * Second Market tab must have grid and respect records. Delete button only enable if any record is clicked.
-    * Button must be visible(Save, Cancel etc.)
-    *
-    *
-    * Close the form
-    ********************************/
+    * Each field must set to be its default value
+    * Button must be visible(Save, Save and Add Another etc.)
+    ************************************************************/
     it('Record Detail Form', function () {
         // ----------------------------------
         // -- Tests for detail record form --
         // ----------------------------------
-        // Params:
-        // recordsAPIResponse: list of record from the api response,
-        // testConfig: configuration for running tests
-        common.testRecordDetailForm(recordsAPIResponse, testConfig);
+        
+        if(noRecordsInAPIResponse >0){
+            // Params:
+            // recordsAPIResponse: list of record from the api response,
+            // testConfig: configuration for running tests
+            common.testDetailFormWithGrid(recordsAPIResponse, testConfig);
 
-        // common.testMarketRulesDetailForm(testConfig);
-
-        // -- Close the form. And assert that form isn't visible. --
-        common.closeFormTests(selectors.getFormSelector(testConfig.form));
+            // -- Close the form. And assert that form isn't visible. --
+            common.closeFormTests(selectors.getFormSelector(testConfig.form));
+        }
     });
 
-
+    /************************************************************
+    * Click Add new in toolbar
+    *
+    * Expect:
+    * Each field must set to be its default value
+    * Button must be visible(Save, Save and Add Another etc.)
+    ************************************************************/
     it('Check default value of fields for new record form', function () {
         // ---------------------------------------
         // ----- Tests for add new record form ---
         // ---------------------------------------
-        common.testAddNewRecordForm(testConfig);
+        testConfig.buttonNamesInDetailForm.splice( testConfig.buttonNamesInDetailForm.indexOf('delete'), 1 );
+
+        // TODO(Jay): Use common testNewRecordForm() method after removing closeFormTests() call in that method. 
+        cy.contains('Add New', {force: true}).click().wait(constants.WAIT_TIME);
+
+        // record list in w2ui form
+        let getW2UIFormRecords;
+
+        // id of the field
+        let fieldID;
+
+        // default value of field in w2ui object
+        let defaultValue;
+
+        // get form name
+        let formName = testConfig.formInPopUp;
+
+        // get form selector
+        let formSelector = selectors.getFormSelector(formName);
+
+        // Check visibility of form
+        cy.get(formSelector).should('be.visible');
+
+        // get record and field list from the w2ui form object
+        cy.window().then((win) => {
+
+            // get w2ui form records
+            getW2UIFormRecords = win.w2ui[formName].record;
+        });
+
+        cy.get(formSelector)
+            .find('input.w2ui-input:not(:hidden)') // get all input field from the form in DOM which doesn't have type as hidden
+            .each(($el, index, $list) => {
+
+                // get id of the field
+                fieldID = $el.context.id;
+
+                cy.log(getW2UIFormRecords);
+
+                // get default value of field
+                defaultValue = getW2UIFormRecords[fieldID];
+
+                // defaultValue type is object means it does have key value pair. get default text from the key value pair.
+                if (typeof defaultValue === 'object') {
+                    defaultValue = defaultValue.text;
+                }
+
+                cy.get(selectors.getFieldSelector(fieldID))
+                    .should('be.visible')
+                    .should('have.value', defaultValue);
+            });
+        // Check button's visibility
+        common.buttonsTest(testConfig.buttonNamesInDetailForm, testConfig.notVisibleButtonNamesInForm);
+
+        // Close the form
+        cy.get(selectors.getClosePopupButtonSelector()).click().wait(constants.WAIT_TIME);
+
+        // Check that form should not visible after closing it
+        cy.get(formSelector).should('not.be.visible');
     });
-
-    /**************************************************
-     * Click Add new button in toolbar
-     * Fill value in the forms for each field from the fixture
-     * Select value for list type fields
-     * Click save button
-     *
-     * Expect:
-     * After saving the record, response must have status flag to be 'success'
-     **************************************************/
-    
-    // TODO(Jay): Test is Disabled because of overlay rendering issue. Enable after issue is resolved.
-    // it('Save new record', function () {
-    //     // Click add new button and open a form
-    //     cy.contains('Add New', {force: true}).click().wait(constants.WAIT_TIME);
-
-    //     // ---------------------------------------
-    //     // ----- Tests for save new record -------
-    //     // ---------------------------------------
-    //     common.testSaveNewRecord(testConfig);
-    // });
 
     // -- Perform operation after all tests finish. It runs once after all tests in the block --
     after(function () {

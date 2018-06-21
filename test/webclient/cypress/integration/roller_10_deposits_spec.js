@@ -14,7 +14,7 @@ let appSettings;
 let testConfig;
 
 // -- Start Cypress UI tests for AIR Roller Application --
-describe('AIR Roller UI Tests - Expenses', function () {
+describe('AIR Roller UI Tests - Deposits', function () {
 
     // // records list of module from the API response
     let recordsAPIResponse;

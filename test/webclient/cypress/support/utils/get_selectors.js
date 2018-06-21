@@ -105,3 +105,8 @@ export function getExportCSVButtonSelector(gridname) {
 export function getExportPDFButtonSelector(gridname) {
     return '#tb_'+ gridname + '_toolbar_item_printreport';
 }
+
+// return selector for dropdown value field
+export function getDropDownValueFieldSelector(fieldValue) {
+    return '#w2ui-overlay tr[index=' + fieldValue + ']';
+}

@@ -152,6 +152,25 @@ describe('AIR Roller UI Tests - Deposit Methods', function () {
         common.testAddNewRecordForm(testConfig);
     });
 
+    /**************************************************
+     * Click Add new button in toolbar
+     * Fill value in the forms for each field from the fixture
+     * Select value for list type fields
+     * Click save button
+     *
+     * Expect:
+     * After saving the record, response must have status flag to be 'success'
+     **************************************************/
+    it('Save new record', function () {
+        // Click add new button and open a form
+        cy.contains('Add New', {force: true}).click().wait(constants.WAIT_TIME);
+        
+        // ---------------------------------------
+        // ----- Tests for save new record -------
+        // ---------------------------------------
+        common.testSaveNewRecord(testConfig);
+    });
+
     // -- Perform operation after all tests finish. It runs once after all tests in the block --
     after(function () {
 
