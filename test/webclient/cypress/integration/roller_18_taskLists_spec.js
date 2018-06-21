@@ -130,6 +130,77 @@ describe('AIR Roller UI Tests - Task Lists', function () {
         }
     });
 
+    /************************************************************
+    * Click Add new in toolbar
+    *
+    * Expect:
+    * Each field must set to be its default value
+    * Button must be visible(Save, Save and Add Another etc.)
+    ************************************************************/
+    it('Check default value of fields for new record form', function () {
+        // ---------------------------------------
+        // ----- Tests for add new record form ---
+        // ---------------------------------------
+        testConfig.buttonNamesInDetailForm.splice( testConfig.buttonNamesInDetailForm.indexOf('delete'), 1 );
+
+        cy.contains('Add New', {force: true}).click().wait(constants.WAIT_TIME);
+
+        // record list in w2ui form
+        let getW2UIFormRecords;
+
+        // id of the field
+        let fieldID;
+
+        // default value of field in w2ui object
+        let defaultValue;
+
+        // get form name
+        let formName = testConfig.formInPopUp;
+
+        // get form selector
+        let formSelector = selectors.getFormSelector(formName);
+
+        // Check visibility of form
+        cy.get(formSelector).should('be.visible');
+
+        // get record and field list from the w2ui form object
+        cy.window().then((win) => {
+
+            // get w2ui form records
+            getW2UIFormRecords = win.w2ui[formName].record;
+        });
+
+        cy.get(formSelector)
+            .find('input.w2ui-input:not(:hidden)') // get all input field from the form in DOM which doesn't have type as hidden
+            .each(($el, index, $list) => {
+
+                // get id of the field
+                fieldID = $el.context.id;
+
+                cy.log(getW2UIFormRecords);
+
+                // get default value of field
+                defaultValue = getW2UIFormRecords[fieldID];
+
+                // defaultValue type is object means it does have key value pair. get default text from the key value pair.
+                if (typeof defaultValue === 'object') {
+                    defaultValue = defaultValue.text;
+                }
+
+                cy.get(selectors.getFieldSelector(fieldID))
+                    .should('be.visible')
+                    .should('have.value', defaultValue);
+            });
+        // Check button's visibility
+        common.buttonsTest(testConfig.buttonNamesInDetailForm, testConfig.notVisibleButtonNamesInForm);
+
+        // Close the form
+        cy.get(selectors.getClosePopupButtonSelector()).click().wait(constants.WAIT_TIME);
+
+        // Check that form should not visible after closing it
+        cy.get(formSelector).should('not.be.visible');
+    });
+
     // -- Perform operation after all tests finish. It runs once after all tests in the block --
     after(function () {
 
