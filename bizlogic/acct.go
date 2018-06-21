@@ -247,19 +247,6 @@ func SaveGLAccount(ctx context.Context, l *rlib.GLAccount) []BizError {
 	}
 
 	//-----------------------------------------------------------------
-	// Only update the FLAGS that a client is allowed to change...
-	//-----------------------------------------------------------------
-	// var lcur rlib.GLAccount // if it is an existing account, load current version
-	// if l.LID > 0 {
-	// 	lcur = rlib.GetLedger(l.LID)
-	// }
-	curflags := l.FLAGS // start with what the client sent
-	// DO ANY FLAG CHECKING NEEDED
-	// at the moment there are no flags to check
-	curflags = 0 // change this as needed if any flags are defined
-	l.FLAGS = curflags
-
-	//-----------------------------------------------------------------
 	// OK, we've made all the checks we know about.  Now we can save it
 	//-----------------------------------------------------------------
 	if l.LID == 0 {
