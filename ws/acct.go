@@ -63,40 +63,38 @@ type SearchGLAccountsResponse struct {
 
 // AcctDetailsForm is the response data to request for a GLAccount
 type AcctDetailsForm struct {
-	LID           int64
-	PLID          int64
-	BID           int64
-	BUD           rlib.XJSONBud
-	RAID          int64
-	TCID          int64
-	GLNumber      string
-	Name          string
-	AcctType      string
-	AllowPost     bool
-	Description   string
-	FLAGS         uint64 // 1<<0 = inactive flag:  0 = active account, 1 = inactive account
-	OffsetAccount int    // 0 = not offset-account, 1 = offset account
-	LastModTime   rlib.JSONDateTime
-	LastModBy     int64
-	CreateTS      rlib.JSONDateTime
-	CreateBy      int64
+	LID         int64
+	PLID        int64
+	BID         int64
+	BUD         rlib.XJSONBud
+	RAID        int64
+	TCID        int64
+	GLNumber    string
+	Name        string
+	AcctType    string
+	AllowPost   bool
+	Description string
+	FLAGS       uint64 // 1<<0 = inactive flag:  0 = active account, 1 = inactive account
+	LastModTime rlib.JSONDateTime
+	LastModBy   int64
+	CreateTS    rlib.JSONDateTime
+	CreateBy    int64
 }
 
 // AcctSaveForm used save inputs directly
 type AcctSaveForm struct {
-	LID           int64
-	BID           int64
-	RAID          int64
-	TCID          int64
-	GLNumber      string
-	Name          string
-	AcctType      string
-	Description   string
-	BUD           rlib.XJSONBud
-	PLID          int64
-	AllowPost     bool
-	FLAGS         uint64 //
-	OffsetAccount int    // the UI value for bit 0 of FLAGS
+	LID         int64
+	BID         int64
+	RAID        int64
+	TCID        int64
+	GLNumber    string
+	Name        string
+	AcctType    string
+	Description string
+	BUD         rlib.XJSONBud
+	PLID        int64
+	AllowPost   bool
+	FLAGS       uint64
 }
 
 // SaveAcctInput is the input data format for a Save command
@@ -612,15 +610,6 @@ func saveGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	//--------------------------------------------------------------------------
-	// Make no assumptions about what the caller has done to the FLAGS
-	// Only accept those bits that a caller is authorized to edit. The bizlogic
-	// check takes care of not overwriting the existing FLAG values if this
-	// is an update operation. Vut we're going to limit the FLAGS to only what
-	// clients are authorized to change...
-	//--------------------------------------------------------------------------
-	rlib.Console("foo.Record.OffsetAccount = %d\n", foo.Record.OffsetAccount)
-
 	// migrate foo.Record data to a struct's fields
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
 	fmt.Printf("saveAcct - first migrate: a = %#v\n", a)
@@ -774,7 +763,6 @@ func getGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
-		gg.OffsetAccount = int(gg.FLAGS & 0x1)
 
 		g.Record = gg
 	}

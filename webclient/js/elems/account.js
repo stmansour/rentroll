@@ -23,7 +23,6 @@ window.getAccountInitRecord = function (BID, BUD, previousFormRecord){
         AcctType: '',
         AllowPost: true,
         FLAGS: 0,
-        OffsetAccount: 0,
         Description: '',
         LastModTime: y.toISOString(),
         LastModBy: 0,
