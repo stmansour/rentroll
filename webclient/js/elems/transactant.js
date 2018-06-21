@@ -8,17 +8,17 @@ window.getTransactantInitRecord = function (BID, BUD) {
 
     return {
         recid: 0,
-        TMPTCID: 0,
-        TCID: 0,
         BID: BID,
         BUD: BUD,
         NLID: 0,
+        TCID: 0,
+        TMPTCID: 0,
         IsRenter: false,
         IsOccupant: true,
         IsGuarantor: false,
         FirstName: "",
-        LastName: "",
         MiddleName: "",
+        LastName: "",
         PreferredName: "",
         IsCompany: false,
         CompanyName: "",
@@ -33,8 +33,6 @@ window.getTransactantInitRecord = function (BID, BUD) {
         PostalCode: "",
         Country: "",
         Website: "",
-        LastModTime: y.toISOString(),
-        LastModBy: 0,
         Points: 0,
         DateofBirth: "1/1/1900",
         EmergencyContactName: "",
@@ -47,10 +45,10 @@ window.getTransactantInitRecord = function (BID, BUD) {
         SourceSLSID: 0,
         CreditLimit: 0.00,
         TaxpayorID: "",
-        ThirdPartySource: 0,
         GrossIncome: 0,
         SSN: "",
         DriversLicense: "",
+        ThirdPartySource: 0,
         EligibleFuturePayor: true,
         CompanyAddress: "",
         CompanyCity: "",
@@ -58,6 +56,7 @@ window.getTransactantInitRecord = function (BID, BUD) {
         CompanyPostalCode: "",
         CompanyEmail: "",
         CompanyPhone: "",
+        Occupation: "",
         CurrentAddress: "",
         CurrentLandLordName: "",
         CurrentLandLordPhoneNo: "",
@@ -74,7 +73,6 @@ window.getTransactantInitRecord = function (BID, BUD) {
         ConvictedDes: "",
         Bankruptcy: false,
         BankruptcyDes: "",
-        Occupation: "",
         DesiredUsageStartDate: "1/1/1900",
         RentableTypePreference: 0,
         FLAGS: 0,
@@ -85,7 +83,9 @@ window.getTransactantInitRecord = function (BID, BUD) {
         CSAgent: 0,
         OutcomeSLSID: 0,
         CommissionableThirdParty: "",
-        Comment: ""
+        Comment: "",
+        LastModTime: y.toISOString(),
+        LastModBy: 0
     };
 };
 
