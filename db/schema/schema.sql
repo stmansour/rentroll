@@ -911,8 +911,7 @@ CREATE TABLE Prospect (
     PriorLandLordPhoneNo VARCHAR(20) NOT NULL DEFAULT '',        -- phone number        ""
     PriorReasonForMoving BIGINT NOT NULL DEFAULT 0,              -- string list id
     PriorLengthOfResidency VARCHAR(100) NOT NULL DEFAULT '',     -- length of stay is just a string
-    -- FloatingDeposit DECIMAL (19,4) NOT NULL DEFAULT 0.0,         -- d $(GLCASH) _, c $(GLGENRCV) _; assign to a shell of a Rental Agreement
-    -- RAID BIGINT NOT NULL DEFAULT 0,                              -- created to hold On Account amount of Floating Deposit  -- Make this 0 after Prospect becomes Transactant
+    CommissionableThirdParty TEXT NOT NULL DEFAULT '',           -- Sometimes bookings come into Isola Bella from 3rd parties and they get a commission
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,       -- when was this record created
@@ -958,8 +957,8 @@ CREATE TABLE User (
 CREATE TABLE Payor (
     TCID BIGINT NOT NULL,                                        -- associated Transactant
     BID BIGINT NOT NULL DEFAULT 0,                               -- which business
-    TaxpayorID VARCHAR(25) NOT NULL DEFAULT '',     
-    CreditLimit DECIMAL(19,4) NOT NULL DEFAULT 0.0,     
+    TaxpayorID VARCHAR(25) NOT NULL DEFAULT '',
+    CreditLimit DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     ThirdPartySource BIGINT NOT NULL DEFAULT 0,                        -- Accord (renting company) Phonebook UID of account rep
     EligibleFuturePayor TINYINT(1) NOT NULL DEFAULT 1,           -- yes/no
     FLAGS BIGINT NOT NULL DEFAULT 0,                             /*
@@ -1396,7 +1395,6 @@ CREATE TABLE GLAccount (
     RAID BIGINT NOT NULL DEFAULT 0,                           -- rental agreement account, only valid if TYPE is 1
     TCID BIGINT NOT NULL DEFAULT 0,                           -- Payor, only valid if TYPE is 2
     GLNumber VARCHAR(100) NOT NULL DEFAULT '',                -- if not '' then it's a link a QB  GeneralLedger (GL)account
-    -- Status SMALLINT NOT NULL DEFAULT 0,                       -- Whether a GL Account is currently unknown=0, inactive=1, active=2
     Name VARCHAR(100) NOT NULL DEFAULT '',
     AcctType VARCHAR(100) NOT NULL DEFAULT '',                -- Quickbooks Type: Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable,
                                                               --    Other Current Asset, Other Asset, Accounts Payable, Other Current Liability,

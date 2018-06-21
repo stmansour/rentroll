@@ -1098,9 +1098,8 @@ func InsertLedger(ctx context.Context, a *GLAccount) (int64, error) {
 		return rid, err
 	}
 
-	//                                            PLID, BID,     RAID,  TCID,   GLNumber,   Status,   Name,   AcctType,   AllowPost,  FLAGS,   Description, CreateBy, LastModBy
 	// transaction... context
-	fields := []interface{}{a.PLID, a.BID, a.RAID, a.TCID, a.GLNumber, /*a.Status,*/ a.Name, a.AcctType, a.AllowPost, a.FLAGS, a.Description, a.CreateBy, a.LastModBy}
+	fields := []interface{}{a.PLID, a.BID, a.RAID, a.TCID, a.GLNumber, a.Name, a.AcctType, a.AllowPost, a.FLAGS, a.Description, a.CreateBy, a.LastModBy}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertLedger)
 		defer stmt.Close()
@@ -2584,7 +2583,7 @@ func InsertProspect(ctx context.Context, a *Prospect) (int64, error) {
 		a.FollowUpDate, a.CSAgent, a.OutcomeSLSID,
 		a.CurrentAddress, a.CurrentLandLordName, a.CurrentLandLordPhoneNo, a.CurrentReasonForMoving,
 		a.CurrentLengthOfResidency, a.PriorAddress, a.PriorLandLordName, a.PriorLandLordPhoneNo,
-		a.PriorReasonForMoving, a.PriorLengthOfResidency,
+		a.PriorReasonForMoving, a.PriorLengthOfResidency, a.CommissionableThirdParty,
 		a.CreateBy, a.LastModBy}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertProspect)
