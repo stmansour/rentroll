@@ -122,14 +122,14 @@ dojsonPOST "http://localhost:8270/v1/account/1/5" "request" "a18"  "WebService--
 #------------------------------------------------------------------------------
 
 # Add Lockbox account to business 1 (REX)
-echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22accountForm%22%2C%22record%22%3A%7B%22recid%22%3A0%2C%22LID%22%3A0%2C%22PLID%22%3A9%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22RAID%22%3A0%2C%22TCID%22%3A0%2C%22GLNumber%22%3A%2210102%22%2C%22Status%22%3A2%2C%22Name%22%3A%22FRB%2B92844%2BLockbox%22%2C%22AcctType%22%3A%22Cash%22%2C%22AllowPost%22%3Atrue%2C%22FLAGS%22%3A0%2C%22OffsetAccount%22%3A0%2C%22Description%22%3A%22%22%7D%7D" > request
+echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22accountForm%22%2C%22record%22%3A%7B%22recid%22%3A0%2C%22LID%22%3A0%2C%22PLID%22%3A9%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22RAID%22%3A0%2C%22TCID%22%3A0%2C%22GLNumber%22%3A%2210102%22%2C%22Status%22%3A2%2C%22Name%22%3A%22FRB%2B92844%2BLockbox%22%2C%22AcctType%22%3A%22Cash%22%2C%22AllowPost%22%3Atrue%2C%22FLAGS%22%3A0%2C%22Description%22%3A%22%22%7D%7D" > request
 dojsonPOST "http://localhost:8270/v1/account/1/0" "request" "a19"  "WebService--Add-LockboxAcct-toREX"
 
 #--------------------------------------------------------------------------------------------
 # Add Lockbox account to business 2 (PAC) with same account name and same account number
 # This should be allowed because it is going to a different business
 #--------------------------------------------------------------------------------------------
-echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22accountForm%22%2C%22record%22%3A%7B%22recid%22%3A0%2C%22LID%22%3A0%2C%22PLID%22%3A0%2C%22BID%22%3A2%2C%22BUD%22%3A%22PAC%22%2C%22RAID%22%3A0%2C%22TCID%22%3A0%2C%22GLNumber%22%3A%2210102%22%2C%22Status%22%3A2%2C%22Name%22%3A%22FRB%2B92844%2BLockbox%22%2C%22AcctType%22%3A%22Cash%22%2C%22AllowPost%22%3Atrue%2C%22FLAGS%22%3A0%2C%22OffsetAccount%22%3A0%2C%22Description%22%3A%22%22%7D%7D" > request
+echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22accountForm%22%2C%22record%22%3A%7B%22recid%22%3A0%2C%22LID%22%3A0%2C%22PLID%22%3A0%2C%22BID%22%3A2%2C%22BUD%22%3A%22PAC%22%2C%22RAID%22%3A0%2C%22TCID%22%3A0%2C%22GLNumber%22%3A%2210102%22%2C%22Status%22%3A2%2C%22Name%22%3A%22FRB%2B92844%2BLockbox%22%2C%22AcctType%22%3A%22Cash%22%2C%22AllowPost%22%3Atrue%2C%22FLAGS%22%3A0%2C%22Description%22%3A%22%22%7D%7D" > request
 dojsonPOST "http://localhost:8270/v1/account/2/0" "request" "a20"  "WebService--Add-LockboxAcct-toPAC"
 
 #--------------------------------------------------------------------------------------------
