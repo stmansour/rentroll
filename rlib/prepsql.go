@@ -133,6 +133,8 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetAllSingleInstanceAssessments, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE BID=? AND (PASMID!=0 OR RentCycle=0) AND Start<? AND Stop>=?")
 	Errcheck(err)
+	RRdb.Prepstmt.GetAssessmentsByRAIDRID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE PASMID = 0 AND BID=? AND RAID=? AND RID=?")
+	Errcheck(err)
 	RRdb.Prepstmt.GetAssessmentsByRAIDRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE (RentCycle=0  OR (RentCycle>0 AND PASMID>0)) AND RAID=? AND Stop>=? AND Start<?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetAssessmentsByRARRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE (RentCycle=0  OR (RentCycle>0 AND PASMID>0)) AND RAID=? AND RID=? AND Stop>=? AND Start<?")

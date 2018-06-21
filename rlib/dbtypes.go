@@ -1875,6 +1875,7 @@ type RRprepSQL struct {
 	InsertBusinessProperties                *sql.Stmt
 	UpdateBusinessPropertiesData            *sql.Stmt
 	DeleteBusinessProperties                *sql.Stmt
+	GetAssessmentsByRAIDRID                 *sql.Stmt
 }
 
 // DeleteBusinessFromDB deletes information from all tables if it is part of the supplied BID.
