@@ -366,6 +366,7 @@ window.buildTransactElements = function() {
                 app.form_is_dirty = false;
                 // clear the grid select recid
                 app.last.grid_sel_recid  =-1;
+
                 this.save({}, function (data) {
                     if (data.status == 'error') {
                         console.log('ERROR: '+ data.message);
@@ -464,6 +465,9 @@ window.buildTransactElements = function() {
                 f.get("IsGuarantor").hidden = true;
                 f.get("IsGuarantor").hidden = true;
                 $("div[name=transanctant-role-tile]").hide();
+
+                // make TMPTCID required false as it's not part of this form
+                f.get("TMPTCID").required = false;
 
                 f.get('SourceSLSID').options.items = getSLStringList(BID, "HowFound");
                 f.get('DeclineReasonSLSID').options.items = getSLStringList(BID, "ApplDeny");
