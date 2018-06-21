@@ -422,16 +422,14 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				return
 			}
 			var fee = RARentableFeesData{
-				BID:             rfd.BID,
-				RID:             rfd.RID,
-				ARID:            asms[j].ARID,
-				ARName:          ar.Name,
-				ContractAmount:  asms[j].Amount,
-				RentCycle:       asms[j].RentCycle,
-				RentPeriodStart: rlib.JSONDate(asms[j].Start),
-				RentPeriodStop:  rlib.JSONDate(asms[j].Stop),
-				UsePeriodStart:  rlib.JSONDate(asms[j].Start),
-				UsePeriodStop:   rlib.JSONDate(asms[j].Stop),
+				BID:            rfd.BID,
+				RID:            rfd.RID,
+				ARID:           asms[j].ARID,
+				ARName:         ar.Name,
+				ContractAmount: asms[j].Amount,
+				RentCycle:      asms[j].RentCycle,
+				Start:          rlib.JSONDate(asms[j].Start),
+				Stop:           rlib.JSONDate(asms[j].Stop),
 			}
 			rfd.Fees = append(rfd.Fees, fee)
 		}

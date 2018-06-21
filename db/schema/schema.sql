@@ -878,12 +878,13 @@ CREATE TABLE Prospect (
     DesiredUsageStartDate DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- User's initial indication of move in date, actual move in date is in Rental Agreement
     RentableTypePreference BIGINT NOT NULL DEFAULT 0,            -- This would be "model" preference  (Rentable Type name) for room or residence, but could apply to all rentables
     --  -----------  ----------------------------------------------------------------
-    --  (FLAGS & 3)  Meaning
+    --  (FLAGS & 7)  Meaning
     --  -----------  ----------------------------------------------------------------
     --       0       Renters / Users have not completely filled out the application.
     --       1       Application has been filled out. It is being reviewed
     --       2       Application was approved by Approver on ApplicationDecisionDate
     --       3       Application was declined. Reason is in DeclineReasonSLSID
+    --       4       Applicant elected not to rent.  Reason is in Outcome SLSID
     -- ------------------------------------------------------------------------------
     FLAGS BIGINT NOT NULL DEFAULT 0,                             /* 1<<0 - 0 = application in progress, 1 application is filled out completely
                                                                     1<<1 - approved/not approved

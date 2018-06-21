@@ -198,23 +198,21 @@ type RARentablesFlowData struct {
 
 // RARentableFeesData struct
 type RARentableFeesData struct {
-	BID             int64
-	RID             int64
-	ARID            int64
-	ARName          string
-	ContractAmount  float64
-	RentCycle       int64
-	Epoch           int64
-	RentPeriodStart rlib.JSONDate
-	RentPeriodStop  rlib.JSONDate
-	UsePeriodStart  rlib.JSONDate
-	UsePeriodStop   rlib.JSONDate
-	AtSigningAmt    float64
-	ProrateAmt      float64
-	SalesTaxAmt     float64
-	SalesTax        float64
-	TransOccAmt     float64
-	TransOcc        float64
+	BID            int64
+	RID            int64
+	ARID           int64
+	ARName         string
+	ContractAmount float64
+	RentCycle      int64
+	Epoch          int64
+	Start          rlib.JSONDate
+	Stop           rlib.JSONDate
+	AtSigningAmt   float64
+	ProrateAmt     float64
+	SalesTaxAmt    float64
+	SalesTax       float64
+	TransOccAmt    float64
+	TransOcc       float64
 }
 
 // RAParentChildFlowData contains data in the Parent/Child part of RA flow
@@ -612,15 +610,13 @@ func SvcGetRAFlowRentableFeesData(w http.ResponseWriter, r *http.Request, d *Ser
 		// make sure the IsRentASM is marked true
 		if ar.FLAGS&0x10 != 0 {
 			rec := RARentableFeesData{
-				BID:             ar.BID,
-				ARID:            ar.ARID,
-				RID:             foo.RID,
-				ARName:          ar.Name,
-				ContractAmount:  ar.DefaultAmount,
-				RentPeriodStart: rlib.JSONDate(today),
-				RentPeriodStop:  rlib.JSONDate(today.AddDate(1, 0, 0)),
-				UsePeriodStart:  rlib.JSONDate(today),
-				UsePeriodStop:   rlib.JSONDate(today.AddDate(1, 0, 0)),
+				BID:            ar.BID,
+				ARID:           ar.ARID,
+				RID:            foo.RID,
+				ARName:         ar.Name,
+				ContractAmount: ar.DefaultAmount,
+				Start:          rlib.JSONDate(today),
+				Stop:           rlib.JSONDate(today.AddDate(1, 0, 0)),
 			}
 
 			// If it have is non recur charge true
@@ -649,15 +645,13 @@ func SvcGetRAFlowRentableFeesData(w http.ResponseWriter, r *http.Request, d *Ser
 		}
 
 		rec := RARentableFeesData{
-			BID:             ar.BID,
-			ARID:            ar.ARID,
-			RID:             foo.RID,
-			ARName:          ar.Name,
-			ContractAmount:  ar.DefaultAmount,
-			RentPeriodStart: rlib.JSONDate(today),
-			RentPeriodStop:  rlib.JSONDate(today.AddDate(1, 0, 0)),
-			UsePeriodStart:  rlib.JSONDate(today),
-			UsePeriodStop:   rlib.JSONDate(today.AddDate(1, 0, 0)),
+			BID:            ar.BID,
+			ARID:           ar.ARID,
+			RID:            foo.RID,
+			ARName:         ar.Name,
+			ContractAmount: ar.DefaultAmount,
+			Start:          rlib.JSONDate(today),
+			Stop:           rlib.JSONDate(today.AddDate(1, 0, 0)),
 		}
 
 		// If it have is non recur charge  flag true

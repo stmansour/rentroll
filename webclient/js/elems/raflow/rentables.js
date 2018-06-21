@@ -184,35 +184,13 @@ window.loadRARentablesGrid = function () {
             multiSelect: false,
             style: 'display: block;',
             columns: [
-                {
-                    field: 'recid',
-                    hidden: true,
-                },
-                {
-                    field: 'RID',
-                    hidden: true
-                },
-                {
-                    field: 'BID',
-                    hidden: true
-                },
-                {
-                    field: 'RTID',
-                    hidden: true
-                },
-                {
-                    field: 'RTFLAGS',
-                    hidden: true
-                },
-                {
-                    field: 'RentableName',
-                    caption: 'Rentable',
-                    size: '160px',
-                },
-                {
-                    field: 'RentCycle',
-                    hidden: true
-                },
+                {field: 'recid', hidden: true, },
+                {field: 'RID', hidden: true },
+                {field: 'BID', hidden: true },
+                {field: 'RTID', hidden: true },
+                {field: 'RTFLAGS', hidden: true },
+                {field: 'RentableName', caption: 'Rentable', size: '160px', },
+                {field: 'RentCycle', hidden: true },
                 {
                     field: 'RentCycleText',
                     caption: 'RentCycle',
@@ -221,36 +199,11 @@ window.loadRARentablesGrid = function () {
                         return app.cycleFreq[record.RentCycle];
                     }
                 },
-                {
-                    field: 'AtSigningAmt',
-                    caption: 'At Signing',
-                    size: '90px',
-                    render: 'money',
-                },
-                {
-                    field: 'ProrateAmt',
-                    caption: 'Prorate',
-                    size: '90px',
-                    render: 'money',
-                },
-                {
-                    field: 'TaxableAmt',
-                    caption: 'Taxable Amt',
-                    size: '90px',
-                    render: 'money',
-                },
-                {
-                    field: 'SalesTax',
-                    caption: 'Sales Tax',
-                    size: '90px',
-                    render: 'money',
-                },
-                {
-                    field: 'TransOcc',
-                    caption: 'Trans OCC',
-                    size: '90px',
-                    render: 'money',
-                },
+                {field: 'AtSigningAmt', caption: 'At Signing', size: '90px', render: 'money', },
+                {field: 'ProrateAmt', caption: 'Prorate', size: '90px', render: 'money', },
+                {field: 'TaxableAmt', caption: 'Taxable Amt', size: '90px', render: 'money', },
+                {field: 'SalesTax', caption: 'Sales Tax', size: '90px', render: 'money', },
+                {field: 'TransOcc', caption: 'Trans OCC', size: '90px', render: 'money', },
                 {
                     field: 'RemoveRec',
                     caption: "Remove Rentable",
@@ -403,35 +356,15 @@ window.loadRARentablesGrid = function () {
                 }
             },
             columns: [
-                {
-                    field: 'recid',
-                    hidden: true,
-                },
-                {
-                    field: 'RID',
-                    hidden: true
-                },
-                {
-                    field: 'BID',
-                    hidden: true
-                },
-                {
-                    field: 'ARID',
-                    hidden: true
-                },
-                {
-                    field: 'ARName',
-                    caption: 'Account Rule',
-                    size: '150px'
-                },
-                {
-                    field: 'ContractAmount',
-                    caption: 'Contract<br>Amount',
-                    size: '100px',
+                {field: 'recid', hidden: true, },
+                {field: 'RID', hidden: true },
+                {field: 'BID', hidden: true },
+                {field: 'ARID', hidden: true },
+                {field: 'ARName', caption: 'Account Rule', size: '150px'},
+                {field: 'ContractAmount', caption: 'Contract<br>Amount', size: '100px',
                     render: 'money',
                 },
-                {
-                    field: 'RentCycleText',
+                {field: 'RentCycleText',
                     caption: 'Rent Cycle',
                     size: '100px',
                     render: function (record/*, index, col_index*/) {
@@ -447,96 +380,30 @@ window.loadRARentablesGrid = function () {
                         return text;
                     },
                 },
-                {
-                    field: 'RentCycle',
-                    caption: 'Rent Cycle Index',
-                    hidden: true
-                },
-                {
-                    field: 'Epoch',
-                    caption: 'Epoch',
-                    size: '100px',
-                },
-                {
-                    field: 'RentPeriod',
-                    caption: 'Rent Period',
+                {field: 'RentCycle', caption: 'Rent Cycle Index', hidden: true },
+                {field: 'Epoch', caption: 'Epoch', size: '100px', },
+                {field: 'FeePeriod',
+                    caption: 'Fee Period',
                     size: '100px',
                     render: function(record) {
                         var html = "";
                         if (record) {
-                            if (record.RentPeriodStart && record.RentPeriodStop) {
-                                html = record.RentPeriodStart + " - <br>" + record.RentPeriodStop;
+                            if (record.RentCycle === 0) {
+                                return record.Start; // only show 1 date for non-recur
+                            }
+                            if (record.Start && record.Stop) {
+                                html = record.Start + " - <br>" + record.Stop;
                             }
                         }
                         return html;
                     }
                 },
-                {
-                    field: 'RentPeriodStart',
-                    hidden: true,
-                },
-                {
-                    field: 'RentPeriodStop',
-                    hidden: true,
-                },
-                {
-                    field: 'UsePeriod',
-                    caption: 'Use Period',
-                    size: '100px',
-                    render: function(record) {
-                        var html = "";
-                        if (record) {
-                            if (record.UsePeriodStart && record.UsePeriodStop) {
-                                html = record.UsePeriodStart + " - <br>" + record.UsePeriodStop;
-                            }
-                        }
-                        return html;
-                    }
-                },
-                {
-                    field: 'UsePeriodStart',
-                    hidden: true,
-                },
-                {
-                    field: 'UsePeriodStop',
-                    hidden: true,
-                },
-                {
-                    field: 'AtSigningAmt',
-                    caption: 'At Signing',
-                    size: '100px',
-                    render: 'money',
-                },
-                {
-                    field: 'ProrateAmt',
-                    caption: 'Prorate',
-                    size: '100px',
-                    render: 'money',
-                },
-                {
-                    field: 'SalesTaxAmt',
-                    caption: 'Sales Tax Amt',
-                    size: '100px',
-                    render: 'money',
-                },
-                {
-                    field: 'SalesTax',
-                    caption: 'Sales Tax',
-                    size: '100px',
-                    render: 'money',
-                },
-                {
-                    field: 'TransOccAmt',
-                    caption: 'Trans Occ Amt',
-                    size: '100px',
-                    render: 'money',
-                },
-                {
-                    field: 'TransOcc',
-                    caption: 'Trans Occ',
-                    size: '100px',
-                    render: 'money',
-                }
+                {field: 'AtSigningAmt', caption: 'At Signing', size: '100px', render: 'money', },
+                {field: 'ProrateAmt', caption: 'Prorate', size: '100px', render: 'money', },
+                {field: 'SalesTaxAmt', caption: 'Sales Tax Amt', size: '100px', render: 'money', },
+                {field: 'SalesTax', caption: 'Sales Tax', size: '100px', render: 'money', },
+                {field: 'TransOccAmt', caption: 'Trans Occ Amt', size: '100px', render: 'money', },
+                {field: 'TransOcc', caption: 'Trans Occ', size: '100px', render: 'money', }
             ],
             onChange: function (event) {
                 event.onComplete = function () {
@@ -607,26 +474,24 @@ window.loadRARentablesGrid = function () {
             formURL: '/webclient/html/formra-rentablefee.html',
             focus: -1,
             fields: [
-                {name: 'recid',             type: 'int',    required: true, html: {page: 0, column: 0}},
-                {name: 'BID',               type: 'int',    required: true, html: {page: 0, column: 0}},
-                {name: 'BUD',               type: 'list',   required: true, html: {page: 0, column: 0}, options: {items: app.businesses}},
-                {name: 'RID',               type: 'int',    required: true, html: {page: 0, column: 0}},
-                {name: 'ARName',            type: 'text',   required: true, html: {page: 0, column: 0}},
-                {name: 'ARID',              type: 'list',   required: true, html: {page: 0, column: 0}, options: {items: [], selected: {}}},
-                {name: 'ContractAmount',    type: 'money',  required: true, html: {page: 0, column: 0}},
-                {name: 'RentCycle',         type: 'int',    required: true, html: {page: 0, column: 0}},
-                {name: 'RentCycleText',     type: 'list',   required: true, html: {page: 0, column: 0}, options: {items: app.cycleFreq}},
-                {name: 'Epoch',             type: 'int',    required: true, html: {page: 0, column: 0}},
-                {name: 'RentPeriodStart',   type: 'date',   required: true, html: {page: 0, column: 0}},
-                {name: 'RentPeriodStop',    type: 'date',   required: true, html: {page: 0, column: 0}},
-                {name: 'UsePeriodStart',    type: 'date',   required: true, html: {page: 0, column: 0}},
-                {name: 'UsePeriodStop',     type: 'date',   required: true, html: {page: 0, column: 0}},
-                {name: 'AtSigningAmt',      type: 'money',  required: true, html: {page: 0, column: 0}},
-                {name: 'ProrateAmt',        type: 'money',  required: true, html: {page: 0, column: 0}},
-                {name: 'SalesTaxAmt',       type: 'money',  required: true, html: {page: 0, column: 0}},
-                {name: 'SalesTax',          type: 'money',  required: true, html: {page: 0, column: 0}},
-                {name: 'TransOccAmt',       type: 'money',  required: true, html: {page: 0, column: 0}},
-                {name: 'TransOcc',          type: 'money',  required: true, html: {page: 0, column: 0}},
+                {name: 'recid',          type: 'int',    required: true, html: {page: 0, column: 0}},
+                {name: 'BID',            type: 'int',    required: true, html: {page: 0, column: 0}},
+                {name: 'BUD',            type: 'list',   required: true, html: {page: 0, column: 0}, options: {items: app.businesses}},
+                {name: 'RID',            type: 'int',    required: true, html: {page: 0, column: 0}},
+                {name: 'ARName',         type: 'text',   required: true, html: {page: 0, column: 0}},
+                {name: 'ARID',           type: 'list',   required: true, html: {page: 0, column: 0}, options: {items: [], selected: {}}},
+                {name: 'ContractAmount', type: 'money',  required: true, html: {page: 0, column: 0}},
+                {name: 'RentCycle',      type: 'int',    required: true, html: {page: 0, column: 0}},
+                {name: 'RentCycleText',  type: 'list',   required: true, html: {page: 0, column: 0}, options: {items: app.cycleFreq}},
+                {name: 'Epoch',          type: 'int',    required: true, html: {page: 0, column: 0}},
+                {name: 'Start',          type: 'date',   required: true, html: {page: 0, column: 0}},
+                {name: 'Stop',           type: 'date',   required: true, html: {page: 0, column: 0}},
+                {name: 'AtSigningAmt',   type: 'money',  required: true, html: {page: 0, column: 0}},
+                {name: 'ProrateAmt',     type: 'money',  required: true, html: {page: 0, column: 0}},
+                {name: 'SalesTaxAmt',    type: 'money',  required: true, html: {page: 0, column: 0}},
+                {name: 'SalesTax',       type: 'money',  required: true, html: {page: 0, column: 0}},
+                {name: 'TransOccAmt',    type: 'money',  required: true, html: {page: 0, column: 0}},
+                {name: 'TransOcc',       type: 'money',  required: true, html: {page: 0, column: 0}},
             ],
             toolbar : {
                 items: [
