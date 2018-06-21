@@ -1332,6 +1332,7 @@ CREATE TABLE `Prospect` (
   `PriorLandLordPhoneNo` varchar(20) NOT NULL DEFAULT '',
   `PriorReasonForMoving` bigint(20) NOT NULL DEFAULT '0',
   `PriorLengthOfResidency` varchar(100) NOT NULL DEFAULT '',
+  `CommissionableThirdParty` text NOT NULL,
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -1347,7 +1348,7 @@ CREATE TABLE `Prospect` (
 
 LOCK TABLES `Prospect` WRITE;
 /*!40000 ALTER TABLE `Prospect` DISABLE KEYS */;
-INSERT INTO `Prospect` VALUES (1,'','','','','','','','1900-01-01',0,0,'','','',0,0,'','1900-01-01',0,0,'','','',0,'','','','',0,'','2017-08-31 17:56:26',0,'2017-08-31 17:56:26',0,1),(1,'','','','','','','','1900-01-01',0,0,'','','',0,0,'','1900-01-01',0,0,'','','',0,'','','','',0,'','2017-08-31 17:57:13',0,'2017-08-31 17:57:13',0,2),(1,'','','','','','','','1900-01-01',0,0,'','','',0,0,'','1900-01-01',0,0,'','','',0,'','','','',0,'','2017-08-31 17:57:55',0,'2017-08-31 17:57:55',0,3);
+INSERT INTO `Prospect` VALUES (1,'','','','','','','','1900-01-01',0,0,'','','',0,0,'','1900-01-01',0,0,'','','',0,'','','','',0,'','','2017-08-31 17:56:26',0,'2017-08-31 17:56:26',0,1),(1,'','','','','','','','1900-01-01',0,0,'','','',0,0,'','1900-01-01',0,0,'','','',0,'','','','',0,'','','2017-08-31 17:57:13',0,'2017-08-31 17:57:13',0,2),(1,'','','','','','','','1900-01-01',0,0,'','','',0,0,'','1900-01-01',0,0,'','','',0,'','','','',0,'','','2017-08-31 17:57:55',0,'2017-08-31 17:57:55',0,3);
 /*!40000 ALTER TABLE `Prospect` ENABLE KEYS */;
 UNLOCK TABLES;
 

@@ -391,7 +391,7 @@ func ReadProspect(row *sql.Row, a *Prospect) error {
 		&a.OtherPreferences, &a.FollowUpDate, &a.CSAgent, &a.OutcomeSLSID,
 		&a.CurrentAddress, &a.CurrentLandLordName, &a.CurrentLandLordPhoneNo, &a.CurrentReasonForMoving,
 		&a.CurrentLengthOfResidency, &a.PriorAddress, &a.PriorLandLordName, &a.PriorLandLordPhoneNo,
-		&a.PriorReasonForMoving, &a.PriorLengthOfResidency,
+		&a.PriorReasonForMoving, &a.PriorLengthOfResidency, &a.CommissionableThirdParty,
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	SkipSQLNoRowsError(&err)
 	return err
@@ -406,7 +406,7 @@ func ReadProspects(rows *sql.Rows, a *Prospect) error {
 		&a.OtherPreferences, &a.FollowUpDate, &a.CSAgent, &a.OutcomeSLSID,
 		&a.CurrentAddress, &a.CurrentLandLordName, &a.CurrentLandLordPhoneNo, &a.CurrentReasonForMoving,
 		&a.CurrentLengthOfResidency, &a.PriorAddress, &a.PriorLandLordName, &a.PriorLandLordPhoneNo,
-		&a.PriorReasonForMoving, &a.PriorLengthOfResidency,
+		&a.PriorReasonForMoving, &a.PriorLengthOfResidency, &a.CommissionableThirdParty,
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 

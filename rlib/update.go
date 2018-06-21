@@ -542,7 +542,7 @@ func UpdateProspect(ctx context.Context, a *Prospect) error {
 		a.Approver, a.DeclineReasonSLSID, a.OtherPreferences, a.FollowUpDate, a.CSAgent, a.OutcomeSLSID,
 		a.CurrentAddress, a.CurrentLandLordName, a.CurrentLandLordPhoneNo, a.CurrentReasonForMoving,
 		a.CurrentLengthOfResidency, a.PriorAddress, a.PriorLandLordName, a.PriorLandLordPhoneNo,
-		a.PriorReasonForMoving, a.PriorLengthOfResidency,
+		a.PriorReasonForMoving, a.PriorLengthOfResidency, a.CommissionableThirdParty,
 		a.LastModBy, a.TCID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateProspect)
