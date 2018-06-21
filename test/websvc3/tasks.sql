@@ -1,6 +1,6 @@
--- MySQL dump 10.13  Distrib 5.7.22, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.22, for osx10.12 (x86_64)
 --
--- Host: 127.0.0.1    Database: rentroll
+-- Host: localhost    Database: rentroll
 -- ------------------------------------------------------
 -- Server version	5.7.22
 
@@ -657,7 +657,6 @@ CREATE TABLE `GLAccount` (
   `RAID` bigint(20) NOT NULL DEFAULT '0',
   `TCID` bigint(20) NOT NULL DEFAULT '0',
   `GLNumber` varchar(100) NOT NULL DEFAULT '',
-  `Status` smallint(6) NOT NULL DEFAULT '0',
   `Name` varchar(100) NOT NULL DEFAULT '',
   `AcctType` varchar(100) NOT NULL DEFAULT '',
   `AllowPost` tinyint(1) NOT NULL DEFAULT '0',
@@ -2550,4 +2549,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-06-19 12:18:30
+-- Dump completed on 2018-06-20 20:54:15

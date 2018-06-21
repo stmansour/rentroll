@@ -61,7 +61,7 @@ mysqlverify "t"  "-E pets.csv"         		"Pets"	                    	"select PET
 mysqlverify "u"  ""           		   	    "Notes"	                    	"select NID,PNID,Comment,LastModBy from Notes;"
 mysqlverify "v"  " "                   		"AgreementRentables"	    	"select * from RentalAgreementRentables;"
 mysqlverify "w"  " "                   		"AgreementPayors"	    		"select * from RentalAgreementPayors;"
-mysqlverify "x"  "-c coa.csv"          		"ChartOfAccounts"	    		"select LID,PLID,BID,RAID,GLNumber,Status,Name,AcctType,AllowPost,LastModBy from GLAccount;"
+mysqlverify "x"  "-c coa.csv"          		"ChartOfAccounts"	    		"select LID,PLID,BID,RAID,GLNumber,Name,AcctType,AllowPost,LastModBy from GLAccount;"
 mysqlverify "xa"  "-ar ar.csv"          	"AccountRules"	    			"select ARID,BID,Name,ARType,DebitLID,CreditLID,Description,LastModBy from AR;"
 mysqlverify "y"  " "                   		"LedgerMarkers"	            	"select LMID,LID,BID,RAID,RID,TCID,Dt,Balance,State,LastModBy from LedgerMarker;"
 mysqlverify "z"  "-a rp.csv"           		"RatePlan"	            		"select RPID,BID,Name,LastModBy from RatePlan;"

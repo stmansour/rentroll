@@ -1431,18 +1431,18 @@ type LedgerMarker struct {
 
 // GLAccount describes the static (or mostly static) attributes of a Ledger
 type GLAccount struct {
-	Recid       int       `json:"recid"` // this is for the grid widget
-	LID         int64     // unique id for this GLAccount
-	PLID        int64     // unique id of Parent, 0 if no parent
-	BID         int64     // Business unit associated with this GLAccount
-	RAID        int64     // associated rental agreement, this field is only used when Type = 1
-	TCID        int64     // associated payor, this field is only used when Type = 1
-	GLNumber    string    // acct system name
-	Status      int64     // Whether a GL Account is currently unknown=0, inactive=1, active=2
+	Recid    int    `json:"recid"` // this is for the grid widget
+	LID      int64  // unique id for this GLAccount
+	PLID     int64  // unique id of Parent, 0 if no parent
+	BID      int64  // Business unit associated with this GLAccount
+	RAID     int64  // associated rental agreement, this field is only used when Type = 1
+	TCID     int64  // associated payor, this field is only used when Type = 1
+	GLNumber string // acct system name
+	//Status      int64     // Whether a GL Account is currently unknown=0, inactive=1, active=2
 	Name        string    // descriptive name for the GLAccount
 	AcctType    string    // QB Acct Type: Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, Other Current Asset, Other Asset, Accounts Payable, Other Current Liability, Cost of Goods Sold, Other Income, Other Expense
 	AllowPost   bool      // 0 = no posting, 1 = posting is allowed
-	FLAGS       uint64    //
+	FLAGS       uint64    // 1<<0 = inactive:  0 = active account, 1 = inactive account
 	Description string    // description for this account
 	LastModTime time.Time // auto updated
 	LastModBy   int64     // user making the mod

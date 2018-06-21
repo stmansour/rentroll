@@ -459,6 +459,9 @@ DBNAME="rentroll"
 #    PRIMARY KEY (BPID)
 # );
 
+# June 20, 2018
+# ALTER TABLE GLAccount DROP COLUMN Status;
+
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================

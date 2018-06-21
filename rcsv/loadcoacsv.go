@@ -163,9 +163,9 @@ func CreateLedgerMarkers(ctx context.Context, sa []string, lineno int) (int, err
 	//----------------------------------------------------------------------
 	s := strings.ToLower(strings.TrimSpace(sa[AccountStatus]))
 	if "active" == s {
-		l.Status = rlib.ACCTSTATUSACTIVE
+		l.FLAGS &= ^(uint64(0xfffffffffffffffe))
 	} else if "inactive" == s {
-		l.Status = rlib.ACCTSTATUSINACTIVE
+		l.FLAGS &= 0x1
 	} else {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid account status: %s", funcname, lineno, sa[AccountStatus])
 	}
