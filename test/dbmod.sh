@@ -449,6 +449,9 @@ DBNAME="rentroll"
 # June 20, 2018
 # ALTER TABLE Prospect ADD CommissionableThirdParty TEXT NOT NULL DEFAULT '' AFTER PriorLengthOfResidency;
 
+# June 20, 2018
+# ALTER TABLE GLAccount DROP COLUMN Status;
+
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================

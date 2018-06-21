@@ -877,7 +877,15 @@ CREATE TABLE Prospect (
     Occupation VARCHAR(100) NOT NULL DEFAULT '',
     DesiredUsageStartDate DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- User's initial indication of move in date, actual move in date is in Rental Agreement
     RentableTypePreference BIGINT NOT NULL DEFAULT 0,            -- This would be "model" preference  (Rentable Type name) for room or residence, but could apply to all rentables
-    FLAGS BIGINT NOT NULL DEFAULT 0,                             /* 1<<0 did they fill out an appl
+    --  -----------  ----------------------------------------------------------------
+    --  (FLAGS & 3)  Meaning
+    --  -----------  ----------------------------------------------------------------
+    --       0       Renters / Users have not completely filled out the application.
+    --       1       Application has been filled out. It is being reviewed
+    --       2       Application was approved by Approver on ApplicationDecisionDate
+    --       3       Application was declined. Reason is in DeclineReasonSLSID
+    -- ------------------------------------------------------------------------------
+    FLAGS BIGINT NOT NULL DEFAULT 0,                             /* 1<<0 - 0 = application in progress, 1 application is filled out completely
                                                                     1<<1 - approved/not approved
                                                                     1<<2 - Previously Evicted: 0 = no, 1 = yes
                                                                     1<<3 - Previously Convicted of a felony: 0 = no, 1 = yes
@@ -887,6 +895,7 @@ CREATE TABLE Prospect (
     ConvictedDes VARCHAR(2048) NOT NULL DEFAULT '',              -- explanation when FLAGS & (1<<3) > 0
     BankruptcyDes VARCHAR(2048) NOT NULL DEFAULT '',             -- explanation when FLAGS & (1<<4) > 0
     Approver BIGINT NOT NULL DEFAULT 0,                          -- who approved or declined
+    -- ApplicationDecisionDate DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- datetime when application decision was made
     DeclineReasonSLSID BIGINT NOT NULL DEFAULT 0,                -- ID to string in list of choices, Melissa will provide the list.
     OtherPreferences VARCHAR(1024) NOT NULL DEFAULT '',          -- Arbitrary text, anything else they might request
     FollowUpDate DATE NOT NULL DEFAULT '1970-01-01 00:00:00',    -- automatically fill out this date to sysdate + 24hrs
@@ -1386,14 +1395,14 @@ CREATE TABLE GLAccount (
     RAID BIGINT NOT NULL DEFAULT 0,                           -- rental agreement account, only valid if TYPE is 1
     TCID BIGINT NOT NULL DEFAULT 0,                           -- Payor, only valid if TYPE is 2
     GLNumber VARCHAR(100) NOT NULL DEFAULT '',                -- if not '' then it's a link a QB  GeneralLedger (GL)account
-    Status SMALLINT NOT NULL DEFAULT 0,                       -- Whether a GL Account is currently unknown=0, inactive=1, active=2
+    -- Status SMALLINT NOT NULL DEFAULT 0,                       -- Whether a GL Account is currently unknown=0, inactive=1, active=2
     Name VARCHAR(100) NOT NULL DEFAULT '',
     AcctType VARCHAR(100) NOT NULL DEFAULT '',                -- Quickbooks Type: Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable,
                                                               --    Other Current Asset, Other Asset, Accounts Payable, Other Current Liability,
                                                               --    Cost of Goods Sold, Other Income, Other Expense
     AllowPost TINYINT(1) NOT NULL DEFAULT 0,                  -- 0 - do not allow posts to this ledger. 1 = allow posts
     -- RARequired SMALLINT NOT NULL DEFAULT 0,                -- 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
-    FLAGS BIGINT NOT NULL DEFAULT 0,                          --
+    FLAGS BIGINT NOT NULL DEFAULT 0,                          -- 1<<0 - inactive:  0 = active, 1 = inactive  (this replaces the old Status field)
     Description VARCHAR(1024) NOT NULL DEFAULT '',            -- describe the assessment
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                      -- employee UID (from phonebook) that modified it

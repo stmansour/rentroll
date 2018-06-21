@@ -100,11 +100,12 @@ window.buildAccountElements = function() {
                         return;
                     }
                     var html = '';
-                    for (var i=0; i < app.account_stuff.statusList.length; i++) {
-                        if (record.Status == app.account_stuff.statusList[i].id) {
-                            html = app.account_stuff.statusList[i].text;
-                        }
-                    }
+                    // for (var i=0; i < app.account_stuff.statusList.length; i++) {
+                    //     if (record.Status == app.account_stuff.statusList[i].id) {
+                    //         html = app.account_stuff.statusList[i].text;
+                    //     }
+                    // }
+                    html = app.account_stuff.statusList[record.FLAGS&1].text;
                     return html;
                 },
             },

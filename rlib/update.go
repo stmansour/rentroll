@@ -425,7 +425,7 @@ func UpdateLedger(ctx context.Context, a *GLAccount) error {
 		a.LastModBy = sess.UID
 	}
 
-	fields := []interface{}{a.PLID, a.BID, a.RAID, a.TCID, a.GLNumber, a.Status, a.Name, a.AcctType, a.AllowPost, a.FLAGS, a.Description, a.LastModBy, a.LID}
+	fields := []interface{}{a.PLID, a.BID, a.RAID, a.TCID, a.GLNumber, /*a.Status,*/ a.Name, a.AcctType, a.AllowPost, a.FLAGS, a.Description, a.LastModBy, a.LID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateLedger)
 		defer stmt.Close()
