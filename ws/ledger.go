@@ -137,7 +137,7 @@ func searchLedgers(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var g SearchLedgersResponse
 	var req LedgerGridRequest
 	var rows *sql.Rows
-	var lm rlib.LedgerMarker
+	// var lm rlib.LedgerMarker
 	var bal float64
 
 	rlib.Console("Entered %s\n", funcname)
@@ -149,18 +149,28 @@ func searchLedgers(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	rlib.Console("mode = %d\n", req.Mode)
-
+	var q string // the query
 	switch req.Mode {
-	case 0: // latest balance
-		rows, err = rlib.RRdb.Prepstmt.GetLedgersForGrid.Query(d.BID, d.wsSearchReq.Limit, d.wsSearchReq.Offset)
-	case 1: // latest LedgerMarker
-		q := fmt.Sprintf("select * from LedgerMarker WHERE BID=%d AND %q <= DT AND DT < %q", d.BID, d.wsSearchReq.SearchDtStart.Format(rlib.RRDATETIMESQL), d.wsSearchReq.SearchDtStop.Format(rlib.RRDATETIMESQL))
-		rows, err = rlib.RRdb.Dbrr.Query(q)
+	case 0:
+		q = fmt.Sprintf("select * from LedgerMarker WHERE BID=%d AND State=3", d.BID)
+	case 1: // GL Account Ledger Markers
+		q = fmt.Sprintf("select * from LedgerMarker WHERE BID=%d AND RAID=0    AND RID=0    AND %q <= DT AND DT < %q", d.BID, d.wsSearchReq.SearchDtStart.Format(rlib.RRDATETIMESQL), d.wsSearchReq.SearchDtStop.Format(rlib.RRDATETIMESQL))
+	case 2: // RAID Ledger Markers
+		q = fmt.Sprintf("select * from LedgerMarker WHERE BID=%d AND RAID != 0 AND RID=0    AND %q <= DT AND DT < %q", d.BID, d.wsSearchReq.SearchDtStart.Format(rlib.RRDATETIMESQL), d.wsSearchReq.SearchDtStop.Format(rlib.RRDATETIMESQL))
+	case 3: // RID Ledger Markers
+		q = fmt.Sprintf("select * from LedgerMarker WHERE BID=%d AND RAID !=0  AND RID != 0 AND %q <= DT AND DT < %q", d.BID, d.wsSearchReq.SearchDtStart.Format(rlib.RRDATETIMESQL), d.wsSearchReq.SearchDtStop.Format(rlib.RRDATETIMESQL))
 	default:
 		rlib.Console("Unhanlded mode = %d, using Mode = 0\n", req.Mode)
-		rows, err = rlib.RRdb.Prepstmt.GetLedgersForGrid.Query(d.BID, d.wsSearchReq.Limit, d.wsSearchReq.Offset)
+		q = fmt.Sprintf("select * from LedgerMarker WHERE BID=%d AND RAID=0    AND RID=0    AND %q <= DT AND DT < %q", d.BID, d.wsSearchReq.SearchDtStart.Format(rlib.RRDATETIMESQL), d.wsSearchReq.SearchDtStop.Format(rlib.RRDATETIMESQL))
 		req.Mode = 0
 	}
+
+	rlib.Console("\n\n\n###############\n\n")
+	rlib.Console("req.mode - %d\n", req.Mode)
+	rlib.Console("query    - %s\n", q)
+	rlib.Console("\n###############\n\n")
+
+	rows, err = rlib.RRdb.Dbrr.Query(q)
 	if err != nil {
 		fmt.Printf("%s: Error from DB Query: %s\n", funcname, err.Error())
 		SvcErrorReturn(w, err, funcname)
@@ -168,41 +178,33 @@ func searchLedgers(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	defer rows.Close()
 
-	dt := time.Time(d.wsSearchReq.SearchDtStart)
+	// dt := time.Time(d.wsSearchReq.SearchDtStart)
 	i := int64(d.wsSearchReq.Offset)
 	state := "??"
 	active := "active"
 	for rows.Next() {
-		var acct rlib.GLAccount
-		var lg LedgerGrid
-		switch req.Mode {
-		case 0:
-			if err = rlib.ReadGLAccounts(rows, &acct); err != nil {
-				SvcErrorReturn(w, err, funcname)
-				return
-			}
-			bal, lm = GetAccountBalance(r.Context(), acct.BID, acct.LID, &dt)
-		case 1:
-			if err = rlib.ReadLedgerMarkers(rows, &lm); err != nil {
-				SvcErrorReturn(w, err, funcname)
-				return
-			}
-			acct, err = rlib.GetLedger(r.Context(), lm.LID)
-			if err != nil {
-				SvcErrorReturn(w, err, funcname)
-				return
-			}
-			bal = lm.Balance
+		var lm rlib.LedgerMarker
+		if err := rlib.ReadLedgerMarkers(rows, &lm); err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
 		}
-
-		if 1 == acct.Status {
+		acct, err := rlib.GetLedger(r.Context(), lm.LID)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+		switch acct.FLAGS & 1 {
+		case 0:
+			active = "active"
+		case 1:
 			active = "inactive"
 		}
+
 		j := int(lm.State)
 		if 0 <= j && j <= 3 {
 			state = LMStates[j]
 		}
-		lg = LedgerGrid{
+		var lg = LedgerGrid{
 			Recid:     i,
 			LID:       lm.LID,
 			GLNumber:  acct.GLNumber,
@@ -210,6 +212,8 @@ func searchLedgers(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			Active:    active,
 			AllowPost: acct.AllowPost,
 			Balance:   bal,
+			RAID:      lm.RAID,
+			RID:       lm.RID,
 			LMDate:    lm.Dt.In(rlib.RRdb.Zone).Format("Jan _2, 2006 15:04:05 MST"),
 			LMAmount:  lm.Balance,
 			LMState:   state,

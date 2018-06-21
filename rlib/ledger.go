@@ -343,15 +343,16 @@ func closeLedgerPeriod(ctx context.Context, xbiz *XBusiness, li *GLAccount, lm *
 	nlm.Balance = bal
 	nlm.Dt = *dt
 	nlm.State = state
+	nlm.BID = xbiz.P.BID
 
-	Console("%s : InsertLedgerMarker nlm.State = %d\n",funcname, nlm.State)
+	// Console("%s : InsertLedgerMarker nlm.State = %d\n",funcname, nlm.State)
 
 	_, err = InsertLedgerMarker(ctx, &nlm) // this is a period close
 	if err != nil {
 		Ulog("%s: Error while inserting LedgerMarker: %s\n", funcname, err.Error())
 		return err
 	}
-	Console("%s : After insert: nlm.LMID = %d, nlm.State = %d\n",funcname, nlm.LMID, nlm.State)
+	// Console("%s : After insert: nlm.LMID = %d, nlm.State = %d\n",funcname, nlm.LMID, nlm.State)
 
 	return err
 }

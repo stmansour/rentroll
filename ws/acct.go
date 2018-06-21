@@ -43,13 +43,12 @@ type GLAccount struct {
 	RAID        int64             // associated rental agreement, this field is only used when Type = 1
 	TCID        int64             // associated payor, this field is only used when Type = 1
 	GLNumber    string            // acct system name
-	Status      int64             // Whether a GL Account is currently unknown=0, inactive=1, active=2
 	Name        string            // descriptive name for the GLAccount
 	AcctType    string            // QB Acct Type: Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, Other Current Asset, Other Asset, Accounts Payable, Other Current Liability, Cost of Goods Sold, Other Income, Other Expense
 	AllowPost   bool              // 0 = no posting, 1 = posting is allowed
 	RARequired  int64             // 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
 	Description string            // description for this account
-	FLAGS       uint64            //
+	FLAGS       uint64            // 1<<0 = inactive flag:  0 = active account, 1 = inactive account
 	LastModTime rlib.JSONDateTime // auto updated
 	LastModBy   int64             // user making the mod
 	// W2UIChild      w2uiChild `json:"w2ui"`
@@ -71,13 +70,12 @@ type AcctDetailsForm struct {
 	RAID          int64
 	TCID          int64
 	GLNumber      string
-	Status        int64
 	Name          string
 	AcctType      string
 	AllowPost     bool
 	Description   string
-	FLAGS         uint64
-	OffsetAccount int // 0 = not offset-account, 1 = offset account
+	FLAGS         uint64 // 1<<0 = inactive flag:  0 = active account, 1 = inactive account
+	OffsetAccount int    // 0 = not offset-account, 1 = offset account
 	LastModTime   rlib.JSONDateTime
 	LastModBy     int64
 	CreateTS      rlib.JSONDateTime
@@ -96,7 +94,6 @@ type AcctSaveForm struct {
 	Description   string
 	BUD           rlib.XJSONBud
 	PLID          int64
-	Status        int64
 	AllowPost     bool
 	FLAGS         uint64 //
 	OffsetAccount int    // the UI value for bit 0 of FLAGS
@@ -125,8 +122,8 @@ type AcctDeleteForm struct {
 // Status cannot have an Unknown state. It's either active or inactive. Default state is Active.
 var acctStatus = map[int64]string{
 	//0: "Unknown",
+	0: "Active",
 	1: "Inactive",
-	2: "Active",
 }
 
 // account type
@@ -710,7 +707,6 @@ var getAcctQuerySelectFields = rlib.SelectQueryFields{
 	"GLAccount.RAID",
 	"GLAccount.TCID",
 	"GLAccount.GLNumber",
-	"GLAccount.Status",
 	"GLAccount.Name",
 	"GLAccount.AcctType",
 	"GLAccount.AllowPost",
@@ -773,7 +769,7 @@ func getGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		gg.BID = d.BID
 		gg.BUD = rlib.GetBUDFromBIDList(d.BID)
 
-		err = rows.Scan(&gg.LID, &gg.PLID, &gg.RAID, &gg.TCID, &gg.GLNumber, &gg.Status, &gg.Name, &gg.AcctType, &gg.AllowPost, &gg.Description, &gg.FLAGS, &gg.LastModTime, &gg.LastModBy, &gg.CreateTS, &gg.CreateBy)
+		err = rows.Scan(&gg.LID, &gg.PLID, &gg.RAID, &gg.TCID, &gg.GLNumber, &gg.Name, &gg.AcctType, &gg.AllowPost, &gg.Description, &gg.FLAGS, &gg.LastModTime, &gg.LastModBy, &gg.CreateTS, &gg.CreateBy)
 		if err != nil {
 			SvcErrorReturn(w, err, funcname)
 			return
@@ -929,7 +925,7 @@ func SvcExportGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		rec = append(rec, s64Bal)
 
 		// append Status, CreateDate, Description
-		rec = append(rec, acctStatus[a.Status])
+		rec = append(rec, acctStatus[int64(a.FLAGS&1)])
 		rec = append(rec, a.CreateTS.Format(rlib.RRDATEFMT3))
 		rec = append(rec, a.Description)
 
@@ -1090,12 +1086,13 @@ func SvcImportGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		strStatus := recs[ri][acctCSVIndexMap["accountstatus"]]
 		for n, s := range acctStatus {
 			if strings.ToLower(s) == strings.ToLower(strStatus) { // if both match as case-insensitive the mark
-				ngl.Status = n
+				ngl.FLAGS &= uint64(n)
 			}
 		}
-		if ngl.Status == 0 { // set default as active
-			ngl.Status = 2 // 0=unknown, 1=inactive, 2=active
-		}
+
+		// if ngl.Status == 0 { // set default as active
+		// 	ngl.Status = 2 // 0=unknown, 1=inactive, 2=active
+		// }
 
 		// set PLID from parent glnumber if available
 		pglNo := recs[ri][acctCSVIndexMap["parentglnumber"]]

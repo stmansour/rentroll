@@ -239,7 +239,7 @@ window.buildTaskListElements = function () {
             { field: 'TID',         caption: 'TID',         size: '35px', sotrable: true, hidden: true},
             { field: 'BID',         caption: 'BID',         size: '35px', sotrable: true, hidden: true},
             { field: 'TLID',        caption: 'TLID',        size: '35px', sotrable: true, hidden: true},
-            { field: 'TaskName',    caption: 'Name',        size: '120px', sotrable: true, hidden: false},
+            { field: 'TaskName',    caption: 'Name',        size: '200px',sotrable: true, hidden: false},
             { field: 'Worker',      caption: 'Worker',      size: '75px', sotrable: true, hidden: false},
             { field: 'DtPreDue',    caption: 'DtPreDue',    size: '80px', sotrable: true, hidden: false,
                 render: function(record, index, col_index) {return renderTaskGridDate(record.DtPreDue); }

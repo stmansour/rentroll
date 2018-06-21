@@ -46,7 +46,13 @@ window.buildLedgerElements = function (){
             {field: 'LMAmount',  caption: "LM Amount",     size: '100px', sortable: true, hidden: false, render: 'money'},
         ],
         onRequest: function(/*event*/) {
-            w2ui.ledgersGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
+            adminLedger.mode = document.getElementById('adminLedgerMode').options.selectedIndex;
+            w2ui.ledgersGrid.postData = {
+                mode : adminLedger.mode,
+                searchDtStart: app.D1,
+                searchDtStop: app.D2,
+                client: app.client
+            };
         },
         onLoad: function(event) {
             event.onComplete = function() {
@@ -63,10 +69,10 @@ window.buildLedgerElements = function (){
                     var html =
                         '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class="far fa-building"></i> &nbsp;Mode:' +
                         '<select id="adminLedgerMode" onchange="changeLedgerMode();">'+
-                        '<option value="0">Balance</option>'+
-                        '<option value="1">Ledger Markers in Date Range</option>'+
-                        '<option value="2">Marker on/before DtStart</option>'+
-                        '<option value="3">Marker by RAID</option>'+
+                        '<option value="0">Initial Ledger Markers</option>'+
+                        '<option value="1">GL Account Ledger Markers</option>'+
+                        '<option value="2">RAID Ledger Markers</option>'+
+                        '<option value="3">RID Ledger Markers</option>'+
                         '</select>&nbsp;&nbsp;&nbsp;';
                     return html;
                 }

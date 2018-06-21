@@ -549,6 +549,42 @@ func GetEpochAssessmentsByRentalAgreement(ctx context.Context, RAID int64) ([]As
 	return getAssessmentsByRows(ctx, rows)
 }
 
+// GetAssessmentsByRAIDRID gets all the Assessments associated with the
+// supplied BID/RAID/RID combination.  It returns the epoch instance of
+// recurring assessments. It will not return individual instances unless
+// they are epoch instances (non recurring assessments)
+//
+// INPUTS
+//    ctx  - context
+//    bid  - the biz
+//    raid - Rental Agreement id of interest
+//    rid  - the rentable of interest
+//
+// RETURNS
+//    array of assessments suitable for an assessment list in a RentalAgreement
+//-----------------------------------------------------------------------------
+func GetAssessmentsByRAIDRID(ctx context.Context, bid, raid, rid int64) ([]Assessment, error) {
+	var err error
+	var t []Assessment
+	if sessionCheck(ctx) {
+		return t, ErrSessionRequired
+	}
+
+	var rows *sql.Rows
+	fields := []interface{}{bid, raid, rid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAssessmentsByRAIDRID)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetAssessmentsByRAIDRID.Query(fields...)
+	}
+	if err != nil {
+		return t, err
+	}
+	return getAssessmentsByRows(ctx, rows)
+}
+
 // GetAssessmentInstancesByParent for the supplied RAID
 // INPUTS
 //    id - id of Parent Assessment

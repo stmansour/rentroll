@@ -1,6 +1,6 @@
 {
-    "DtStart": "10/13/2017",
-    "DtStop": "10/1/2020",
+    "DtStart": "2/13/2018",
+    "DtStop": "3/1/2020",
     "RT": [
         {
             "Count": 1,
@@ -31,5 +31,12 @@
     "SecDepDepositoryName": "Bank Of America",
     "PTypeCheckName": "Check",
     "PeopleCount": 10,
-    "RACount": 4
+    "RACount": 4,
+    "Carports": 20,
+    "CPMarketRate": 35,
+    "CPRentCycle": 6,
+    "CPProrateCycle": 4,
+    "RandNames" : true,
+    "PetFees": ["Pet Fee","Pet Rent"],
+    "VehicleFees": []
 }

@@ -90,6 +90,10 @@ PeopleCount  (required)
 	RentalAgreements requested (RACount) then some transactants will be the 
 	payor on more than one RentalAgreement.
 
+PetFees [] (optional)
+    PetFees is a BusinessProperty. It is an array of strings. The strings 
+    are the names of Account Rules which should be applied to pets.
+
 RACount  (required)
     Number of rental agreements to create. If this count is greater than the
     number of all the rentables created then the program will stop creating
@@ -122,6 +126,10 @@ RandMissPayment  (optional)
 RandMissApply  (optional)
     Specifies the percent (0-99) of payments that will not be applied. The 
     default value is 0.
+
+VehicleFees [] (optional)
+    VehiclesFees is a BusinessProperty. It is an array of strings. The strings
+    are the names of Account Rules which should be applied to vehicles.
 
 
 Example Configuration File

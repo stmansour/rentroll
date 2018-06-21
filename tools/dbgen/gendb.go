@@ -124,6 +124,7 @@ func GenerateDB(ctx context.Context, dbConf *GenDBConf) error {
 	// Now spin through all the handlers...
 	//---------------------------------------
 	for i := 0; i < len(handlers); i++ {
+		rlib.Console("%d. %s\n", i, handlers[i].Name)
 		if err := handlers[i].Handler(ctx, dbConf); err != nil {
 			return err
 		}
@@ -238,7 +239,7 @@ func createTransactants(ctx context.Context, dbConf *GenDBConf) error {
 			EmergencyContactName:      ecfirst + " " + eclast,
 			EmergencyContactAddress:   GenerateRandomAddress() + "," + GenerateRandomCity() + "," + GenerateRandomState() + " " + fmt.Sprintf("%05d", rand.Intn(100000)),
 			EmergencyContactTelephone: GenerateRandomPhoneNumber(),
-			EmergencyEmail:            GenerateRandomEmail(eclast, ecfirst),
+			EmergencyContactEmail:     GenerateRandomEmail(eclast, ecfirst),
 			AlternateAddress:          GenerateRandomAddress() + "," + GenerateRandomCity() + "," + GenerateRandomState() + " " + fmt.Sprintf("%05d", rand.Intn(100000)),
 			EligibleFutureUser:        IG.Rand.Intn(2) > 0,
 			Industry:                  GenerateRandomIndustry(),
@@ -284,7 +285,6 @@ func createTransactants(ctx context.Context, dbConf *GenDBConf) error {
 			CompanyEmail:           GenerateRandomEmail(ec, cmp),
 			CompanyPhone:           GenerateRandomPhoneNumber(),
 			Occupation:             GenerateRandomOccupation(),
-			ApplicationFee:         0,
 			DesiredUsageStartDate:  now,
 			RentableTypePreference: 0,
 			FLAGS:                    0,
@@ -770,6 +770,7 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 		// required...
 		//-------------------------------------------------------
 		var lm rlib.LedgerMarker
+		lm.BID = ra.BID
 		lm.RAID = ra.RAID
 		lm.State = rlib.LMINITIAL
 		lm.Dt = d1.AddDate(0, 0, -14)
@@ -861,6 +862,54 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 			return bizlogic.BizErrorListToError(be)
 		}
 
+		//-------------------------------------
+		// Pet Assessments
+		//-------------------------------------
+		for j := 0; j < len(dbConf.PetFees); j++ {
+			if dbConf.PetFees[j].FLAGS&(1<<6) > 0 {
+				continue
+			}
+			var asm = rlib.Assessment{
+				BID:            BID,
+				RID:            RID,
+				RAID:           ra.RAID,
+				Amount:         dbConf.PetFees[j].DefaultAmount,
+				RentCycle:      dbConf.xbiz.RT[rtr.RTID].RentCycle,
+				ProrationCycle: dbConf.xbiz.RT[rtr.RTID].Proration,
+				Start:          epoch,
+				Stop:           d2,
+				ARID:           dbConf.PetFees[j].ARID,
+			}
+			be := bizlogic.InsertAssessment(ctx, &asm, 1) // bizlogic will not expand it if it is a single instanced assessment
+			if be != nil {
+				return bizlogic.BizErrorListToError(be)
+			}
+		}
+
+		//-------------------------------------
+		// Vehicle Assessments
+		//-------------------------------------
+		for j := 0; j < len(dbConf.VehicleFees); j++ {
+			if dbConf.VehicleFees[j].FLAGS&(1<<6) > 0 {
+				continue
+			}
+			var asm = rlib.Assessment{
+				BID:            BID,
+				RID:            RID,
+				RAID:           ra.RAID,
+				Amount:         dbConf.VehicleFees[j].DefaultAmount,
+				RentCycle:      dbConf.xbiz.RT[rtr.RTID].RentCycle,
+				ProrationCycle: dbConf.xbiz.RT[rtr.RTID].Proration,
+				Start:          epoch,
+				Stop:           d2,
+				ARID:           dbConf.VehicleFees[j].ARID,
+			}
+			be := bizlogic.InsertAssessment(ctx, &asm, 1) // bizlogic will not expand it if it is a single instanced assessment
+			if be != nil {
+				return bizlogic.BizErrorListToError(be)
+			}
+		}
+
 		//----------------------------------------------------------
 		// Add prorated rent for initial month if start date is not
 		// the epoch date.
@@ -887,6 +936,64 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 			if be != nil {
 				return bizlogic.BizErrorListToError(be)
 			}
+
+			//----------------------------------------
+			// Deal with any recurring pet fees...
+			//----------------------------------------
+			for j := 0; j < len(dbConf.PetFees); j++ {
+				if dbConf.PetFees[j].FLAGS&(1<<6) > 0 {
+					continue
+				}
+				cmt := ""
+				tot, np, tp := rlib.SimpleProrateAmount(dbConf.PetFees[j].DefaultAmount, dbConf.xbiz.RT[rtr.RTID].RentCycle, dbConf.xbiz.RT[rtr.RTID].Proration, &d1, &td2, &epoch)
+				if tot < dbConf.PetFees[j].DefaultAmount {
+					cmt = fmt.Sprintf("prorated for %d of %d %s", np, tp, rlib.ProrationUnits(dbConf.xbiz.RT[rtr.RTID].Proration))
+				}
+				var asm = rlib.Assessment{
+					BID:            BID,
+					RID:            RID,
+					RAID:           ra.RAID,
+					Amount:         tot,
+					RentCycle:      rlib.RECURNONE,
+					ProrationCycle: rlib.RECURNONE,
+					Start:          d1,
+					Stop:           d1,
+					ARID:           dbConf.PetFees[j].ARID,
+					Comment:        cmt,
+				}
+				be := bizlogic.InsertAssessment(ctx, &asm, 1)
+				if be != nil {
+					return bizlogic.BizErrorListToError(be)
+				}
+			}
+
+			for j := 0; j < len(dbConf.VehicleFees); j++ {
+				if dbConf.PetFees[j].FLAGS&(1<<6) > 0 {
+					continue
+				}
+				cmt := ""
+				tot, np, tp := rlib.SimpleProrateAmount(dbConf.VehicleFees[j].DefaultAmount, dbConf.xbiz.RT[rtr.RTID].RentCycle, dbConf.xbiz.RT[rtr.RTID].Proration, &d1, &td2, &epoch)
+				if tot < dbConf.VehicleFees[j].DefaultAmount {
+					cmt = fmt.Sprintf("prorated for %d of %d %s", np, tp, rlib.ProrationUnits(dbConf.xbiz.RT[rtr.RTID].Proration))
+				}
+				var asm = rlib.Assessment{
+					BID:            BID,
+					RID:            RID,
+					RAID:           ra.RAID,
+					Amount:         tot,
+					RentCycle:      rlib.RECURNONE,
+					ProrationCycle: rlib.RECURNONE,
+					Start:          d1,
+					Stop:           d1,
+					ARID:           dbConf.VehicleFees[j].ARID,
+					Comment:        cmt,
+				}
+				be := bizlogic.InsertAssessment(ctx, &asm, 1)
+				if be != nil {
+					return bizlogic.BizErrorListToError(be)
+				}
+			}
+
 		}
 
 		//-------------------------------------
@@ -904,6 +1011,50 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 		be = bizlogic.InsertAssessment(ctx, &asmSecDep, 1)
 		if be != nil {
 			return bizlogic.BizErrorListToError(be)
+		}
+
+		//-------------------------------------
+		// Single instanced Pet, vehicle fees
+		//-------------------------------------
+		for j := 0; j < len(dbConf.PetFees); j++ {
+			if dbConf.PetFees[j].FLAGS&(1<<6) == 0 {
+				continue
+			}
+			var asm = rlib.Assessment{
+				BID:            BID,
+				RID:            RID,
+				RAID:           ra.RAID,
+				Amount:         dbConf.PetFees[j].DefaultAmount,
+				RentCycle:      rlib.RECURNONE,
+				ProrationCycle: rlib.RECURNONE,
+				Start:          d1,
+				Stop:           d1,
+				ARID:           dbConf.PetFees[j].ARID,
+			}
+			be := bizlogic.InsertAssessment(ctx, &asm, 1)
+			if be != nil {
+				return bizlogic.BizErrorListToError(be)
+			}
+		}
+		for j := 0; j < len(dbConf.VehicleFees); j++ {
+			if dbConf.VehicleFees[j].FLAGS&(1<<6) == 0 {
+				continue
+			}
+			var asm = rlib.Assessment{
+				BID:            BID,
+				RID:            RID,
+				RAID:           ra.RAID,
+				Amount:         dbConf.VehicleFees[j].DefaultAmount,
+				RentCycle:      rlib.RECURNONE,
+				ProrationCycle: rlib.RECURNONE,
+				Start:          d1,
+				Stop:           d1,
+				ARID:           dbConf.VehicleFees[j].ARID,
+			}
+			be := bizlogic.InsertAssessment(ctx, &asm, 1)
+			if be != nil {
+				return bizlogic.BizErrorListToError(be)
+			}
 		}
 
 		RID++

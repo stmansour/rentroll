@@ -33,8 +33,8 @@ var Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 // Digits contains characters for 0 - 9
 var Digits = "0123456789"
 
-// UserRefNoLength specifies the number of characters needed in the ref
-// no in order to be "safe"
+// UserRefNoLength specifies the number of characters needed in the RefNo
+// in order to be "safe"
 const UserRefNoLength = 20
 
 // GenerateUserRefNo generate a unique identifier that can be given to users

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -21,9 +22,8 @@ type RType struct {
 	Style        string  // very short but functionally descriptive name
 }
 
-// GenDBConf provides attribute information for what is created in the database
-// Rent Assessments are created based on the Market Rate by default. A future update
-// may enable varying Contract Rent amounts.
+// GenDBConf provides attribute information for what is used by the code in
+// the generation of the database.
 type GenDBConf struct {
 	DtStart              time.Time       // default start time for all start time attributes
 	DtStop               time.Time       // default stop time for all stop time attributes
@@ -54,28 +54,32 @@ type GenDBConf struct {
 	RSource              rand.Source     // for creating random numbers
 	RRand                *rand.Rand      // our base for generating random numbers
 	RandNames            bool            // if true create random names instead of predictables names
+	PetFees              []rlib.AR       // account rules applied to new Rental Agreements for pets
+	VehicleFees          []rlib.AR       // account rules applied to new Rental Agreements for vehicles
 }
 
 // GenDBRead is struct that gets loaded from the -f json file specified when
 // the program starts.  The data is transferred to a GenDBConf structure
 type GenDBRead struct {
-	DtStart              string  `json:"DtStart"`              // default start time for all start time attributes
-	DtStop               string  `json:"DtStop"`               // default stop time for all stop time attributes
-	PeopleCount          int     `json:"PeopleCount"`          // defines the number of Transactants
-	RACount              int     `json:"RACount"`              // defines the number of Rental Agreements to create
-	OpDepositoryName     string  `json:"OpDepositoryName"`     // the operational bank depository
-	SecDepDepositoryName string  `json:"SecDepDepositoryName"` // the security deposit depository
-	RSeed                int64   `json:"RSeed"`                // if specified it will seed the random number generator
-	RandomizePayments    int     `json:"RandomizePayments"`    // if non-zero then skip payments and allocation by percentages below
-	RandNames            bool    `json:"RandNames"`            // if true then create real names rather than numeric predictable names
-	RandMissPayment      int     `json:"RandMissPayment"`      // if RandomizePayments is true, skip payments on this percent (0-99)
-	RandMissApply        int     `json:"RandMissApply"`        // if RandomizePayments is true, skip payment application on this percent (0-99)
-	Carports             int     `json:"Carports"`             // number of carports -- they can be child rentables
-	CPMarketRate         float64 `json:"CPMarketRate"`         // market rate for Carports
-	CPRentCycle          int64   // 0 = nonrecur, 1 = secondly, 2 ... as defined in ./rlib/dbtypes
-	CPProrateCycle       int64   // just like RentCycle
-	PTypeCheckName       string  // name of ptid for checks
-	RT                   []RType `json:"RT"` // defines the rentable types and the count of Rentables
+	DtStart              string   `json:"DtStart"`              // default start time for all start time attributes
+	DtStop               string   `json:"DtStop"`               // default stop time for all stop time attributes
+	PeopleCount          int      `json:"PeopleCount"`          // defines the number of Transactants
+	RACount              int      `json:"RACount"`              // defines the number of Rental Agreements to create
+	OpDepositoryName     string   `json:"OpDepositoryName"`     // the operational bank depository
+	SecDepDepositoryName string   `json:"SecDepDepositoryName"` // the security deposit depository
+	RSeed                int64    `json:"RSeed"`                // if specified it will seed the random number generator
+	RandomizePayments    int      `json:"RandomizePayments"`    // if non-zero then skip payments and allocation by percentages below
+	RandNames            bool     `json:"RandNames"`            // if true then create real names rather than numeric predictable names
+	RandMissPayment      int      `json:"RandMissPayment"`      // if RandomizePayments is true, skip payments on this percent (0-99)
+	RandMissApply        int      `json:"RandMissApply"`        // if RandomizePayments is true, skip payment application on this percent (0-99)
+	Carports             int      `json:"Carports"`             // number of carports -- they can be child rentables
+	CPMarketRate         float64  `json:"CPMarketRate"`         // market rate for Carports
+	CPRentCycle          int64    // 0 = nonrecur, 1 = secondly, 2 ... as defined in ./rlib/dbtypes
+	CPProrateCycle       int64    // just like RentCycle
+	PTypeCheckName       string   // name of ptid for checks
+	RT                   []RType  `json:"RT"` // defines the rentable types and the count of Rentables
+	PetFees              []string // array of Account Rule names for pet fees on a new Rental Agreement
+	VehicleFees          []string // array of Account Rule names for vehicle fees on a new Rental Agreement
 }
 
 // ReadConfig will read the configuration file  if
@@ -85,6 +89,7 @@ func ReadConfig(fname string) (GenDBConf, error) {
 	var a GenDBRead
 	var b GenDBConf
 	var err error
+	var BID = int64(1)
 
 	if _, err = os.Stat(fname); err != nil {
 		return b, err
@@ -134,6 +139,37 @@ func ReadConfig(fname string) (GenDBConf, error) {
 
 	rlib.Console("DtStart = %s, DtStop = %s\n", b.DtStart.Format(rlib.RRDATEFMT4), b.DtStop.Format(rlib.RRDATEFMT4))
 
+	//--------------------------------
+	// BUSINESS PROPERTIES
+	//--------------------------------
+	ctx := context.Background()
+	var bp = rlib.BizProps{
+		PetFees:     []string{},
+		VehicleFees: []string{},
+	}
+	bp.PetFees = a.PetFees
+	bp.VehicleFees = a.VehicleFees
+	data, err := json.Marshal(&bp)
+	if err != nil {
+		return b, err
+	}
+	var props = rlib.BusinessProperties{
+		BID:   BID,
+		Name:  "general",
+		FLAGS: 0,
+		Data:  data,
+	}
+	if _, err = rlib.InsertBusinessProperties(ctx, &props); err != nil {
+		return b, err
+	}
+
+	if err = InitBizProps(ctx, BID, a.PetFees, &b.PetFees, "PetFees"); err != nil {
+		return b, err
+	}
+
+	//-------------------------------------
+	// RANDOM NUMBER GENERATOR
+	//-------------------------------------
 	if a.RSeed == int64(0) {
 		a.RSeed = time.Now().UnixNano()
 	}
@@ -143,4 +179,21 @@ func ReadConfig(fname string) (GenDBConf, error) {
 	b.RRand = rand.New(b.RSource)
 
 	return b, nil
+}
+
+// InitBizProps initializes the business properties with the supplied info and
+// updates the GenDBConf struct with the associated list of account rules.
+//
+// INPUTS:
+//
+func InitBizProps(ctx context.Context, bid int64, a []string, b *[]rlib.AR, s string) error {
+
+	for i := 0; i < len(a); i++ {
+		ar, err := rlib.GetARByName(ctx, bid, a[i])
+		if err != nil {
+			return err
+		}
+		*b = append(*b, ar)
+	}
+	return nil
 }
