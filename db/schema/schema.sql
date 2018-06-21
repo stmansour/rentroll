@@ -877,24 +877,42 @@ CREATE TABLE Prospect (
     Occupation VARCHAR(100) NOT NULL DEFAULT '',
     DesiredUsageStartDate DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- User's initial indication of move in date, actual move in date is in Rental Agreement
     RentableTypePreference BIGINT NOT NULL DEFAULT 0,            -- This would be "model" preference  (Rentable Type name) for room or residence, but could apply to all rentables
-    --  -----------  ----------------------------------------------------------------
-    --  (FLAGS & 7)  Meaning
-    --  -----------  ----------------------------------------------------------------
-    --       0       Renters / Users have not completely filled out the application.
-    --       1       Application has been filled out. It is being reviewed
-    --       2       Application was approved by Approver on ApplicationDecisionDate
-    --       3       Application was declined. Reason is in DeclineReasonSLSID
-    --       4       Applicant elected not to rent.  Reason is in Outcome SLSID
-    -- ------------------------------------------------------------------------------
-    FLAGS BIGINT NOT NULL DEFAULT 0,                             /* 1<<0 - 0 = application in progress, 1 application is filled out completely
-                                                                    1<<1 - approved/not approved
-                                                                    1<<2 - Previously Evicted: 0 = no, 1 = yes
-                                                                    1<<3 - Previously Convicted of a felony: 0 = no, 1 = yes
-                                                                    1<<4 - Previously declared bankruptcy: 0 = no, 1 = yes
+    --  ------------  -----------------  --------------------------------------
+    --  (FLAGS & 15)  State              Meaning
+    --  ------------  -----------------  --------------------------------------
+    --       0        In Progress        Renters / Users have not completely
+    --                                   filled out the application.
+    --       1        In Review          Application has been filled out. It is
+    --                                   being reviewed
+    --       2        First Approval     The first approver needs to approve
+    --                                   the application
+    --       3        Second Approval    The second approver needs to approve
+    --                                   the application
+    --       4        Approved           Application was approved by Approver
+    --                                   on ApplicationDecisionDate
+    --       5        Not Approved       Application was declined. Reason is in
+    --                                   DeclineReasonSLSID
+    --       6        Applicant Elected  The applicant chose not to rent.
+    --                Not To Rent        Reason is in Outcome SLSID
+    --
+    --       7        unused             reserved for future expansion
+    --       8        unused             reserved for future expansion
+    --       9        unused             reserved for future expansion
+    --      10        unused             reserved for future expansion
+    --      11        unused             reserved for future expansion
+    --      12        unused             reserved for future expansion
+    --      13        unused             reserved for future expansion
+    --      14        unused             reserved for future expansion
+    --      15        unused             reserved for future expansion
+    -- ------------------------------------------------------------------------
+    FLAGS BIGINT NOT NULL DEFAULT 0,                             /* 0:3 - application state as defined above
+                                                                    1<<4 - Previously Evicted: 0 = no, 1 = yes
+                                                                    1<<5 - Previously Convicted of a felony: 0 = no, 1 = yes
+                                                                    1<<6 - Previously declared bankruptcy: 0 = no, 1 = yes
     */
-    EvictedDes VARCHAR(2048) NOT NULL DEFAULT '',                -- explanation when FLAGS & (1<<2) > 0
-    ConvictedDes VARCHAR(2048) NOT NULL DEFAULT '',              -- explanation when FLAGS & (1<<3) > 0
-    BankruptcyDes VARCHAR(2048) NOT NULL DEFAULT '',             -- explanation when FLAGS & (1<<4) > 0
+    EvictedDes VARCHAR(2048) NOT NULL DEFAULT '',                -- explanation when FLAGS & (1<<4) > 0
+    ConvictedDes VARCHAR(2048) NOT NULL DEFAULT '',              -- explanation when FLAGS & (1<<5) > 0
+    BankruptcyDes VARCHAR(2048) NOT NULL DEFAULT '',             -- explanation when FLAGS & (1<<6) > 0
     Approver BIGINT NOT NULL DEFAULT 0,                          -- who approved or declined
     -- ApplicationDecisionDate DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- datetime when application decision was made
     DeclineReasonSLSID BIGINT NOT NULL DEFAULT 0,                -- ID to string in list of choices, Melissa will provide the list.
