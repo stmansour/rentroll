@@ -203,7 +203,7 @@ func ReadFlows(rows *sql.Rows, a *Flow) error {
 // ReadGLAccount reads a full Ledger structure of data from the database based on the supplied Rows pointer.
 func ReadGLAccount(row *sql.Row, a *GLAccount) error {
 	err := row.Scan(&a.LID, &a.PLID, &a.BID, &a.RAID, &a.TCID, &a.GLNumber,
-		/*&a.Status,*/ &a.Name, &a.AcctType, &a.AllowPost,
+		&a.Name, &a.AcctType, &a.AllowPost,
 		&a.FLAGS, &a.Description, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	SkipSQLNoRowsError(&err)
 	return err
@@ -212,7 +212,7 @@ func ReadGLAccount(row *sql.Row, a *GLAccount) error {
 // ReadGLAccounts reads a full Ledger structure of data from the database based on the supplied Rows pointer.
 func ReadGLAccounts(rows *sql.Rows, a *GLAccount) error {
 	return rows.Scan(&a.LID, &a.PLID, &a.BID, &a.RAID, &a.TCID, &a.GLNumber,
-		/*&a.Status,*/ &a.Name, &a.AcctType, &a.AllowPost,
+		&a.Name, &a.AcctType, &a.AllowPost,
 		&a.FLAGS, &a.Description, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 

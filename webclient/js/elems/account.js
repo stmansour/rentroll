@@ -18,11 +18,10 @@ window.getAccountInitRecord = function (BID, BUD, previousFormRecord){
         RAID: 0,
         TCID: 0,
         GLNumber: '',
-        Status: 2, // Default Status state is Active.
         Name: '',
         AcctType: '',
-        AllowPost: true,
-        FLAGS: 0,
+        // AllowPost: true,
+        IsActive: 0, // 1<<0: 0=active, 1=inactive
         Description: '',
         LastModTime: y.toISOString(),
         LastModBy: 0,
@@ -93,18 +92,15 @@ window.buildAccountElements = function() {
             {field: 'BID',      caption: 'BID',       size: '40px', sortable: false, hidden: true},
             {field: 'GLNumber', caption: 'GL Number', size: '100px', sortable: true},
             {field: 'Name',     caption: 'Name',      size: '450px', sortable: true},
-            {field: 'Status',   caption: 'Status',    size: '90px', sortable: true,
+            {field: 'IsActive', caption: 'Is Active',    size: '90px', sortable: true,
                 render: function (record/*, index, col_index*/) {
                     if (typeof record === "undefined") {
                         return;
                     }
-                    var html = '';
-                    // for (var i=0; i < app.account_stuff.statusList.length; i++) {
-                    //     if (record.Status == app.account_stuff.statusList[i].id) {
-                    //         html = app.account_stuff.statusList[i].text;
-                    //     }
-                    // }
-                    html = app.account_stuff.statusList[record.FLAGS&1].text;
+                    var html = "No";
+                    if (record.IsActive) {
+                        html = "Yes";
+                    }
                     return html;
                 },
             },
@@ -220,25 +216,24 @@ window.buildAccountElements = function() {
         style: 'border: 0px; background-color: transparent;display: block;',
         formURL: '/webclient/html/formacct.html',
         fields: [
-            { field: "recid", required: false, type: 'int', html: { caption: "recid", page: 0, column: 0 } },
-            { field: "LID", required: false, type: 'int', html: { caption: "LID", page: 0, column: 0 } },
-            { field: 'PLID', type: 'list', required: false, options: { items: [], selected: {}, maxDropHeight: 200 } },
-            { field: "BID", required: false, type: 'int', html: { caption: "BID", page: 0, column: 0 } },
-            { field: "BUD", required: true, options: { items: app.businesses, maxDropHeight: 350 }, type: 'list', html: { caption: "BUD", page: 0, column: 0 } },
-            { field: "RAID", required: false, type: 'int', html: { caption: "RAID", page: 0, column: 0 } },
-            { field: "TCID", required: false, type: 'int', html: { caption: "TCID", page: 0, column: 0 } },
-            { field: "GLNumber", required: true, type: 'text', html: { caption: "GLNumber", page: 0, column: 0 } },
-            { field: "Status", required: true, type: 'list', options: { items: app.account_stuff.statusList, selected: {}, maxDropHeight: 350 }, html: { caption: "Status", page: 0, column: 0 } },
-            // { field: "Type", required: true, type: 'list', options: { items: app.account_stuff.typeList, selected: {}, maxDropHeight: 350 }, html: { caption: "Type", page: 0, column: 0 } },
-            { field: "Name", required: true, type: 'text', html: { caption: "Name", page: 0, column: 0 } },
-            { field: "AcctType", required: true, type: 'list', options: { items: app.qbAcctType, selected: {}, maxDropHeight: 350 }, html: { caption: "Account Type", page: 0, column: 0 } },
-//            { field: "AllowPost", required: true, type: 'checkbox', html: { caption: "AllowPost", page: 0, column: 0 } },
-            { field: 'FLAGS', type: 'int', required: false, html: { page: 0, column: 0 } },
-            { field: "Description", required: false, type: 'text', html: { caption: "Description", page: 0, column: 0 } },
-            { field: "LastModTime", required: false, type: 'time', html: { caption: "LastModTime", page: 0, column: 0 } },
-            { field: "LastModBy", required: false, type: 'int', html: { caption: "LastModBy", page: 0, column: 0 } },
-            { field: "CreateTS", required: false, type: 'time', html: { caption: "LastModTime", page: 0, column: 0 } },
-            { field: "CreateBy", required: false, type: 'int', html: { caption: "LastModBy", page: 0, column: 0 } },
+            { field: "recid",       required: false,    type: 'int',        html: { caption: "recid", page: 0, column: 0 } },
+            { field: "LID",         required: false,    type: 'int',        html: { caption: "LID", page: 0, column: 0 } },
+            { field: 'PLID',        required: false,    type: 'list',       options: { items: [], selected: {}, maxDropHeight: 200 } },
+            { field: "BID",         required: false,    type: 'int',        html: { caption: "BID", page: 0, column: 0 } },
+            { field: "BUD",         required: true,     type: 'list',       options: { items: app.businesses, maxDropHeight: 350 }, html: { caption: "BUD", page: 0, column: 0 } },
+            { field: "RAID",        required: false,    type: 'int',        html: { caption: "RAID", page: 0, column: 0 } },
+            { field: "TCID",        required: false,    type: 'int',        html: { caption: "TCID", page: 0, column: 0 } },
+            { field: "GLNumber",    required: true,     type: 'text',       html: { caption: "GLNumber", page: 0, column: 0 } },
+            // { field: "Type",        required: true,     type: 'list',       options: { items: app.account_stuff.typeList, selected: {}, maxDropHeight: 350 }, html: { caption: "Type", page: 0, column: 0 } },
+            { field: "Name",        required: true,     type: 'text',       html: { caption: "Name", page: 0, column: 0 } },
+            { field: "AcctType",    required: true,     type: 'list',       options: { items: app.qbAcctType, selected: {}, maxDropHeight: 350 }, html: { caption: "Account Type", page: 0, column: 0 } },
+            // { field: "AllowPost",   required: true,     type: 'checkbox',   html: { caption: "AllowPost", page: 0, column: 0 } },
+            { field: 'IsActive',    required: true,     type: 'checkbox',   html: { page: 0, column: 0 } },
+            { field: "Description", required: false,    type: 'text',       html: { caption: "Description", page: 0, column: 0 } },
+            { field: "LastModTime", required: false,    type: 'time',       html: { caption: "LastModTime", page: 0, column: 0 } },
+            { field: "LastModBy",   required: false,    type: 'int',        html: { caption: "LastModBy", page: 0, column: 0 } },
+            { field: "CreateTS",    required: false,    type: 'time',       html: { caption: "LastModTime", page: 0, column: 0 } },
+            { field: "CreateBy",    required: false,    type: 'int',        html: { caption: "LastModBy", page: 0, column: 0 } },
         ],
         toolbar: {
             items: [
@@ -278,6 +273,7 @@ window.buildAccountElements = function() {
             delete data.postData.record.CreateBy;
             // modify form data for server request
             getFormSubmitData(data.postData.record);
+            data.postData.record.IsActive = int_to_bool(data.postData.record.IsActive);
         },
         actions: {
             saveadd: function() {
@@ -303,7 +299,6 @@ window.buildAccountElements = function() {
                     }
 
                     f.get("PLID").options.selected = r.PLID[0];
-                    f.get("Status").options.selected = r.Status[0];
 
                     // JUST RENDER THE GRID ONLY
                     grid.render();
@@ -369,7 +364,6 @@ window.buildAccountElements = function() {
                     r = f.record,
                     BUD = getBUDfromBID(r.BID),
                     header = "Edit Account Details ({0})",
-                    statusSel = {},
                     PLIDSel = {},
                     acctTypeSel = {};
                     // typeSel = {},
@@ -381,13 +375,6 @@ window.buildAccountElements = function() {
                     }
                 });
 
-                // status selected
-                app.account_stuff.statusList.forEach(function(item) {
-                    if (r.Status == item.id) {
-                        $.extend(statusSel, item);
-                    }
-                });
-
                 // accttype selected
                 app.qbAcctType.forEach(function(item) {
                     if (r.AcctType == item) {
@@ -395,7 +382,7 @@ window.buildAccountElements = function() {
                     }
                 });
 
-                // // status selected
+                // // type selected
                 // app.account_stuff.typeList.forEach(function(item) {
                 //     if (r.Type == item.id) {
                 //         $.extend(typeSel, item);
@@ -412,7 +399,6 @@ window.buildAccountElements = function() {
                 // f.get("Type").options.selected = typeSel;
                 f.get("PLID").options.selected = PLIDSel;
                 f.get("AcctType").options.selected = acctTypeSel;
-                f.get("Status").options.selected = statusSel;
 
                 formRefreshCallBack(f, "LID", header);
             };
