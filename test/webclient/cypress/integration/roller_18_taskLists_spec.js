@@ -143,6 +143,7 @@ describe('AIR Roller UI Tests - Task Lists', function () {
         // ---------------------------------------
         testConfig.buttonNamesInDetailForm.splice( testConfig.buttonNamesInDetailForm.indexOf('delete'), 1 );
 
+        // TODO(Jay): Use common testNewRecordForm() method after removing closeFormTests() call in that method. 
         cy.contains('Add New', {force: true}).click().wait(constants.WAIT_TIME);
 
         // record list in w2ui form
