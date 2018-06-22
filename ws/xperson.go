@@ -40,6 +40,7 @@ type RPersonForm struct {
 	PostalCode     string
 	Country        string
 	Website        string
+	Comment        string
 
 	// --------------- User ---------------
 	Points                    int64
@@ -86,17 +87,19 @@ type RPersonForm struct {
 	DesiredUsageStartDate    rlib.JSONDate // predicted rent start date
 	RentableTypePreference   int64         // RentableType
 	Approver1                int64
+	Approver1Name            string
 	DecisionDate1            rlib.JSONDateTime
 	DeclineReason1           int64
 	Approver2                int64
+	Approver2Name            string
 	DecisionDate2            rlib.JSONDateTime
 	DeclineReason2           int64
 	OtherPreferences         string        // arbitrary text
-	SpecialNeeds             string        // special needs for potential renters who are disabled
 	FollowUpDate             rlib.JSONDate // automatically fill out this date to sysdate + 24hrs
 	CSAgent                  int64         // Accord Directory UserID - for the CSAgent
 	Outcome                  int64         // valid only if status = 6 (User passed) SLSID of string from a list of outcomes
 	CommissionableThirdParty string
+	SpecialNeeds             string // special needs for potential renters who are disabled
 	FLAGS                    uint64 // 0 = Approved/NotApproved,
 	CreateTS                 rlib.JSONDateTime
 	CreateBy                 int64
@@ -585,6 +588,11 @@ func getXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	g.Record.BID = d.BID
 	g.Record.BUD = rlib.GetBUDFromBIDList(d.BID)
+
+	// Get approver name based approver id
+	g.Record.Approver1Name = rlib.GetNameForUID(r.Context(), g.Record.Approver1)
+	g.Record.Approver2Name = rlib.GetNameForUID(r.Context(), g.Record.Approver2)
+
 	g.Status = "success"
 	SvcWriteResponse(d.BID, &g, w)
 }

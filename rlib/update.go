@@ -1295,7 +1295,7 @@ func UpdateTransactant(ctx context.Context, a *Transactant) error {
 
 	fields := []interface{}{a.BID, a.NLID, a.FirstName, a.MiddleName, a.LastName, a.PreferredName,
 		a.CompanyName, a.IsCompany, a.PrimaryEmail, a.SecondaryEmail, a.WorkPhone, a.CellPhone,
-		a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.Website, a.FLAGS,
+		a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.Website, a.Comment, a.FLAGS,
 		a.LastModBy, a.TCID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateTransactant)

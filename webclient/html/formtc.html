@@ -100,9 +100,14 @@
         <label>Website:</label>
         <div><input name="Website" type="url" style="width: 100%" tabindex="20"/></div>
     </div>
+    <div class="w2ui-field">
+        <label>Comment:</label>
+        <div><input name="Comment" type="text" style="width: 100%" tabindex="21"/></div>
+    </div>
 </div>  <!-- end of page 0, Basic Info -->
 
 <div class="w2ui-page page-1">  <!-- Prospect -->
+    <div class="w2ui-field"><input type="hidden" name="FLAGS"/></div>
     <div class="w2ui-field">
         <label>Company Address:</label>
         <div><input name="CompanyAddress" type="text" style="width: 100%" tabindex="1"/></div>
@@ -238,26 +243,27 @@
         <label>Rentable Type Preference:</label>
         <div><input name="RentableTypePreference" type="text" style="width: 100%" tabindex="25"/></div>
     </div>
+
+    <div class="w2ui-field"><input name="Approver1" type="hidden"/></div>
     <div class="w2ui-field">
-        <label>FLAGS:</label>
-        <div><input name="FLAGS" type="text" style="width: 100%" tabindex="26"/></div>
-    </div>
-    <div class="w2ui-field">
-        <label>Approver 1:</label>
-        <div><input name="Approver1" type="text" style="width: 100%" tabindex="27"/></div>
+        <label>Approver1 Name:</label>
+        <div><input name="Approver1Name" type="text" style="width: 100%" tabindex="26"/></div>
     </div>
     <div class="w2ui-field">
         <label>Decline Reason 1:</label>
-        <div><input name="DeclineReason1" type="text" style="width: 100%" tabindex="28"/></div>
+        <div><input name="DeclineReason1" type="text" style="width: 100%" tabindex="27"/></div>
     </div>
+
+    <div class="w2ui-field"><input name="Approver2" type="hidden"/></div>
     <div class="w2ui-field">
-        <label>Approver 2:</label>
-        <div><input name="Approver2" type="text" style="width: 100%" tabindex="27"/></div>
+        <label>Approver2 Name:</label>
+        <div><input name="Approver2Name" type="text" style="width: 100%" tabindex="28"/></div>
     </div>
     <div class="w2ui-field">
         <label>Decline Reason 2:</label>
-        <div><input name="DeclineReason2" type="text" style="width: 100%" tabindex="28"/></div>
+        <div><input name="DeclineReason2" type="text" style="width: 100%" tabindex="29"/></div>
     </div>
+
     <div class="w2ui-field">
         <label>Other Preferences:</label>
         <div><input name="OtherPreferences" type="text" style="width: 100%" tabindex="29"/></div>
@@ -284,7 +290,7 @@
                     In an effort to accommodate you, please advise us of any special needs:<br>
             </span>
         <div class="w2ui-field">
-                <textarea name="Comment" cols="1" rows="3"
+                <textarea name="SpecialNeeds" cols="1" rows="3"
                           style="width: 100%; resize: none;" tabindex="35"></textarea>
         </div>
     </div>

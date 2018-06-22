@@ -780,15 +780,7 @@ window.getFormSubmitData = function (record, returnClone) {
 //-----------------------------------------------------------------------------
 window.formRefreshCallBack = function (w2frm, primary_id, form_header, disable_header) {
 
-    var record = w2frm.record,
-        id = record[primary_id];
-
-    // console.log(record);
-
-    if (id === undefined) {
-        console.log("given id_name '{0}' does not exist in form's '{1}' record".format(primary_id, w2frm.name));
-        return false;
-    }
+    var record = w2frm.record;
 
     // mark active things of form
     app.active_form = w2frm.name;
@@ -798,6 +790,15 @@ window.formRefreshCallBack = function (w2frm, primary_id, form_header, disable_h
 
     var header = "";
     if (form_header) { // if form_header passed then
+
+        var id = record[primary_id];
+
+        // id should be defined
+        if (id === undefined) {
+            console.log("given id_name '{0}' does not exist in form's '{1}' record".format(primary_id, w2frm.name));
+            return false;
+        }
+
         // if new record then disable delete button
         // and format the equivalent header
         if (id > 0) {

@@ -1,12 +1,6 @@
 /* global
-    RACompConfig, sliderContentDivLength, reassignGridRecids,
-    hideSliderContent, appendNewSlider, showSliderContentW2UIComp,
-    loadTargetSection, requiredFieldsFulFilled, initRAFlowAjax,
-    saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowCompData,
-    lockOnGrid,
+    getRAFlowCompData,
 */
-
-/* exported loadRADatesForm */
 
 "use strict";
 
