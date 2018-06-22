@@ -1,8 +1,7 @@
 /* global
-    RACompConfig, sliderContentDivLength, reassignGridRecids,
-    hideSliderContent, appendNewSlider, showSliderContentW2UIComp,
-    loadTargetSection, requiredFieldsFulFilled, getRAFlowPartTypeIndex, initRAFlowAjax,
-    getRAFlowAllParts, saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowCompData,
+    RACompConfig, reassignGridRecids,
+    hideSliderContent, showSliderContentW2UIComp,
+    saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowCompData,
     lockOnGrid,
     getPetFormInitRecord, getPetLocalData, setPetLocalData,
     AssignPetsGridRecords, savePetsCompData

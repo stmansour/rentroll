@@ -1,10 +1,8 @@
 /* global
-    RACompConfig, sliderContentDivLength, reassignGridRecids,
-    hideSliderContent, appendNewSlider, showSliderContentW2UIComp,
-    loadTargetSection, requiredFieldsFulFilled, getRAFlowPartTypeIndex, initRAFlowAjax,
-    getRAFlowAllParts, saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowCompData,
-    lockOnGrid,
-    loadRADatesForm, validateRAFlowComponents
+    RACompConfig, hideSliderContent, appendNewSlider, showSliderContentW2UIComp,
+    loadTargetSection, requiredFieldsFulFilled, initRAFlowAjax,
+    saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowCompData,
+    lockOnGrid, validateRAFlowComponents
 */
 
 "use strict";

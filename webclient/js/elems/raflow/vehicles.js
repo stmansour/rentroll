@@ -1,10 +1,9 @@
 /* global
-    RACompConfig, sliderContentDivLength, reassignGridRecids,
-    hideSliderContent, appendNewSlider, showSliderContentW2UIComp,
-    loadTargetSection, requiredFieldsFulFilled, getRAFlowPartTypeIndex, initRAFlowAjax,
-    getRAFlowAllParts, saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowCompData,
+    RACompConfig, reassignGridRecids,
+    hideSliderContent, showSliderContentW2UIComp,
+    saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowCompData,
     lockOnGrid,
-    getVehicleFormInitalRecord, setVehicleLocalData, getVehicleLocalData,
+    getVehicleFormInitRecord, setVehicleLocalData, getVehicleLocalData,
     AssignVehiclesGridRecords, saveVehiclesCompData
 */
 
@@ -13,7 +12,7 @@
 // -------------------------------------------------------------------------------
 // Rental Agreement - Vehicles Grid
 // -------------------------------------------------------------------------------
-window.getVehicleFormInitalRecord = function (previousFormRecord) {
+window.getVehicleFormInitRecord = function (previousFormRecord) {
     var BID = getCurrentBID();
 
     var t = new Date(),
@@ -203,7 +202,7 @@ window.loadRAVehiclesGrid = function () {
                         if (data.status === 'success') {
                             // reset form
                             f.actions.reset();
-                            f.record = getVehicleFormInitalRecord(f.record);
+                            f.record = getVehicleFormInitRecord(f.record);
                             f.record.recid =grid.records.length + 1;
                             f.refresh();
                             f.refresh();
@@ -346,7 +345,7 @@ window.loadRAVehiclesGrid = function () {
                         app.last.grid_sel_recid = -1;
                         grid.selectNone();
 
-                        w2ui.RAVehicleForm.record = getVehicleFormInitalRecord(null);
+                        w2ui.RAVehicleForm.record = getVehicleFormInitRecord(null);
                         w2ui.RAVehicleForm.record.recid = w2ui.RAVehiclesGrid.records.length + 1;
                         showSliderContentW2UIComp(w2ui.RAVehicleForm, RACompConfig.vehicles.sliderWidth);
                         w2ui.RAVehicleForm.refresh();

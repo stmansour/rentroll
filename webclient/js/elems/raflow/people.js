@@ -1,17 +1,14 @@
 /* global
-    RACompConfig, sliderContentDivLength, reassignGridRecids,
+    RACompConfig, reassignGridRecids,
     getFullName, getTCIDName,
-    hideSliderContent, appendNewSlider, showSliderContentW2UIComp,
-    loadTargetSection, requiredFieldsFulFilled, getRAFlowPartTypeIndex, initRAFlowAjax,
-    getRAFlowAllParts, saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowCompData,
-    openNewTransactantForm, getRAAddTransactantFormInitRec,
-    acceptTransactant, loadRAPeopleForm,
+    hideSliderContent, showSliderContentW2UIComp,
+    saveActiveCompData, getRAFlowCompData,
+    openNewTransactantForm, acceptTransactant, loadRAPeopleForm,
     setRATransactantFormHeader, showHideRATransactantFormFields,
-    setNotRequiredFields, getRAPeopleGridRecord,
-    updateRATransactantFormCheckboxes, getRATransactantFormInitRecord, loadRATransactantForm, ReassignPeopleGridRecords,
+    setNotRequiredFields, getRAPeopleGridRecord, ReassignPeopleGridRecords,
     manageBGInfoFormFields, addDummyBackgroundInfo, savePeopleCompData, getPeopleLocalData, setPeopleLocalData,
-    getPeopleLocalDataByTCID, setTransactantDefaultRole, transactantTabs, transactantFields,
-    savePetsCompData, saveVehiclesCompData, setRAFlowCompData, getStringListData, getSLStringList, updateRATransactantFormCheckboxes,
+    getPeopleLocalDataByTCID, setTransactantDefaultRole,
+    getStringListData, getSLStringList, updateRATransactantFormCheckboxes,
     managePeopleW2UIItems, removeRAFlowPersonAJAX, saveRAFlowPersonAJAX
 */
 
@@ -662,7 +659,7 @@ window.addDummyBackgroundInfo = function () {
 };
 
 //------------------------------------------------------------------------------
-// savePetsCompData - saves the data on server side
+// savePeopleCompData - saves the data on server side
 //------------------------------------------------------------------------------
 window.savePeopleCompData = function() {
 	var compData = getRAFlowCompData("people", app.raflow.activeFlowID);

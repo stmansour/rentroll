@@ -1,8 +1,9 @@
 /*global
-    getRAFlowAllParts, initRAFlowAjax, requiredFieldsFulFilled,
+    initRAFlowAjax,
     RACompConfig, w2ui,
-    getFlowDataAjax, manageParentRentableW2UIItems,
-    managePeopleW2UIItems, LoadRAFlowTemplate,
+    getFlowDataAjax,
+    manageParentRentableW2UIItems, managePeopleW2UIItems,
+    LoadRAFlowTemplate,
     validateRAFlowComponents
 */
 

@@ -1,10 +1,8 @@
 /* global
     RACompConfig, sliderContentDivLength, reassignGridRecids,
     hideSliderContent, appendNewSlider, showSliderContentW2UIComp,
-    loadTargetSection, requiredFieldsFulFilled, getRAFlowPartTypeIndex, initRAFlowAjax,
-    getRAFlowAllParts, saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowCompData,
-    lockOnGrid,
-    getRentableFeeFormInitialRecord, getRentablesGridInitalRecord, getInitialRentableFeesData,
+    saveActiveCompData, getRAFlowCompData,
+    getRentableFeeFormInitRecord, getInitialRentableFeesData,
     getRentableLocalData, setRentableLocalData, getAllARsWithAmount, GetRentableIndexInGridRecords,
     saveRentableCompData, setRentableFeeLocalData, getRentableFeeLocalData,
     ridRentablePickerRender, ridRentableDropRender, ridRentableCompare,
@@ -57,31 +55,7 @@ window.getInitialRentableFeesData = function(BID, RID, FlowID) {
     });
 };
 
-/*// getRentablesGridInitalRecord returns grid initial record
-// for the grid
-window.getRentablesGridInitalRecord = function () {
-    var BID = getCurrentBID(),
-        BUD = getBUDfromBID(BID);
-
-    return {
-        recid: 0,
-        RID: 0,
-        BID: BID,
-        RTID: 0,
-        RentableName: "",
-        RentCycle: 0,
-        RentCycleText: "",
-        AtSigningAmt: 0.0,
-        ProrateAmt: 0.0,
-        SalesTax: 0.0,
-        TaxableAmt: 0.0,
-        TransOcc: 0.0,
-        Fees: []
-    };
-};*/
-
-
-window.getRentableFeeFormInitialRecord = function (RID) {
+window.getRentableFeeFormInitRecord = function (RID) {
     var BID = getCurrentBID(),
         BUD = getBUDfromBID(BID);
 
@@ -383,7 +357,7 @@ window.loadRARentablesGrid = function () {
                                     arid_items.push({id: item.ARID, text: item.Name});
                                 });
                                 w2ui.RARentableFeesForm.get("ARID").options.items = arid_items;
-                                w2ui.RARentableFeesForm.record = getRentableFeeFormInitialRecord(RID);
+                                w2ui.RARentableFeesForm.record = getRentableFeeFormInitRecord(RID);
                                 w2ui.RARentableFeesForm.record.recid = w2ui.RARentableFeesGrid.records.length + 1;
 
                                 // mark current ARID in app last rentableFeeARID
@@ -617,7 +591,7 @@ window.loadRARentablesGrid = function () {
                     .done(function (data) {
                         if (data.status === 'success') {
                             f.actions.reset();
-                            f.record = getRentableFeeFormInitialRecord(RID);
+                            f.record = getRentableFeeFormInitRecord(RID);
                             f.record.recid = grid.records.length + 1;
                             f.refresh();
 
