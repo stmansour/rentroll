@@ -210,7 +210,6 @@ type RARentableFeesData struct {
 	ARName         string
 	ContractAmount float64
 	RentCycle      int64
-	Epoch          int64
 	Start          rlib.JSONDate
 	Stop           rlib.JSONDate
 	AtSigningAmt   float64
