@@ -4,7 +4,7 @@
     loadTargetSection, requiredFieldsFulFilled, getRAFlowPartTypeIndex, initRAFlowAjax,
     getRAFlowAllParts, saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowCompData,
     lockOnGrid,
-    loadRADatesForm
+    loadRADatesForm, validateRAFlowComponents
 */
 
 "use strict";
@@ -256,8 +256,8 @@ window.requiredFieldsFulFilled = function (compID) {
         return done;
     }
 
+    // flag for validData, internally used
     var validData = true;
-    var isChecked;
 
     switch (compID) {
         case "dates":
@@ -275,6 +275,7 @@ window.requiredFieldsFulFilled = function (compID) {
             // if loop passed successfully then mark it as successfully
             done = validData;
             break;
+
         case "people":
             compData.forEach(function(item) {
                 if (item.IsRenter) {
@@ -283,9 +284,10 @@ window.requiredFieldsFulFilled = function (compID) {
                 }
             });
             break;
+
         case "pets":
-            isChecked = $('#RAPetsGrid_checkbox')[0].checked;
-            if(!isChecked){
+            var havePetsChecked = $('#RAPetsGrid_checkbox')[0].checked;
+            if(!havePetsChecked){
                 done = true;
             } else {
                 if (compData.length > 0) {
@@ -295,9 +297,10 @@ window.requiredFieldsFulFilled = function (compID) {
                 }
             }
             break;
+
         case "vehicles":
-            isChecked = $('#RAVehiclesGrid_checkbox')[0].checked;
-            if(!isChecked){
+            var haveVehiclesChecked = $('#RAVehiclesGrid_checkbox')[0].checked;
+            if(!haveVehiclesChecked){
                 done = true;
             }else{
                 if (compData.length > 0) {
@@ -307,11 +310,13 @@ window.requiredFieldsFulFilled = function (compID) {
                 }
             }
             break;
+
         case "rentables":
             if (compData.length > 0) {
                 done = true;
             }
             break;
+
         case "parentchild":
             // ==============================================================//
             //  ****************** VALIDATION SCENARIOS *********************//
@@ -392,7 +397,7 @@ window.requiredFieldsFulFilled = function (compID) {
             }
 
             // 2. at least one payor must exists
-            var payorExist = false; // any only renter user exists
+            var payorExist = false;
             var peopleCompData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
             peopleCompData.forEach(function(peopleItem) {
                 if (peopleItem.IsRenter) {
@@ -417,11 +422,28 @@ window.requiredFieldsFulFilled = function (compID) {
             // done
             done = validData;
             break;
+
         case "final":
             break;
     }
 
     return done;
+};
+
+// -----------------------------------------------------
+// validateRAFlowComponents:
+// check validation rules for each component defined in
+// raflow parts
+// -----------------------------------------------------
+window.validateRAFlowComponents = function() {
+    for (var comp in app.raFlowPartTypes) {
+        // if required fields are fulfilled then mark this slide as done
+        if (requiredFieldsFulFilled(comp)) {
+            $("#progressbar #steps-list li[data-target='#" + comp + "']").addClass("done");
+        } else {
+            $("#progressbar #steps-list li[data-target='#" + comp + "']").removeClass("done");
+        }
+    }
 };
 
 // load form according to target
@@ -431,11 +453,8 @@ window.loadTargetSection = function (target, previousActiveCompID) {
         console.log("target has been saved", target);
     } else {}*/
 
-    // if required fields are fulfilled then mark this slide as done
-    if (requiredFieldsFulFilled(previousActiveCompID)) {
-        // hide active component
-        $("#progressbar #steps-list li[data-target='#" + previousActiveCompID + "']").addClass("done");
-    }
+    // check validation for each slide in raflow parts
+    validateRAFlowComponents();
 
     // get component data based on ID from locally
     var compData = getRAFlowCompData(previousActiveCompID, app.raflow.activeFlowID);
