@@ -61,8 +61,8 @@ type PeopleCSV struct {
 	Notes                     string
 	DesiredUsageStartDate     string
 	RentableTypePreference    string
-	Approver1                 string
-	DeclineReason1            string
+	Approver                  string
+	DeclineReason             string
 	OtherPreferences          string
 	FollowUpDate              string
 	CSAgent                   string
