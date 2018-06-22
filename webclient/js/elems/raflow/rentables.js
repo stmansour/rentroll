@@ -63,25 +63,24 @@ window.getRentableFeeFormInitRecord = function (RID) {
         nyd = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
 
     return {
-        recid: 0,
-        RID: RID,
-        ARID: 0,
-        ARName: "",
-        BID: BID,
-        BUD: BUD,
+        recid:          0,
+        RID:            RID,
+        ARID:           0,
+        ARName:         "",
+        ASMID:          0, // 0 means no assessment
+        BID:            BID,
+        BUD:            BUD,
         ContractAmount: 0.0,
-        RentCycle: 0,
-        RentCycleText: "",
-        RentPeriodStart: w2uiDateControlString(t),
-        RentPeriodStop: w2uiDateControlString(nyd),
-        UsePeriodStart: w2uiDateControlString(t),
-        UsePeriodStop: w2uiDateControlString(nyd),
-        AtSigningAmt: 0.0,
-        ProrateAmt: 0.0,
-        SalesTaxAmt: 0.0,
-        SalesTax: 0.0,
-        TransOccAmt: 0.0,
-        TransOcc: 0.0,
+        RentCycle:      0,
+        RentCycleText:  "",
+        Start:          w2uiDateControlString(t),
+        Stop:           w2uiDateControlString(nyd),
+        AtSigningAmt:   0.0,
+        ProrateAmt:     0.0,
+        SalesTaxAmt:    0.0,
+        SalesTax:       0.0,
+        TransOccAmt:    0.0,
+        TransOcc:       0.0,
     };
 };
 
@@ -92,14 +91,13 @@ window.loadRARentablesGrid = function () {
 
         // people form
         $().w2form({
-            name: 'RARentableForm',
+            name: 'RARentableSearchForm',
             header: 'Rentable',
             style: 'display: block; border: none;',
             formURL: '/webclient/html/formrar.html',
             focus: -1,
             fields: [
-                { field: 'Rentable', required: true,
-                    type: 'enum',
+                {name: 'Rentable',      type: 'enum',   required: true,
                     options: {
                         url:           '/v1/rentablestd/' + app.raflow.BID,
                         max:           1,
@@ -107,9 +105,9 @@ window.loadRARentablesGrid = function () {
                         maxDropHeight: 350,
                         renderItem:    function(item) {
                             // Enable Accept button
-                            $(w2ui.RARentableForm.box).find("button[name=accept]").prop("disabled", false);
-                            w2ui.RARentableForm.record.RID = item.RID;
-                            w2ui.RARentableForm.record.RentableName = item.RentableName;
+                            $(w2ui.RARentableSearchForm.box).find("button[name=accept]").prop("disabled", false);
+                            w2ui.RARentableSearchForm.record.RID = item.RID;
+                            w2ui.RARentableSearchForm.record.RentableName = item.RentableName;
                             return item.RentableName + '  (RID: ' + item.RID + ')';
                         },
                         renderDrop:    ridRentableDropRender,
@@ -120,19 +118,19 @@ window.loadRARentablesGrid = function () {
                         },
                         onRemove: function(event) {
                             event.onComplete = function() {
-                                w2ui.RARentableForm.actions.reset();
+                                w2ui.RARentableSearchForm.actions.reset();
                             };
                         }
                     },
                 },
-                {name: 'BID',           type: 'int', required: true, html: {caption: "BID"}},
-                {name: 'RID',           type: 'int', required: true, html: {caption: "RID"}},
-                {name: 'RentableName',  type: 'int', required: true, html: {caption: "RentableName"}},
+                {name: 'BID',           type: 'int',    required: true, html: {caption: "BID"}},
+                {name: 'RID',           type: 'int',    required: true, html: {caption: "RID"}},
+                {name: 'RentableName',  type: 'int',    required: true, html: {caption: "RentableName"}},
             ],
             actions: {
                 reset: function () {
-                    w2ui.RARentableForm.clear();
-                    $(w2ui.RARentableForm.box).find("button[name=accept]").prop("disabled", true);
+                    w2ui.RARentableSearchForm.clear();
+                    $(w2ui.RARentableSearchForm.box).find("button[name=accept]").prop("disabled", true);
                 }
             },
             onRefresh: function (event) {
@@ -393,6 +391,10 @@ window.loadRARentablesGrid = function () {
                     hidden: true
                 },
                 {
+                    field: 'ASMID',
+                    hidden: true
+                },
+                {
                     field: 'ARName',
                     caption: 'Account Rule',
                     size: '150px'
@@ -552,6 +554,7 @@ window.loadRARentablesGrid = function () {
                 {name: 'BID',            type: 'int',    required: true, html: {page: 0, column: 0}},
                 {name: 'BUD',            type: 'list',   required: true, html: {page: 0, column: 0}, options: {items: app.businesses}},
                 {name: 'RID',            type: 'int',    required: true, html: {page: 0, column: 0}},
+                {name: 'ASMID',          type: 'int',    required: true, html: {page: 0, column: 0}},
                 {name: 'ARName',         type: 'text',   required: true, html: {page: 0, column: 0}},
                 {name: 'ARID',           type: 'list',   required: true, html: {page: 0, column: 0}, options: {items: [], selected: {}}},
                 {name: 'ContractAmount', type: 'money',  required: true, html: {page: 0, column: 0}},
@@ -779,26 +782,48 @@ window.loadRARentablesGrid = function () {
                     var BID = getCurrentBID(),
                         BUD = getBUDfromBID(BID);
 
+                    // set BID, BUD
+                    f.record.BID = BID;
+                    f.record.BUD = BUD;
 
+                    // ARID value
                     var ARIDSel = {};
-                    // select value for rentable type FLAGS
                     f.get("ARID").options.items.forEach(function(item) {
                         if (item.id == f.record.ARID) {
                             ARIDSel = {id: item.id, text: item.text};
                         }
                     });
-
-                    f.record.BID = BID;
-                    f.record.BUD = BUD;
                     f.get("ARID").options.selected = ARIDSel;
+
+                    // rent cycle text value
+                    var selectedRentCycle = app.cycleFreq[f.record.RentCycle];
+                    var RentCycleTextSel = { id: selectedRentCycle, text: selectedRentCycle };
+                    f.get("RentCycleText").options.selected = RentCycleTextSel;
+                    f.record.RentCycleText = RentCycleTextSel;
+
+                    // if RentCycle is 0=nonrecur then disable Stop date field
+                    // and value should be same as Start
+                    if (f.record.RentCycle === 0) {
+                        $(f.box).find("input[name=Stop]").prop("disabled", true);
+                        $(f.box).find("input[name=Stop]").w2field().set(f.record.Start);
+                        f.record.Stop = f.record.Start;
+                    } else {
+                        $(f.box).find("input[name=Stop]").prop("disabled", false);
+                    }
 
                     // there is NO PETID actually, so have to work around with recid key
                     formRefreshCallBack(f);
 
+                    // set header
                     var rentable_sel = w2ui.RARentablesGrid.getSelection();
                     if (rentable_sel.length > 0) {
                         var rec = w2ui.RARentablesGrid.get(rentable_sel[0]);
-                        f.header = "Fee (" + f.record.ARName + ") for " + rec.RentableName;
+                        var header = "Fee ({0}) for {1}";
+                        if (f.record.ARID > 0) {
+                            f.header = header.format(f.record.ARName, rec.RentableName);
+                        } else {
+                            f.header = header.format("new", rec.RentableName);
+                        }
                     }
                 };
             }
@@ -808,7 +833,7 @@ window.loadRARentablesGrid = function () {
 
     // now load grid in division
     $('#ra-form #rentables .grid-container').w2render(w2ui.RARentablesGrid);
-    $('#ra-form #rentables .form-container').w2render(w2ui.RARentableForm);
+    $('#ra-form #rentables .form-container').w2render(w2ui.RARentableSearchForm);
 
     // load the existing data in rentables component
     setTimeout(function () {
@@ -826,8 +851,8 @@ window.AssignRentableGridRecords = function() {
         w2ui.RARentablesGrid.records = compData;
         reassignGridRecids(w2ui.RARentablesGrid.name);
 
-        // Operation on RARentableForm
-        w2ui.RARentableForm.refresh();
+        // Operation on RARentableSearchForm
+        w2ui.RARentableSearchForm.refresh();
 
         // manage parent rentables list
         manageParentRentableW2UIItems();
@@ -837,8 +862,8 @@ window.AssignRentableGridRecords = function() {
 
     } else {
         w2ui.RARentablesGrid.clear();
-        // Operation on RARentableForm
-        w2ui.RARentableForm.actions.reset();
+        // Operation on RARentableSearchForm
+        w2ui.RARentableSearchForm.actions.reset();
     }
 };
 
@@ -1005,19 +1030,19 @@ window.AssignRentableFeesGridRecords = function(RID) {
 // acceptRentable - add Rentable to the list rentables grid records
 //-----------------------------------------------------------------------------
 window.acceptRentable = function () {
-    var recIndex = GetRentableIndexInGridRecords(w2ui.RARentableForm.record.RID);
+    var recIndex = GetRentableIndexInGridRecords(w2ui.RARentableSearchForm.record.RID);
     var BID = getCurrentBID();
 
     if(recIndex > -1 ) {
         w2ui.RARentablesGrid.select(recIndex); // highlight the existing record
     } else {
-        var fRec = w2ui.RARentableForm.record;
+        var fRec = w2ui.RARentableSearchForm.record;
         getInitialRentableFeesData(BID, fRec.RID, app.raflow.activeFlowID)
         .done(function(data) {
 
             if (data.status === "success") {
                 // reset the form
-                w2ui.RARentableForm.actions.reset();
+                w2ui.RARentableSearchForm.actions.reset();
             }
         })
         .fail(function(data) {
