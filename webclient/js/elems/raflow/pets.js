@@ -28,9 +28,6 @@ window.getPetFormInitRecord = function (previousFormRecord){
         Weight:                 0,
         DtStart:                w2uiDateControlString(t),
         DtStop:                 w2uiDateControlString(nyd),
-        NonRefundablePetFee:    0,
-        RefundablePetDeposit:   0,
-        RecurringPetFee:        0,
         LastModTime:            t.toISOString(),
         LastModBy:              0,
     };
@@ -83,9 +80,6 @@ window.loadRAPetsGrid = function () {
                 { field: 'Type',                    type: 'text',   required: true  },
                 { field: 'Color',                   type: 'text',   required: true  },
                 { field: 'Weight',                  type: 'int',    required: true  },
-                { field: 'NonRefundablePetFee',     type: 'money',  required: true  },
-                { field: 'RefundablePetDeposit',    type: 'money',  required: true  },
-                { field: 'RecurringPetFee',         type: 'money',  required: true  },
                 { field: 'DtStart',                 type: 'date',   required: true,     html: { caption: 'DtStart', page: 0, column: 0 } },
                 { field: 'DtStop',                  type: 'date',   required: true,     html: { caption: 'DtStop', page: 0, column: 0 } },
                 { field: 'LastModTime',             type: 'time',   required: false,    html: { caption: 'LastModTime', page: 0, column: 0 } },
@@ -326,24 +320,6 @@ window.loadRAPetsGrid = function () {
                     field: 'DtStop',
                     caption: 'DtStop',
                     size: '100px'
-                },
-                {
-                    field: 'NonRefundablePetFee',
-                    caption: 'NonRefundable<br>PetFee',
-                    size: '70px',
-                    render: 'money'
-                },
-                {
-                    field: 'RefundablePetDeposit',
-                    caption: 'Refundable<br>PetDeposit',
-                    size: '70px',
-                    render: 'money'
-                },
-                {
-                    field: 'RecurringPetFee',
-                    caption: 'Recurring<br>PetFee',
-                    size: '70px',
-                    render: 'money'
                 }
             ],
             onChange: function (event) {
