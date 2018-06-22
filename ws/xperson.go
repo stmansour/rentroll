@@ -40,6 +40,7 @@ type RPersonForm struct {
 	PostalCode     string
 	Country        string
 	Website        string
+	Comment        string
 
 	// --------------- User ---------------
 	Points                    int64
@@ -92,11 +93,11 @@ type RPersonForm struct {
 	DecisionDate2            rlib.JSONDateTime
 	DeclineReason2           int64
 	OtherPreferences         string        // arbitrary text
-	SpecialNeeds             string        // special needs for potential renters who are disabled
 	FollowUpDate             rlib.JSONDate // automatically fill out this date to sysdate + 24hrs
 	CSAgent                  int64         // Accord Directory UserID - for the CSAgent
 	Outcome                  int64         // valid only if status = 6 (User passed) SLSID of string from a list of outcomes
 	CommissionableThirdParty string
+	SpecialNeeds             string // special needs for potential renters who are disabled
 	FLAGS                    uint64 // 0 = Approved/NotApproved,
 	CreateTS                 rlib.JSONDateTime
 	CreateBy                 int64
