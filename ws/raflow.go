@@ -110,9 +110,11 @@ type RAPeopleFlowData struct {
 	DesiredUsageStartDate    rlib.JSONDate
 	RentableTypePreference   int64
 	Approver1                int64
+	Approver1Name            string
 	DeclineReason1           int64
 	DecisionDate1            rlib.JSONDateTime
 	Approver2                int64
+	Approver2Name            string
 	DeclineReason2           int64
 	DecisionDate2            rlib.JSONDateTime
 	OtherPreferences         string

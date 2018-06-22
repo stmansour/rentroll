@@ -87,9 +87,11 @@ type RPersonForm struct {
 	DesiredUsageStartDate    rlib.JSONDate // predicted rent start date
 	RentableTypePreference   int64         // RentableType
 	Approver1                int64
+	Approver1Name            string
 	DecisionDate1            rlib.JSONDateTime
 	DeclineReason1           int64
 	Approver2                int64
+	Approver2Name            string
 	DecisionDate2            rlib.JSONDateTime
 	DeclineReason2           int64
 	OtherPreferences         string        // arbitrary text
@@ -586,6 +588,11 @@ func getXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	g.Record.BID = d.BID
 	g.Record.BUD = rlib.GetBUDFromBIDList(d.BID)
+
+	// Get approver name based approver id
+	g.Record.Approver1Name = rlib.GetNameForUID(r.Context(), g.Record.Approver1)
+	g.Record.Approver2Name = rlib.GetNameForUID(r.Context(), g.Record.Approver2)
+
 	g.Status = "success"
 	SvcWriteResponse(d.BID, &g, w)
 }

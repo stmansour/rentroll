@@ -78,8 +78,10 @@ window.getTransactantInitRecord = function (BID, BUD) {
         DesiredUsageStartDate: "1/1/1900",
         RentableTypePreference: 0,
         Approver1: 0,
+        Approver1Name: "",
         DeclineReason1: 0,
         Approver2: 0,
+        Approver2Name: "",
         DeclineReason2: 0,
         OtherPreferences: "",
         FollowUpDate: "1/1/1900",
@@ -152,8 +154,10 @@ window.buildTransactElements = function() {
         {field: 'DesiredUsageStartDate',     type: 'date',      required: false, html: {page: 1, column: 0}},
         {field: 'RentableTypePreference',    type: 'text',      required: false, html: {page: 1, column: 0}},
         {field: 'Approver1',                 type: 'int',       required: false, html: {page: 1, column: 0}},
+        {field: 'Approver1Name',             type: 'text',      required: false, html: {page: 1, column: 0}},
         {field: 'DeclineReason1',            type: 'list',      required: false, html: {page: 1, column: 0}},  // ApplDeny String list
         {field: 'Approver2',                 type: 'int',       required: false, html: {page: 1, column: 0}},
+        {field: 'Approver2Name',             type: 'text',      required: false, html: {page: 1, column: 0}},
         {field: 'DeclineReason2',            type: 'list',      required: false, html: {page: 1, column: 0}},  // ApplDeny String list
         {field: 'OtherPreferences',          type: 'text',      required: false, html: {page: 1, column: 0}},
         {field: 'FollowUpDate',              type: 'date',      required: false, html: {page: 1, column: 0}},
@@ -471,6 +475,10 @@ window.buildTransactElements = function() {
                 f.get("IsGuarantor").hidden = true;
                 f.get("IsGuarantor").hidden = true;
                 $("div[name=transanctant-role-tile]").hide();
+
+                // disable approver name field
+                f.get("Approver1Name").disabled = true;
+                f.get("Approver2Name").disabled = true;
 
                 // make TMPTCID required false as it's not part of this form
                 f.get("TMPTCID").required = false;
