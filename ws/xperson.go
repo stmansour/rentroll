@@ -85,12 +85,17 @@ type RPersonForm struct {
 	BankruptcyDes            string
 	DesiredUsageStartDate    rlib.JSONDate // predicted rent start date
 	RentableTypePreference   int64         // RentableType
-	Approver                 int64         // UID from Directory
-	DeclineReasonSLSID       int64         // SLSid of reason
+	Approver1                int64
+	DecisionDate1            rlib.JSONDateTime
+	DeclineReason1           int64
+	Approver2                int64
+	DecisionDate2            rlib.JSONDateTime
+	DeclineReason2           int64
 	OtherPreferences         string        // arbitrary text
+	SpecialNeeds             string        // special needs for potential renters who are disabled
 	FollowUpDate             rlib.JSONDate // automatically fill out this date to sysdate + 24hrs
 	CSAgent                  int64         // Accord Directory UserID - for the CSAgent
-	OutcomeSLSID             int64         // id of string from a list of outcomes. Melissa to provide reasons
+	Outcome                  int64         // valid only if status = 6 (User passed) SLSID of string from a list of outcomes
 	CommissionableThirdParty string
 	FLAGS                    uint64 // 0 = Approved/NotApproved,
 	CreateTS                 rlib.JSONDateTime

@@ -52,12 +52,12 @@ const (
 	Notes                     = iota
 	DesiredUsageStartDate     = iota
 	RentableTypePreference    = iota
-	Approver                  = iota
-	DeclineReasonSLSID        = iota
+	Approver1                 = iota
+	DeclineReason1            = iota
 	OtherPreferences          = iota
 	FollowUpDate              = iota
 	CSAgent                   = iota
-	OutcomeSLSID              = iota
+	Outcome                   = iota
 )
 
 // csvCols is an array that defines all the columns that should be in this csv file
@@ -101,12 +101,12 @@ var csvCols = []CSVColumn{
 	{"Notes", Notes},
 	{"DesiredUsageStartDate", DesiredUsageStartDate},
 	{"RentableTypePreference", RentableTypePreference},
-	{"Approver", Approver},
-	{"DeclineReasonSLSID", DeclineReasonSLSID},
+	{"Approver", Approver1},
+	{"DeclineReason", DeclineReason1},
 	{"OtherPreferences", OtherPreferences},
 	{"FollowUpDate", FollowUpDate},
 	{"CSAgent", CSAgent},
-	{"OutcomeSLSID", OutcomeSLSID},
+	{"Outcome", Outcome},
 }
 
 func rcsvCopyString(p *string, s string) error {
@@ -117,7 +117,7 @@ func rcsvCopyString(p *string, s string) error {
 // CSV file format:
 //  |<------------------------------------------------------------------  TRANSACTANT ----------------------------------------------------------------------------->|  |<-------------------------------------------------------------------------------------------------------------  rlib.User  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------>|<----------------------------------------------------------------------------- rlib.Payor ------------------------------------------------->|
 //   0   1          2           3         4            5          6             7               8          9          10       11        12    13     14          15       16      17       18        19        20       21                 22                  23                   24          25           26                    27                       28                         29              30                31                          32        33            34           35         36            37                     38            39             40                  41             42             43          44             45    46                     47                      48        49                  50                51            52       53
-// 	BUD, FirstName, MiddleName, LastName, CompanyName, IsCompany, PrimaryEmail, SecondaryEmail, WorkPhone, CellPhone, Address, Address2, City, State, PostalCode, Country, Points, VehicleMake, VehicleModel, VehicleColor, VehicleYear, LicensePlateState, LicensePlateNumber, ParkingPermitNumber, ThirdPartySource, DateofBirth, EmergencyContactName, EmergencyContactAddress, EmergencyContactTelephone, EmergencyContactEmail, AlternateAddress, EligibleFutureUser, Industry, SourceSLSID, CreditLimit, TaxpayorID, CompanyAddress, CompanyCity, CompanyState, CompanyPostalCode, CompanyEmail, CompanyPhone, Occupation, Notes,DesiredUsageStartDate, RentableTypePreference, Approver, DeclineReasonSLSID, OtherPreferences, FollowUpDate, CSAgent, OutcomeSLSID
+// 	BUD, FirstName, MiddleName, LastName, CompanyName, IsCompany, PrimaryEmail, SecondaryEmail, WorkPhone, CellPhone, Address, Address2, City, State, PostalCode, Country, Points, VehicleMake, VehicleModel, VehicleColor, VehicleYear, LicensePlateState, LicensePlateNumber, ParkingPermitNumber, ThirdPartySource, DateofBirth, EmergencyContactName, EmergencyContactAddress, EmergencyContactTelephone, EmergencyContactEmail, AlternateAddress, EligibleFutureUser, Industry, SourceSLSID, CreditLimit, TaxpayorID, CompanyAddress, CompanyCity, CompanyState, CompanyPostalCode, CompanyEmail, CompanyPhone, Occupation, Notes,DesiredUsageStartDate, RentableTypePreference, Approver1, DeclineReason1, OtherPreferences, FollowUpDate, CSAgent, Outcome
 // 	Edna,,Krabappel,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 // 	Ned,,Flanders,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 // 	Moe,,Szyslak,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
@@ -189,12 +189,12 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 		{Notes, nil, nil},
 		{DesiredUsageStartDate, nil, nil},
 		{RentableTypePreference, nil, nil},
-		{Approver, nil, nil},
-		{DeclineReasonSLSID, nil, nil},
+		{Approver1, nil, nil},
+		{DeclineReason1, nil, nil},
 		{OtherPreferences, nil, nil},
 		{FollowUpDate, nil, nil},
 		{CSAgent, nil, nil},
-		{OutcomeSLSID, nil, nil},
+		{Outcome, nil, nil},
 	}
 
 	ignoreDupPhone := false
@@ -316,21 +316,21 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 				}
 				pr.RentableTypePreference = rt.RTID
 			}
-		case Approver: // Approver ID
+		case Approver1: // Approver1 ID
 			if len(s) > 0 {
 				var y int64
 				if y, err = strconv.ParseInt(strings.TrimSpace(s), 10, 64); err != nil {
-					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid Approver UID value: %s", funcname, lineno, s)
+					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid Approver1 UID value: %s", funcname, lineno, s)
 				}
-				pr.Approver = y
+				pr.Approver1 = y
 			}
-		case DeclineReasonSLSID:
+		case DeclineReason1:
 			if len(s) > 0 {
 				var y int64
 				if y, err = strconv.ParseInt(strings.TrimSpace(s), 10, 64); err != nil {
-					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid DeclineReasonSLSID value: %s", funcname, lineno, s)
+					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid DeclineReason1 value: %s", funcname, lineno, s)
 				}
-				pr.DeclineReasonSLSID = y
+				pr.DeclineReason1 = y
 			}
 		case OtherPreferences:
 			if len(s) > 0 {
@@ -348,13 +348,13 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 				}
 				pr.CSAgent = y
 			}
-		case OutcomeSLSID:
+		case Outcome:
 			if len(s) > 0 {
 				var y int64
 				if y, err = strconv.ParseInt(strings.TrimSpace(s), 10, 64); err != nil {
-					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid OutcomeSLSID value: %s", funcname, lineno, s)
+					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid Outcome value: %s", funcname, lineno, s)
 				}
-				pr.OutcomeSLSID = y
+				pr.Outcome = y
 			}
 		default:
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Unknown field, column %d", funcname, lineno, i)

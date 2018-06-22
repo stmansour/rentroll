@@ -384,30 +384,40 @@ func ReadPaymentTypes(rows *sql.Rows, a *PaymentType) error {
 
 // ReadProspect reads a full Prospect structure from the database based on the supplied row object
 func ReadProspect(row *sql.Row, a *Prospect) error {
-	err := row.Scan(&a.TCID, &a.BID, &a.CompanyAddress,
-		&a.CompanyCity, &a.CompanyState, &a.CompanyPostalCode, &a.CompanyEmail, &a.CompanyPhone, &a.Occupation,
+	err := row.Scan(
+		&a.TCID, &a.BID, &a.CompanyAddress, &a.CompanyCity, &a.CompanyState,
+		&a.CompanyPostalCode, &a.CompanyEmail, &a.CompanyPhone, &a.Occupation,
 		&a.DesiredUsageStartDate, &a.RentableTypePreference, &a.FLAGS,
-		&a.EvictedDes, &a.ConvictedDes, &a.BankruptcyDes, &a.Approver, &a.DeclineReasonSLSID,
-		&a.OtherPreferences, &a.FollowUpDate, &a.CSAgent, &a.OutcomeSLSID,
-		&a.CurrentAddress, &a.CurrentLandLordName, &a.CurrentLandLordPhoneNo, &a.CurrentReasonForMoving,
-		&a.CurrentLengthOfResidency, &a.PriorAddress, &a.PriorLandLordName, &a.PriorLandLordPhoneNo,
-		&a.PriorReasonForMoving, &a.PriorLengthOfResidency, &a.CommissionableThirdParty,
-		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+		&a.EvictedDes, &a.ConvictedDes, &a.BankruptcyDes, &a.FollowUpDate,
+		&a.CSAgent, &a.Approver1, &a.DecisionDate1, &a.DeclineReason1,
+		&a.Approver2, &a.DecisionDate2, &a.DeclineReason2, &a.Outcome,
+		&a.OtherPreferences, &a.SpecialNeeds, &a.CurrentAddress, &a.CurrentLandLordName,
+		&a.CurrentLandLordPhoneNo, &a.CurrentReasonForMoving,
+		&a.CurrentLengthOfResidency, &a.PriorAddress, &a.PriorLandLordName,
+		&a.PriorLandLordPhoneNo, &a.PriorReasonForMoving,
+		&a.PriorLengthOfResidency, &a.CommissionableThirdParty, &a.CreateTS,
+		&a.CreateBy, &a.LastModTime, &a.LastModBy,
+	)
 	SkipSQLNoRowsError(&err)
 	return err
 }
 
 // ReadProspects reads a full Prospect structure from the database based on the supplied rows object
 func ReadProspects(rows *sql.Rows, a *Prospect) error {
-	return rows.Scan(&a.TCID, &a.BID, &a.CompanyAddress,
-		&a.CompanyCity, &a.CompanyState, &a.CompanyPostalCode, &a.CompanyEmail, &a.CompanyPhone, &a.Occupation,
+	return rows.Scan(
+		&a.TCID, &a.BID, &a.CompanyAddress, &a.CompanyCity, &a.CompanyState,
+		&a.CompanyPostalCode, &a.CompanyEmail, &a.CompanyPhone, &a.Occupation,
 		&a.DesiredUsageStartDate, &a.RentableTypePreference, &a.FLAGS,
-		&a.EvictedDes, &a.ConvictedDes, &a.BankruptcyDes, &a.Approver, &a.DeclineReasonSLSID,
-		&a.OtherPreferences, &a.FollowUpDate, &a.CSAgent, &a.OutcomeSLSID,
-		&a.CurrentAddress, &a.CurrentLandLordName, &a.CurrentLandLordPhoneNo, &a.CurrentReasonForMoving,
-		&a.CurrentLengthOfResidency, &a.PriorAddress, &a.PriorLandLordName, &a.PriorLandLordPhoneNo,
-		&a.PriorReasonForMoving, &a.PriorLengthOfResidency, &a.CommissionableThirdParty,
-		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+		&a.EvictedDes, &a.ConvictedDes, &a.BankruptcyDes, &a.FollowUpDate,
+		&a.CSAgent, &a.Approver1, &a.DecisionDate1, &a.DeclineReason1,
+		&a.Approver2, &a.DecisionDate2, &a.DeclineReason2, &a.Outcome,
+		&a.OtherPreferences, &a.SpecialNeeds, &a.CurrentAddress, &a.CurrentLandLordName,
+		&a.CurrentLandLordPhoneNo, &a.CurrentReasonForMoving,
+		&a.CurrentLengthOfResidency, &a.PriorAddress, &a.PriorLandLordName,
+		&a.PriorLandLordPhoneNo, &a.PriorReasonForMoving,
+		&a.PriorLengthOfResidency, &a.CommissionableThirdParty, &a.CreateTS,
+		&a.CreateBy, &a.LastModTime, &a.LastModBy,
+	)
 }
 
 // ReadRatePlan reads a full RatePlan structure from the database based on the supplied row object

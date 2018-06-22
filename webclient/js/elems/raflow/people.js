@@ -354,7 +354,7 @@ window.loadRAPeopleForm = function () {
 
                     // Set list field value
                     form.get('SourceSLSID').options.items = getSLStringList(BID, "HowFound");
-                    form.get('DeclineReasonSLSID').options.items = getSLStringList(BID, "ApplDeny");
+                    form.get('DeclineReason1').options.items = getSLStringList(BID, "ApplDeny");
                     form.get('CurrentReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
                     form.get('PriorReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
 

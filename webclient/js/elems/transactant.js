@@ -76,8 +76,8 @@ window.getTransactantInitRecord = function (BID, BUD) {
         DesiredUsageStartDate: "1/1/1900",
         RentableTypePreference: 0,
         FLAGS: 0,
-        Approver: 0,
-        DeclineReasonSLSID: 0,
+        Approver1: 0,
+        DeclineReason1: 0,
         OtherPreferences: "",
         FollowUpDate: "1/1/1900",
         CSAgent: 0,
@@ -147,8 +147,8 @@ window.buildTransactElements = function() {
         {field: 'DesiredUsageStartDate',     type: 'date',      required: false, html: {page: 1, column: 0}},
         {field: 'RentableTypePreference',    type: 'text',      required: false, html: {page: 1, column: 0}},
         {field: 'FLAGS',                     type: 'int',       required: false, html: {page: 1, column: 0}},
-        {field: 'Approver',                  type: 'int',       required: false, html: {page: 1, column: 0}},
-        {field: 'DeclineReasonSLSID',        type: 'list',      required: false, html: {page: 1, column: 0}},  // ApplDeny String list
+        {field: 'Approver1',                 type: 'int',       required: false, html: {page: 1, column: 0}},
+        {field: 'DeclineReason1',        type: 'list',      required: false, html: {page: 1, column: 0}},  // ApplDeny String list
         {field: 'OtherPreferences',          type: 'text',      required: false, html: {page: 1, column: 0}},
         {field: 'FollowUpDate',              type: 'date',      required: false, html: {page: 1, column: 0}},
         {field: 'CSAgent',                   type: 'text',      required: false, html: {page: 1, column: 0}},
@@ -470,7 +470,7 @@ window.buildTransactElements = function() {
                 f.get("TMPTCID").required = false;
 
                 f.get('SourceSLSID').options.items = getSLStringList(BID, "HowFound");
-                f.get('DeclineReasonSLSID').options.items = getSLStringList(BID, "ApplDeny");
+                f.get('DeclineReason1').options.items = getSLStringList(BID, "ApplDeny");
                 f.get('CurrentReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
                 f.get('PriorReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
             };
@@ -547,7 +547,7 @@ window.getSLStringList = function(BID, SLName){
                     defaultItem = {id: 0, text: " -- Select reason for leaving -- "};
                     break;
                 case "ApplDeny":
-                    defaultItem = {id: 0, text: " -- Select DeclineReasonSLSID -- "};
+                    defaultItem = {id: 0, text: " -- Select DeclineReason1 -- "};
                     break;
                 default:
                     console.log("SLName doesn't exists");

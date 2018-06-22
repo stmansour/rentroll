@@ -734,12 +734,17 @@ type Prospect struct {
 	EvictedDes               string    // explanation when FLAGS & (1<<2) > 0
 	ConvictedDes             string    // explanation when FLAGS & (1<<3) > 0
 	BankruptcyDes            string    // explanation when FLAGS & (1<<4) > 0
-	Approver                 int64     // UID from Directory
-	DeclineReasonSLSID       int64     // SLSid of reason
+	Approver1                int64     // UID of approver1, from Directory
+	DeclineReason1           int64     // SLSid of reason if declined
+	DecisionDate1            time.Time // when did approver1 make the decision
+	Approver2                int64     // UID of approver2, from Directory
+	DeclineReason2           int64     // SLSid of reason if declined
+	DecisionDate2            time.Time // when did approver2 make the decision
 	OtherPreferences         string    // arbitrary text
+	SpecialNeeds             string    // for potential renters who are disabled
 	FollowUpDate             time.Time // automatically fill out this date to sysdate + 24hrs
 	CSAgent                  int64     // Accord Directory UserID - for the CSAgent
-	OutcomeSLSID             int64     // id of string from a list of outcomes. Melissa to provide reasons
+	Outcome                  int64     // id of string from a list of outcomes. Melissa to provide reasons
 	CurrentAddress           string
 	CurrentLandLordName      string
 	CurrentLandLordPhoneNo   string

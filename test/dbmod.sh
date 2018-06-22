@@ -456,6 +456,14 @@ DBNAME="rentroll"
 #  Put modifications to schema in the lines below
 #=====================================================
 cat >${MODFILE} <<EOF
+ALTER TABLE Prospect CHANGE OutcomeSLSID Outcome BIGINT NOT NULL DEFAULT 0;
+ALTER TABLE Prospect CHANGE Approver Approver1;
+ALTER TABLE Prospect ADD DecisionDate1 DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00' AFTER Approver1;
+ALTER TABLE Prospect CHANGE DeclineReasonSLSID DeclineReason1 BIGINT NOT NULL DEFAULT 0;
+ALTER TABLE Prospect ADD Approver2 BIGINT NOT NULL DEFAULT 0 AFTER DeclineReason1;
+ALTER TABLE Prospect ADD DecisionDate2 DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00' AFTER Approver2;
+ALTER TABLE Prospect ADD DeclineReason2 BIGINT NOT NULL DEFAULT 0 AFTER DecisionDate2;
+ALTER TABLE Prospect ADD SpecialNeeds VARCHAR(1024) NOT NULL DEFAULT '' AFTER OtherPreferences;
 EOF
 
 #==============================================================================

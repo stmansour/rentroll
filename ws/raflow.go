@@ -130,12 +130,17 @@ type RAPeopleFlowData struct {
 	DesiredUsageStartDate    rlib.JSONDate
 	RentableTypePreference   int64
 	FLAGS                    int64
-	Approver                 int64
-	DeclineReasonSLSID       int64
+	Approver1                int64
+	DecisionDate1            rlib.JSONDateTime
+	DeclineReason1           int64
+	Approver2                int64
+	DecisionDate2            rlib.JSONDateTime
+	DeclineReason2           int64
 	OtherPreferences         string
+	SpecialNeeds             string
 	FollowUpDate             rlib.JSONDate
 	CSAgent                  int64
-	OutcomeSLSID             int64
+	Outcome                  int64
 	CommissionableThirdParty string
 
 	// RA Application information
