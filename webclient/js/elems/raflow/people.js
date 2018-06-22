@@ -1,17 +1,14 @@
 /* global
-    RACompConfig, sliderContentDivLength, reassignGridRecids,
+    RACompConfig, reassignGridRecids,
     getFullName, getTCIDName,
-    hideSliderContent, appendNewSlider, showSliderContentW2UIComp,
-    loadTargetSection, requiredFieldsFulFilled, getRAFlowPartTypeIndex, initRAFlowAjax,
-    getRAFlowAllParts, saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowCompData,
-    openNewTransactantForm, getRAAddTransactantFormInitRec,
-    acceptTransactant, loadRAPeopleForm,
+    hideSliderContent, showSliderContentW2UIComp,
+    saveActiveCompData, getRAFlowCompData,
+    openNewTransactantForm, acceptTransactant, loadRAPeopleForm,
     setRATransactantFormHeader, showHideRATransactantFormFields,
-    setNotRequiredFields, getRAPeopleGridRecord,
-    updateRATransactantFormCheckboxes, getRATransactantFormInitRecord, loadRATransactantForm, ReassignPeopleGridRecords,
+    setNotRequiredFields, getRAPeopleGridRecord, ReassignPeopleGridRecords,
     manageBGInfoFormFields, addDummyBackgroundInfo, savePeopleCompData, getPeopleLocalData, setPeopleLocalData,
-    getPeopleLocalDataByTCID, setTransactantDefaultRole, transactantTabs, transactantFields,
-    savePetsCompData, saveVehiclesCompData, setRAFlowCompData, getStringListData, getSLStringList, updateRATransactantFormCheckboxes,
+    getPeopleLocalDataByTCID, setTransactantDefaultRole,
+    getStringListData, getSLStringList, updateRATransactantFormCheckboxes,
     managePeopleW2UIItems, removeRAFlowPersonAJAX, saveRAFlowPersonAJAX
 */
 
@@ -37,8 +34,7 @@ window.loadRAPeopleForm = function () {
             formURL: '/webclient/html/formrapeople.html',
             focus: -1,
             fields: [
-                {
-                    name: 'Transactant', type: 'enum', required: true, html: {caption: "Transactant"},
+                {name: 'Transactant',   type: 'enum',       required: true,     html: {caption: "Transactant"},
                     options: {
                         url: '/v1/transactantstd/' + app.raflow.BID,
                         max: 1,
@@ -73,13 +69,13 @@ window.loadRAPeopleForm = function () {
                         }
                     }
                 },
-                {name: 'BID', type: 'int', required: true, html: {caption: "BID"}},
-                {name: 'TCID', type: 'int', required: true, html: {caption: "TCID"}},
-                {name: 'FirstName', type: 'text', required: false, html: {caption: "FirstName"}},
-                {name: 'LastName', type: 'text', required: false, html: {caption: "LastName"}},
-                {name: 'MiddleName', type: 'text', required: false, html: {caption: "MiddleName"}},
-                {name: 'CompanyName', type: 'text', required: false, html: {caption: "CompanyName"}},
-                {name: 'IsCompany', type: 'checkbox', required: true, html: {caption: "IsCompany"}}
+                {name: 'BID',           type: 'int',        required: true,     html: {caption: "BID"}},
+                {name: 'TCID',          type: 'int',        required: true,     html: {caption: "TCID"}},
+                {name: 'FirstName',     type: 'text',       required: false,    html: {caption: "FirstName"}},
+                {name: 'LastName',      type: 'text',       required: false,    html: {caption: "LastName"}},
+                {name: 'MiddleName',    type: 'text',       required: false,    html: {caption: "MiddleName"}},
+                {name: 'CompanyName',   type: 'text',       required: false,    html: {caption: "CompanyName"}},
+                {name: 'IsCompany',     type: 'checkbox',   required: true,     html: {caption: "IsCompany"}}
             ],
             actions: {
                 reset: function () {
@@ -667,7 +663,7 @@ window.addDummyBackgroundInfo = function () {
 };
 
 //------------------------------------------------------------------------------
-// savePetsCompData - saves the data on server side
+// savePeopleCompData - saves the data on server side
 //------------------------------------------------------------------------------
 window.savePeopleCompData = function() {
 	var compData = getRAFlowCompData("people", app.raflow.activeFlowID);

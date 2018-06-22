@@ -1,8 +1,10 @@
 /*global
-    getRAFlowAllParts, initRAFlowAjax, requiredFieldsFulFilled,
+    initRAFlowAjax,
     RACompConfig, w2ui,
-    getFlowDataAjax, manageParentRentableW2UIItems,
-    managePeopleW2UIItems, LoadRAFlowTemplate
+    getFlowDataAjax,
+    manageParentRentableW2UIItems, managePeopleW2UIItems,
+    LoadRAFlowTemplate,
+    validateRAFlowComponents
 */
 
 "use strict";
@@ -72,13 +74,10 @@ window.LoadRAFlowTemplate = function(bid, FlowID) {
             manageParentRentableW2UIItems();
 
             // show "done" mark on each li of navigation bar
-            for (var comp in app.raFlowPartTypes) {
-                // if required fields are fulfilled then mark this slide as done
-                if (requiredFieldsFulFilled(comp)) {
-                    // hide active component
-                    $("#progressbar #steps-list li[data-target='#" + comp + "']").addClass("done");
-                }
+            validateRAFlowComponents();
 
+            // clear grid, form if previously loaded in DOM
+            for (var comp in app.raFlowPartTypes) {
                 // reset w2ui component as well
                 if(RACompConfig[comp].w2uiComp in w2ui) {
                     // clear inputs

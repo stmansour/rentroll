@@ -1,10 +1,8 @@
 /* global
     RACompConfig, sliderContentDivLength, reassignGridRecids,
     hideSliderContent, appendNewSlider, showSliderContentW2UIComp,
-    loadTargetSection, requiredFieldsFulFilled, getRAFlowPartTypeIndex, initRAFlowAjax,
-    getRAFlowAllParts, saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowCompData,
-    lockOnGrid,
-    getRentableFeeFormInitialRecord, getRentablesGridInitalRecord, getInitialRentableFeesData,
+    saveActiveCompData, getRAFlowCompData,
+    getRentableFeeFormInitRecord, getInitialRentableFeesData,
     getRentableLocalData, setRentableLocalData, getAllARsWithAmount, GetRentableIndexInGridRecords,
     saveRentableCompData, setRentableFeeLocalData, getRentableFeeLocalData,
     ridRentablePickerRender, ridRentableDropRender, ridRentableCompare,
@@ -57,31 +55,7 @@ window.getInitialRentableFeesData = function(BID, RID, FlowID) {
     });
 };
 
-/*// getRentablesGridInitalRecord returns grid initial record
-// for the grid
-window.getRentablesGridInitalRecord = function () {
-    var BID = getCurrentBID(),
-        BUD = getBUDfromBID(BID);
-
-    return {
-        recid: 0,
-        RID: 0,
-        BID: BID,
-        RTID: 0,
-        RentableName: "",
-        RentCycle: 0,
-        RentCycleText: "",
-        AtSigningAmt: 0.0,
-        ProrateAmt: 0.0,
-        SalesTax: 0.0,
-        TaxableAmt: 0.0,
-        TransOcc: 0.0,
-        Fees: []
-    };
-};*/
-
-
-window.getRentableFeeFormInitialRecord = function (RID) {
+window.getRentableFeeFormInitRecord = function (RID) {
     var BID = getCurrentBID(),
         BUD = getBUDfromBID(BID);
 
@@ -98,7 +72,6 @@ window.getRentableFeeFormInitialRecord = function (RID) {
         ContractAmount: 0.0,
         RentCycle: 0,
         RentCycleText: "",
-        Epoch: 0,
         RentPeriodStart: w2uiDateControlString(t),
         RentPeriodStop: w2uiDateControlString(nyd),
         UsePeriodStart: w2uiDateControlString(t),
@@ -184,13 +157,35 @@ window.loadRARentablesGrid = function () {
             multiSelect: false,
             style: 'display: block;',
             columns: [
-                {field: 'recid', hidden: true, },
-                {field: 'RID', hidden: true },
-                {field: 'BID', hidden: true },
-                {field: 'RTID', hidden: true },
-                {field: 'RTFLAGS', hidden: true },
-                {field: 'RentableName', caption: 'Rentable', size: '160px', },
-                {field: 'RentCycle', hidden: true },
+                {
+                    field: 'recid',
+                    hidden: true
+                },
+                {
+                    field: 'RID',
+                    hidden: true
+                },
+                {
+                    field: 'BID',
+                    hidden: true
+                },
+                {
+                    field: 'RTID',
+                    hidden: true
+                },
+                {
+                    field: 'RTFLAGS',
+                    hidden: true
+                },
+                {
+                    field: 'RentableName',
+                    caption: 'Rentable',
+                    size: '160px'
+                },
+                {
+                    field: 'RentCycle',
+                    hidden: true
+                },
                 {
                     field: 'RentCycleText',
                     caption: 'RentCycle',
@@ -199,11 +194,36 @@ window.loadRARentablesGrid = function () {
                         return app.cycleFreq[record.RentCycle];
                     }
                 },
-                {field: 'AtSigningAmt', caption: 'At Signing', size: '90px', render: 'money', },
-                {field: 'ProrateAmt', caption: 'Prorate', size: '90px', render: 'money', },
-                {field: 'TaxableAmt', caption: 'Taxable Amt', size: '90px', render: 'money', },
-                {field: 'SalesTax', caption: 'Sales Tax', size: '90px', render: 'money', },
-                {field: 'TransOcc', caption: 'Trans OCC', size: '90px', render: 'money', },
+                {
+                    field: 'AtSigningAmt',
+                    caption: 'At Signing',
+                    size: '90px',
+                    render: 'money'
+                },
+                {
+                    field: 'ProrateAmt',
+                    caption: 'Prorate',
+                    size: '90px',
+                    render: 'money'
+                },
+                {
+                    field: 'TaxableAmt',
+                    caption: 'Taxable Amt',
+                    size: '90px',
+                    render: 'money'
+                },
+                {
+                    field: 'SalesTax',
+                    caption: 'Sales Tax',
+                    size: '90px',
+                    render: 'money'
+                },
+                {
+                    field: 'TransOcc',
+                    caption: 'Trans OCC',
+                    size: '90px',
+                    render: 'money'
+                },
                 {
                     field: 'RemoveRec',
                     caption: "Remove Rentable",
@@ -336,7 +356,7 @@ window.loadRARentablesGrid = function () {
                                     arid_items.push({id: item.ARID, text: item.Name});
                                 });
                                 w2ui.RARentableFeesForm.get("ARID").options.items = arid_items;
-                                w2ui.RARentableFeesForm.record = getRentableFeeFormInitialRecord(RID);
+                                w2ui.RARentableFeesForm.record = getRentableFeeFormInitRecord(RID);
                                 w2ui.RARentableFeesForm.record.recid = w2ui.RARentableFeesGrid.records.length + 1;
 
                                 // mark current ARID in app last rentableFeeARID
@@ -356,15 +376,35 @@ window.loadRARentablesGrid = function () {
                 }
             },
             columns: [
-                {field: 'recid', hidden: true, },
-                {field: 'RID', hidden: true },
-                {field: 'BID', hidden: true },
-                {field: 'ARID', hidden: true },
-                {field: 'ARName', caption: 'Account Rule', size: '150px'},
-                {field: 'ContractAmount', caption: 'Contract<br>Amount', size: '100px',
-                    render: 'money',
+                {
+                    field: 'recid',
+                    hidden: true
                 },
-                {field: 'RentCycleText',
+                {
+                    field: 'RID',
+                    hidden: true
+                },
+                {
+                    field: 'BID',
+                    hidden: true
+                },
+                {
+                    field: 'ARID',
+                    hidden: true
+                },
+                {
+                    field: 'ARName',
+                    caption: 'Account Rule',
+                    size: '150px'
+                },
+                {
+                    field: 'ContractAmount',
+                    caption: 'Contract<br>Amount',
+                    size: '100px',
+                    render: 'money'
+                },
+                {
+                    field: 'RentCycleText',
                     caption: 'Rent Cycle',
                     size: '100px',
                     render: function (record/*, index, col_index*/) {
@@ -380,9 +420,13 @@ window.loadRARentablesGrid = function () {
                         return text;
                     },
                 },
-                {field: 'RentCycle', caption: 'Rent Cycle Index', hidden: true },
-                {field: 'Epoch', caption: 'Epoch', size: '100px', },
-                {field: 'FeePeriod',
+                {
+                    field: 'RentCycle',
+                    caption: 'Rent Cycle Index',
+                    hidden: true
+                },
+                {
+                    field: 'FeePeriod',
                     caption: 'Fee Period',
                     size: '100px',
                     render: function(record) {
@@ -398,12 +442,42 @@ window.loadRARentablesGrid = function () {
                         return html;
                     }
                 },
-                {field: 'AtSigningAmt', caption: 'At Signing', size: '100px', render: 'money', },
-                {field: 'ProrateAmt', caption: 'Prorate', size: '100px', render: 'money', },
-                {field: 'SalesTaxAmt', caption: 'Sales Tax Amt', size: '100px', render: 'money', },
-                {field: 'SalesTax', caption: 'Sales Tax', size: '100px', render: 'money', },
-                {field: 'TransOccAmt', caption: 'Trans Occ Amt', size: '100px', render: 'money', },
-                {field: 'TransOcc', caption: 'Trans Occ', size: '100px', render: 'money', }
+                {
+                    field: 'AtSigningAmt',
+                    caption: 'At Signing',
+                    size: '100px',
+                    render: 'money'
+                },
+                {
+                    field: 'ProrateAmt',
+                    caption: 'Prorate',
+                    size: '100px',
+                    render: 'money'
+                },
+                {
+                    field: 'SalesTaxAmt',
+                    caption: 'Sales Tax Amt',
+                    size: '100px',
+                    render: 'money'
+                },
+                {
+                    field: 'SalesTax',
+                    caption: 'Sales Tax',
+                    size: '100px',
+                    render: 'money'
+                },
+                {
+                    field: 'TransOccAmt',
+                    caption: 'Trans Occ Amt',
+                    size: '100px',
+                    render: 'money'
+                },
+                {
+                    field: 'TransOcc',
+                    caption: 'Trans Occ',
+                    size: '100px',
+                    render: 'money'
+                }
             ],
             onChange: function (event) {
                 event.onComplete = function () {
@@ -483,7 +557,6 @@ window.loadRARentablesGrid = function () {
                 {name: 'ContractAmount', type: 'money',  required: true, html: {page: 0, column: 0}},
                 {name: 'RentCycle',      type: 'int',    required: true, html: {page: 0, column: 0}},
                 {name: 'RentCycleText',  type: 'list',   required: true, html: {page: 0, column: 0}, options: {items: app.cycleFreq}},
-                {name: 'Epoch',          type: 'int',    required: true, html: {page: 0, column: 0}},
                 {name: 'Start',          type: 'date',   required: true, html: {page: 0, column: 0}},
                 {name: 'Stop',           type: 'date',   required: true, html: {page: 0, column: 0}},
                 {name: 'AtSigningAmt',   type: 'money',  required: true, html: {page: 0, column: 0}},
@@ -570,7 +643,7 @@ window.loadRARentablesGrid = function () {
                     .done(function (data) {
                         if (data.status === 'success') {
                             f.actions.reset();
-                            f.record = getRentableFeeFormInitialRecord(RID);
+                            f.record = getRentableFeeFormInitRecord(RID);
                             f.record.recid = grid.records.length + 1;
                             f.refresh();
 
@@ -720,7 +793,13 @@ window.loadRARentablesGrid = function () {
                     f.get("ARID").options.selected = ARIDSel;
 
                     // there is NO PETID actually, so have to work around with recid key
-                    formRefreshCallBack(f, "recid");
+                    formRefreshCallBack(f);
+
+                    var rentable_sel = w2ui.RARentablesGrid.getSelection();
+                    if (rentable_sel.length > 0) {
+                        var rec = w2ui.RARentablesGrid.get(rentable_sel[0]);
+                        f.header = "Fee (" + f.record.ARName + ") for " + rec.RentableName;
+                    }
                 };
             }
         });
@@ -860,6 +939,9 @@ window.AssignRentableFeesGridRecords = function(RID) {
 
     // set the records list
     grid.records = localRData.Fees || [];
+
+    // set the header as well
+    grid.header = "Fees for " + localRData.RentableName;
 
     // summary record in fees grid
     var summaryRec = {

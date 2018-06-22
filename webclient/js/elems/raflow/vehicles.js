@@ -1,10 +1,9 @@
 /* global
-    RACompConfig, sliderContentDivLength, reassignGridRecids,
-    hideSliderContent, appendNewSlider, showSliderContentW2UIComp,
-    loadTargetSection, requiredFieldsFulFilled, getRAFlowPartTypeIndex, initRAFlowAjax,
-    getRAFlowAllParts, saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowCompData,
+    RACompConfig, reassignGridRecids,
+    hideSliderContent, showSliderContentW2UIComp,
+    saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowCompData,
     lockOnGrid,
-    getVehicleFormInitalRecord, setVehicleLocalData, getVehicleLocalData,
+    getVehicleFormInitRecord, setVehicleLocalData, getVehicleLocalData,
     AssignVehiclesGridRecords, saveVehiclesCompData
 */
 
@@ -13,7 +12,7 @@
 // -------------------------------------------------------------------------------
 // Rental Agreement - Vehicles Grid
 // -------------------------------------------------------------------------------
-window.getVehicleFormInitalRecord = function (previousFormRecord) {
+window.getVehicleFormInitRecord = function (previousFormRecord) {
     var BID = getCurrentBID();
 
     var t = new Date(),
@@ -203,7 +202,7 @@ window.loadRAVehiclesGrid = function () {
                         if (data.status === 'success') {
                             // reset form
                             f.actions.reset();
-                            f.record = getVehicleFormInitalRecord(f.record);
+                            f.record = getVehicleFormInitRecord(f.record);
                             f.record.recid =grid.records.length + 1;
                             f.refresh();
                             f.refresh();
@@ -268,10 +267,22 @@ window.loadRAVehiclesGrid = function () {
             multiSelect: false,
             style   : 'border: 0px solid black; display: block;',
             columns : [
-                {field: 'recid', hidden: true },
-                {field: 'TMPVID', hidden: true },
-                {field: 'VID', hidden: true },
-                {field: 'BID', hidden: true },
+                {
+                    field: 'recid',
+                    hidden: true
+                },
+                {
+                    field: 'TMPVID',
+                    hidden: true
+                },
+                {
+                    field: 'VID',
+                    hidden: true
+                },
+                {
+                    field: 'BID',
+                    hidden: true
+                },
                 {
                     field: 'TMPTCID',
                     caption: 'Contact<br>Person',
@@ -287,18 +298,68 @@ window.loadRAVehiclesGrid = function () {
                         return html;
                     }
                 },
-                {field: 'VehicleType',         caption: 'Type',    size: '80px', editable: {type: 'text'} },
-                {field: 'VIN',                 caption: 'VIN',     size: '80px'},
-                {field: 'VehicleMake',         caption: 'Make',    size: '80px'},
-                {field: 'VehicleModel',        caption: 'Model',   size: '80px'},
-                {field: 'VehicleColor',        caption: 'Color',   size: '80px'},
-                {field: 'VehicleYear',         caption: 'Year',    size: '80px'},
-                {field: 'LicensePlateState',   caption: 'License Plate<br>State',    size: '100px'},
-                {field: 'LicensePlateNumber',  caption: 'License Plate<br>Number',   size: '100px'},
-                {field: 'ParkingPermitNumber', caption: 'Parking Permit <br>Number', size: '100px'},
-                {field: 'ParkingPermitFee',    caption: 'Parking Permit <br>Fee',    size: '100px', render: 'money'},
-                {field: 'DtStart',             caption: 'DtStart', size: '100px'},
-                {field: 'DtStop',              caption: 'DtStop',  size: '100px'}
+                {
+                    field: 'VehicleType',
+                    caption: 'Type',
+                    size: '80px',
+                    editable: { type: 'text' }
+                },
+                {
+                    field: 'VIN',
+                    caption: 'VIN',
+                    size: '80px'
+                },
+                {
+                    field: 'VehicleMake',
+                    caption: 'Make',
+                    size: '80px'
+                },
+                {
+                    field: 'VehicleModel',
+                    caption: 'Model',
+                    size: '80px'
+                },
+                {
+                    field: 'VehicleColor',
+                    caption: 'Color',
+                    size: '80px'
+                },
+                {
+                    field: 'VehicleYear',
+                    caption: 'Year',
+                    size: '80px'
+                },
+                {
+                    field: 'LicensePlateState',
+                    caption: 'License Plate<br>State',
+                    size: '100px'
+                },
+                {
+                    field: 'LicensePlateNumber',
+                    caption: 'License Plate<br>Number',
+                    size: '100px'
+                },
+                {
+                    field: 'ParkingPermitNumber',
+                    caption: 'Parking Permit <br>Number',
+                    size: '100px'
+                },
+                {
+                    field: 'ParkingPermitFee',
+                    caption: 'Parking Permit <br>Fee',
+                    size: '100px',
+                    render: 'money'
+                },
+                {
+                    field: 'DtStart',
+                    caption: 'DtStart',
+                    size: '100px'
+                },
+                {
+                    field: 'DtStop',
+                    caption: 'DtStop',
+                    size: '100px'
+                }
             ],
             onChange: function (event) {
                 event.onComplete = function () {
@@ -346,7 +407,7 @@ window.loadRAVehiclesGrid = function () {
                         app.last.grid_sel_recid = -1;
                         grid.selectNone();
 
-                        w2ui.RAVehicleForm.record = getVehicleFormInitalRecord(null);
+                        w2ui.RAVehicleForm.record = getVehicleFormInitRecord(null);
                         w2ui.RAVehicleForm.record.recid = w2ui.RAVehiclesGrid.records.length + 1;
                         showSliderContentW2UIComp(w2ui.RAVehicleForm, RACompConfig.vehicles.sliderWidth);
                         w2ui.RAVehicleForm.refresh();
