@@ -424,6 +424,7 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			var fee = RARentableFeesData{
 				BID:            rfd.BID,
 				RID:            rfd.RID,
+				ASMID:          asms[j].ASMID,
 				ARID:           asms[j].ARID,
 				ARName:         ar.Name,
 				ContractAmount: asms[j].Amount,

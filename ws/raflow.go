@@ -206,6 +206,7 @@ type RARentableFeesData struct {
 	BID            int64
 	RID            int64
 	ARID           int64
+	ASMID          int64 // the permanent table assessment id if it is an existing RAID
 	ARName         string
 	ContractAmount float64
 	RentCycle      int64
