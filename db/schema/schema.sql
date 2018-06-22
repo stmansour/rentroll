@@ -220,7 +220,47 @@ CREATE TABLE RentalAgreement (
     ExpansionOption VARCHAR(128) NOT NULL DEFAULT '',                   -- the right to expand to certanin spaces that are typically contiguous to their primary space
     ExpansionOptionNotice DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- the last date by which a Tenant can give notice of their intention to exercise the right to an Expansion Option
     RightOfFirstRefusal VARCHAR(128) NOT NULL DEFAULT '',               -- Tenant may have the right to purchase their premises if LL chooses to sell
-    FLAGS BIGINT NOT NULL DEFAULT 0,                                    -- 1<<0 - is application pending?
+    DesiredUsageStartDate DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- User's initial indication of move in date, actual move in date is in Rental Agreement
+    RentableTypePreference BIGINT NOT NULL DEFAULT 0,                   -- This would be "model" preference  (Rentable Type name) for room or residence, but could apply to all rentables
+    FLAGS BIGINT NOT NULL DEFAULT 0,                                    /* 0:3 - DecisionStatus for the application state as defined below
+                                                                           1<<4 - Approver1 decision, only valid if DecisionDate1 is year >1999, 0 = Declined, 1 = Approved
+           bits 0:3                                                        1<<5 - Approver2 decision, only valid if DecisionDate2 is year >1999, 0 = Declined, 1 = Approved
+        -------------  -----------------  --------------------------------------
+         (FLAGS & 15)  State              Meaning
+        -------------  -----------------  --------------------------------------
+              0        In Progress        Renters / Users have not completely
+                                          filled out the application.
+              1        In Review          Application has been filled out. It is
+                                          being reviewed
+              2        First Approval     The first approver needs to approve
+                                          the application
+              3        Second Approval    The second approver needs to approve
+                                          the application
+              4        Approved           Application was approved by Approver
+                                          on ApplicationDecisionDate
+              5        Not Approved       Application was declined. Reason is in
+                                          DeclineReasonSLSID
+              6        ApplicantPassed    The applicant chose not to rent.
+                                          Reason is in Outcome SLSID
+              7        unused             reserved for future expansion
+              8        unused             reserved for future expansion
+              9        unused             reserved for future expansion
+             10        unused             reserved for future expansion
+             11        unused             reserved for future expansion
+             12        unused             reserved for future expansion
+             13        unused             reserved for future expansion
+             14        unused             reserved for future expansion
+             15        unused             reserved for future expansion
+        ------------------------------------------------------------------------
+    */   
+    Approver1 BIGINT NOT NULL DEFAULT 0,                            -- approver 1
+    DecisionDate1 DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- datetime when first approver made the decision
+    DeclineReason1 BIGINT NOT NULL DEFAULT 0,                       -- Only valid if FLAGS & (1<<7) == 0, this is the SLSID to string in list of choices, why Approver1 declined the application
+    Approver2 BIGINT NOT NULL DEFAULT 0,                            -- approver 2
+    DecisionDate2 DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- datetime when first approver made the decision
+    DeclineReason2 BIGINT NOT NULL DEFAULT 0,                       -- Only valid if FLAGS & (1<<8) == 0, this is the SLSID to string in list of choices, why Approver2 declined the application
+    Outcome BIGINT NOT NULL DEFAULT 0,                              -- Only valid if state == Appl Elect(6), this is the SLSID of string from a list of WhyLeaving 
+   
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                                -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,              -- when was this record created
@@ -875,58 +915,16 @@ CREATE TABLE Prospect (
     CompanyEmail VARCHAR(100) NOT NULL DEFAULT '',
     CompanyPhone VARCHAR(100) NOT NULL DEFAULT '',
     Occupation VARCHAR(100) NOT NULL DEFAULT '',
-    DesiredUsageStartDate DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- User's initial indication of move in date, actual move in date is in Rental Agreement
-    RentableTypePreference BIGINT NOT NULL DEFAULT 0,            -- This would be "model" preference  (Rentable Type name) for room or residence, but could apply to all rentables
-    --  ------------  -----------------  --------------------------------------
-    --  (FLAGS & 15)  State              Meaning
-    --  ------------  -----------------  --------------------------------------
-    --       0        In Progress        Renters / Users have not completely
-    --                                   filled out the application.
-    --       1        In Review          Application has been filled out. It is
-    --                                   being reviewed
-    --       2        First Approval     The first approver needs to approve
-    --                                   the application
-    --       3        Second Approval    The second approver needs to approve
-    --                                   the application
-    --       4        Approved           Application was approved by Approver
-    --                                   on ApplicationDecisionDate
-    --       5        Not Approved       Application was declined. Reason is in
-    --                                   DeclineReasonSLSID
-    --       6        ApplicantPassed    The applicant chose not to rent.
-    --                                   Reason is in Outcome SLSID
-    --
-    --       7        unused             reserved for future expansion
-    --       8        unused             reserved for future expansion
-    --       9        unused             reserved for future expansion
-    --      10        unused             reserved for future expansion
-    --      11        unused             reserved for future expansion
-    --      12        unused             reserved for future expansion
-    --      13        unused             reserved for future expansion
-    --      14        unused             reserved for future expansion
-    --      15        unused             reserved for future expansion
-    -- ------------------------------------------------------------------------
-    FLAGS BIGINT NOT NULL DEFAULT 0,                                /* 0:3 - DecisionStatus for the application state as defined above
-                                                                       1<<4 - Previously Evicted: 0 = no, 1 = yes
-                                                                       1<<5 - Previously Convicted of a felony: 0 = no, 1 = yes
-                                                                       1<<6 - Previously declared bankruptcy: 0 = no, 1 = yes
-                                                                       1<<7 - Approver1 decision, only valid if DecisionDate1 is year >1999, 0 = Declined, 1 = Approved
-                                                                       1<<8 - Approver2 decision, only valid if DecisionDate2 is year >1999, 0 = Declined, 1 = Approved
-    */   
     EvictedDes VARCHAR(2048) NOT NULL DEFAULT '',                   -- explanation when FLAGS & (1<<4) > 0
     ConvictedDes VARCHAR(2048) NOT NULL DEFAULT '',                 -- explanation when FLAGS & (1<<5) > 0
     BankruptcyDes VARCHAR(2048) NOT NULL DEFAULT '',                -- explanation when FLAGS & (1<<6) > 0
     FollowUpDate DATE NOT NULL DEFAULT '1970-01-01 00:00:00',       -- automatically fill out this date to sysdate + 24hrs
     CSAgent BIGINT NOT NULL DEFAULT 0,                              -- Accord Directory UserID - for the CSAgent
 
-    Approver1 BIGINT NOT NULL DEFAULT 0,                            -- approver 1
-    DecisionDate1 DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- datetime when first approver made the decision
-    DeclineReason1 BIGINT NOT NULL DEFAULT 0,                       -- Only valid if FLAGS & (1<<7) == 0, this is the SLSID to string in list of choices, why Approver1 declined the application
-    Approver2 BIGINT NOT NULL DEFAULT 0,                            -- approver 2
-    DecisionDate2 DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- datetime when first approver made the decision
-    DeclineReason2 BIGINT NOT NULL DEFAULT 0,                       -- Only valid if FLAGS & (1<<8) == 0, this is the SLSID to string in list of choices, why Approver2 declined the application
-
-    Outcome BIGINT NOT NULL DEFAULT 0,                              -- Only valid if state == Appl Elect(6), this is the SLSID of string from a list of WhyLeaving 
-   
+    FLAGS BIGINT NOT NULL DEFAULT 0,                                /* 1<<0 - Previously Evicted: 0 = no, 1 = yes
+                                                                       1<<1 - Previously Convicted of a felony: 0 = no, 1 = yes
+                                                                       1<<2 - Previously declared bankruptcy: 0 = no, 1 = yes
+                                                                    */
     OtherPreferences VARCHAR(1024) NOT NULL DEFAULT '',             -- Arbitrary text, anything else they might request
     SpecialNeeds VARCHAR(1024) NOT NULL DEFAULT '',                 -- Special needs for perspective disabled renters
     CurrentAddress VARCHAR(200) NOT NULL DEFAULT '',                -- address of residence at the time this rental application was filled out
