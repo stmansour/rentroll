@@ -267,10 +267,22 @@ window.loadRAVehiclesGrid = function () {
             multiSelect: false,
             style   : 'border: 0px solid black; display: block;',
             columns : [
-                {field: 'recid', hidden: true },
-                {field: 'TMPVID', hidden: true },
-                {field: 'VID', hidden: true },
-                {field: 'BID', hidden: true },
+                {
+                    field: 'recid',
+                    hidden: true
+                },
+                {
+                    field: 'TMPVID',
+                    hidden: true
+                },
+                {
+                    field: 'VID',
+                    hidden: true
+                },
+                {
+                    field: 'BID',
+                    hidden: true
+                },
                 {
                     field: 'TMPTCID',
                     caption: 'Contact<br>Person',
@@ -286,18 +298,68 @@ window.loadRAVehiclesGrid = function () {
                         return html;
                     }
                 },
-                {field: 'VehicleType',         caption: 'Type',    size: '80px', editable: {type: 'text'} },
-                {field: 'VIN',                 caption: 'VIN',     size: '80px'},
-                {field: 'VehicleMake',         caption: 'Make',    size: '80px'},
-                {field: 'VehicleModel',        caption: 'Model',   size: '80px'},
-                {field: 'VehicleColor',        caption: 'Color',   size: '80px'},
-                {field: 'VehicleYear',         caption: 'Year',    size: '80px'},
-                {field: 'LicensePlateState',   caption: 'License Plate<br>State',    size: '100px'},
-                {field: 'LicensePlateNumber',  caption: 'License Plate<br>Number',   size: '100px'},
-                {field: 'ParkingPermitNumber', caption: 'Parking Permit <br>Number', size: '100px'},
-                {field: 'ParkingPermitFee',    caption: 'Parking Permit <br>Fee',    size: '100px', render: 'money'},
-                {field: 'DtStart',             caption: 'DtStart', size: '100px'},
-                {field: 'DtStop',              caption: 'DtStop',  size: '100px'}
+                {
+                    field: 'VehicleType',
+                    caption: 'Type',
+                    size: '80px',
+                    editable: { type: 'text' }
+                },
+                {
+                    field: 'VIN',
+                    caption: 'VIN',
+                    size: '80px'
+                },
+                {
+                    field: 'VehicleMake',
+                    caption: 'Make',
+                    size: '80px'
+                },
+                {
+                    field: 'VehicleModel',
+                    caption: 'Model',
+                    size: '80px'
+                },
+                {
+                    field: 'VehicleColor',
+                    caption: 'Color',
+                    size: '80px'
+                },
+                {
+                    field: 'VehicleYear',
+                    caption: 'Year',
+                    size: '80px'
+                },
+                {
+                    field: 'LicensePlateState',
+                    caption: 'License Plate<br>State',
+                    size: '100px'
+                },
+                {
+                    field: 'LicensePlateNumber',
+                    caption: 'License Plate<br>Number',
+                    size: '100px'
+                },
+                {
+                    field: 'ParkingPermitNumber',
+                    caption: 'Parking Permit <br>Number',
+                    size: '100px'
+                },
+                {
+                    field: 'ParkingPermitFee',
+                    caption: 'Parking Permit <br>Fee',
+                    size: '100px',
+                    render: 'money'
+                },
+                {
+                    field: 'DtStart',
+                    caption: 'DtStart',
+                    size: '100px'
+                },
+                {
+                    field: 'DtStop',
+                    caption: 'DtStop',
+                    size: '100px'
+                }
             ],
             onChange: function (event) {
                 event.onComplete = function () {

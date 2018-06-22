@@ -376,15 +376,35 @@ window.loadRARentablesGrid = function () {
                 }
             },
             columns: [
-                {field: 'recid', hidden: true, },
-                {field: 'RID', hidden: true },
-                {field: 'BID', hidden: true },
-                {field: 'ARID', hidden: true },
-                {field: 'ARName', caption: 'Account Rule', size: '150px'},
-                {field: 'ContractAmount', caption: 'Contract<br>Amount', size: '100px',
-                    render: 'money',
+                {
+                    field: 'recid',
+                    hidden: true
                 },
-                {field: 'RentCycleText',
+                {
+                    field: 'RID',
+                    hidden: true
+                },
+                {
+                    field: 'BID',
+                    hidden: true
+                },
+                {
+                    field: 'ARID',
+                    hidden: true
+                },
+                {
+                    field: 'ARName',
+                    caption: 'Account Rule',
+                    size: '150px'
+                },
+                {
+                    field: 'ContractAmount',
+                    caption: 'Contract<br>Amount',
+                    size: '100px',
+                    render: 'money'
+                },
+                {
+                    field: 'RentCycleText',
                     caption: 'Rent Cycle',
                     size: '100px',
                     render: function (record/*, index, col_index*/) {
@@ -400,8 +420,13 @@ window.loadRARentablesGrid = function () {
                         return text;
                     },
                 },
-                {field: 'RentCycle', caption: 'Rent Cycle Index', hidden: true },
-                {field: 'FeePeriod',
+                {
+                    field: 'RentCycle',
+                    caption: 'Rent Cycle Index',
+                    hidden: true
+                },
+                {
+                    field: 'FeePeriod',
                     caption: 'Fee Period',
                     size: '100px',
                     render: function(record) {
@@ -417,12 +442,42 @@ window.loadRARentablesGrid = function () {
                         return html;
                     }
                 },
-                {field: 'AtSigningAmt', caption: 'At Signing', size: '100px', render: 'money', },
-                {field: 'ProrateAmt', caption: 'Prorate', size: '100px', render: 'money', },
-                {field: 'SalesTaxAmt', caption: 'Sales Tax Amt', size: '100px', render: 'money', },
-                {field: 'SalesTax', caption: 'Sales Tax', size: '100px', render: 'money', },
-                {field: 'TransOccAmt', caption: 'Trans Occ Amt', size: '100px', render: 'money', },
-                {field: 'TransOcc', caption: 'Trans Occ', size: '100px', render: 'money', }
+                {
+                    field: 'AtSigningAmt',
+                    caption: 'At Signing',
+                    size: '100px',
+                    render: 'money'
+                },
+                {
+                    field: 'ProrateAmt',
+                    caption: 'Prorate',
+                    size: '100px',
+                    render: 'money'
+                },
+                {
+                    field: 'SalesTaxAmt',
+                    caption: 'Sales Tax Amt',
+                    size: '100px',
+                    render: 'money'
+                },
+                {
+                    field: 'SalesTax',
+                    caption: 'Sales Tax',
+                    size: '100px',
+                    render: 'money'
+                },
+                {
+                    field: 'TransOccAmt',
+                    caption: 'Trans Occ Amt',
+                    size: '100px',
+                    render: 'money'
+                },
+                {
+                    field: 'TransOcc',
+                    caption: 'Trans Occ',
+                    size: '100px',
+                    render: 'money'
+                }
             ],
             onChange: function (event) {
                 event.onComplete = function () {
