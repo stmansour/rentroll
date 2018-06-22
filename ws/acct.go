@@ -119,34 +119,6 @@ type AcctDeleteForm struct {
 	LID int64
 }
 
-// account type
-var acctType = map[int64]string{
-	0: "Normal Account",
-	// 1: "balance for this particular RentalAgreement",
-	// 2: "balance for this payor",
-	// 3:  "Reserved",
-	// 4:  "Reserved",
-	// 5:  "Reserved",
-	// 6:  "Reserved",
-	// 7:  "Reserved",
-	// 8:  "Reserved",
-	// 9:  "Reserved",
-	10: "Default Cash",
-	11: "Default General Receivables",
-	12: "Default Gross Scheduled Rent",
-	13: "Default Loss To Lease",
-	14: "Default Vacancy",
-	16: "Default Security Deposit",
-	17: "Default Owner Equity",
-}
-
-// getAccountThingJSList sending down list related with accounts info
-func getAccountThingJSList() map[string]map[int64]string {
-	accountStuff := make(map[string]map[int64]string)
-	accountStuff["typeList"] = acctType
-	return accountStuff
-}
-
 // SvcAccountsList generates a list of all Accounts with respect of business id specified by d.BID
 // wsdoc {
 //  @Title Get list of accounts

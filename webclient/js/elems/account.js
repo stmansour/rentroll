@@ -224,7 +224,6 @@ window.buildAccountElements = function() {
             { field: "RAID",        required: false,    type: 'int',        html: { caption: "RAID", page: 0, column: 0 } },
             { field: "TCID",        required: false,    type: 'int',        html: { caption: "TCID", page: 0, column: 0 } },
             { field: "GLNumber",    required: true,     type: 'text',       html: { caption: "GLNumber", page: 0, column: 0 } },
-            // { field: "Type",        required: true,     type: 'list',       options: { items: app.account_stuff.typeList, selected: {}, maxDropHeight: 350 }, html: { caption: "Type", page: 0, column: 0 } },
             { field: "Name",        required: true,     type: 'text',       html: { caption: "Name", page: 0, column: 0 } },
             { field: "AcctType",    required: true,     type: 'list',       options: { items: app.qbAcctType, selected: {}, maxDropHeight: 350 }, html: { caption: "Account Type", page: 0, column: 0 } },
             // { field: "AllowPost",   required: true,     type: 'checkbox',   html: { caption: "AllowPost", page: 0, column: 0 } },
@@ -366,7 +365,6 @@ window.buildAccountElements = function() {
                     header = "Edit Account Details ({0})",
                     PLIDSel = {},
                     acctTypeSel = {};
-                    // typeSel = {},
 
                 // PLID selected
                 app.parent_accounts[BUD].forEach(function(item) {
@@ -382,13 +380,6 @@ window.buildAccountElements = function() {
                     }
                 });
 
-                // // type selected
-                // app.account_stuff.typeList.forEach(function(item) {
-                //     if (r.Type == item.id) {
-                //         $.extend(typeSel, item);
-                //     }
-                // });
-
                 // $("#accountForm").find('input[name=PLID]').data("selected", PLIDSel).change();
                 // Reference: http://jsfiddle.net/vtoah4t5/7/
                 // $("#accountForm").find('input[name=PLID]').w2field('list',{
@@ -396,7 +387,6 @@ window.buildAccountElements = function() {
                 //     selected: PLIDSel,
                 // }).data("selected", PLIDSel).change();
 
-                // f.get("Type").options.selected = typeSel;
                 f.get("PLID").options.selected = PLIDSel;
                 f.get("AcctType").options.selected = acctTypeSel;
 
