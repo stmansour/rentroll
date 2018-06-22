@@ -104,7 +104,6 @@ window.buildTransactElements = function() {
         {field: 'NLID',                      type: 'int',       required: false, html: {page: 0, column: 0}},
         {field: 'TCID',                      type: 'int',       required: false, html: {page: 0, column: 0}},
         {field: 'TMPTCID',                   type: 'int',       required: true,  html: {page: 0, column: 0}},
-        {field: 'FLAGS',                     type: 'int',       required: false, html: {page: 0, column: 0}},
         {field: 'IsRenter',                  type: 'checkbox',  required: false, html: {page: 0, column: 0}},  // will be responsible for paying rent
         {field: 'IsOccupant',                type: 'checkbox',  required: false, html: {page: 0, column: 0}},  // will reside in and/or use the items rented
         {field: 'IsGuarantor',               type: 'checkbox',  required: false, html: {page: 0, column: 0}},  // responsible for making sure all rent is paid
@@ -128,6 +127,7 @@ window.buildTransactElements = function() {
         {field: 'Website',                   type: 'text',      required: false, html: {page: 0, column: 0}},
         {field: 'Comment',                   type: 'text',      required: false, html: {page: 0, column: 0}},
         // ----------- Prospect -----------
+        {field: 'FLAGS',                     type: 'int',       required: false, html: {page: 1, column: 0}},
         {field: 'CompanyAddress',            type: 'text',      required: false, html: {page: 1, column: 0}},
         {field: 'CompanyCity',               type: 'text',      required: false, html: {page: 1, column: 0}},
         {field: 'CompanyState',              type: 'list',      required: false, html: {page: 1, column: 0}, options: {items: app.usStateAbbr}},
@@ -519,6 +519,19 @@ window.buildTransactElements = function() {
             data.postData.record.IsCompany = int_to_bool(data.postData.record.IsCompany);
             data.postData.record.EligibleFutureUser = int_to_bool(data.postData.record.EligibleFutureUser);
             data.postData.record.EligibleFuturePayor = int_to_bool(data.postData.record.EligibleFuturePayor);
+
+            if(data.postData.record.Evicted){
+                data.postData.record.FLAGS |= 0x10; // set bit index 4
+            }
+
+            if(data.postData.record.Convicted){
+                data.postData.record.FLAGS |= 0x20; // set bit index 5
+            }
+
+            if(data.postData.record.Bankruptcy){
+                data.postData.record.FLAGS |= 0x40; // set bit index 6
+            }
+
         }
     });
 
