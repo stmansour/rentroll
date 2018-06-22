@@ -2614,9 +2614,7 @@ func InsertProspect(ctx context.Context, a *Prospect) (int64, error) {
 		a.PriorReasonForMoving,
 		a.PriorLengthOfResidency,
 		a.CommissionableThirdParty,
-		a.CreateTS,
 		a.CreateBy,
-		a.LastModTime,
 		a.LastModBy,
 	}
 

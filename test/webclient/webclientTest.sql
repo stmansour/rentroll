@@ -1319,12 +1319,17 @@ CREATE TABLE `Prospect` (
   `EvictedDes` varchar(2048) NOT NULL DEFAULT '',
   `ConvictedDes` varchar(2048) NOT NULL DEFAULT '',
   `BankruptcyDes` varchar(2048) NOT NULL DEFAULT '',
-  `Approver` bigint(20) NOT NULL DEFAULT '0',
-  `DeclineReasonSLSID` bigint(20) NOT NULL DEFAULT '0',
+  `Approver1` bigint(20) NOT NULL DEFAULT '0',
+  `DecisionDate1` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
+  `DeclineReason1` bigint(20) NOT NULL DEFAULT '0',
+  `Approver2` bigint(20) NOT NULL DEFAULT '0',
+  `DecisionDate2` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
+  `DeclineReason2` bigint(20) NOT NULL DEFAULT '0',
   `OtherPreferences` varchar(1024) NOT NULL DEFAULT '',
+  `SpecialNeeds` varchar(1024) NOT NULL DEFAULT '',
   `FollowUpDate` date NOT NULL DEFAULT '1970-01-01',
   `CSAgent` bigint(20) NOT NULL DEFAULT '0',
-  `OutcomeSLSID` bigint(20) NOT NULL DEFAULT '0',
+  `Outcome` bigint(20) NOT NULL DEFAULT '0',
   `CurrentAddress` varchar(200) NOT NULL DEFAULT '',
   `CurrentLandLordName` varchar(100) NOT NULL DEFAULT '',
   `CurrentLandLordPhoneNo` varchar(20) NOT NULL DEFAULT '',
@@ -2564,4 +2569,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-06-20 20:54:11
+-- Dump completed on 2018-06-21 18:47:50

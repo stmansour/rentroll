@@ -81,7 +81,7 @@ window.getTransactantInitRecord = function (BID, BUD) {
         OtherPreferences: "",
         FollowUpDate: "1/1/1900",
         CSAgent: 0,
-        OutcomeSLSID: 0,
+        Outcome: 0,
         CommissionableThirdParty: "",
         Comment: "",
         LastModTime: y.toISOString(),
@@ -152,7 +152,7 @@ window.buildTransactElements = function() {
         {field: 'OtherPreferences',          type: 'text',      required: false, html: {page: 1, column: 0}},
         {field: 'FollowUpDate',              type: 'date',      required: false, html: {page: 1, column: 0}},
         {field: 'CSAgent',                   type: 'text',      required: false, html: {page: 1, column: 0}},
-        {field: 'OutcomeSLSID',              type: 'text',      required: false, html: {page: 1, column: 0}},
+        {field: 'Outcome',              type: 'text',      required: false, html: {page: 1, column: 0}},
         {field: 'CommissionableThirdParty',  type: 'text',      required: false, html: {page: 1, column: 0}},
         {field: 'Comment',                   type: 'text',      required: false, html: {page: 1, column: 0}},  // In an effort to accommodate you, please advise us of any special needs,
         // ----------- Payor ----------
