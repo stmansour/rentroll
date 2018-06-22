@@ -743,7 +743,7 @@ func ReadTaskListDefinitions(rows *sql.Rows, a *TaskListDefinition) error {
 func ReadTransactant(row *sql.Row, a *Transactant) error {
 	err := row.Scan(&a.TCID, &a.BID, &a.NLID, &a.FirstName, &a.MiddleName, &a.LastName, &a.PreferredName,
 		&a.CompanyName, &a.IsCompany, &a.PrimaryEmail, &a.SecondaryEmail, &a.WorkPhone, &a.CellPhone,
-		&a.Address, &a.Address2, &a.City, &a.State, &a.PostalCode, &a.Country, &a.Website, &a.FLAGS,
+		&a.Address, &a.Address2, &a.City, &a.State, &a.PostalCode, &a.Country, &a.Website, &a.Comment, &a.FLAGS,
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	SkipSQLNoRowsError(&err)
 	return err
@@ -753,7 +753,7 @@ func ReadTransactant(row *sql.Row, a *Transactant) error {
 func ReadTransactants(rows *sql.Rows, a *Transactant) error {
 	return rows.Scan(&a.TCID, &a.BID, &a.NLID, &a.FirstName, &a.MiddleName, &a.LastName, &a.PreferredName,
 		&a.CompanyName, &a.IsCompany, &a.PrimaryEmail, &a.SecondaryEmail, &a.WorkPhone, &a.CellPhone,
-		&a.Address, &a.Address2, &a.City, &a.State, &a.PostalCode, &a.Country, &a.Website, &a.FLAGS,
+		&a.Address, &a.Address2, &a.City, &a.State, &a.PostalCode, &a.Country, &a.Website, &a.Comment, &a.FLAGS,
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 

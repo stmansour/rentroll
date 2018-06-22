@@ -16,7 +16,7 @@ var mySQLRpl = string("?")
 var myRpl = mySQLRpl
 
 // TRNSfields defined fields for Transactant, used in at least one other function
-var TRNSfields = string("TCID,BID,NLID,FirstName,MiddleName,LastName,PreferredName,CompanyName,IsCompany,PrimaryEmail,SecondaryEmail,WorkPhone,CellPhone,Address,Address2,City,State,PostalCode,Country,Website,FLAGS,CreateTS,CreateBy,LastModTime,LastModBy")
+var TRNSfields = string("TCID,BID,NLID,FirstName,MiddleName,LastName,PreferredName,CompanyName,IsCompany,PrimaryEmail,SecondaryEmail,WorkPhone,CellPhone,Address,Address2,City,State,PostalCode,Country,Website,Comment,FLAGS,CreateTS,CreateBy,LastModTime,LastModBy")
 
 // ASMTflds defined fields for AssessmentTypes, used in at least one other function
 // var ASMTflds = string("ASMTID,RARequired,ManageToBudget,Name,Description,LastModTime,LastModBy")

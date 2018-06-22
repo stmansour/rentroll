@@ -49,22 +49,20 @@ type RAPeopleFlowData struct {
 	TMPTCID int64
 	BID     int64
 	TCID    int64
+	FLAGS   int64
 
-	// Transactant fields
 	// Role
 	IsRenter    bool
 	IsOccupant  bool
 	IsGuarantor bool
 
-	// Applicant information
+	// ---------- Basic Info -----------
 	FirstName      string
 	MiddleName     string
 	LastName       string
 	PreferredName  string
 	IsCompany      bool
 	CompanyName    string
-	SSN            string
-	DriversLicense string
 	PrimaryEmail   string
 	SecondaryEmail string
 	WorkPhone      string
@@ -76,27 +74,9 @@ type RAPeopleFlowData struct {
 	PostalCode     string
 	Country        string
 	Website        string
+	Comment        string
 
-	// User fields
-	DateofBirth rlib.JSONDate
-
-	// Emergency contact information
-	EmergencyContactName    string
-	EmergencyContactAddress string
-	EmergencyContactPhone   string
-	EmergencyContactEmail   string
-	AlternateAddress        string
-	EligibleFutureUser      bool
-	Industry                string
-	SourceSLSID             int64
-
-	// Payor fields
-	CreditLimit         float64
-	TaxpayorID          string
-	ThirdPartySource    int64
-	GrossIncome         float64
-	EligibleFuturePayor bool
-
+	// ---------- Prospect -----------
 	// Prospect fields
 	CompanyAddress    string
 	CompanyCity       string
@@ -109,15 +89,15 @@ type RAPeopleFlowData struct {
 	// Current Address information
 	CurrentAddress           string
 	CurrentLandLordName      string
-	CurrentLengthOfResidency string
 	CurrentLandLordPhoneNo   string
+	CurrentLengthOfResidency string
 	CurrentReasonForMoving   int64 // Reason for moving
 
 	// Prior Address information
 	PriorAddress           string
 	PriorLandLordName      string
-	PriorLengthOfResidency string
 	PriorLandLordPhoneNo   string
+	PriorLengthOfResidency string
 	PriorReasonForMoving   int64 // Reason for moving
 
 	// Have you ever been
@@ -129,22 +109,42 @@ type RAPeopleFlowData struct {
 	BankruptcyDes            string
 	DesiredUsageStartDate    rlib.JSONDate
 	RentableTypePreference   int64
-	FLAGS                    int64
 	Approver1                int64
-	DecisionDate1            rlib.JSONDateTime
+	Approver1Name            string
 	DeclineReason1           int64
+	DecisionDate1            rlib.JSONDateTime
 	Approver2                int64
-	DecisionDate2            rlib.JSONDateTime
+	Approver2Name            string
 	DeclineReason2           int64
+	DecisionDate2            rlib.JSONDateTime
 	OtherPreferences         string
-	SpecialNeeds             string
 	FollowUpDate             rlib.JSONDate
 	CSAgent                  int64
 	Outcome                  int64
 	CommissionableThirdParty string
+	SpecialNeeds             string // In an effort to accommodate you, please advise us of any special needs
 
-	// RA Application information
-	Comment string // In an effort to accommodate you, please advise us of any special needs
+	// ---------- Payor -----------
+	CreditLimit         float64
+	TaxpayorID          string
+	GrossIncome         float64
+	SSN                 string
+	DriversLicense      string
+	ThirdPartySource    int64
+	EligibleFuturePayor bool
+
+	// ---------- User -----------
+	Points      int64
+	DateofBirth rlib.JSONDate
+	// Emergency contact information
+	EmergencyContactName    string
+	EmergencyContactAddress string
+	EmergencyContactPhone   string
+	EmergencyContactEmail   string
+	AlternateAddress        string
+	EligibleFutureUser      bool
+	Industry                string
+	SourceSLSID             int64
 }
 
 // RAPetsFlowData contains data in the pets part of RA flow
