@@ -394,13 +394,13 @@ func ReadProspect(row *sql.Row, a *Prospect) error {
 		&a.CompanyEmail,
 		&a.CompanyPhone,
 		&a.Occupation,
-		&a.DesiredUsageStartDate,
-		&a.RentableTypePreference,
-		&a.FLAGS,
 		&a.EvictedDes,
 		&a.ConvictedDes,
 		&a.BankruptcyDes,
+		&a.FollowUpDate,
+		&a.FLAGS,
 		&a.OtherPreferences,
+		&a.SpecialNeeds,
 		&a.CurrentAddress,
 		&a.CurrentLandLordName,
 		&a.CurrentLandLordPhoneNo,
@@ -415,8 +415,7 @@ func ReadProspect(row *sql.Row, a *Prospect) error {
 		&a.CreateTS,
 		&a.CreateBy,
 		&a.LastModTime,
-		&a.LastModBy,
-	)
+		&a.LastModBy)
 	SkipSQLNoRowsError(&err)
 	return err
 }
@@ -433,13 +432,13 @@ func ReadProspects(rows *sql.Rows, a *Prospect) error {
 		&a.CompanyEmail,
 		&a.CompanyPhone,
 		&a.Occupation,
-		&a.DesiredUsageStartDate,
-		&a.RentableTypePreference,
-		&a.FLAGS,
 		&a.EvictedDes,
 		&a.ConvictedDes,
 		&a.BankruptcyDes,
+		&a.FollowUpDate,
+		&a.FLAGS,
 		&a.OtherPreferences,
+		&a.SpecialNeeds,
 		&a.CurrentAddress,
 		&a.CurrentLandLordName,
 		&a.CurrentLandLordPhoneNo,
@@ -454,8 +453,7 @@ func ReadProspects(rows *sql.Rows, a *Prospect) error {
 		&a.CreateTS,
 		&a.CreateBy,
 		&a.LastModTime,
-		&a.LastModBy,
-	)
+		&a.LastModBy)
 }
 
 // ReadRatePlan reads a full RatePlan structure from the database based on the supplied row object
@@ -617,6 +615,7 @@ func ReadRentalAgreement(row *sql.Row, a *RentalAgreement) error {
 		&a.ExpenseAdjustment,
 		&a.EstimatedCharges,
 		&a.RateChange,
+		&a.CSAgent,
 		&a.NextRateChange,
 		&a.PermittedUses,
 		&a.ExclusiveUses,
@@ -625,9 +624,9 @@ func ReadRentalAgreement(row *sql.Row, a *RentalAgreement) error {
 		&a.ExpansionOption,
 		&a.ExpansionOptionNotice,
 		&a.RightOfFirstRefusal,
+		&a.DesiredUsageStartDate,
+		&a.RentableTypePreference,
 		&a.FLAGS,
-		&a.FollowUpDate,
-		&a.CSAgent,
 		&a.Approver1,
 		&a.DecisionDate1,
 		&a.DeclineReason1,
@@ -635,11 +634,11 @@ func ReadRentalAgreement(row *sql.Row, a *RentalAgreement) error {
 		&a.DecisionDate2,
 		&a.DeclineReason2,
 		&a.Outcome,
-		&a.OtherPreferences,
+		&a.LastModTime,
+		&a.LastModBy,
 		&a.CreateTS,
 		&a.CreateBy,
-		&a.LastModTime,
-		&a.LastModBy)
+	)
 	SkipSQLNoRowsError(&err)
 	return err
 }
@@ -670,6 +669,7 @@ func ReadRentalAgreements(rows *sql.Rows, a *RentalAgreement) error {
 		&a.ExpenseAdjustment,
 		&a.EstimatedCharges,
 		&a.RateChange,
+		&a.CSAgent,
 		&a.NextRateChange,
 		&a.PermittedUses,
 		&a.ExclusiveUses,
@@ -678,9 +678,9 @@ func ReadRentalAgreements(rows *sql.Rows, a *RentalAgreement) error {
 		&a.ExpansionOption,
 		&a.ExpansionOptionNotice,
 		&a.RightOfFirstRefusal,
+		&a.DesiredUsageStartDate,
+		&a.RentableTypePreference,
 		&a.FLAGS,
-		&a.FollowUpDate,
-		&a.CSAgent,
 		&a.Approver1,
 		&a.DecisionDate1,
 		&a.DeclineReason1,
@@ -688,11 +688,11 @@ func ReadRentalAgreements(rows *sql.Rows, a *RentalAgreement) error {
 		&a.DecisionDate2,
 		&a.DeclineReason2,
 		&a.Outcome,
-		&a.OtherPreferences,
+		&a.LastModTime,
+		&a.LastModBy,
 		&a.CreateTS,
 		&a.CreateBy,
-		&a.LastModTime,
-		&a.LastModBy)
+	)
 }
 
 /*// ReadRentalAgreementGrids reads a full RentalAgreementGrid structure of data from the database based on the supplied Rows pointer.

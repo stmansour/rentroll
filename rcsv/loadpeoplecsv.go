@@ -303,7 +303,6 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 				pr.RentableTypePreference = rt.RTID
 			}
 		case Approver1: // Approver1 ID
-			rlib.Ulog("Ignoring Approver1 on People import\n")
 			// if len(s) > 0 {
 			// 	var y int64
 			// 	if y, err = strconv.ParseInt(strings.TrimSpace(s), 10, 64); err != nil {
@@ -312,7 +311,6 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 			// 	pr.Approver1 = y
 			// }
 		case DeclineReason1:
-			rlib.Ulog("Ignoring DeclineReason1 on People import\n")
 			// if len(s) > 0 {
 			// 	var y int64
 			// 	if y, err = strconv.ParseInt(strings.TrimSpace(s), 10, 64); err != nil {
@@ -321,17 +319,14 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 			// 	pr.DeclineReason1 = y
 			// }
 		case OtherPreferences:
-			rlib.Ulog("Ignoring OtherPreferences on People import\n")
 			// if len(s) > 0 {
 			// 	pr.OtherPreferences = s
 			// }
 		case FollowUpDate:
-			rlib.Ulog("Ignoring FollowUpDate on People import\n")
 			// if len(s) > 0 {
 			// 	pr.FollowUpDate, _ = time.Parse(dateform, s)
 			// }
 		case CSAgent:
-			rlib.Ulog("Ignoring CSAgent on People import\n")
 			// if len(s) > 0 {
 			// var y int64
 			// if y, err = strconv.ParseInt(strings.TrimSpace(s), 10, 64); err != nil {
@@ -340,13 +335,13 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 			// pr.CSAgent = y
 			// }
 		case Outcome:
-			if len(s) > 0 {
-				var y int64
-				if y, err = strconv.ParseInt(strings.TrimSpace(s), 10, 64); err != nil {
-					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid Outcome value: %s", funcname, lineno, s)
-				}
-				pr.Outcome = y
-			}
+			//			if len(s) > 0 {
+			//				var y int64
+			//				if y, err = strconv.ParseInt(strings.TrimSpace(s), 10, 64); err != nil {
+			//					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid Outcome value: %s", funcname, lineno, s)
+			//				}
+			//				pr.Outcome = y
+			//			}
 		default:
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Unknown field, column %d", funcname, lineno, i)
 		}

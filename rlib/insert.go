@@ -1643,7 +1643,8 @@ func InsertRentalAgreement(ctx context.Context, a *RentalAgreement) (int64, erro
 	}
 
 	// transaction... context
-	fields := []interface{}{a.RATID,
+	fields := []interface{}{
+		a.RATID,
 		a.BID,
 		a.NLID,
 		a.AgreementStart,
@@ -1665,6 +1666,7 @@ func InsertRentalAgreement(ctx context.Context, a *RentalAgreement) (int64, erro
 		a.ExpenseAdjustment,
 		a.EstimatedCharges,
 		a.RateChange,
+		a.CSAgent,
 		a.NextRateChange,
 		a.PermittedUses,
 		a.ExclusiveUses,
@@ -1673,9 +1675,9 @@ func InsertRentalAgreement(ctx context.Context, a *RentalAgreement) (int64, erro
 		a.ExpansionOption,
 		a.ExpansionOptionNotice,
 		a.RightOfFirstRefusal,
+		a.DesiredUsageStartDate,
+		a.RentableTypePreference,
 		a.FLAGS,
-		a.FollowUpDate,
-		a.CSAgent,
 		a.Approver1,
 		a.DecisionDate1,
 		a.DeclineReason1,
@@ -1683,9 +1685,8 @@ func InsertRentalAgreement(ctx context.Context, a *RentalAgreement) (int64, erro
 		a.DecisionDate2,
 		a.DeclineReason2,
 		a.Outcome,
-		a.OtherPreferences,
-		a.CreateBy,
 		a.LastModBy,
+		a.CreateBy,
 	}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertRentalAgreement)
@@ -2629,13 +2630,13 @@ func InsertProspect(ctx context.Context, a *Prospect) (int64, error) {
 		a.CompanyEmail,
 		a.CompanyPhone,
 		a.Occupation,
-		a.DesiredUsageStartDate,
-		a.RentableTypePreference,
-		a.FLAGS,
 		a.EvictedDes,
 		a.ConvictedDes,
 		a.BankruptcyDes,
+		a.FollowUpDate,
+		a.FLAGS,
 		a.OtherPreferences,
+		a.SpecialNeeds,
 		a.CurrentAddress,
 		a.CurrentLandLordName,
 		a.CurrentLandLordPhoneNo,

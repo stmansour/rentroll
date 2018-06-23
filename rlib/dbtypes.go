@@ -579,6 +579,8 @@ type RentalAgreement struct {
 	ExpansionOption        string      // the right to expand to certanin spaces that are typically contiguous to their primary space
 	ExpansionOptionNotice  time.Time   // the last date by which a Tenant can give notice of their intention to exercise the right to an Expansion Option
 	RightOfFirstRefusal    string      // Tenant may have the right to purchase their premises if LL chooses to sell
+	DesiredUsageStartDate  time.Time   //
+	RentableTypePreference int64       //
 	FLAGS                  uint64      // See definition in rentroll/db/schema/schema.sql
 	Approver1              int64       // UID of approver1, from Directory
 	DeclineReason1         int64       // SLSid of reason if declined
@@ -740,13 +742,13 @@ type Prospect struct {
 	Occupation               string
 	DesiredUsageStartDate    time.Time // predicted rent start date
 	RentableTypePreference   int64     // RentableType
+	FollowUpDate             time.Time //
 	FLAGS                    uint64    // 0 = Approved/NotApproved,
 	OtherPreferences         string    // arbitrary text
 	SpecialNeeds             string    // any special needs
 	EvictedDes               string    // explanation when FLAGS & (1<<0) > 0
 	ConvictedDes             string    // explanation when FLAGS & (1<<1) > 0
 	BankruptcyDes            string    // explanation when FLAGS & (1<<2) > 0
-	Outcome                  int64     // id of string from a list of outcomes. Melissa to provide reasons
 	CurrentAddress           string
 	CurrentLandLordName      string
 	CurrentLandLordPhoneNo   string
