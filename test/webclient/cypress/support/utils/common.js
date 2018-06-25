@@ -83,6 +83,7 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                 case "*** RECEIPT SUMMARY ***":
                 case "*** UNAPPLIED FUNDS ***":
                 case "*** RENTAL AGREEMENT 1 ***":
+                case "*** RENTAL AGREEMENT 3 ***":
                 case "":
                     testConfig.skipColumns = ["Reverse", "spacer"];
                     return;
@@ -355,7 +356,12 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                         } else if (formName === "expenseForm") {
                             ruleName = "ExpenseRules";
                         } else if (formName === "rtForm") {
-                            fieldValue = " -- No ARID -- ";
+                            // fieldValue = " -- No ARID -- ";
+                            win.w2ui[formName].get("ARID").options.items.forEach(function(item) {
+                                if (item.id == fieldValue) {
+                                    fieldValue = item.text;
+                                }
+                            });
                             break;
                         }
                         types = appSettings[ruleName][constants.testBiz];
@@ -585,7 +591,7 @@ export function addNewFormTest(testConfig) {
         BUDFieldTest();
     }
     // Check button's visibility
-    buttonsTest(testConfig.buttonNamesInDetailForm, testConfig.notVisibleButtonNamesInForm);
+    buttonsTest(testConfig.buttonNamesInForm, testConfig.notVisibleButtonNamesInForm);
 
     // -- Close the form. And assert that form isn't visible. --
     closeFormTests(formSelector);

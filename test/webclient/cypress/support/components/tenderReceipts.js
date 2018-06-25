@@ -18,7 +18,7 @@ export let conf = {
     notVisibleButtonNamesInForm: ["close"],
     buttonNamesInDetailForm: ["save", "saveadd", "reverse"],
     skipColumns: ["reversed"],
-    skipFields: [],
+    skipFields: ["Payor"], // TODO(Jay): Payor field is of enum type, hence it is skipped for now.
     primaryId: "RCPTID",
     haveDateValue: true,
     fromDate: new Date(2018, 0, 1), // year, month-1, day : 1st Jan 2018
