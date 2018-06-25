@@ -495,15 +495,21 @@ window.buildTransactElements = function() {
             data.postData.record.EligibleFuturePayor = int_to_bool(data.postData.record.EligibleFuturePayor);
 
             if(data.postData.record.Evicted){
-                data.postData.record.FLAGS |= 0x0; // set bit index 4
+                data.postData.record.FLAGS |= 0x0; // unset bit index 0
+            }else {
+                data.postData.record.FLAGS &= 0x0; // unset bit index 0
             }
 
             if(data.postData.record.Convicted){
-                data.postData.record.FLAGS |= 0x1; // set bit index 5
+                data.postData.record.FLAGS |= 0x1; // set bit index 1
+            }else{
+                data.postData.record.FLAGS &= 0x1; // unset bit index 1
             }
 
             if(data.postData.record.Bankruptcy){
-                data.postData.record.FLAGS |= 0x2; // set bit index 6
+                data.postData.record.FLAGS |= 0x2; // set bit index 2
+            }else {
+                data.postData.record.FLAGS &= 0x2; // unset bit index 2
             }
 
         }

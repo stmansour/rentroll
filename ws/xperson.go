@@ -88,6 +88,9 @@ type RPersonForm struct {
 	// FollowUpDate             rlib.JSONDate // automatically fill out this date to sysdate + 24hrs
 	// CommissionableThirdParty string
 	SpecialNeeds string // special needs for potential renters who are disabled
+	Evicted      bool
+	Convicted    bool
+	Bankruptcy   bool
 	FLAGS        uint64 // 0 = Approved/NotApproved,
 	CreateTS     rlib.JSONDateTime
 	CreateBy     int64
@@ -576,6 +579,8 @@ func getXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	g.Record.BID = d.BID
 	g.Record.BUD = rlib.GetBUDFromBIDList(d.BID)
+
+	// TODO(Akshay): Manage Have You Ever been checkbox value here
 
 	g.Status = "success"
 	SvcWriteResponse(d.BID, &g, w)
