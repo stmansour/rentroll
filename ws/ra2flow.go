@@ -434,6 +434,7 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			}
 			rfd.Fees = append(rfd.Fees, fee)
 		}
+
 		raf.Rentables = append(raf.Rentables, rfd)
 	}
 
@@ -521,7 +522,11 @@ func addRAPtoFlow(ctx context.Context, tcid int64, raf *RAFlowJSONData, chk, isR
 	if isOccupant {
 		rap.IsOccupant = true
 	}
+	var t RATiePeopleData
+	t.BID = rap.BID
+	t.TMPTCID = rap.TMPTCID
 	raf.People = append(raf.People, rap)
+	raf.Tie.People = append(raf.Tie.People, t)
 	return nil
 }
 
