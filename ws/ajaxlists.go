@@ -275,18 +275,6 @@ func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		appData[m[i][0]] = m[i][1]
 	}
 
-	// --------------- LIST DOWN ACCOUNT STUFF ----------------------
-	accountStuffData := getAccountThingJSList()
-	accountStuff := make(map[string][]IDTextMap)
-	for k, v := range accountStuffData {
-		list := []IDTextMap{}
-		for i, txt := range v {
-			list = append(list, IDTextMap{ID: i, Text: txt})
-		}
-		accountStuff[k] = list
-	}
-	appData["account_stuff"] = accountStuff
-
 	// --------------- TASK LIST DEFINITIONS ----------------------
 	appData["TaskListDefinitions"] = new([]string)
 

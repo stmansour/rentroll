@@ -1,5 +1,4 @@
 /* global
-    loadRATieSection,
     getRAFlowCompData, reassignGridRecids,
     getTiePeopleLocalData, setTiePeopleLocalData, AssignTiePeopleGridRecords, saveTiePeopleData,
     getFullName
@@ -116,7 +115,6 @@ window.loadRATieSection = function () {
                         // set data
                         grid.set(event.recid, record);
                         setTiePeopleLocalData(record.TMPTCID, localTiePeopleData);
-                        console.debug(getRAFlowCompData("tie", app.raflow.activeFlowID));
                     }
 
                     // save grid changes

@@ -13,6 +13,7 @@ window.getTransactantInitRecord = function (BID, BUD) {
         NLID: 0,
         TCID: 0,
         TMPTCID: 0,
+        FLAGS: 0,
         IsRenter: false,
         IsOccupant: true,
         IsGuarantor: false,
@@ -33,6 +34,7 @@ window.getTransactantInitRecord = function (BID, BUD) {
         PostalCode: "",
         Country: "",
         Website: "",
+        Comment: "",
         Points: 0,
         DateofBirth: "1/1/1900",
         EmergencyContactName: "",
@@ -75,15 +77,18 @@ window.getTransactantInitRecord = function (BID, BUD) {
         BankruptcyDes: "",
         DesiredUsageStartDate: "1/1/1900",
         RentableTypePreference: 0,
-        FLAGS: 0,
-        Approver: 0,
-        DeclineReasonSLSID: 0,
         OtherPreferences: "",
-        FollowUpDate: "1/1/1900",
-        CSAgent: 0,
-        OutcomeSLSID: 0,
-        CommissionableThirdParty: "",
-        Comment: "",
+        // Approver1: 0,
+        // Approver1Name: "",
+        // DeclineReason1: 0,
+        // Approver2: 0,
+        // Approver2Name: "",
+        // DeclineReason2: 0,
+        // FollowUpDate: "1/1/1900",
+        // CSAgent: 0,
+        // Outcome: 0,
+        // CommissionableThirdParty: "",
+        SpecialNeeds: "",
         LastModTime: y.toISOString(),
         LastModBy: 0
     };
@@ -99,6 +104,7 @@ window.buildTransactElements = function() {
         {field: 'NLID',                      type: 'int',       required: false, html: {page: 0, column: 0}},
         {field: 'TCID',                      type: 'int',       required: false, html: {page: 0, column: 0}},
         {field: 'TMPTCID',                   type: 'int',       required: true,  html: {page: 0, column: 0}},
+        {field: 'FLAGS',                     type: 'int',       required: false, html: {page: 0, column: 0}},
         {field: 'IsRenter',                  type: 'checkbox',  required: false, html: {page: 0, column: 0}},  // will be responsible for paying rent
         {field: 'IsOccupant',                type: 'checkbox',  required: false, html: {page: 0, column: 0}},  // will reside in and/or use the items rented
         {field: 'IsGuarantor',               type: 'checkbox',  required: false, html: {page: 0, column: 0}},  // responsible for making sure all rent is paid
@@ -120,17 +126,45 @@ window.buildTransactElements = function() {
         {field: 'PostalCode',                type: 'text',      required: false, html: {page: 0, column: 0}},
         {field: 'Country',                   type: 'text',      required: false, html: {page: 0, column: 0}},
         {field: 'Website',                   type: 'text',      required: false, html: {page: 0, column: 0}},
-        // ----------- User ----------
-        {field: 'Points',                    type: 'text',      required: false, html: {page: 1, column: 0}},
-        {field: 'DateofBirth',               type: 'date',      required: false, html: {page: 1, column: 0}},
-        {field: 'EmergencyContactName',      type: 'text',      required: false, html: {page: 1, column: 0}},
-        {field: 'EmergencyContactAddress',   type: 'text',      required: false, html: {page: 1, column: 0}},
-        {field: 'EmergencyContactTelephone', type: 'text',      required: false, html: {page: 1, column: 0}},
-        {field: 'EmergencyContactEmail',     type: 'text',      required: false, html: {page: 1, column: 0}},
-        {field: 'AlternateAddress',          type: 'text',      required: false, html: {page: 1, column: 0}},
-        {field: 'EligibleFutureUser',        type: 'checkbox',  required: false, html: {page: 1, column: 0}},
-        {field: 'Industry',                  type: 'text',      required: false, html: {page: 1, column: 0}},
-        {field: 'SourceSLSID',               type: 'list',      required: false, html: {page: 1, column: 0}}, // "HowFound" string list
+        {field: 'Comment',                   type: 'text',      required: false, html: {page: 0, column: 0}},
+        // ----------- Prospect -----------
+        {field: 'CompanyAddress',            type: 'text',      required: false, html: {page: 1, column: 0}},
+        {field: 'CompanyCity',               type: 'text',      required: false, html: {page: 1, column: 0}},
+        {field: 'CompanyState',              type: 'list',      required: false, html: {page: 1, column: 0}, options: {items: app.usStateAbbr}},
+        {field: 'CompanyPostalCode',         type: 'text',      required: false, html: {page: 1, column: 0}},
+        {field: 'CompanyEmail',              type: 'text',      required: false, html: {page: 1, column: 0}},
+        {field: 'CompanyPhone',              type: 'text',      required: false, html: {page: 1, column: 0}},
+        {field: 'Occupation',                type: 'text',      required: false, html: {page: 1, column: 0}},
+        {field: 'CurrentAddress',            type: 'text',      required: false, html: {page: 1, column: 0}},  // Current Address
+        {field: 'CurrentLandLordName',       type: 'text',      required: false, html: {page: 1, column: 0}},  // Current landlord's name
+        {field: 'CurrentLandLordPhoneNo',    type: 'text',      required: false, html: {page: 1, column: 0}},  // Current landlord's phone number
+        {field: 'CurrentLengthOfResidency',  type: 'text',      required: false, html: {page: 1, column: 0}},  // Length of residency at current address
+        {field: 'CurrentReasonForMoving',    type: 'list',      required: false, html: {page: 1, column: 0}},  // Reason of moving from current address
+        {field: 'PriorAddress',              type: 'text',      required: false, html: {page: 1, column: 0}},  // Prior Address
+        {field: 'PriorLandLordName',         type: 'text',      required: false, html: {page: 1, column: 0}},  // Prior landlord's name
+        {field: 'PriorLandLordPhoneNo',      type: 'text',      required: false, html: {page: 1, column: 0}},  // Prior landlord's phone number
+        {field: 'PriorLengthOfResidency',    type: 'text',      required: false, html: {page: 1, column: 0}},  // Length of residency at Prior address
+        {field: 'PriorReasonForMoving',      type: 'list',      required: false, html: {page: 1, column: 0}},  // Reason of moving from Prior address
+        {field: 'Evicted',                   type: 'checkbox',  required: false, html: {page: 1, column: 0}},  // have you ever been Evicted
+        {field: 'EvictedDes',                type: 'text',      required: false, html: {page: 1, column: 0}},
+        {field: 'Convicted',                 type: 'checkbox',  required: false, html: {page: 1, column: 0}},  // have you ever been Arrested or convicted of a crime
+        {field: 'ConvictedDes',              type: 'text',      required: false, html: {page: 1, column: 0}},
+        {field: 'Bankruptcy',                type: 'checkbox',  required: false, html: {page: 1, column: 0}},  // have you ever been Declared Bankruptcy
+        {field: 'BankruptcyDes',             type: 'text',      required: false, html: {page: 1, column: 0}},
+        {field: 'DesiredUsageStartDate',     type: 'date',      required: false, html: {page: 1, column: 0}},
+        {field: 'RentableTypePreference',    type: 'text',      required: false, html: {page: 1, column: 0}},
+        {field: 'OtherPreferences',          type: 'text',      required: false, html: {page: 1, column: 0}},
+        // {field: 'Approver1',                 type: 'int',       required: false, html: {page: 1, column: 0}},
+        // {field: 'Approver1Name',             type: 'text',      required: false, html: {page: 1, column: 0}},
+        // {field: 'DeclineReason1',            type: 'list',      required: false, html: {page: 1, column: 0}},  // ApplDeny String list
+        // {field: 'Approver2',                 type: 'int',       required: false, html: {page: 1, column: 0}},
+        // {field: 'Approver2Name',             type: 'text',      required: false, html: {page: 1, column: 0}},
+        // {field: 'DeclineReason2',            type: 'list',      required: false, html: {page: 1, column: 0}},  // ApplDeny String list
+        // {field: 'FollowUpDate',              type: 'date',      required: false, html: {page: 1, column: 0}},
+        // {field: 'CSAgent',                   type: 'text',      required: false, html: {page: 1, column: 0}},
+        // {field: 'Outcome',                   type: 'text',      required: false, html: {page: 1, column: 0}},
+        // {field: 'CommissionableThirdParty',  type: 'text',      required: false, html: {page: 1, column: 0}},
+        {field: 'SpecialNeeds',              type: 'text',      required: false, html: {page: 1, column: 0}},  // In an effort to accommodate you, please advise us of any special needs,
         // ----------- Payor ----------
         {field: 'CreditLimit',               type: 'money',     required: false, html: {page: 2, column: 0}},
         {field: 'TaxpayorID',                type: 'text',      required: false, html: {page: 2, column: 0}},
@@ -139,41 +173,17 @@ window.buildTransactElements = function() {
         {field: 'DriversLicense',            type: 'text',      required: false, html: {page: 2, column: 0}},  // Driving licence number of applicants
         {field: 'ThirdPartySource',          type: 'text',      required: false, html: {page: 2, column: 0}},
         {field: 'EligibleFuturePayor',       type: 'checkbox',  required: false, html: {page: 2, column: 0}},
-        // ----------- Prospect -----------
-        {field: 'CompanyAddress',            type: 'text',      required: false, html: {page: 3, column: 0}},
-        {field: 'CompanyCity',               type: 'text',      required: false, html: {page: 3, column: 0}},
-        {field: 'CompanyState',              type: 'list',      required: false, html: {page: 3, column: 0}, options: {items: app.usStateAbbr}},
-        {field: 'CompanyPostalCode',         type: 'text',      required: false, html: {page: 3, column: 0}},
-        {field: 'CompanyEmail',              type: 'text',      required: false, html: {page: 3, column: 0}},
-        {field: 'CompanyPhone',              type: 'text',      required: false, html: {page: 3, column: 0}},
-        {field: 'Occupation',                type: 'text',      required: false, html: {page: 3, column: 0}},
-        {field: 'CurrentAddress',            type: 'text',      required: false, html: {page: 3, column: 0}},  // Current Address
-        {field: 'CurrentLandLordName',       type: 'text',      required: false, html: {page: 3, column: 0}},  // Current landlord's name
-        {field: 'CurrentLandLordPhoneNo',    type: 'text',      required: false, html: {page: 3, column: 0}},  // Current landlord's phone number
-        {field: 'CurrentLengthOfResidency',  type: 'text',      required: false, html: {page: 3, column: 0}},  // Length of residency at current address
-        {field: 'CurrentReasonForMoving',    type: 'list',      required: false, html: {page: 3, column: 0}},  // Reason of moving from current address
-        {field: 'PriorAddress',              type: 'text',      required: false, html: {page: 3, column: 0}},  // Prior Address
-        {field: 'PriorLandLordName',         type: 'text',      required: false, html: {page: 3, column: 0}},  // Prior landlord's name
-        {field: 'PriorLandLordPhoneNo',      type: 'text',      required: false, html: {page: 3, column: 0}},  // Prior landlord's phone number
-        {field: 'PriorLengthOfResidency',    type: 'text',      required: false, html: {page: 3, column: 0}},  // Length of residency at Prior address
-        {field: 'PriorReasonForMoving',      type: 'list',      required: false, html: {page: 3, column: 0}},  // Reason of moving from Prior address
-        {field: 'Evicted',                   type: 'checkbox',  required: false, html: {page: 3, column: 0}},  // have you ever been Evicted
-        {field: 'EvictedDes',                type: 'text',      required: false, html: {page: 3, column: 0}},
-        {field: 'Convicted',                 type: 'checkbox',  required: false, html: {page: 3, column: 0}},  // have you ever been Arrested or convicted of a crime
-        {field: 'ConvictedDes',              type: 'text',      required: false, html: {page: 3, column: 0}},
-        {field: 'Bankruptcy',                type: 'checkbox',  required: false, html: {page: 3, column: 0}},  // have you ever been Declared Bankruptcy
-        {field: 'BankruptcyDes',             type: 'text',      required: false, html: {page: 3, column: 0}},
-        {field: 'DesiredUsageStartDate',     type: 'date',      required: false, html: {page: 3, column: 0}},
-        {field: 'RentableTypePreference',    type: 'text',      required: false, html: {page: 3, column: 0}},
-        {field: 'FLAGS',                     type: 'int',       required: false, html: {page: 3, column: 0}},
-        {field: 'Approver',                  type: 'int',       required: false, html: {page: 3, column: 0}},
-        {field: 'DeclineReasonSLSID',        type: 'list',      required: false, html: {page: 3, column: 0}},  // ApplDeny String list
-        {field: 'OtherPreferences',          type: 'text',      required: false, html: {page: 3, column: 0}},
-        {field: 'FollowUpDate',              type: 'date',      required: false, html: {page: 3, column: 0}},
-        {field: 'CSAgent',                   type: 'text',      required: false, html: {page: 3, column: 0}},
-        {field: 'OutcomeSLSID',              type: 'text',      required: false, html: {page: 3, column: 0}},
-        {field: 'CommissionableThirdParty',  type: 'text',      required: false, html: {page: 3, column: 0}},
-        {field: 'Comment',                   type: 'text',      required: false, html: {page: 3, column: 0}},  // In an effort to accommodate you, please advise us of any special needs,
+        // ----------- User ----------
+        {field: 'Points',                    type: 'int',      required: false, html: {page: 3, column: 0}},
+        {field: 'DateofBirth',               type: 'date',      required: false, html: {page: 3, column: 0}},
+        {field: 'EmergencyContactName',      type: 'text',      required: false, html: {page: 3, column: 0}},
+        {field: 'EmergencyContactAddress',   type: 'text',      required: false, html: {page: 3, column: 0}},
+        {field: 'EmergencyContactTelephone', type: 'text',      required: false, html: {page: 3, column: 0}},
+        {field: 'EmergencyContactEmail',     type: 'text',      required: false, html: {page: 3, column: 0}},
+        {field: 'AlternateAddress',          type: 'text',      required: false, html: {page: 3, column: 0}},
+        {field: 'EligibleFutureUser',        type: 'checkbox',  required: false, html: {page: 3, column: 0}},
+        {field: 'Industry',                  type: 'text',      required: false, html: {page: 3, column: 0}},
+        {field: 'SourceSLSID',               type: 'list',      required: false, html: {page: 3, column: 0}}, // "HowFound" string list
         {field: 'CreateBy',                  type: 'int',       required: false, html: {page: 0, column: 0}},
         {field: 'CreateTS',                  type: 'time',      required: false, html: {page: 0, column: 0}},
         {field: 'LastModBy',                 type: 'int',       required: false, html: {page: 0, column: 0}},
@@ -181,10 +191,10 @@ window.buildTransactElements = function() {
     ];
 
     app.transactantTabs = [
-        {id: 'tab1', caption: app.sTransactant},
-        {id: 'tab2', caption: app.sUser},
+        {id: 'tab1', caption: app.sFirstTabTCForm},
+        {id: 'tab4', caption: app.sProspect},
         {id: 'tab3', caption: app.sPayor},
-        {id: 'tab4', caption: app.sProspect}
+        {id: 'tab2', caption: app.sUser}
     ];
 
     //------------------------------------------------------------------------
@@ -366,6 +376,7 @@ window.buildTransactElements = function() {
                 app.form_is_dirty = false;
                 // clear the grid select recid
                 app.last.grid_sel_recid  =-1;
+
                 this.save({}, function (data) {
                     if (data.status == 'error') {
                         console.log('ERROR: '+ data.message);
@@ -465,8 +476,16 @@ window.buildTransactElements = function() {
                 f.get("IsGuarantor").hidden = true;
                 $("div[name=transanctant-role-tile]").hide();
 
+                // disable approver name field
+                f.get("Approver1Name").disabled = true;
+                f.get("Approver2Name").disabled = true;
+
+                // make TMPTCID required false as it's not part of this form
+                f.get("TMPTCID").required = false;
+
                 f.get('SourceSLSID').options.items = getSLStringList(BID, "HowFound");
-                f.get('DeclineReasonSLSID').options.items = getSLStringList(BID, "ApplDeny");
+                // f.get('DeclineReason1').options.items = getSLStringList(BID, "ApplDeny");
+                // f.get('DeclineReason2').options.items = getSLStringList(BID, "ApplDeny");
                 f.get('CurrentReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
                 f.get('PriorReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
             };
@@ -543,7 +562,7 @@ window.getSLStringList = function(BID, SLName){
                     defaultItem = {id: 0, text: " -- Select reason for leaving -- "};
                     break;
                 case "ApplDeny":
-                    defaultItem = {id: 0, text: " -- Select DeclineReasonSLSID -- "};
+                    defaultItem = {id: 0, text: " -- Select DeclineReason -- "};
                     break;
                 default:
                     console.log("SLName doesn't exists");

@@ -36,19 +36,20 @@ type AccountListResponse struct {
 
 // GLAccount describes the static (or mostly static) attributes of a Ledger
 type GLAccount struct {
-	Recid       int               `json:"recid"` // this is for the grid widget
-	LID         int64             // unique id for this GLAccount
-	PLID        int64             // unique id of Parent, 0 if no parent
-	BID         int64             // Business unit associated with this GLAccount
-	RAID        int64             // associated rental agreement, this field is only used when Type = 1
-	TCID        int64             // associated payor, this field is only used when Type = 1
-	GLNumber    string            // acct system name
-	Name        string            // descriptive name for the GLAccount
-	AcctType    string            // QB Acct Type: Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, Other Current Asset, Other Asset, Accounts Payable, Other Current Liability, Cost of Goods Sold, Other Income, Other Expense
-	AllowPost   bool              // 0 = no posting, 1 = posting is allowed
-	RARequired  int64             // 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
-	Description string            // description for this account
-	FLAGS       uint64            // 1<<0 = inactive flag:  0 = active account, 1 = inactive account
+	Recid       int    `json:"recid"` // this is for the grid widget
+	LID         int64  // unique id for this GLAccount
+	PLID        int64  // unique id of Parent, 0 if no parent
+	BID         int64  // Business unit associated with this GLAccount
+	RAID        int64  // associated rental agreement, this field is only used when Type = 1
+	TCID        int64  // associated payor, this field is only used when Type = 1
+	GLNumber    string // acct system name
+	Name        string // descriptive name for the GLAccount
+	AcctType    string // QB Acct Type: Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, Other Current Asset, Other Asset, Accounts Payable, Other Current Liability, Cost of Goods Sold, Other Income, Other Expense
+	AllowPost   bool   // 0 = no posting, 1 = posting is allowed
+	RARequired  int64  // 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
+	Description string // description for this account
+	IsActive    bool
+	FLAGS       uint64            `json:"-"` // 1<<0 = inactive flag:  0 = active account, 1 = inactive account
 	LastModTime rlib.JSONDateTime // auto updated
 	LastModBy   int64             // user making the mod
 	// W2UIChild      w2uiChild `json:"w2ui"`
@@ -63,40 +64,40 @@ type SearchGLAccountsResponse struct {
 
 // AcctDetailsForm is the response data to request for a GLAccount
 type AcctDetailsForm struct {
-	LID           int64
-	PLID          int64
-	BID           int64
-	BUD           rlib.XJSONBud
-	RAID          int64
-	TCID          int64
-	GLNumber      string
-	Name          string
-	AcctType      string
-	AllowPost     bool
-	Description   string
-	FLAGS         uint64 // 1<<0 = inactive flag:  0 = active account, 1 = inactive account
-	OffsetAccount int    // 0 = not offset-account, 1 = offset account
-	LastModTime   rlib.JSONDateTime
-	LastModBy     int64
-	CreateTS      rlib.JSONDateTime
-	CreateBy      int64
+	LID         int64
+	PLID        int64
+	BID         int64
+	BUD         rlib.XJSONBud
+	RAID        int64
+	TCID        int64
+	GLNumber    string
+	Name        string
+	AcctType    string
+	AllowPost   bool
+	Description string
+	IsActive    bool
+	FLAGS       uint64 `json:"-"` // 1<<0 = inactive flag:  0 = active account, 1 = inactive account
+	LastModTime rlib.JSONDateTime
+	LastModBy   int64
+	CreateTS    rlib.JSONDateTime
+	CreateBy    int64
 }
 
 // AcctSaveForm used save inputs directly
 type AcctSaveForm struct {
-	LID           int64
-	BID           int64
-	RAID          int64
-	TCID          int64
-	GLNumber      string
-	Name          string
-	AcctType      string
-	Description   string
-	BUD           rlib.XJSONBud
-	PLID          int64
-	AllowPost     bool
-	FLAGS         uint64 //
-	OffsetAccount int    // the UI value for bit 0 of FLAGS
+	LID         int64
+	BID         int64
+	RAID        int64
+	TCID        int64
+	GLNumber    string
+	Name        string
+	AcctType    string
+	Description string
+	BUD         rlib.XJSONBud
+	PLID        int64
+	AllowPost   bool
+	IsActive    bool
+	FLAGS       uint64 `json:"-"`
 }
 
 // SaveAcctInput is the input data format for a Save command
@@ -116,49 +117,6 @@ type GetAccountResponse struct {
 // AcctDeleteForm is struct used to delete Account
 type AcctDeleteForm struct {
 	LID int64
-}
-
-// acctStatus map
-// Status cannot have an Unknown state. It's either active or inactive. Default state is Active.
-var acctStatus = map[int64]string{
-	//0: "Unknown",
-	0: "Active",
-	1: "Inactive",
-}
-
-// account type
-var acctType = map[int64]string{
-	0: "Normal Account",
-	// 1: "balance for this particular RentalAgreement",
-	// 2: "balance for this payor",
-	// 3:  "Reserved",
-	// 4:  "Reserved",
-	// 5:  "Reserved",
-	// 6:  "Reserved",
-	// 7:  "Reserved",
-	// 8:  "Reserved",
-	// 9:  "Reserved",
-	10: "Default Cash",
-	11: "Default General Receivables",
-	12: "Default Gross Scheduled Rent",
-	13: "Default Loss To Lease",
-	14: "Default Vacancy",
-	16: "Default Security Deposit",
-	17: "Default Owner Equity",
-}
-
-// // account allow posts
-// var acctAllowPosts = map[int64]string{
-// 	0: "Summary Account only, do not allow posts to this ledger",
-// 	1: "Allow posts",
-// }
-
-// getAccountThingJSList sending down list related with accounts info
-func getAccountThingJSList() map[string]map[int64]string {
-	accountStuff := make(map[string]map[int64]string)
-	accountStuff["typeList"] = acctType
-	accountStuff["statusList"] = acctStatus
-	return accountStuff
 }
 
 // SvcAccountsList generates a list of all Accounts with respect of business id specified by d.BID
@@ -349,6 +307,7 @@ func SvcSearchHandlerGLAccounts(w http.ResponseWriter, r *http.Request, d *Servi
 		}
 		rlib.MigrateStructVals(&q, &p)
 		p.Recid = count
+		p.IsActive = (p.FLAGS & 0x1) == 0 // 1<<0: 0=active, 1=inactive
 
 		g.Records = append(g.Records, p)
 
@@ -612,19 +571,9 @@ func saveGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	//--------------------------------------------------------------------------
-	// Make no assumptions about what the caller has done to the FLAGS
-	// Only accept those bits that a caller is authorized to edit. The bizlogic
-	// check takes care of not overwriting the existing FLAG values if this
-	// is an update operation. Vut we're going to limit the FLAGS to only what
-	// clients are authorized to change...
-	//--------------------------------------------------------------------------
-	rlib.Console("foo.Record.OffsetAccount = %d\n", foo.Record.OffsetAccount)
-
 	// migrate foo.Record data to a struct's fields
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
 	fmt.Printf("saveAcct - first migrate: a = %#v\n", a)
-	a.FLAGS = 0 // reset anything that the UI sent
 
 	// data validation
 	if a.Name == "" {
@@ -636,6 +585,11 @@ func saveGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		err := fmt.Errorf("Provide value of GLNumber")
 		SvcErrorReturn(w, err, funcname)
 		return
+	}
+
+	// FLAGS set based on boolean bits
+	if !foo.Record.IsActive { // if active false, then make inactive
+		a.FLAGS |= 0x1 // 0 = active, 1 = inactive
 	}
 
 	// save or update
@@ -774,7 +728,7 @@ func getGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
-		gg.OffsetAccount = int(gg.FLAGS & 0x1)
+		gg.IsActive = (gg.FLAGS & 0x1) == 0 // 1<<0: 0 = active, 1 = inactive
 
 		g.Record = gg
 	}
@@ -893,7 +847,7 @@ func SvcExportGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData)
 
 	// write csv file headers
 	wr.Write([]string{"BUD", "Name", "GLNumber", "Parent GLNumber", "Account Type",
-		"Balance", "Account Status", "Date", "Description"})
+		"Balance", "Is Active", "Date", "Description"})
 
 	for _, a := range accts {
 		bud := rlib.GetBUDFromBIDList(a.BID)
@@ -925,7 +879,8 @@ func SvcExportGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		rec = append(rec, s64Bal)
 
 		// append Status, CreateDate, Description
-		rec = append(rec, acctStatus[int64(a.FLAGS&1)])
+		isActive := (a.FLAGS & 0x1) == 0 // 1<<0: 0 = active, 1 = inactive
+		rec = append(rec, rlib.BoolToYesNoString(isActive))
 		rec = append(rec, a.CreateTS.Format(rlib.RRDATEFMT3))
 		rec = append(rec, a.Description)
 
@@ -948,7 +903,7 @@ type ImportGLAccountRow struct {
 	ParentGLNumber string
 	AccountType    string
 	Balance        float64
-	AccountStatus  string
+	IsActive       string
 	Date           time.Time
 	Description    string
 }
@@ -969,7 +924,7 @@ func SvcImportGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData)
 			"parentglnumber": -1,
 			"accounttype":    -1,
 			"balance":        -1,
-			"accountstatus":  -1,
+			"isactive":       -1,
 			"date":           -1,
 			"description":    -1,
 		}
@@ -1083,16 +1038,16 @@ func SvcImportGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		ngl.Description = recs[ri][acctCSVIndexMap["description"]]
 
 		// set status
-		strStatus := recs[ri][acctCSVIndexMap["accountstatus"]]
-		for n, s := range acctStatus {
-			if strings.ToLower(s) == strings.ToLower(strStatus) { // if both match as case-insensitive the mark
-				ngl.FLAGS &= uint64(n)
-			}
+		isActiveStr := recs[ri][acctCSVIndexMap["isactive"]]
+		isActive, err := rlib.YesNoToBool(isActiveStr)
+		if err != nil {
+			err = fmt.Errorf("error while reading isactive value at row: %d, %s", ri, err.Error())
+			SvcErrorReturn(w, err, funcname)
+			return
 		}
-
-		// if ngl.Status == 0 { // set default as active
-		// 	ngl.Status = 2 // 0=unknown, 1=inactive, 2=active
-		// }
+		if !isActive {
+			ngl.FLAGS |= 0x1 // 0=active, 1=inactive
+		}
 
 		// set PLID from parent glnumber if available
 		pglNo := recs[ri][acctCSVIndexMap["parentglnumber"]]

@@ -425,7 +425,7 @@ func UpdateLedger(ctx context.Context, a *GLAccount) error {
 		a.LastModBy = sess.UID
 	}
 
-	fields := []interface{}{a.PLID, a.BID, a.RAID, a.TCID, a.GLNumber, /*a.Status,*/ a.Name, a.AcctType, a.AllowPost, a.FLAGS, a.Description, a.LastModBy, a.LID}
+	fields := []interface{}{a.PLID, a.BID, a.RAID, a.TCID, a.GLNumber, a.Name, a.AcctType, a.AllowPost, a.FLAGS, a.Description, a.LastModBy, a.LID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateLedger)
 		defer stmt.Close()
@@ -536,14 +536,36 @@ func UpdateProspect(ctx context.Context, a *Prospect) error {
 		a.LastModBy = sess.UID
 	}
 
-	fields := []interface{}{a.BID, a.CompanyAddress, a.CompanyCity, a.CompanyState, a.CompanyPostalCode,
-		a.CompanyEmail, a.CompanyPhone, a.Occupation, a.DesiredUsageStartDate, a.RentableTypePreference,
-		a.FLAGS, a.EvictedDes, a.ConvictedDes, a.BankruptcyDes,
-		a.Approver, a.DeclineReasonSLSID, a.OtherPreferences, a.FollowUpDate, a.CSAgent, a.OutcomeSLSID,
-		a.CurrentAddress, a.CurrentLandLordName, a.CurrentLandLordPhoneNo, a.CurrentReasonForMoving,
-		a.CurrentLengthOfResidency, a.PriorAddress, a.PriorLandLordName, a.PriorLandLordPhoneNo,
-		a.PriorReasonForMoving, a.PriorLengthOfResidency, a.CommissionableThirdParty,
-		a.LastModBy, a.TCID}
+	fields := []interface{}{
+		a.BID,
+		a.CompanyAddress,
+		a.CompanyCity,
+		a.CompanyState,
+		a.CompanyPostalCode,
+		a.CompanyEmail,
+		a.CompanyPhone,
+		a.Occupation,
+		a.EvictedDes,
+		a.ConvictedDes,
+		a.BankruptcyDes,
+		a.FollowUpDate,
+		a.FLAGS,
+		a.OtherPreferences,
+		a.SpecialNeeds,
+		a.CurrentAddress,
+		a.CurrentLandLordName,
+		a.CurrentLandLordPhoneNo,
+		a.CurrentReasonForMoving,
+		a.CurrentLengthOfResidency,
+		a.PriorAddress,
+		a.PriorLandLordName,
+		a.PriorLandLordPhoneNo,
+		a.PriorReasonForMoving,
+		a.PriorLengthOfResidency,
+		a.CommissionableThirdParty,
+		a.LastModBy,
+		a.TCID,
+	}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateProspect)
 		defer stmt.Close()
@@ -770,7 +792,51 @@ func UpdateRentalAgreement(ctx context.Context, a *RentalAgreement) error {
 		a.LastModBy = sess.UID
 	}
 
-	fields := []interface{}{a.RATID, a.BID, a.NLID, a.AgreementStart, a.AgreementStop, a.PossessionStart, a.PossessionStop, a.RentStart, a.RentStop, a.RentCycleEpoch, a.UnspecifiedAdults, a.UnspecifiedChildren, a.Renewal, a.SpecialProvisions, a.LeaseType, a.ExpenseAdjustmentType, a.ExpensesStop, a.ExpenseStopCalculation, a.BaseYearEnd, a.ExpenseAdjustment, a.EstimatedCharges, a.RateChange, a.NextRateChange, a.PermittedUses, a.ExclusiveUses, a.ExtensionOption, a.ExtensionOptionNotice, a.ExpansionOption, a.ExpansionOptionNotice, a.RightOfFirstRefusal, a.FLAGS, a.LastModBy, a.RAID}
+	fields := []interface{}{
+		a.RATID,
+		a.BID,
+		a.NLID,
+		a.AgreementStart,
+		a.AgreementStop,
+		a.PossessionStart,
+		a.PossessionStop,
+		a.RentStart,
+		a.RentStop,
+		a.RentCycleEpoch,
+		a.UnspecifiedAdults,
+		a.UnspecifiedChildren,
+		a.Renewal,
+		a.SpecialProvisions,
+		a.LeaseType,
+		a.ExpenseAdjustmentType,
+		a.ExpensesStop,
+		a.ExpenseStopCalculation,
+		a.BaseYearEnd,
+		a.ExpenseAdjustment,
+		a.EstimatedCharges,
+		a.RateChange,
+		a.CSAgent,
+		a.NextRateChange,
+		a.PermittedUses,
+		a.ExclusiveUses,
+		a.ExtensionOption,
+		a.ExtensionOptionNotice,
+		a.ExpansionOption,
+		a.ExpansionOptionNotice,
+		a.RightOfFirstRefusal,
+		a.DesiredUsageStartDate,
+		a.RentableTypePreference,
+		a.FLAGS,
+		a.Approver1,
+		a.DecisionDate1,
+		a.DeclineReason1,
+		a.Approver2,
+		a.DecisionDate2,
+		a.DeclineReason2,
+		a.Outcome,
+		a.LastModBy,
+		a.RAID,
+	}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateRentalAgreement)
 		defer stmt.Close()
@@ -1263,7 +1329,7 @@ func UpdateTransactant(ctx context.Context, a *Transactant) error {
 
 	fields := []interface{}{a.BID, a.NLID, a.FirstName, a.MiddleName, a.LastName, a.PreferredName,
 		a.CompanyName, a.IsCompany, a.PrimaryEmail, a.SecondaryEmail, a.WorkPhone, a.CellPhone,
-		a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.Website, a.FLAGS,
+		a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.Website, a.Comment, a.FLAGS,
 		a.LastModBy, a.TCID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateTransactant)
