@@ -141,7 +141,6 @@ describe('AIR Roller UI Tests - Task Lists', function () {
         // ---------------------------------------
         // ----- Tests for add new record form ---
         // ---------------------------------------
-        testConfig.buttonNamesInDetailForm.splice( testConfig.buttonNamesInDetailForm.indexOf('delete'), 1 );
 
         // TODO(Jay): Use common testNewRecordForm() method after removing closeFormTests() call in that method. 
         cy.contains('Add New', {force: true}).click().wait(constants.WAIT_TIME);
@@ -193,7 +192,7 @@ describe('AIR Roller UI Tests - Task Lists', function () {
                     .should('have.value', defaultValue);
             });
         // Check button's visibility
-        common.buttonsTest(testConfig.buttonNamesInDetailForm, testConfig.notVisibleButtonNamesInForm);
+        common.buttonsTest(testConfig.buttonNamesInForm, testConfig.notVisibleButtonNamesInForm);
 
         // Close the form
         cy.get(selectors.getClosePopupButtonSelector()).click().wait(constants.WAIT_TIME);

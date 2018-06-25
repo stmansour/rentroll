@@ -23,5 +23,6 @@ export let conf = {
     toDate: new Date(2018, 5, 30), // 30th June 2018
     gridInForm: "tldsDetailGrid",
     notVisibleButtonNamesInForm: [],
+    buttonNamesInForm: ["save", "delete"],
     buttonNamesInDetailForm: ["save", "delete"]
 };

@@ -24,5 +24,6 @@ export let conf = {
     gridInForm: "tlsDetailGrid",
     formInPopUp: "newTaskListForm",
     notVisibleButtonNamesInForm: [],
+    buttonNamesInForm: ["save"],
     buttonNamesInDetailForm: ["save", "delete"]
 };
