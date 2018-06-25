@@ -49,14 +49,8 @@
         "CompanyPhone": "",
         "Occupation": "",
         "Notes": "",
-        "DesiredUsageStartDate": "",
-        "RentableTypePreference": "",
-        "Approver": "",
-        "DeclineReason": "",
         "OtherPreferences": "",
         "FollowUpDate": "",
-        "CSAgent": "",
-        "Outcome": ""
     },
     "RentableCSV": {
         "BUD": "",
