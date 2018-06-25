@@ -20,7 +20,7 @@ export let conf = {
     primaryId: "TLID",
     haveDateValue: true,
     fromDate: new Date(2018, 5, 1), // year, month-1, day : 1st June 2018
-    toDate: new Date(2018, 5, 30), // 30th June 2018
+    toDate: new Date(2018, 6, 1), // 1st July 2018
     gridInForm: "tlsDetailGrid",
     formInPopUp: "newTaskListForm",
     notVisibleButtonNamesInForm: [],
