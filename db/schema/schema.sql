@@ -226,21 +226,22 @@ CREATE TABLE RentalAgreement (
                                                                            1<<4 - Approver1 decision, only valid if DecisionDate1 is year >1999, 0 = Declined, 1 = Approved
            bits 0:3                                                        1<<5 - Approver2 decision, only valid if DecisionDate2 is year >1999, 0 = Declined, 1 = Approved
         -------------  -----------------  --------------------------------------
-         (FLAGS & 15)  State              Meaning
+        (FLAGS & 0xF)  State              Meaning
         -------------  -----------------  --------------------------------------
               0        In Progress        Renters / Users have not completely
                                           filled out the application.
-              1        In Review          Application has been filled out. It is
-                                          being reviewed
-              2        First Approval     The first approver needs to approve
-                                          the application
-              3        Second Approval    The second approver needs to approve
-                                          the application
-              4        Approved           Application was approved by Approver
+              1        Pending First      Application has been filled out. It is
+                       Approval           being reviewed
+              2        Pending Second     The first approver needs to approve
+                       Approval           the application
+              3        Move In            Print Rental Agreement, sign,
+                                          the application, 
+              4        Active             Application was approved by Approver
                                           on ApplicationDecisionDate
-              5        Not Approved       Application was declined. Reason is in
-                                          DeclineReasonSLSID
-              6        ApplicantPassed    The applicant chose not to rent.
+              5        Terminated         Agreement was terminated because the
+                                          end date has been reached or it was
+                                          terminated early for some reason.
+              6        Canceled           The applicant chose not to rent.
                                           Reason is in Outcome SLSID
               7        unused             reserved for future expansion
               8        unused             reserved for future expansion
@@ -919,8 +920,6 @@ CREATE TABLE Prospect (
     ConvictedDes VARCHAR(2048) NOT NULL DEFAULT '',                 -- explanation when FLAGS & (1<<5) > 0
     BankruptcyDes VARCHAR(2048) NOT NULL DEFAULT '',                -- explanation when FLAGS & (1<<6) > 0
     FollowUpDate DATE NOT NULL DEFAULT '1970-01-01 00:00:00',       -- automatically fill out this date to sysdate + 24hrs
-    CSAgent BIGINT NOT NULL DEFAULT 0,                              -- Accord Directory UserID - for the CSAgent
-
     FLAGS BIGINT NOT NULL DEFAULT 0,                                /* 1<<0 - Previously Evicted: 0 = no, 1 = yes
                                                                        1<<1 - Previously Convicted of a felony: 0 = no, 1 = yes
                                                                        1<<2 - Previously declared bankruptcy: 0 = no, 1 = yes
