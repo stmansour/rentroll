@@ -350,14 +350,8 @@ window.loadRAPeopleForm = function () {
 
                     // Set list field value
                     form.get('SourceSLSID').options.items = getSLStringList(BID, "HowFound");
-                    // form.get('DeclineReason1').options.items = getSLStringList(BID, "ApplDeny");
-                    // form.get('DeclineReason2').options.items = getSLStringList(BID, "ApplDeny");
                     form.get('CurrentReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
                     form.get('PriorReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
-
-                    // disable approver name field
-                    // form.get("Approver1Name").disabled = true;
-                    // form.get("Approver2Name").disabled = true;
 
                     // hide delete button if it is NewRecord
                     var isNewRecord = (w2ui.RAPeopleGrid.get(form.record.recid, true) === null);
@@ -395,15 +389,15 @@ window.loadRAPeopleForm = function () {
             onSubmit: function (target, data) {
 
                 if(data.postData.record.Evicted){
-                    data.postData.record.FLAGS |= 0x10; // set bit index 4
+                    data.postData.record.FLAGS |= 0x0; // set bit index 4
                 }
 
                 if(data.postData.record.Convicted){
-                    data.postData.record.FLAGS |= 0x20; // set bit index 5
+                    data.postData.record.FLAGS |= 0x1; // set bit index 5
                 }
 
                 if(data.postData.record.Bankruptcy){
-                    data.postData.record.FLAGS |= 0x40; // set bit index 6
+                    data.postData.record.FLAGS |= 0x2; // set bit index 6
                 }
 
             }

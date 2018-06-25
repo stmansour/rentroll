@@ -141,8 +141,6 @@ window.buildTransactElements = function() {
         {field: 'ConvictedDes',              type: 'text',      required: false, html: {page: 1, column: 0}},
         {field: 'Bankruptcy',                type: 'checkbox',  required: false, html: {page: 1, column: 0}},  // have you ever been Declared Bankruptcy
         {field: 'BankruptcyDes',             type: 'text',      required: false, html: {page: 1, column: 0}},
-        {field: 'DesiredUsageStartDate',     type: 'date',      required: false, html: {page: 1, column: 0}},
-        {field: 'RentableTypePreference',    type: 'text',      required: false, html: {page: 1, column: 0}},
         {field: 'OtherPreferences',          type: 'text',      required: false, html: {page: 1, column: 0}},
         // {field: 'FollowUpDate',              type: 'date',      required: false, html: {page: 1, column: 0}},
         // {field: 'CommissionableThirdParty',  type: 'text',      required: false, html: {page: 1, column: 0}},
@@ -458,16 +456,10 @@ window.buildTransactElements = function() {
                 f.get("IsGuarantor").hidden = true;
                 $("div[name=transanctant-role-tile]").hide();
 
-                // disable approver name field
-                f.get("Approver1Name").disabled = true;
-                f.get("Approver2Name").disabled = true;
-
                 // make TMPTCID required false as it's not part of this form
                 f.get("TMPTCID").required = false;
 
                 f.get('SourceSLSID').options.items = getSLStringList(BID, "HowFound");
-                // f.get('DeclineReason1').options.items = getSLStringList(BID, "ApplDeny");
-                // f.get('DeclineReason2').options.items = getSLStringList(BID, "ApplDeny");
                 f.get('CurrentReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
                 f.get('PriorReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
             };
@@ -503,15 +495,15 @@ window.buildTransactElements = function() {
             data.postData.record.EligibleFuturePayor = int_to_bool(data.postData.record.EligibleFuturePayor);
 
             if(data.postData.record.Evicted){
-                data.postData.record.FLAGS |= 0x10; // set bit index 4
+                data.postData.record.FLAGS |= 0x0; // set bit index 4
             }
 
             if(data.postData.record.Convicted){
-                data.postData.record.FLAGS |= 0x20; // set bit index 5
+                data.postData.record.FLAGS |= 0x1; // set bit index 5
             }
 
             if(data.postData.record.Bankruptcy){
-                data.postData.record.FLAGS |= 0x40; // set bit index 6
+                data.postData.record.FLAGS |= 0x2; // set bit index 6
             }
 
         }

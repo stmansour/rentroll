@@ -577,10 +577,6 @@ func getXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	g.Record.BID = d.BID
 	g.Record.BUD = rlib.GetBUDFromBIDList(d.BID)
 
-	// Get approver name based approver id
-	// g.Record.Approver1Name = rlib.GetNameForUID(r.Context(), g.Record.Approver1)
-	// g.Record.Approver2Name = rlib.GetNameForUID(r.Context(), g.Record.Approver2)
-
 	g.Status = "success"
 	SvcWriteResponse(d.BID, &g, w)
 }

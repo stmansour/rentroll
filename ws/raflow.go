@@ -101,16 +101,16 @@ type RAPeopleFlowData struct {
 	PriorReasonForMoving   int64 // Reason for moving
 
 	// Have you ever been
-	Evicted                  bool // Evicted
-	EvictedDes               string
-	Convicted                bool // Arrested or convicted of a Convicted
-	ConvictedDes             string
-	Bankruptcy               bool // Declared Bankruptcy
-	BankruptcyDes            string
-	OtherPreferences         string
-	FollowUpDate             rlib.JSONDate
-	CommissionableThirdParty string
-	SpecialNeeds             string // In an effort to accommodate you, please advise us of any special needs
+	Evicted          bool // Evicted
+	EvictedDes       string
+	Convicted        bool // Arrested or convicted of a Convicted
+	ConvictedDes     string
+	Bankruptcy       bool // Declared Bankruptcy
+	BankruptcyDes    string
+	OtherPreferences string
+	//FollowUpDate             rlib.JSONDate
+	//CommissionableThirdParty string
+	SpecialNeeds string // In an effort to accommodate you, please advise us of any special needs
 
 	// ---------- Payor -----------
 	CreditLimit         float64
