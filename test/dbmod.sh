@@ -472,6 +472,7 @@ DBNAME="rentroll"
 # ALTER TABLE Prospect DROP COLUMN Outcome;
 # ALTER TABLE Prospect DROP COLUMN DesiredUsageStartDate;
 # ALTER TABLE Prospect DROP COLUMN RentableTypePreference;
+# ALTER TABLE Prospect DROP COLUMN CSAgent;
 # ALTER TABLE RentalAgreement ADD Approver1 BIGINT NOT NULL DEFAULT 0 AFTER FLAGS;
 # ALTER TABLE RentalAgreement ADD DecisionDate1 DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00' AFTER Approver1;
 # ALTER TABLE RentalAgreement ADD DeclineReason1 BIGINT NOT NULL DEFAULT 0 AFTER DecisionDate1;
@@ -486,7 +487,6 @@ DBNAME="rentroll"
 #  Put modifications to schema in the lines below
 #=====================================================
 cat >${MODFILE} <<EOF
-ALTER TABLE Prospect DROP COLUMN CSAgent;
 EOF
 
 #==============================================================================
