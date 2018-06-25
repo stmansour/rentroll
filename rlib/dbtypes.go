@@ -579,7 +579,19 @@ type RentalAgreement struct {
 	ExpansionOption        string      // the right to expand to certanin spaces that are typically contiguous to their primary space
 	ExpansionOptionNotice  time.Time   // the last date by which a Tenant can give notice of their intention to exercise the right to an Expansion Option
 	RightOfFirstRefusal    string      // Tenant may have the right to purchase their premises if LL chooses to sell
-	FLAGS                  uint64      // 1<<0 - is application pending approval,
+	DesiredUsageStartDate  time.Time   //
+	RentableTypePreference int64       //
+	FLAGS                  uint64      // See definition in rentroll/db/schema/schema.sql
+	Approver1              int64       // UID of approver1, from Directory
+	DeclineReason1         int64       // SLSid of reason if declined
+	DecisionDate1          time.Time   // when did approver1 make the decision
+	Approver2              int64       // UID of approver2, from Directory
+	DeclineReason2         int64       // SLSid of reason if declined
+	DecisionDate2          time.Time   // when did approver2 make the decision
+	FollowUpDate           time.Time   // automatically fill out this date to sysdate + 24hrs
+	CSAgent                int64       // Accord Directory UserID - for the CSAgent
+	Outcome                int64       //Only valid if state == Appl Elect(6), this is the SLSID of string from a list of WhyLeaving
+	OtherPreferences       string      // user prefs
 	LastModTime            time.Time   // when was this record last written
 	LastModBy              int64       // employee UID (from phonebook) that modified it
 	CreateTS               time.Time   // when was this record created
@@ -730,21 +742,13 @@ type Prospect struct {
 	Occupation               string
 	DesiredUsageStartDate    time.Time // predicted rent start date
 	RentableTypePreference   int64     // RentableType
+	FollowUpDate             time.Time //
 	FLAGS                    uint64    // 0 = Approved/NotApproved,
-	EvictedDes               string    // explanation when FLAGS & (1<<2) > 0
-	ConvictedDes             string    // explanation when FLAGS & (1<<3) > 0
-	BankruptcyDes            string    // explanation when FLAGS & (1<<4) > 0
-	Approver1                int64     // UID of approver1, from Directory
-	DeclineReason1           int64     // SLSid of reason if declined
-	DecisionDate1            time.Time // when did approver1 make the decision
-	Approver2                int64     // UID of approver2, from Directory
-	DeclineReason2           int64     // SLSid of reason if declined
-	DecisionDate2            time.Time // when did approver2 make the decision
 	OtherPreferences         string    // arbitrary text
-	SpecialNeeds             string    // for potential renters who are disabled
-	FollowUpDate             time.Time // automatically fill out this date to sysdate + 24hrs
-	CSAgent                  int64     // Accord Directory UserID - for the CSAgent
-	Outcome                  int64     // id of string from a list of outcomes. Melissa to provide reasons
+	SpecialNeeds             string    // any special needs
+	EvictedDes               string    // explanation when FLAGS & (1<<0) > 0
+	ConvictedDes             string    // explanation when FLAGS & (1<<1) > 0
+	BankruptcyDes            string    // explanation when FLAGS & (1<<2) > 0
 	CurrentAddress           string
 	CurrentLandLordName      string
 	CurrentLandLordPhoneNo   string

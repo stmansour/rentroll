@@ -149,20 +149,17 @@ type RAPeopleFlowData struct {
 
 // RAPetsFlowData contains data in the pets part of RA flow
 type RAPetsFlowData struct {
-	TMPPETID             int64
-	BID                  int64
-	PETID                int64
-	TMPTCID              int64
-	Name                 string
-	Type                 string
-	Breed                string
-	Color                string
-	Weight               int
-	DtStart              rlib.JSONDate
-	DtStop               rlib.JSONDate
-	NonRefundablePetFee  float64
-	RefundablePetDeposit float64
-	RecurringPetFee      float64
+	TMPPETID int64
+	BID      int64
+	PETID    int64
+	TMPTCID  int64
+	Name     string
+	Type     string
+	Breed    string
+	Color    string
+	Weight   int
+	DtStart  rlib.JSONDate
+	DtStop   rlib.JSONDate
 }
 
 // RAVehiclesFlowData contains data in the vehicles part of RA flow
@@ -180,7 +177,6 @@ type RAVehiclesFlowData struct {
 	LicensePlateState   string
 	LicensePlateNumber  string
 	ParkingPermitNumber string
-	ParkingPermitFee    float64
 	DtStart             rlib.JSONDate
 	DtStop              rlib.JSONDate
 }

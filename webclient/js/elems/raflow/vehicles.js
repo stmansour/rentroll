@@ -33,7 +33,6 @@ window.getVehicleFormInitRecord = function (previousFormRecord) {
         LicensePlateState:      "",
         LicensePlateNumber:     "",
         ParkingPermitNumber:    "",
-        ParkingPermitFee:        0,
         DtStart:                w2uiDateControlString(t),
         DtStop:                 w2uiDateControlString(nyd)
     };
@@ -87,7 +86,6 @@ window.loadRAVehiclesGrid = function () {
                 { field: 'LicensePlateNumber',  type: 'text',   required: false },
                 { field: 'VIN',                 type: 'text',   required: false },
                 { field: 'ParkingPermitNumber', type: 'text',   required: false },
-                { field: 'ParkingPermitFee',    type: 'money',  required: false },
                 { field: 'DtStart',             type: 'date',   required: false,    html: { caption: 'DtStart', page: 0, column: 0 } },
                 { field: 'DtStop',              type: 'date',   required: false,    html: { caption: 'DtStop', page: 0, column: 0 } },
                 { field: 'LastModTime',         type: 'time',   required: false,    html: { caption: 'LastModTime', page: 0, column: 0 } },
@@ -124,11 +122,9 @@ window.loadRAVehiclesGrid = function () {
                     console.debug("RAID", RAID);
                     if (RAID > 0) {
                         $(f.box).find("input[name=ParkingPermitNumber]").prop("disabled", false);
-                        // $(f.box).find("input[name=ParkingPermitFee]").prop("disabled", false);
                     } else {
                         // if RAID is not available then disable
                         $(f.box).find("input[name=ParkingPermitNumber]").prop("disabled", true);
-                        // $(f.box).find("input[name=ParkingPermitFee]").prop("disabled", true);
                     }
                 };
             },
@@ -343,12 +339,6 @@ window.loadRAVehiclesGrid = function () {
                     field: 'ParkingPermitNumber',
                     caption: 'Parking Permit <br>Number',
                     size: '100px'
-                },
-                {
-                    field: 'ParkingPermitFee',
-                    caption: 'Parking Permit <br>Fee',
-                    size: '100px',
-                    render: 'money'
                 },
                 {
                     field: 'DtStart',

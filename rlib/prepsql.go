@@ -694,7 +694,8 @@ func buildPreparedStatements() {
 	//==========================================
 	// PROSPECT
 	//==========================================
-	flds = "TCID,BID,CompanyAddress,CompanyCity,CompanyState,CompanyPostalCode,CompanyEmail,CompanyPhone,Occupation,DesiredUsageStartDate,RentableTypePreference,FLAGS,EvictedDes,ConvictedDes,BankruptcyDes,FollowUpDate,CSAgent,Approver1,DecisionDate1,DeclineReason1,Approver2,DecisionDate2,DeclineReason2,Outcome,OtherPreferences,SpecialNeeds,CurrentAddress,CurrentLandLordName,CurrentLandLordPhoneNo,CurrentReasonForMoving,CurrentLengthOfResidency,PriorAddress,PriorLandLordName,PriorLandLordPhoneNo,PriorReasonForMoving,PriorLengthOfResidency,CommissionableThirdParty,CreateTS,CreateBy,LastModTime,LastModBy"
+	flds = "TCID,BID,CompanyAddress,CompanyCity,CompanyState,CompanyPostalCode,CompanyEmail,CompanyPhone,Occupation,EvictedDes,ConvictedDes,BankruptcyDes,FollowUpDate,FLAGS,OtherPreferences,SpecialNeeds,CurrentAddress,CurrentLandLordName,CurrentLandLordPhoneNo,CurrentReasonForMoving,CurrentLengthOfResidency,PriorAddress,PriorLandLordName,PriorLandLordPhoneNo,PriorReasonForMoving,PriorLengthOfResidency,CommissionableThirdParty,CreateTS,CreateBy,LastModTime,LastModBy"
+
 	RRdb.DBFields["Prospect"] = flds
 	RRdb.Prepstmt.GetProspect, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Prospect where TCID=?")
 	Errcheck(err)
@@ -879,11 +880,12 @@ func buildPreparedStatements() {
 	//===============================
 	//  Rental Agreement
 	//===============================
-	flds = "RAID,RATID,BID,NLID,AgreementStart,AgreementStop,PossessionStart,PossessionStop,RentStart,RentStop,RentCycleEpoch,UnspecifiedAdults,UnspecifiedChildren,Renewal,SpecialProvisions,LeaseType,ExpenseAdjustmentType,ExpensesStop,ExpenseStopCalculation,BaseYearEnd,ExpenseAdjustment,EstimatedCharges,RateChange,NextRateChange,PermittedUses,ExclusiveUses,ExtensionOption,ExtensionOptionNotice,ExpansionOption,ExpansionOptionNotice,RightOfFirstRefusal,FLAGS,CreateTS,CreateBy,LastModTime,LastModBy"
+	flds = "RAID,RATID,BID,NLID,AgreementStart,AgreementStop,PossessionStart,PossessionStop,RentStart,RentStop,RentCycleEpoch,UnspecifiedAdults,UnspecifiedChildren,Renewal,SpecialProvisions,LeaseType,ExpenseAdjustmentType,ExpensesStop,ExpenseStopCalculation,BaseYearEnd,ExpenseAdjustment,EstimatedCharges,RateChange,CSAgent,NextRateChange,PermittedUses,ExclusiveUses,ExtensionOption,ExtensionOptionNotice,ExpansionOption,ExpansionOptionNotice,RightOfFirstRefusal,DesiredUsageStartDate,RentableTypePreference,FLAGS,Approver1,DecisionDate1,DeclineReason1,Approver2,DecisionDate2,DeclineReason2,Outcome,CreateTS,CreateBy,LastModTime,LastModBy"
+
 	RRdb.DBFields["RentalAgreement"] = flds
 	RRdb.Prepstmt.CountBusinessRentalAgreements, err = RRdb.Dbrr.Prepare("SELECT COUNT(RAID) FROM RentalAgreement WHERE BID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRentalAgreementByBusiness, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from RentalAgreement where BID=?")
+	RRdb.Prepstmt.GetRentalAgreementByBusiness, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from RentalAgreement WHERE BID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetRentalAgreement, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentalAgreement WHERE RAID=?")
 	Errcheck(err)

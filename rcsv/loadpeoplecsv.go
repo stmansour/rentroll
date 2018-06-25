@@ -7,7 +7,6 @@ import (
 	"rentroll/rlib"
 	"strconv"
 	"strings"
-	"time"
 )
 
 // BUD et all are constants used by multiple programs
@@ -194,7 +193,7 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 		return 0, nil // we've validated the col headings, all is good, send the next line
 	}
 
-	dateform := "2006-01-02"
+	//dateform := "2006-01-02"
 	pr.OtherPreferences = ""
 
 	for i := 0; i < len(sa); i++ {
@@ -304,45 +303,45 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 				pr.RentableTypePreference = rt.RTID
 			}
 		case Approver1: // Approver1 ID
-			if len(s) > 0 {
-				var y int64
-				if y, err = strconv.ParseInt(strings.TrimSpace(s), 10, 64); err != nil {
-					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid Approver1 UID value: %s", funcname, lineno, s)
-				}
-				pr.Approver1 = y
-			}
+			// if len(s) > 0 {
+			// 	var y int64
+			// 	if y, err = strconv.ParseInt(strings.TrimSpace(s), 10, 64); err != nil {
+			// 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid Approver1 UID value: %s", funcname, lineno, s)
+			// 	}
+			// 	pr.Approver1 = y
+			// }
 		case DeclineReason1:
-			if len(s) > 0 {
-				var y int64
-				if y, err = strconv.ParseInt(strings.TrimSpace(s), 10, 64); err != nil {
-					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid DeclineReason1 value: %s", funcname, lineno, s)
-				}
-				pr.DeclineReason1 = y
-			}
+			// if len(s) > 0 {
+			// 	var y int64
+			// 	if y, err = strconv.ParseInt(strings.TrimSpace(s), 10, 64); err != nil {
+			// 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid DeclineReason1 value: %s", funcname, lineno, s)
+			// 	}
+			// 	pr.DeclineReason1 = y
+			// }
 		case OtherPreferences:
-			if len(s) > 0 {
-				pr.OtherPreferences = s
-			}
+			// if len(s) > 0 {
+			// 	pr.OtherPreferences = s
+			// }
 		case FollowUpDate:
-			if len(s) > 0 {
-				pr.FollowUpDate, _ = time.Parse(dateform, s)
-			}
+			// if len(s) > 0 {
+			// 	pr.FollowUpDate, _ = time.Parse(dateform, s)
+			// }
 		case CSAgent:
-			if len(s) > 0 {
-				var y int64
-				if y, err = strconv.ParseInt(strings.TrimSpace(s), 10, 64); err != nil {
-					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid CSAgent ID value: %s", funcname, lineno, s)
-				}
-				pr.CSAgent = y
-			}
+			// if len(s) > 0 {
+			// var y int64
+			// if y, err = strconv.ParseInt(strings.TrimSpace(s), 10, 64); err != nil {
+			// 	return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid CSAgent ID value: %s", funcname, lineno, s)
+			// }
+			// pr.CSAgent = y
+			// }
 		case Outcome:
-			if len(s) > 0 {
-				var y int64
-				if y, err = strconv.ParseInt(strings.TrimSpace(s), 10, 64); err != nil {
-					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid Outcome value: %s", funcname, lineno, s)
-				}
-				pr.Outcome = y
-			}
+			//			if len(s) > 0 {
+			//				var y int64
+			//				if y, err = strconv.ParseInt(strings.TrimSpace(s), 10, 64); err != nil {
+			//					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid Outcome value: %s", funcname, lineno, s)
+			//				}
+			//				pr.Outcome = y
+			//			}
 		default:
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Unknown field, column %d", funcname, lineno, i)
 		}

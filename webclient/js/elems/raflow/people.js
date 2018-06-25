@@ -350,14 +350,14 @@ window.loadRAPeopleForm = function () {
 
                     // Set list field value
                     form.get('SourceSLSID').options.items = getSLStringList(BID, "HowFound");
-                    form.get('DeclineReason1').options.items = getSLStringList(BID, "ApplDeny");
-                    form.get('DeclineReason2').options.items = getSLStringList(BID, "ApplDeny");
+                    // form.get('DeclineReason1').options.items = getSLStringList(BID, "ApplDeny");
+                    // form.get('DeclineReason2').options.items = getSLStringList(BID, "ApplDeny");
                     form.get('CurrentReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
                     form.get('PriorReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
 
                     // disable approver name field
-                    form.get("Approver1Name").disabled = true;
-                    form.get("Approver2Name").disabled = true;
+                    // form.get("Approver1Name").disabled = true;
+                    // form.get("Approver2Name").disabled = true;
 
                     // hide delete button if it is NewRecord
                     var isNewRecord = (w2ui.RAPeopleGrid.get(form.record.recid, true) === null);
