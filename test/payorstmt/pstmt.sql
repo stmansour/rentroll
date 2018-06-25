@@ -1310,18 +1310,14 @@ CREATE TABLE `Prospect` (
   `CompanyEmail` varchar(100) NOT NULL DEFAULT '',
   `CompanyPhone` varchar(100) NOT NULL DEFAULT '',
   `Occupation` varchar(100) NOT NULL DEFAULT '',
-  `DesiredUsageStartDate` date NOT NULL DEFAULT '1970-01-01',
-  `RentableTypePreference` bigint(20) NOT NULL DEFAULT '0',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
   `EvictedDes` varchar(2048) NOT NULL DEFAULT '',
   `ConvictedDes` varchar(2048) NOT NULL DEFAULT '',
   `BankruptcyDes` varchar(2048) NOT NULL DEFAULT '',
-  `Approver` bigint(20) NOT NULL DEFAULT '0',
-  `DeclineReasonSLSID` bigint(20) NOT NULL DEFAULT '0',
   `OtherPreferences` varchar(1024) NOT NULL DEFAULT '',
+  `SpecialNeeds` varchar(1024) NOT NULL DEFAULT '',
   `FollowUpDate` date NOT NULL DEFAULT '1970-01-01',
   `CSAgent` bigint(20) NOT NULL DEFAULT '0',
-  `OutcomeSLSID` bigint(20) NOT NULL DEFAULT '0',
   `CurrentAddress` varchar(200) NOT NULL DEFAULT '',
   `CurrentLandLordName` varchar(100) NOT NULL DEFAULT '',
   `CurrentLandLordPhoneNo` varchar(20) NOT NULL DEFAULT '',
@@ -1348,7 +1344,7 @@ CREATE TABLE `Prospect` (
 
 LOCK TABLES `Prospect` WRITE;
 /*!40000 ALTER TABLE `Prospect` DISABLE KEYS */;
-INSERT INTO `Prospect` VALUES (1,'','','','','','','','1900-01-01',0,0,'','','',0,0,'','1900-01-01',0,0,'','','',0,'','','','',0,'','','2017-08-31 17:56:26',0,'2017-08-31 17:56:26',0,1),(1,'','','','','','','','1900-01-01',0,0,'','','',0,0,'','1900-01-01',0,0,'','','',0,'','','','',0,'','','2017-08-31 17:57:13',0,'2017-08-31 17:57:13',0,2),(1,'','','','','','','','1900-01-01',0,0,'','','',0,0,'','1900-01-01',0,0,'','','',0,'','','','',0,'','','2017-08-31 17:57:55',0,'2017-08-31 17:57:55',0,3);
+INSERT INTO `Prospect` VALUES (1,'','','','','','','',0,'','','','','','1900-01-01',0,'','','',0,'','','','',0,'','','2017-08-31 17:56:26',0,'2017-08-31 17:56:26',0,1),(1,'','','','','','','',0,'','','','','','1900-01-01',0,'','','',0,'','','','',0,'','','2017-08-31 17:57:13',0,'2017-08-31 17:57:13',0,2),(1,'','','','','','','',0,'','','','','','1900-01-01',0,'','','',0,'','','','',0,'','','2017-08-31 17:57:55',0,'2017-08-31 17:57:55',0,3);
 /*!40000 ALTER TABLE `Prospect` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1913,7 +1909,16 @@ CREATE TABLE `RentalAgreement` (
   `ExpansionOption` varchar(128) NOT NULL DEFAULT '',
   `ExpansionOptionNotice` date NOT NULL DEFAULT '1970-01-01',
   `RightOfFirstRefusal` varchar(128) NOT NULL DEFAULT '',
+  `DesiredUsageStartDate` date NOT NULL DEFAULT '1970-01-01',
+  `RentableTypePreference` bigint(20) NOT NULL DEFAULT '0',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
+  `Approver1` bigint(20) NOT NULL DEFAULT '0',
+  `DecisionDate1` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
+  `DeclineReason1` bigint(20) NOT NULL DEFAULT '0',
+  `Approver2` bigint(20) NOT NULL DEFAULT '0',
+  `DecisionDate2` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
+  `DeclineReason2` bigint(20) NOT NULL DEFAULT '0',
+  `Outcome` bigint(20) NOT NULL DEFAULT '0',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -1928,7 +1933,7 @@ CREATE TABLE `RentalAgreement` (
 
 LOCK TABLES `RentalAgreement` WRITE;
 /*!40000 ALTER TABLE `RentalAgreement` DISABLE KEYS */;
-INSERT INTO `RentalAgreement` VALUES (1,0,1,0,'2017-01-01','2018-01-01','2017-01-02','2018-01-01','2017-01-01','2018-01-01','2017-01-01',0,0,1,'',0,0,0.0000,'','1900-01-01','1900-01-01',0.0000,0.0000,0,'1900-01-01','','','','1900-01-01','','1900-01-01','',0,'2017-09-01 22:14:52',0,'2017-08-31 18:04:29',0),(2,0,1,0,'2017-01-01','2018-01-01','2017-01-02','2018-01-01','2017-01-01','2018-01-01','2017-01-01',0,0,1,'',0,0,0.0000,'','1900-01-01','1900-01-01',0.0000,0.0000,0,'1900-01-01','','','','1900-01-01','','1900-01-01','',0,'2017-09-01 22:14:59',0,'2017-08-31 18:07:54',0);
+INSERT INTO `RentalAgreement` VALUES (1,0,1,0,'2017-01-01','2018-01-01','2017-01-02','2018-01-01','2017-01-01','2018-01-01','2017-01-01',0,0,1,'',0,0,0.0000,'','1900-01-01','1900-01-01',0.0000,0.0000,0,'1900-01-01','','','','1900-01-01','','1900-01-01','','1970-01-01',0,0,0,'1970-01-01 00:00:00',0,0,'1970-01-01 00:00:00',0,0,'2017-09-01 22:14:52',0,'2017-08-31 18:04:29',0),(2,0,1,0,'2017-01-01','2018-01-01','2017-01-02','2018-01-01','2017-01-01','2018-01-01','2017-01-01',0,0,1,'',0,0,0.0000,'','1900-01-01','1900-01-01',0.0000,0.0000,0,'1900-01-01','','','','1900-01-01','','1900-01-01','','1970-01-01',0,0,0,'1970-01-01 00:00:00',0,0,'1970-01-01 00:00:00',0,0,'2017-09-01 22:14:59',0,'2017-08-31 18:07:54',0);
 /*!40000 ALTER TABLE `RentalAgreement` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2561,4 +2566,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-06-20 20:53:57
+-- Dump completed on 2018-06-22 13:00:45

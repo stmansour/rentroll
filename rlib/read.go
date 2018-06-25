@@ -203,7 +203,7 @@ func ReadFlows(rows *sql.Rows, a *Flow) error {
 // ReadGLAccount reads a full Ledger structure of data from the database based on the supplied Rows pointer.
 func ReadGLAccount(row *sql.Row, a *GLAccount) error {
 	err := row.Scan(&a.LID, &a.PLID, &a.BID, &a.RAID, &a.TCID, &a.GLNumber,
-		/*&a.Status,*/ &a.Name, &a.AcctType, &a.AllowPost,
+		&a.Name, &a.AcctType, &a.AllowPost,
 		&a.FLAGS, &a.Description, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	SkipSQLNoRowsError(&err)
 	return err
@@ -212,7 +212,7 @@ func ReadGLAccount(row *sql.Row, a *GLAccount) error {
 // ReadGLAccounts reads a full Ledger structure of data from the database based on the supplied Rows pointer.
 func ReadGLAccounts(rows *sql.Rows, a *GLAccount) error {
 	return rows.Scan(&a.LID, &a.PLID, &a.BID, &a.RAID, &a.TCID, &a.GLNumber,
-		/*&a.Status,*/ &a.Name, &a.AcctType, &a.AllowPost,
+		&a.Name, &a.AcctType, &a.AllowPost,
 		&a.FLAGS, &a.Description, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 
@@ -384,30 +384,76 @@ func ReadPaymentTypes(rows *sql.Rows, a *PaymentType) error {
 
 // ReadProspect reads a full Prospect structure from the database based on the supplied row object
 func ReadProspect(row *sql.Row, a *Prospect) error {
-	err := row.Scan(&a.TCID, &a.BID, &a.CompanyAddress,
-		&a.CompanyCity, &a.CompanyState, &a.CompanyPostalCode, &a.CompanyEmail, &a.CompanyPhone, &a.Occupation,
-		&a.DesiredUsageStartDate, &a.RentableTypePreference, &a.FLAGS,
-		&a.EvictedDes, &a.ConvictedDes, &a.BankruptcyDes, &a.Approver, &a.DeclineReasonSLSID,
-		&a.OtherPreferences, &a.FollowUpDate, &a.CSAgent, &a.OutcomeSLSID,
-		&a.CurrentAddress, &a.CurrentLandLordName, &a.CurrentLandLordPhoneNo, &a.CurrentReasonForMoving,
-		&a.CurrentLengthOfResidency, &a.PriorAddress, &a.PriorLandLordName, &a.PriorLandLordPhoneNo,
-		&a.PriorReasonForMoving, &a.PriorLengthOfResidency, &a.CommissionableThirdParty,
-		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	err := row.Scan(
+		&a.TCID,
+		&a.BID,
+		&a.CompanyAddress,
+		&a.CompanyCity,
+		&a.CompanyState,
+		&a.CompanyPostalCode,
+		&a.CompanyEmail,
+		&a.CompanyPhone,
+		&a.Occupation,
+		&a.EvictedDes,
+		&a.ConvictedDes,
+		&a.BankruptcyDes,
+		&a.FollowUpDate,
+		&a.FLAGS,
+		&a.OtherPreferences,
+		&a.SpecialNeeds,
+		&a.CurrentAddress,
+		&a.CurrentLandLordName,
+		&a.CurrentLandLordPhoneNo,
+		&a.CurrentReasonForMoving,
+		&a.CurrentLengthOfResidency,
+		&a.PriorAddress,
+		&a.PriorLandLordName,
+		&a.PriorLandLordPhoneNo,
+		&a.PriorReasonForMoving,
+		&a.PriorLengthOfResidency,
+		&a.CommissionableThirdParty,
+		&a.CreateTS,
+		&a.CreateBy,
+		&a.LastModTime,
+		&a.LastModBy)
 	SkipSQLNoRowsError(&err)
 	return err
 }
 
 // ReadProspects reads a full Prospect structure from the database based on the supplied rows object
 func ReadProspects(rows *sql.Rows, a *Prospect) error {
-	return rows.Scan(&a.TCID, &a.BID, &a.CompanyAddress,
-		&a.CompanyCity, &a.CompanyState, &a.CompanyPostalCode, &a.CompanyEmail, &a.CompanyPhone, &a.Occupation,
-		&a.DesiredUsageStartDate, &a.RentableTypePreference, &a.FLAGS,
-		&a.EvictedDes, &a.ConvictedDes, &a.BankruptcyDes, &a.Approver, &a.DeclineReasonSLSID,
-		&a.OtherPreferences, &a.FollowUpDate, &a.CSAgent, &a.OutcomeSLSID,
-		&a.CurrentAddress, &a.CurrentLandLordName, &a.CurrentLandLordPhoneNo, &a.CurrentReasonForMoving,
-		&a.CurrentLengthOfResidency, &a.PriorAddress, &a.PriorLandLordName, &a.PriorLandLordPhoneNo,
-		&a.PriorReasonForMoving, &a.PriorLengthOfResidency, &a.CommissionableThirdParty,
-		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	return rows.Scan(
+		&a.TCID,
+		&a.BID,
+		&a.CompanyAddress,
+		&a.CompanyCity,
+		&a.CompanyState,
+		&a.CompanyPostalCode,
+		&a.CompanyEmail,
+		&a.CompanyPhone,
+		&a.Occupation,
+		&a.EvictedDes,
+		&a.ConvictedDes,
+		&a.BankruptcyDes,
+		&a.FollowUpDate,
+		&a.FLAGS,
+		&a.OtherPreferences,
+		&a.SpecialNeeds,
+		&a.CurrentAddress,
+		&a.CurrentLandLordName,
+		&a.CurrentLandLordPhoneNo,
+		&a.CurrentReasonForMoving,
+		&a.CurrentLengthOfResidency,
+		&a.PriorAddress,
+		&a.PriorLandLordName,
+		&a.PriorLandLordPhoneNo,
+		&a.PriorReasonForMoving,
+		&a.PriorLengthOfResidency,
+		&a.CommissionableThirdParty,
+		&a.CreateTS,
+		&a.CreateBy,
+		&a.LastModTime,
+		&a.LastModBy)
 }
 
 // ReadRatePlan reads a full RatePlan structure from the database based on the supplied row object
@@ -545,26 +591,108 @@ func ReadRentableStatuss(rows *sql.Rows, a *RentableStatus) error {
 
 // ReadRentalAgreement reads a full RentalAgreement structure of data from the database based on the supplied Row pointer.
 func ReadRentalAgreement(row *sql.Row, a *RentalAgreement) error {
-	err := row.Scan(&a.RAID, &a.RATID, &a.BID, &a.NLID, &a.AgreementStart, &a.AgreementStop, &a.PossessionStart,
-		&a.PossessionStop, &a.RentStart, &a.RentStop, &a.RentCycleEpoch, &a.UnspecifiedAdults, &a.UnspecifiedChildren,
-		&a.Renewal, &a.SpecialProvisions,
-		&a.LeaseType, &a.ExpenseAdjustmentType, &a.ExpensesStop, &a.ExpenseStopCalculation, &a.BaseYearEnd,
-		&a.ExpenseAdjustment, &a.EstimatedCharges, &a.RateChange, &a.NextRateChange, &a.PermittedUses, &a.ExclusiveUses,
-		&a.ExtensionOption, &a.ExtensionOptionNotice, &a.ExpansionOption, &a.ExpansionOptionNotice, &a.RightOfFirstRefusal,
-		&a.FLAGS, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	err := row.Scan(
+		&a.RAID,
+		&a.RATID,
+		&a.BID,
+		&a.NLID,
+		&a.AgreementStart,
+		&a.AgreementStop,
+		&a.PossessionStart,
+		&a.PossessionStop,
+		&a.RentStart,
+		&a.RentStop,
+		&a.RentCycleEpoch,
+		&a.UnspecifiedAdults,
+		&a.UnspecifiedChildren,
+		&a.Renewal,
+		&a.SpecialProvisions,
+		&a.LeaseType,
+		&a.ExpenseAdjustmentType,
+		&a.ExpensesStop,
+		&a.ExpenseStopCalculation,
+		&a.BaseYearEnd,
+		&a.ExpenseAdjustment,
+		&a.EstimatedCharges,
+		&a.RateChange,
+		&a.CSAgent,
+		&a.NextRateChange,
+		&a.PermittedUses,
+		&a.ExclusiveUses,
+		&a.ExtensionOption,
+		&a.ExtensionOptionNotice,
+		&a.ExpansionOption,
+		&a.ExpansionOptionNotice,
+		&a.RightOfFirstRefusal,
+		&a.DesiredUsageStartDate,
+		&a.RentableTypePreference,
+		&a.FLAGS,
+		&a.Approver1,
+		&a.DecisionDate1,
+		&a.DeclineReason1,
+		&a.Approver2,
+		&a.DecisionDate2,
+		&a.DeclineReason2,
+		&a.Outcome,
+		&a.LastModTime,
+		&a.LastModBy,
+		&a.CreateTS,
+		&a.CreateBy,
+	)
 	SkipSQLNoRowsError(&err)
 	return err
 }
 
 // ReadRentalAgreements reads a full RentalAgreement structure of data from the database based on the supplied Rows pointer.
 func ReadRentalAgreements(rows *sql.Rows, a *RentalAgreement) error {
-	return rows.Scan(&a.RAID, &a.RATID, &a.BID, &a.NLID, &a.AgreementStart, &a.AgreementStop, &a.PossessionStart,
-		&a.PossessionStop, &a.RentStart, &a.RentStop, &a.RentCycleEpoch, &a.UnspecifiedAdults, &a.UnspecifiedChildren,
-		&a.Renewal, &a.SpecialProvisions,
-		&a.LeaseType, &a.ExpenseAdjustmentType, &a.ExpensesStop, &a.ExpenseStopCalculation, &a.BaseYearEnd,
-		&a.ExpenseAdjustment, &a.EstimatedCharges, &a.RateChange, &a.NextRateChange, &a.PermittedUses, &a.ExclusiveUses,
-		&a.ExtensionOption, &a.ExtensionOptionNotice, &a.ExpansionOption, &a.ExpansionOptionNotice, &a.RightOfFirstRefusal,
-		&a.FLAGS, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	return rows.Scan(
+		&a.RAID,
+		&a.RATID,
+		&a.BID,
+		&a.NLID,
+		&a.AgreementStart,
+		&a.AgreementStop,
+		&a.PossessionStart,
+		&a.PossessionStop,
+		&a.RentStart,
+		&a.RentStop,
+		&a.RentCycleEpoch,
+		&a.UnspecifiedAdults,
+		&a.UnspecifiedChildren,
+		&a.Renewal,
+		&a.SpecialProvisions,
+		&a.LeaseType,
+		&a.ExpenseAdjustmentType,
+		&a.ExpensesStop,
+		&a.ExpenseStopCalculation,
+		&a.BaseYearEnd,
+		&a.ExpenseAdjustment,
+		&a.EstimatedCharges,
+		&a.RateChange,
+		&a.CSAgent,
+		&a.NextRateChange,
+		&a.PermittedUses,
+		&a.ExclusiveUses,
+		&a.ExtensionOption,
+		&a.ExtensionOptionNotice,
+		&a.ExpansionOption,
+		&a.ExpansionOptionNotice,
+		&a.RightOfFirstRefusal,
+		&a.DesiredUsageStartDate,
+		&a.RentableTypePreference,
+		&a.FLAGS,
+		&a.Approver1,
+		&a.DecisionDate1,
+		&a.DeclineReason1,
+		&a.Approver2,
+		&a.DecisionDate2,
+		&a.DeclineReason2,
+		&a.Outcome,
+		&a.LastModTime,
+		&a.LastModBy,
+		&a.CreateTS,
+		&a.CreateBy,
+	)
 }
 
 /*// ReadRentalAgreementGrids reads a full RentalAgreementGrid structure of data from the database based on the supplied Rows pointer.
@@ -733,7 +861,7 @@ func ReadTaskListDefinitions(rows *sql.Rows, a *TaskListDefinition) error {
 func ReadTransactant(row *sql.Row, a *Transactant) error {
 	err := row.Scan(&a.TCID, &a.BID, &a.NLID, &a.FirstName, &a.MiddleName, &a.LastName, &a.PreferredName,
 		&a.CompanyName, &a.IsCompany, &a.PrimaryEmail, &a.SecondaryEmail, &a.WorkPhone, &a.CellPhone,
-		&a.Address, &a.Address2, &a.City, &a.State, &a.PostalCode, &a.Country, &a.Website, &a.FLAGS,
+		&a.Address, &a.Address2, &a.City, &a.State, &a.PostalCode, &a.Country, &a.Website, &a.Comment, &a.FLAGS,
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	SkipSQLNoRowsError(&err)
 	return err
@@ -743,7 +871,7 @@ func ReadTransactant(row *sql.Row, a *Transactant) error {
 func ReadTransactants(rows *sql.Rows, a *Transactant) error {
 	return rows.Scan(&a.TCID, &a.BID, &a.NLID, &a.FirstName, &a.MiddleName, &a.LastName, &a.PreferredName,
 		&a.CompanyName, &a.IsCompany, &a.PrimaryEmail, &a.SecondaryEmail, &a.WorkPhone, &a.CellPhone,
-		&a.Address, &a.Address2, &a.City, &a.State, &a.PostalCode, &a.Country, &a.Website, &a.FLAGS,
+		&a.Address, &a.Address2, &a.City, &a.State, &a.PostalCode, &a.Country, &a.Website, &a.Comment, &a.FLAGS,
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 

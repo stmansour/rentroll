@@ -62,11 +62,11 @@ type PeopleCSV struct {
 	DesiredUsageStartDate     string
 	RentableTypePreference    string
 	Approver                  string
-	DeclineReasonSLSID        string
+	DeclineReason             string
 	OtherPreferences          string
 	FollowUpDate              string
 	CSAgent                   string
-	OutcomeSLSID              string
+	Outcome                   string
 }
 
 // RentableCSV is struct that is used

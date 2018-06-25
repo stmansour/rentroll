@@ -288,12 +288,6 @@ func createTransactants(ctx context.Context, dbConf *GenDBConf) error {
 			DesiredUsageStartDate:  now,
 			RentableTypePreference: 0,
 			FLAGS:                    0,
-			Approver:                 int64(IG.Rand.Intn(280)),
-			DeclineReasonSLSID:       0,
-			OtherPreferences:         "",
-			FollowUpDate:             now.AddDate(0, 0, 2),
-			CSAgent:                  int64(IG.Rand.Intn(280)),
-			OutcomeSLSID:             0,
 			CurrentAddress:           GenerateRandomOneLineAddress(),
 			CurrentLandLordName:      GenerateRandomName(),
 			CurrentLandLordPhoneNo:   GenerateRandomPhoneNumber(),
@@ -743,7 +737,7 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 	MaxTCID := int64(tC)
 
 	RID := int64(1)
-
+	now := time.Now()
 	for i := 0; i < dbConf.RACount; i++ {
 		var ra rlib.RentalAgreement
 		ra.RATID = 1
@@ -758,6 +752,17 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 		ra.UnspecifiedAdults = rand.Int63n(4)
 		ra.UnspecifiedChildren = rand.Int63n(3)
 		ra.Renewal = 2
+		ra.FLAGS = 0x4 /*status = approved*/ | (1 << 4) /* approver1 */ | (1 << 5) /*approver2*/
+		ra.Approver1 = int64(IG.Rand.Intn(280))
+		ra.DeclineReason1 = 0
+		ra.DecisionDate1 = dbConf.DtStart
+		ra.Approver2 = int64(IG.Rand.Intn(280))
+		ra.DeclineReason2 = 0
+		ra.DecisionDate2 = dbConf.DtStart
+		ra.OtherPreferences = ""
+		ra.FollowUpDate = now.AddDate(0, 0, 2)
+		ra.CSAgent = int64(IG.Rand.Intn(280))
+		ra.Outcome = 0
 		_, err := rlib.InsertRentalAgreement(ctx, &ra)
 		if err != nil {
 			return err

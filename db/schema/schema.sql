@@ -220,7 +220,47 @@ CREATE TABLE RentalAgreement (
     ExpansionOption VARCHAR(128) NOT NULL DEFAULT '',                   -- the right to expand to certanin spaces that are typically contiguous to their primary space
     ExpansionOptionNotice DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- the last date by which a Tenant can give notice of their intention to exercise the right to an Expansion Option
     RightOfFirstRefusal VARCHAR(128) NOT NULL DEFAULT '',               -- Tenant may have the right to purchase their premises if LL chooses to sell
-    FLAGS BIGINT NOT NULL DEFAULT 0,                                    -- 1<<0 - is application pending?
+    DesiredUsageStartDate DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- User's initial indication of move in date, actual move in date is in Rental Agreement
+    RentableTypePreference BIGINT NOT NULL DEFAULT 0,                   -- This would be "model" preference  (Rentable Type name) for room or residence, but could apply to all rentables
+    FLAGS BIGINT NOT NULL DEFAULT 0,                                    /* 0:3 - DecisionStatus for the application state as defined below
+                                                                           1<<4 - Approver1 decision, only valid if DecisionDate1 is year >1999, 0 = Declined, 1 = Approved
+           bits 0:3                                                        1<<5 - Approver2 decision, only valid if DecisionDate2 is year >1999, 0 = Declined, 1 = Approved
+        -------------  -----------------  --------------------------------------
+         (FLAGS & 15)  State              Meaning
+        -------------  -----------------  --------------------------------------
+              0        In Progress        Renters / Users have not completely
+                                          filled out the application.
+              1        In Review          Application has been filled out. It is
+                                          being reviewed
+              2        First Approval     The first approver needs to approve
+                                          the application
+              3        Second Approval    The second approver needs to approve
+                                          the application
+              4        Approved           Application was approved by Approver
+                                          on ApplicationDecisionDate
+              5        Not Approved       Application was declined. Reason is in
+                                          DeclineReasonSLSID
+              6        ApplicantPassed    The applicant chose not to rent.
+                                          Reason is in Outcome SLSID
+              7        unused             reserved for future expansion
+              8        unused             reserved for future expansion
+              9        unused             reserved for future expansion
+             10        unused             reserved for future expansion
+             11        unused             reserved for future expansion
+             12        unused             reserved for future expansion
+             13        unused             reserved for future expansion
+             14        unused             reserved for future expansion
+             15        unused             reserved for future expansion
+        ------------------------------------------------------------------------
+    */   
+    Approver1 BIGINT NOT NULL DEFAULT 0,                            -- approver 1
+    DecisionDate1 DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- datetime when first approver made the decision
+    DeclineReason1 BIGINT NOT NULL DEFAULT 0,                       -- Only valid if FLAGS & (1<<7) == 0, this is the SLSID to string in list of choices, why Approver1 declined the application
+    Approver2 BIGINT NOT NULL DEFAULT 0,                            -- approver 2
+    DecisionDate2 DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- datetime when first approver made the decision
+    DeclineReason2 BIGINT NOT NULL DEFAULT 0,                       -- Only valid if FLAGS & (1<<8) == 0, this is the SLSID to string in list of choices, why Approver2 declined the application
+    Outcome BIGINT NOT NULL DEFAULT 0,                              -- Only valid if state == Appl Elect(6), this is the SLSID of string from a list of WhyLeaving 
+   
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                                -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,              -- when was this record created
@@ -875,47 +915,33 @@ CREATE TABLE Prospect (
     CompanyEmail VARCHAR(100) NOT NULL DEFAULT '',
     CompanyPhone VARCHAR(100) NOT NULL DEFAULT '',
     Occupation VARCHAR(100) NOT NULL DEFAULT '',
-    DesiredUsageStartDate DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- User's initial indication of move in date, actual move in date is in Rental Agreement
-    RentableTypePreference BIGINT NOT NULL DEFAULT 0,            -- This would be "model" preference  (Rentable Type name) for room or residence, but could apply to all rentables
-    --  -----------  ----------------------------------------------------------------
-    --  (FLAGS & 3)  Meaning
-    --  -----------  ----------------------------------------------------------------
-    --       0       Renters / Users have not completely filled out the application.
-    --       1       Application has been filled out. It is being reviewed
-    --       2       Application was approved by Approver on ApplicationDecisionDate
-    --       3       Application was declined. Reason is in DeclineReasonSLSID
-    -- ------------------------------------------------------------------------------
-    FLAGS BIGINT NOT NULL DEFAULT 0,                             /* 1<<0 - 0 = application in progress, 1 application is filled out completely
-                                                                    1<<1 - approved/not approved
-                                                                    1<<2 - Previously Evicted: 0 = no, 1 = yes
-                                                                    1<<3 - Previously Convicted of a felony: 0 = no, 1 = yes
-                                                                    1<<4 - Previously declared bankruptcy: 0 = no, 1 = yes
-    */
-    EvictedDes VARCHAR(2048) NOT NULL DEFAULT '',                -- explanation when FLAGS & (1<<2) > 0
-    ConvictedDes VARCHAR(2048) NOT NULL DEFAULT '',              -- explanation when FLAGS & (1<<3) > 0
-    BankruptcyDes VARCHAR(2048) NOT NULL DEFAULT '',             -- explanation when FLAGS & (1<<4) > 0
-    Approver BIGINT NOT NULL DEFAULT 0,                          -- who approved or declined
-    -- ApplicationDecisionDate DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- datetime when application decision was made
-    DeclineReasonSLSID BIGINT NOT NULL DEFAULT 0,                -- ID to string in list of choices, Melissa will provide the list.
-    OtherPreferences VARCHAR(1024) NOT NULL DEFAULT '',          -- Arbitrary text, anything else they might request
-    FollowUpDate DATE NOT NULL DEFAULT '1970-01-01 00:00:00',    -- automatically fill out this date to sysdate + 24hrs
-    CSAgent BIGINT NOT NULL DEFAULT 0,                           -- Accord Directory UserID - for the CSAgent
-    OutcomeSLSID BIGINT NOT NULL DEFAULT 0,                      -- id of string from a list of outcomes.
-    CurrentAddress VARCHAR(200) NOT NULL DEFAULT '',             -- address of residence at the time this rental application was filled out
-    CurrentLandLordName VARCHAR(100) NOT NULL DEFAULT '',        -- landlord            "
-    CurrentLandLordPhoneNo VARCHAR(20) NOT NULL DEFAULT '',      -- phone number        ""
-    CurrentReasonForMoving BIGINT NOT NULL DEFAULT 0,            -- string list id
-    CurrentLengthOfResidency VARCHAR(100) NOT NULL DEFAULT '',   -- length of stay is just a string
-    PriorAddress VARCHAR(200) NOT NULL DEFAULT '',               -- address of residence prior to "current residence"
-    PriorLandLordName VARCHAR(100) NOT NULL DEFAULT '',          -- landlord            "
-    PriorLandLordPhoneNo VARCHAR(20) NOT NULL DEFAULT '',        -- phone number        ""
-    PriorReasonForMoving BIGINT NOT NULL DEFAULT 0,              -- string list id
-    PriorLengthOfResidency VARCHAR(100) NOT NULL DEFAULT '',     -- length of stay is just a string
-    CommissionableThirdParty TEXT NOT NULL DEFAULT '',           -- Sometimes bookings come into Isola Bella from 3rd parties and they get a commission
+    EvictedDes VARCHAR(2048) NOT NULL DEFAULT '',                   -- explanation when FLAGS & (1<<4) > 0
+    ConvictedDes VARCHAR(2048) NOT NULL DEFAULT '',                 -- explanation when FLAGS & (1<<5) > 0
+    BankruptcyDes VARCHAR(2048) NOT NULL DEFAULT '',                -- explanation when FLAGS & (1<<6) > 0
+    FollowUpDate DATE NOT NULL DEFAULT '1970-01-01 00:00:00',       -- automatically fill out this date to sysdate + 24hrs
+    CSAgent BIGINT NOT NULL DEFAULT 0,                              -- Accord Directory UserID - for the CSAgent
+
+    FLAGS BIGINT NOT NULL DEFAULT 0,                                /* 1<<0 - Previously Evicted: 0 = no, 1 = yes
+                                                                       1<<1 - Previously Convicted of a felony: 0 = no, 1 = yes
+                                                                       1<<2 - Previously declared bankruptcy: 0 = no, 1 = yes
+                                                                    */
+    OtherPreferences VARCHAR(1024) NOT NULL DEFAULT '',             -- Arbitrary text, anything else they might request
+    SpecialNeeds VARCHAR(1024) NOT NULL DEFAULT '',                 -- Special needs for perspective disabled renters
+    CurrentAddress VARCHAR(200) NOT NULL DEFAULT '',                -- address of residence at the time this rental application was filled out
+    CurrentLandLordName VARCHAR(100) NOT NULL DEFAULT '',           -- landlord            "
+    CurrentLandLordPhoneNo VARCHAR(20) NOT NULL DEFAULT '',         -- phone number        ""
+    CurrentReasonForMoving BIGINT NOT NULL DEFAULT 0,               -- string list id
+    CurrentLengthOfResidency VARCHAR(100) NOT NULL DEFAULT '',      -- length of stay is just a string
+    PriorAddress VARCHAR(200) NOT NULL DEFAULT '',                  -- address of residence prior to "current residence"
+    PriorLandLordName VARCHAR(100) NOT NULL DEFAULT '',             -- landlord            "
+    PriorLandLordPhoneNo VARCHAR(20) NOT NULL DEFAULT '',           -- phone number        ""
+    PriorReasonForMoving BIGINT NOT NULL DEFAULT 0,                 -- string list id
+    PriorLengthOfResidency VARCHAR(100) NOT NULL DEFAULT '',        -- length of stay is just a string
+    CommissionableThirdParty TEXT NOT NULL DEFAULT '',              -- Sometimes bookings come into Isola Bella from 3rd parties and they get a commission
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,       -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                          -- employee UID (from phonebook) that created this record
+    LastModBy BIGINT NOT NULL DEFAULT 0,                            -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,          -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                             -- employee UID (from phonebook) that created this record
     PRIMARY KEY (TCID)
 );
 
@@ -957,8 +983,8 @@ CREATE TABLE User (
 CREATE TABLE Payor (
     TCID BIGINT NOT NULL,                                        -- associated Transactant
     BID BIGINT NOT NULL DEFAULT 0,                               -- which business
-    TaxpayorID VARCHAR(25) NOT NULL DEFAULT '',     
-    CreditLimit DECIMAL(19,4) NOT NULL DEFAULT 0.0,     
+    TaxpayorID VARCHAR(25) NOT NULL DEFAULT '',
+    CreditLimit DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     ThirdPartySource BIGINT NOT NULL DEFAULT 0,                        -- Accord (renting company) Phonebook UID of account rep
     EligibleFuturePayor TINYINT(1) NOT NULL DEFAULT 1,           -- yes/no
     FLAGS BIGINT NOT NULL DEFAULT 0,                             /*
@@ -1395,7 +1421,6 @@ CREATE TABLE GLAccount (
     RAID BIGINT NOT NULL DEFAULT 0,                           -- rental agreement account, only valid if TYPE is 1
     TCID BIGINT NOT NULL DEFAULT 0,                           -- Payor, only valid if TYPE is 2
     GLNumber VARCHAR(100) NOT NULL DEFAULT '',                -- if not '' then it's a link a QB  GeneralLedger (GL)account
-    -- Status SMALLINT NOT NULL DEFAULT 0,                       -- Whether a GL Account is currently unknown=0, inactive=1, active=2
     Name VARCHAR(100) NOT NULL DEFAULT '',
     AcctType VARCHAR(100) NOT NULL DEFAULT '',                -- Quickbooks Type: Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable,
                                                               --    Other Current Asset, Other Asset, Accounts Payable, Other Current Liability,

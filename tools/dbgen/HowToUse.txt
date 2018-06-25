@@ -110,7 +110,7 @@ RandName  (optional)
     randomly chosen from a large list of first and last names.  Note, phone 
     numbers, email addresses, and land addresses are always totally random.
 
-RandomizePayments  (optional)
+RandomizePayments bool (optional)
     Set to false if not present. If set to true, the code will inhibit the
     creation of a percentage of payments from payors. The percentage is 
     controlled by RandMissPayment, see below.  Also, the code will not apply 

@@ -579,7 +579,19 @@ type RentalAgreement struct {
 	ExpansionOption        string      // the right to expand to certanin spaces that are typically contiguous to their primary space
 	ExpansionOptionNotice  time.Time   // the last date by which a Tenant can give notice of their intention to exercise the right to an Expansion Option
 	RightOfFirstRefusal    string      // Tenant may have the right to purchase their premises if LL chooses to sell
-	FLAGS                  uint64      // 1<<0 - is application pending approval,
+	DesiredUsageStartDate  time.Time   //
+	RentableTypePreference int64       //
+	FLAGS                  uint64      // See definition in rentroll/db/schema/schema.sql
+	Approver1              int64       // UID of approver1, from Directory
+	DeclineReason1         int64       // SLSid of reason if declined
+	DecisionDate1          time.Time   // when did approver1 make the decision
+	Approver2              int64       // UID of approver2, from Directory
+	DeclineReason2         int64       // SLSid of reason if declined
+	DecisionDate2          time.Time   // when did approver2 make the decision
+	FollowUpDate           time.Time   // automatically fill out this date to sysdate + 24hrs
+	CSAgent                int64       // Accord Directory UserID - for the CSAgent
+	Outcome                int64       //Only valid if state == Appl Elect(6), this is the SLSID of string from a list of WhyLeaving
+	OtherPreferences       string      // user prefs
 	LastModTime            time.Time   // when was this record last written
 	LastModBy              int64       // employee UID (from phonebook) that modified it
 	CreateTS               time.Time   // when was this record created
@@ -730,16 +742,13 @@ type Prospect struct {
 	Occupation               string
 	DesiredUsageStartDate    time.Time // predicted rent start date
 	RentableTypePreference   int64     // RentableType
+	FollowUpDate             time.Time //
 	FLAGS                    uint64    // 0 = Approved/NotApproved,
-	EvictedDes               string    // explanation when FLAGS & (1<<2) > 0
-	ConvictedDes             string    // explanation when FLAGS & (1<<3) > 0
-	BankruptcyDes            string    // explanation when FLAGS & (1<<4) > 0
-	Approver                 int64     // UID from Directory
-	DeclineReasonSLSID       int64     // SLSid of reason
 	OtherPreferences         string    // arbitrary text
-	FollowUpDate             time.Time // automatically fill out this date to sysdate + 24hrs
-	CSAgent                  int64     // Accord Directory UserID - for the CSAgent
-	OutcomeSLSID             int64     // id of string from a list of outcomes. Melissa to provide reasons
+	SpecialNeeds             string    // any special needs
+	EvictedDes               string    // explanation when FLAGS & (1<<0) > 0
+	ConvictedDes             string    // explanation when FLAGS & (1<<1) > 0
+	BankruptcyDes            string    // explanation when FLAGS & (1<<2) > 0
 	CurrentAddress           string
 	CurrentLandLordName      string
 	CurrentLandLordPhoneNo   string
@@ -1430,14 +1439,13 @@ type LedgerMarker struct {
 
 // GLAccount describes the static (or mostly static) attributes of a Ledger
 type GLAccount struct {
-	Recid    int    `json:"recid"` // this is for the grid widget
-	LID      int64  // unique id for this GLAccount
-	PLID     int64  // unique id of Parent, 0 if no parent
-	BID      int64  // Business unit associated with this GLAccount
-	RAID     int64  // associated rental agreement, this field is only used when Type = 1
-	TCID     int64  // associated payor, this field is only used when Type = 1
-	GLNumber string // acct system name
-	//Status      int64     // Whether a GL Account is currently unknown=0, inactive=1, active=2
+	Recid       int       `json:"recid"` // this is for the grid widget
+	LID         int64     // unique id for this GLAccount
+	PLID        int64     // unique id of Parent, 0 if no parent
+	BID         int64     // Business unit associated with this GLAccount
+	RAID        int64     // associated rental agreement, this field is only used when Type = 1
+	TCID        int64     // associated payor, this field is only used when Type = 1
+	GLNumber    string    // acct system name
 	Name        string    // descriptive name for the GLAccount
 	AcctType    string    // QB Acct Type: Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, Other Current Asset, Other Asset, Accounts Payable, Other Current Liability, Cost of Goods Sold, Other Income, Other Expense
 	AllowPost   bool      // 0 = no posting, 1 = posting is allowed

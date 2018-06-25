@@ -127,10 +127,9 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                         // Account Rules
                         valueForCell = appSettings.ARTypes[valueForCell];
                         break;
-                    case "Status":
-                        types = appSettings.account_stuff.statusList;
-                        type = types.find(types => types.id === valueForCell);
-                        valueForCell = type.text;
+                    case "IsActive":
+                        // Chart of Accounts
+                        valueForCell = valueForCell ? "Yes" : "No";
                         break;
                     case "AcctRule":
                     case "Payor":
@@ -330,12 +329,6 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                         type = types.find(types => types.id === fieldValue);
                         fieldValue = type.text;
                         break;
-                    case  "Status":
-                        // Chart of accounts
-                        types = appSettings.account_stuff.statusList;
-                        type = types.find(types => types.id === fieldValue);
-                        fieldValue = type.text;
-                        break;
                     case  "ARType":
                         // Account Rules
                         fieldValue = appSettings.ARTypes[fieldValue];
@@ -426,6 +419,8 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                         case "ChkDtPreDone":
                         case "ChkDtDue":
                         case "ChkDtDone":
+                        // Chart of Accounts form checkbox
+                        case "IsActive":
                             if(fieldValue){
                                 cy.get(selectors.getFieldSelector(fieldID))
                                     .should('be.visible')
@@ -535,7 +530,7 @@ export function addNewFormTest(testConfig) {
                     defaultValue = getW2UIFormRecords.RentableName;
                     break;
                 case "ExpandPastInst":
-                    if (defaultValue === true){
+                    if (defaultValue){
                         defaultValue = 'on';
                     }else {
                         defaultValue = 'off';
@@ -565,6 +560,8 @@ export function addNewFormTest(testConfig) {
                     // Task List Definition form checkbox
                     case "ChkEpochPreDue":
                     case "ChkEpochDue":
+                    // Chart of Accounts
+                    case "IsActive":
                         if(defaultValue){
                             cy.get(selectors.getFieldSelector(fieldID))
                                 .should('be.visible')

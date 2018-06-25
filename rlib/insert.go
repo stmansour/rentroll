@@ -1098,9 +1098,8 @@ func InsertLedger(ctx context.Context, a *GLAccount) (int64, error) {
 		return rid, err
 	}
 
-	//                                            PLID, BID,     RAID,  TCID,   GLNumber,   Status,   Name,   AcctType,   AllowPost,  FLAGS,   Description, CreateBy, LastModBy
 	// transaction... context
-	fields := []interface{}{a.PLID, a.BID, a.RAID, a.TCID, a.GLNumber, /*a.Status,*/ a.Name, a.AcctType, a.AllowPost, a.FLAGS, a.Description, a.CreateBy, a.LastModBy}
+	fields := []interface{}{a.PLID, a.BID, a.RAID, a.TCID, a.GLNumber, a.Name, a.AcctType, a.AllowPost, a.FLAGS, a.Description, a.CreateBy, a.LastModBy}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertLedger)
 		defer stmt.Close()
@@ -1644,7 +1643,51 @@ func InsertRentalAgreement(ctx context.Context, a *RentalAgreement) (int64, erro
 	}
 
 	// transaction... context
-	fields := []interface{}{a.RATID, a.BID, a.NLID, a.AgreementStart, a.AgreementStop, a.PossessionStart, a.PossessionStop, a.RentStart, a.RentStop, a.RentCycleEpoch, a.UnspecifiedAdults, a.UnspecifiedChildren, a.Renewal, a.SpecialProvisions, a.LeaseType, a.ExpenseAdjustmentType, a.ExpensesStop, a.ExpenseStopCalculation, a.BaseYearEnd, a.ExpenseAdjustment, a.EstimatedCharges, a.RateChange, a.NextRateChange, a.PermittedUses, a.ExclusiveUses, a.ExtensionOption, a.ExtensionOptionNotice, a.ExpansionOption, a.ExpansionOptionNotice, a.RightOfFirstRefusal, a.FLAGS, a.CreateBy, a.LastModBy}
+	fields := []interface{}{
+		a.RATID,
+		a.BID,
+		a.NLID,
+		a.AgreementStart,
+		a.AgreementStop,
+		a.PossessionStart,
+		a.PossessionStop,
+		a.RentStart,
+		a.RentStop,
+		a.RentCycleEpoch,
+		a.UnspecifiedAdults,
+		a.UnspecifiedChildren,
+		a.Renewal,
+		a.SpecialProvisions,
+		a.LeaseType,
+		a.ExpenseAdjustmentType,
+		a.ExpensesStop,
+		a.ExpenseStopCalculation,
+		a.BaseYearEnd,
+		a.ExpenseAdjustment,
+		a.EstimatedCharges,
+		a.RateChange,
+		a.CSAgent,
+		a.NextRateChange,
+		a.PermittedUses,
+		a.ExclusiveUses,
+		a.ExtensionOption,
+		a.ExtensionOptionNotice,
+		a.ExpansionOption,
+		a.ExpansionOptionNotice,
+		a.RightOfFirstRefusal,
+		a.DesiredUsageStartDate,
+		a.RentableTypePreference,
+		a.FLAGS,
+		a.Approver1,
+		a.DecisionDate1,
+		a.DeclineReason1,
+		a.Approver2,
+		a.DecisionDate2,
+		a.DeclineReason2,
+		a.Outcome,
+		a.LastModBy,
+		a.CreateBy,
+	}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertRentalAgreement)
 		defer stmt.Close()
@@ -2470,7 +2513,7 @@ func InsertTransactant(ctx context.Context, a *Transactant) (int64, error) {
 	// transaction... context
 	fields := []interface{}{a.BID, a.NLID, a.FirstName, a.MiddleName, a.LastName, a.PreferredName,
 		a.CompanyName, a.IsCompany, a.PrimaryEmail, a.SecondaryEmail, a.WorkPhone, a.CellPhone,
-		a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.Website, a.FLAGS,
+		a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.Website, a.Comment, a.FLAGS,
 		a.CreateBy, a.LastModBy}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertTransactant)
@@ -2577,15 +2620,38 @@ func InsertProspect(ctx context.Context, a *Prospect) (int64, error) {
 	}
 
 	// transaction... context
-	fields := []interface{}{a.TCID, a.BID, a.CompanyAddress, a.CompanyCity,
-		a.CompanyState, a.CompanyPostalCode, a.CompanyEmail, a.CompanyPhone, a.Occupation,
-		a.DesiredUsageStartDate, a.RentableTypePreference, a.FLAGS,
-		a.EvictedDes, a.ConvictedDes, a.BankruptcyDes, a.Approver, a.DeclineReasonSLSID, a.OtherPreferences,
-		a.FollowUpDate, a.CSAgent, a.OutcomeSLSID,
-		a.CurrentAddress, a.CurrentLandLordName, a.CurrentLandLordPhoneNo, a.CurrentReasonForMoving,
-		a.CurrentLengthOfResidency, a.PriorAddress, a.PriorLandLordName, a.PriorLandLordPhoneNo,
-		a.PriorReasonForMoving, a.PriorLengthOfResidency, a.CommissionableThirdParty,
-		a.CreateBy, a.LastModBy}
+	fields := []interface{}{
+		a.TCID,
+		a.BID,
+		a.CompanyAddress,
+		a.CompanyCity,
+		a.CompanyState,
+		a.CompanyPostalCode,
+		a.CompanyEmail,
+		a.CompanyPhone,
+		a.Occupation,
+		a.EvictedDes,
+		a.ConvictedDes,
+		a.BankruptcyDes,
+		a.FollowUpDate,
+		a.FLAGS,
+		a.OtherPreferences,
+		a.SpecialNeeds,
+		a.CurrentAddress,
+		a.CurrentLandLordName,
+		a.CurrentLandLordPhoneNo,
+		a.CurrentReasonForMoving,
+		a.CurrentLengthOfResidency,
+		a.PriorAddress,
+		a.PriorLandLordName,
+		a.PriorLandLordPhoneNo,
+		a.PriorReasonForMoving,
+		a.PriorLengthOfResidency,
+		a.CommissionableThirdParty,
+		a.CreateBy,
+		a.LastModBy,
+	}
+
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertProspect)
 		defer stmt.Close()

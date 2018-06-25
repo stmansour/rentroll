@@ -52,11 +52,11 @@
         "DesiredUsageStartDate": "",
         "RentableTypePreference": "",
         "Approver": "",
-        "DeclineReasonSLSID": "",
+        "DeclineReason": "",
         "OtherPreferences": "",
         "FollowUpDate": "",
         "CSAgent": "",
-        "OutcomeSLSID": ""
+        "Outcome": ""
     },
     "RentableCSV": {
         "BUD": "",
