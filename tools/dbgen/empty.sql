@@ -1905,6 +1905,10 @@ CREATE TABLE `RentalAgreement` (
   `DecisionDate2` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `DeclineReason2` bigint(20) NOT NULL DEFAULT '0',
   `Outcome` bigint(20) NOT NULL DEFAULT '0',
+  `NoticeToMoveUID` bigint(20) NOT NULL DEFAULT '0',
+  `NoticeToMoveDate` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
+  `TerminatorUID` bigint(20) NOT NULL DEFAULT '0',
+  `TerminationDate` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -2553,4 +2557,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-06-24 23:29:05
+-- Dump completed on 2018-06-25 23:16:19
