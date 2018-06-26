@@ -328,12 +328,41 @@ window.loadRAPetsGrid = function () {
                     size: '100px',
                     render: 'money'
                 },
+                {
+                    field: 'RemoveRec',
+                    caption: "Remove Pet Fee",
+                    size: '100%',
+                    render: function (record/*, index, col_index*/) {
+                        var html = "";
+                        if (record.RID && record.RID > 0) {
+                            html = '<i class="fas fa-minus-circle" style="color: #DC3545; cursor: pointer;" title="remove rentable"></i>';
+                        }
+                        return html;
+                    },
+                }
             ],
             onChange: function (event) {
                 event.onComplete = function () {
                     this.save();
                 };
             },
+            onClick: function(event) {
+                event.onComplete = function() {
+                    // if it's remove column then remove the record
+                    // maybe confirm dialog will be added
+                    if(this.getColumn("RemoveRec", true) == event.column) {
+
+                        // TODO(Sudip):
+                        // remove entry from local data and manage it locally
+                        // when form is saved, modified data would be sent to
+                        // the server
+
+                        // remove from grid
+                        this.remove(event.recid);
+                        return;
+                    }
+                };
+            }
         });
 
         //------------------------------------------------------------------------
