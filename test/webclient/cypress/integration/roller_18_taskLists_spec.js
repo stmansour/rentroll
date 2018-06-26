@@ -6,7 +6,7 @@ import * as common from '../support/utils/common';
 
 // --- Collections ---
 const section = require('../support/components/taskLists'); // Task Lists
-const section2 = require('../support/components/taskLists2'); // Task Lists
+const subSection = require('../support/components/taskListsDetails'); // Task Lists
 
 // this contain app variable of the application
 let appSettings;
@@ -27,7 +27,7 @@ describe('AIR Roller UI Tests - Task Lists', function () {
     before(function () {
 
         testConfig = section.conf;
-        testConfig2 = section2.conf;
+        testConfig2 = subSection.conf;
 
         // --- Login into Application before starting any tests ---
         // Check custom login command for more detail. File path: ./../support/commands.js

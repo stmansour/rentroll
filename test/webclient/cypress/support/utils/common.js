@@ -240,11 +240,11 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                     
                 }
 
-                
-                    cy.get(selectors.getCellSelector(testConfig.grid, rowNo, columnNo))
-                        .scrollIntoView()
-                        .should('be.visible')
-                        .should('contain', valueForCell);
+                // Check visibility and default value of cell in the grid
+                cy.get(selectors.getCellSelector(testConfig.grid, rowNo, columnNo))
+                    .scrollIntoView()
+                    .should('be.visible')
+                    .should('contain', valueForCell);
             }
         });
 
@@ -599,6 +599,7 @@ export function addNewFormTest(testConfig) {
 
         });
 
+    // skip BUDFieldTest for tldsInfoFrom because BUD field is not present
     if(testConfig.form !== "tldsInfoForm"){
         // Check Business Unit field must be disabled and have value REX
         BUDFieldTest();
@@ -812,7 +813,7 @@ export function testRecordDetailForm(recordsAPIResponse, testConfig) {
     cy.server();
 
     // Routing response to detail record's api requests.
-    cy.route(testConfig.methodType, getDetailRecordAPIEndPoint(testConfig.module, id)).as('getDetailRecord1');
+    cy.route(testConfig.methodType, getDetailRecordAPIEndPoint(testConfig.module, id)).as('getDetailsRecord');
 
     switch (testConfig.module) {
         case "rt":
@@ -834,10 +835,10 @@ export function testRecordDetailForm(recordsAPIResponse, testConfig) {
     cy.get(selectors.getFirstRecordInGridSelector(testConfig.grid)).click().wait(constants.WAIT_TIME);
 
     // check response status of API end point
-    cy.wait('@getDetailRecord1').its('status').should('eq', constants.HTTP_OK_STATUS);
+    cy.wait('@getDetailsRecord').its('status').should('eq', constants.HTTP_OK_STATUS);
 
     // perform tests on record detail form
-    cy.get('@getDetailRecord1').then(function (xhr) {
+    cy.get('@getDetailsRecord').then(function (xhr) {
 
         let recordDetailFromAPIResponse = xhr.response.body.record;
 
