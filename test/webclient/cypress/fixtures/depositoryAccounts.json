@@ -1,0 +1,14 @@
+{
+  "cmd": "save",
+  "recid": 0,
+  "name": "depositoryForm",
+  "record": {
+    "recid": 0,
+    "BID": 1,
+    "BUD": "REX",
+    "DEPID": 0,
+    "Name": "Depository Accounts Name",
+    "LID": 1,
+    "AccountNo": "1234567890"
+  }
+}

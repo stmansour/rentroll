@@ -14,7 +14,7 @@ let appSettings;
 let testConfig;
 
 // -- Start Cypress UI tests for AIR Roller Application --
-describe('AIR Roller UI Tests - Expenses', function () {
+describe('AIR Roller UI Tests - Deposits', function () {
 
     // // records list of module from the API response
     let recordsAPIResponse;
@@ -159,6 +159,9 @@ describe('AIR Roller UI Tests - Expenses', function () {
         // ----- Tests for add new record form ---
         // ---------------------------------------
         common.testAddNewRecordForm(testConfig);
+
+        // -- Close the form. And assert that form isn't visible. --
+        common.closeFormTests(selectors.getFormSelector(testConfig.form));
     });
 
     // -- Perform operation after all tests finish. It runs once after all tests in the block --

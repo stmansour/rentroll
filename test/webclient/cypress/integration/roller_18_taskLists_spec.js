@@ -4,35 +4,30 @@ import * as constants from '../support/utils/constants';
 import * as selectors from '../support/utils/get_selectors';
 import * as common from '../support/utils/common';
 
-// --- Assessments/Receipts --
-const section = require('../support/components/tenderReceipts'); // Tendered payment Receipt
+// --- Collections ---
+const section = require('../support/components/taskLists'); // Task Lists
+const subSection = require('../support/components/taskListsDetails'); // Task Lists
 
 // this contain app variable of the application
 let appSettings;
 
 // holds the test configuration for the modules
 let testConfig;
+let testConfig2;
 
 // -- Start Cypress UI tests for AIR Roller Application --
-describe('AIR Roller UI Tests - Tendered payment Receipt', function () {
+describe('AIR Roller UI Tests - Task Lists', function () {
 
     // // records list of module from the API response
     let recordsAPIResponse;
 
     let noRecordsInAPIResponse;
 
-    /********************************
-     * Login into application
-     * Select node from left sidebar
-     * Route the response for grid records
-     *
-     * Expect:
-     * Grid records response must have status flag as success.
-     ********************************/
     // -- Perform operation before all tests starts. It runs once before all tests in the block --
     before(function () {
 
         testConfig = section.conf;
+        testConfig2 = subSection.conf;
 
         // --- Login into Application before starting any tests ---
         // Check custom login command for more detail. File path: ./../support/commands.js
@@ -60,8 +55,6 @@ describe('AIR Roller UI Tests - Tendered payment Receipt', function () {
         if (testConfig.haveDateValue) {
             common.changeDate(testConfig.sidebarID, testConfig.fromDate, testConfig.toDate);
         }
-
-        cy.wait(5000);
 
         // Check http status
         cy.wait('@getRecords').its('status').should('eq', constants.HTTP_OK_STATUS);
@@ -108,56 +101,108 @@ describe('AIR Roller UI Tests - Tendered payment Receipt', function () {
     });
 
     /***********************
-     * Iterate through each cell.
-     *
-     * Expect:
-     * Cell value must be same as record's field value from API Response.
-     ***********************/
+    * Iterate through each cell.
+    *
+    * Expect:
+    * Cell value must be same as record's field value from API Response.
+    ***********************/
     it('Grid Records', function () {
         common.testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, testConfig);
     });
 
-    /*******************************
-     * Click on first record of grid
-     *
-     * Expect:
-     * Each field must have value set same as detail record api response.
-     * Button must be visible(Save, Cancel etc.)
-     *
-     *
-     * Close the form
-     ********************************/
+    /************************************************************
+    * Click Add new in toolbar
+    *
+    * Expect:
+    * Each field must set to be its default value
+    * Button must be visible(Save, Save and Add Another etc.)
+    ************************************************************/
     it('Record Detail Form', function () {
         // ----------------------------------
         // -- Tests for detail record form --
         // ----------------------------------
-        // Params:
-        // recordsAPIResponse: list of record from the api response,
-        // testConfig: configuration for running tests
-        common.testRecordDetailForm(recordsAPIResponse, testConfig);
+        
+        if(noRecordsInAPIResponse >0){
+            // Params:
+            // recordsAPIResponse: list of record from the api response,
+            // testConfig: configuration for running tests
+            // testConfig2: configuration for running tests
+            common.testDetailFormWithGrid(recordsAPIResponse, testConfig, testConfig2);
 
-        // -- Check Unallocated section's visibility and class --
-        common.unallocatedSectionTest();
-
-        // -- Close the form. And assert that form isn't visible. --
-        common.closeFormTests(selectors.getFormSelector(testConfig.form));
+            // -- Close the form. And assert that form isn't visible. --
+            common.closeInsideFormTests(selectors.getFormSelector(testConfig.form));
+        }
     });
 
-    /*********************************************************
-     * Click Add new in toolbar
-     *
-     * Expect:
-     * Each field must set to be its default value
-     * Button must be visible(Save, Save and Add Another etc.)
-     *********************************************************/
+    /************************************************************
+    * Click Add new in toolbar
+    *
+    * Expect:
+    * Each field must set to be its default value
+    * Button must be visible(Save, Save and Add Another etc.)
+    ************************************************************/
     it('Check default value of fields for new record form', function () {
         // ---------------------------------------
         // ----- Tests for add new record form ---
         // ---------------------------------------
-        common.testAddNewRecordForm(testConfig);
 
-        // -- Close the form. And assert that form isn't visible. --
-        common.closeFormTests(selectors.getFormSelector(testConfig.form));
+        // TODO(Jay): Use common testNewRecordForm() method after removing closeFormTests() call in that method. 
+        cy.contains('Add New', {force: true}).click().wait(constants.WAIT_TIME);
+
+        // record list in w2ui form
+        let getW2UIFormRecords;
+
+        // id of the field
+        let fieldID;
+
+        // default value of field in w2ui object
+        let defaultValue;
+
+        // get form name
+        let formName = testConfig.formInPopUp;
+
+        // get form selector
+        let formSelector = selectors.getFormSelector(formName);
+
+        // Check visibility of form
+        cy.get(formSelector).should('be.visible');
+
+        // get record and field list from the w2ui form object
+        cy.window().then((win) => {
+
+            // get w2ui form records
+            getW2UIFormRecords = win.w2ui[formName].record;
+        });
+
+        cy.get(formSelector)
+            .find('input.w2ui-input:not(:hidden)') // get all input field from the form in DOM which doesn't have type as hidden
+            .each(($el, index, $list) => {
+
+                // get id of the field
+                fieldID = $el.context.id;
+
+                cy.log(getW2UIFormRecords);
+
+                // get default value of field
+                defaultValue = getW2UIFormRecords[fieldID];
+
+                // defaultValue type is object means it does have key value pair. get default text from the key value pair.
+                if (typeof defaultValue === 'object') {
+                    defaultValue = defaultValue.text;
+                }
+
+                cy.get(selectors.getFieldSelector(formSelector, fieldID))
+                    .should('be.visible')
+                    .should('have.value', defaultValue);
+            });
+        // Check button's visibility
+        common.buttonsTest(testConfig.buttonNamesInForm, testConfig.notVisibleButtonNamesInForm);
+
+        // Close the form
+        cy.get(selectors.getClosePopupButtonSelector()).click().wait(constants.WAIT_TIME);
+
+        // Check that form should not visible after closing it
+        cy.get(formSelector).should('not.be.visible');
     });
 
     // -- Perform operation after all tests finish. It runs once after all tests in the block --

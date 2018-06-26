@@ -3,6 +3,7 @@
 const GRID = "payorstmtGrid";
 const SIDEBAR_ID = "payorstmt";
 const MODULE = "payorstmtinfo";
+const FORM = "payorStmtInfoForm";
 
 // Below configurations are in use while performing tests via roller_spec.js for AIR Roller application
 // For Module: Payor Statements
@@ -10,6 +11,7 @@ export let conf = {
     grid: GRID,
     sidebarID: SIDEBAR_ID,
     module: MODULE,
+    form: FORM,
     endPoint: "/{0}/payorstmt/{1}",
     methodType: 'POST',
     excludeGridColumns: [],

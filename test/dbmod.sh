@@ -483,6 +483,11 @@ DBNAME="rentroll"
 # ALTER TABLE RentalAgreement ADD DesiredUsageStartDate DATE NOT NULL DEFAULT '1970-01-01 00:00:00' AFTER RightOfFirstRefusal;
 # ALTER TABLE RentalAgreement ADD RentableTypePreference BIGINT NOT NULL DEFAULT 0 AFTER DesiredUsageStartDate;
 
+ALTER TABLE RentalAgreement ADD NoticeToMoveUID BIGINT NOT NULL DEFAULT 0 AFTER Outcome;
+ALTER TABLE RentalAgreement ADD NoticeToMoveDate DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00' AFTER NoticeToMoveUID;
+ALTER TABLE RentalAgreement ADD TerminatorUID BIGINT NOT NULL DEFAULT 0 AFTER NoticeToMoveDate;
+ALTER TABLE RentalAgreement ADD TerminationDate DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00' AFTER TerminatorUID;
+
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================

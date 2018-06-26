@@ -51,6 +51,16 @@ export function closeFormTests(formSelector) {
     cy.get(formSelector).should('not.be.visible');
 }
 
+// -- Close the form. And assert that form isn't visible. --
+export function closeInsideFormTests(formSelector) {
+
+    // Close the form
+    cy.get(selectors.getFormInsideCloseButtonSelector(formSelector)).click().wait(constants.WAIT_TIME);
+
+    // Check that form should not visible after closing it
+    cy.get(formSelector).should('not.be.visible');
+}
+
 // -- perform test on grid cells --
 export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConfig) {
     let appSettings = win.app;
@@ -83,6 +93,7 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                 case "*** RECEIPT SUMMARY ***":
                 case "*** UNAPPLIED FUNDS ***":
                 case "*** RENTAL AGREEMENT 1 ***":
+                case "*** RENTAL AGREEMENT 3 ***":
                 case "":
                     testConfig.skipColumns = ["Reverse", "spacer"];
                     return;
@@ -218,6 +229,15 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                     case "LeaseStatus":
                         valueForCell = appSettings.RSLeaseStatus[valueForCell];
                         break;
+                    case "EpochDue":
+                    case "EpochPreDue":
+                    case "DtPreDue":
+                    case "DtPreDone":
+                    case "DtDue":
+                    case "DtDone":
+                        valueForCell = win.dtFormatISOToW2ui(record[w2uiGridColumn.field]);
+                        break;
+                    
                 }
 
                 // Check visibility and default value of cell in the grid
@@ -238,6 +258,7 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
 // -- perform test on detail record form's field --
 export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
     console.log(recordDetailFromAPIResponse);
+    cy.log(recordDetailFromAPIResponse);
 
     let fieldValue;
 
@@ -292,7 +313,10 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                 // Convert fieldValue to w2ui money type
                 if (field.type === "money") {
                     fieldValue = win.w2utils.formatters.money(recordDetailFromAPIResponse[fieldID]);
-                }
+                
+                } else if(field.type === "datetime") {
+                    fieldValue = win.dtFormatISOToW2ui(recordDetailFromAPIResponse[fieldID]);    
+                } 
 
                 let types;
                 let type;
@@ -336,7 +360,11 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                         } else if (formName === "expenseForm") {
                             ruleName = "ExpenseRules";
                         } else if (formName === "rtForm") {
-                            fieldValue = " -- No ARID -- ";
+                            win.w2ui[formName].get("ARID").options.items.forEach(function(item) {
+                                if (item.id == fieldValue) {
+                                    fieldValue = item.text;
+                                }
+                            });
                             break;
                         }
                         types = appSettings[ruleName][constants.testBiz];
@@ -368,6 +396,17 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                         type = types.find(types => types.id === fieldValue);
                         fieldValue = type.text;
                         break;
+                    case "Cycle":
+                        types = appSettings.w2ui.listItems.cycleFreq;
+                        type = types.find(types => types.id === fieldValue);
+                        fieldValue = type.text;
+                        break;
+                    case "lstWorker":
+                        fieldValue = recordDetailFromAPIResponse.Worker;
+                        types = appSettings.workers;
+                        type = types.find(types => types.text === fieldValue);
+                        fieldValue = type.text;
+                        break;
                 }
 
                 // check fields visibility and respective value
@@ -388,20 +427,28 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                         case "PriorToRAStart":
                         // Assessment Charges form checkbox
                         case "ExpandPastInst":
+                        // Task List Definition form checkbox
+                        case "ChkEpochPreDue":
+                        case "ChkEpochDue":
+                        // Task List form checkbox
+                        case "ChkDtPreDue":
+                        case "ChkDtPreDone":
+                        case "ChkDtDue":
+                        case "ChkDtDone":
                         // Chart of Accounts form checkbox
                         case "IsActive":
                             if(fieldValue){
-                                cy.get(selectors.getFieldSelector(fieldID))
+                                cy.get(selectors.getFieldSelector(formSelector, fieldID))
                                     .should('be.visible')
                                     .should('be.checked');
                             }else{
-                                cy.get(selectors.getFieldSelector(fieldID))
+                                cy.get(selectors.getFieldSelector(formSelector, fieldID))
                                     .should('be.visible')
                                     .should('be.not.checked');
                             }
                             break;
                         default:
-                            cy.get(selectors.getFieldSelector(fieldID))
+                            cy.get(selectors.getFieldSelector(formSelector, fieldID))
                                 .should('be.visible')
                                 .should('have.value', fieldValue);
                             break;
@@ -410,8 +457,10 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
             });
     });
 
-    // Check Business Unit field must be disabled and have value REX
-    BUDFieldTest();
+    if(testConfig.form !== "tldsInfoForm" && testConfig.form !== "taskDescForm"){
+        // Check Business Unit field must be disabled and have value REX
+        BUDFieldTest();
+    }
 
     // -- Check buttons visibility --
     buttonsTest(testConfig.buttonNamesInDetailForm, testConfig.notVisibleButtonNamesInForm);
@@ -480,6 +529,11 @@ export function addNewFormTest(testConfig) {
             else if (field.type === "money" && typeof defaultValue === 'number') {
                 defaultValue = "$0.00";
             }
+            else if (field.type === "datetime") {
+                cy.window().then((win) => {
+                    defaultValue = win.dtFormatISOToW2ui(defaultValue);
+                });
+            }
 
             // update defaultValue based on fieldID
             switch (fieldID) {
@@ -519,20 +573,23 @@ export function addNewFormTest(testConfig) {
                     case "PriorToRAStart":
                     // Assessment Charges form checkbox
                     case "ExpandPastInst":
+                    // Task List Definition form checkbox
+                    case "ChkEpochPreDue":
+                    case "ChkEpochDue":
                     // Chart of Accounts
                     case "IsActive":
                         if(defaultValue){
-                            cy.get(selectors.getFieldSelector(fieldID))
+                            cy.get(selectors.getFieldSelector(formSelector, fieldID))
                                 .should('be.visible')
                                 .should('be.checked');
                         }else{
-                            cy.get(selectors.getFieldSelector(fieldID))
+                            cy.get(selectors.getFieldSelector(formSelector, fieldID))
                                 .should('be.visible')
                                 .should('be.not.checked');
                         }
                         break;
                     default:
-                        cy.get(selectors.getFieldSelector(fieldID))
+                        cy.get(selectors.getFieldSelector(formSelector, fieldID))
                             .should('be.visible')
                             .should('have.value', defaultValue);
                         break;
@@ -542,15 +599,13 @@ export function addNewFormTest(testConfig) {
 
         });
 
-
-    // Check Business Unit field must be disabled and have value REX
-    BUDFieldTest();
-
+    // skip BUDFieldTest for tldsInfoFrom because BUD field is not present
+    if(testConfig.form !== "tldsInfoForm"){
+        // Check Business Unit field must be disabled and have value REX
+        BUDFieldTest();
+    }
     // Check button's visibility
     buttonsTest(testConfig.buttonNamesInForm, testConfig.notVisibleButtonNamesInForm);
-
-    // -- Close the form. And assert that form isn't visible. --
-    closeFormTests(formSelector);
 }
 
 // change date in UI from and to date
@@ -665,7 +720,7 @@ export function testGridInTabbedDetailForm(gridName, layoutName, routeName, test
     });
 }
 
-export function testDetailFormWithGrid(recordsAPIResponse, testConfig) {
+export function testDetailFormWithGrid(recordsAPIResponse, testConfig, testConfig2) {
     cy.log("Tests for detail record form");
 
     // -- detail record testing --
@@ -686,6 +741,14 @@ export function testDetailFormWithGrid(recordsAPIResponse, testConfig) {
             cy.route(testConfig.methodType, getDetailRecordAPIEndPoint('payorstmt', id)).as('getGridRecordsInDetailedForm');
             testConfig.skipColumns = [];
             break;
+        case "tldsGrid":
+            cy.route(testConfig.methodType, getDetailRecordAPIEndPoint('tld', id)).as('getDetailRecord');
+            cy.route(testConfig.methodType, getDetailRecordAPIEndPoint('tds', id)).as('getGridRecordsInDetailedForm');
+            break;
+        case "tlsGrid":
+            cy.route(testConfig.methodType, getDetailRecordAPIEndPoint('tl', id)).as('getDetailRecord');
+            cy.route(testConfig.methodType, getDetailRecordAPIEndPoint('tasks', id)).as('getGridRecordsInDetailedForm');
+            break;
     }
 
     // click on the first record of grid
@@ -693,23 +756,26 @@ export function testDetailFormWithGrid(recordsAPIResponse, testConfig) {
 
     // perform tests on record detail form
     cy.get('@getDetailRecord').then(function (xhr) {
-        cy.log(xhr);
-
         let recordDetailFromAPIResponse = xhr.response.body.record;
         cy.log(recordDetailFromAPIResponse);
 
-        cy.get('#RAInfo').within(() => {
-            if(testConfig.grid === "stmtGrid"){
-                cy.get('#bannerPayors').should('be.visible').should('contain', recordDetailFromAPIResponse.Payors);
-                cy.get('#RentalAgreementDates').should('be.visible').should('contain', recordDetailFromAPIResponse.AgreementStart).should('contain', recordDetailFromAPIResponse.AgreementStop);
-                cy.get('#PossessionDates').should('be.visible').should('contain', recordDetailFromAPIResponse.PossessionStart).should('contain', recordDetailFromAPIResponse.PossessionStop);
-                cy.get('#RentDates').should('be.visible').should('contain', recordDetailFromAPIResponse.RentStart).should('contain', recordDetailFromAPIResponse.RentStop);
-            }else if(testConfig.grid === "payorstmtGrid"){
-                cy.get('#bannerTCID').should('be.visible').should('contain', recordDetailFromAPIResponse.FirstName).should('contain', recordDetailFromAPIResponse.MiddleName).should('contain', recordDetailFromAPIResponse.LastName);
-                // cy.get('#payorstmtaddr').should('be.visible').should('contain', recordDetailFromAPIResponse.Address); TODO(Akshay): Uncomment afterwards
-            }
-        });
 
+        if(testConfig.grid === "tldsGrid" || testConfig.grid === "tlsGrid"){
+            detailFormTest(recordDetailFromAPIResponse,testConfig);
+        } else {
+            cy.get("#RAInfo").within(() => {
+                if(testConfig.grid === "stmtGrid"){
+                    cy.get('#bannerPayors').should('be.visible').should('contain', recordDetailFromAPIResponse.Payors);
+                    cy.get('#RentalAgreementDates').should('be.visible').should('contain', recordDetailFromAPIResponse.AgreementStart).should('contain', recordDetailFromAPIResponse.AgreementStop);
+                    cy.get('#PossessionDates').should('be.visible').should('contain', recordDetailFromAPIResponse.PossessionStart).should('contain', recordDetailFromAPIResponse.PossessionStop);
+                    cy.get('#RentDates').should('be.visible').should('contain', recordDetailFromAPIResponse.RentStart).should('contain', recordDetailFromAPIResponse.RentStop);
+                
+                }else if(testConfig.grid === "payorstmtGrid"){
+                    cy.get('#bannerTCID').should('be.visible').should('contain', recordDetailFromAPIResponse.FirstName).should('contain', recordDetailFromAPIResponse.MiddleName).should('contain', recordDetailFromAPIResponse.LastName);
+                    // cy.get('#payorstmtaddr').should('be.visible').should('contain', recordDetailFromAPIResponse.Address); TODO(Akshay): Uncomment afterwards
+                }
+            });
+        }
     });
 
     // check response status of API end point
@@ -717,13 +783,19 @@ export function testDetailFormWithGrid(recordsAPIResponse, testConfig) {
 
     // perform tests on record detail form
     cy.get('@getGridRecordsInDetailedForm').then(function (xhr) {
-        cy.log(xhr);
-
         let recordDetailFromAPIResponse = xhr.response.body.records;
         if (recordDetailFromAPIResponse.length > 0) {
-            testConfig.grid = testConfig.gridInForm;
+
             cy.log(testConfig.grid);
-            testGridRecords(recordDetailFromAPIResponse, recordDetailFromAPIResponse.length, testConfig);
+            testGridRecords(recordDetailFromAPIResponse, recordDetailFromAPIResponse.length, testConfig2);
+
+            if (testConfig2.grid === "tldsDetailGrid" || testConfig2.grid === "tlsDetailGrid"){
+
+                cy.log("Checking Form Inside the Detail Form");
+            
+                testRecordDetailForm(recordDetailFromAPIResponse, testConfig2);
+                closeInsideFormTests(selectors.getFormSelector(testConfig2.form));
+            }
         }
         cy.log(recordDetailFromAPIResponse);
 
@@ -741,7 +813,7 @@ export function testRecordDetailForm(recordsAPIResponse, testConfig) {
     cy.server();
 
     // Routing response to detail record's api requests.
-    cy.route(testConfig.methodType, getDetailRecordAPIEndPoint(testConfig.module, id)).as('getDetailRecord');
+    cy.route(testConfig.methodType, getDetailRecordAPIEndPoint(testConfig.module, id)).as('getDetailsRecord');
 
     switch (testConfig.module) {
         case "rt":
@@ -763,10 +835,10 @@ export function testRecordDetailForm(recordsAPIResponse, testConfig) {
     cy.get(selectors.getFirstRecordInGridSelector(testConfig.grid)).click().wait(constants.WAIT_TIME);
 
     // check response status of API end point
-    cy.wait('@getDetailRecord').its('status').should('eq', constants.HTTP_OK_STATUS);
+    cy.wait('@getDetailsRecord').its('status').should('eq', constants.HTTP_OK_STATUS);
 
     // perform tests on record detail form
-    cy.get('@getDetailRecord').then(function (xhr) {
+    cy.get('@getDetailsRecord').then(function (xhr) {
 
         let recordDetailFromAPIResponse = xhr.response.body.record;
 
@@ -800,7 +872,6 @@ export function testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, test
 
             // get list of columns in the grid
             w2uiGridColumns = win.w2ui[testConfig.grid].columns;
-
             // Match grid record length with total rows in receiptsGrid
             cy.get(selectors.getRowsInGridSelector(testConfig.grid)).should(($trs) => {
                 expect($trs).to.have.length(noRecordsInAPIResponse);
@@ -872,4 +943,107 @@ export function printReceiptUITest() {
 
     // Close the popup
     cy.get(selectors.getClosePopupButtonSelector()).click();
+}
+
+// test for Saving a new Record in Form
+export function testSaveNewRecord(testConfig) {
+    // record list in w2ui form
+    let getW2UIFormRecords;
+
+    // field list in w2ui form
+    let getW2UIFormFields;
+
+    // get form name
+    let formName = testConfig.form;
+
+    // get form selector
+    let formSelector = selectors.getFormSelector(formName);
+
+    // get record and field list from the w2ui form object
+    cy.window().then((win) => {
+
+        // get w2ui form records
+        getW2UIFormRecords = win.w2ui[formName].record;
+        cy.log(getW2UIFormRecords);
+        // get w2ui form fields
+        getW2UIFormFields = win.w2ui[formName].fields;
+
+    });
+
+    let fieldID;
+    let field;
+    let fieldValue;
+
+    testConfig.skipFields.push('BUD');
+
+    if(testConfig.form == "rtForm") {
+        testConfig.skipFields.push('ManageToBudget');        
+    }
+    
+    cy.fixture(testConfig.fixtureFile).then((json) => {
+
+        cy.get(formSelector)
+            .find('input.w2ui-input:not(:hidden)') // get all input field from the form in DOM which doesn't have type as hidden
+            .each(($el, index, $list) => {
+
+                // get id of the field
+                fieldID = $el.context.id;
+
+                cy.log(getW2UIFormRecords);
+
+                // get default value of field
+                fieldValue = json.record[fieldID];
+
+                // get field from w2ui form field list
+                field = getW2UIFormFields.find(fieldList => fieldList.field === fieldID);
+
+                // Check field visibility and match default value from w2ui
+                if (!isInArray(fieldID, testConfig.skipFields)) {
+
+                    // Check if type of input field is list
+                    if($list[index].getAttribute("type") === "list") {
+
+                        // Get dropdown field, check visiblity and click on it
+                        cy.get(selectors.getFieldSelector(formSelector, fieldID)).parent().should('be.visible').click();
+                        // Get dropdown value, check visiblity and click on it
+                        cy.get(selectors.getDropDownValueFieldSelector(fieldValue)).should('be.visible').click();
+                    }
+                    else if($list[index].getAttribute("type") === "checkbox") {
+                        if(!$el[0].checked){
+                            if(!$el.context.disabled){
+                                // Get checkbox, check visiblity and click on it
+                                cy.get(selectors.getFieldSelector(formSelector, fieldID))
+                                    .should('be.visible')
+                                    .should('not.be.disabled')
+                                    .should('not.be.checked').click();
+                            }
+                        }
+                    }
+                    else if($list[index].getAttribute("type") === "text") {
+
+                        // Check visibility and match the default value of the fields.
+                        cy.get(selectors.getFieldSelector(formSelector, fieldID))
+                            .should('be.visible').clear().type(fieldValue)
+                            .should('have.value', fieldValue);
+                    }
+                }
+            });
+    });
+
+    // Route request for adding new record
+    cy.server();
+    cy.route(testConfig.methodType, getDetailRecordAPIEndPoint(testConfig.module, 0)).as('addRecord');
+
+    // Get save button and click on it
+    cy.get(selectors.getButtonSelector('save')).click();
+
+    // check response status of API end point
+    cy.wait('@addRecord').its('status').should('eq', constants.HTTP_OK_STATUS);
+
+    // get API Endpoint response
+    cy.get('@addRecord').then(function (xhr) {
+
+        // Check status flag in API Endpoint response
+        expect(xhr.responseBody).to.have.property('status', constants.API_RESPONSE_SUCCESS_FLAG);
+    });
 }

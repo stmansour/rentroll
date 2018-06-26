@@ -5,6 +5,11 @@ export function getFormCloseButtonSelector() {
     return '[class="fas fa-times"]';
 }
 
+// return selector for close button inside form
+export function getFormInsideCloseButtonSelector(formSelector) {
+    return formSelector + ' [class="fas fa-times"]';
+}
+
 // return selector for print button of form
 export function getFormPrintButtonSelector() {
     return '[class="fas fa-print"]';
@@ -77,8 +82,8 @@ export function getFormSelector(formName) {
 }
 
 // return selector for field
-export function getFieldSelector(fieldId) {
-    return '#' + fieldId;
+export function getFieldSelector(formSelector, fieldId) {
+    return formSelector + ' #' + fieldId;
 }
 
 // return selector for buttons
@@ -104,4 +109,9 @@ export function getExportCSVButtonSelector(gridname) {
 // return selector for export pdf button in grid toolbar
 export function getExportPDFButtonSelector(gridname) {
     return '#tb_'+ gridname + '_toolbar_item_printreport';
+}
+
+// return selector for dropdown value field
+export function getDropDownValueFieldSelector(fieldValue) {
+    return '#w2ui-overlay tr[index=' + fieldValue + ']';
 }
