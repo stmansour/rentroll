@@ -235,7 +235,7 @@ CREATE TABLE RentalAgreement (
               2        Pending Second     The first approver needs to approve
                        Approval           the application
               3        Move In            Print Rental Agreement, sign,
-                                          the application, 
+                                          the application,
               4        Active             Application was approved by Approver
                                           on ApplicationDecisionDate
               5        Terminated         Agreement was terminated because the
@@ -253,15 +253,15 @@ CREATE TABLE RentalAgreement (
              14        unused             reserved for future expansion
              15        unused             reserved for future expansion
         ------------------------------------------------------------------------
-    */   
+    */
     Approver1 BIGINT NOT NULL DEFAULT 0,                            -- approver 1
     DecisionDate1 DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- datetime when first approver made the decision
     DeclineReason1 BIGINT NOT NULL DEFAULT 0,                       -- Only valid if FLAGS & (1<<7) == 0, this is the SLSID to string in list of choices, why Approver1 declined the application
     Approver2 BIGINT NOT NULL DEFAULT 0,                            -- approver 2
     DecisionDate2 DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- datetime when first approver made the decision
     DeclineReason2 BIGINT NOT NULL DEFAULT 0,                       -- Only valid if FLAGS & (1<<8) == 0, this is the SLSID to string in list of choices, why Approver2 declined the application
-    Outcome BIGINT NOT NULL DEFAULT 0,                              -- Only valid if state == Appl Elect(6), this is the SLSID of string from a list of WhyLeaving 
-   
+    Outcome BIGINT NOT NULL DEFAULT 0,                              -- Only valid if state == Appl Elect(6), this is the SLSID of string from a list of WhyLeaving
+
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                                -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,              -- when was this record created

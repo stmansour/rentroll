@@ -4,7 +4,8 @@
     saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowCompData,
     lockOnGrid,
     getPetFormInitRecord, getPetLocalData, setPetLocalData,
-    AssignPetsGridRecords, savePetsCompData
+    AssignPetsGridRecords, savePetsCompData,
+    showRAFlowPetLayout
 */
 
 "use strict";
@@ -106,9 +107,9 @@ window.loadRAPetsGrid = function () {
                     // hide delete button if it is NewRecord
                     var isNewRecord = (w2ui.RAPetsGrid.get(f.record.recid, true) === null);
                     if (isNewRecord) {
-                        $(f.box).find("button[name=delete]").addClass("hidden");
+                        $("#RAPetFormBtns").find("button[name=delete]").addClass("hidden");
                     } else {
-                        $(f.box).find("button[name=delete]").removeClass("hidden");
+                        $("#RAPetFormBtns").find("button[name=delete]").removeClass("hidden");
                     }
                 };
             },
@@ -123,7 +124,227 @@ window.loadRAPetsGrid = function () {
                         app.form_is_dirty = true;
                     }
                 };
+            }
+        });
+
+        // pets grid
+        $().w2grid({
+            name: 'RAPetsGrid',
+            header: 'Pets',
+            show: {
+                toolbar: true,
+                toolbarSearch: false,
+                toolbarAdd: true,
+                toolbarReload: true,
+                toolbarInput: false,
+                toolbarColumns: false,
+                footer: true,
             },
+            multiSelect: false,
+            style: 'border: 0px solid black; display: block;',
+            columns: [
+                {
+                    field: 'recid',
+                    caption: 'recid',
+                    hidden: true
+                },
+                {
+                    field: 'TMPPETID',
+                    caption: 'TMPPETID',
+                    hidden: true
+                },
+                {
+                    field: 'PETID',
+                    caption: 'PETID',
+                    hidden: true
+                },
+                {
+                    field: 'BID',
+                    caption: 'BID',
+                    hidden: true
+                },
+                {
+                    field: 'TMPTCID',
+                    caption: 'Contact<br>Person',
+                    size: '150px',
+                    render: function (record/*, index, col_index*/) {
+                        var html = '';
+                        if (record) {
+                            var items = app.raflow.peopleW2UIItems;
+                            for (var s in items) {
+                                if (items[s].id == record.TMPTCID) html = items[s].text;
+                            }
+                        }
+                        return html;
+                    }
+                },
+                {
+                    field: 'Name',
+                    caption: 'Name',
+                    size: '150px'
+                },
+                {
+                    field: 'Type',
+                    caption: 'Type',
+                    size: '80px'
+                },
+                {
+                    field: 'Breed',
+                    caption: 'Breed',
+                    size: '80px'
+                },
+                {
+                    field: 'Color',
+                    caption: 'Color',
+                    size: '80px'
+                },
+                {
+                    field: 'Weight',
+                    caption: 'Weight',
+                    size: '80px'
+                },
+                {
+                    field: 'DtStart',
+                    caption: 'DtStart',
+                    size: '100px'
+                },
+                {
+                    field: 'DtStop',
+                    caption: 'DtStop',
+                    size: '100px'
+                }
+            ],
+            onChange: function (event) {
+                event.onComplete = function () {
+                    this.save();
+                };
+            },
+            onClick: function(event) {
+                event.onComplete = function() {
+                    var yes_args = [this, event.recid],
+                        no_args = [this],
+                        no_callBack = function(grid) {
+                            grid.select(app.last.grid_sel_recid);
+                            return false;
+                        },
+                        yes_callBack = function(grid, recid) {
+                            app.last.grid_sel_recid = parseInt(recid);
+
+                            // keep highlighting current row in any case
+                            grid.select(app.last.grid_sel_recid);
+                            w2ui.RAPetForm.record = $.extend(true, {}, grid.get(app.last.grid_sel_recid));
+
+                            // get pet fees in grid
+
+                            // render layout in the slider
+                            showSliderContentW2UIComp(w2ui.RAPetLayout, RACompConfig.pets.sliderWidth);
+
+                            // load pet fees grid
+                            setTimeout(function() {
+                                // fill layout with components
+                                showRAFlowPetLayout();
+                            }, 500);
+                        };
+
+                    // warn user if form content has been changed
+                    form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);
+                };
+            },
+            onAdd: function (/*event*/) {
+                var yes_args = [this],
+                    no_callBack = function() {
+                        return false;
+                    },
+                    yes_callBack = function(grid) {
+                        app.last.grid_sel_recid = -1;
+                        grid.selectNone();
+
+                        var BID = getCurrentBID(),
+                            BUD = getBUDfromBID(BID);
+
+                        w2ui.RAPetForm.record = getPetFormInitRecord(null);
+                        w2ui.RAPetForm.record.recid = w2ui.RAPetsGrid.records.length + 1; // set record id
+
+                        // render the layout in slider
+                        showSliderContentW2UIComp(w2ui.RAPetLayout, RACompConfig.pets.sliderWidth);
+
+                        // load pet fees grid
+                        setTimeout(function() {
+                            // fill layout with components
+                            showRAFlowPetLayout();
+                        }, 500);
+                    };
+
+                // warn user if form content has been changed
+                form_dirty_alert(yes_callBack, no_callBack, yes_args);
+            }
+        });
+
+        // pet fees grid
+        $().w2grid({
+            name: 'RAPetFeesGrid',
+            header: 'Pet Fees',
+            show: {
+                toolbar: true,
+                header: false,
+                toolbarSearch: false,
+                toolbarAdd: true,
+                toolbarReload: false,
+                toolbarInput: false,
+                toolbarColumns: true,
+                footer: false,
+            },
+            multiSelect: false,
+            style: 'border: 1px solid silver;',
+            columns: [
+                {
+                    field: 'recid',
+                    hidden: true
+                },
+                {
+                    field: 'TMPPETID',
+                    hidden: true
+                },
+                {
+                    field: 'PETID',
+                    hidden: true
+                },
+                {
+                    field: 'BID',
+                    hidden: true
+                },
+                {
+                    field: 'ARID',
+                    hidden: true
+                },
+                {
+                    field: 'ARName',
+                    caption: 'Name',
+                    size: '70%'
+                },
+                {
+                    field: 'Amount',
+                    caption: 'Amount',
+                    size: '100px',
+                    render: 'money'
+                },
+            ],
+            onChange: function (event) {
+                event.onComplete = function () {
+                    this.save();
+                };
+            },
+        });
+
+        //------------------------------------------------------------------------
+        //          Pet Form Buttons
+        //------------------------------------------------------------------------
+        $().w2form({
+            name: 'RAPetFormBtns',
+            style: 'border: none; background-color: transparent;',
+            formURL: '/webclient/html/formrapetbtns.html',
+            url: '',
+            fields: [],
             actions: {
                 reset: function() {
                     w2ui.RAPetForm.clear();
@@ -239,139 +460,23 @@ window.loadRAPetsGrid = function () {
             },
         });
 
-        // pets grid
-        $().w2grid({
-            name: 'RAPetsGrid',
-            header: 'Pets',
-            show: {
-                toolbar: true,
-                toolbarSearch: false,
-                toolbarAdd: true,
-                toolbarReload: true,
-                toolbarInput: false,
-                toolbarColumns: false,
-                footer: true,
-            },
-            multiSelect: false,
-            style: 'border: 0px solid black; display: block;',
-            columns: [
-                {
-                    field: 'recid',
-                    hidden: true
-                },
-                {
-                    field: 'TMPPETID',
-                    hidden: true
-                },
-                {
-                    field: 'PETID',
-                    hidden: true
-                },
-                {
-                    field: 'BID',
-                    hidden: true
-                },
-                {
-                    field: 'TMPTCID',
-                    caption: 'Contact<br>Person',
-                    size: '150px',
-                    render: function (record/*, index, col_index*/) {
-                        var html = '';
-                        if (record) {
-                            var items = app.raflow.peopleW2UIItems;
-                            for (var s in items) {
-                                if (items[s].id == record.TMPTCID) html = items[s].text;
-                            }
-                        }
-                        return html;
-                    }
-                },
-                {
-                    field: 'Name',
-                    caption: 'Name',
-                    size: '150px'
-                },
-                {
-                    field: 'Type',
-                    caption: 'Type',
-                    size: '80px'
-                },
-                {
-                    field: 'Breed',
-                    caption: 'Breed',
-                    size: '80px'
-                },
-                {
-                    field: 'Color',
-                    caption: 'Color',
-                    size: '80px'
-                },
-                {
-                    field: 'Weight',
-                    caption: 'Weight',
-                    size: '80px'
-                },
-                {
-                    field: 'DtStart',
-                    caption: 'DtStart',
-                    size: '100px'
-                },
-                {
-                    field: 'DtStop',
-                    caption: 'DtStop',
-                    size: '100px'
-                }
-            ],
-            onChange: function (event) {
-                event.onComplete = function () {
-                    this.save();
-                };
-            },
-            onClick: function(event) {
-                event.onComplete = function() {
-                    var yes_args = [this, event.recid],
-                        no_args = [this],
-                        no_callBack = function(grid) {
-                            grid.select(app.last.grid_sel_recid);
-                            return false;
-                        },
-                        yes_callBack = function(grid, recid) {
-                            app.last.grid_sel_recid = parseInt(recid);
-
-                            // keep highlighting current row in any case
-                            grid.select(app.last.grid_sel_recid);
-                            w2ui.RAPetForm.record = $.extend(true, {}, grid.get(app.last.grid_sel_recid));
-
-                            showSliderContentW2UIComp(w2ui.RAPetForm, RACompConfig.pets.sliderWidth);
-                            w2ui.RAPetForm.refresh(); // need to refresh for header changes
-                        };
-
-                    // warn user if form content has been changed
-                    form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);
-                };
-            },
-            onAdd: function (/*event*/) {
-                var yes_args = [this],
-                    no_callBack = function() {
-                        return false;
-                    },
-                    yes_callBack = function(grid) {
-                        app.last.grid_sel_recid = -1;
-                        grid.selectNone();
-
-                        var BID = getCurrentBID(),
-                            BUD = getBUDfromBID(BID);
-
-                        w2ui.RAPetForm.record = getPetFormInitRecord(null);
-                        // set record id
-                        w2ui.RAPetForm.record.recid = w2ui.RAPetsGrid.records.length + 1;
-                        showSliderContentW2UIComp(w2ui.RAPetForm, RACompConfig.pets.sliderWidth);
-                        w2ui.RAPetForm.refresh();
-                    };
-
-                // warn user if form content has been changed
-                form_dirty_alert(yes_callBack, no_callBack, yes_args);
-            }
+        //------------------------------------------------------------------------
+        //  petLayout - The layout to contain the petForm and petFees grid
+        //              top  -      petForm
+        //              main -      petFeesGrid
+        //              bottom -    action buttions form
+        //------------------------------------------------------------------------
+        $().w2layout({
+            name: 'RAPetLayout',
+            padding: 0,
+            panels: [
+                { type: 'left',    size: 0,     hidden: true },
+                { type: 'top',     size: '60%', hidden: false, content: 'top',  resizable: true, style: app.pstyle },
+                { type: 'main',    size: '40%', hidden: false, content: 'main', resizable: true, style: app.pstyle },
+                { type: 'preview', size: 0,     hidden: true,  content: 'PREVIEW'  },
+                { type: 'bottom',  size: 50,    hidden: false, content: 'bottom', resizable: false, style: app.pstyle },
+                { type: 'right',   size: 0,     hidden: true }
+            ]
         });
     }
 
@@ -383,6 +488,13 @@ window.loadRAPetsGrid = function () {
         // assign grid records
         AssignPetsGridRecords();
     }, 500);
+};
+
+// fill rental agreement pet layout with all forms, grids
+window.showRAFlowPetLayout = function() {
+    w2ui.RAPetLayout.content('bottom',  w2ui.RAPetFormBtns);
+    w2ui.RAPetLayout.content('top',     w2ui.RAPetForm);
+    w2ui.RAPetLayout.content('main',    w2ui.RAPetFeesGrid);
 };
 
 //-----------------------------------------------------------------------------

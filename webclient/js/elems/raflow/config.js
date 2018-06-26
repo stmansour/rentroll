@@ -18,12 +18,12 @@ var RACompConfig = {
     "pets": {
         loader: "loadRAPetsGrid",
         w2uiComp: "RAPetsGrid",
-        sliderWidth: 400
+        sliderWidth: 500
     },
     "vehicles": {
         loader: "loadRAVehiclesGrid",
         w2uiComp: "RAVehiclesGrid",
-        sliderWidth: 400
+        sliderWidth: 500
     },
     "rentables": {
         loader: "loadRARentablesGrid",
