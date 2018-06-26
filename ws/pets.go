@@ -163,3 +163,81 @@ func SvcUserPets(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("b = %s\n", string(b))
 	SvcWriteResponse(d.BID, &resp, w)
 }
+
+// PetFee struct
+type PetFee struct {
+	BID           int64
+	ARID          int64
+	Name          string
+	DefaultAmount float64
+}
+
+// PetFeesResp is the response struct containing all pet fees
+type PetFeesResp struct {
+	Status  string   `json:"status"`
+	Total   int64    `json:"total"`
+	Records []PetFee `json:"records"`
+}
+
+// SvcPetFeesHandler is used to get the pet fees associated with the BID
+//
+// wsdoc {
+//  @Title  Pet Fees
+//  @URL /v1/petfees/:BID
+//  @Method  GET
+//  @Synopsis Get the pet fees associated with a BID
+//  @Description  Returns all the pet fees for a BID
+//  @Input
+//  @Response RAPets
+// wsdoc }
+// URL:
+//       0    1       2   3
+//      /v1/userpets/BID/TCID
+//-----------------------------------------------------------------------------
+func SvcPetFeesHandler(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcPetFeesHandler"
+	var (
+		err         error
+		bizPropName = "general"
+		bizPropJSON = rlib.BizProps{}
+		g           PetFeesResp
+	)
+	fmt.Printf("Entered in %s\n", funcname)
+
+	// get business properties
+	var bizProp rlib.BusinessProperties
+	bizProp, err = rlib.GetBusinessPropertiesByName(r.Context(), bizPropName, d.BID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// get json doc from Data column
+	if err = json.Unmarshal(bizProp.Data, &bizPropJSON); err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// get pet Fees
+	for _, n := range bizPropJSON.PetFees {
+		var pf PetFee
+		var ar rlib.AR
+		ar, err = rlib.GetARByName(r.Context(), d.BID, n)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+
+		// migrate values from ar to pf
+		rlib.MigrateStructVals(&ar, &pf)
+
+		// append in response list
+		g.Records = append(g.Records, pf)
+	}
+
+	g.Status = "success"
+	g.Total = int64(len(bizPropJSON.PetFees))
+
+	// success response
+	SvcWriteResponse(d.BID, &g, w)
+}

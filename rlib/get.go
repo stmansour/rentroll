@@ -1001,6 +1001,68 @@ func GetXBusiness(ctx context.Context, bid int64, xbiz *XBusiness) error {
 }
 
 //=======================================================
+//  BUSINESS PROPERTIES
+//=======================================================
+
+// GetBusinessProperties return business properties for a BPID
+func GetBusinessProperties(ctx context.Context, BPID int64) (bizProp BusinessProperties, err error) {
+
+	var (
+		row      *sql.Row
+		prepStmt = RRdb.Prepstmt.GetBusinessProperties
+	)
+
+	// session check
+	if sessionCheck(ctx) {
+		return
+	}
+
+	// fields list
+	fields := []interface{}{BPID}
+
+	// if transaction is supplied, then execute statement under tx
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		tStmt := tx.Stmt(prepStmt)
+		defer tStmt.Close()
+		row = tStmt.QueryRow(fields...)
+	} else {
+		row = prepStmt.QueryRow(fields...)
+	}
+
+	// read data from row
+	return bizProp, ReadBusinessProperties(row, &bizProp)
+}
+
+// GetBusinessPropertiesByName returns business properties object by name, BID
+func GetBusinessPropertiesByName(ctx context.Context, Name string, BID int64) (bizProp BusinessProperties, err error) {
+
+	var (
+		row      *sql.Row
+		prepStmt = RRdb.Prepstmt.GetBusinessPropertiesByName
+	)
+
+	// session check
+	if sessionCheck(ctx) {
+		return
+	}
+
+	// fields list
+	fields := []interface{}{Name, BID}
+
+	// if transaction is supplied, then execute statement under tx
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		tStmt := tx.Stmt(prepStmt)
+		defer tStmt.Close()
+		row = tStmt.QueryRow(fields...)
+	} else {
+		row = prepStmt.QueryRow(fields...)
+	}
+
+	// read data from row
+	return bizProp, ReadBusinessProperties(row, &bizProp)
+}
+
+//=======================================================
 //  CLOSE PERIOD
 //=======================================================
 

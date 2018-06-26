@@ -184,6 +184,8 @@ var Svcs = []ServiceHandler{
 	{Cmd: "pmts", Handler: SvcHandlerPaymentType, NeedBiz: true, NeedSession: true},
 	{Cmd: "postaccounts", Handler: SvcPostAccountsList, NeedBiz: true, NeedSession: true},
 	{Cmd: "ra2flow", Handler: SvcHandlerRA2Flow, NeedBiz: true, NeedSession: true},
+	{Cmd: "petfees", Handler: SvcPetFeesHandler, NeedBiz: false, NeedSession: false},
+	// {Cmd: "vehiclefees", Handler: SvcVehicleFeesHandler, NeedBiz: false, NeedSession: false},
 	{Cmd: "rapayor", Handler: SvcRAPayor, NeedBiz: true, NeedSession: true},
 	{Cmd: "rapets", Handler: SvcRAPets, NeedBiz: true, NeedSession: true},
 	{Cmd: "rar", Handler: SvcRARentables, NeedBiz: true, NeedSession: true},
