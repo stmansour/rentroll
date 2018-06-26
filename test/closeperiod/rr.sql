@@ -1319,7 +1319,6 @@ CREATE TABLE `Prospect` (
   `OtherPreferences` varchar(1024) NOT NULL DEFAULT '',
   `SpecialNeeds` varchar(1024) NOT NULL DEFAULT '',
   `FollowUpDate` date NOT NULL DEFAULT '1970-01-01',
-  `CSAgent` bigint(20) NOT NULL DEFAULT '0',
   `CurrentAddress` varchar(200) NOT NULL DEFAULT '',
   `CurrentLandLordName` varchar(100) NOT NULL DEFAULT '',
   `CurrentLandLordPhoneNo` varchar(20) NOT NULL DEFAULT '',
@@ -2574,4 +2573,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-06-22 13:00:41
+-- Dump completed on 2018-06-24 23:29:09

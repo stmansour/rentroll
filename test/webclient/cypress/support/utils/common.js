@@ -51,6 +51,16 @@ export function closeFormTests(formSelector) {
     cy.get(formSelector).should('not.be.visible');
 }
 
+// -- Close the form. And assert that form isn't visible. --
+export function closeInsideFormTests(formSelector) {
+
+    // Close the form
+    cy.get(selectors.getFormInsideCloseButtonSelector(formSelector)).click().wait(constants.WAIT_TIME);
+
+    // Check that form should not visible after closing it
+    cy.get(formSelector).should('not.be.visible');
+}
+
 // -- perform test on grid cells --
 export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConfig) {
     let appSettings = win.app;
@@ -248,6 +258,7 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
 // -- perform test on detail record form's field --
 export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
     console.log(recordDetailFromAPIResponse);
+    cy.log(recordDetailFromAPIResponse);
 
     let fieldValue;
 
@@ -349,7 +360,6 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                         } else if (formName === "expenseForm") {
                             ruleName = "ExpenseRules";
                         } else if (formName === "rtForm") {
-                            // fieldValue = " -- No ARID -- ";
                             win.w2ui[formName].get("ARID").options.items.forEach(function(item) {
                                 if (item.id == fieldValue) {
                                     fieldValue = item.text;
@@ -391,6 +401,12 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                         type = types.find(types => types.id === fieldValue);
                         fieldValue = type.text;
                         break;
+                    case "lstWorker":
+                        fieldValue = recordDetailFromAPIResponse.Worker;
+                        types = appSettings.workers;
+                        type = types.find(types => types.text === fieldValue);
+                        fieldValue = type.text;
+                        break;
                 }
 
                 // check fields visibility and respective value
@@ -422,17 +438,17 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                         // Chart of Accounts form checkbox
                         case "IsActive":
                             if(fieldValue){
-                                cy.get(selectors.getFieldSelector(fieldID))
+                                cy.get(selectors.getFieldSelector(formSelector, fieldID))
                                     .should('be.visible')
                                     .should('be.checked');
                             }else{
-                                cy.get(selectors.getFieldSelector(fieldID))
+                                cy.get(selectors.getFieldSelector(formSelector, fieldID))
                                     .should('be.visible')
                                     .should('be.not.checked');
                             }
                             break;
                         default:
-                            cy.get(selectors.getFieldSelector(fieldID))
+                            cy.get(selectors.getFieldSelector(formSelector, fieldID))
                                 .should('be.visible')
                                 .should('have.value', fieldValue);
                             break;
@@ -441,7 +457,7 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
             });
     });
 
-    if(testConfig.form !== "tldsInfoForm"){
+    if(testConfig.form !== "tldsInfoForm" && testConfig.form !== "taskDescForm"){
         // Check Business Unit field must be disabled and have value REX
         BUDFieldTest();
     }
@@ -563,17 +579,17 @@ export function addNewFormTest(testConfig) {
                     // Chart of Accounts
                     case "IsActive":
                         if(defaultValue){
-                            cy.get(selectors.getFieldSelector(fieldID))
+                            cy.get(selectors.getFieldSelector(formSelector, fieldID))
                                 .should('be.visible')
                                 .should('be.checked');
                         }else{
-                            cy.get(selectors.getFieldSelector(fieldID))
+                            cy.get(selectors.getFieldSelector(formSelector, fieldID))
                                 .should('be.visible')
                                 .should('be.not.checked');
                         }
                         break;
                     default:
-                        cy.get(selectors.getFieldSelector(fieldID))
+                        cy.get(selectors.getFieldSelector(formSelector, fieldID))
                             .should('be.visible')
                             .should('have.value', defaultValue);
                         break;
@@ -589,9 +605,6 @@ export function addNewFormTest(testConfig) {
     }
     // Check button's visibility
     buttonsTest(testConfig.buttonNamesInForm, testConfig.notVisibleButtonNamesInForm);
-
-    // -- Close the form. And assert that form isn't visible. --
-    closeFormTests(formSelector);
 }
 
 // change date in UI from and to date
@@ -706,7 +719,7 @@ export function testGridInTabbedDetailForm(gridName, layoutName, routeName, test
     });
 }
 
-export function testDetailFormWithGrid(recordsAPIResponse, testConfig) {
+export function testDetailFormWithGrid(recordsAPIResponse, testConfig, testConfig2) {
     cy.log("Tests for detail record form");
 
     // -- detail record testing --
@@ -730,12 +743,10 @@ export function testDetailFormWithGrid(recordsAPIResponse, testConfig) {
         case "tldsGrid":
             cy.route(testConfig.methodType, getDetailRecordAPIEndPoint('tld', id)).as('getDetailRecord');
             cy.route(testConfig.methodType, getDetailRecordAPIEndPoint('tds', id)).as('getGridRecordsInDetailedForm');
-            // testConfig.skipColumns = [];
             break;
         case "tlsGrid":
             cy.route(testConfig.methodType, getDetailRecordAPIEndPoint('tl', id)).as('getDetailRecord');
             cy.route(testConfig.methodType, getDetailRecordAPIEndPoint('tasks', id)).as('getGridRecordsInDetailedForm');
-            // testConfig.skipColumns = [];
             break;
     }
 
@@ -773,9 +784,17 @@ export function testDetailFormWithGrid(recordsAPIResponse, testConfig) {
     cy.get('@getGridRecordsInDetailedForm').then(function (xhr) {
         let recordDetailFromAPIResponse = xhr.response.body.records;
         if (recordDetailFromAPIResponse.length > 0) {
-            testConfig.grid = testConfig.gridInForm;
+
             cy.log(testConfig.grid);
-            testGridRecords(recordDetailFromAPIResponse, recordDetailFromAPIResponse.length, testConfig);
+            testGridRecords(recordDetailFromAPIResponse, recordDetailFromAPIResponse.length, testConfig2);
+
+            if (testConfig2.grid === "tldsDetailGrid" || testConfig2.grid === "tlsDetailGrid"){
+
+                cy.log("Checking Form Inside the Detail Form");
+            
+                testRecordDetailForm(recordDetailFromAPIResponse, testConfig2);
+                closeInsideFormTests(selectors.getFormSelector(testConfig2.form));
+            }
         }
         cy.log(recordDetailFromAPIResponse);
 
@@ -793,7 +812,7 @@ export function testRecordDetailForm(recordsAPIResponse, testConfig) {
     cy.server();
 
     // Routing response to detail record's api requests.
-    cy.route(testConfig.methodType, getDetailRecordAPIEndPoint(testConfig.module, id)).as('getDetailRecord');
+    cy.route(testConfig.methodType, getDetailRecordAPIEndPoint(testConfig.module, id)).as('getDetailRecord1');
 
     switch (testConfig.module) {
         case "rt":
@@ -815,10 +834,10 @@ export function testRecordDetailForm(recordsAPIResponse, testConfig) {
     cy.get(selectors.getFirstRecordInGridSelector(testConfig.grid)).click().wait(constants.WAIT_TIME);
 
     // check response status of API end point
-    cy.wait('@getDetailRecord').its('status').should('eq', constants.HTTP_OK_STATUS);
+    cy.wait('@getDetailRecord1').its('status').should('eq', constants.HTTP_OK_STATUS);
 
     // perform tests on record detail form
-    cy.get('@getDetailRecord').then(function (xhr) {
+    cy.get('@getDetailRecord1').then(function (xhr) {
 
         let recordDetailFromAPIResponse = xhr.response.body.record;
 
@@ -984,7 +1003,7 @@ export function testSaveNewRecord(testConfig) {
                     if($list[index].getAttribute("type") === "list") {
 
                         // Get dropdown field, check visiblity and click on it
-                        cy.get(selectors.getFieldSelector(fieldID)).parent().should('be.visible').click();
+                        cy.get(selectors.getFieldSelector(formSelector, fieldID)).parent().should('be.visible').click();
                         // Get dropdown value, check visiblity and click on it
                         cy.get(selectors.getDropDownValueFieldSelector(fieldValue)).should('be.visible').click();
                     }
@@ -992,7 +1011,7 @@ export function testSaveNewRecord(testConfig) {
                         if(!$el[0].checked){
                             if(!$el.context.disabled){
                                 // Get checkbox, check visiblity and click on it
-                                cy.get(selectors.getFieldSelector(fieldID))
+                                cy.get(selectors.getFieldSelector(formSelector, fieldID))
                                     .should('be.visible')
                                     .should('not.be.disabled')
                                     .should('not.be.checked').click();
@@ -1002,7 +1021,7 @@ export function testSaveNewRecord(testConfig) {
                     else if($list[index].getAttribute("type") === "text") {
 
                         // Check visibility and match the default value of the fields.
-                        cy.get(selectors.getFieldSelector(fieldID))
+                        cy.get(selectors.getFieldSelector(formSelector, fieldID))
                             .should('be.visible').clear().type(fieldValue)
                             .should('have.value', fieldValue);
                     }

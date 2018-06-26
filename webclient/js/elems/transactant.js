@@ -484,8 +484,8 @@ window.buildTransactElements = function() {
                 f.get("TMPTCID").required = false;
 
                 f.get('SourceSLSID').options.items = getSLStringList(BID, "HowFound");
-                f.get('DeclineReason1').options.items = getSLStringList(BID, "ApplDeny");
-                f.get('DeclineReason2').options.items = getSLStringList(BID, "ApplDeny");
+                // f.get('DeclineReason1').options.items = getSLStringList(BID, "ApplDeny");
+                // f.get('DeclineReason2').options.items = getSLStringList(BID, "ApplDeny");
                 f.get('CurrentReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
                 f.get('PriorReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
             };

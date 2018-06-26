@@ -6,12 +6,14 @@ import * as common from '../support/utils/common';
 
 // --- Collections ---
 const section = require('../support/components/taskLists'); // Task Lists
+const section2 = require('../support/components/taskLists2'); // Task Lists
 
 // this contain app variable of the application
 let appSettings;
 
 // holds the test configuration for the modules
 let testConfig;
+let testConfig2;
 
 // -- Start Cypress UI tests for AIR Roller Application --
 describe('AIR Roller UI Tests - Task Lists', function () {
@@ -25,6 +27,7 @@ describe('AIR Roller UI Tests - Task Lists', function () {
     before(function () {
 
         testConfig = section.conf;
+        testConfig2 = section2.conf;
 
         // --- Login into Application before starting any tests ---
         // Check custom login command for more detail. File path: ./../support/commands.js
@@ -123,10 +126,11 @@ describe('AIR Roller UI Tests - Task Lists', function () {
             // Params:
             // recordsAPIResponse: list of record from the api response,
             // testConfig: configuration for running tests
-            common.testDetailFormWithGrid(recordsAPIResponse, testConfig);
+            // testConfig2: configuration for running tests
+            common.testDetailFormWithGrid(recordsAPIResponse, testConfig, testConfig2);
 
             // -- Close the form. And assert that form isn't visible. --
-            common.closeFormTests(selectors.getFormSelector(testConfig.form));
+            common.closeInsideFormTests(selectors.getFormSelector(testConfig.form));
         }
     });
 
@@ -187,7 +191,7 @@ describe('AIR Roller UI Tests - Task Lists', function () {
                     defaultValue = defaultValue.text;
                 }
 
-                cy.get(selectors.getFieldSelector(fieldID))
+                cy.get(selectors.getFieldSelector(formSelector, fieldID))
                     .should('be.visible')
                     .should('have.value', defaultValue);
             });
