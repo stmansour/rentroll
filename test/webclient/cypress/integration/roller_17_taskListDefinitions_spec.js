@@ -145,11 +145,10 @@ describe('AIR Roller UI Tests - Task List Definitions', function () {
         // ----- Tests for add new record form ---
         // ---------------------------------------
         common.testAddNewRecordForm(testConfig);
-
+      
         // -- Close the form. And assert that form isn't visible. --
         common.closeInsideFormTests(selectors.getFormSelector(testConfig.form));
     });
-
 
     // -- Perform operation after all tests finish. It runs once after all tests in the block --
     after(function () {
