@@ -561,8 +561,9 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 // wsdoc }
 func getXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var (
-		g  GetTransactantResponse
-		xp rlib.XPerson
+		g            GetTransactantResponse
+		xp           rlib.XPerson
+		prospectFlag uint64
 	)
 	_ = rlib.GetXPerson(r.Context(), d.TCID, &xp)
 	if xp.Pay.TCID > 0 {
@@ -580,7 +581,12 @@ func getXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	g.Record.BID = d.BID
 	g.Record.BUD = rlib.GetBUDFromBIDList(d.BID)
 
-	// TODO(Akshay): Manage Have You Ever been checkbox value here
+	// Manage "Have you ever been"(Prospect) section FLAGS
+	prospectFlag = xp.Psp.FLAGS
+
+	g.Record.Evicted = prospectFlag&0x0 != 0
+	g.Record.Convicted = prospectFlag&0x1 != 0
+	g.Record.Bankruptcy = prospectFlag&0x2 != 0
 
 	g.Status = "success"
 	SvcWriteResponse(d.BID, &g, w)

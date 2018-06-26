@@ -1,5 +1,5 @@
 /* global
-    transactantFields, transactantTabs, getSLStringList, getStringListData
+    transactantFields, transactantTabs, getSLStringList, getStringListData, onCheckboxesChange
 */
 "use strict";
 
@@ -462,14 +462,15 @@ window.buildTransactElements = function() {
                 f.get('SourceSLSID').options.items = getSLStringList(BID, "HowFound");
                 f.get('CurrentReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
                 f.get('PriorReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
+
+                // Enable/Disable checkbox description text area
+                onCheckboxesChange(this);
             };
         },
         onChange: function(event) {
             event.onComplete = function() {
-                // Enable/Disable checkbox description text area
-                $("#EvictedDes").prop("disabled", !this.record.Evicted);
-                $("#ConvictedDes").prop("disabled", !this.record.Convicted);
-                $("#BankruptcyDes").prop("disabled", !this.record.Bankruptcy);
+
+                onCheckboxesChange(this);
 
                 // formRecDiffer: 1=current record, 2=original record, 3=diff object
                 var diff = formRecDiffer(this.record, app.active_form_original, {});
@@ -493,6 +494,9 @@ window.buildTransactElements = function() {
             data.postData.record.IsCompany = int_to_bool(data.postData.record.IsCompany);
             data.postData.record.EligibleFutureUser = int_to_bool(data.postData.record.EligibleFutureUser);
             data.postData.record.EligibleFuturePayor = int_to_bool(data.postData.record.EligibleFuturePayor);
+            data.postData.record.Evicted = int_to_bool(data.postData.record.Evicted);
+            data.postData.record.Convicted = int_to_bool(data.postData.record.Convicted);
+            data.postData.record.Bankruptcy = int_to_bool(data.postData.record.Bankruptcy);
 
             if(data.postData.record.Evicted){
                 data.postData.record.FLAGS |= 0x0; // unset bit index 0
@@ -581,4 +585,12 @@ window.updateRATransactantFormCheckboxes = function (record) {
     record.Convicted = int_to_bool(record.Convicted);
     record.EligibleFuturePayor = int_to_bool(record.EligibleFuturePayor);
     record.EligibleFutureUser = int_to_bool(record.EligibleFutureUser);
+};
+
+// onCheckboxesChange
+// Enable/Disable checkbox description text area
+window.onCheckboxesChange = function (form) {
+    $("#EvictedDes").prop("disabled", !form.record.Evicted);
+    $("#ConvictedDes").prop("disabled", !form.record.Convicted);
+    $("#BankruptcyDes").prop("disabled", !form.record.Bankruptcy);
 };

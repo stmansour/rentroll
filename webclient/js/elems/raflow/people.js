@@ -9,7 +9,7 @@
     manageBGInfoFormFields, addDummyBackgroundInfo, savePeopleCompData, getPeopleLocalData, setPeopleLocalData,
     getPeopleLocalDataByTCID, setTransactantDefaultRole,
     getStringListData, getSLStringList, updateRATransactantFormCheckboxes,
-    managePeopleW2UIItems, removeRAFlowPersonAJAX, saveRAFlowPersonAJAX
+    managePeopleW2UIItems, removeRAFlowPersonAJAX, saveRAFlowPersonAJAX, onCheckboxesChange
 */
 
 "use strict";
@@ -324,9 +324,8 @@ window.loadRAPeopleForm = function () {
             },
             onChange: function (event) {
                 event.onComplete = function () {
-                    $("#EvictedDes").prop("disabled", !this.record.Evicted);
-                    $("#ConvictedDes").prop("disabled", !this.record.Convicted);
-                    $("#BankruptcyDes").prop("disabled", !this.record.Bankruptcy);
+
+                    onCheckboxesChange(this);
 
                     manageBGInfoFormFields(this.record);
 
@@ -361,9 +360,7 @@ window.loadRAPeopleForm = function () {
                         $(form.box).find("button[name=delete]").removeClass("hidden");
                     }
 
-                    $("#EvictedDes").prop("disabled", !this.record.Evicted);
-                    $("#ConvictedDes").prop("disabled", !this.record.Convicted);
-                    $("#BankruptcyDes").prop("disabled", !this.record.Bankruptcy);
+                    onCheckboxesChange(this);
                 };
             },
             onValidate: function (event) {
