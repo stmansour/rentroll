@@ -499,21 +499,24 @@ window.buildTransactElements = function() {
             data.postData.record.Bankruptcy = int_to_bool(data.postData.record.Bankruptcy);
 
             if(data.postData.record.Evicted){
-                data.postData.record.FLAGS |= 0x0; // unset bit index 0
+                // mask: 1 << 0
+                data.postData.record.FLAGS |= 0x1; // unset bit index 0
             }else {
-                data.postData.record.FLAGS &= 0x0; // unset bit index 0
+                data.postData.record.FLAGS &= ~0x1; // clear bit index 0
             }
 
             if(data.postData.record.Convicted){
-                data.postData.record.FLAGS |= 0x1; // set bit index 1
+                // mask: 1 << 1
+                data.postData.record.FLAGS |= 0x2; // set bit index 1
             }else{
-                data.postData.record.FLAGS &= 0x1; // unset bit index 1
+                data.postData.record.FLAGS &= ~0x2; // clear bit index 1
             }
 
             if(data.postData.record.Bankruptcy){
-                data.postData.record.FLAGS |= 0x2; // set bit index 2
+                // mask: 1 << 2
+                data.postData.record.FLAGS |= 0x4; // set bit index 2
             }else {
-                data.postData.record.FLAGS &= 0x2; // unset bit index 2
+                data.postData.record.FLAGS &= ~0x4; // clear bit index 2
             }
 
         }

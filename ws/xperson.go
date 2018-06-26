@@ -583,10 +583,9 @@ func getXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	// Manage "Have you ever been"(Prospect) section FLAGS
 	prospectFlag = xp.Psp.FLAGS
-
-	g.Record.Evicted = prospectFlag&0x0 != 0
-	g.Record.Convicted = prospectFlag&0x1 != 0
-	g.Record.Bankruptcy = prospectFlag&0x2 != 0
+	g.Record.Evicted = prospectFlag&0x1 != 0
+	g.Record.Convicted = prospectFlag&0x2 != 0
+	g.Record.Bankruptcy = prospectFlag&0x4 != 0
 
 	g.Status = "success"
 	SvcWriteResponse(d.BID, &g, w)
