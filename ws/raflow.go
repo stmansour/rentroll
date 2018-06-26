@@ -160,6 +160,17 @@ type RAPetsFlowData struct {
 	Weight   int
 	DtStart  rlib.JSONDate
 	DtStop   rlib.JSONDate
+	Fees     []RAPetFee
+}
+
+// RAPetFee holds the fee details for a pet
+type RAPetFee struct {
+	TMPPETID int64
+	BID      int64
+	ARID     int64
+	ASMID    int64 // the permanent table assessment id if it is an existing RAID
+	ARName   string
+	Amount   float64
 }
 
 // RAVehiclesFlowData contains data in the vehicles part of RA flow
@@ -179,6 +190,17 @@ type RAVehiclesFlowData struct {
 	ParkingPermitNumber string
 	DtStart             rlib.JSONDate
 	DtStop              rlib.JSONDate
+	Fees                []RAVehicleFee
+}
+
+// RAVehicleFee holds the fee details for a vehicle
+type RAVehicleFee struct {
+	TMPVID int64
+	BID    int64
+	ARID   int64
+	ASMID  int64 // the permanent table assessment id if it is an existing RAID
+	ARName string
+	Amount float64
 }
 
 // RARentablesFlowData contains data in the rentables part of RA flow
@@ -344,6 +366,11 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int, 
 				if a[i].TMPPETID == 0 { // if zero then assign new from last saved ID
 					raFlowData.Meta.LastTMPPETID++
 					a[i].TMPPETID = raFlowData.Meta.LastTMPPETID
+
+					// also modify TMPPETID in all fees
+					for j := range a[i].Fees {
+						a[i].Fees[j].TMPPETID = a[i].TMPPETID
+					}
 				}
 			}
 
@@ -369,6 +396,11 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int, 
 				if a[i].TMPVID == 0 { // if zero then assign new from last saved ID
 					raFlowData.Meta.LastTMPVID++
 					a[i].TMPVID = raFlowData.Meta.LastTMPVID
+
+					// also modify TMPVID in all fees
+					for j := range a[i].Fees {
+						a[i].Fees[j].TMPVID = a[i].TMPVID
+					}
 				}
 			}
 
@@ -939,6 +971,23 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 
 			// assign new TMPPETID & mark in meta info
 			newRAFlowPet.TMPPETID = raFlowData.Meta.LastTMPPETID + 1
+
+			// get pet fees data and feed into fees
+			var petFees []rlib.BizPropsPetFee
+			petFees, err = rlib.GetPetFeesFromGeneralBizProps(r.Context(), d.BID)
+			if err != nil {
+				return
+			}
+
+			// loop over fees
+			for _, fee := range petFees {
+				var pf RAPetFee
+				rlib.MigrateStructVals(&fee, &pf)
+				pf.TMPPETID = newRAFlowPet.TMPPETID
+				newRAFlowPet.Fees = append(newRAFlowPet.Fees, pf)
+			}
+
+			// update last TMPPETID in meta info too
 			newRAFlowMeta.LastTMPPETID = newRAFlowPet.TMPPETID
 
 			// reference of TMPTCID for the person
@@ -994,6 +1043,23 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 
 			// assign new TMPVID
 			newRAFlowVehicle.TMPVID = raFlowData.Meta.LastTMPVID + 1
+
+			// get pet fees data and feed into fees
+			var vehicleFees []rlib.BizPropsVehicleFee
+			vehicleFees, err = rlib.GetVehicleFeesFromGeneralBizProps(r.Context(), d.BID)
+			if err != nil {
+				return
+			}
+
+			// loop over fees
+			for _, fee := range vehicleFees {
+				var vf RAVehicleFee
+				rlib.MigrateStructVals(&fee, &vf)
+				vf.TMPVID = newRAFlowVehicle.TMPVID
+				newRAFlowVehicle.Fees = append(newRAFlowVehicle.Fees, vf)
+			}
+
+			// also update last TMPVID in meta info
 			newRAFlowMeta.LastTMPVID = newRAFlowVehicle.TMPVID
 
 			// reference of TMPTCID to this vehicle
