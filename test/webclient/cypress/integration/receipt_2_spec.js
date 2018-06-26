@@ -152,16 +152,16 @@ describe('AIR Receipt UI Tests - Tendered Receipt Payment', function () {
         // Params:
         // recordsAPIResponse: list of record from the api response,
         // testConfig: configuration for running tests
-        // common.testRecordDetailForm(recordsAPIResponse, testConfig);
+        common.testRecordDetailForm(recordsAPIResponse, testConfig);
         //
         // // -- Check Unallocated section's visibility and class --
-        // common.unallocatedSectionTest();
+        common.unallocatedSectionTest();
         //
         // // -- Check print receipt UI --
-        // common.printReceiptUITest();
+        common.printReceiptUITest();
         //
         // // -- Close the form. And assert that form isn't visible. --
-        // common.closeFormTests(selectors.getFormSelector(testConfig.form));
+        common.closeFormTests(selectors.getFormSelector(testConfig.form));
     });
 
     /************************************************************
@@ -175,10 +175,10 @@ describe('AIR Receipt UI Tests - Tendered Receipt Payment', function () {
         // ---------------------------------------
         // ----- Tests for add new record form ---
         // ---------------------------------------
-        // common.testAddNewRecordForm(testConfig);
+        common.testAddNewRecordForm(testConfig);
 
         // -- Close the form. And assert that form isn't visible. --
-        // common.closeFormTests(selectors.getFormSelector(testConfig.form));
+        common.closeFormTests(selectors.getFormSelector(testConfig.form));
     });
 
     // -- Perform operation after all tests finish. It runs once after all tests in the block --
