@@ -781,6 +781,7 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 		err                  error
 		tx                   *sql.Tx
 		ctx                  context.Context
+		prospectFlag         uint64
 	)
 	fmt.Printf("Entered %s\n", funcname)
 
@@ -878,6 +879,12 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 		newRAFlowPerson.TMPTCID = raFlowData.Meta.LastTMPTCID + 1
 		newRAFlowMeta.LastTMPTCID = newRAFlowPerson.TMPTCID
 		personTMPTCID = newRAFlowPerson.TMPTCID
+
+		// Manage "Have you ever been"(Prospect) section FLAGS
+		prospectFlag = xp.Psp.FLAGS
+		newRAFlowPerson.Evicted = prospectFlag&0x1 != 0    // 1 << 0
+		newRAFlowPerson.Convicted = prospectFlag&0x2 != 0  // 1 << 1
+		newRAFlowPerson.Bankruptcy = prospectFlag&0x4 != 0 // 1 << 2
 
 		// we need to update meta at the end, as new TMPTCID assigned
 		shouldModifyMetaData = true
