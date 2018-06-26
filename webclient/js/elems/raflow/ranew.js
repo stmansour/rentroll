@@ -4,7 +4,8 @@
     getFlowDataAjax,
     manageParentRentableW2UIItems, managePeopleW2UIItems,
     LoadRAFlowTemplate,
-    validateRAFlowComponents
+    validateRAFlowComponents,
+    getVehicleFees, getPetFees
 */
 
 "use strict";
@@ -90,6 +91,10 @@ window.LoadRAFlowTemplate = function(bid, FlowID) {
             $("#progressbar #steps-list li[data-target='#dates']").removeClass("done").addClass("active");
             loadRADatesForm();
         }, 0);
+
+        // get pet and vehicle fees on loading rental agreement form
+        getPetFees();
+        getVehicleFees();
     });
 };
 
