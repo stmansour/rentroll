@@ -20,5 +20,6 @@ export let conf = {
     buttonNamesInDetailForm: ["save", "saveadd", "delete"],
     skipColumns: [],
     skipFields: [],
-    primaryId: "PMTID"
+    primaryId: "PMTID",
+    fixtureFile: "paymentTypes.json"
 };

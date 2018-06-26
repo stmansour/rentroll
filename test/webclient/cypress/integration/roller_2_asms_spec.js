@@ -183,6 +183,9 @@ describe('AIR Roller UI Tests - Assessment Charges', function () {
         // ----- Tests for add new record form ---
         // ---------------------------------------
         common.testAddNewRecordForm(testConfig);
+
+        // -- Close the form. And assert that form isn't visible. --
+        common.closeFormTests(selectors.getFormSelector(testConfig.form));
     });
 
     // -- Perform operation after all tests finish. It runs once after all tests in the block --
