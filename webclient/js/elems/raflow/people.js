@@ -382,30 +382,6 @@ window.loadRAPeopleForm = function () {
                         error: 'Company Name required when "Person or Company" field is set to Company'
                     });
                 }
-            },
-            onSubmit: function (target, data) {
-
-                if(data.postData.record.Evicted){
-                    // mask: 1 << 0
-                    data.postData.record.FLAGS |= 0x1; // unset bit index 0
-                }else {
-                    data.postData.record.FLAGS &= ~0x1; // clear bit index 0
-                }
-
-                if(data.postData.record.Convicted){
-                    // mask: 1 << 1
-                    data.postData.record.FLAGS |= 0x2; // set bit index 1
-                }else{
-                    data.postData.record.FLAGS &= ~0x2; // clear bit index 1
-                }
-
-                if(data.postData.record.Bankruptcy){
-                    // mask: 1 << 2
-                    data.postData.record.FLAGS |= 0x4; // set bit index 2
-                }else {
-                    data.postData.record.FLAGS &= ~0x4; // clear bit index 2
-                }
-
             }
         });
     }

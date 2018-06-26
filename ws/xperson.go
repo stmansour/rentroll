@@ -531,6 +531,23 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	xp.Psp.CompanyState = gxpo.CompanyState
 	xp.Pay.EligibleFuturePayor = gxpo.EligibleFuturePayor
 
+	// Manage Prospect FLAGS
+	xp.Psp.FLAGS &= ^uint64(0x4 & 0x2 & 0x1) // 1<<0 and 1<< 1 and 1<<2:  these are the three flags that can be set.  Assume we turn them off
+	if gxp.Evicted {
+		// mask: 1 << 0
+		xp.Psp.FLAGS |= 0x1
+	}
+
+	if gxp.Convicted {
+		// mask: 1 << 1
+		xp.Psp.FLAGS |= 0x2
+	}
+
+	if gxp.Bankruptcy {
+		// mask: 1 << 2
+		xp.Psp.FLAGS |= 0x4
+	}
+
 	//===============================================================
 	// save or update
 	//===============================================================
