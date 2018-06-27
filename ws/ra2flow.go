@@ -331,9 +331,7 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		Rentables:   []RARentablesFlowData{},
 		ParentChild: []RAParentChildFlowData{},
 		Tie: RATieFlowData{
-			Pets:     []RATiePetsData{},
-			Vehicles: []RATieVehiclesData{},
-			People:   []RATiePeopleData{},
+			People: []RATiePeopleData{},
 		},
 		Meta: RAFlowMetaInfo{RAID: d.ID},
 	}

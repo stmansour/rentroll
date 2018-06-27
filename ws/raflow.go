@@ -211,9 +211,7 @@ type RAParentChildFlowData struct {
 
 // RATieFlowData contains data in the tie part of RA flow
 type RATieFlowData struct {
-	Pets     []RATiePetsData     `json:"pets"`
-	Vehicles []RATieVehiclesData `json:"vehicles"`
-	People   []RATiePeopleData   `json:"people"`
+	People []RATiePeopleData `json:"people"`
 }
 
 // RATiePetsData holds data from tie section for a pet to a rentable
@@ -418,12 +416,6 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int, 
 
 			// check for each sliced data field
 			// if it's blank then initialize it
-			if len(a.Pets) == 0 {
-				a.Pets = []RATiePetsData{}
-			}
-			if len(a.Vehicles) == 0 {
-				a.Vehicles = []RATieVehiclesData{}
-			}
 			if len(a.People) == 0 {
 				a.People = []RATiePeopleData{}
 			}
@@ -487,9 +479,7 @@ func insertInitialRAFlow(ctx context.Context, BID, UID int64) (int64, error) {
 		Rentables:   []RARentablesFlowData{},
 		ParentChild: []RAParentChildFlowData{},
 		Tie: RATieFlowData{
-			Pets:     []RATiePetsData{},
-			Vehicles: []RATieVehiclesData{},
-			People:   []RATiePeopleData{},
+			People: []RATiePeopleData{},
 		},
 	}
 
