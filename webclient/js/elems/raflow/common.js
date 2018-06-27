@@ -356,10 +356,11 @@ window.requiredFieldsFulFilled = function (compID) {
             //      section. People come to stay at rooms/apartments, so it
             //      doesn't make sense of not having any parent rentables.
             //
-            // 2.   There must be at least one person with role of payor.
+            // 2.   There must be at least one person with role of user.
             //      It doesn't make sense of not having any people at rooms/
-            //      aprtments. At least one payor must exists.
-            // 3.   If any person listed in people section then
+            //      aprtments. At least one user must exists.
+            //
+            // 3.   If any user(occupant) listed in people section then
             //      it must be associated with parent rentables.
             // ==============================================================//
 
@@ -377,16 +378,16 @@ window.requiredFieldsFulFilled = function (compID) {
                 break;
             }
 
-            // 2. at least one payor must exists
-            var payorExist = false;
+            // 2. at least one occupant must exists
+            var occupantExist = false;
             var peopleCompData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
             peopleCompData.forEach(function(peopleItem) {
-                if (peopleItem.IsRenter) {
-                    payorExist = true;
+                if (peopleItem.IsOccupant) {
+                    occupantExist = true;
                     return false; // break the loop
                 }
             });
-            if (!payorExist) {
+            if (!occupantExist) {
                 done = false;
                 break;
             }
