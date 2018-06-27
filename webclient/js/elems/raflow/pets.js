@@ -5,7 +5,9 @@
     lockOnGrid,
     getPetFormInitRecord, getPetLocalData, setPetLocalData,
     AssignPetsGridRecords, savePetsCompData,
-    showRAFlowPetLayout
+    showRAFlowPetLayout,
+    getPetFeeLocalData, setPetFeeLocalData,
+    AssignPetFeesGridRecords, initPetFees
 */
 
 "use strict";
@@ -86,6 +88,11 @@ window.loadRAPetsGrid = function () {
                 { field: 'LastModTime',             type: 'time',   required: false,    html: { caption: 'LastModTime', page: 0, column: 0 } },
                 { field: 'LastModBy',               type: 'int',    required: false,    html: { caption: 'LastModBy', page: 0, column: 0 } },
             ],
+            actions: {
+                reset: function() {
+                    w2ui.RAPetForm.clear();
+                },
+            },
             onRefresh: function(event) {
                 event.onComplete = function() {
                     var f = w2ui.RAPetForm,
@@ -234,15 +241,13 @@ window.loadRAPetsGrid = function () {
                             grid.select(app.last.grid_sel_recid);
                             w2ui.RAPetForm.record = $.extend(true, {}, grid.get(app.last.grid_sel_recid));
 
-                            // get pet fees in grid
-
                             // render layout in the slider
                             showSliderContentW2UIComp(w2ui.RAPetLayout, RACompConfig.pets.sliderWidth);
 
                             // load pet fees grid
                             setTimeout(function() {
-                                // fill layout with components
-                                showRAFlowPetLayout();
+                                // fill layout with components and with data
+                                showRAFlowPetLayout(w2ui.RAPetForm.record.TMPPETID);
                             }, 500);
                         };
 
@@ -265,13 +270,17 @@ window.loadRAPetsGrid = function () {
                         w2ui.RAPetForm.record = getPetFormInitRecord(null);
                         w2ui.RAPetForm.record.recid = w2ui.RAPetsGrid.records.length + 1; // set record id
 
+                        // while adding new pet, we need to init pet fees from
+                        // business properties configuration into this pet data fees
+                        initPetFees();
+
                         // render the layout in slider
                         showSliderContentW2UIComp(w2ui.RAPetLayout, RACompConfig.pets.sliderWidth);
 
                         // load pet fees grid
                         setTimeout(function() {
                             // fill layout with components
-                            showRAFlowPetLayout();
+                            showRAFlowPetLayout(w2ui.RAPetForm.record.TMPPETID);
                         }, 500);
                     };
 
@@ -292,14 +301,14 @@ window.loadRAPetsGrid = function () {
             name: 'RAPetFeesGrid',
             header: 'Pet Fees',
             show: {
-                toolbar: true,
-                header: false,
-                toolbarSearch: false,
-                toolbarAdd: true,
-                toolbarReload: false,
-                toolbarInput: false,
+                toolbar:        true,
+                header:         false,
+                toolbarSearch:  false,
+                toolbarAdd:     true,
+                toolbarReload:  false,
+                toolbarInput:   false,
                 toolbarColumns: true,
-                footer: false,
+                footer:         false,
             },
             multiSelect: false,
             style: 'border: 1px solid silver;',
@@ -310,18 +319,22 @@ window.loadRAPetsGrid = function () {
                 },
                 {
                     field: 'TMPPETID',
-                    hidden: true
-                },
-                {
-                    field: 'PETID',
+                    caption: 'TMPPETID',
                     hidden: true
                 },
                 {
                     field: 'BID',
+                    caption: 'BID',
+                    hidden: true
+                },
+                {
+                    field: 'ASMID',
+                    caption: 'ASMID',
                     hidden: true
                 },
                 {
                     field: 'ARID',
+                    caption: 'ARID',
                     hidden: true
                 },
                 {
@@ -333,15 +346,19 @@ window.loadRAPetsGrid = function () {
                     field: 'Amount',
                     caption: 'Amount',
                     size: '100px',
-                    render: 'money'
+                    render: 'money',
+                    editable: {
+                        type: 'money',
+                    }
                 },
                 {
                     field: 'RemoveRec',
                     caption: "Remove Pet Fee",
-                    size: '100%',
+                    size: '100px',
+                    style: 'text-align: center;',
                     render: function (record/*, index, col_index*/) {
                         var html = "";
-                        if (record.RID && record.RID > 0) {
+                        if (record.ARID && record.ARID > 0) {
                             html = '<i class="fas fa-minus-circle" style="color: #DC3545; cursor: pointer;" title="remove rentable"></i>';
                         }
                         return html;
@@ -349,23 +366,55 @@ window.loadRAPetsGrid = function () {
                 }
             ],
             onChange: function (event) {
+                var grid = this;
                 event.onComplete = function () {
-                    this.save();
+                    console.debug(event);
+                    // only amount can be editable
+                    var AMTColIx = grid.getColumn("Amount", true);
+                    console.debug(AMTColIx);
+                    if (AMTColIx === event.column) {
+                        console.debug("matched with event column");
+                        var record = grid.get(event.recid);
+                        var localPetFeeData = getPetFeeLocalData(record.TMPPETID, record.ARID);
+
+                        // update data in local and grid record
+                        localPetFeeData.Amount = record.Amount = parseFloat(event.value_new);
+                        console.debug(localPetFeeData);
+
+                        // set data
+                        grid.set(event.recid, record);
+                        setPetFeeLocalData(record.TMPPETID, record.ARID, localPetFeeData);
+                    }
+
+                    w2ui.RAPetFeesGrid.save();
+                    // TODO(Sudip): we still need to update data locally
                 };
             },
             onClick: function(event) {
                 event.onComplete = function() {
                     // if it's remove column then remove the record
                     // maybe confirm dialog will be added
-                    if(this.getColumn("RemoveRec", true) == event.column) {
+                    if(w2ui.RAPetFeesGrid.getColumn("RemoveRec", true) == event.column) {
 
-                        // TODO(Sudip):
-                        // remove entry from local data and manage it locally
-                        // when form is saved, modified data would be sent to
-                        // the server
+                        // remove entry from local data
+                        var rec = w2ui.RAPetFeesGrid.get(event.recid);
+                        var petData = getPetLocalData(rec.TMPPETID);
+                        var feeIndex = getPetFeeLocalData(rec.TMPPETID, rec.ARID, true);
 
-                        // remove from grid
-                        this.remove(event.recid);
+                        // also manage local data
+                        petData.Fees.splice(feeIndex, 1);
+
+                        // set modified petData back in local
+                        setPetLocalData(rec.TMPPETID, petData);
+
+                        // save the data on server data
+                        savePetsCompData()
+                        .done(function(data) {
+                            if (data.status === "success") {
+                                // remove from grid
+                                w2ui.RAPetFeesGrid.remove(event.recid);
+                            }
+                        });
                         return;
                     }
                 };
@@ -382,9 +431,6 @@ window.loadRAPetsGrid = function () {
             url: '',
             fields: [],
             actions: {
-                reset: function() {
-                    w2ui.RAPetForm.clear();
-                },
                 save: function() {
                     var f = w2ui.RAPetForm,
                         grid = w2ui.RAPetsGrid,
@@ -409,9 +455,6 @@ window.loadRAPetsGrid = function () {
                         if (data.status === 'success') {
                             // re-assign records in grid
                             AssignPetsGridRecords();
-
-                            // Disable "have pets?" checkbox if there is any record.
-                            toggleHaveCheckBoxDisablity('RAPetsGrid');
 
                             // close the form
                             hideSliderContent();
@@ -477,9 +520,6 @@ window.loadRAPetsGrid = function () {
                             // reset form
                             f.actions.reset();
 
-                            // Disable "have pets?" checkbox if there is any record.
-                            toggleHaveCheckBoxDisablity('RAPetsGrid');
-
                             // reassign grid records
                             AssignPetsGridRecords();
 
@@ -527,10 +567,11 @@ window.loadRAPetsGrid = function () {
 };
 
 // fill rental agreement pet layout with all forms, grids
-window.showRAFlowPetLayout = function() {
+window.showRAFlowPetLayout = function(TMPPETID) {
     w2ui.RAPetLayout.content('bottom',  w2ui.RAPetFormBtns);
     w2ui.RAPetLayout.content('top',     w2ui.RAPetForm);
     w2ui.RAPetLayout.content('main',    w2ui.RAPetFeesGrid);
+    AssignPetFeesGridRecords(TMPPETID);
 };
 
 //-----------------------------------------------------------------------------
@@ -630,7 +671,7 @@ window.getPetFeeLocalData = function(TMPPETID, ARID, returnIndex) {
                     if (returnIndex) {
                         foundIndex = index;
                     } else {
-                        cloneData = $.extend(true, {}, item);
+                        cloneData = $.extend(true, {}, feeItem);
                     }
                 }
             });
@@ -645,10 +686,10 @@ window.getPetFeeLocalData = function(TMPPETID, ARID, returnIndex) {
 
 
 //-----------------------------------------------------------------------------
-// setPetLocalData - save the data for requested a TMPPETID, ARID
+// setPetFeeLocalData - save the data for requested a TMPPETID, ARID
 //                   in local data
 //-----------------------------------------------------------------------------
-window.setPetLocalData = function(TMPPETID, ARID, petFeeData) {
+window.setPetFeeLocalData = function(TMPPETID, ARID, petFeeData) {
     var compData = getRAFlowCompData("pets", app.raflow.activeFlowID);
     var pIndex = -1,
         fIndex = -1;
@@ -674,5 +715,44 @@ window.setPetLocalData = function(TMPPETID, ARID, petFeeData) {
         } else {
             compData[pIndex].Fees.push(petFeeData);
         }
+    }
+};
+
+//-----------------------------------------------------------------------------
+// initPetFees -    load pet fees with required fields from business props
+//                  pet fees list at initial stage in local data
+//                  for a given TMPPETID pet record
+//-----------------------------------------------------------------------------
+window.initPetFees = function(TMPPETID) {
+    var BID = getCurrentBID();
+    var petData = getPetLocalData(TMPPETID);
+
+    app.petFees[BID].forEach(function(bizPropPetFee) {
+        var fee = $.extend(true, {}, bizPropPetFee);
+        fee.TMPPETID = TMPPETID;
+        petData.Fees.push(fee);
+    });
+
+    // finally set modified pet local data back
+    setPetLocalData(TMPPETID, petData);
+};
+
+//-----------------------------------------------------------------------------
+// AssignPetFeesGridRecords - will set the pet fees grid records from local
+//                            copy of pet fees data again
+//-----------------------------------------------------------------------------
+window.AssignPetFeesGridRecords = function(TMPPETID) {
+    var petData = getPetLocalData(TMPPETID);
+    var grid = w2ui.RAPetFeesGrid;
+
+    // select none
+    grid.selectNone();
+
+    if (petData.Fees.length > 0) {
+        grid.records = petData.Fees || [];
+        reassignGridRecids(grid.name);
+    } else {
+        // clear the grid
+        grid.clear();
     }
 };

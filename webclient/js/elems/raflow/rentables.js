@@ -239,10 +239,10 @@ window.loadRARentablesGrid = function () {
                 event.onComplete = function () {
                     // if it's remove column then remove the record
                     // maybe confirm dialog will be added
-                    if(this.getColumn("RemoveRec", true) == event.column) {
+                    if(w2ui.RARentablesGrid.getColumn("RemoveRec", true) == event.column) {
                         // remove entry from local data
-                        var rec = this.get(event.recid);
-                        var index = GetRentableIndexInGridRecords(rec.RID);
+                        var rec = w2ui.RARentablesGrid.get(event.recid);
+                        var index = getRentableLocalData(rec.RID, true);
 
                         // also manage local data
                         var compData = getRAFlowCompData("rentables", app.raflow.activeFlowID);
@@ -255,16 +255,16 @@ window.loadRARentablesGrid = function () {
                                 // after saving rentable comp data re-calculate parent rentable
                                 // w2ui items list
                                 manageParentRentableW2UIItems();
+
+                                // remove from grid
+                                w2ui.RARentablesGrid.remove(event.recid);
                             }
                         });
-
-                        // remove from grid
-                        this.remove(event.recid);
                         return;
                     }
 
-                    var yes_args = [this, event.recid],
-                        no_args = [this],
+                    var yes_args = [w2ui.RAPetFeesGrid, event.recid],
+                        no_args = [w2ui.RAPetFeesGrid],
                         no_callBack = function(grid) {
                             grid.select(app.last.grid_sel_recid);
                             return false;

@@ -957,7 +957,7 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 
 		// if does not exist then append in the raflow data
 		if !exist {
-			var newRAFlowPet RAPetsFlowData
+			newRAFlowPet := RAPetsFlowData{Fees: []RAPetFee{}}
 			rlib.MigrateStructVals(&petList[i], &newRAFlowPet)
 
 			// assign new TMPPETID & mark in meta info
@@ -1029,7 +1029,7 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 
 		// if does not exist then append in the raflow data
 		if !exist {
-			var newRAFlowVehicle RAVehiclesFlowData
+			newRAFlowVehicle := RAVehiclesFlowData{Fees: []RAVehicleFee{}}
 			rlib.MigrateStructVals(&vehicleList[i], &newRAFlowVehicle)
 
 			// assign new TMPVID

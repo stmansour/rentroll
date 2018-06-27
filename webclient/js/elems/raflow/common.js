@@ -1,7 +1,7 @@
 /* global
     RACompConfig, hideSliderContent, appendNewSlider, showSliderContentW2UIComp,
     loadTargetSection, requiredFieldsFulFilled, initRAFlowAjax,
-    saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowCompData,
+    saveActiveCompData, getRAFlowCompData,
     lockOnGrid, validateRAFlowComponents
 */
 
@@ -598,7 +598,7 @@ window.getPetFees = function () {
         dataType: "json",
         success: function (data) {
             if (data.status != "error") {
-                app.petfees[bid] = data.records;
+                app.petFees[bid] = data.records;
             }
         },
         error: function (data) {
@@ -620,7 +620,7 @@ window.getVehicleFees = function () {
         dataType: "json",
         success: function (data) {
             if (data.status != "error") {
-                app.vehiclefees[bid] = data.records;
+                app.vehicleFees[bid] = data.records;
             }
         },
         error: function (data) {
