@@ -744,8 +744,6 @@ type Prospect struct {
 	CompanyEmail             string
 	CompanyPhone             string
 	Occupation               string
-	DesiredUsageStartDate    time.Time // predicted rent start date
-	RentableTypePreference   int64     // RentableType
 	FollowUpDate             time.Time //
 	FLAGS                    uint64    // 0 = Approved/NotApproved,
 	OtherPreferences         string    // arbitrary text
