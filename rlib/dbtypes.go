@@ -1254,6 +1254,7 @@ type Rentable struct {
 	Recid          int64             `json:"recid"` // this is to support the grid widget
 	RID            int64             // unique id for this Rentable
 	BID            int64             // Business
+	PRID           int64             // parent rentable if >0, == 0 means no parent.
 	RentableName   string            // name for this rentable
 	AssignmentTime int64             // can we pre-assign or assign only at commencement
 	MRStatus       int64             // Make Ready Status - current value as of DtMR, when this value changes it goes into a MRHistory record

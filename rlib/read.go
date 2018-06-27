@@ -539,14 +539,14 @@ func ReadRentableTypeDown(rows *sql.Rows, a *RentableTypeDown) error {
 
 // ReadRentable reads a full Rentable structure of data from the database based on the supplied Row pointer.
 func ReadRentable(row *sql.Row, a *Rentable) error {
-	err := row.Scan(&a.RID, &a.BID, &a.RentableName, &a.AssignmentTime, &a.MRStatus, &a.DtMRStart, &a.Comment, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	err := row.Scan(&a.RID, &a.BID, &a.PRID, &a.RentableName, &a.AssignmentTime, &a.MRStatus, &a.DtMRStart, &a.Comment, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	SkipSQLNoRowsError(&err)
 	return err
 }
 
 // ReadRentables reads a full Rentable structure of data from the database based on the supplied Rows pointer.
 func ReadRentables(rows *sql.Rows, a *Rentable) error {
-	return rows.Scan(&a.RID, &a.BID, &a.RentableName, &a.AssignmentTime, &a.MRStatus, &a.DtMRStart, &a.Comment, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	return rows.Scan(&a.RID, &a.BID, &a.PRID, &a.RentableName, &a.AssignmentTime, &a.MRStatus, &a.DtMRStart, &a.Comment, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 
 // ReadRentableType reads a full RentableType structure of data from the database based on the supplied Row pointer.
