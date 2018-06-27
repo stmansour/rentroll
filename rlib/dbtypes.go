@@ -596,6 +596,7 @@ type RentalAgreement struct {
 	TerminatorUID          int64       // User who set State = Terminated
 	TerminationDate        time.Time   // timestamp when State was set to Terminated.
 	OtherPreferences       string      // user prefs
+	LeaseTerminationReason int64       // this is an SLSID for stringlist WhyLeaving
 	LastModTime            time.Time   // when was this record last written
 	LastModBy              int64       // employee UID (from phonebook) that modified it
 	CreateTS               time.Time   // when was this record created

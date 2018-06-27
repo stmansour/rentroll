@@ -488,6 +488,9 @@ ALTER TABLE RentalAgreement ADD NoticeToMoveDate DATETIME NOT NULL DEFAULT '1970
 ALTER TABLE RentalAgreement ADD TerminatorUID BIGINT NOT NULL DEFAULT 0 AFTER NoticeToMoveDate;
 ALTER TABLE RentalAgreement ADD TerminationDate DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00' AFTER TerminatorUID;
 
+# June 27, 2018
+# ALTER TABLE RentalAgreement ADD LeaseTerminationReason BIGINT NOT NULL DEFAULT 0 AFTER TerminationDate;
+
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================
