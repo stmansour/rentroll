@@ -13,7 +13,6 @@ window.getTransactantInitRecord = function (BID, BUD) {
         NLID: 0,
         TCID: 0,
         TMPTCID: 0,
-        ProspectFLAGS: 0,
         IsRenter: false,
         IsOccupant: true,
         IsGuarantor: false,
