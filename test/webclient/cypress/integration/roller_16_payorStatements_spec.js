@@ -6,12 +6,14 @@ import * as common from '../support/utils/common';
 
 // --- Collections ---
 const section = require('../support/components/payorStatements'); // Payor Statements
+const subSection = require('../support/components/payorStatementsDetails'); // Payor Statements
 
 // this contain app variable of the application
 let appSettings;
 
 // holds the test configuration for the modules
 let testConfig;
+let testConfig2;
 
 // -- Start Cypress UI tests for AIR Roller Application --
 describe('AIR Roller UI Tests - Payor Statements', function () {
@@ -25,6 +27,7 @@ describe('AIR Roller UI Tests - Payor Statements', function () {
     before(function () {
 
         testConfig = section.conf;
+        testConfig2 = subSection.conf;
 
         // --- Login into Application before starting any tests ---
         // Check custom login command for more detail. File path: ./../support/commands.js
@@ -121,7 +124,7 @@ describe('AIR Roller UI Tests - Payor Statements', function () {
         // Params:
         // recordsAPIResponse: list of record from the api response,
         // testConfig: configuration for running tests
-        common.testDetailFormWithGrid(recordsAPIResponse, testConfig);
+        common.testDetailFormWithGrid(recordsAPIResponse, testConfig, testConfig2);
 
         // -- Close the form. And assert that form isn't visible. --
         common.closeFormTests(selectors.getFormSelector(testConfig.form));

@@ -590,7 +590,11 @@ type RentalAgreement struct {
 	DecisionDate2          time.Time   // when did approver2 make the decision
 	FollowUpDate           time.Time   // automatically fill out this date to sysdate + 24hrs
 	CSAgent                int64       // Accord Directory UserID - for the CSAgent
-	Outcome                int64       //Only valid if state == Appl Elect(6), this is the SLSID of string from a list of WhyLeaving
+	Outcome                int64       // Only valid if state == Terminated, this is the SLSID of string from a list of WhyLeaving
+	NoticeToMoveUID        int64       // User who set the State to Notice-to-move, only if > 0
+	NoticeToMoveDate       time.Time   // When the state was set to Notice-To-Move, only valid if NoticeToMoveUID > 0
+	TerminatorUID          int64       // User who set State = Terminated
+	TerminationDate        time.Time   // timestamp when State was set to Terminated.
 	OtherPreferences       string      // user prefs
 	LastModTime            time.Time   // when was this record last written
 	LastModBy              int64       // employee UID (from phonebook) that modified it

@@ -1,0 +1,12 @@
+{
+  "cmd": "save",
+  "recid": 0,
+  "name": "depmethForm",
+  "record": {
+    "recid": 0,
+    "BID": 1,
+    "BUD": "REX",
+    "DPMID": 0,
+    "Name": "Deposit Methods Name"
+  }
+}
