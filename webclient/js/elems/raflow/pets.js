@@ -614,3 +614,65 @@ window.savePetsCompData = function() {
     return saveActiveCompData(compData, "pets");
 };
 
+//-----------------------------------------------------------------------------
+// getPetFeeLocalData - returns the clone of pet fee data for requested
+//                      TMPPETID and ARID
+//-----------------------------------------------------------------------------
+window.getPetFeeLocalData = function(TMPPETID, ARID, returnIndex) {
+    var cloneData = {};
+    var foundIndex = -1;
+    var compData = getRAFlowCompData("pets", app.raflow.activeFlowID) || [];
+    compData.forEach(function(item, index) {
+        if (item.TMPPETID == TMPPETID) {
+            var feesData = item.Fees || [];
+            feesData.forEach(function(feeItem, index) {
+                if (feeItem.ARID == ARID) {
+                    if (returnIndex) {
+                        foundIndex = index;
+                    } else {
+                        cloneData = $.extend(true, {}, item);
+                    }
+                }
+            });
+            return false;
+        }
+    });
+    if (returnIndex) {
+        return foundIndex;
+    }
+    return cloneData;
+};
+
+
+//-----------------------------------------------------------------------------
+// setPetLocalData - save the data for requested a TMPPETID, ARID
+//                   in local data
+//-----------------------------------------------------------------------------
+window.setPetLocalData = function(TMPPETID, ARID, petFeeData) {
+    var compData = getRAFlowCompData("pets", app.raflow.activeFlowID);
+    var pIndex = -1,
+        fIndex = -1;
+
+    compData.forEach(function(item, itemIndex) {
+        if (item.TMPPETID == TMPPETID) {
+            var feesData = item.Fees || [];
+            feesData.forEach(function(feeItem, feeItemIndex) {
+                if (feeItem.ARID == ARID) {
+                    fIndex = feeItemIndex;
+                }
+                return false;
+            });
+            pIndex = itemIndex;
+            return false;
+        }
+    });
+
+    // only if rentable found then
+    if (pIndex > -1) {
+        if (fIndex > -1) {
+            compData[pIndex].Fees[fIndex] = petFeeData;
+        } else {
+            compData[pIndex].Fees.push(petFeeData);
+        }
+    }
+};
