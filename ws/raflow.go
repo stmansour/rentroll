@@ -335,6 +335,9 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int, 
 				}
 			}
 
+			// Update HavePets flag in meta information
+			raFlowData.Meta.HavePets = len(a) > 0
+
 			if err != nil {
 				// if it's an error then return with nil data
 				return modMetaData, modFlowPartData, err
@@ -359,6 +362,9 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int, 
 					a[i].TMPVID = raFlowData.Meta.LastTMPVID
 				}
 			}
+
+			// Update HaveVehicles flag in meta information
+			raFlowData.Meta.HaveVehicles = len(a) > 0
 
 			if err != nil {
 				// if it's an error then return with nil data
