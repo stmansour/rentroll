@@ -31,6 +31,8 @@ type RAFlowMetaInfo struct {
 	LastTMPPETID int64
 	LastTMPVID   int64
 	LastTMPTCID  int64
+	HavePets     bool
+	HaveVehicles bool
 }
 
 // RADatesFlowData contains data in the dates part of RA flow
@@ -331,6 +333,9 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int, 
 				}
 			}
 
+			// Update HavePets flag in meta information
+			raFlowData.Meta.HavePets = len(a) > 0
+
 			if err != nil {
 				// if it's an error then return with nil data
 				return modMetaData, modFlowPartData, err
@@ -355,6 +360,9 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int, 
 					a[i].TMPVID = raFlowData.Meta.LastTMPVID
 				}
 			}
+
+			// Update HaveVehicles flag in meta information
+			raFlowData.Meta.HaveVehicles = len(a) > 0
 
 			if err != nil {
 				// if it's an error then return with nil data
@@ -1008,6 +1016,11 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 	// update meta info if required
 	// ----------------------------------------------
 	if shouldModifyMetaData {
+
+		// Update HavePets Flag in meta information of flow
+		newRAFlowMeta.HavePets = len(raFlowData.Pets) > 0
+		newRAFlowMeta.HaveVehicles = len(raFlowData.Vehicles) > 0
+
 		// get marshalled data
 		var modMetaData []byte
 		modMetaData, err = json.Marshal(&newRAFlowMeta)
