@@ -84,22 +84,13 @@ type RPersonForm struct {
 	EvictedDes               string
 	ConvictedDes             string
 	BankruptcyDes            string
-	DesiredUsageStartDate    rlib.JSONDate // predicted rent start date
-	RentableTypePreference   int64         // RentableType
-	// Approver1                int64
-	// Approver1Name            string
-	// DecisionDate1            rlib.JSONDateTime
-	// DeclineReason1           int64
-	// Approver2                int64
-	// Approver2Name            string
-	// DecisionDate2            rlib.JSONDateTime
-	// DeclineReason2           int64
-	OtherPreferences string // arbitrary text
+	OtherPreferences         string // arbitrary text
 	// FollowUpDate             rlib.JSONDate // automatically fill out this date to sysdate + 24hrs
-	// CSAgent                  int64         // Accord Directory UserID - for the CSAgent
-	// Outcome                  int64         // valid only if status = 6 (User passed) SLSID of string from a list of outcomes
 	// CommissionableThirdParty string
 	SpecialNeeds string // special needs for potential renters who are disabled
+	Evicted      bool
+	Convicted    bool
+	Bankruptcy   bool
 	FLAGS        uint64 // 0 = Approved/NotApproved,
 	CreateTS     rlib.JSONDateTime
 	CreateBy     int64
@@ -540,6 +531,23 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	xp.Psp.CompanyState = gxpo.CompanyState
 	xp.Pay.EligibleFuturePayor = gxpo.EligibleFuturePayor
 
+	// Manage Prospect FLAGS
+	xp.Psp.FLAGS &= ^uint64(0x4 & 0x2 & 0x1) // 1<<0 and 1<< 1 and 1<<2:  these are the three flags that can be set.  Assume we turn them off
+	if gxp.Evicted {
+		// mask: 1 << 0
+		xp.Psp.FLAGS |= 0x1
+	}
+
+	if gxp.Convicted {
+		// mask: 1 << 1
+		xp.Psp.FLAGS |= 0x2
+	}
+
+	if gxp.Bankruptcy {
+		// mask: 1 << 2
+		xp.Psp.FLAGS |= 0x4
+	}
+
 	//===============================================================
 	// save or update
 	//===============================================================
@@ -570,8 +578,9 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 // wsdoc }
 func getXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var (
-		g  GetTransactantResponse
-		xp rlib.XPerson
+		g            GetTransactantResponse
+		xp           rlib.XPerson
+		prospectFlag uint64
 	)
 	_ = rlib.GetXPerson(r.Context(), d.TCID, &xp)
 	if xp.Pay.TCID > 0 {
@@ -589,9 +598,11 @@ func getXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	g.Record.BID = d.BID
 	g.Record.BUD = rlib.GetBUDFromBIDList(d.BID)
 
-	// Get approver name based approver id
-	// g.Record.Approver1Name = rlib.GetNameForUID(r.Context(), g.Record.Approver1)
-	// g.Record.Approver2Name = rlib.GetNameForUID(r.Context(), g.Record.Approver2)
+	// Manage "Have you ever been"(Prospect) section FLAGS
+	prospectFlag = xp.Psp.FLAGS
+	g.Record.Evicted = prospectFlag&0x1 != 0
+	g.Record.Convicted = prospectFlag&0x2 != 0
+	g.Record.Bankruptcy = prospectFlag&0x4 != 0
 
 	g.Status = "success"
 	SvcWriteResponse(d.BID, &g, w)

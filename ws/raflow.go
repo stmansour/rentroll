@@ -49,7 +49,6 @@ type RAPeopleFlowData struct {
 	TMPTCID int64
 	BID     int64
 	TCID    int64
-	FLAGS   int64
 
 	// Role
 	IsRenter    bool
@@ -77,7 +76,6 @@ type RAPeopleFlowData struct {
 	Comment        string
 
 	// ---------- Prospect -----------
-	// Prospect fields
 	CompanyAddress    string
 	CompanyCity       string
 	CompanyState      string
@@ -101,28 +99,16 @@ type RAPeopleFlowData struct {
 	PriorReasonForMoving   int64 // Reason for moving
 
 	// Have you ever been
-	Evicted                  bool // Evicted
-	EvictedDes               string
-	Convicted                bool // Arrested or convicted of a Convicted
-	ConvictedDes             string
-	Bankruptcy               bool // Declared Bankruptcy
-	BankruptcyDes            string
-	DesiredUsageStartDate    rlib.JSONDate
-	RentableTypePreference   int64
-	Approver1                int64
-	Approver1Name            string
-	DeclineReason1           int64
-	DecisionDate1            rlib.JSONDateTime
-	Approver2                int64
-	Approver2Name            string
-	DeclineReason2           int64
-	DecisionDate2            rlib.JSONDateTime
-	OtherPreferences         string
-	FollowUpDate             rlib.JSONDate
-	CSAgent                  int64
-	Outcome                  int64
-	CommissionableThirdParty string
-	SpecialNeeds             string // In an effort to accommodate you, please advise us of any special needs
+	Evicted          bool // Evicted
+	EvictedDes       string
+	Convicted        bool // Arrested or convicted of a Convicted
+	ConvictedDes     string
+	Bankruptcy       bool // Declared Bankruptcy
+	BankruptcyDes    string
+	OtherPreferences string
+	//FollowUpDate             rlib.JSONDate
+	//CommissionableThirdParty string
+	SpecialNeeds string // In an effort to accommodate you, please advise us of any special needs
 
 	// ---------- Payor -----------
 	CreditLimit         float64
@@ -793,6 +779,7 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 		err                  error
 		tx                   *sql.Tx
 		ctx                  context.Context
+		prospectFlag         uint64
 	)
 	fmt.Printf("Entered %s\n", funcname)
 
@@ -890,6 +877,12 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 		newRAFlowPerson.TMPTCID = raFlowData.Meta.LastTMPTCID + 1
 		newRAFlowMeta.LastTMPTCID = newRAFlowPerson.TMPTCID
 		personTMPTCID = newRAFlowPerson.TMPTCID
+
+		// Manage "Have you ever been"(Prospect) section FLAGS
+		prospectFlag = xp.Psp.FLAGS
+		newRAFlowPerson.Evicted = prospectFlag&0x1 != 0    // 1 << 0
+		newRAFlowPerson.Convicted = prospectFlag&0x2 != 0  // 1 << 1
+		newRAFlowPerson.Bankruptcy = prospectFlag&0x4 != 0 // 1 << 2
 
 		// we need to update meta at the end, as new TMPTCID assigned
 		shouldModifyMetaData = true

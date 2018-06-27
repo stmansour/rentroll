@@ -49,14 +49,8 @@ const (
 	CompanyPhone              = iota
 	Occupation                = iota
 	Notes                     = iota
-	DesiredUsageStartDate     = iota
-	RentableTypePreference    = iota
-	Approver1                 = iota
-	DeclineReason1            = iota
 	OtherPreferences          = iota
 	FollowUpDate              = iota
-	CSAgent                   = iota
-	Outcome                   = iota
 )
 
 // csvCols is an array that defines all the columns that should be in this csv file
@@ -98,14 +92,8 @@ var csvCols = []CSVColumn{
 	{"CompanyPhone", CompanyPhone},
 	{"Occupation", Occupation},
 	{"Notes", Notes},
-	{"DesiredUsageStartDate", DesiredUsageStartDate},
-	{"RentableTypePreference", RentableTypePreference},
-	{"Approver", Approver1},
-	{"DeclineReason", DeclineReason1},
 	{"OtherPreferences", OtherPreferences},
 	{"FollowUpDate", FollowUpDate},
-	{"CSAgent", CSAgent},
-	{"Outcome", Outcome},
 }
 
 func rcsvCopyString(p *string, s string) error {
@@ -173,14 +161,8 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 		{CompanyPhone, rcsvCopyString, &pr.CompanyPhone},
 		{Occupation, rcsvCopyString, &pr.Occupation},
 		{Notes, nil, nil},
-		{DesiredUsageStartDate, nil, nil},
-		{RentableTypePreference, nil, nil},
-		{Approver1, nil, nil},
-		{DeclineReason1, nil, nil},
 		{OtherPreferences, nil, nil},
 		{FollowUpDate, nil, nil},
-		{CSAgent, nil, nil},
-		{Outcome, nil, nil},
 	}
 
 	ignoreDupPhone := false
@@ -287,37 +269,6 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 			if len(s) > 0 {
 				userNote = s
 			}
-		case DesiredUsageStartDate:
-			if len(s) > 0 {
-				pr.DesiredUsageStartDate, err = rlib.StringToDate(s)
-				if err != nil {
-					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid DesiredUsageStartDate value: %s", funcname, lineno, s)
-				}
-			}
-		case RentableTypePreference:
-			if len(s) > 0 {
-				rt, err := rlib.GetRentableTypeByStyle(ctx, s, tr.BID)
-				if err != nil || rt.RTID == 0 {
-					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid DesiredUsageStartDate value: %s", funcname, lineno, s)
-				}
-				pr.RentableTypePreference = rt.RTID
-			}
-		case Approver1: // Approver1 ID
-			// if len(s) > 0 {
-			// 	var y int64
-			// 	if y, err = strconv.ParseInt(strings.TrimSpace(s), 10, 64); err != nil {
-			// 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid Approver1 UID value: %s", funcname, lineno, s)
-			// 	}
-			// 	pr.Approver1 = y
-			// }
-		case DeclineReason1:
-			// if len(s) > 0 {
-			// 	var y int64
-			// 	if y, err = strconv.ParseInt(strings.TrimSpace(s), 10, 64); err != nil {
-			// 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid DeclineReason1 value: %s", funcname, lineno, s)
-			// 	}
-			// 	pr.DeclineReason1 = y
-			// }
 		case OtherPreferences:
 			// if len(s) > 0 {
 			// 	pr.OtherPreferences = s
@@ -326,22 +277,6 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 			// if len(s) > 0 {
 			// 	pr.FollowUpDate, _ = time.Parse(dateform, s)
 			// }
-		case CSAgent:
-			// if len(s) > 0 {
-			// var y int64
-			// if y, err = strconv.ParseInt(strings.TrimSpace(s), 10, 64); err != nil {
-			// 	return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid CSAgent ID value: %s", funcname, lineno, s)
-			// }
-			// pr.CSAgent = y
-			// }
-		case Outcome:
-			//			if len(s) > 0 {
-			//				var y int64
-			//				if y, err = strconv.ParseInt(strings.TrimSpace(s), 10, 64); err != nil {
-			//					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid Outcome value: %s", funcname, lineno, s)
-			//				}
-			//				pr.Outcome = y
-			//			}
 		default:
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Unknown field, column %d", funcname, lineno, i)
 		}

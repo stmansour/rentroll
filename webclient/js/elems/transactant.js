@@ -1,5 +1,5 @@
 /* global
-    transactantFields, transactantTabs, getSLStringList, getStringListData
+    transactantFields, transactantTabs, getSLStringList, getStringListData, onCheckboxesChange
 */
 "use strict";
 
@@ -13,7 +13,6 @@ window.getTransactantInitRecord = function (BID, BUD) {
         NLID: 0,
         TCID: 0,
         TMPTCID: 0,
-        FLAGS: 0,
         IsRenter: false,
         IsOccupant: true,
         IsGuarantor: false,
@@ -75,18 +74,8 @@ window.getTransactantInitRecord = function (BID, BUD) {
         ConvictedDes: "",
         Bankruptcy: false,
         BankruptcyDes: "",
-        DesiredUsageStartDate: "1/1/1900",
-        RentableTypePreference: 0,
         OtherPreferences: "",
-        // Approver1: 0,
-        // Approver1Name: "",
-        // DeclineReason1: 0,
-        // Approver2: 0,
-        // Approver2Name: "",
-        // DeclineReason2: 0,
         // FollowUpDate: "1/1/1900",
-        // CSAgent: 0,
-        // Outcome: 0,
         // CommissionableThirdParty: "",
         SpecialNeeds: "",
         LastModTime: y.toISOString(),
@@ -104,7 +93,6 @@ window.buildTransactElements = function() {
         {field: 'NLID',                      type: 'int',       required: false, html: {page: 0, column: 0}},
         {field: 'TCID',                      type: 'int',       required: false, html: {page: 0, column: 0}},
         {field: 'TMPTCID',                   type: 'int',       required: true,  html: {page: 0, column: 0}},
-        {field: 'FLAGS',                     type: 'int',       required: false, html: {page: 0, column: 0}},
         {field: 'IsRenter',                  type: 'checkbox',  required: false, html: {page: 0, column: 0}},  // will be responsible for paying rent
         {field: 'IsOccupant',                type: 'checkbox',  required: false, html: {page: 0, column: 0}},  // will reside in and/or use the items rented
         {field: 'IsGuarantor',               type: 'checkbox',  required: false, html: {page: 0, column: 0}},  // responsible for making sure all rent is paid
@@ -151,18 +139,8 @@ window.buildTransactElements = function() {
         {field: 'ConvictedDes',              type: 'text',      required: false, html: {page: 1, column: 0}},
         {field: 'Bankruptcy',                type: 'checkbox',  required: false, html: {page: 1, column: 0}},  // have you ever been Declared Bankruptcy
         {field: 'BankruptcyDes',             type: 'text',      required: false, html: {page: 1, column: 0}},
-        {field: 'DesiredUsageStartDate',     type: 'date',      required: false, html: {page: 1, column: 0}},
-        {field: 'RentableTypePreference',    type: 'text',      required: false, html: {page: 1, column: 0}},
         {field: 'OtherPreferences',          type: 'text',      required: false, html: {page: 1, column: 0}},
-        // {field: 'Approver1',                 type: 'int',       required: false, html: {page: 1, column: 0}},
-        // {field: 'Approver1Name',             type: 'text',      required: false, html: {page: 1, column: 0}},
-        // {field: 'DeclineReason1',            type: 'list',      required: false, html: {page: 1, column: 0}},  // ApplDeny String list
-        // {field: 'Approver2',                 type: 'int',       required: false, html: {page: 1, column: 0}},
-        // {field: 'Approver2Name',             type: 'text',      required: false, html: {page: 1, column: 0}},
-        // {field: 'DeclineReason2',            type: 'list',      required: false, html: {page: 1, column: 0}},  // ApplDeny String list
         // {field: 'FollowUpDate',              type: 'date',      required: false, html: {page: 1, column: 0}},
-        // {field: 'CSAgent',                   type: 'text',      required: false, html: {page: 1, column: 0}},
-        // {field: 'Outcome',                   type: 'text',      required: false, html: {page: 1, column: 0}},
         // {field: 'CommissionableThirdParty',  type: 'text',      required: false, html: {page: 1, column: 0}},
         {field: 'SpecialNeeds',              type: 'text',      required: false, html: {page: 1, column: 0}},  // In an effort to accommodate you, please advise us of any special needs,
         // ----------- Payor ----------
@@ -174,7 +152,7 @@ window.buildTransactElements = function() {
         {field: 'ThirdPartySource',          type: 'text',      required: false, html: {page: 2, column: 0}},
         {field: 'EligibleFuturePayor',       type: 'checkbox',  required: false, html: {page: 2, column: 0}},
         // ----------- User ----------
-        {field: 'Points',                    type: 'int',      required: false, html: {page: 3, column: 0}},
+        {field: 'Points',                    type: 'int',       required: false, html: {page: 3, column: 0}},
         {field: 'DateofBirth',               type: 'date',      required: false, html: {page: 3, column: 0}},
         {field: 'EmergencyContactName',      type: 'text',      required: false, html: {page: 3, column: 0}},
         {field: 'EmergencyContactAddress',   type: 'text',      required: false, html: {page: 3, column: 0}},
@@ -476,26 +454,21 @@ window.buildTransactElements = function() {
                 f.get("IsGuarantor").hidden = true;
                 $("div[name=transanctant-role-tile]").hide();
 
-                // disable approver name field
-                f.get("Approver1Name").disabled = true;
-                f.get("Approver2Name").disabled = true;
-
                 // make TMPTCID required false as it's not part of this form
                 f.get("TMPTCID").required = false;
 
                 f.get('SourceSLSID').options.items = getSLStringList(BID, "HowFound");
-                // f.get('DeclineReason1').options.items = getSLStringList(BID, "ApplDeny");
-                // f.get('DeclineReason2').options.items = getSLStringList(BID, "ApplDeny");
                 f.get('CurrentReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
                 f.get('PriorReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
+
+                // Enable/Disable checkbox description text area
+                onCheckboxesChange(this);
             };
         },
         onChange: function(event) {
             event.onComplete = function() {
-                // Enable/Disable checkbox description text area
-                $("#EvictedDes").prop("disabled", !this.record.Evicted);
-                $("#ConvictedDes").prop("disabled", !this.record.Convicted);
-                $("#BankruptcyDes").prop("disabled", !this.record.Bankruptcy);
+
+                onCheckboxesChange(this);
 
                 // formRecDiffer: 1=current record, 2=original record, 3=diff object
                 var diff = formRecDiffer(this.record, app.active_form_original, {});
@@ -519,6 +492,9 @@ window.buildTransactElements = function() {
             data.postData.record.IsCompany = int_to_bool(data.postData.record.IsCompany);
             data.postData.record.EligibleFutureUser = int_to_bool(data.postData.record.EligibleFutureUser);
             data.postData.record.EligibleFuturePayor = int_to_bool(data.postData.record.EligibleFuturePayor);
+            data.postData.record.Evicted = int_to_bool(data.postData.record.Evicted);
+            data.postData.record.Convicted = int_to_bool(data.postData.record.Convicted);
+            data.postData.record.Bankruptcy = int_to_bool(data.postData.record.Bankruptcy);
         }
     });
 
@@ -588,4 +564,12 @@ window.updateRATransactantFormCheckboxes = function (record) {
     record.Convicted = int_to_bool(record.Convicted);
     record.EligibleFuturePayor = int_to_bool(record.EligibleFuturePayor);
     record.EligibleFutureUser = int_to_bool(record.EligibleFutureUser);
+};
+
+// onCheckboxesChange
+// Enable/Disable checkbox description text area
+window.onCheckboxesChange = function (form) {
+    $("#EvictedDes").prop("disabled", !form.record.Evicted);
+    $("#ConvictedDes").prop("disabled", !form.record.Convicted);
+    $("#BankruptcyDes").prop("disabled", !form.record.Bankruptcy);
 };

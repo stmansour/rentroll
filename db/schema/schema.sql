@@ -913,9 +913,9 @@ CREATE TABLE Prospect (
     CompanyEmail VARCHAR(100) NOT NULL DEFAULT '',
     CompanyPhone VARCHAR(100) NOT NULL DEFAULT '',
     Occupation VARCHAR(100) NOT NULL DEFAULT '',
-    EvictedDes VARCHAR(2048) NOT NULL DEFAULT '',                   -- explanation when FLAGS & (1<<4) > 0
-    ConvictedDes VARCHAR(2048) NOT NULL DEFAULT '',                 -- explanation when FLAGS & (1<<5) > 0
-    BankruptcyDes VARCHAR(2048) NOT NULL DEFAULT '',                -- explanation when FLAGS & (1<<6) > 0
+    EvictedDes VARCHAR(2048) NOT NULL DEFAULT '',                   -- explanation when FLAGS & (1<<0) > 0
+    ConvictedDes VARCHAR(2048) NOT NULL DEFAULT '',                 -- explanation when FLAGS & (1<<1) > 0
+    BankruptcyDes VARCHAR(2048) NOT NULL DEFAULT '',                -- explanation when FLAGS & (1<<2) > 0
     FollowUpDate DATE NOT NULL DEFAULT '1970-01-01 00:00:00',       -- automatically fill out this date to sysdate + 24hrs
     FLAGS BIGINT NOT NULL DEFAULT 0,                                /* 1<<0 - Previously Evicted: 0 = no, 1 = yes
                                                                        1<<1 - Previously Convicted of a felony: 0 = no, 1 = yes
