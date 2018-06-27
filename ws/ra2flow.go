@@ -347,7 +347,7 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 	for i := 0; i < len(m); i++ {
-		if err = addRAPtoFlow(r.Context(), m[i].TCID, &raf, false, true, false); err != nil {
+		if err = addRAPtoFlow(r.Context(), m[i].TCID, 0 /*no RID here*/, &raf, false, true, false); err != nil {
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
@@ -367,7 +367,7 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			SvcErrorReturn(w, err, funcname)
 		}
 		for k := 0; k < len(rulist); k++ {
-			addRAPtoFlow(r.Context(), rulist[k].TCID, &raf, true, false, true)
+			addRAPtoFlow(r.Context(), rulist[k].TCID, n[j].RID, &raf, true, false, true)
 		}
 	}
 
@@ -486,6 +486,7 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //
 // INPUTS
 //     tcid  = the tcid of the transactant to load
+//      rid  - the rentable that they are tied to, 0 = not known
 //      raf  - pointer to the flow struct to update
 //      chk  - check to see if the tcid exists in raf.People before adding.
 //             This is not always necessary, but only the caller knows.
@@ -496,7 +497,7 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //     any error encountered
 //     raf is updated
 //-----------------------------------------------------------------------------
-func addRAPtoFlow(ctx context.Context, tcid int64, raf *RAFlowJSONData, chk, isRenter, isOccupant bool) error {
+func addRAPtoFlow(ctx context.Context, tcid, rid int64, raf *RAFlowJSONData, chk, isRenter, isOccupant bool) error {
 	// Is this user already present?
 	if chk {
 		for l := 0; l < len(raf.People); l++ {
@@ -525,6 +526,9 @@ func addRAPtoFlow(ctx context.Context, tcid int64, raf *RAFlowJSONData, chk, isR
 	var t RATiePeopleData
 	t.BID = rap.BID
 	t.TMPTCID = rap.TMPTCID
+	if rid > 0 {
+		t.PRID = rid
+	}
 	raf.People = append(raf.People, rap)
 	raf.Tie.People = append(raf.Tie.People, t)
 	return nil
