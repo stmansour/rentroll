@@ -49,7 +49,6 @@ type RAPeopleFlowData struct {
 	TMPTCID int64
 	BID     int64
 	TCID    int64
-	FLAGS   int64
 
 	// Role
 	IsRenter    bool
@@ -77,7 +76,6 @@ type RAPeopleFlowData struct {
 	Comment        string
 
 	// ---------- Prospect -----------
-	// Prospect fields
 	CompanyAddress    string
 	CompanyCity       string
 	CompanyState      string

@@ -13,7 +13,7 @@ window.getTransactantInitRecord = function (BID, BUD) {
         NLID: 0,
         TCID: 0,
         TMPTCID: 0,
-        FLAGS: 0,
+        ProspectFLAGS: 0,
         IsRenter: false,
         IsOccupant: true,
         IsGuarantor: false,
@@ -117,7 +117,6 @@ window.buildTransactElements = function() {
         {field: 'Website',                   type: 'text',      required: false, html: {page: 0, column: 0}},
         {field: 'Comment',                   type: 'text',      required: false, html: {page: 0, column: 0}},
         // ----------- Prospect -----------
-        {field: 'FLAGS',                     type: 'int',       required: false, html: {page: 1, column: 0}},
         {field: 'CompanyAddress',            type: 'text',      required: false, html: {page: 1, column: 0}},
         {field: 'CompanyCity',               type: 'text',      required: false, html: {page: 1, column: 0}},
         {field: 'CompanyState',              type: 'list',      required: false, html: {page: 1, column: 0}, options: {items: app.usStateAbbr}},
@@ -154,7 +153,7 @@ window.buildTransactElements = function() {
         {field: 'ThirdPartySource',          type: 'text',      required: false, html: {page: 2, column: 0}},
         {field: 'EligibleFuturePayor',       type: 'checkbox',  required: false, html: {page: 2, column: 0}},
         // ----------- User ----------
-        {field: 'Points',                    type: 'int',      required: false, html: {page: 3, column: 0}},
+        {field: 'Points',                    type: 'int',       required: false, html: {page: 3, column: 0}},
         {field: 'DateofBirth',               type: 'date',      required: false, html: {page: 3, column: 0}},
         {field: 'EmergencyContactName',      type: 'text',      required: false, html: {page: 3, column: 0}},
         {field: 'EmergencyContactAddress',   type: 'text',      required: false, html: {page: 3, column: 0}},
