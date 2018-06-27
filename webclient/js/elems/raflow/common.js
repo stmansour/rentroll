@@ -123,23 +123,6 @@ window.setRAFlowCompData = function (compKey, FlowID, data) {
 };
 
 //-----------------------------------------------------------------------------
-// toggleHaveCheckBoxDisablity - Enable checkbox if there is no record
-//                               lock/unlock grid based on checkbox value
-//
-// @params
-//   gridName   = name of the grid
-//-----------------------------------------------------------------------------
-window.toggleHaveCheckBoxDisablity = function (gridName) {
-    var recordsLength = w2ui[gridName].records.length;
-    if (recordsLength > 0){
-        $("#" + gridName + "_checkbox")[0].disabled = true;
-    }else if(recordsLength === 0){
-        $("#" + gridName + "_checkbox")[0].disabled = false;
-        lockOnGrid(gridName);
-    }
-};
-
-//-----------------------------------------------------------------------------
 // saveActiveCompData - save component modified data on the server
 //
 // @params

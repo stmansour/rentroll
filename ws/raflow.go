@@ -31,6 +31,8 @@ type RAFlowMetaInfo struct {
 	LastTMPPETID int64
 	LastTMPVID   int64
 	LastTMPTCID  int64
+	HavePets     bool
+	HaveVehicles bool
 }
 
 // RADatesFlowData contains data in the dates part of RA flow
@@ -1018,6 +1020,11 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 	// update meta info if required
 	// ----------------------------------------------
 	if shouldModifyMetaData {
+
+		// Update HavePets Flag in meta information of flow
+		newRAFlowMeta.HavePets = len(raFlowData.Pets) > 0
+		newRAFlowMeta.HaveVehicles = len(raFlowData.Vehicles) > 0
+
 		// get marshalled data
 		var modMetaData []byte
 		modMetaData, err = json.Marshal(&newRAFlowMeta)

@@ -1,7 +1,7 @@
 /* global
     RACompConfig, reassignGridRecids,
     hideSliderContent, showSliderContentW2UIComp,
-    saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowCompData,
+    saveActiveCompData, getRAFlowCompData,
     lockOnGrid,
     getVehicleFormInitRecord, setVehicleLocalData, getVehicleLocalData,
     AssignVehiclesGridRecords, saveVehiclesCompData
@@ -160,9 +160,6 @@ window.loadRAVehiclesGrid = function () {
                             // reset the form
                             f.actions.reset();
 
-                            // Disable "have vehicles?" checkbox if there is any record.
-                            toggleHaveCheckBoxDisablity('RAVehiclesGrid');
-
                             // close the form
                             hideSliderContent();
                         } else {
@@ -227,9 +224,6 @@ window.loadRAVehiclesGrid = function () {
                         if (data.status === 'success') {
                             // reset form
                             f.actions.reset();
-
-                            // Disable "have vehicles?" checkbox if there is any record.
-                            toggleHaveCheckBoxDisablity('RAVehiclesGrid');
 
                             // re-assign records in grid
                             AssignVehiclesGridRecords();
@@ -362,6 +356,10 @@ window.loadRAVehiclesGrid = function () {
                     for (var j = 0; j < w2ui.RAVehiclesGrid.records.length; j++) {
                         w2ui.RAVehiclesGrid.records[j].recid = j + 1;
                     }
+
+                    $("#RAVehiclesGrid_checkbox")[0].checked = app.raflow.data[app.raflow.activeFlowID].Data.meta.HaveVehicles;
+                    $("#RAVehiclesGrid_checkbox")[0].disabled = app.raflow.data[app.raflow.activeFlowID].Data.meta.HaveVehicles;
+                    lockOnGrid("RAVehiclesGrid");
                 };
             },
             onClick : function (event){
