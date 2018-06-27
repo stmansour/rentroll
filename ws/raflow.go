@@ -31,6 +31,8 @@ type RAFlowMetaInfo struct {
 	LastTMPPETID int64
 	LastTMPVID   int64
 	LastTMPTCID  int64
+	HavePets     bool
+	HaveVehicles bool
 }
 
 // RADatesFlowData contains data in the dates part of RA flow
@@ -49,7 +51,6 @@ type RAPeopleFlowData struct {
 	TMPTCID int64
 	BID     int64
 	TCID    int64
-	FLAGS   int64
 
 	// Role
 	IsRenter    bool
@@ -77,7 +78,6 @@ type RAPeopleFlowData struct {
 	Comment        string
 
 	// ---------- Prospect -----------
-	// Prospect fields
 	CompanyAddress    string
 	CompanyCity       string
 	CompanyState      string
@@ -101,28 +101,16 @@ type RAPeopleFlowData struct {
 	PriorReasonForMoving   int64 // Reason for moving
 
 	// Have you ever been
-	Evicted                  bool // Evicted
-	EvictedDes               string
-	Convicted                bool // Arrested or convicted of a Convicted
-	ConvictedDes             string
-	Bankruptcy               bool // Declared Bankruptcy
-	BankruptcyDes            string
-	DesiredUsageStartDate    rlib.JSONDate
-	RentableTypePreference   int64
-	Approver1                int64
-	Approver1Name            string
-	DeclineReason1           int64
-	DecisionDate1            rlib.JSONDateTime
-	Approver2                int64
-	Approver2Name            string
-	DeclineReason2           int64
-	DecisionDate2            rlib.JSONDateTime
-	OtherPreferences         string
-	FollowUpDate             rlib.JSONDate
-	CSAgent                  int64
-	Outcome                  int64
-	CommissionableThirdParty string
-	SpecialNeeds             string // In an effort to accommodate you, please advise us of any special needs
+	Evicted          bool // Evicted
+	EvictedDes       string
+	Convicted        bool // Arrested or convicted of a Convicted
+	ConvictedDes     string
+	Bankruptcy       bool // Declared Bankruptcy
+	BankruptcyDes    string
+	OtherPreferences string
+	//FollowUpDate             rlib.JSONDate
+	//CommissionableThirdParty string
+	SpecialNeeds string // In an effort to accommodate you, please advise us of any special needs
 
 	// ---------- Payor -----------
 	CreditLimit         float64
@@ -225,9 +213,7 @@ type RAParentChildFlowData struct {
 
 // RATieFlowData contains data in the tie part of RA flow
 type RATieFlowData struct {
-	Pets     []RATiePetsData     `json:"pets"`
-	Vehicles []RATieVehiclesData `json:"vehicles"`
-	People   []RATiePeopleData   `json:"people"`
+	People []RATiePeopleData `json:"people"`
 }
 
 // RATiePetsData holds data from tie section for a pet to a rentable
@@ -347,6 +333,9 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int, 
 				}
 			}
 
+			// Update HavePets flag in meta information
+			raFlowData.Meta.HavePets = len(a) > 0
+
 			if err != nil {
 				// if it's an error then return with nil data
 				return modMetaData, modFlowPartData, err
@@ -371,6 +360,9 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int, 
 					a[i].TMPVID = raFlowData.Meta.LastTMPVID
 				}
 			}
+
+			// Update HaveVehicles flag in meta information
+			raFlowData.Meta.HaveVehicles = len(a) > 0
 
 			if err != nil {
 				// if it's an error then return with nil data
@@ -432,12 +424,6 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int, 
 
 			// check for each sliced data field
 			// if it's blank then initialize it
-			if len(a.Pets) == 0 {
-				a.Pets = []RATiePetsData{}
-			}
-			if len(a.Vehicles) == 0 {
-				a.Vehicles = []RATieVehiclesData{}
-			}
 			if len(a.People) == 0 {
 				a.People = []RATiePeopleData{}
 			}
@@ -501,9 +487,7 @@ func insertInitialRAFlow(ctx context.Context, BID, UID int64) (int64, error) {
 		Rentables:   []RARentablesFlowData{},
 		ParentChild: []RAParentChildFlowData{},
 		Tie: RATieFlowData{
-			Pets:     []RATiePetsData{},
-			Vehicles: []RATieVehiclesData{},
-			People:   []RATiePeopleData{},
+			People: []RATiePeopleData{},
 		},
 	}
 
@@ -793,6 +777,7 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 		err                  error
 		tx                   *sql.Tx
 		ctx                  context.Context
+		prospectFlag         uint64
 	)
 	fmt.Printf("Entered %s\n", funcname)
 
@@ -890,6 +875,12 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 		newRAFlowPerson.TMPTCID = raFlowData.Meta.LastTMPTCID + 1
 		newRAFlowMeta.LastTMPTCID = newRAFlowPerson.TMPTCID
 		personTMPTCID = newRAFlowPerson.TMPTCID
+
+		// Manage "Have you ever been"(Prospect) section FLAGS
+		prospectFlag = xp.Psp.FLAGS
+		newRAFlowPerson.Evicted = prospectFlag&0x1 != 0    // 1 << 0
+		newRAFlowPerson.Convicted = prospectFlag&0x2 != 0  // 1 << 1
+		newRAFlowPerson.Bankruptcy = prospectFlag&0x4 != 0 // 1 << 2
 
 		// we need to update meta at the end, as new TMPTCID assigned
 		shouldModifyMetaData = true
@@ -1025,6 +1016,11 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 	// update meta info if required
 	// ----------------------------------------------
 	if shouldModifyMetaData {
+
+		// Update HavePets Flag in meta information of flow
+		newRAFlowMeta.HavePets = len(raFlowData.Pets) > 0
+		newRAFlowMeta.HaveVehicles = len(raFlowData.Vehicles) > 0
+
 		// get marshalled data
 		var modMetaData []byte
 		modMetaData, err = json.Marshal(&newRAFlowMeta)

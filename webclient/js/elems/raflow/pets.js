@@ -1,7 +1,7 @@
 /* global
     RACompConfig, reassignGridRecids,
     hideSliderContent, showSliderContentW2UIComp,
-    saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowCompData,
+    saveActiveCompData, getRAFlowCompData,
     lockOnGrid,
     getPetFormInitRecord, getPetLocalData, setPetLocalData,
     AssignPetsGridRecords, savePetsCompData
@@ -153,9 +153,6 @@ window.loadRAPetsGrid = function () {
                             // re-assign records in grid
                             AssignPetsGridRecords();
 
-                            // Disable "have pets?" checkbox if there is any record.
-                            toggleHaveCheckBoxDisablity('RAPetsGrid');
-
                             // close the form
                             hideSliderContent();
                         } else {
@@ -219,9 +216,6 @@ window.loadRAPetsGrid = function () {
                         if (data.status === 'success') {
                             // reset form
                             f.actions.reset();
-
-                            // Disable "have pets?" checkbox if there is any record.
-                            toggleHaveCheckBoxDisablity('RAPetsGrid');
 
                             // reassign grid records
                             AssignPetsGridRecords();
@@ -371,6 +365,13 @@ window.loadRAPetsGrid = function () {
 
                 // warn user if form content has been changed
                 form_dirty_alert(yes_callBack, no_callBack, yes_args);
+            },
+            onRefresh: function (event) {
+                event.onComplete = function (){
+                    $("#RAPetsGrid_checkbox")[0].checked = app.raflow.data[app.raflow.activeFlowID].Data.meta.HavePets;
+                    $("#RAPetsGrid_checkbox")[0].disabled = app.raflow.data[app.raflow.activeFlowID].Data.meta.HavePets;
+                    lockOnGrid("RAPetsGrid");
+                };
             }
         });
     }
