@@ -9,7 +9,7 @@
     manageBGInfoFormFields, addDummyBackgroundInfo, savePeopleCompData, getPeopleLocalData, setPeopleLocalData,
     getPeopleLocalDataByTCID, setTransactantDefaultRole,
     getStringListData, getSLStringList, updateRATransactantFormCheckboxes,
-    managePeopleW2UIItems, removeRAFlowPersonAJAX, saveRAFlowPersonAJAX
+    managePeopleW2UIItems, removeRAFlowPersonAJAX, saveRAFlowPersonAJAX, onCheckboxesChange
 */
 
 "use strict";
@@ -324,9 +324,8 @@ window.loadRAPeopleForm = function () {
             },
             onChange: function (event) {
                 event.onComplete = function () {
-                    $("#EvictedDes").prop("disabled", !this.record.Evicted);
-                    $("#ConvictedDes").prop("disabled", !this.record.Convicted);
-                    $("#BankruptcyDes").prop("disabled", !this.record.Bankruptcy);
+
+                    onCheckboxesChange(this);
 
                     manageBGInfoFormFields(this.record);
 
@@ -350,14 +349,8 @@ window.loadRAPeopleForm = function () {
 
                     // Set list field value
                     form.get('SourceSLSID').options.items = getSLStringList(BID, "HowFound");
-                    // form.get('DeclineReason1').options.items = getSLStringList(BID, "ApplDeny");
-                    // form.get('DeclineReason2').options.items = getSLStringList(BID, "ApplDeny");
                     form.get('CurrentReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
                     form.get('PriorReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
-
-                    // disable approver name field
-                    // form.get("Approver1Name").disabled = true;
-                    // form.get("Approver2Name").disabled = true;
 
                     // hide delete button if it is NewRecord
                     var isNewRecord = (w2ui.RAPeopleGrid.get(form.record.recid, true) === null);
@@ -367,9 +360,7 @@ window.loadRAPeopleForm = function () {
                         $(form.box).find("button[name=delete]").removeClass("hidden");
                     }
 
-                    $("#EvictedDes").prop("disabled", !this.record.Evicted);
-                    $("#ConvictedDes").prop("disabled", !this.record.Convicted);
-                    $("#BankruptcyDes").prop("disabled", !this.record.Bankruptcy);
+                    onCheckboxesChange(this);
                 };
             },
             onValidate: function (event) {
