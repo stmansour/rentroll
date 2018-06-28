@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.22, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.22, for osx10.12 (x86_64)
 --
--- Host: 127.0.0.1    Database: rentroll
+-- Host: localhost    Database: rentroll
 -- ------------------------------------------------------
--- Server version	5.7.22-0ubuntu0.16.04.1
+-- Server version	5.7.22
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -1591,6 +1591,7 @@ DROP TABLE IF EXISTS `Rentable`;
 CREATE TABLE `Rentable` (
   `RID` bigint(20) NOT NULL AUTO_INCREMENT,
   `BID` bigint(20) NOT NULL DEFAULT '0',
+  `PRID` bigint(20) NOT NULL DEFAULT '0',
   `RentableName` varchar(100) NOT NULL DEFAULT '',
   `AssignmentTime` smallint(6) NOT NULL DEFAULT '0',
   `MRStatus` smallint(6) NOT NULL DEFAULT '0',
@@ -1610,7 +1611,7 @@ CREATE TABLE `Rentable` (
 
 LOCK TABLES `Rentable` WRITE;
 /*!40000 ALTER TABLE `Rentable` DISABLE KEYS */;
-INSERT INTO `Rentable` VALUES (1,1,'309 Rexford',1,0,'0000-00-00 00:00:00','2017-11-28 03:52:45',0,'2017-11-28 03:52:45',0,''),(2,1,'309 1/2 Rexford',1,0,'0000-00-00 00:00:00','2017-11-28 03:52:45',0,'2017-11-28 03:52:45',0,''),(3,1,'311 Rexford',1,0,'0000-00-00 00:00:00','2017-11-28 03:52:45',0,'2017-11-28 03:52:45',0,''),(4,1,'311 1/2 Rexford',1,0,'0000-00-00 00:00:00','2017-11-28 03:52:45',0,'2017-11-28 03:52:45',0,'');
+INSERT INTO `Rentable` VALUES (1,1,0,'309 Rexford',1,0,'0000-00-00 00:00:00','2017-11-28 03:52:45',0,'2017-11-28 03:52:45',0,''),(2,1,0,'309 1/2 Rexford',1,0,'0000-00-00 00:00:00','2017-11-28 03:52:45',0,'2017-11-28 03:52:45',0,''),(3,1,0,'311 Rexford',1,0,'0000-00-00 00:00:00','2017-11-28 03:52:45',0,'2017-11-28 03:52:45',0,''),(4,1,0,'311 1/2 Rexford',1,0,'0000-00-00 00:00:00','2017-11-28 03:52:45',0,'2017-11-28 03:52:45',0,'');
 /*!40000 ALTER TABLE `Rentable` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2575,4 +2576,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-06-27 10:57:30
+-- Dump completed on 2018-06-27 13:12:09
