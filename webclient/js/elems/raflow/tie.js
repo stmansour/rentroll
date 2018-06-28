@@ -25,9 +25,8 @@ window.loadRATieSection = function () {
                     style: 'background-color: white; border: 1px solid silver; padding: 0px;',
                     tabs: {
                         style: "padding-top: 10px;",
-                        active: 'tie-pets',
                         tabs: [
-                            { id: 'tie-people', caption: 'People' },
+                            { id: 'tie-people', caption: 'Occupants' },
                         ],
                         onClick: function (event) {
                             switch(event.target) {
@@ -195,10 +194,14 @@ window.AssignTiePeopleGridRecords = function() {
         tieGridRecords = [];
 
     peopleCompData.forEach(function(peopleData) {
+
+        // NOTE: list down only occupants in tie section
+        if (!peopleData.IsOccupant) {
+            return; // continue to next person
+        }
+
         var PRID = 0;
         var tiePeople = getTiePeopleLocalData(peopleData.TMPTCID);
-
-        // NOTE: list down every single person added in people section
 
         // parent Rentable ID found then for initial load in grid
         if (tiePeople.PRID) {

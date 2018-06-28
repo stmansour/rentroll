@@ -756,6 +756,7 @@ CREATE TABLE Building (
 CREATE TABLE Rentable (
     RID BIGINT NOT NULL AUTO_INCREMENT,                             -- unique identifier for this Rentable
     BID BIGINT NOT NULL DEFAULT 0,                                  -- Business associated with this Rentable
+    PRID BIGINT NOT NULL DEFAULT 0,                                 -- Parent Rentable if > 0,  if == 0 then it has no parent
     RentableName VARCHAR(100) NOT NULL DEFAULT '',                  -- must be unique, name for this instance, "101" for a room number, CP744 carport number, etc
     AssignmentTime SMALLINT NOT NULL DEFAULT 0,                     -- Unknown = 0, OK to pre-assign = 1, assign at occupancy commencement = 2
     MRStatus SMALLINT NOT NULL DEFAULT 0,                           -- Make Ready Status - current value as of DtMR, when this value changes it goes into a MRHistory record

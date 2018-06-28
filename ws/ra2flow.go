@@ -515,20 +515,26 @@ func addRAPtoFlow(ctx context.Context, tcid, rid int64, raf *RAFlowJSONData, chk
 	if err != nil {
 		return err
 	}
+
 	if isRenter {
 		rap.IsRenter = true
 	}
+
 	if isOccupant {
 		rap.IsOccupant = true
+
+		// only tie occupants to rentable
+		var t RATiePeopleData
+		t.BID = rap.BID
+		t.TMPTCID = rap.TMPTCID
+		if rid > 0 {
+			t.PRID = rid
+		}
+		raf.Tie.People = append(raf.Tie.People, t)
 	}
-	var t RATiePeopleData
-	t.BID = rap.BID
-	t.TMPTCID = rap.TMPTCID
-	if rid > 0 {
-		t.PRID = rid
-	}
+
+	// finally append in people list
 	raf.People = append(raf.People, rap)
-	raf.Tie.People = append(raf.Tie.People, t)
 	return nil
 }
 
