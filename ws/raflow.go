@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"rentroll/bizlogic"
 	"rentroll/rlib"
+	"rentroll/rtags"
 	"sort"
 	"time"
 )
@@ -58,9 +59,9 @@ type RAPeopleFlowData struct {
 	IsGuarantor bool
 
 	// ---------- Basic Info -----------
-	FirstName      string
-	MiddleName     string
-	LastName       string
+	FirstName      string `validate:"string,min=2,max=10"`
+	MiddleName     string `validate:"string,min=2,max=20"`
+	LastName       string `validate:"string,min=2,max=6"`
 	PreferredName  string
 	IsCompany      bool
 	CompanyName    string
@@ -1302,4 +1303,98 @@ type GridRAFlowResponse struct {
 	BUD       string
 	FlowID    int64
 	UserRefNo string
+}
+
+// RAFlowDetailRequest is a struct to hold info for Flow which is going to be validate
+type RAFlowDetailRequest struct {
+	FlowID    int64
+	UserRefNo string
+}
+
+// ValidateRAFlowResponse is struct to hold ErrorList for Flow
+type ValidateRAFlowResponse struct {
+	ErrorCount int
+	ErrorList  []string
+	HaveError  bool
+}
+
+// SvcValidateRAFlow is used to check/validate RAFlow's struct
+//------------------------------------------------------------------------------
+func SvcValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcValidateRAFlow"
+	var (
+		err error
+	)
+	fmt.Printf("Entered %s\n", funcname)
+	fmt.Printf("Request: %s:  BID = %d,  FlowID = %d\n", d.wsSearchReq.Cmd, d.BID, d.ID)
+
+	switch d.wsSearchReq.Cmd {
+	case "get":
+		ValidateRAFlow(w, r, d)
+		break
+	default:
+		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+}
+
+// ValidateRAFlow validate RAFlow's fields
+//-------------------------------------------------------------------------
+func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "ValidateRAFlow"
+	fmt.Printf("Entered %s\n", funcname)
+
+	var (
+		err            error
+		foo            RAFlowDetailRequest
+		raFlowData     RAFlowJSONData
+		fieldErrorList []string
+		g              ValidateRAFlowResponse
+	)
+
+	// http method check
+	if r.Method != "POST" {
+		err = fmt.Errorf("Only POST method is allowed")
+		return
+	}
+
+	// unmarshal data into request data struct
+	if err = json.Unmarshal([]byte(d.data), &foo); err != nil {
+		return
+	}
+
+	flow, err := rlib.GetFlow(r.Context(), foo.FlowID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// get unmarshalled raflow data into struct
+	err = json.Unmarshal(flow.Data, &raFlowData)
+	if err != nil {
+		return
+	}
+
+	// validate RAPeopleFlowData structure
+	for _, people := range raFlowData.People {
+		// call validation function
+		errs := rtags.ValidateStructFromTagRules(people)
+
+		// Modify error count for the response
+		g.ErrorCount += len(errs)
+
+		if len(errs) > 0 {
+			for _, err := range errs {
+				fieldErrorList = append(fieldErrorList, err.Error())
+			}
+		}
+
+	}
+
+	// set the response
+	g.HaveError = g.ErrorCount > 0
+	g.ErrorList = fieldErrorList
+
+	SvcWriteResponse(d.BID, &g, w)
 }
