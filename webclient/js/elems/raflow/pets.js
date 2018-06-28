@@ -368,18 +368,14 @@ window.loadRAPetsGrid = function () {
             onChange: function (event) {
                 var grid = this;
                 event.onComplete = function () {
-                    console.debug(event);
                     // only amount can be editable
                     var AMTColIx = grid.getColumn("Amount", true);
-                    console.debug(AMTColIx);
                     if (AMTColIx === event.column) {
-                        console.debug("matched with event column");
                         var record = grid.get(event.recid);
                         var localPetFeeData = getPetFeeLocalData(record.TMPPETID, record.ARID);
 
                         // update data in local and grid record
                         localPetFeeData.Amount = record.Amount = parseFloat(event.value_new);
-                        console.debug(localPetFeeData);
 
                         // set data
                         grid.set(event.recid, record);
@@ -441,10 +437,16 @@ window.loadRAPetsGrid = function () {
                     if (errors.length > 0) return;
 
                     // sync this info in local data
-                    var petData = getFormSubmitData(f.record, true);
+                    var petFormData = getFormSubmitData(f.record, true);
+
+                    // get local data first then update it with form data
+                    var localPetData = getPetLocalData(TMPPETID);
+
+                    // update the modified data
+                    $.extend(true, localPetData, petFormData);
 
                     // set data locally
-                    setPetLocalData(TMPPETID, petData);
+                    setPetLocalData(TMPPETID, localPetData);
 
                     // clean dirty flag of form
                     app.form_is_dirty = false;
@@ -476,10 +478,16 @@ window.loadRAPetsGrid = function () {
                     if (errors.length > 0) return;
 
                     // sync this info in local data
-                    var petData = getFormSubmitData(f.record, true);
+                    var petFormData = getFormSubmitData(f.record, true);
+
+                    // get local data first then update it with form data
+                    var localPetData = getPetLocalData(TMPPETID);
+
+                    // update the modified data
+                    $.extend(true, localPetData, petFormData);
 
                     // set data locally
-                    setPetLocalData(TMPPETID, petData);
+                    setPetLocalData(TMPPETID, localPetData);
 
                     // clean dirty flag of form
                     app.form_is_dirty = false;
