@@ -125,14 +125,14 @@ type RAPeopleFlowData struct {
 	Points      int64
 	DateofBirth rlib.JSONDate
 	// Emergency contact information
-	EmergencyContactName    string
-	EmergencyContactAddress string
-	EmergencyContactPhone   string
-	EmergencyContactEmail   string
-	AlternateAddress        string
-	EligibleFutureUser      bool
-	Industry                string
-	SourceSLSID             int64
+	EmergencyContactName      string
+	EmergencyContactAddress   string
+	EmergencyContactTelephone string
+	EmergencyContactEmail     string
+	AlternateAddress          string
+	EligibleFutureUser        bool
+	Industry                  string
+	SourceSLSID               int64
 }
 
 // RAPetsFlowData contains data in the pets part of RA flow
