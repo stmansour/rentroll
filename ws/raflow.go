@@ -1313,9 +1313,23 @@ type RAFlowDetailRequest struct {
 
 // ValidateRAFlowResponse is struct to hold ErrorList for Flow
 type ValidateRAFlowResponse struct {
+	HaveError  bool
+	ErrorCount int
+	ErrorsList RAFlowFieldsErrors
+}
+
+// FieldsError is
+type FieldsError struct {
+	TMPID      int64
 	ErrorCount int
 	ErrorList  []string
-	HaveError  bool
+}
+
+// RAFlowFieldsErrors is
+type RAFlowFieldsErrors struct {
+	PeopleFieldsError  []FieldsError
+	PetsFieldsError    []FieldsError
+	VehicleFieldsError []FieldsError
 }
 
 // SvcValidateRAFlow is used to check/validate RAFlow's struct
@@ -1346,11 +1360,12 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("Entered %s\n", funcname)
 
 	var (
-		err            error
-		foo            RAFlowDetailRequest
-		raFlowData     RAFlowJSONData
-		fieldErrorList []string
-		g              ValidateRAFlowResponse
+		err                error
+		foo                RAFlowDetailRequest
+		raFlowData         RAFlowJSONData
+		raFlowFieldsErrors RAFlowFieldsErrors
+		fieldsError        FieldsError
+		g                  ValidateRAFlowResponse
 	)
 
 	// http method check
@@ -1364,6 +1379,7 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
+	// Get flow information from the table to validate fields value
 	flow, err := rlib.GetFlow(r.Context(), foo.FlowID)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
@@ -1382,19 +1398,25 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		errs := rtags.ValidateStructFromTagRules(people)
 
 		// Modify error count for the response
-		g.ErrorCount += len(errs)
+		fieldsError.ErrorCount = len(errs)
+		fieldsError.TMPID = people.TMPTCID
+		fieldsError.ErrorList = nil
+
+		// Modify Total Error
+		g.ErrorCount += fieldsError.ErrorCount
 
 		if len(errs) > 0 {
 			for _, err := range errs {
-				fieldErrorList = append(fieldErrorList, err.Error())
+				fieldsError.ErrorList = append(fieldsError.ErrorList, err.Error())
 			}
 		}
 
+		raFlowFieldsErrors.PeopleFieldsError = append(raFlowFieldsErrors.PeopleFieldsError, fieldsError)
 	}
 
 	// set the response
 	g.HaveError = g.ErrorCount > 0
-	g.ErrorList = fieldErrorList
+	g.ErrorsList = raFlowFieldsErrors
 
 	SvcWriteResponse(d.BID, &g, w)
 }
