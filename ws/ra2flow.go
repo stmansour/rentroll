@@ -484,7 +484,7 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //
 // INPUTS
 //     tcid  = the tcid of the transactant to load
-//      rid  - the rentable that they are tied to, 0 = not known
+//      rid  - the rentable that they are tied to
 //      raf  - pointer to the flow struct to update
 //      chk  - check to see if the tcid exists in raf.People before adding.
 //             This is not always necessary, but only the caller knows.

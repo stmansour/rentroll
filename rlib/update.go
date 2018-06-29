@@ -836,6 +836,7 @@ func UpdateRentalAgreement(ctx context.Context, a *RentalAgreement) error {
 		a.Outcome,
 		a.NoticeToMoveUID,
 		a.NoticeToMoveDate,
+		a.NoticeToMoveReported,
 		a.TerminatorUID,
 		a.TerminationDate,
 		a.LeaseTerminationReason,
