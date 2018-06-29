@@ -244,10 +244,10 @@ window.buildRAApplicantElements = function() {
                 toolbar: {
                     items: [
                         { id: 'btnNotes', type: 'button', icon: 'far fa-sticky-note' },
-                        { id: 'BUD', type: 'html',
-                                html: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Status: <span id="RAFlowStatus"> &nbsp;</span>&nbsp;&nbsp;&nbsp;' +
-                                '<button name="RAStateForm" onchange="ShowRAStateForm();">Change...</button>',
-                        },
+                        // { id: 'BUD', type: 'html',
+                        //         html: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Status: <span id="RAFlowStatus"> &nbsp;</span>&nbsp;&nbsp;&nbsp;' +
+                        //         '<button name="RAStateForm" onchange="ShowRAStateForm();">Change...</button>',
+                        // },
                         { id: 'bt3', type: 'spacer' },
                         { id: 'btnClose', type: 'button', icon: 'fas fa-times' }
                     ],

@@ -592,7 +592,8 @@ type RentalAgreement struct {
 	CSAgent                int64       // Accord Directory UserID - for the CSAgent
 	Outcome                int64       // Only valid if state == Terminated, this is the SLSID of string from a list of WhyLeaving
 	NoticeToMoveUID        int64       // User who set the State to Notice-to-move, only if > 0
-	NoticeToMoveDate       time.Time   // When the state was set to Notice-To-Move, only valid if NoticeToMoveUID > 0
+	NoticeToMoveDate       time.Time   // datetime renter proposes to terminate the Rental Agreement (move out).
+	NoticeToMoveReported   time.Time   // date/time when customer notified the business of NoticeToMoveDate. Note: this is not the system datetime.
 	TerminatorUID          int64       // User who set State = Terminated
 	TerminationDate        time.Time   // timestamp when State was set to Terminated.
 	OtherPreferences       string      // user prefs

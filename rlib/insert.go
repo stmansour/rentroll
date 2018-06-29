@@ -1687,6 +1687,7 @@ func InsertRentalAgreement(ctx context.Context, a *RentalAgreement) (int64, erro
 		a.Outcome,
 		a.NoticeToMoveUID,
 		a.NoticeToMoveDate,
+		a.NoticeToMoveReported,
 		a.TerminatorUID,
 		a.TerminationDate,
 		a.LeaseTerminationReason,
