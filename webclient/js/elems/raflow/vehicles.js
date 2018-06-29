@@ -119,7 +119,6 @@ window.loadRAVehiclesGrid = function () {
 
                     // get RAID for active flow
                     var RAID = app.raflow.data[app.raflow.activeFlowID].ID;
-                    console.debug("RAID", RAID);
                     if (RAID > 0) {
                         $(f.box).find("input[name=ParkingPermitNumber]").prop("disabled", false);
                     } else {
