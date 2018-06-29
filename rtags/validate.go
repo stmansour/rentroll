@@ -48,7 +48,10 @@ func getValidatorFromTag(tagValue, fieldName string) Validator {
 //          Email string `validate:"string,min=3,max=32"`
 //      }
 //
-func ValidateStructFromTagRules(s interface{}) []error {
+func ValidateStructFromTagRules(s interface{}) map[string][]string {
+
+	m := make(map[string][]string)
+
 	errs := []error{}
 
 	// get reflected value
@@ -77,9 +80,11 @@ func ValidateStructFromTagRules(s interface{}) []error {
 
 		// append error to list
 		if err != nil {
-			errs = append(errs, fmt.Errorf("%s: %s", v.Type().Field(i).Name, err.Error()))
+			fieldName := v.Type().Field(i).Name
+			errs = append(errs, fmt.Errorf("%s: %s", fieldName, err.Error()))
+			m[fieldName] = append(m[fieldName], err.Error())
 		}
 	}
 
-	return errs
+	return m
 }

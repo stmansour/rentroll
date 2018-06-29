@@ -1313,23 +1313,22 @@ type RAFlowDetailRequest struct {
 
 // ValidateRAFlowResponse is struct to hold ErrorList for Flow
 type ValidateRAFlowResponse struct {
-	HaveError  bool
-	ErrorCount int
-	ErrorsList RAFlowFieldsErrors
+	Total  int                `json:"total"`
+	Errors RAFlowFieldsErrors `json:"errors"`
 }
 
 // FieldsError is
 type FieldsError struct {
-	TMPID      int64
-	ErrorCount int
-	ErrorList  []string
+	TMPID  int64
+	Total  int                 `json:"total"`
+	Errors map[string][]string `json:"errors"`
 }
 
 // RAFlowFieldsErrors is
 type RAFlowFieldsErrors struct {
-	PeopleFieldsError  []FieldsError
-	PetsFieldsError    []FieldsError
-	VehicleFieldsError []FieldsError
+	People  []FieldsError `json:"people"`
+	Pets    []FieldsError `json:"pets"`
+	Vehicle []FieldsError `json:"vehicle"`
 }
 
 // SvcValidateRAFlow is used to check/validate RAFlow's struct
@@ -1398,25 +1397,18 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		errs := rtags.ValidateStructFromTagRules(people)
 
 		// Modify error count for the response
-		fieldsError.ErrorCount = len(errs)
+		fieldsError.Total = len(errs)
 		fieldsError.TMPID = people.TMPTCID
-		fieldsError.ErrorList = nil
+		fieldsError.Errors = errs
 
 		// Modify Total Error
-		g.ErrorCount += fieldsError.ErrorCount
+		g.Total += fieldsError.Total
 
-		if len(errs) > 0 {
-			for _, err := range errs {
-				fieldsError.ErrorList = append(fieldsError.ErrorList, err.Error())
-			}
-		}
-
-		raFlowFieldsErrors.PeopleFieldsError = append(raFlowFieldsErrors.PeopleFieldsError, fieldsError)
+		raFlowFieldsErrors.People = append(raFlowFieldsErrors.People, fieldsError)
 	}
 
 	// set the response
-	g.HaveError = g.ErrorCount > 0
-	g.ErrorsList = raFlowFieldsErrors
+	g.Errors = raFlowFieldsErrors
 
 	SvcWriteResponse(d.BID, &g, w)
 }
