@@ -40,7 +40,10 @@ const (
 	ELEMPAYOR           = 11
 	ELEMRENTABLE        = 12
 	ELEMRENTALAGREEMENT = 13
-	ELEMLAST            = 13 // keep in sync with last one added
+	ELEMPET             = 14
+	ELEMVEHICLE         = 15
+	ELEMASSESSMENT      = 16
+	ELEMLAST            = 16 // keep in sync with last one added
 
 	// ARASSESSMENT et al, are Account Rule Types.
 	ARASSESSMENT    = 0
@@ -549,9 +552,11 @@ type OtherDeliverables struct {
 type RentalAgreement struct {
 	Recid                  int64       `json:"recid"` // this is to support the grid widget
 	RAID                   int64       // internal unique id
+	PRAID                  int64       // Parent RAID, this rental agreement is an updated version of PRAID
 	RATID                  int64       // reference to Occupancy Master Agreement
 	BID                    int64       // Business (so that we can process by Business)
 	NLID                   int64       // Note ID
+	DocumentDate           time.Time   // datetime when rental agreement was signed (may be different than Agreement Start)
 	AgreementStart         time.Time   // start date for rental agreement contract
 	AgreementStop          time.Time   // stop date for rental agreement contract
 	PossessionStart        time.Time   // start date for Occupancy
