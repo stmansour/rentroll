@@ -30,7 +30,7 @@ func TestUserStruct(t *testing.T) {
 		if len(errs) != tt.errsCount {
 			fmt.Println("Errors for debugging purpose:")
 			for i, err := range errs {
-				fmt.Printf("\t%d. %s\n", i+1, err.Error())
+				fmt.Printf("\t%d. %s\n", i, err)
 			}
 			t.Fatalf("Expected length of errors %d, got %d", tt.errsCount, len(errs))
 		}

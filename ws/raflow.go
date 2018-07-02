@@ -158,7 +158,7 @@ type RAVehiclesFlowData struct {
 	VID                 int64
 	TMPTCID             int64
 	VIN                 string
-	VehicleType         string
+	VehicleType         string `validate:"string,min=1,max=2"`
 	VehicleMake         string
 	VehicleModel        string
 	VehicleColor        string
@@ -1317,18 +1317,32 @@ type ValidateRAFlowResponse struct {
 	Errors RAFlowFieldsErrors `json:"errors"`
 }
 
-// FieldsError is
-type FieldsError struct {
-	TMPID  int64
+// PeopleFieldsError is
+type PeopleFieldsError struct {
+	TMPTCID int64
+	Total   int                 `json:"total"`
+	Errors  map[string][]string `json:"errors"`
+}
+
+// PetFieldsError is
+type PetFieldsError struct {
+	TMPPETID int64
+	Total    int                 `json:"total"`
+	Errors   map[string][]string `json:"errors"`
+}
+
+// VehicleFieldsError is
+type VehicleFieldsError struct {
+	TMPVID int64
 	Total  int                 `json:"total"`
 	Errors map[string][]string `json:"errors"`
 }
 
 // RAFlowFieldsErrors is
 type RAFlowFieldsErrors struct {
-	People  []FieldsError `json:"people"`
-	Pets    []FieldsError `json:"pets"`
-	Vehicle []FieldsError `json:"vehicle"`
+	People  []PeopleFieldsError  `json:"people"`
+	Pets    []PetFieldsError     `json:"pets"`
+	Vehicle []VehicleFieldsError `json:"vehicle"`
 }
 
 // SvcValidateRAFlow is used to check/validate RAFlow's struct
@@ -1359,12 +1373,14 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("Entered %s\n", funcname)
 
 	var (
-		err                error
-		foo                RAFlowDetailRequest
-		raFlowData         RAFlowJSONData
-		raFlowFieldsErrors RAFlowFieldsErrors
-		fieldsError        FieldsError
-		g                  ValidateRAFlowResponse
+		err                 error
+		foo                 RAFlowDetailRequest
+		raFlowData          RAFlowJSONData
+		raFlowFieldsErrors  RAFlowFieldsErrors
+		peopleFieldsErrors  PeopleFieldsError
+		petFieldsErrors     PetFieldsError
+		vehicleFieldsErrors VehicleFieldsError
+		g                   ValidateRAFlowResponse
 	)
 
 	// http method check
@@ -1378,7 +1394,14 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
+	raFlowFieldsErrors = RAFlowFieldsErrors{
+		People:  []PeopleFieldsError{},
+		Pets:    []PetFieldsError{},
+		Vehicle: []VehicleFieldsError{},
+	}
+
 	// Get flow information from the table to validate fields value
+	// TODO(Akshay): Give proper error when flowID doesn't exists
 	flow, err := rlib.GetFlow(r.Context(), foo.FlowID)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
@@ -1396,15 +1419,62 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// call validation function
 		errs := rtags.ValidateStructFromTagRules(people)
 
+		// Skip the row if it doesn't have error for the any fields
+		if len(errs) == 0 {
+			continue
+		}
+
 		// Modify error count for the response
-		fieldsError.Total = len(errs)
-		fieldsError.TMPID = people.TMPTCID
-		fieldsError.Errors = errs
+		peopleFieldsErrors.Total = len(errs)
+		peopleFieldsErrors.TMPTCID = people.TMPTCID
+		peopleFieldsErrors.Errors = errs
 
 		// Modify Total Error
-		g.Total += fieldsError.Total
+		g.Total += peopleFieldsErrors.Total
 
-		raFlowFieldsErrors.People = append(raFlowFieldsErrors.People, fieldsError)
+		raFlowFieldsErrors.People = append(raFlowFieldsErrors.People, peopleFieldsErrors)
+	}
+
+	// validate RAPetFlowData structure
+	for _, pet := range raFlowData.Pets {
+		// call validation function
+		errs := rtags.ValidateStructFromTagRules(pet)
+
+		// Skip the row if it doesn't have error for the any fields
+		if len(errs) == 0 {
+			continue
+		}
+
+		// Modify error count for the response
+		petFieldsErrors.Total = len(errs)
+		petFieldsErrors.TMPPETID = pet.TMPPETID
+		petFieldsErrors.Errors = errs
+
+		// Modify Total Error
+		g.Total += petFieldsErrors.Total
+
+		raFlowFieldsErrors.Pets = append(raFlowFieldsErrors.Pets, petFieldsErrors)
+	}
+
+	// validate RAVehicleFlowData structure
+	for _, vehicle := range raFlowData.Vehicles {
+		// call validation function
+		errs := rtags.ValidateStructFromTagRules(vehicle)
+
+		// Skip the row if it doesn't have error for the any fields
+		if len(errs) == 0 {
+			continue
+		}
+
+		// Modify error count for the response
+		vehicleFieldsErrors.Total = len(errs)
+		vehicleFieldsErrors.TMPVID = vehicle.TMPVID
+		vehicleFieldsErrors.Errors = errs
+
+		// Modify Total Error
+		g.Total += vehicleFieldsErrors.Total
+
+		raFlowFieldsErrors.Vehicle = append(raFlowFieldsErrors.Vehicle, vehicleFieldsErrors)
 	}
 
 	// set the response
