@@ -188,9 +188,11 @@ CREATE TABLE RentalAgreementTemplate (
 -- ===========================================
 CREATE TABLE RentalAgreement (
     RAID BIGINT NOT NULL AUTO_INCREMENT,                                -- internal unique id
+    PRAID BIGINT NOT NULL DEFAULT 0,                                    -- parent RAID -- this RA is an updated version of PRAID
     RATID BIGINT NOT NULL DEFAULT 0,                                    -- reference to Rental Template (Occupancy Master Agreement)
     BID BIGINT NOT NULL DEFAULT 0,                                      -- Business (so that we can process by Business)
     NLID BIGINT NOT NULL DEFAULT 0,                                     -- NoteList ID
+    DocumentDate DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',       -- datetime when rental agreement was signed (may be different than Agreement Start)
     AgreementStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',         -- date when rental starts (may be blank if RA initiated for floating deposit)
     AgreementStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',          -- date when rental stops  (may be blank if RA initiated for floating deposit)
     PossessionStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',        -- date when usage starts  (may be blank if RA initiated for floating deposit)
@@ -255,6 +257,7 @@ CREATE TABLE RentalAgreement (
     Outcome BIGINT NOT NULL DEFAULT 0,                                 -- Only valid if state == Appl Elect(6), this is the SLSID of string from a list of WhyLeaving
     NoticeToMoveUID BIGINT NOT NULL DEFAULT 0,                         -- if > 0 it is the UID of the person who set this RA to state Notice To Move
     NoticeToMoveDate DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- datetime RA was given Notice-To-Move, valid only if NoticeToMoveUID >0
+    NoticeToMoveReported DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',   -- datetime RA was set to Terminated, valid only if TerminatorUID >0
     TerminatorUID BIGINT NOT NULL DEFAULT 0,                           -- if > 0 it is the UID of the person who set this RA to state Terminated
     TerminationDate DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',   -- datetime RA was set to Terminated, valid only if TerminatorUID >0
     LeaseTerminationReason BIGINT NOT NULL DEFAULT 0,                  -- This is an SLSID for stringlist WhyLeaving.

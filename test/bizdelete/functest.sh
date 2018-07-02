@@ -60,7 +60,7 @@ mysqlverify "t"  "${RRCTX}"		"Pets"	                    	"select PETID,BID,RAID,
 mysqlverify "u"  "${RRCTX}"		"Notes"	                    	"select NID,PNID,Comment,LastModBy from Notes;"
 mysqlverify "v"  "${RRCTX}"		"AgreementRentables"	    	"select * from RentalAgreementRentables;"
 mysqlverify "w"  "${RRCTX}"		"AgreementPayors"	    		"select * from RentalAgreementPayors;"
-mysqlverify "x"  "${RRCTX}"		"ChartOfAccounts"	    		"select LID,PLID,BID,RAID,GLNumber,Status,Name,AcctType,AllowPost,LastModBy from GLAccount;"
+mysqlverify "x"  "${RRCTX}"		"ChartOfAccounts"	    		"select LID,PLID,BID,RAID,GLNumber,FLAGS,Name,AcctType,AllowPost,LastModBy from GLAccount;"
 mysqlverify "y"  "${RRCTX}"    	"LedgerMarkers"	            	"select LMID,LID,BID,RAID,RID,TCID,Dt,Balance,State,LastModBy from LedgerMarker;"
 mysqlverify "z"  "${RRCTX}"		"RatePlan"	            		"select RPID,BID,Name,LastModBy from RatePlan;"
 mysqlverify "a1" "${RRCTX}"		"RatePlanRef"	                "select RPRID,BID,RPID,DtStart,DtStop,FeeAppliesAge,MaxNoFeeUsers,AdditionalUserFee,PromoCode,CancellationFee,FLAGS,LastModBy from RatePlanRef;"

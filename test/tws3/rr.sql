@@ -1867,9 +1867,11 @@ DROP TABLE IF EXISTS `RentalAgreement`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `RentalAgreement` (
   `RAID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `PRAID` bigint(20) NOT NULL DEFAULT '0',
   `RATID` bigint(20) NOT NULL DEFAULT '0',
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `NLID` bigint(20) NOT NULL DEFAULT '0',
+  `DocumentDate` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `AgreementStart` date NOT NULL DEFAULT '1970-01-01',
   `AgreementStop` date NOT NULL DEFAULT '1970-01-01',
   `PossessionStart` date NOT NULL DEFAULT '1970-01-01',
@@ -1910,6 +1912,7 @@ CREATE TABLE `RentalAgreement` (
   `Outcome` bigint(20) NOT NULL DEFAULT '0',
   `NoticeToMoveUID` bigint(20) NOT NULL DEFAULT '0',
   `NoticeToMoveDate` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
+  `NoticeToMoveReported` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `TerminatorUID` bigint(20) NOT NULL DEFAULT '0',
   `TerminationDate` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `LeaseTerminationReason` bigint(20) NOT NULL DEFAULT '0',
@@ -2563,4 +2566,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-06-27 13:12:15
+-- Dump completed on 2018-06-29 22:14:32

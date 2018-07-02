@@ -793,9 +793,11 @@ func UpdateRentalAgreement(ctx context.Context, a *RentalAgreement) error {
 	}
 
 	fields := []interface{}{
+		a.PRAID,
 		a.RATID,
 		a.BID,
 		a.NLID,
+		a.DocumentDate,
 		a.AgreementStart,
 		a.AgreementStop,
 		a.PossessionStart,
@@ -836,6 +838,7 @@ func UpdateRentalAgreement(ctx context.Context, a *RentalAgreement) error {
 		a.Outcome,
 		a.NoticeToMoveUID,
 		a.NoticeToMoveDate,
+		a.NoticeToMoveReported,
 		a.TerminatorUID,
 		a.TerminationDate,
 		a.LeaseTerminationReason,

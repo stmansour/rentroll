@@ -95,89 +95,90 @@ SLS00000083                                      Abandoned Apartment
 SLS00000084                                      Acquired a pet                                    
 SLS00000085                                      Added a roommate                                  
 SLS00000086                                      Amenities lacking                                 
-SLS00000087                                      Bought condominium                                
-SLS00000088                                      Bought home                                       
-SLS00000089                                      Bought townhome                                   
-SLS00000090                                      Changed jobs                                      
-SLS00000091                                      Closer to airport                                 
-SLS00000092                                      Closer to town/city                               
-SLS00000093                                      Closer to work                                    
-SLS00000094                                      Corporate or short term lease only                
-SLS00000095                                      Death or illness                                  
-SLS00000096                                      Dissatisfied for another reason                   
-SLS00000097                                      Divorce                                           
-SLS00000098                                      Employment transfer                               
-SLS00000099                                      Evicted for another reason                        
-SLS00000100                                      Evicted for criminal reasons                      
-SLS00000101                                      Evicted for non-compliance with community policies
-SLS00000102                                      Evicted for non-payment of rent                   
-SLS00000103                                      Generally unhappy with property                   
-SLS00000104                                      Getting married                                   
-SLS00000105                                      High utility costs                                
-SLS00000106                                      Leaving/graduating school                         
-SLS00000107                                      Lifestyle change for another reason               
-SLS00000108                                      Loss of employment from the PMC                   
-SLS00000109                                      Lost a job                                        
-SLS00000110                                      Lost a roommate                                   
-SLS00000111                                      Marital status change                             
-SLS00000112                                      Military transfer                                 
-SLS00000113                                      Money problems                                    
-SLS00000114                                      Moving closer to home                             
-SLS00000115                                      Moving home                                       
-SLS00000116                                      No reason given                                   
-SLS00000117                                      Noise problem                                     
-SLS00000118                                      Non-renewal of lease                              
-SLS00000119                                      Other                                             
-SLS00000120                                      Parking problems                                  
-SLS00000121                                      Personal reasons/concerns                         
-SLS00000122                                      Property disaster                                 
-SLS00000123                                      Rental increase                                   
-SLS00000124                                      Rentin home                                       
-SLS00000125                                      Returning/going to school                         
-SLS00000126                                      Road construction                                 
-SLS00000127                                      Selling/old house                                 
-SLS00000128                                      Skipped during eviction process                   
-SLS00000129                                      Skipped without notice                            
+SLS00000087                                      Application declined                              
+SLS00000088                                      Bought condominium                                
+SLS00000089                                      Bought home                                       
+SLS00000090                                      Bought townhome                                   
+SLS00000091                                      Changed jobs                                      
+SLS00000092                                      Closer to airport                                 
+SLS00000093                                      Closer to town/city                               
+SLS00000094                                      Closer to work                                    
+SLS00000095                                      Corporate or short term lease only                
+SLS00000096                                      Death or illness                                  
+SLS00000097                                      Dissatisfied for another reason                   
+SLS00000098                                      Divorce                                           
+SLS00000099                                      Employment transfer                               
+SLS00000100                                      Evicted for another reason                        
+SLS00000101                                      Evicted for criminal reasons                      
+SLS00000102                                      Evicted for non-compliance with community policies
+SLS00000103                                      Evicted for non-payment of rent                   
+SLS00000104                                      Generally unhappy with property                   
+SLS00000105                                      Getting married                                   
+SLS00000106                                      High utility costs                                
+SLS00000107                                      Leaving/graduating school                         
+SLS00000108                                      Lifestyle change for another reason               
+SLS00000109                                      Loss of employment from the PMC                   
+SLS00000110                                      Lost a job                                        
+SLS00000111                                      Lost a roommate                                   
+SLS00000112                                      Marital status change                             
+SLS00000113                                      Military transfer                                 
+SLS00000114                                      Money problems                                    
+SLS00000115                                      Moving closer to home                             
+SLS00000116                                      Moving home                                       
+SLS00000117                                      No reason given                                   
+SLS00000118                                      Noise problem                                     
+SLS00000119                                      Non-renewal of lease                              
+SLS00000120                                      Other                                             
+SLS00000121                                      Parking problems                                  
+SLS00000122                                      Personal reasons/concerns                         
+SLS00000123                                      Property disaster                                 
+SLS00000124                                      Rental increase                                   
+SLS00000125                                      Rentin home                                       
+SLS00000126                                      Returning/going to school                         
+SLS00000127                                      Road construction                                 
+SLS00000128                                      Selling/old house                                 
+SLS00000129                                      Skipped during eviction process                   
+SLS00000130                                      Skipped without notice                            
 WhyChoose                                                                                          
-SLS00000130                                      ADA accessible                                    
-SLS00000131                                      Amenities lacking                                 
-SLS00000132                                      Color palette                                     
-SLS00000133                                      Drive up appeal                                   
-SLS00000134                                      Furniture                                         
-SLS00000135                                      Lease term                                        
-SLS00000136                                      Location to employment                            
-SLS00000137                                      Location to family                                
-SLS00000138                                      Location to shopping and entertainment            
-SLS00000139                                      Meets square footage needs                        
-SLS00000140                                      Personnel                                         
-SLS00000141                                      Pet allowances                                    
-SLS00000142                                      Point of lease e-commerce offers                  
-SLS00000143                                      Priing                                            
-SLS00000144                                      Public transportation                             
-SLS00000145                                      School district                                   
-SLS00000146                                      Special                                           
+SLS00000131                                      ADA accessible                                    
+SLS00000132                                      Amenities lacking                                 
+SLS00000133                                      Color palette                                     
+SLS00000134                                      Drive up appeal                                   
+SLS00000135                                      Furniture                                         
+SLS00000136                                      Lease term                                        
+SLS00000137                                      Location to employment                            
+SLS00000138                                      Location to family                                
+SLS00000139                                      Location to shopping and entertainment            
+SLS00000140                                      Meets square footage needs                        
+SLS00000141                                      Personnel                                         
+SLS00000142                                      Pet allowances                                    
+SLS00000143                                      Point of lease e-commerce offers                  
+SLS00000144                                      Priing                                            
+SLS00000145                                      Public transportation                             
+SLS00000146                                      School district                                   
+SLS00000147                                      Special                                           
 ProspectLost                                                                                       
-SLS00000147           Amenities                  Amenities lacking                                 
-SLS00000148           Amenities                  Bedroom size                                      
-SLS00000149           Amenities                  Color scheme                                      
-SLS00000150           Amenities                  Competition has better amenities                  
-SLS00000151           Amenities                  Objection to floor plan                           
-SLS00000152           Cost                       Competition is less expensive                     
-SLS00000153           Cost                       No specials/concessions                           
-SLS00000154           Cost                       Too expensive                                     
-SLS00000155           Inactive                   Inactive                                          
-SLS00000156           Location                   Location                                          
-SLS00000157           Location                   Road construction                                 
-SLS00000158           Location                   Too close to highway                              
-SLS00000159           Not available              Unit/floor plan not available                     
-SLS00000160           Not interested             Bought/rented house instead                       
-SLS00000161           Not interested             Changed their mind                                
-SLS00000162           Not interested             Not interested                                    
-SLS00000163           Not qualified              Credit rating below standard                      
-SLS00000164           Not qualified              Criminal history not allowed                      
-SLS00000165           Not qualified              Does not meet property criteria                   
-SLS00000166           Not qualified              Oversized/unallowable pet                         
-SLS00000167           Not qualified              Rental history not allowed                        
-SLS00000168           Not qualified              Roommate/spouse unqualified                       
-SLS00000169           Not qualified              Too many occupants                                
+SLS00000148           Amenities                  Amenities lacking                                 
+SLS00000149           Amenities                  Bedroom size                                      
+SLS00000150           Amenities                  Color scheme                                      
+SLS00000151           Amenities                  Competition has better amenities                  
+SLS00000152           Amenities                  Objection to floor plan                           
+SLS00000153           Cost                       Competition is less expensive                     
+SLS00000154           Cost                       No specials/concessions                           
+SLS00000155           Cost                       Too expensive                                     
+SLS00000156           Inactive                   Inactive                                          
+SLS00000157           Location                   Location                                          
+SLS00000158           Location                   Road construction                                 
+SLS00000159           Location                   Too close to highway                              
+SLS00000160           Not available              Unit/floor plan not available                     
+SLS00000161           Not interested             Bought/rented house instead                       
+SLS00000162           Not interested             Changed their mind                                
+SLS00000163           Not interested             Not interested                                    
+SLS00000164           Not qualified              Credit rating below standard                      
+SLS00000165           Not qualified              Criminal history not allowed                      
+SLS00000166           Not qualified              Does not meet property criteria                   
+SLS00000167           Not qualified              Oversized/unallowable pet                         
+SLS00000168           Not qualified              Rental history not allowed                        
+SLS00000169           Not qualified              Roommate/spouse unqualified                       
+SLS00000170           Not qualified              Too many occupants                                
 
