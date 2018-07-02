@@ -1317,6 +1317,11 @@ type ValidateRAFlowResponse struct {
 	Errors RAFlowFieldsErrors `json:"errors"`
 }
 
+type DatesFieldsError struct {
+	Total  int                 `json:"total"`
+	Errors map[string][]string `json:"errors"`
+}
+
 // PeopleFieldsError is
 type PeopleFieldsError struct {
 	TMPTCID int64
@@ -1338,11 +1343,36 @@ type VehicleFieldsError struct {
 	Errors map[string][]string `json:"errors"`
 }
 
+// RentablesFieldsError is
+type RentablesFieldsError struct {
+	Total  int                 `json:"total"`
+	Errors map[string][]string `json:"errors"`
+}
+
+// ParentChileFieldsError is
+type ParentChileFieldsError struct {
+	PRID   int64               // parent rentable ID
+	CRID   int64               // child rentable ID
+	Total  int                 `json:"total"`
+	Errors map[string][]string `json:"errors"`
+}
+
+// type TieFieldsError is
+type TieFieldsError struct {
+	TMPTCID int64
+	Total   int                 `json:"total"`
+	Errors  map[string][]string `json:"errors"`
+}
+
 // RAFlowFieldsErrors is
 type RAFlowFieldsErrors struct {
-	People  []PeopleFieldsError  `json:"people"`
-	Pets    []PetFieldsError     `json:"pets"`
-	Vehicle []VehicleFieldsError `json:"vehicle"`
+	Dates       DatesFieldsError
+	People      []PeopleFieldsError      `json:"people"`
+	Pets        []PetFieldsError         `json:"pets"`
+	Vehicle     []VehicleFieldsError     `json:"vehicle"`
+	Rentables   []RentablesFieldsError   `json:"rentables"`
+	ParentChild []ParentChileFieldsError `json:"parentchild"`
+	Tie         []TieFieldsError         `json:"tie"`
 }
 
 // SvcValidateRAFlow is used to check/validate RAFlow's struct
@@ -1366,7 +1396,7 @@ func SvcValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 }
 
-// ValidateRAFlow validate RAFlow's fields
+// ValidateRAFlow validate RAFlow's fields section wise
 //-------------------------------------------------------------------------
 func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "ValidateRAFlow"
@@ -1395,9 +1425,15 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	raFlowFieldsErrors = RAFlowFieldsErrors{
-		People:  []PeopleFieldsError{},
-		Pets:    []PetFieldsError{},
-		Vehicle: []VehicleFieldsError{},
+		Dates: DatesFieldsError{
+			Errors: map[string][]string{},
+		},
+		People:      []PeopleFieldsError{},
+		Pets:        []PetFieldsError{},
+		Vehicle:     []VehicleFieldsError{},
+		Rentables:   []RentablesFieldsError{},
+		ParentChild: []ParentChileFieldsError{},
+		Tie:         []TieFieldsError{},
 	}
 
 	// Get flow information from the table to validate fields value
