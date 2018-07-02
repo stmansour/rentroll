@@ -40,7 +40,10 @@ const (
 	ELEMPAYOR           = 11
 	ELEMRENTABLE        = 12
 	ELEMRENTALAGREEMENT = 13
-	ELEMLAST            = 13 // keep in sync with last one added
+	ELEMPET             = 14
+	ELEMVEHICLE         = 15
+	ELEMASSESSMENT      = 16
+	ELEMLAST            = 16 // keep in sync with last one added
 
 	// ARASSESSMENT et al, are Account Rule Types.
 	ARASSESSMENT    = 0
@@ -549,9 +552,11 @@ type OtherDeliverables struct {
 type RentalAgreement struct {
 	Recid                  int64       `json:"recid"` // this is to support the grid widget
 	RAID                   int64       // internal unique id
+	PRAID                  int64       // Parent RAID, this rental agreement is an updated version of PRAID
 	RATID                  int64       // reference to Occupancy Master Agreement
 	BID                    int64       // Business (so that we can process by Business)
 	NLID                   int64       // Note ID
+	DocumentDate           time.Time   // datetime when rental agreement was signed (may be different than Agreement Start)
 	AgreementStart         time.Time   // start date for rental agreement contract
 	AgreementStop          time.Time   // stop date for rental agreement contract
 	PossessionStart        time.Time   // start date for Occupancy
@@ -592,7 +597,8 @@ type RentalAgreement struct {
 	CSAgent                int64       // Accord Directory UserID - for the CSAgent
 	Outcome                int64       // Only valid if state == Terminated, this is the SLSID of string from a list of WhyLeaving
 	NoticeToMoveUID        int64       // User who set the State to Notice-to-move, only if > 0
-	NoticeToMoveDate       time.Time   // When the state was set to Notice-To-Move, only valid if NoticeToMoveUID > 0
+	NoticeToMoveDate       time.Time   // datetime renter proposes to terminate the Rental Agreement (move out).
+	NoticeToMoveReported   time.Time   // date/time when customer notified the business of NoticeToMoveDate. Note: this is not the system datetime.
 	TerminatorUID          int64       // User who set State = Terminated
 	TerminationDate        time.Time   // timestamp when State was set to Terminated.
 	OtherPreferences       string      // user prefs
