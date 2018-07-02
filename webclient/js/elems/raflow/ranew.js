@@ -251,7 +251,7 @@ window.buildRAApplicantElements = function() {
                     items: [
                         { id: 'btnNotes', type: 'button', icon: 'far fa-sticky-note' },
                         { id: 'raState', type: 'html',
-                            html: '&nbsp;&nbsp;&nbsp;&nbsp;State: &nbsp;<span id="RAState">StateText</span>&nbsp;&nbsp;&nbsp;&nbsp;'
+                            html: '<span style="padding: 0 10px">State: <span id="RAState">StateText</span></span>'
                         },
                         { id: 'btnRAState', type: 'button', text: 'Action...', icon: 'far fa-sticky-note'},
                         { id: 'bt3', type: 'spacer' },
@@ -270,9 +270,6 @@ window.buildRAApplicantElements = function() {
                             break;
                         }
                     },
-                    onRefresh: function(/*event*/) {
-                        console.log('Refresh newraLayout');
-                    },
                 }
             },
             { type: 'preview',      hidden: true },
@@ -287,6 +284,14 @@ window.buildRAApplicantElements = function() {
     });
 };
 
+//-----------------------------------------------------------------------
+// renderRAStateInToolbar - it selects Rental Agreement State from the
+//                          string list on basis of raFlags and displays
+//                          it on the toolbar.
+//
+// @params
+//   raFlags = FLAGS of rental agreement
+//-----------------------------------------------------------------------
 window.renderRAStateInToolbar = function(raFlags) {
     var raStateString = app.RAStates[parseInt(raFlags & 0xf)];
     $(w2ui.newraLayout_main_toolbar.box).find('#RAState').text(raStateString);
