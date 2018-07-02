@@ -32,6 +32,7 @@ func GetPetFeesFromGeneralBizProps(ctx context.Context, BID int64) (fees []BizPr
 		bizPropName = "general"
 		bizPropJSON = BizProps{}
 	)
+	fees = []BizPropsPetFee{}
 	fmt.Printf("Entered in %s\n", funcname)
 
 	// get business properties
@@ -77,6 +78,7 @@ func GetVehicleFeesFromGeneralBizProps(ctx context.Context, BID int64) (fees []B
 		bizPropName = "general"
 		bizPropJSON = BizProps{}
 	)
+	fees = []BizPropsVehicleFee{}
 	fmt.Printf("Entered in %s\n", funcname)
 
 	// get business properties

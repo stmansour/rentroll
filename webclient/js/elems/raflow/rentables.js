@@ -28,6 +28,10 @@ window.getAllARsWithAmount = function(BID) {
     .done(function(data) {
         if (data.success !== "error") {
             app.raflow.arList[BID] = data.records || [];
+            app.raflow.arW2UIItems = [{id: 0, text: " -- select account rule -- " }];
+            app.raflow.arList[BID].forEach(function(arItem) {
+                app.raflow.arW2UIItems.push({id: arItem.ARID, text: arItem.Name});
+            });
         }
     });
 };
@@ -263,8 +267,8 @@ window.loadRARentablesGrid = function () {
                         return;
                     }
 
-                    var yes_args = [w2ui.RAPetFeesGrid, event.recid],
-                        no_args = [w2ui.RAPetFeesGrid],
+                    var yes_args = [w2ui.RARentablesGrid, event.recid],
+                        no_args = [w2ui.RARentablesGrid],
                         no_callBack = function(grid) {
                             grid.select(app.last.grid_sel_recid);
                             return false;
@@ -280,7 +284,7 @@ window.loadRARentablesGrid = function () {
                             var localRData = getRentableLocalData(rec.RID);
 
                             // just render the record from local data if fees are available
-                            if(localRData.Fees.length > 0) {
+                            if(localRData.hasOwnProperty("Fees") && localRData.Fees.length > 0) {
                                 // set fees grid records
                                 AssignRentableFeesGridRecords(rec.RID);
 

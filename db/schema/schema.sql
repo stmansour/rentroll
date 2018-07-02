@@ -235,7 +235,7 @@ CREATE TABLE RentalAgreement (
               4        Active                   Tenant has moved in and the RA remains valid
               5        Terminated               Agreement terminated. Reason in Outcome (SLSID of string from WhyLeaving)
               6        Notice To Move           Resident has given notice that they will leave
-              7        unused      
+              7        unused
               8        unused                   reserved for future expansion
               9        unused                   reserved for future expansion
              10        unused                   reserved for future expansion
@@ -245,7 +245,7 @@ CREATE TABLE RentalAgreement (
              14        unused                   reserved for future expansion
              15        unused                   reserved for future expansion
         ------------------------------------------------------------------------
-    */   
+    */
     Approver1 BIGINT NOT NULL DEFAULT 0,                               -- approver 1
     DecisionDate1 DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',     -- datetime when first approver made the decision
     DeclineReason1 BIGINT NOT NULL DEFAULT 0,                          -- Only valid if FLAGS & (1<<7) == 0, this is the SLSID to string in list of choices, why Approver1 declined the application

@@ -9,7 +9,8 @@
     getPetFeeLocalData, setPetFeeLocalData,
     AssignPetFeesGridRecords,
     SetRAPetFormRecordFromLocalData,
-    SetlocalDataFromRAPetFormRecord
+    SetlocalDataFromRAPetFormRecord,
+    getAllARsWithAmount
 */
 
 "use strict";
@@ -291,6 +292,13 @@ window.loadRAPetsGrid = function () {
                     this.save();
                 };
             },
+            onRefresh: function (event) {
+                event.onComplete = function (){
+                    $("#RAPetsGrid_checkbox")[0].checked = app.raflow.data[app.raflow.activeFlowID].Data.meta.HavePets;
+                    $("#RAPetsGrid_checkbox")[0].disabled = app.raflow.data[app.raflow.activeFlowID].Data.meta.HavePets;
+                    lockOnGrid("RAPetsGrid");
+                };
+            },
             onClick: function(event) {
                 event.onComplete = function() {
                     var yes_args = [this, event.recid],
@@ -302,11 +310,11 @@ window.loadRAPetsGrid = function () {
                         yes_callBack = function(grid, recid) {
                             app.last.grid_sel_recid = parseInt(recid);
 
-                            // get TMPPETID from grid
-                            var TMPPETID = grid.get(app.last.grid_sel_recid).TMPPETID;
-
                             // keep highlighting current row in any case
                             grid.select(app.last.grid_sel_recid);
+
+                            // get TMPPETID from grid
+                            var TMPPETID = grid.get(app.last.grid_sel_recid).TMPPETID;
 
                             // render layout in the slider
                             showSliderContentW2UIComp(w2ui.RAPetLayout, RACompConfig.pets.sliderWidth);
@@ -315,7 +323,7 @@ window.loadRAPetsGrid = function () {
                             setTimeout(function() {
                                 // fill layout with components and with data
                                 SetRAPetLayoutContent(TMPPETID);
-                            }, 500);
+                            }, 0);
                         };
 
                     // warn user if form content has been changed
@@ -338,18 +346,11 @@ window.loadRAPetsGrid = function () {
                         setTimeout(function() {
                             // fill layout with components
                             SetRAPetLayoutContent(0);
-                        }, 500);
+                        }, 0);
                     };
 
                 // warn user if form content has been changed
                 form_dirty_alert(yes_callBack, no_callBack, yes_args);
-            },
-            onRefresh: function (event) {
-                event.onComplete = function (){
-                    $("#RAPetsGrid_checkbox")[0].checked = app.raflow.data[app.raflow.activeFlowID].Data.meta.HavePets;
-                    $("#RAPetsGrid_checkbox")[0].disabled = app.raflow.data[app.raflow.activeFlowID].Data.meta.HavePets;
-                    lockOnGrid("RAPetsGrid");
-                };
             }
         });
 
@@ -397,7 +398,22 @@ window.loadRAPetsGrid = function () {
                 {
                     field: 'ARName',
                     caption: 'Name',
-                    size: '70%'
+                    size: '70%',
+                    editable: {
+                        type: 'select',
+                        items: [],
+                    },
+                    render: function (record/*, index, col_index*/) {
+                        var html = '';
+
+                        if (record) {
+                            var items = app.raflow.arW2UIItems;
+                            for (var s in items) {
+                                if (items[s].id == record.ARID) html = items[s].text;
+                            }
+                        }
+                        return html;
+                    }
                 },
                 {
                     field: 'Amount',
@@ -415,7 +431,7 @@ window.loadRAPetsGrid = function () {
                     style: 'text-align: center;',
                     render: function (record/*, index, col_index*/) {
                         var html = "";
-                        if (record && record.ARID > 0) {
+                        if (record && record.ARID > -1) {
                             html = '<i class="fas fa-minus-circle" style="color: #DC3545; cursor: pointer;" title="remove rentable"></i>';
                         }
                         return html;
@@ -425,18 +441,36 @@ window.loadRAPetsGrid = function () {
             onChange: function (event) {
                 var grid = this;
                 event.onComplete = function () {
-                    // only amount can be editable
-                    var AMTColIx = grid.getColumn("Amount", true);
-                    if (AMTColIx === event.column) {
-                        var record = grid.get(event.recid);
-                        var localPetFeeData = getPetFeeLocalData(record.TMPPETID, record.ARID);
+                    var BID = getCurrentBID(),
+                        record = grid.get(event.recid),
+                        localPetFeeData = getPetFeeLocalData(record.TMPPETID, record.ARID);
 
+                    switch(event.column) {
+                    case grid.getColumn("Amount", true):
                         // update data in local and grid record
                         localPetFeeData.Amount = record.Amount = parseFloat(event.value_new);
-
                         // set data
                         grid.set(event.recid, record);
                         setPetFeeLocalData(record.TMPPETID, record.ARID, localPetFeeData);
+                        break;
+                    case grid.getColumn("ARName", true):
+                        var arItem = {};
+                        // get aritem
+                        app.raflow.arList[BID].forEach(function(item) {
+                            if (parseInt(event.value_new) == item.ARID) {
+                                arItem = item;
+                                return false;
+                            }
+                        });
+
+                        // change the values
+                        localPetFeeData.Amount = record.Amount = arItem.DefaultAmount;
+                        localPetFeeData.ARID = record.ARID = parseInt(event.value_new);
+                        // set data
+                        grid.set(event.recid, record);
+                        // grid.getColumn("ARName").render();
+                        setPetFeeLocalData(record.TMPPETID, record.ARID, localPetFeeData);
+                        break;
                     }
 
                     w2ui.RAPetFeesGrid.save();
@@ -478,7 +512,24 @@ window.loadRAPetsGrid = function () {
                         return;
                     }
                 };
-            }
+            },
+            onAdd: function(/*event*/) {
+                var grid = w2ui.RAPetFeesGrid;
+                var rec     = {
+                    recid:      grid.records.length + 1,
+                    TMPPETID:   0,
+                    BID:        0,
+                    ASMID:      0,
+                    ARID:       0,
+                    ARName:     "",
+                    Amount:     0.0,
+                };
+                grid.add(rec);
+                grid.select(rec.recid);
+                grid.getColumn("ARName").editable.items = app.raflow.arW2UIItems;
+                grid.getColumn("ARName").render();
+                grid.refresh();
+            },
         });
 
         //------------------------------------------------------------------------
@@ -600,7 +651,7 @@ window.loadRAPetsGrid = function () {
         //  petLayout - The layout to contain the petForm and petFees grid
         //              top  -      petForm
         //              main -      petFeesGrid
-        //              bottom -    action buttions form
+        //              bottom -    action buttons form
         //------------------------------------------------------------------------
         $().w2layout({
             name: 'RAPetLayout',
@@ -632,13 +683,17 @@ window.SetRAPetLayoutContent = function(TMPPETID) {
     w2ui.RAPetLayout.content('top',     w2ui.RAPetForm);
     w2ui.RAPetLayout.content('main',    w2ui.RAPetFeesGrid);
 
-    // after 500 ms set the record
+    // after 0 ms set the record
     setTimeout(function() {
         // set pet form record
         SetRAPetFormRecordFromLocalData(TMPPETID);
 
         // assign pet fees grid
-        AssignPetFeesGridRecords(TMPPETID);
+        var BID = getCurrentBID();
+        getAllARsWithAmount(BID)
+        .done(function() {
+            AssignPetFeesGridRecords(TMPPETID);
+        });
     }, 0);
 };
 
@@ -828,6 +883,10 @@ window.AssignPetFeesGridRecords = function(TMPPETID) {
 
         // assign recid again
         reassignGridRecids(grid.name);
+
+        // assign item prepared earlier for parent rentable list
+        grid.getColumn("ARName").editable.items = app.raflow.arW2UIItems;
+        grid.getColumn("ARName").render();
     });
 };
 
