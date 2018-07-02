@@ -493,6 +493,8 @@ DBNAME="rentroll"
 # June 27, 2018
 # ALTER TABLE RentalAgreement ADD LeaseTerminationReason BIGINT NOT NULL DEFAULT 0 AFTER TerminationDate;
 # ALTER TABLE RentalAgreement ADD NoticeToMoveReported DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00' AFTER NoticeToMoveDate;
+# ALTER TABLE RentalAgreement ADD PRAID BIGINT NOT NULL DEFAULT 0 AFTER RAID;
+# ALTER TABLE RentalAgreement ADD DocumentDate  DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00' AFTER NLID;
 
 #=====================================================
 #  Put modifications to schema in the lines below
