@@ -1,7 +1,7 @@
 /* global
     RACompConfig, hideSliderContent, appendNewSlider, showSliderContentW2UIComp,
     loadTargetSection, requiredFieldsFulFilled, initRAFlowAjax,
-    saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowCompData,
+    saveActiveCompData, getRAFlowCompData,
     lockOnGrid, validateRAFlowComponents
 */
 
@@ -583,4 +583,48 @@ window.appendNewSlider = function(sliderID) {
     recentAddedSlider.after(newSlider);
     newSlider.css("z-index", parseInt(recentAddedSlider.css("z-index")) + 10);
     newSlider.find(".slider-content").empty().width(0);
+};
+
+//-----------------------------------------------------------------------------
+// getPetFees - will list down pet fees for a business
+//-----------------------------------------------------------------------------
+window.getPetFees = function () {
+    var bid = getCurrentBID();
+
+    return $.ajax({
+        url: "/v1/petfees/" + bid.toString() + "/0",
+        method: "GET",
+        contentType: "application/json",
+        dataType: "json",
+        success: function (data) {
+            if (data.status != "error") {
+                app.petFees[bid] = data.records;
+            }
+        },
+        error: function (data) {
+            console.log(data);
+        }
+    });
+};
+
+//-----------------------------------------------------------------------------
+// getVehicleFees - will list down vehicle fees for a business
+//-----------------------------------------------------------------------------
+window.getVehicleFees = function () {
+    var bid = getCurrentBID();
+
+    return $.ajax({
+        url: "/v1/vehiclefees/" + bid.toString() + "/0",
+        method: "GET",
+        contentType: "application/json",
+        dataType: "json",
+        success: function (data) {
+            if (data.status != "error") {
+                app.vehicleFees[bid] = data.records;
+            }
+        },
+        error: function (data) {
+            console.log(data);
+        }
+    });
 };
