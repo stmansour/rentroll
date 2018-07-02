@@ -1317,39 +1317,40 @@ type ValidateRAFlowResponse struct {
 	Errors RAFlowFieldsErrors `json:"errors"`
 }
 
+// DatesFieldsError is struct to hold Errorlist for Dates section
 type DatesFieldsError struct {
 	Total  int                 `json:"total"`
 	Errors map[string][]string `json:"errors"`
 }
 
-// PeopleFieldsError is
+// PeopleFieldsError is struct to hold Errorlist for People section
 type PeopleFieldsError struct {
 	TMPTCID int64
 	Total   int                 `json:"total"`
 	Errors  map[string][]string `json:"errors"`
 }
 
-// PetFieldsError is
+// PetFieldsError is struct to hold Errorlist for Pet section
 type PetFieldsError struct {
 	TMPPETID int64
 	Total    int                 `json:"total"`
 	Errors   map[string][]string `json:"errors"`
 }
 
-// VehicleFieldsError is
+// VehicleFieldsError is struct to hold Errorlist for Vehicle section
 type VehicleFieldsError struct {
 	TMPVID int64
 	Total  int                 `json:"total"`
 	Errors map[string][]string `json:"errors"`
 }
 
-// RentablesFieldsError is
+// RentablesFieldsError is to hold Errorlist for Rentables section
 type RentablesFieldsError struct {
 	Total  int                 `json:"total"`
 	Errors map[string][]string `json:"errors"`
 }
 
-// ParentChileFieldsError is
+// ParentChileFieldsError is to hold Errorlist for Parent/Child section
 type ParentChileFieldsError struct {
 	PRID   int64               // parent rentable ID
 	CRID   int64               // child rentable ID
@@ -1357,14 +1358,14 @@ type ParentChileFieldsError struct {
 	Errors map[string][]string `json:"errors"`
 }
 
-// type TieFieldsError is
+// TieFieldsError is to hold Errorlist for Tie section
 type TieFieldsError struct {
 	TMPTCID int64
 	Total   int                 `json:"total"`
 	Errors  map[string][]string `json:"errors"`
 }
 
-// RAFlowFieldsErrors is
+// RAFlowFieldsErrors is to hold Errorlist for each section of RAFlow
 type RAFlowFieldsErrors struct {
 	Dates       DatesFieldsError
 	People      []PeopleFieldsError      `json:"people"`
@@ -1424,6 +1425,7 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
+	// Init RAFlowFields error list
 	raFlowFieldsErrors = RAFlowFieldsErrors{
 		Dates: DatesFieldsError{
 			Errors: map[string][]string{},
