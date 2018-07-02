@@ -62,9 +62,9 @@ func getLedgerEntryDescription(ctx context.Context, l *rlib.LedgerEntry) (string
 		if rcpt.ARID > 0 {
 			debit := rlib.RRdb.BizTypes[l.BID].AR[rcpt.ARID].DebitLID
 			p += fmt.Sprintf("deposited to %s (%s)", rlib.RRdb.BizTypes[l.BID].GLAccounts[debit].GLNumber, rlib.RRdb.BizTypes[l.BID].GLAccounts[debit].Name)
-		} else {
+		} /* else {
 			p += rlib.RRdb.BizTypes[l.BID].GLAccounts[a.ATypeLID].Name
-		}
+		}*/
 		return p, r.RentableName, sra
 	case rlib.JNLTYPEASMT:
 		reason := ""

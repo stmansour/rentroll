@@ -237,9 +237,9 @@ func PayorStatement(ctx context.Context, bid, tcid int64, d1, d2 *time.Time, int
 				t.Putf(-1, Assessment, amt)
 				if m.RAB[i].Stmt[j].A.ARID > 0 { // The description will be the name of the Account Rule...
 					descr += rlib.RRdb.BizTypes[bid].AR[m.RAB[i].Stmt[j].A.ARID].Name
-				} else {
+				} /*else {
 					descr += rlib.RRdb.BizTypes[bid].GLAccounts[m.RAB[i].Stmt[j].A.ATypeLID].Name
-				}
+				}*/
 				if m.RAB[i].Stmt[j].A.ASMID > 0 {
 					t.Puts(-1, ASMID, rlib.IDtoShortString("ASM", m.RAB[i].Stmt[j].A.ASMID))
 				}

@@ -457,9 +457,9 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				pe.Assessment = amt
 				if m.RAB[i].Stmt[j].A.ARID > 0 { // The description will be the name of the Account Rule...
 					descr += rlib.RRdb.BizTypes[d.BID].AR[m.RAB[i].Stmt[j].A.ARID].Name
-				} else {
+				} /* else {
 					descr += rlib.RRdb.BizTypes[d.BID].GLAccounts[m.RAB[i].Stmt[j].A.ATypeLID].Name
-				}
+				}*/
 				if m.RAB[i].Stmt[j].RNT.RID > 0 {
 					pe.RentableName = m.RAB[i].Stmt[j].RNT.RentableName
 				}
