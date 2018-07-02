@@ -42,14 +42,16 @@ func getLedgerEntryDescription(ctx context.Context, l *rlib.LedgerEntry) (string
 		}
 		return "Unassociated", r.RentableName, sra
 	case rlib.JNLTYPERCPT:
-		ja, err := rlib.GetJournalAllocation(ctx, l.JAID)
-		if err != nil {
-			return "x", "x", "x"
-		}
-		a, err := rlib.GetAssessment(ctx, ja.ASMID)
-		if err != nil {
-			return "x", "x", "x"
-		}
+		/*
+			ja, err := rlib.GetJournalAllocation(ctx, l.JAID)
+			if err != nil {
+				return "x", "x", "x"
+			}
+				a, err := rlib.GetAssessment(ctx, ja.ASMID)
+				if err != nil {
+					return "x", "x", "x"
+				}
+		*/
 		r, err := rlib.GetRentable(ctx, l.RID)
 		if err != nil {
 			return "x", "x", "x"

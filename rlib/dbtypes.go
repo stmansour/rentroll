@@ -43,7 +43,8 @@ const (
 	ELEMPET             = 14
 	ELEMVEHICLE         = 15
 	ELEMASSESSMENT      = 16
-	ELEMLAST            = 16 // keep in sync with last one added
+	ELEMRECEIPT         = 17
+	ELEMLAST            = 17 // keep in sync with last one added
 
 	// ARASSESSMENT et al, are Account Rule Types.
 	ARASSESSMENT    = 0

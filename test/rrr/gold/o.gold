@@ -10,11 +10,11 @@ Austin, TX 78738 USA
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
-Payment #2111 - Income Offsets                           07/02/2016  J00000068          3   6303-231             2,500.00      2,500.00
-Payment #1039 - Unit Gross Scheduled Rent-Taxable        07/03/2016  J00000071          4   6303-231               750.00      3,250.00
-Payment #6430 - Income Offsets                           07/04/2016  J00000072          5   6303-231             4,200.00      7,450.00
-Payment #2283 - Unit Gross Scheduled Rent-Taxable        07/15/2016  J00000069          1   6303-231               308.35      7,758.35
-Payment #3999 - Unit Gross Scheduled Rent-Taxable        07/16/2016  J00000070          2   6303-231               400.00      8,158.35
+Payment #2111 -                                          07/02/2016  J00000068          3   6303-231             2,500.00      2,500.00
+Payment #1039 -                                          07/03/2016  J00000071          4   6303-231               750.00      3,250.00
+Payment #6430 -                                          07/04/2016  J00000072          5   6303-231             4,200.00      7,450.00
+Payment #2283 -                                          07/15/2016  J00000069          1   6303-231               308.35      7,758.35
+Payment #3999 -                                          07/16/2016  J00000070          2   6303-231               400.00      8,158.35
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          07/31/2016                                                            8,158.35
 
@@ -41,13 +41,13 @@ Assessment - Resident Concessions                        07/01/2016  J00000067  
 Assessment - Unit Gross Scheduled Rent-Taxable           07/02/2016  J00000033          5   6392-930               125.00      6,044.35
 Assessment - Unit Gross Scheduled Rent-Taxable           07/02/2016  J00000002          1   6303-231                76.00      6,120.35
 Assessment - Income Offsets                              07/02/2016  J00000005          1   6303-231               -24.00      6,096.35
-Payment #2111 - Income Offsets                           07/02/2016  J00000068          3   6303-231            -2,500.00      3,596.35
+Payment #2111 -                                          07/02/2016  J00000068          3   6303-231            -2,500.00      3,596.35
 Assessment - Unit Gross Scheduled Rent-Taxable           07/03/2016  J00000034          5   6392-930               125.00      3,721.35
 Assessment - Unit Gross Scheduled Rent-Taxable           07/03/2016  J00000003          1   6303-231                76.00      3,797.35
 Assessment - Income Offsets                              07/03/2016  J00000006          1   6303-231               -24.00      3,773.35
-Payment #1039 - Unit Gross Scheduled Rent-Taxable        07/03/2016  J00000071          4   6303-231              -750.00      3,023.35
+Payment #1039 -                                          07/03/2016  J00000071          4   6303-231              -750.00      3,023.35
 Assessment - Unit Gross Scheduled Rent-Taxable           07/04/2016  J00000035          5   6392-930               125.00      3,148.35
-Payment #6430 - Income Offsets                           07/04/2016  J00000072          5   6303-231            -4,200.00     -1,051.65
+Payment #6430 -                                          07/04/2016  J00000072          5   6303-231            -4,200.00     -1,051.65
 Assessment - Gas Overage                                 07/05/2016  J00000065          2   6303-231               230.00       -821.65
 Assessment - Unit Gross Scheduled Rent-Taxable           07/05/2016  J00000036          5   6392-930               125.00       -696.65
 Assessment - Unit Gross Scheduled Rent-Taxable           07/05/2016  J00000008          2   6303-231                92.00       -604.65
@@ -70,10 +70,10 @@ Assessment - Unit Gross Scheduled Rent-Taxable           07/14/2016  J00000045  
 Assessment - Unit Gross Scheduled Rent-Taxable           07/14/2016  J00000014          3   6303-231                56.87        874.70
 Assessment - Unit Gross Scheduled Rent-Taxable           07/15/2016  J00000046          5   6392-930               125.00        999.70
 Assessment - Unit Gross Scheduled Rent-Taxable           07/15/2016  J00000015          3   6303-231                56.87      1,056.57
-Payment #2283 - Unit Gross Scheduled Rent-Taxable        07/15/2016  J00000069          1   6303-231              -308.35        748.22
+Payment #2283 -                                          07/15/2016  J00000069          1   6303-231              -308.35        748.22
 Assessment - Unit Gross Scheduled Rent-Taxable           07/16/2016  J00000047          5   6392-930               125.00        873.22
 Assessment - Unit Gross Scheduled Rent-Taxable           07/16/2016  J00000016          3   6303-231                56.87        930.09
-Payment #3999 - Unit Gross Scheduled Rent-Taxable        07/16/2016  J00000070          2   6303-231              -400.00        530.09
+Payment #3999 -                                          07/16/2016  J00000070          2   6303-231              -400.00        530.09
 Assessment - Unit Gross Scheduled Rent-Taxable           07/17/2016  J00000048          5   6392-930               125.00        655.09
 Assessment - Unit Gross Scheduled Rent-Taxable           07/17/2016  J00000017          3   6303-231                56.87        711.96
 Assessment - Unit Gross Scheduled Rent-Taxable           07/18/2016  J00000049          5   6392-930               125.00        836.96

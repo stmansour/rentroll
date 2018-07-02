@@ -10,9 +10,9 @@ Austin, TX 78738 USA
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
-Payment #1126 - Security Deposits                        12/02/2015  J00000004          1   309 Rexford          7,000.00      7,000.00
-Payment #1597 - Security Deposits                        12/03/2015  J00000005          2   309 1/2 Rexford      3,000.00     10,000.00
-Payment #237 - Security Deposits                         12/04/2015  J00000006          3   311 Rexford          3,300.00     13,300.00
+Payment #1126 -                                          12/02/2015  J00000004          1   309 Rexford          7,000.00      7,000.00
+Payment #1597 -                                          12/03/2015  J00000005          2   309 1/2 Rexford      3,000.00     10,000.00
+Payment #237 -                                           12/04/2015  J00000006          3   311 Rexford          3,300.00     13,300.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                           13,300.00
 
@@ -80,9 +80,9 @@ Opening Balance                                                                 
 Assessment - Security Deposits                           12/01/2015  J00000001          1   309 Rexford          7,000.00      7,000.00
 Assessment - Security Deposits                           12/01/2015  J00000003          3   311 Rexford          3,300.00     10,300.00
 Assessment - Security Deposits                           12/01/2015  J00000002          2   309 1/2 Rexford      3,000.00     13,300.00
-Payment #1126 - Security Deposits                        12/02/2015  J00000004          1   309 Rexford         -7,000.00      6,300.00
-Payment #1597 - Security Deposits                        12/03/2015  J00000005          2   309 1/2 Rexford     -3,000.00      3,300.00
-Payment #237 - Security Deposits                         12/04/2015  J00000006          3   311 Rexford         -3,300.00          0.00
+Payment #1126 -                                          12/02/2015  J00000004          1   309 Rexford         -7,000.00      6,300.00
+Payment #1597 -                                          12/03/2015  J00000005          2   309 1/2 Rexford     -3,000.00      3,300.00
+Payment #237 -                                           12/04/2015  J00000006          3   311 Rexford         -3,300.00          0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
 

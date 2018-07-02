@@ -10,10 +10,10 @@ Austin, TX 78738 USA
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                              111,181.37
-Payment #8733 - Gross Scheduled Rent-Not Taxable         07/01/2016  J00000068          4   311 Rexford          8,300.00    119,481.37
-Payment #8733 - Gross Scheduled Rent-Not Taxable         07/01/2016  J00000068          4   311 Rexford          4,150.00    123,631.37
-Payment #2153 - Security Deposits                        07/01/2016  J00000066          1   311 Rexford          3,750.00    127,381.37
-Payment #1948 - Gross Scheduled Rent-Not Taxable         07/11/2016  J00000067          2   309 Rexford          3,800.00    131,181.37
+Payment #8733 -                                          07/01/2016  J00000068          4   311 Rexford          8,300.00    119,481.37
+Payment #8733 -                                          07/01/2016  J00000068          4   311 Rexford          4,150.00    123,631.37
+Payment #2153 -                                          07/01/2016  J00000066          1   311 Rexford          3,750.00    127,381.37
+Payment #1948 -                                          07/11/2016  J00000067          2   309 Rexford          3,800.00    131,181.37
 Transfer                                                 07/20/2016  J00000071                                  12,450.00    143,631.37
 Transfer                                                 07/20/2016  J00000070                                   3,800.00    147,431.37
 Transfer                                                 07/20/2016  J00000069                                   3,750.00    151,181.37
@@ -85,10 +85,10 @@ Assessment - Security Deposits                           07/01/2016  J00000063  
 Assessment - Gross Scheduled Rent-Not Taxable            07/01/2016  J00000062          4   311 Rexford          4,150.00     12,450.00
 Assessment - Gross Scheduled Rent-Not Taxable            07/01/2016  J00000065          2   309 1/2 Rexford      3,800.00     16,250.00
 Assessment - Gross Scheduled Rent-Not Taxable            07/01/2016  J00000064          1   309 Rexford          3,750.00     20,000.00
-Payment #2153 - Security Deposits                        07/01/2016  J00000066          1   311 Rexford         -3,750.00     16,250.00
-Payment #8733 - Gross Scheduled Rent-Not Taxable         07/01/2016  J00000068          4   311 Rexford         -4,150.00     12,100.00
-Payment #8733 - Gross Scheduled Rent-Not Taxable         07/01/2016  J00000068          4   311 Rexford         -8,300.00      3,800.00
-Payment #1948 - Gross Scheduled Rent-Not Taxable         07/11/2016  J00000067          2   309 Rexford         -3,800.00          0.00
+Payment #2153 -                                          07/01/2016  J00000066          1   311 Rexford         -3,750.00     16,250.00
+Payment #8733 -                                          07/01/2016  J00000068          4   311 Rexford         -4,150.00     12,100.00
+Payment #8733 -                                          07/01/2016  J00000068          4   311 Rexford         -8,300.00      3,800.00
+Payment #1948 -                                          07/11/2016  J00000067          2   309 Rexford         -3,800.00          0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          07/31/2016                                                                0.00
 
