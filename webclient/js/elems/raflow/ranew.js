@@ -4,7 +4,8 @@
     getFlowDataAjax,
     manageParentRentableW2UIItems, managePeopleW2UIItems,
     LoadRAFlowTemplate,
-    validateRAFlowComponents
+    validateRAFlowComponents,
+    renderRAStateInToolbar
 */
 
 "use strict";
@@ -72,6 +73,11 @@ window.LoadRAFlowTemplate = function(bid, FlowID) {
 
             // calculate parent rentable items
             manageParentRentableW2UIItems();
+
+            var raFlags = app.raflow.data[FlowID].Data.meta.RAFLAGS;
+
+            // renders the Rental Agreement State in Toolbar
+            renderRAStateInToolbar(raFlags);
 
             // show "done" mark on each li of navigation bar
             validateRAFlowComponents();
@@ -244,10 +250,10 @@ window.buildRAApplicantElements = function() {
                 toolbar: {
                     items: [
                         { id: 'btnNotes', type: 'button', icon: 'far fa-sticky-note' },
-                        // { id: 'BUD', type: 'html',
-                        //         html: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Status: <span id="RAFlowStatus"> &nbsp;</span>&nbsp;&nbsp;&nbsp;' +
-                        //         '<button name="RAStateForm" onchange="ShowRAStateForm();">Change...</button>',
-                        // },
+                        { id: 'raState', type: 'html',
+                            html: '&nbsp;&nbsp;&nbsp;&nbsp;State: &nbsp;<span id="RAState">StateText</span>&nbsp;&nbsp;&nbsp;&nbsp;'
+                        },
+                        { id: 'btnRAState', type: 'button', text: 'Action...', icon: 'far fa-sticky-note'},
                         { id: 'bt3', type: 'spacer' },
                         { id: 'btnClose', type: 'button', icon: 'fas fa-times' }
                     ],
@@ -279,4 +285,9 @@ window.buildRAApplicantElements = function() {
             };
         }
     });
+};
+
+window.renderRAStateInToolbar = function(raFlags) {
+    var raStateString = app.RAStates[parseInt(raFlags & 0xf)];
+    $(w2ui.newraLayout_main_toolbar.box).find('#RAState').text(raStateString);
 };
