@@ -1346,6 +1346,7 @@ type VehicleFieldsError struct {
 
 // RentablesFieldsError is to hold Errorlist for Rentables section
 type RentablesFieldsError struct {
+	RID    int64
 	Total  int                 `json:"total"`
 	Errors map[string][]string `json:"errors"`
 }
@@ -1358,8 +1359,8 @@ type ParentChileFieldsError struct {
 	Errors map[string][]string `json:"errors"`
 }
 
-// TieFieldsError is to hold Errorlist for Tie section
-type TieFieldsError struct {
+// TiePeopleFieldsError is to hold Errorlist for Tie section
+type TiePeopleFieldsError struct {
 	TMPTCID int64
 	Total   int                 `json:"total"`
 	Errors  map[string][]string `json:"errors"`
@@ -1373,7 +1374,7 @@ type RAFlowFieldsErrors struct {
 	Vehicle     []VehicleFieldsError     `json:"vehicle"`
 	Rentables   []RentablesFieldsError   `json:"rentables"`
 	ParentChild []ParentChileFieldsError `json:"parentchild"`
-	Tie         []TieFieldsError         `json:"tie"`
+	Tie         []TiePeopleFieldsError   `json:"tie"`
 }
 
 // SvcValidateRAFlow is used to check/validate RAFlow's struct
@@ -1435,7 +1436,7 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		Vehicle:     []VehicleFieldsError{},
 		Rentables:   []RentablesFieldsError{},
 		ParentChild: []ParentChileFieldsError{},
-		Tie:         []TieFieldsError{},
+		Tie:         []TiePeopleFieldsError{},
 	}
 
 	// Get flow information from the table to validate fields value
@@ -1452,7 +1453,9 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
+	//----------------------------------------------
 	// validate RAPeopleFlowData structure
+	// ----------------------------------------------
 	for _, people := range raFlowData.People {
 		// call validation function
 		errs := rtags.ValidateStructFromTagRules(people)
@@ -1473,7 +1476,9 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		raFlowFieldsErrors.People = append(raFlowFieldsErrors.People, peopleFieldsErrors)
 	}
 
+	// ----------------------------------------------
 	// validate RAPetFlowData structure
+	// ----------------------------------------------
 	for _, pet := range raFlowData.Pets {
 		// call validation function
 		errs := rtags.ValidateStructFromTagRules(pet)
@@ -1494,7 +1499,9 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		raFlowFieldsErrors.Pets = append(raFlowFieldsErrors.Pets, petFieldsErrors)
 	}
 
+	// ----------------------------------------------
 	// validate RAVehicleFlowData structure
+	// ----------------------------------------------
 	for _, vehicle := range raFlowData.Vehicles {
 		// call validation function
 		errs := rtags.ValidateStructFromTagRules(vehicle)
