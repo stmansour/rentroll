@@ -227,25 +227,27 @@ CREATE TABLE RentalAgreement (
     FLAGS BIGINT NOT NULL DEFAULT 0,                                    /* 0:3 - DecisionStatus for the application state as defined below
                                                                            1<<4 - Approver1 decision, only valid if DecisionDate1 is year >1999, 0 = Declined, 1 = Approved
            bits 0:3                                                        1<<5 - Approver2 decision, only valid if DecisionDate2 is year >1999, 0 = Declined, 1 = Approved
-        -------------  -----------------------  --------------------------------------
-        (FLAGS & 0xF)  State                    Meaning
-        -------------  -----------------------  --------------------------------------
-              0        In Progress              Renters / Users have not completely filled out the application.
-              1        Pending First Approval   Application has been filled out. It is being reviewed
-              2        Pending Second Approval  The first approver needs to approve the application
-              3        Move In                  Time to print Rental Agreement, sign, the application, move the resident in
-              4        Active                   Tenant has moved in and the RA remains valid
-              5        Terminated               Agreement terminated. Reason in Outcome (SLSID of string from WhyLeaving)
-              6        Notice To Move           Resident has given notice that they will leave
+        -------------  ---------------------------     --------------------------------------
+        (FLAGS & 0xF)  State                           Meaning
+        -------------  ---------------------------     --------------------------------------
+              0        Application Being Completed     Renters / Users have not completely filled out the application.
+              1        Pending First Approval          Application has been filled out. It is being reviewed
+              2        Pending Second Approval         The first approver needs to approve the application
+              3        Move In / Execute Modification  Time to print Rental Agreement, sign, the application, move the resident in if
+                                                       it is a new rental agreement or Updating a new linked rental agreement if modifying
+                                                       *any* detail associate with the rental agreement.
+              4        Active                          Tenant has moved in and the RA remains valid
+              5        Terminated                      Agreement terminated. Reason in Outcome (SLSID of string from WhyLeaving)
+              6        Notice To Move                  Resident has given notice that they will leave
               7        unused
-              8        unused                   reserved for future expansion
-              9        unused                   reserved for future expansion
-             10        unused                   reserved for future expansion
-             11        unused                   reserved for future expansion
-             12        unused                   reserved for future expansion
-             13        unused                   reserved for future expansion
-             14        unused                   reserved for future expansion
-             15        unused                   reserved for future expansion
+              8        unused                          reserved for future expansion
+              9        unused                          reserved for future expansion
+             10        unused                          reserved for future expansion
+             11        unused                          reserved for future expansion
+             12        unused                          reserved for future expansion
+             13        unused                          reserved for future expansion
+             14        unused                          reserved for future expansion
+             15        unused                          reserved for future expansion
         ------------------------------------------------------------------------
     */
     Approver1 BIGINT NOT NULL DEFAULT 0,                               -- approver 1
