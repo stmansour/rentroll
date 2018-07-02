@@ -4,7 +4,8 @@
     getFlowDataAjax,
     manageParentRentableW2UIItems, managePeopleW2UIItems,
     LoadRAFlowTemplate,
-    validateRAFlowComponents
+    validateRAFlowComponents,
+    renderRAStateInToolbar
 */
 
 "use strict";
@@ -72,6 +73,11 @@ window.LoadRAFlowTemplate = function(bid, FlowID) {
 
             // calculate parent rentable items
             manageParentRentableW2UIItems();
+
+            var raFlags = app.raflow.data[FlowID].Data.meta.RAFLAGS;
+
+            // renders the Rental Agreement State in Toolbar
+            renderRAStateInToolbar(raFlags);
 
             // show "done" mark on each li of navigation bar
             validateRAFlowComponents();
@@ -244,6 +250,10 @@ window.buildRAApplicantElements = function() {
                 toolbar: {
                     items: [
                         { id: 'btnNotes', type: 'button', icon: 'far fa-sticky-note' },
+                        { id: 'raState', type: 'html',
+                            html: '<span style="padding: 0 10px">State: <span id="RAState">StateText</span></span>'
+                        },
+                        { id: 'btnRAState', type: 'button', text: 'Action...', icon: 'far fa-sticky-note'},
                         { id: 'bt3', type: 'spacer' },
                         { id: 'btnClose', type: 'button', icon: 'fas fa-times' }
                     ],
@@ -272,4 +282,17 @@ window.buildRAApplicantElements = function() {
             };
         }
     });
+};
+
+//-----------------------------------------------------------------------
+// renderRAStateInToolbar - it selects Rental Agreement State from the
+//                          string list on basis of raFlags and displays
+//                          it on the toolbar.
+//
+// @params
+//   raFlags = FLAGS of rental agreement
+//-----------------------------------------------------------------------
+window.renderRAStateInToolbar = function(raFlags) {
+    var raStateString = app.RAStates[parseInt(raFlags & 0xf)];
+    $(w2ui.newraLayout_main_toolbar.box).find('#RAState').text(raStateString);
 };

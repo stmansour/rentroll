@@ -1644,9 +1644,11 @@ func InsertRentalAgreement(ctx context.Context, a *RentalAgreement) (int64, erro
 
 	// transaction... context
 	fields := []interface{}{
+		a.PRAID,
 		a.RATID,
 		a.BID,
 		a.NLID,
+		a.DocumentDate,
 		a.AgreementStart,
 		a.AgreementStop,
 		a.PossessionStart,
@@ -1687,6 +1689,7 @@ func InsertRentalAgreement(ctx context.Context, a *RentalAgreement) (int64, erro
 		a.Outcome,
 		a.NoticeToMoveUID,
 		a.NoticeToMoveDate,
+		a.NoticeToMoveReported,
 		a.TerminatorUID,
 		a.TerminationDate,
 		a.LeaseTerminationReason,

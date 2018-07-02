@@ -33,6 +33,7 @@ type RAFlowMetaInfo struct {
 	LastTMPTCID  int64
 	HavePets     bool
 	HaveVehicles bool
+	RAFLAGS      int64
 }
 
 // RADatesFlowData contains data in the dates part of RA flow

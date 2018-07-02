@@ -593,9 +593,11 @@ func ReadRentableStatuss(rows *sql.Rows, a *RentableStatus) error {
 func ReadRentalAgreement(row *sql.Row, a *RentalAgreement) error {
 	err := row.Scan(
 		&a.RAID,
+		&a.PRAID,
 		&a.RATID,
 		&a.BID,
 		&a.NLID,
+		&a.DocumentDate,
 		&a.AgreementStart,
 		&a.AgreementStop,
 		&a.PossessionStart,
@@ -636,6 +638,7 @@ func ReadRentalAgreement(row *sql.Row, a *RentalAgreement) error {
 		&a.Outcome,
 		&a.NoticeToMoveUID,
 		&a.NoticeToMoveDate,
+		&a.NoticeToMoveReported,
 		&a.TerminatorUID,
 		&a.TerminationDate,
 		&a.LeaseTerminationReason,
@@ -652,9 +655,11 @@ func ReadRentalAgreement(row *sql.Row, a *RentalAgreement) error {
 func ReadRentalAgreements(rows *sql.Rows, a *RentalAgreement) error {
 	return rows.Scan(
 		&a.RAID,
+		&a.PRAID,
 		&a.RATID,
 		&a.BID,
 		&a.NLID,
+		&a.DocumentDate,
 		&a.AgreementStart,
 		&a.AgreementStop,
 		&a.PossessionStart,
@@ -695,6 +700,7 @@ func ReadRentalAgreements(rows *sql.Rows, a *RentalAgreement) error {
 		&a.Outcome,
 		&a.NoticeToMoveUID,
 		&a.NoticeToMoveDate,
+		&a.NoticeToMoveReported,
 		&a.TerminatorUID,
 		&a.TerminationDate,
 		&a.LeaseTerminationReason,
