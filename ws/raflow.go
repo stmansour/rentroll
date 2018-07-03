@@ -196,12 +196,12 @@ type RAVehicleFee struct {
 
 // RARentablesFlowData contains data in the rentables part of RA flow
 type RARentablesFlowData struct {
-	BID          int64
-	RID          int64
+	BID          int64 `validate:"number,min=1,max=20"`
+	RID          int64 `validate:"number,min=1,max=20"`
 	RTID         int64
 	RTFLAGS      uint64
-	RentableName string
-	RentCycle    int64
+	RentableName string `validate:"string,min=1,max=100"`
+	RentCycle    int64  `validate:"number,min=1,max=20"`
 	AtSigningAmt float64
 	ProrateAmt   float64
 	TaxableAmt   float64
