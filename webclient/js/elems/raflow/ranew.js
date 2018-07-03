@@ -258,7 +258,7 @@ window.buildRAApplicantElements = function() {
                         { id: 'raState', type: 'html',
                             html: '<span style="padding: 0 10px">State: <span id="RAState">StateText</span></span>'
                         },
-                        { id: 'stateAction', type: 'button', text: 'Action...', icon: 'fas fa-pencil-alt'},
+                        { id: 'stateAction', type: 'button', caption: 'Actions Form...', icon: 'fas fa-pencil-alt'},
                         { id: 'bt3', type: 'spacer' },
                         { id: 'btnClose', type: 'button', icon: 'fas fa-times' }
                     ],
