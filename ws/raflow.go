@@ -60,81 +60,81 @@ type RAPeopleFlowData struct {
 	IsGuarantor bool
 
 	// ---------- Basic Info -----------
-	FirstName      string `validate:"string,min=2,max=10"`
-	MiddleName     string `validate:"string,min=2,max=20"`
-	LastName       string `validate:"string,min=2,max=6"`
-	PreferredName  string
+	FirstName      string `validate:"string,min=1,max=100"`
+	MiddleName     string `validate:"string,min=1,max=100"`
+	LastName       string `validate:"string,min=1,max=100"`
+	PreferredName  string `validate:"string,min=1,max=100"`
 	IsCompany      bool
-	CompanyName    string
-	PrimaryEmail   string
-	SecondaryEmail string
-	WorkPhone      string
-	CellPhone      string
-	Address        string
-	Address2       string
-	City           string
-	State          string
-	PostalCode     string
-	Country        string
-	Website        string
-	Comment        string
+	CompanyName    string `validate:"string,min=1,max=100"`
+	PrimaryEmail   string `validate:"email"`
+	SecondaryEmail string `validate:"email"`
+	WorkPhone      string `validate:"number,min=1,max=100"`
+	CellPhone      string `validate:"number,min=1,max=100"`
+	Address        string `validate:"string,min=1,max=100"`
+	Address2       string `validate:"string,min=1,max=100"`
+	City           string `validate:"string,min=1,max=100"`
+	State          string `validate:"string,min=1,max=25"`
+	PostalCode     string `validate:"number,min=1,max=100"`
+	Country        string `validate:"string,min=1,max=100"`
+	Website        string `validate:"string,min=1,max=100"`
+	Comment        string `validate:"string,min=1,max=2048"`
 
 	// ---------- Prospect -----------
-	CompanyAddress    string
-	CompanyCity       string
-	CompanyState      string
-	CompanyPostalCode string
-	CompanyEmail      string
-	CompanyPhone      string
-	Occupation        string
+	CompanyAddress    string `validate:"string,min=1,max=100"`
+	CompanyCity       string `validate:"string,min=1,max=100"`
+	CompanyState      string `validate:"string,min=1,max=100"`
+	CompanyPostalCode string `validate:"number,min=1,max=100"`
+	CompanyEmail      string `validate:"email"`
+	CompanyPhone      string `validate:"number,min=1,max=100"`
+	Occupation        string `validate:"string,min=1,max=100"`
 
 	// Current Address information
-	CurrentAddress           string
-	CurrentLandLordName      string
-	CurrentLandLordPhoneNo   string
-	CurrentLengthOfResidency string
-	CurrentReasonForMoving   int64 // Reason for moving
+	CurrentAddress           string `validate:"string,min=1,max=100"`
+	CurrentLandLordName      string `validate:"string,min=1,max=100"`
+	CurrentLandLordPhoneNo   string `validate:"number,min=1,max=20"`
+	CurrentLengthOfResidency string `validate:"string,min=1,max=100"`
+	CurrentReasonForMoving   int64  `validate:"number,min=1"` // Reason for moving
 
 	// Prior Address information
-	PriorAddress           string
-	PriorLandLordName      string
-	PriorLandLordPhoneNo   string
-	PriorLengthOfResidency string
-	PriorReasonForMoving   int64 // Reason for moving
+	PriorAddress           string `validate:"string,min=1,max=100"`
+	PriorLandLordName      string `validate:"string,min=1,max=100"`
+	PriorLandLordPhoneNo   string `validate:"number,min=1,max=20"`
+	PriorLengthOfResidency string `validate:"string,min=1,max=100"`
+	PriorReasonForMoving   int64  `validate:"number,min=1"` // Reason for moving
 
 	// Have you ever been
-	Evicted          bool // Evicted
-	EvictedDes       string
-	Convicted        bool // Arrested or convicted of a Convicted
-	ConvictedDes     string
-	Bankruptcy       bool // Declared Bankruptcy
-	BankruptcyDes    string
-	OtherPreferences string
+	Evicted          bool   // Evicted
+	EvictedDes       string `validate:"string,min=1,max=2048"`
+	Convicted        bool   // Arrested or convicted of a Convicted
+	ConvictedDes     string `validate:"string,min=1,max=2048"`
+	Bankruptcy       bool   // Declared Bankruptcy
+	BankruptcyDes    string `validate:"string,min=1,max=2048"`
+	OtherPreferences string `validate:"string,min=1,max=1024"`
 	//FollowUpDate             rlib.JSONDate
 	//CommissionableThirdParty string
-	SpecialNeeds string // In an effort to accommodate you, please advise us of any special needs
+	SpecialNeeds string `validate:"string,min=1,max=1024"` // In an effort to accommodate you, please advise us of any special needs
 
 	// ---------- Payor -----------
 	CreditLimit         float64
-	TaxpayorID          string
+	TaxpayorID          string `validate:"string,min=1,max=25"`
 	GrossIncome         float64
 	SSN                 string
-	DriversLicense      string
+	DriversLicense      string `validate:"string,min=1,max=128"`
 	ThirdPartySource    int64
 	EligibleFuturePayor bool
 
 	// ---------- User -----------
-	Points      int64
+	Points      int64 `validate:"number,min=1,max=20"`
 	DateofBirth rlib.JSONDate
 	// Emergency contact information
-	EmergencyContactName      string
-	EmergencyContactAddress   string
-	EmergencyContactTelephone string
-	EmergencyContactEmail     string
-	AlternateAddress          string
-	EligibleFutureUser        bool
-	Industry                  string
-	SourceSLSID               int64
+	EmergencyContactName      string `validate:"string,min=1,max=100"`
+	EmergencyContactAddress   string `validate:"string,min=1,max=100"`
+	EmergencyContactTelephone string `validate:"number,min=1,max=100"`
+	EmergencyContactEmail     string `validate:"email"`
+	AlternateAddress          string `validate:"string,min=1,max=100"`
+	EligibleFutureUser        bool   `validate:"number,min=1"`
+	Industry                  string `validate:"string,min=1,max=100"`
+	SourceSLSID               int64  `validate:"number,min=1,max=20"`
 }
 
 // RAPetsFlowData contains data in the pets part of RA flow
