@@ -1060,6 +1060,7 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 				return bizlogic.BizErrorListToError(be)
 			}
 		}
+		
 		for j := 0; j < len(dbConf.VehicleFees); j++ {
 			if dbConf.VehicleFees[j].FLAGS&(1<<6) == 0 {
 				continue

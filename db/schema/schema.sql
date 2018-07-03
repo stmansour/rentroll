@@ -233,7 +233,7 @@ CREATE TABLE RentalAgreement (
               0        Application Being Completed     Renters / Users have not completely filled out the application.
               1        Pending First Approval          Application has been filled out. It is being reviewed
               2        Pending Second Approval         The first approver needs to approve the application
-              3        Move In / Execute Modification  Time to print Rental Agreement, sign, the application, move the resident in if
+              3        Move-In / Execute Modification  Time to print Rental Agreement, sign, the application, move the resident in if
                                                        it is a new rental agreement or Updating a new linked rental agreement if modifying
                                                        *any* detail associate with the rental agreement.
               4        Active                          Tenant has moved in and the RA remains valid
