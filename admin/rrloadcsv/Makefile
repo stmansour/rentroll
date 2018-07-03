@@ -3,7 +3,7 @@ BINDIR=${TOP}/tmp/rentroll
 COUNTOL=${TOP}/tools/bashtools/countol.sh
 
 rrloadcsv: *.go config.json
-	touch fail
+	@touch fail
 	${COUNTOL} "go vet"
 	${COUNTOL} golint
 	go build
@@ -26,7 +26,7 @@ man:
 	cp rrloadcsv.1 /usr/local/share/man/man1
 
 package:
-	touch fail
+	@touch fail
 	cp rrloadcsv config.json ${BINDIR}/
 	cp rrloadcsv.1 ${BINDIR}/man/man1
 	echo "*** PACKAGE completed in rrloadcsv ***"

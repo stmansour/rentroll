@@ -322,6 +322,9 @@ func createTransactants(ctx context.Context, dbConf *GenDBConf) error {
 			}
 		}
 
+		//--------------------------
+		// Create Pets...
+		//--------------------------
 		if IG.Rand.Intn(100) < 68 { // x%
 			vcount := 1
 			if IG.Rand.Intn(100) < 5 { // y%
@@ -832,7 +835,7 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 		}
 
 		//-------------------------------------
-		// Assign User
+		// Assign Users...
 		//-------------------------------------
 		var rau rlib.RentableUser
 		rau.BID = BID
@@ -865,50 +868,69 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 		}
 
 		//-------------------------------------
-		// Pet Assessments
+		// Pet Assessments - look for any users
+		// of this rentable that have pets...
 		//-------------------------------------
-		for j := 0; j < len(dbConf.PetFees); j++ {
-			if dbConf.PetFees[j].FLAGS&(1<<6) > 0 {
-				continue
-			}
-			var asm = rlib.Assessment{
-				BID:            BID,
-				RID:            RID,
-				RAID:           ra.RAID,
-				Amount:         dbConf.PetFees[j].DefaultAmount,
-				RentCycle:      dbConf.xbiz.RT[rtr.RTID].RentCycle,
-				ProrationCycle: dbConf.xbiz.RT[rtr.RTID].Proration,
-				Start:          epoch,
-				Stop:           d2,
-				ARID:           dbConf.PetFees[j].ARID,
-			}
-			be := bizlogic.InsertAssessment(ctx, &asm, 1) // bizlogic will not expand it if it is a single instanced assessment
-			if be != nil {
-				return bizlogic.BizErrorListToError(be)
+		petList, err := rlib.GetPetsByTransactant(ctx, TCID)
+		if err != nil {
+			return err
+		}
+		for k := 0; k < len(petList); k++ {
+			for j := 0; j < len(dbConf.PetFees); j++ {
+				if dbConf.PetFees[j].FLAGS&(1<<6) == 0 { // recurring pet fees...
+					continue
+				}
+				var asm = rlib.Assessment{
+					BID:            BID,
+					RID:            RID,
+					RAID:           ra.RAID,
+					Amount:         dbConf.PetFees[j].DefaultAmount,
+					RentCycle:      dbConf.xbiz.RT[rtr.RTID].RentCycle,
+					ProrationCycle: dbConf.xbiz.RT[rtr.RTID].Proration,
+					FLAGS:          1 << 3, // PETID required
+					AssocElemType:  rlib.ELEMPET,
+					AssocElemID:    petList[k].PETID,
+					Start:          epoch,
+					Stop:           d2,
+					ARID:           dbConf.PetFees[j].ARID,
+				}
+				be := bizlogic.InsertAssessment(ctx, &asm, 1) // bizlogic will not expand it if it is a single instanced assessment
+				if be != nil {
+					return bizlogic.BizErrorListToError(be)
+				}
 			}
 		}
 
 		//-------------------------------------
 		// Vehicle Assessments
 		//-------------------------------------
-		for j := 0; j < len(dbConf.VehicleFees); j++ {
-			if dbConf.VehicleFees[j].FLAGS&(1<<6) > 0 {
-				continue
-			}
-			var asm = rlib.Assessment{
-				BID:            BID,
-				RID:            RID,
-				RAID:           ra.RAID,
-				Amount:         dbConf.VehicleFees[j].DefaultAmount,
-				RentCycle:      dbConf.xbiz.RT[rtr.RTID].RentCycle,
-				ProrationCycle: dbConf.xbiz.RT[rtr.RTID].Proration,
-				Start:          epoch,
-				Stop:           d2,
-				ARID:           dbConf.VehicleFees[j].ARID,
-			}
-			be := bizlogic.InsertAssessment(ctx, &asm, 1) // bizlogic will not expand it if it is a single instanced assessment
-			if be != nil {
-				return bizlogic.BizErrorListToError(be)
+		vList, err := rlib.GetVehiclesByTransactant(ctx, TCID)
+		if err != nil {
+			return err
+		}
+		for k := 0; k < len(vList); k++ {
+			for j := 0; j < len(dbConf.VehicleFees); j++ {
+				if dbConf.VehicleFees[j].FLAGS&(1<<6) == 0 {
+					continue
+				}
+				var asm = rlib.Assessment{
+					BID:            BID,
+					RID:            RID,
+					RAID:           ra.RAID,
+					Amount:         dbConf.VehicleFees[j].DefaultAmount,
+					RentCycle:      dbConf.xbiz.RT[rtr.RTID].RentCycle,
+					ProrationCycle: dbConf.xbiz.RT[rtr.RTID].Proration,
+					FLAGS:          1 << 4, // VID required
+					AssocElemType:  rlib.ELEMVEHICLE,
+					AssocElemID:    vList[k].VID,
+					Start:          epoch,
+					Stop:           d2,
+					ARID:           dbConf.VehicleFees[j].ARID,
+				}
+				be := bizlogic.InsertAssessment(ctx, &asm, 1) // bizlogic will not expand it if it is a single instanced assessment
+				if be != nil {
+					return bizlogic.BizErrorListToError(be)
+				}
 			}
 		}
 

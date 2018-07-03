@@ -308,7 +308,7 @@ window.buildAccountElements = function() {
                     w2ui.accountForm.get("PLID").options.items = app.parent_accounts[BUD];
                     f.record = record;
                     f.header = "Edit Account Details (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
-                    f.url = '/v1/account/' + BID+'/0';
+                    f.url = '/v1/account/' + BID+'/0/';
                     f.refresh();
                 });
             },

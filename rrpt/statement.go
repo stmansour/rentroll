@@ -218,9 +218,7 @@ func RptStatementForRA(ctx context.Context, ri *ReporterInfo, ra *rlib.RentalAgr
 		if m[i].T == 1 || m[i].T == 2 {
 			if m[i].A.ARID > 0 {
 				descr = rlib.RRdb.BizTypes[ri.Xbiz.P.BID].AR[m[i].A.ARID].Name
-			} else {
-				descr = rlib.RRdb.BizTypes[ri.Xbiz.P.BID].GLAccounts[m[i].A.ATypeLID].Name
-			}
+			} /* else {descr = rlib.RRdb.BizTypes[ri.Xbiz.P.BID].GLAccounts[m[i].A.ATypeLID].Name }*/
 		}
 		switch m[i].T {
 		case 1: // assessments

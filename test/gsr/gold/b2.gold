@@ -7,8 +7,8 @@ Suite 301
 Austin, TX 78738 USA
 
 
-                                                     Proration                                     
-ASMID        RAID        Rentable     Rent Cycle     Cycle              Amount  AsmType    AR Name 
------------  ----------  -----------  -------------  -------------  ----------  ---------  --------
-ASM00000004  RA00000001  309 Rexford  non-recurring  non-recurring       50.00  Late Fees  Late Fee
+                                                     Proration                                   
+ASMID        RAID        Rentable     Rent Cycle     Cycle              Amount  AsmType  AR Name 
+-----------  ----------  -----------  -------------  -------------  ----------  -------  --------
+ASM00000004  RA00000001  309 Rexford  non-recurring  non-recurring       50.00           Late Fee
 

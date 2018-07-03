@@ -8,11 +8,11 @@ Austin, TX 78738 USA
 
 Journal ID  Description                                                             Date        RntAgr      Rentable         GLAccount        Amount
 ----------  ----------------------------------------------------------------------  ----------  ----------  ---------------  ---------  ------------
-J-1         Unit Gross Scheduled Rent-Taxable  6303-231 [A2, monthly]                                                                               
+J-1           6303-231 [A2, monthly]                                                                                                                
             Accounts Receivable                                                     02/01/2017  RA-1        6303-231         12000          1,000.00
             Unit Gross Scheduled Rent-Taxable                                       02/01/2017  RA-1        6303-231         41000         -1,000.00
                                                                                                                                                     
-J-2         Unit Gross Scheduled Rent-Taxable  6323-301 [A1, monthly]                                                                               
+J-2           6323-301 [A1, monthly]                                                                                                                
             Accounts Receivable                                                     02/01/2017  RA-2        6323-301         12000          1,000.00
             Unit Gross Scheduled Rent-Taxable                                       02/01/2017  RA-2        6323-301         41000         -1,000.00
                                                                                                                                                     

@@ -496,6 +496,10 @@ DBNAME="rentroll"
 # ALTER TABLE RentalAgreement ADD PRAID BIGINT NOT NULL DEFAULT 0 AFTER RAID;
 # ALTER TABLE RentalAgreement ADD DocumentDate  DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00' AFTER NLID;
 
+# July 2, 2018
+# ALTER TABLE Assessments CHANGE ATypeLID AssocElemType BIGINT NOT NULL DEFAULT 0;
+# ALTER TABLE Assessments ADD AssocElemID BIGINT NOT NULL DEFAULT 0 AFTER AssocElemType;
+
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================

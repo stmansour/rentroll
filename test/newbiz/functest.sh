@@ -68,7 +68,7 @@ mysqlverify "z"  "-a rp.csv"           		"RatePlan"	            		"select RPID,B
 mysqlverify "a1" "-f rprefs.csv"       		"RatePlanRef"	                "select RPRID,BID,RPID,DtStart,DtStop,FeeAppliesAge,MaxNoFeeUsers,AdditionalUserFee,PromoCode,CancellationFee,FLAGS,LastModBy from RatePlanRef;"
 mysqlverify "b1" "-n rprtrate.csv"     		"RatePlanRefRTRate"	    		"select * from RatePlanRefRTRate;"
 mysqlverify "c1" "-t rpsprate.csv"     		"RatePlanRefSPRate"	    		"select * from RatePlanRefSPRate;"
-mysqlverify "d1" "-A asmt.csv ${RRCTX}"     "Assessments"	            	"select ASMID,BID,RID,ATypeLID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle,AcctRule,Comment,LastModBy from Assessments;"
+mysqlverify "d1" "-A asmt.csv ${RRCTX}"     "Assessments"	            	"select ASMID,BID,RID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle,AcctRule,Comment,LastModBy from Assessments;"
 mysqlverify "e1" "-P pmt.csv"          		"PaymentTypes"	            	"select PMTID,BID,Name,Description,LastModBy from PaymentType;"
 mysqlverify "f1" "-e rcpt.csv ${RRCTX}"     "ReceiptAllocations"	    	"select RCPTID,BID,RAID,Dt,Amount,ASMID,AcctRule from ReceiptAllocation order by Amount ASC;"
 mysqlverify "g1" " "                   		"Receipts"	            		"select RCPTID,BID,TCID,PMTID,DEPID,DID,Dt,Amount,AcctRuleApply,Comment,LastModBy from Receipt;"

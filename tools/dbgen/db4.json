@@ -30,13 +30,13 @@
     "OpDepositoryName": "Wells Fargo",
     "SecDepDepositoryName": "Bank Of America",
     "PTypeCheckName": "Check",
-    "PeopleCount": 10,
+    "PeopleCount": 4,
     "RACount": 4,
-    "Carports": 20,
+    "Carports": 8,
     "CPMarketRate": 35,
     "CPRentCycle": 6,
     "CPProrateCycle": 4,
     "RandNames" : true,
     "PetFees": ["Pet Fee","Pet Rent"],
-    "VehicleFees": []
+    "VehicleFees": ["Vehicle Registration Fee"]
 }

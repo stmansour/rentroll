@@ -6,8 +6,8 @@ Suite 301
 Austin, TX 78738 USA
 
 
-                                                         Proration                                                
-ASMID        RAID        Rentable         Rent Cycle     Cycle              Amount  AsmType   AR Name             
------------  ----------  ---------------  -------------  -------------  ----------  --------  --------------------
-ASM00000039  RA00000005  309 1/2 Rexford  non-recurring  non-recurring       15.00  Bad Debt  c 12000 _, d 41199 _
+                                                         Proration                                               
+ASMID        RAID        Rentable         Rent Cycle     Cycle              Amount  AsmType  AR Name             
+-----------  ----------  ---------------  -------------  -------------  ----------  -------  --------------------
+ASM00000039  RA00000005  309 1/2 Rexford  non-recurring  non-recurring       15.00           c 12000 _, d 41199 _
 
