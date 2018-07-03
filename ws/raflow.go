@@ -1532,6 +1532,8 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//----------------------------------------------
 	// validate RADatesFlowData structure
 	// ----------------------------------------------
+	// NOTE: Validation not require for the date type fields.
+	// Because it handles while Unmarshalling string into rlib.JSONDate
 
 	// call validation function
 	errs := rtags.ValidateStructFromTagRules(raFlowData.Dates)
