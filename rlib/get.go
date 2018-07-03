@@ -740,7 +740,7 @@ func GetAssessmentFirstInstance(ctx context.Context, pasmid int64) (Assessment, 
 }
 
 // GetAssessmentDuplicate returns the Assessment struct for the account with the supplied asmid
-func GetAssessmentDuplicate(ctx context.Context, start *time.Time, amt float64, pasmid, rid, raid, atypelid int64) (Assessment, error) {
+func GetAssessmentDuplicate(ctx context.Context, start *time.Time, amt float64, pasmid, rid, raid int64) (Assessment, error) {
 
 	var (
 		// err error
@@ -756,7 +756,7 @@ func GetAssessmentDuplicate(ctx context.Context, start *time.Time, amt float64, 
 	}
 
 	var row *sql.Row
-	fields := []interface{}{start, amt, pasmid, rid, raid, atypelid}
+	fields := []interface{}{start, amt, pasmid, rid, raid}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.GetAssessmentDuplicate)
 		defer stmt.Close()
@@ -998,6 +998,68 @@ func GetXBusiness(ctx context.Context, bid int64, xbiz *XBusiness) error {
 	}
 
 	return GetXBiz(bid, xbiz)
+}
+
+//=======================================================
+//  BUSINESS PROPERTIES
+//=======================================================
+
+// GetBusinessProperties return business properties for a BPID
+func GetBusinessProperties(ctx context.Context, BPID int64) (bizProp BusinessProperties, err error) {
+
+	var (
+		row      *sql.Row
+		prepStmt = RRdb.Prepstmt.GetBusinessProperties
+	)
+
+	// session check
+	if sessionCheck(ctx) {
+		return
+	}
+
+	// fields list
+	fields := []interface{}{BPID}
+
+	// if transaction is supplied, then execute statement under tx
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		tStmt := tx.Stmt(prepStmt)
+		defer tStmt.Close()
+		row = tStmt.QueryRow(fields...)
+	} else {
+		row = prepStmt.QueryRow(fields...)
+	}
+
+	// read data from row
+	return bizProp, ReadBusinessProperties(row, &bizProp)
+}
+
+// GetBusinessPropertiesByName returns business properties object by name, BID
+func GetBusinessPropertiesByName(ctx context.Context, Name string, BID int64) (bizProp BusinessProperties, err error) {
+
+	var (
+		row      *sql.Row
+		prepStmt = RRdb.Prepstmt.GetBusinessPropertiesByName
+	)
+
+	// session check
+	if sessionCheck(ctx) {
+		return
+	}
+
+	// fields list
+	fields := []interface{}{Name, BID}
+
+	// if transaction is supplied, then execute statement under tx
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		tStmt := tx.Stmt(prepStmt)
+		defer tStmt.Close()
+		row = tStmt.QueryRow(fields...)
+	} else {
+		row = prepStmt.QueryRow(fields...)
+	}
+
+	// read data from row
+	return bizProp, ReadBusinessProperties(row, &bizProp)
 }
 
 //=======================================================

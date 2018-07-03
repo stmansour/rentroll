@@ -8,273 +8,273 @@ Austin, TX 78738 USA
 
 Journal ID  Description                                                             Date        RntAgr      Rentable         GLAccount        Amount
 ----------  ----------------------------------------------------------------------  ----------  ----------  ---------------  ---------  ------------
-J-1         Unit Gross Scheduled Rent-Taxable  6303-231 [A2, daily]                                                                                 
+J-1           6303-231 [A2, daily]                                                                                                                  
             Accounts Receivable                                                     07/01/2016  RA-1        6303-231         12000             76.00
             Unit Gross Scheduled Rent-Taxable                                       07/01/2016  RA-1        6303-231         41000            -76.00
                                                                                                                                                     
-J-2         Unit Gross Scheduled Rent-Taxable  6303-231 [A2, daily]                                                                                 
+J-2           6303-231 [A2, daily]                                                                                                                  
             Accounts Receivable                                                     07/02/2016  RA-1        6303-231         12000             76.00
             Unit Gross Scheduled Rent-Taxable                                       07/02/2016  RA-1        6303-231         41000            -76.00
                                                                                                                                                     
-J-3         Unit Gross Scheduled Rent-Taxable  6303-231 [A2, daily]                                                                                 
+J-3           6303-231 [A2, daily]                                                                                                                  
             Accounts Receivable                                                     07/03/2016  RA-1        6303-231         12000             76.00
             Unit Gross Scheduled Rent-Taxable                                       07/03/2016  RA-1        6303-231         41000            -76.00
                                                                                                                                                     
-J-4         Income Offsets  6303-231 [A2, daily]                                                                                                    
+J-4           6303-231 [A2, daily]                                                                                                                  
             Accounts Receivable                                                     07/01/2016  RA-1        6303-231         12000            -24.00
             Resident Concessions                                                    07/01/2016  RA-1        6303-231         41104             24.00
                                                                                                                                                     
-J-5         Income Offsets  6303-231 [A2, daily]                                                                                                    
+J-5           6303-231 [A2, daily]                                                                                                                  
             Accounts Receivable                                                     07/02/2016  RA-1        6303-231         12000            -24.00
             Resident Concessions                                                    07/02/2016  RA-1        6303-231         41104             24.00
                                                                                                                                                     
-J-6         Income Offsets  6303-231 [A2, daily]                                                                                                    
+J-6           6303-231 [A2, daily]                                                                                                                  
             Accounts Receivable                                                     07/03/2016  RA-1        6303-231         12000            -24.00
             Resident Concessions                                                    07/03/2016  RA-1        6303-231         41104             24.00
                                                                                                                                                     
-J-7         Gas Overage  6303-231 [A2]                                                                                                              
+J-7           6303-231 [A2]                                                                                                                         
             Accounts Receivable                                                     07/01/2016  RA-1        6303-231         12000             12.35
             Gas Overage                                                             07/01/2016  RA-1        6303-231         41306            -12.35
                                                                                                                                                     
-J-8         Unit Gross Scheduled Rent-Taxable  6303-231 [A2, daily]                                                                                 
+J-8           6303-231 [A2, daily]                                                                                                                  
             Accounts Receivable                                                     07/05/2016  RA-2        6303-231         12000             92.00
             Unit Gross Scheduled Rent-Taxable                                       07/05/2016  RA-2        6303-231         41000            -92.00
                                                                                                                                                     
-J-9         Unit Gross Scheduled Rent-Taxable  6303-231 [A2, daily]                                                                                 
+J-9           6303-231 [A2, daily]                                                                                                                  
             Accounts Receivable                                                     07/06/2016  RA-2        6303-231         12000             92.00
             Unit Gross Scheduled Rent-Taxable                                       07/06/2016  RA-2        6303-231         41000            -92.00
                                                                                                                                                     
-J-10        Unit Gross Scheduled Rent-Taxable  6303-231 [A2, daily]                                                                                 
+J-10          6303-231 [A2, daily]                                                                                                                  
             Accounts Receivable                                                     07/10/2016  RA-3        6303-231         12000             56.87
             Unit Gross Scheduled Rent-Taxable                                       07/10/2016  RA-3        6303-231         41000            -56.87
                                                                                                                                                     
-J-11        Unit Gross Scheduled Rent-Taxable  6303-231 [A2, daily]                                                                                 
+J-11          6303-231 [A2, daily]                                                                                                                  
             Accounts Receivable                                                     07/11/2016  RA-3        6303-231         12000             56.87
             Unit Gross Scheduled Rent-Taxable                                       07/11/2016  RA-3        6303-231         41000            -56.87
                                                                                                                                                     
-J-12        Unit Gross Scheduled Rent-Taxable  6303-231 [A2, daily]                                                                                 
+J-12          6303-231 [A2, daily]                                                                                                                  
             Accounts Receivable                                                     07/12/2016  RA-3        6303-231         12000             56.87
             Unit Gross Scheduled Rent-Taxable                                       07/12/2016  RA-3        6303-231         41000            -56.87
                                                                                                                                                     
-J-13        Unit Gross Scheduled Rent-Taxable  6303-231 [A2, daily]                                                                                 
+J-13          6303-231 [A2, daily]                                                                                                                  
             Accounts Receivable                                                     07/13/2016  RA-3        6303-231         12000             56.87
             Unit Gross Scheduled Rent-Taxable                                       07/13/2016  RA-3        6303-231         41000            -56.87
                                                                                                                                                     
-J-14        Unit Gross Scheduled Rent-Taxable  6303-231 [A2, daily]                                                                                 
+J-14          6303-231 [A2, daily]                                                                                                                  
             Accounts Receivable                                                     07/14/2016  RA-3        6303-231         12000             56.87
             Unit Gross Scheduled Rent-Taxable                                       07/14/2016  RA-3        6303-231         41000            -56.87
                                                                                                                                                     
-J-15        Unit Gross Scheduled Rent-Taxable  6303-231 [A2, daily]                                                                                 
+J-15          6303-231 [A2, daily]                                                                                                                  
             Accounts Receivable                                                     07/15/2016  RA-3        6303-231         12000             56.87
             Unit Gross Scheduled Rent-Taxable                                       07/15/2016  RA-3        6303-231         41000            -56.87
                                                                                                                                                     
-J-16        Unit Gross Scheduled Rent-Taxable  6303-231 [A2, daily]                                                                                 
+J-16          6303-231 [A2, daily]                                                                                                                  
             Accounts Receivable                                                     07/16/2016  RA-3        6303-231         12000             56.87
             Unit Gross Scheduled Rent-Taxable                                       07/16/2016  RA-3        6303-231         41000            -56.87
                                                                                                                                                     
-J-17        Unit Gross Scheduled Rent-Taxable  6303-231 [A2, daily]                                                                                 
+J-17          6303-231 [A2, daily]                                                                                                                  
             Accounts Receivable                                                     07/17/2016  RA-3        6303-231         12000             56.87
             Unit Gross Scheduled Rent-Taxable                                       07/17/2016  RA-3        6303-231         41000            -56.87
                                                                                                                                                     
-J-18        Unit Gross Scheduled Rent-Taxable  6303-231 [A2, daily]                                                                                 
+J-18          6303-231 [A2, daily]                                                                                                                  
             Accounts Receivable                                                     07/18/2016  RA-3        6303-231         12000             56.87
             Unit Gross Scheduled Rent-Taxable                                       07/18/2016  RA-3        6303-231         41000            -56.87
                                                                                                                                                     
-J-19        Unit Gross Scheduled Rent-Taxable  6303-231 [A2, daily]                                                                                 
+J-19          6303-231 [A2, daily]                                                                                                                  
             Accounts Receivable                                                     07/19/2016  RA-3        6303-231         12000             56.87
             Unit Gross Scheduled Rent-Taxable                                       07/19/2016  RA-3        6303-231         41000            -56.87
                                                                                                                                                     
-J-20        Unit Gross Scheduled Rent-Taxable  6303-231 [A2, daily]                                                                                 
+J-20          6303-231 [A2, daily]                                                                                                                  
             Accounts Receivable                                                     07/20/2016  RA-3        6303-231         12000             56.87
             Unit Gross Scheduled Rent-Taxable                                       07/20/2016  RA-3        6303-231         41000            -56.87
                                                                                                                                                     
-J-21        Unit Gross Scheduled Rent-Taxable  6303-231 [A2, daily]                                                                                 
+J-21          6303-231 [A2, daily]                                                                                                                  
             Accounts Receivable                                                     07/21/2016  RA-3        6303-231         12000             56.87
             Unit Gross Scheduled Rent-Taxable                                       07/21/2016  RA-3        6303-231         41000            -56.87
                                                                                                                                                     
-J-22        Unit Gross Scheduled Rent-Taxable  6303-231 [A2, daily]                                                                                 
+J-22          6303-231 [A2, daily]                                                                                                                  
             Accounts Receivable                                                     07/22/2016  RA-3        6303-231         12000             56.87
             Unit Gross Scheduled Rent-Taxable                                       07/22/2016  RA-3        6303-231         41000            -56.87
                                                                                                                                                     
-J-23        Unit Gross Scheduled Rent-Taxable  6303-231 [A2, daily]                                                                                 
+J-23          6303-231 [A2, daily]                                                                                                                  
             Accounts Receivable                                                     07/23/2016  RA-3        6303-231         12000             56.87
             Unit Gross Scheduled Rent-Taxable                                       07/23/2016  RA-3        6303-231         41000            -56.87
                                                                                                                                                     
-J-24        Unit Gross Scheduled Rent-Taxable  6303-231 [A2, daily]                                                                                 
+J-24          6303-231 [A2, daily]                                                                                                                  
             Accounts Receivable                                                     07/24/2016  RA-3        6303-231         12000             56.87
             Unit Gross Scheduled Rent-Taxable                                       07/24/2016  RA-3        6303-231         41000            -56.87
                                                                                                                                                     
-J-25        Unit Gross Scheduled Rent-Taxable  6303-231 [A2, daily]                                                                                 
+J-25          6303-231 [A2, daily]                                                                                                                  
             Accounts Receivable                                                     07/25/2016  RA-3        6303-231         12000             56.87
             Unit Gross Scheduled Rent-Taxable                                       07/25/2016  RA-3        6303-231         41000            -56.87
                                                                                                                                                     
-J-26        Unit Gross Scheduled Rent-Taxable  6303-231 [A2, daily]                                                                                 
+J-26          6303-231 [A2, daily]                                                                                                                  
             Accounts Receivable                                                     07/26/2016  RA-3        6303-231         12000             56.87
             Unit Gross Scheduled Rent-Taxable                                       07/26/2016  RA-3        6303-231         41000            -56.87
                                                                                                                                                     
-J-27        Unit Gross Scheduled Rent-Taxable  6303-231 [A2, daily]                                                                                 
+J-27          6303-231 [A2, daily]                                                                                                                  
             Accounts Receivable                                                     07/27/2016  RA-3        6303-231         12000             56.87
             Unit Gross Scheduled Rent-Taxable                                       07/27/2016  RA-3        6303-231         41000            -56.87
                                                                                                                                                     
-J-28        Unit Gross Scheduled Rent-Taxable  6303-231 [A2, daily]                                                                                 
+J-28          6303-231 [A2, daily]                                                                                                                  
             Accounts Receivable                                                     07/28/2016  RA-3        6303-231         12000             56.87
             Unit Gross Scheduled Rent-Taxable                                       07/28/2016  RA-3        6303-231         41000            -56.87
                                                                                                                                                     
-J-29        Unit Gross Scheduled Rent-Taxable  6303-231 [A2, daily]                                                                                 
+J-29          6303-231 [A2, daily]                                                                                                                  
             Accounts Receivable                                                     07/29/2016  RA-3        6303-231         12000             56.87
             Unit Gross Scheduled Rent-Taxable                                       07/29/2016  RA-3        6303-231         41000            -56.87
                                                                                                                                                     
-J-30        Unit Gross Scheduled Rent-Taxable  6303-231 [A2, daily]                                                                                 
+J-30          6303-231 [A2, daily]                                                                                                                  
             Accounts Receivable                                                     07/30/2016  RA-3        6303-231         12000             56.87
             Unit Gross Scheduled Rent-Taxable                                       07/30/2016  RA-3        6303-231         41000            -56.87
                                                                                                                                                     
-J-31        Unit Gross Scheduled Rent-Taxable  6323-301 [A1, monthly]                                                                               
+J-31          6323-301 [A1, monthly]                                                                                                                
             Accounts Receivable                                                     07/01/2016  RA-4        6323-301         12000            730.00
             Unit Gross Scheduled Rent-Taxable                                       07/01/2016  RA-4        6323-301         41000           -755.00
             Loss (Gain) to Lease                                                    07/01/2016  RA-4        6323-301         41102             25.00
                                                                                                                                                     
-J-32        Unit Gross Scheduled Rent-Taxable  6392-930 [B5, daily]                                                                                 
+J-32          6392-930 [B5, daily]                                                                                                                  
             Accounts Receivable                                                     07/01/2016  RA-5        6392-930         12000            125.00
             Unit Gross Scheduled Rent-Taxable                                       07/01/2016  RA-5        6392-930         41000           -125.00
                                                                                                                                                     
-J-33        Unit Gross Scheduled Rent-Taxable  6392-930 [B5, daily]                                                                                 
+J-33          6392-930 [B5, daily]                                                                                                                  
             Accounts Receivable                                                     07/02/2016  RA-5        6392-930         12000            125.00
             Unit Gross Scheduled Rent-Taxable                                       07/02/2016  RA-5        6392-930         41000           -125.00
                                                                                                                                                     
-J-34        Unit Gross Scheduled Rent-Taxable  6392-930 [B5, daily]                                                                                 
+J-34          6392-930 [B5, daily]                                                                                                                  
             Accounts Receivable                                                     07/03/2016  RA-5        6392-930         12000            125.00
             Unit Gross Scheduled Rent-Taxable                                       07/03/2016  RA-5        6392-930         41000           -125.00
                                                                                                                                                     
-J-35        Unit Gross Scheduled Rent-Taxable  6392-930 [B5, daily]                                                                                 
+J-35          6392-930 [B5, daily]                                                                                                                  
             Accounts Receivable                                                     07/04/2016  RA-5        6392-930         12000            125.00
             Unit Gross Scheduled Rent-Taxable                                       07/04/2016  RA-5        6392-930         41000           -125.00
                                                                                                                                                     
-J-36        Unit Gross Scheduled Rent-Taxable  6392-930 [B5, daily]                                                                                 
+J-36          6392-930 [B5, daily]                                                                                                                  
             Accounts Receivable                                                     07/05/2016  RA-5        6392-930         12000            125.00
             Unit Gross Scheduled Rent-Taxable                                       07/05/2016  RA-5        6392-930         41000           -125.00
                                                                                                                                                     
-J-37        Unit Gross Scheduled Rent-Taxable  6392-930 [B5, daily]                                                                                 
+J-37          6392-930 [B5, daily]                                                                                                                  
             Accounts Receivable                                                     07/06/2016  RA-5        6392-930         12000            125.00
             Unit Gross Scheduled Rent-Taxable                                       07/06/2016  RA-5        6392-930         41000           -125.00
                                                                                                                                                     
-J-38        Unit Gross Scheduled Rent-Taxable  6392-930 [B5, daily]                                                                                 
+J-38          6392-930 [B5, daily]                                                                                                                  
             Accounts Receivable                                                     07/07/2016  RA-5        6392-930         12000            125.00
             Unit Gross Scheduled Rent-Taxable                                       07/07/2016  RA-5        6392-930         41000           -125.00
                                                                                                                                                     
-J-39        Unit Gross Scheduled Rent-Taxable  6392-930 [B5, daily]                                                                                 
+J-39          6392-930 [B5, daily]                                                                                                                  
             Accounts Receivable                                                     07/08/2016  RA-5        6392-930         12000            125.00
             Unit Gross Scheduled Rent-Taxable                                       07/08/2016  RA-5        6392-930         41000           -125.00
                                                                                                                                                     
-J-40        Unit Gross Scheduled Rent-Taxable  6392-930 [B5, daily]                                                                                 
+J-40          6392-930 [B5, daily]                                                                                                                  
             Accounts Receivable                                                     07/09/2016  RA-5        6392-930         12000            125.00
             Unit Gross Scheduled Rent-Taxable                                       07/09/2016  RA-5        6392-930         41000           -125.00
                                                                                                                                                     
-J-41        Unit Gross Scheduled Rent-Taxable  6392-930 [B5, daily]                                                                                 
+J-41          6392-930 [B5, daily]                                                                                                                  
             Accounts Receivable                                                     07/10/2016  RA-5        6392-930         12000            125.00
             Unit Gross Scheduled Rent-Taxable                                       07/10/2016  RA-5        6392-930         41000           -125.00
                                                                                                                                                     
-J-42        Unit Gross Scheduled Rent-Taxable  6392-930 [B5, daily]                                                                                 
+J-42          6392-930 [B5, daily]                                                                                                                  
             Accounts Receivable                                                     07/11/2016  RA-5        6392-930         12000            125.00
             Unit Gross Scheduled Rent-Taxable                                       07/11/2016  RA-5        6392-930         41000           -125.00
                                                                                                                                                     
-J-43        Unit Gross Scheduled Rent-Taxable  6392-930 [B5, daily]                                                                                 
+J-43          6392-930 [B5, daily]                                                                                                                  
             Accounts Receivable                                                     07/12/2016  RA-5        6392-930         12000            125.00
             Unit Gross Scheduled Rent-Taxable                                       07/12/2016  RA-5        6392-930         41000           -125.00
                                                                                                                                                     
-J-44        Unit Gross Scheduled Rent-Taxable  6392-930 [B5, daily]                                                                                 
+J-44          6392-930 [B5, daily]                                                                                                                  
             Accounts Receivable                                                     07/13/2016  RA-5        6392-930         12000            125.00
             Unit Gross Scheduled Rent-Taxable                                       07/13/2016  RA-5        6392-930         41000           -125.00
                                                                                                                                                     
-J-45        Unit Gross Scheduled Rent-Taxable  6392-930 [B5, daily]                                                                                 
+J-45          6392-930 [B5, daily]                                                                                                                  
             Accounts Receivable                                                     07/14/2016  RA-5        6392-930         12000            125.00
             Unit Gross Scheduled Rent-Taxable                                       07/14/2016  RA-5        6392-930         41000           -125.00
                                                                                                                                                     
-J-46        Unit Gross Scheduled Rent-Taxable  6392-930 [B5, daily]                                                                                 
+J-46          6392-930 [B5, daily]                                                                                                                  
             Accounts Receivable                                                     07/15/2016  RA-5        6392-930         12000            125.00
             Unit Gross Scheduled Rent-Taxable                                       07/15/2016  RA-5        6392-930         41000           -125.00
                                                                                                                                                     
-J-47        Unit Gross Scheduled Rent-Taxable  6392-930 [B5, daily]                                                                                 
+J-47          6392-930 [B5, daily]                                                                                                                  
             Accounts Receivable                                                     07/16/2016  RA-5        6392-930         12000            125.00
             Unit Gross Scheduled Rent-Taxable                                       07/16/2016  RA-5        6392-930         41000           -125.00
                                                                                                                                                     
-J-48        Unit Gross Scheduled Rent-Taxable  6392-930 [B5, daily]                                                                                 
+J-48          6392-930 [B5, daily]                                                                                                                  
             Accounts Receivable                                                     07/17/2016  RA-5        6392-930         12000            125.00
             Unit Gross Scheduled Rent-Taxable                                       07/17/2016  RA-5        6392-930         41000           -125.00
                                                                                                                                                     
-J-49        Unit Gross Scheduled Rent-Taxable  6392-930 [B5, daily]                                                                                 
+J-49          6392-930 [B5, daily]                                                                                                                  
             Accounts Receivable                                                     07/18/2016  RA-5        6392-930         12000            125.00
             Unit Gross Scheduled Rent-Taxable                                       07/18/2016  RA-5        6392-930         41000           -125.00
                                                                                                                                                     
-J-50        Unit Gross Scheduled Rent-Taxable  6392-930 [B5, daily]                                                                                 
+J-50          6392-930 [B5, daily]                                                                                                                  
             Accounts Receivable                                                     07/19/2016  RA-5        6392-930         12000            125.00
             Unit Gross Scheduled Rent-Taxable                                       07/19/2016  RA-5        6392-930         41000           -125.00
                                                                                                                                                     
-J-51        Unit Gross Scheduled Rent-Taxable  6392-930 [B5, daily]                                                                                 
+J-51          6392-930 [B5, daily]                                                                                                                  
             Accounts Receivable                                                     07/20/2016  RA-5        6392-930         12000            125.00
             Unit Gross Scheduled Rent-Taxable                                       07/20/2016  RA-5        6392-930         41000           -125.00
                                                                                                                                                     
-J-52        Unit Gross Scheduled Rent-Taxable  6392-930 [B5, daily]                                                                                 
+J-52          6392-930 [B5, daily]                                                                                                                  
             Accounts Receivable                                                     07/21/2016  RA-5        6392-930         12000            125.00
             Unit Gross Scheduled Rent-Taxable                                       07/21/2016  RA-5        6392-930         41000           -125.00
                                                                                                                                                     
-J-53        Unit Gross Scheduled Rent-Taxable  6392-930 [B5, daily]                                                                                 
+J-53          6392-930 [B5, daily]                                                                                                                  
             Accounts Receivable                                                     07/22/2016  RA-5        6392-930         12000            125.00
             Unit Gross Scheduled Rent-Taxable                                       07/22/2016  RA-5        6392-930         41000           -125.00
                                                                                                                                                     
-J-54        Unit Gross Scheduled Rent-Taxable  6392-930 [B5, daily]                                                                                 
+J-54          6392-930 [B5, daily]                                                                                                                  
             Accounts Receivable                                                     07/23/2016  RA-5        6392-930         12000            125.00
             Unit Gross Scheduled Rent-Taxable                                       07/23/2016  RA-5        6392-930         41000           -125.00
                                                                                                                                                     
-J-55        Unit Gross Scheduled Rent-Taxable  6392-930 [B5, daily]                                                                                 
+J-55          6392-930 [B5, daily]                                                                                                                  
             Accounts Receivable                                                     07/24/2016  RA-5        6392-930         12000            125.00
             Unit Gross Scheduled Rent-Taxable                                       07/24/2016  RA-5        6392-930         41000           -125.00
                                                                                                                                                     
-J-56        Unit Gross Scheduled Rent-Taxable  6392-930 [B5, daily]                                                                                 
+J-56          6392-930 [B5, daily]                                                                                                                  
             Accounts Receivable                                                     07/25/2016  RA-5        6392-930         12000            125.00
             Unit Gross Scheduled Rent-Taxable                                       07/25/2016  RA-5        6392-930         41000           -125.00
                                                                                                                                                     
-J-57        Unit Gross Scheduled Rent-Taxable  6392-930 [B5, daily]                                                                                 
+J-57          6392-930 [B5, daily]                                                                                                                  
             Accounts Receivable                                                     07/26/2016  RA-5        6392-930         12000            125.00
             Unit Gross Scheduled Rent-Taxable                                       07/26/2016  RA-5        6392-930         41000           -125.00
                                                                                                                                                     
-J-58        Unit Gross Scheduled Rent-Taxable  6392-930 [B5, daily]                                                                                 
+J-58          6392-930 [B5, daily]                                                                                                                  
             Accounts Receivable                                                     07/27/2016  RA-5        6392-930         12000            125.00
             Unit Gross Scheduled Rent-Taxable                                       07/27/2016  RA-5        6392-930         41000           -125.00
                                                                                                                                                     
-J-59        Unit Gross Scheduled Rent-Taxable  6392-930 [B5, daily]                                                                                 
+J-59          6392-930 [B5, daily]                                                                                                                  
             Accounts Receivable                                                     07/28/2016  RA-5        6392-930         12000            125.00
             Unit Gross Scheduled Rent-Taxable                                       07/28/2016  RA-5        6392-930         41000           -125.00
                                                                                                                                                     
-J-60        Unit Gross Scheduled Rent-Taxable  6392-930 [B5, daily]                                                                                 
+J-60          6392-930 [B5, daily]                                                                                                                  
             Accounts Receivable                                                     07/29/2016  RA-5        6392-930         12000            125.00
             Unit Gross Scheduled Rent-Taxable                                       07/29/2016  RA-5        6392-930         41000           -125.00
                                                                                                                                                     
-J-61        Unit Gross Scheduled Rent-Taxable  6392-930 [B5, daily]                                                                                 
+J-61          6392-930 [B5, daily]                                                                                                                  
             Accounts Receivable                                                     07/30/2016  RA-5        6392-930         12000            125.00
             Unit Gross Scheduled Rent-Taxable                                       07/30/2016  RA-5        6392-930         41000           -125.00
                                                                                                                                                     
-J-62        Unit Gross Scheduled Rent-Taxable  6392-930 [B5, daily]                                                                                 
+J-62          6392-930 [B5, daily]                                                                                                                  
             Accounts Receivable                                                     07/31/2016  RA-5        6392-930         12000            125.00
             Unit Gross Scheduled Rent-Taxable                                       07/31/2016  RA-5        6392-930         41000           -125.00
                                                                                                                                                     
-J-63        Income Offsets  6303-231 [A2, daily]                                                                                                    
+J-63          6303-231 [A2, daily]                                                                                                                  
             Accounts Receivable                                                     07/05/2016  RA-2        6303-231         12000            -11.00
             Resident Concessions                                                    07/05/2016  RA-2        6303-231         41104             11.00
                                                                                                                                                     
-J-64        Income Offsets  6303-231 [A2, daily]                                                                                                    
+J-64          6303-231 [A2, daily]                                                                                                                  
             Accounts Receivable                                                     07/06/2016  RA-2        6303-231         12000            -11.00
             Resident Concessions                                                    07/06/2016  RA-2        6303-231         41104             11.00
                                                                                                                                                     
-J-65        Gas Overage  6303-231 [A2]                                                                                                              
+J-65          6303-231 [A2]                                                                                                                         
             Accounts Receivable                                                     07/05/2016  RA-2        6303-231         12000            230.00
             Gas Overage                                                             07/05/2016  RA-2        6303-231         41306           -230.00
                                                                                                                                                     
-J-66        Unit Gross Scheduled Rent-Taxable  6323-302 [A3, monthly]                                                                               
+J-66          6323-302 [A3, monthly]                                                                                                                
             Accounts Receivable                                                     07/01/2016  RA-6        6323-302         12000          2,750.00
             Unit Gross Scheduled Rent-Taxable                                       07/01/2016  RA-6        6323-302         41000         -3,319.35
             Loss (Gain) to Lease                                                    07/01/2016  RA-6        6323-302         41102            569.35
                                                                                                                                                     
-J-67        Resident Concessions  6323-302 [A3, monthly]                                                                                            
+J-67          6323-302 [A3, monthly]                                                                                                                
             Accounts Receivable                                                     07/01/2016  RA-6        6323-302         12000           -250.00
             Resident Concessions                                                    07/01/2016  RA-6        6323-302         41104            250.00
                                                                                                                                                     

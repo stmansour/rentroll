@@ -167,6 +167,10 @@ func ReadConfig(fname string) (GenDBConf, error) {
 		return b, err
 	}
 
+	if err = InitBizProps(ctx, BID, a.VehicleFees, &b.VehicleFees, "VehicleFees"); err != nil {
+		return b, err
+	}
+
 	//-------------------------------------
 	// RANDOM NUMBER GENERATOR
 	//-------------------------------------
