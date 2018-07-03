@@ -31,78 +31,78 @@ Austin, TX 78738 USA
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                2,500.00
-Assessment - Unit Gross Scheduled Rent-Taxable           07/01/2016  J00000066          6   6323-302             2,750.00      5,250.00
-Assessment - Unit Gross Scheduled Rent-Taxable           07/01/2016  J00000031          4   6323-301               730.00      5,980.00
-Assessment - Unit Gross Scheduled Rent-Taxable           07/01/2016  J00000032          5   6392-930               125.00      6,105.00
-Assessment - Unit Gross Scheduled Rent-Taxable           07/01/2016  J00000001          1   6303-231                76.00      6,181.00
-Assessment - Gas Overage                                 07/01/2016  J00000007          1   6303-231                12.35      6,193.35
-Assessment - Income Offsets                              07/01/2016  J00000004          1   6303-231               -24.00      6,169.35
-Assessment - Resident Concessions                        07/01/2016  J00000067          6   6323-302              -250.00      5,919.35
-Assessment - Unit Gross Scheduled Rent-Taxable           07/02/2016  J00000033          5   6392-930               125.00      6,044.35
-Assessment - Unit Gross Scheduled Rent-Taxable           07/02/2016  J00000002          1   6303-231                76.00      6,120.35
-Assessment - Income Offsets                              07/02/2016  J00000005          1   6303-231               -24.00      6,096.35
+Assessment -                                             07/01/2016  J00000066          6   6323-302             2,750.00      5,250.00
+Assessment -                                             07/01/2016  J00000031          4   6323-301               730.00      5,980.00
+Assessment -                                             07/01/2016  J00000032          5   6392-930               125.00      6,105.00
+Assessment -                                             07/01/2016  J00000001          1   6303-231                76.00      6,181.00
+Assessment -                                             07/01/2016  J00000007          1   6303-231                12.35      6,193.35
+Assessment -                                             07/01/2016  J00000004          1   6303-231               -24.00      6,169.35
+Assessment -                                             07/01/2016  J00000067          6   6323-302              -250.00      5,919.35
+Assessment -                                             07/02/2016  J00000033          5   6392-930               125.00      6,044.35
+Assessment -                                             07/02/2016  J00000002          1   6303-231                76.00      6,120.35
+Assessment -                                             07/02/2016  J00000005          1   6303-231               -24.00      6,096.35
 Payment #2111 -                                          07/02/2016  J00000068          3   6303-231            -2,500.00      3,596.35
-Assessment - Unit Gross Scheduled Rent-Taxable           07/03/2016  J00000034          5   6392-930               125.00      3,721.35
-Assessment - Unit Gross Scheduled Rent-Taxable           07/03/2016  J00000003          1   6303-231                76.00      3,797.35
-Assessment - Income Offsets                              07/03/2016  J00000006          1   6303-231               -24.00      3,773.35
+Assessment -                                             07/03/2016  J00000034          5   6392-930               125.00      3,721.35
+Assessment -                                             07/03/2016  J00000003          1   6303-231                76.00      3,797.35
+Assessment -                                             07/03/2016  J00000006          1   6303-231               -24.00      3,773.35
 Payment #1039 -                                          07/03/2016  J00000071          4   6303-231              -750.00      3,023.35
-Assessment - Unit Gross Scheduled Rent-Taxable           07/04/2016  J00000035          5   6392-930               125.00      3,148.35
+Assessment -                                             07/04/2016  J00000035          5   6392-930               125.00      3,148.35
 Payment #6430 -                                          07/04/2016  J00000072          5   6303-231            -4,200.00     -1,051.65
-Assessment - Gas Overage                                 07/05/2016  J00000065          2   6303-231               230.00       -821.65
-Assessment - Unit Gross Scheduled Rent-Taxable           07/05/2016  J00000036          5   6392-930               125.00       -696.65
-Assessment - Unit Gross Scheduled Rent-Taxable           07/05/2016  J00000008          2   6303-231                92.00       -604.65
-Assessment - Income Offsets                              07/05/2016  J00000063          2   6303-231               -11.00       -615.65
-Assessment - Unit Gross Scheduled Rent-Taxable           07/06/2016  J00000037          5   6392-930               125.00       -490.65
-Assessment - Unit Gross Scheduled Rent-Taxable           07/06/2016  J00000009          2   6303-231                92.00       -398.65
-Assessment - Income Offsets                              07/06/2016  J00000064          2   6303-231               -11.00       -409.65
-Assessment - Unit Gross Scheduled Rent-Taxable           07/07/2016  J00000038          5   6392-930               125.00       -284.65
-Assessment - Unit Gross Scheduled Rent-Taxable           07/08/2016  J00000039          5   6392-930               125.00       -159.65
-Assessment - Unit Gross Scheduled Rent-Taxable           07/09/2016  J00000040          5   6392-930               125.00        -34.65
-Assessment - Unit Gross Scheduled Rent-Taxable           07/10/2016  J00000041          5   6392-930               125.00         90.35
-Assessment - Unit Gross Scheduled Rent-Taxable           07/10/2016  J00000010          3   6303-231                56.87        147.22
-Assessment - Unit Gross Scheduled Rent-Taxable           07/11/2016  J00000042          5   6392-930               125.00        272.22
-Assessment - Unit Gross Scheduled Rent-Taxable           07/11/2016  J00000011          3   6303-231                56.87        329.09
-Assessment - Unit Gross Scheduled Rent-Taxable           07/12/2016  J00000043          5   6392-930               125.00        454.09
-Assessment - Unit Gross Scheduled Rent-Taxable           07/12/2016  J00000012          3   6303-231                56.87        510.96
-Assessment - Unit Gross Scheduled Rent-Taxable           07/13/2016  J00000044          5   6392-930               125.00        635.96
-Assessment - Unit Gross Scheduled Rent-Taxable           07/13/2016  J00000013          3   6303-231                56.87        692.83
-Assessment - Unit Gross Scheduled Rent-Taxable           07/14/2016  J00000045          5   6392-930               125.00        817.83
-Assessment - Unit Gross Scheduled Rent-Taxable           07/14/2016  J00000014          3   6303-231                56.87        874.70
-Assessment - Unit Gross Scheduled Rent-Taxable           07/15/2016  J00000046          5   6392-930               125.00        999.70
-Assessment - Unit Gross Scheduled Rent-Taxable           07/15/2016  J00000015          3   6303-231                56.87      1,056.57
+Assessment -                                             07/05/2016  J00000065          2   6303-231               230.00       -821.65
+Assessment -                                             07/05/2016  J00000036          5   6392-930               125.00       -696.65
+Assessment -                                             07/05/2016  J00000008          2   6303-231                92.00       -604.65
+Assessment -                                             07/05/2016  J00000063          2   6303-231               -11.00       -615.65
+Assessment -                                             07/06/2016  J00000037          5   6392-930               125.00       -490.65
+Assessment -                                             07/06/2016  J00000009          2   6303-231                92.00       -398.65
+Assessment -                                             07/06/2016  J00000064          2   6303-231               -11.00       -409.65
+Assessment -                                             07/07/2016  J00000038          5   6392-930               125.00       -284.65
+Assessment -                                             07/08/2016  J00000039          5   6392-930               125.00       -159.65
+Assessment -                                             07/09/2016  J00000040          5   6392-930               125.00        -34.65
+Assessment -                                             07/10/2016  J00000041          5   6392-930               125.00         90.35
+Assessment -                                             07/10/2016  J00000010          3   6303-231                56.87        147.22
+Assessment -                                             07/11/2016  J00000042          5   6392-930               125.00        272.22
+Assessment -                                             07/11/2016  J00000011          3   6303-231                56.87        329.09
+Assessment -                                             07/12/2016  J00000043          5   6392-930               125.00        454.09
+Assessment -                                             07/12/2016  J00000012          3   6303-231                56.87        510.96
+Assessment -                                             07/13/2016  J00000044          5   6392-930               125.00        635.96
+Assessment -                                             07/13/2016  J00000013          3   6303-231                56.87        692.83
+Assessment -                                             07/14/2016  J00000045          5   6392-930               125.00        817.83
+Assessment -                                             07/14/2016  J00000014          3   6303-231                56.87        874.70
+Assessment -                                             07/15/2016  J00000046          5   6392-930               125.00        999.70
+Assessment -                                             07/15/2016  J00000015          3   6303-231                56.87      1,056.57
 Payment #2283 -                                          07/15/2016  J00000069          1   6303-231              -308.35        748.22
-Assessment - Unit Gross Scheduled Rent-Taxable           07/16/2016  J00000047          5   6392-930               125.00        873.22
-Assessment - Unit Gross Scheduled Rent-Taxable           07/16/2016  J00000016          3   6303-231                56.87        930.09
+Assessment -                                             07/16/2016  J00000047          5   6392-930               125.00        873.22
+Assessment -                                             07/16/2016  J00000016          3   6303-231                56.87        930.09
 Payment #3999 -                                          07/16/2016  J00000070          2   6303-231              -400.00        530.09
-Assessment - Unit Gross Scheduled Rent-Taxable           07/17/2016  J00000048          5   6392-930               125.00        655.09
-Assessment - Unit Gross Scheduled Rent-Taxable           07/17/2016  J00000017          3   6303-231                56.87        711.96
-Assessment - Unit Gross Scheduled Rent-Taxable           07/18/2016  J00000049          5   6392-930               125.00        836.96
-Assessment - Unit Gross Scheduled Rent-Taxable           07/18/2016  J00000018          3   6303-231                56.87        893.83
-Assessment - Unit Gross Scheduled Rent-Taxable           07/19/2016  J00000050          5   6392-930               125.00      1,018.83
-Assessment - Unit Gross Scheduled Rent-Taxable           07/19/2016  J00000019          3   6303-231                56.87      1,075.70
-Assessment - Unit Gross Scheduled Rent-Taxable           07/20/2016  J00000051          5   6392-930               125.00      1,200.70
-Assessment - Unit Gross Scheduled Rent-Taxable           07/20/2016  J00000020          3   6303-231                56.87      1,257.57
-Assessment - Unit Gross Scheduled Rent-Taxable           07/21/2016  J00000052          5   6392-930               125.00      1,382.57
-Assessment - Unit Gross Scheduled Rent-Taxable           07/21/2016  J00000021          3   6303-231                56.87      1,439.44
-Assessment - Unit Gross Scheduled Rent-Taxable           07/22/2016  J00000053          5   6392-930               125.00      1,564.44
-Assessment - Unit Gross Scheduled Rent-Taxable           07/22/2016  J00000022          3   6303-231                56.87      1,621.31
-Assessment - Unit Gross Scheduled Rent-Taxable           07/23/2016  J00000054          5   6392-930               125.00      1,746.31
-Assessment - Unit Gross Scheduled Rent-Taxable           07/23/2016  J00000023          3   6303-231                56.87      1,803.18
-Assessment - Unit Gross Scheduled Rent-Taxable           07/24/2016  J00000055          5   6392-930               125.00      1,928.18
-Assessment - Unit Gross Scheduled Rent-Taxable           07/24/2016  J00000024          3   6303-231                56.87      1,985.05
-Assessment - Unit Gross Scheduled Rent-Taxable           07/25/2016  J00000056          5   6392-930               125.00      2,110.05
-Assessment - Unit Gross Scheduled Rent-Taxable           07/25/2016  J00000025          3   6303-231                56.87      2,166.92
-Assessment - Unit Gross Scheduled Rent-Taxable           07/26/2016  J00000057          5   6392-930               125.00      2,291.92
-Assessment - Unit Gross Scheduled Rent-Taxable           07/26/2016  J00000026          3   6303-231                56.87      2,348.79
-Assessment - Unit Gross Scheduled Rent-Taxable           07/27/2016  J00000058          5   6392-930               125.00      2,473.79
-Assessment - Unit Gross Scheduled Rent-Taxable           07/27/2016  J00000027          3   6303-231                56.87      2,530.66
-Assessment - Unit Gross Scheduled Rent-Taxable           07/28/2016  J00000059          5   6392-930               125.00      2,655.66
-Assessment - Unit Gross Scheduled Rent-Taxable           07/28/2016  J00000028          3   6303-231                56.87      2,712.53
-Assessment - Unit Gross Scheduled Rent-Taxable           07/29/2016  J00000060          5   6392-930               125.00      2,837.53
-Assessment - Unit Gross Scheduled Rent-Taxable           07/29/2016  J00000029          3   6303-231                56.87      2,894.40
-Assessment - Unit Gross Scheduled Rent-Taxable           07/30/2016  J00000061          5   6392-930               125.00      3,019.40
-Assessment - Unit Gross Scheduled Rent-Taxable           07/30/2016  J00000030          3   6303-231                56.87      3,076.27
-Assessment - Unit Gross Scheduled Rent-Taxable           07/31/2016  J00000062          5   6392-930               125.00      3,201.27
+Assessment -                                             07/17/2016  J00000048          5   6392-930               125.00        655.09
+Assessment -                                             07/17/2016  J00000017          3   6303-231                56.87        711.96
+Assessment -                                             07/18/2016  J00000049          5   6392-930               125.00        836.96
+Assessment -                                             07/18/2016  J00000018          3   6303-231                56.87        893.83
+Assessment -                                             07/19/2016  J00000050          5   6392-930               125.00      1,018.83
+Assessment -                                             07/19/2016  J00000019          3   6303-231                56.87      1,075.70
+Assessment -                                             07/20/2016  J00000051          5   6392-930               125.00      1,200.70
+Assessment -                                             07/20/2016  J00000020          3   6303-231                56.87      1,257.57
+Assessment -                                             07/21/2016  J00000052          5   6392-930               125.00      1,382.57
+Assessment -                                             07/21/2016  J00000021          3   6303-231                56.87      1,439.44
+Assessment -                                             07/22/2016  J00000053          5   6392-930               125.00      1,564.44
+Assessment -                                             07/22/2016  J00000022          3   6303-231                56.87      1,621.31
+Assessment -                                             07/23/2016  J00000054          5   6392-930               125.00      1,746.31
+Assessment -                                             07/23/2016  J00000023          3   6303-231                56.87      1,803.18
+Assessment -                                             07/24/2016  J00000055          5   6392-930               125.00      1,928.18
+Assessment -                                             07/24/2016  J00000024          3   6303-231                56.87      1,985.05
+Assessment -                                             07/25/2016  J00000056          5   6392-930               125.00      2,110.05
+Assessment -                                             07/25/2016  J00000025          3   6303-231                56.87      2,166.92
+Assessment -                                             07/26/2016  J00000057          5   6392-930               125.00      2,291.92
+Assessment -                                             07/26/2016  J00000026          3   6303-231                56.87      2,348.79
+Assessment -                                             07/27/2016  J00000058          5   6392-930               125.00      2,473.79
+Assessment -                                             07/27/2016  J00000027          3   6303-231                56.87      2,530.66
+Assessment -                                             07/28/2016  J00000059          5   6392-930               125.00      2,655.66
+Assessment -                                             07/28/2016  J00000028          3   6303-231                56.87      2,712.53
+Assessment -                                             07/29/2016  J00000060          5   6392-930               125.00      2,837.53
+Assessment -                                             07/29/2016  J00000029          3   6303-231                56.87      2,894.40
+Assessment -                                             07/30/2016  J00000061          5   6392-930               125.00      3,019.40
+Assessment -                                             07/30/2016  J00000030          3   6303-231                56.87      3,076.27
+Assessment -                                             07/31/2016  J00000062          5   6392-930               125.00      3,201.27
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          07/31/2016                                                            3,201.27
 
@@ -151,70 +151,70 @@ Austin, TX 78738 USA
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                               -2,356.00
-Assessment - Unit Gross Scheduled Rent-Taxable           07/01/2016  J00000001          1   6303-231               -76.00     -2,432.00
-Assessment - Unit Gross Scheduled Rent-Taxable           07/01/2016  J00000032          5   6392-930              -125.00     -2,557.00
-Assessment - Unit Gross Scheduled Rent-Taxable           07/01/2016  J00000031          4   6323-301              -755.00     -3,312.00
-Assessment - Unit Gross Scheduled Rent-Taxable           07/01/2016  J00000066          6   6323-302            -3,319.35     -6,631.35
-Assessment - Unit Gross Scheduled Rent-Taxable           07/02/2016  J00000002          1   6303-231               -76.00     -6,707.35
-Assessment - Unit Gross Scheduled Rent-Taxable           07/02/2016  J00000033          5   6392-930              -125.00     -6,832.35
-Assessment - Unit Gross Scheduled Rent-Taxable           07/03/2016  J00000003          1   6303-231               -76.00     -6,908.35
-Assessment - Unit Gross Scheduled Rent-Taxable           07/03/2016  J00000034          5   6392-930              -125.00     -7,033.35
+Assessment -                                             07/01/2016  J00000001          1   6303-231               -76.00     -2,432.00
+Assessment -                                             07/01/2016  J00000032          5   6392-930              -125.00     -2,557.00
+Assessment -                                             07/01/2016  J00000031          4   6323-301              -755.00     -3,312.00
+Assessment -                                             07/01/2016  J00000066          6   6323-302            -3,319.35     -6,631.35
+Assessment -                                             07/02/2016  J00000002          1   6303-231               -76.00     -6,707.35
+Assessment -                                             07/02/2016  J00000033          5   6392-930              -125.00     -6,832.35
+Assessment -                                             07/03/2016  J00000003          1   6303-231               -76.00     -6,908.35
+Assessment -                                             07/03/2016  J00000034          5   6392-930              -125.00     -7,033.35
 Unassociated                                             07/04/2016  J00000075              6303-231               -76.00     -7,109.35
-Assessment - Unit Gross Scheduled Rent-Taxable           07/04/2016  J00000035          5   6392-930              -125.00     -7,234.35
-Assessment - Unit Gross Scheduled Rent-Taxable           07/05/2016  J00000008          2   6303-231               -92.00     -7,326.35
-Assessment - Unit Gross Scheduled Rent-Taxable           07/05/2016  J00000036          5   6392-930              -125.00     -7,451.35
+Assessment -                                             07/04/2016  J00000035          5   6392-930              -125.00     -7,234.35
+Assessment -                                             07/05/2016  J00000008          2   6303-231               -92.00     -7,326.35
+Assessment -                                             07/05/2016  J00000036          5   6392-930              -125.00     -7,451.35
 Unassociated                                             07/05/2016  J00000078              6323-303              -258.06     -7,709.41
-Assessment - Unit Gross Scheduled Rent-Taxable           07/06/2016  J00000009          2   6303-231               -92.00     -7,801.41
-Assessment - Unit Gross Scheduled Rent-Taxable           07/06/2016  J00000037          5   6392-930              -125.00     -7,926.41
-Assessment - Unit Gross Scheduled Rent-Taxable           07/07/2016  J00000038          5   6392-930              -125.00     -8,051.41
-Assessment - Unit Gross Scheduled Rent-Taxable           07/08/2016  J00000039          5   6392-930              -125.00     -8,176.41
-Assessment - Unit Gross Scheduled Rent-Taxable           07/09/2016  J00000040          5   6392-930              -125.00     -8,301.41
+Assessment -                                             07/06/2016  J00000009          2   6303-231               -92.00     -7,801.41
+Assessment -                                             07/06/2016  J00000037          5   6392-930              -125.00     -7,926.41
+Assessment -                                             07/07/2016  J00000038          5   6392-930              -125.00     -8,051.41
+Assessment -                                             07/08/2016  J00000039          5   6392-930              -125.00     -8,176.41
+Assessment -                                             07/09/2016  J00000040          5   6392-930              -125.00     -8,301.41
 Unassociated                                             07/09/2016  J00000076              6303-231              -276.00     -8,577.41
-Assessment - Unit Gross Scheduled Rent-Taxable           07/10/2016  J00000010          3   6303-231               -56.87     -8,634.28
-Assessment - Unit Gross Scheduled Rent-Taxable           07/10/2016  J00000041          5   6392-930              -125.00     -8,759.28
-Assessment - Unit Gross Scheduled Rent-Taxable           07/11/2016  J00000011          3   6303-231               -56.87     -8,816.15
-Assessment - Unit Gross Scheduled Rent-Taxable           07/11/2016  J00000042          5   6392-930              -125.00     -8,941.15
+Assessment -                                             07/10/2016  J00000010          3   6303-231               -56.87     -8,634.28
+Assessment -                                             07/10/2016  J00000041          5   6392-930              -125.00     -8,759.28
+Assessment -                                             07/11/2016  J00000011          3   6303-231               -56.87     -8,816.15
+Assessment -                                             07/11/2016  J00000042          5   6392-930              -125.00     -8,941.15
 Unassociated                                             07/11/2016  J00000079              6323-303              -309.68     -9,250.83
-Assessment - Unit Gross Scheduled Rent-Taxable           07/12/2016  J00000012          3   6303-231               -56.87     -9,307.70
-Assessment - Unit Gross Scheduled Rent-Taxable           07/12/2016  J00000043          5   6392-930              -125.00     -9,432.70
-Assessment - Unit Gross Scheduled Rent-Taxable           07/13/2016  J00000013          3   6303-231               -56.87     -9,489.57
-Assessment - Unit Gross Scheduled Rent-Taxable           07/13/2016  J00000044          5   6392-930              -125.00     -9,614.57
-Assessment - Unit Gross Scheduled Rent-Taxable           07/14/2016  J00000014          3   6303-231               -56.87     -9,671.44
-Assessment - Unit Gross Scheduled Rent-Taxable           07/14/2016  J00000045          5   6392-930              -125.00     -9,796.44
-Assessment - Unit Gross Scheduled Rent-Taxable           07/15/2016  J00000015          3   6303-231               -56.87     -9,853.31
-Assessment - Unit Gross Scheduled Rent-Taxable           07/15/2016  J00000046          5   6392-930              -125.00     -9,978.31
-Assessment - Unit Gross Scheduled Rent-Taxable           07/16/2016  J00000016          3   6303-231               -56.87    -10,035.18
-Assessment - Unit Gross Scheduled Rent-Taxable           07/16/2016  J00000047          5   6392-930              -125.00    -10,160.18
-Assessment - Unit Gross Scheduled Rent-Taxable           07/17/2016  J00000017          3   6303-231               -56.87    -10,217.05
-Assessment - Unit Gross Scheduled Rent-Taxable           07/17/2016  J00000048          5   6392-930              -125.00    -10,342.05
-Assessment - Unit Gross Scheduled Rent-Taxable           07/18/2016  J00000018          3   6303-231               -56.87    -10,398.92
-Assessment - Unit Gross Scheduled Rent-Taxable           07/18/2016  J00000049          5   6392-930              -125.00    -10,523.92
-Assessment - Unit Gross Scheduled Rent-Taxable           07/19/2016  J00000019          3   6303-231               -56.87    -10,580.79
-Assessment - Unit Gross Scheduled Rent-Taxable           07/19/2016  J00000050          5   6392-930              -125.00    -10,705.79
-Assessment - Unit Gross Scheduled Rent-Taxable           07/20/2016  J00000020          3   6303-231               -56.87    -10,762.66
-Assessment - Unit Gross Scheduled Rent-Taxable           07/20/2016  J00000051          5   6392-930              -125.00    -10,887.66
-Assessment - Unit Gross Scheduled Rent-Taxable           07/21/2016  J00000021          3   6303-231               -56.87    -10,944.53
-Assessment - Unit Gross Scheduled Rent-Taxable           07/21/2016  J00000052          5   6392-930              -125.00    -11,069.53
-Assessment - Unit Gross Scheduled Rent-Taxable           07/22/2016  J00000022          3   6303-231               -56.87    -11,126.40
-Assessment - Unit Gross Scheduled Rent-Taxable           07/22/2016  J00000053          5   6392-930              -125.00    -11,251.40
-Assessment - Unit Gross Scheduled Rent-Taxable           07/23/2016  J00000023          3   6303-231               -56.87    -11,308.27
-Assessment - Unit Gross Scheduled Rent-Taxable           07/23/2016  J00000054          5   6392-930              -125.00    -11,433.27
-Assessment - Unit Gross Scheduled Rent-Taxable           07/24/2016  J00000024          3   6303-231               -56.87    -11,490.14
-Assessment - Unit Gross Scheduled Rent-Taxable           07/24/2016  J00000055          5   6392-930              -125.00    -11,615.14
-Assessment - Unit Gross Scheduled Rent-Taxable           07/25/2016  J00000025          3   6303-231               -56.87    -11,672.01
-Assessment - Unit Gross Scheduled Rent-Taxable           07/25/2016  J00000056          5   6392-930              -125.00    -11,797.01
-Assessment - Unit Gross Scheduled Rent-Taxable           07/26/2016  J00000026          3   6303-231               -56.87    -11,853.88
-Assessment - Unit Gross Scheduled Rent-Taxable           07/26/2016  J00000057          5   6392-930              -125.00    -11,978.88
-Assessment - Unit Gross Scheduled Rent-Taxable           07/27/2016  J00000027          3   6303-231               -56.87    -12,035.75
-Assessment - Unit Gross Scheduled Rent-Taxable           07/27/2016  J00000058          5   6392-930              -125.00    -12,160.75
-Assessment - Unit Gross Scheduled Rent-Taxable           07/28/2016  J00000028          3   6303-231               -56.87    -12,217.62
-Assessment - Unit Gross Scheduled Rent-Taxable           07/28/2016  J00000059          5   6392-930              -125.00    -12,342.62
-Assessment - Unit Gross Scheduled Rent-Taxable           07/29/2016  J00000029          3   6303-231               -56.87    -12,399.49
-Assessment - Unit Gross Scheduled Rent-Taxable           07/29/2016  J00000060          5   6392-930              -125.00    -12,524.49
-Assessment - Unit Gross Scheduled Rent-Taxable           07/30/2016  J00000030          3   6303-231               -56.87    -12,581.36
-Assessment - Unit Gross Scheduled Rent-Taxable           07/30/2016  J00000061          5   6392-930              -125.00    -12,706.36
+Assessment -                                             07/12/2016  J00000012          3   6303-231               -56.87     -9,307.70
+Assessment -                                             07/12/2016  J00000043          5   6392-930              -125.00     -9,432.70
+Assessment -                                             07/13/2016  J00000013          3   6303-231               -56.87     -9,489.57
+Assessment -                                             07/13/2016  J00000044          5   6392-930              -125.00     -9,614.57
+Assessment -                                             07/14/2016  J00000014          3   6303-231               -56.87     -9,671.44
+Assessment -                                             07/14/2016  J00000045          5   6392-930              -125.00     -9,796.44
+Assessment -                                             07/15/2016  J00000015          3   6303-231               -56.87     -9,853.31
+Assessment -                                             07/15/2016  J00000046          5   6392-930              -125.00     -9,978.31
+Assessment -                                             07/16/2016  J00000016          3   6303-231               -56.87    -10,035.18
+Assessment -                                             07/16/2016  J00000047          5   6392-930              -125.00    -10,160.18
+Assessment -                                             07/17/2016  J00000017          3   6303-231               -56.87    -10,217.05
+Assessment -                                             07/17/2016  J00000048          5   6392-930              -125.00    -10,342.05
+Assessment -                                             07/18/2016  J00000018          3   6303-231               -56.87    -10,398.92
+Assessment -                                             07/18/2016  J00000049          5   6392-930              -125.00    -10,523.92
+Assessment -                                             07/19/2016  J00000019          3   6303-231               -56.87    -10,580.79
+Assessment -                                             07/19/2016  J00000050          5   6392-930              -125.00    -10,705.79
+Assessment -                                             07/20/2016  J00000020          3   6303-231               -56.87    -10,762.66
+Assessment -                                             07/20/2016  J00000051          5   6392-930              -125.00    -10,887.66
+Assessment -                                             07/21/2016  J00000021          3   6303-231               -56.87    -10,944.53
+Assessment -                                             07/21/2016  J00000052          5   6392-930              -125.00    -11,069.53
+Assessment -                                             07/22/2016  J00000022          3   6303-231               -56.87    -11,126.40
+Assessment -                                             07/22/2016  J00000053          5   6392-930              -125.00    -11,251.40
+Assessment -                                             07/23/2016  J00000023          3   6303-231               -56.87    -11,308.27
+Assessment -                                             07/23/2016  J00000054          5   6392-930              -125.00    -11,433.27
+Assessment -                                             07/24/2016  J00000024          3   6303-231               -56.87    -11,490.14
+Assessment -                                             07/24/2016  J00000055          5   6392-930              -125.00    -11,615.14
+Assessment -                                             07/25/2016  J00000025          3   6303-231               -56.87    -11,672.01
+Assessment -                                             07/25/2016  J00000056          5   6392-930              -125.00    -11,797.01
+Assessment -                                             07/26/2016  J00000026          3   6303-231               -56.87    -11,853.88
+Assessment -                                             07/26/2016  J00000057          5   6392-930              -125.00    -11,978.88
+Assessment -                                             07/27/2016  J00000027          3   6303-231               -56.87    -12,035.75
+Assessment -                                             07/27/2016  J00000058          5   6392-930              -125.00    -12,160.75
+Assessment -                                             07/28/2016  J00000028          3   6303-231               -56.87    -12,217.62
+Assessment -                                             07/28/2016  J00000059          5   6392-930              -125.00    -12,342.62
+Assessment -                                             07/29/2016  J00000029          3   6303-231               -56.87    -12,399.49
+Assessment -                                             07/29/2016  J00000060          5   6392-930              -125.00    -12,524.49
+Assessment -                                             07/30/2016  J00000030          3   6303-231               -56.87    -12,581.36
+Assessment -                                             07/30/2016  J00000061          5   6392-930              -125.00    -12,706.36
 Unassociated                                             07/31/2016  J00000077              6303-231               -56.87    -12,763.23
-Assessment - Unit Gross Scheduled Rent-Taxable           07/31/2016  J00000062          5   6392-930              -125.00    -12,888.23
+Assessment -                                             07/31/2016  J00000062          5   6392-930              -125.00    -12,888.23
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          07/31/2016                                                          -12,888.23
 
@@ -268,8 +268,8 @@ Austin, TX 78738 USA
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
-Assessment - Unit Gross Scheduled Rent-Taxable           07/01/2016  J00000066          6   6323-302               569.35        569.35
-Assessment - Unit Gross Scheduled Rent-Taxable           07/01/2016  J00000031          4   6323-301                25.00        594.35
+Assessment -                                             07/01/2016  J00000066          6   6323-302               569.35        569.35
+Assessment -                                             07/01/2016  J00000031          4   6323-301                25.00        594.35
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          07/31/2016                                                              594.35
 
@@ -286,12 +286,12 @@ Austin, TX 78738 USA
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
-Assessment - Resident Concessions                        07/01/2016  J00000067          6   6323-302               250.00        250.00
-Assessment - Income Offsets                              07/01/2016  J00000004          1   6303-231                24.00        274.00
-Assessment - Income Offsets                              07/02/2016  J00000005          1   6303-231                24.00        298.00
-Assessment - Income Offsets                              07/03/2016  J00000006          1   6303-231                24.00        322.00
-Assessment - Income Offsets                              07/05/2016  J00000063          2   6303-231                11.00        333.00
-Assessment - Income Offsets                              07/06/2016  J00000064          2   6303-231                11.00        344.00
+Assessment -                                             07/01/2016  J00000067          6   6323-302               250.00        250.00
+Assessment -                                             07/01/2016  J00000004          1   6303-231                24.00        274.00
+Assessment -                                             07/02/2016  J00000005          1   6303-231                24.00        298.00
+Assessment -                                             07/03/2016  J00000006          1   6303-231                24.00        322.00
+Assessment -                                             07/05/2016  J00000063          2   6303-231                11.00        333.00
+Assessment -                                             07/06/2016  J00000064          2   6303-231                11.00        344.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          07/31/2016                                                              344.00
 
@@ -324,8 +324,8 @@ Austin, TX 78738 USA
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
-Assessment - Gas Overage                                 07/01/2016  J00000007          1   6303-231               -12.35        -12.35
-Assessment - Gas Overage                                 07/05/2016  J00000065          2   6303-231              -230.00       -242.35
+Assessment -                                             07/01/2016  J00000007          1   6303-231               -12.35        -12.35
+Assessment -                                             07/05/2016  J00000065          2   6303-231              -230.00       -242.35
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          07/31/2016                                                             -242.35
 

@@ -110,7 +110,9 @@ func InvoiceTextReport(ctx context.Context, id int64) error {
 		}
 
 		fmt.Printf("%-10s  %-12s  %-15s  %-40.40s  %12s  %20s\n", a.Start.Format(rlib.RRDATEFMT3), a.IDtoString(),
-			r.RentableName, rlib.RRdb.BizTypes[biz.BID].GLAccounts[a.ATypeLID].Name, rlib.RRCommaf(a.Amount), a.Comment)
+			r.RentableName,
+			"", /*rlib.RRdb.BizTypes[biz.BID].GLAccounts[a.ATypeLID].Name*/
+			rlib.RRCommaf(a.Amount), a.Comment)
 		tot += a.Amount
 	}
 	fmt.Printf("%s\n", sep)

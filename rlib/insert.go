@@ -88,23 +88,36 @@ func InsertAssessment(ctx context.Context, a *Assessment) (int64, error) {
 		res sql.Result
 	)
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
-	// ROUND OFF Amount upto 2 decimals
+	// ROUND OFF Amount up to 2 decimals
 	a.Amount = Round(a.Amount, .5, 2)
 
 	// transaction... context
-	fields := []interface{}{a.PASMID, a.RPASMID, a.AGRCPTID, a.BID, a.RID, a.ATypeLID, a.RAID, a.Amount, a.Start, a.Stop, a.RentCycle, a.ProrationCycle, a.InvoiceNo, a.AcctRule, a.ARID, a.FLAGS, a.Comment, a.CreateBy, a.LastModBy}
+	fields := []interface{}{
+		a.PASMID,
+		a.RPASMID,
+		a.AGRCPTID,
+		a.BID,
+		a.RID,
+		a.AssocElemType,
+		a.AssocElemID,
+		a.RAID,
+		a.Amount,
+		a.Start,
+		a.Stop,
+		a.RentCycle,
+		a.ProrationCycle,
+		a.InvoiceNo,
+		a.AcctRule,
+		a.ARID,
+		a.FLAGS,
+		a.Comment,
+		a.CreateBy,
+		a.LastModBy,
+	}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertAssessment)
 		defer stmt.Close()

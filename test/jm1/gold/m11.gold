@@ -80,10 +80,10 @@ Austin, TX 78738 USA
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                               19,800.00
-Assessment - Gross Scheduled Rent-Not Taxable            11/01/2016  J00000104          4   311 Rexford          4,150.00     23,950.00
-Assessment - Gross Scheduled Rent-Not Taxable            11/01/2016  J00000105          5   309 1/2 Rexford      4,000.00     27,950.00
-Assessment - Gross Scheduled Rent-Not Taxable            11/01/2016  J00000103          1   309 Rexford          3,750.00     31,700.00
-Assessment - Bad Debt                                    11/01/2016  J00000102          5   309 1/2 Rexford        -15.00     31,685.00
+Assessment -                                             11/01/2016  J00000104          4   311 Rexford          4,150.00     23,950.00
+Assessment -                                             11/01/2016  J00000105          5   309 1/2 Rexford      4,000.00     27,950.00
+Assessment -                                             11/01/2016  J00000103          1   309 Rexford          3,750.00     31,700.00
+Assessment -                                             11/01/2016  J00000102          5   309 1/2 Rexford        -15.00     31,685.00
 Payment #2163 -                                          11/01/2016  J00000107          1   309 1/2 Rexford     -3,750.00     27,935.00
 Payment #3279 -                                          11/01/2016  J00000108          4   309 Rexford         -4,150.00     23,785.00
 Payment #8745 -                                          11/02/2016  J00000109          5   311 Rexford        -11,985.00     11,800.00
@@ -199,9 +199,9 @@ Austin, TX 78738 USA
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                             -141,450.00
-Assessment - Gross Scheduled Rent-Not Taxable            11/01/2016  J00000103          1   309 Rexford         -3,750.00   -145,200.00
-Assessment - Gross Scheduled Rent-Not Taxable            11/01/2016  J00000105          5   309 1/2 Rexford     -4,000.00   -149,200.00
-Assessment - Gross Scheduled Rent-Not Taxable            11/01/2016  J00000104          4   311 Rexford         -4,150.00   -153,350.00
+Assessment -                                             11/01/2016  J00000103          1   309 Rexford         -3,750.00   -145,200.00
+Assessment -                                             11/01/2016  J00000105          5   309 1/2 Rexford     -4,000.00   -149,200.00
+Assessment -                                             11/01/2016  J00000104          4   311 Rexford         -4,150.00   -153,350.00
 Unassociated                                             11/30/2016  J00000106              311 1/2 Rexford     -2,500.00   -155,850.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          11/30/2016                                                         -155,850.00
@@ -412,7 +412,7 @@ Austin, TX 78738 USA
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
-Assessment - Bad Debt                                    11/01/2016  J00000102          5   309 1/2 Rexford         15.00         15.00
+Assessment -                                             11/01/2016  J00000102          5   309 1/2 Rexford         15.00         15.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          11/30/2016                                                               15.00
 

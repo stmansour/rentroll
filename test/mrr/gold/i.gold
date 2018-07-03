@@ -6,9 +6,9 @@ Suite 301
 Austin, TX 78738 USA
 
 
-                                               Proration                                                                                              
-ASMID        RAID        Rentable  Rent Cycle  Cycle          Amount  AsmType                            AR Name                                      
------------  ----------  --------  ----------  ---------  ----------  ---------------------------------  ---------------------------------------------
-ASM00000002  RA00000001  6303-231  monthly     daily        1,000.00  Unit Gross Scheduled Rent-Taxable  d 12000 _, c 41000 ${GSR}, d 41102 ${GSR} _ -
-ASM00000004  RA00000002  6323-301  monthly     daily        1,000.00  Unit Gross Scheduled Rent-Taxable  d 12000 _, c 41000 ${GSR}, d 41102 ${GSR} _ -
+                                               Proration                                                                    
+ASMID        RAID        Rentable  Rent Cycle  Cycle          Amount  AsmType  AR Name                                      
+-----------  ----------  --------  ----------  ---------  ----------  -------  ---------------------------------------------
+ASM00000002  RA00000001  6303-231  monthly     daily        1,000.00           d 12000 _, c 41000 ${GSR}, d 41102 ${GSR} _ -
+ASM00000004  RA00000002  6323-301  monthly     daily        1,000.00           d 12000 _, c 41000 ${GSR}, d 41102 ${GSR} _ -
 

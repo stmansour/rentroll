@@ -265,9 +265,7 @@ func RRRentalAgreementStatementTable(ctx context.Context, BID, RAID int64, d1, d
 			if m.Stmt[i].T == 1 || m.Stmt[i].T == 2 {
 				if m.Stmt[i].A.ARID > 0 {
 					descr = rlib.RRdb.BizTypes[BID].AR[m.Stmt[i].A.ARID].Name
-				} /* else {
-					descr = rlib.RRdb.BizTypes[BID].GLAccounts[m.Stmt[i].A.ATypeLID].Name
-				}*/
+				} /* else {descr = rlib.RRdb.BizTypes[BID].GLAccounts[m.Stmt[i].A.ATypeLID].Name }*/
 			}
 			switch m.Stmt[i].T {
 			case 1: // assessments

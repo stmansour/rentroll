@@ -6,11 +6,11 @@ Suite 301
 Austin, TX 78738 USA
 
 
-                                                         Proration                                                                                                 
-ASMID        RAID        Rentable         Rent Cycle     Cycle              Amount  AsmType                           AR Name                                      
------------  ----------  ---------------  -------------  -------------  ----------  --------------------------------  ---------------------------------------------
-ASM00000010  RA00000001  309 Rexford      monthly        daily            3,500.00  Gross Scheduled Rent-Not Taxable  d 12000 _, c 41000 ${GSR}, d 41102 ${GSR} _ -
-ASM00000011  RA00000002  309 1/2 Rexford  monthly        daily            3,550.00  Gross Scheduled Rent-Not Taxable  d 12000 _, c 41000 ${GSR}, d 41102 ${GSR} _ -
-ASM00000012  RA00000003  311 Rexford      monthly        daily            1,062.07  Gross Scheduled Rent-Not Taxable  d 12000 _, c 41000 ${GSR}, d 41102 ${GSR} _ -
-ASM00000013  RA00000003  311 Rexford      non-recurring  non-recurring      111.26  Employee Concessions              d 12000 _, c 41202 _                         
+                                                         Proration                                                                        
+ASMID        RAID        Rentable         Rent Cycle     Cycle              Amount  AsmType  AR Name                                      
+-----------  ----------  ---------------  -------------  -------------  ----------  -------  ---------------------------------------------
+ASM00000010  RA00000001  309 Rexford      monthly        daily            3,500.00           d 12000 _, c 41000 ${GSR}, d 41102 ${GSR} _ -
+ASM00000011  RA00000002  309 1/2 Rexford  monthly        daily            3,550.00           d 12000 _, c 41000 ${GSR}, d 41102 ${GSR} _ -
+ASM00000012  RA00000003  311 Rexford      monthly        daily            1,062.07           d 12000 _, c 41000 ${GSR}, d 41102 ${GSR} _ -
+ASM00000013  RA00000003  311 Rexford      non-recurring  non-recurring      111.26           d 12000 _, c 41202 _                         
 

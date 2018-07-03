@@ -740,7 +740,7 @@ func GetAssessmentFirstInstance(ctx context.Context, pasmid int64) (Assessment, 
 }
 
 // GetAssessmentDuplicate returns the Assessment struct for the account with the supplied asmid
-func GetAssessmentDuplicate(ctx context.Context, start *time.Time, amt float64, pasmid, rid, raid, atypelid int64) (Assessment, error) {
+func GetAssessmentDuplicate(ctx context.Context, start *time.Time, amt float64, pasmid, rid, raid int64) (Assessment, error) {
 
 	var (
 		// err error
@@ -756,7 +756,7 @@ func GetAssessmentDuplicate(ctx context.Context, start *time.Time, amt float64, 
 	}
 
 	var row *sql.Row
-	fields := []interface{}{start, amt, pasmid, rid, raid, atypelid}
+	fields := []interface{}{start, amt, pasmid, rid, raid}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.GetAssessmentDuplicate)
 		defer stmt.Close()

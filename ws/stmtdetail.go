@@ -131,9 +131,7 @@ func SvcStatementDetail(w http.ResponseWriter, r *http.Request, sd *ServiceData)
 		if m.Stmt[i].T == 1 || m.Stmt[i].T == 2 {
 			if m.Stmt[i].A.ARID > 0 {
 				descr = rlib.RRdb.BizTypes[sd.BID].AR[m.Stmt[i].A.ARID].Name
-			} /* else {
-				descr = rlib.RRdb.BizTypes[sd.BID].GLAccounts[m.Stmt[i].A.ATypeLID].Name
-			}*/
+			} /* else {descr = rlib.RRdb.BizTypes[sd.BID].GLAccounts[m.Stmt[i].A.ATypeLID].Name }*/
 		}
 		switch m.Stmt[i].T {
 		case 1: // assessments
