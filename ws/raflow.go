@@ -40,7 +40,7 @@ type RAFlowMetaInfo struct {
 
 // RADatesFlowData contains data in the dates part of RA flow
 type RADatesFlowData struct {
-	BID             int64
+	BID             int64         `validate:"number,min=1,max=20"`
 	AgreementStart  rlib.JSONDate // TermStart
 	AgreementStop   rlib.JSONDate // TermStop
 	RentStart       rlib.JSONDate
@@ -52,8 +52,8 @@ type RADatesFlowData struct {
 // RAPeopleFlowData contains data in the background-info part of RA flow
 type RAPeopleFlowData struct {
 	TMPTCID int64
-	BID     int64
-	TCID    int64
+	BID     int64 `validate:"number,min=1,max=20"`
+	TCID    int64 `validate:"number,min=1,max=20"`
 
 	// Role
 	IsRenter    bool
@@ -65,7 +65,7 @@ type RAPeopleFlowData struct {
 	MiddleName     string `validate:"string,min=1,max=100"`
 	LastName       string `validate:"string,min=1,max=100"`
 	PreferredName  string `validate:"string,min=1,max=100"`
-	IsCompany      bool
+	IsCompany      bool   `validate:"number,min=1,max=1"`
 	CompanyName    string `validate:"string,min=1,max=100"`
 	PrimaryEmail   string `validate:"email"`
 	SecondaryEmail string `validate:"email"`
@@ -119,14 +119,14 @@ type RAPeopleFlowData struct {
 	CreditLimit         float64
 	TaxpayorID          string `validate:"string,min=1,max=25"`
 	GrossIncome         float64
-	SSN                 string
+	SSN                 string `validate:"string,min=1,max=128"`
 	DriversLicense      string `validate:"string,min=1,max=128"`
-	ThirdPartySource    int64
-	EligibleFuturePayor bool
+	ThirdPartySource    int64  `validate:"number,min=1,max=20"`
+	EligibleFuturePayor bool   `validate:"number,min=1,max=1"`
 
 	// ---------- User -----------
-	Points      int64 `validate:"number,min=1,max=20"`
-	DateofBirth rlib.JSONDate
+	Points      int64         `validate:"number,min=1,max=20"`
+	DateofBirth rlib.JSONDate // TODO(Akshay): Write date validation parser in validation.go
 	// Emergency contact information
 	EmergencyContactName      string `validate:"string,min=1,max=100"`
 	EmergencyContactAddress   string `validate:"string,min=1,max=100"`
@@ -141,13 +141,13 @@ type RAPeopleFlowData struct {
 // RAPetsFlowData contains data in the pets part of RA flow
 type RAPetsFlowData struct {
 	TMPPETID int64
-	BID      int64
-	PETID    int64
+	BID      int64 `validate:"number,min=1,max=20"`
+	PETID    int64 `validate:"number,min=1,max=20"`
 	TMPTCID  int64
-	Name     string
-	Type     string
-	Breed    string
-	Color    string
+	Name     string `validate:"string,min=1,max=100"`
+	Type     string `validate:"string,min=1,max=100"`
+	Breed    string `validate:"string,min=1,max=100"`
+	Color    string `validate:"string,min=1,max=100"`
 	Weight   int
 	DtStart  rlib.JSONDate
 	DtStop   rlib.JSONDate
@@ -167,18 +167,18 @@ type RAPetFee struct {
 // RAVehiclesFlowData contains data in the vehicles part of RA flow
 type RAVehiclesFlowData struct {
 	TMPVID              int64
-	BID                 int64
-	VID                 int64
+	BID                 int64 `validate:"number,min=1,max=20"`
+	VID                 int64 `validate:"number,min=1,max=20"`
 	TMPTCID             int64
-	VIN                 string
-	VehicleType         string `validate:"string,min=1,max=2"`
-	VehicleMake         string
-	VehicleModel        string
-	VehicleColor        string
-	VehicleYear         int64
-	LicensePlateState   string
-	LicensePlateNumber  string
-	ParkingPermitNumber string
+	VIN                 string `validate:"string,min=1,max=20"`
+	VehicleType         string `validate:"string,min=1,max=80"`
+	VehicleMake         string `validate:"string,min=1,max=80"`
+	VehicleModel        string `validate:"string,min=1,max=80"`
+	VehicleColor        string `validate:"string,min=1,max=80"`
+	VehicleYear         int64  `validate:"number,min=1,max=20"`
+	LicensePlateState   string `validate:"string,min=1,max=80"`
+	LicensePlateNumber  string `validate:"string,min=1,max=80"`
+	ParkingPermitNumber string `validate:"string,min=1,max=80"`
 	DtStart             rlib.JSONDate
 	DtStop              rlib.JSONDate
 	Fees                []RAVehicleFee
