@@ -41,12 +41,12 @@ type RAFlowMetaInfo struct {
 // RADatesFlowData contains data in the dates part of RA flow
 type RADatesFlowData struct {
 	BID             int64         `validate:"number,min=1,max=20"`
-	AgreementStart  rlib.JSONDate // TermStart
-	AgreementStop   rlib.JSONDate // TermStop
-	RentStart       rlib.JSONDate
-	RentStop        rlib.JSONDate
-	PossessionStart rlib.JSONDate
-	PossessionStop  rlib.JSONDate
+	AgreementStart  rlib.JSONDate `validate:"date"` // TermStart
+	AgreementStop   rlib.JSONDate `validate:"date"` // TermStop
+	RentStart       rlib.JSONDate `validate:"date"`
+	RentStop        rlib.JSONDate `validate:"date"`
+	PossessionStart rlib.JSONDate `validate:"date"`
+	PossessionStop  rlib.JSONDate `validate:"date"`
 }
 
 // RAPeopleFlowData contains data in the background-info part of RA flow
@@ -126,7 +126,7 @@ type RAPeopleFlowData struct {
 
 	// ---------- User -----------
 	Points      int64         `validate:"number,min=1,max=20"`
-	DateofBirth rlib.JSONDate // TODO(Akshay): Write date validation parser in validation.go
+	DateofBirth rlib.JSONDate `validate:"date"`
 	// Emergency contact information
 	EmergencyContactName      string `validate:"string,min=1,max=100"`
 	EmergencyContactAddress   string `validate:"string,min=1,max=100"`
@@ -149,8 +149,8 @@ type RAPetsFlowData struct {
 	Breed    string `validate:"string,min=1,max=100"`
 	Color    string `validate:"string,min=1,max=100"`
 	Weight   int
-	DtStart  rlib.JSONDate
-	DtStop   rlib.JSONDate
+	DtStart  rlib.JSONDate `validate:"date"`
+	DtStop   rlib.JSONDate `validate:"date"`
 	Fees     []RAPetFee
 }
 
@@ -1477,6 +1477,7 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		foo                 RAFlowDetailRequest
 		raFlowData          RAFlowJSONData
 		raFlowFieldsErrors  RAFlowFieldsErrors
+		datesFieldsErrors   DatesFieldsError
 		peopleFieldsErrors  PeopleFieldsError
 		petFieldsErrors     PetFieldsError
 		vehicleFieldsErrors VehicleFieldsError
@@ -1524,8 +1525,26 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// get unmarshalled raflow data into struct
 	err = json.Unmarshal(flow.Data, &raFlowData)
 	if err != nil {
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
+
+	//----------------------------------------------
+	// validate RADatesFlowData structure
+	// ----------------------------------------------
+
+	// call validation function
+	errs := rtags.ValidateStructFromTagRules(raFlowData.Dates)
+
+	// Modify error count for the response
+	datesFieldsErrors.Total = len(errs)
+	datesFieldsErrors.Errors = errs
+
+	// Modify Total Error
+	g.Total += datesFieldsErrors.Total
+
+	// Assign dates fields error to
+	raFlowFieldsErrors.Dates = datesFieldsErrors
 
 	//----------------------------------------------
 	// validate RAPeopleFlowData structure

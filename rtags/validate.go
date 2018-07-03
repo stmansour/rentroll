@@ -31,6 +31,8 @@ func getValidatorFromTag(tagValue, fieldName string) Validator {
 		return getEmailValidatorFromTagValues(strings.Join(args[1:], ","), fieldName)
 	case "number":
 		return getNumberValidatorFromTagValues(strings.Join(args[1:], ","), fieldName)
+	case "date":
+		return getDateValidatorFromTagValues(strings.Join(args[1:], ","), fieldName)
 	default:
 		return DefaultValidator{}
 	}
