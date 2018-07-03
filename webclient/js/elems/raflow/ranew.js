@@ -41,7 +41,7 @@ window.LoadRAFlowTemplate = function(bid, FlowID) {
     w2ui.toplayout.show('right', true);
     w2ui.toplayout.sizeTo('right', 950);
 
-    $.get('/webclient/html/raflowtmpl.html', function(htmlData) {
+    $.get('/webclient/html/raflow/raflowtmpl.html', function(htmlData) {
         // set the content of template HTML into main content of layout
         w2ui.newraLayout.content('main', htmlData);
 

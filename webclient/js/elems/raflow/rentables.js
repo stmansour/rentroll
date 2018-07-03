@@ -98,7 +98,7 @@ window.loadRARentablesGrid = function () {
             name: 'RARentableSearchForm',
             header: 'Rentable',
             style: 'display: block; border: none;',
-            formURL: '/webclient/html/formrar.html',
+            formURL: '/webclient/html/raflow/formrar.html',
             focus: -1,
             fields: [
                 {name: 'Rentable',      type: 'enum',   required: true,
@@ -551,7 +551,7 @@ window.loadRARentablesGrid = function () {
             name: 'RARentableFeesForm',
             header: 'Add New Rentable Fee',
             style: 'display: block;',
-            formURL: '/webclient/html/formra-rentablefee.html',
+            formURL: '/webclient/html/raflow/formra-rentablefee.html',
             focus: -1,
             fields: [
                 {name: 'recid',          type: 'int',    required: true, html: {page: 0, column: 0}},
