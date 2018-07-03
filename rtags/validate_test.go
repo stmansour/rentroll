@@ -2,18 +2,16 @@ package rtags
 
 import (
 	"fmt"
-	"rentroll/rlib"
 	"testing"
 )
 
 // TestUserStruct just a sample test with all combine tag rules in one struct
 func TestUserStruct(t *testing.T) {
 	type User struct {
-		ID    int           `validate:"number,min=1,max=1000"`
-		Name  string        `validate:"string,min=8,max=50"`
-		Bio   string        `validate:"string"`
-		Email string        `validate:"email"`
-		Date  rlib.JSONDate `validate:"date"`
+		ID    int    `validate:"number,min=1,max=1000"`
+		Name  string `validate:"string,min=8,max=50"`
+		Bio   string `validate:"string"`
+		Email string `validate:"email"`
 	}
 
 	tables := []struct {

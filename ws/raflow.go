@@ -41,12 +41,12 @@ type RAFlowMetaInfo struct {
 // RADatesFlowData contains data in the dates part of RA flow
 type RADatesFlowData struct {
 	BID             int64         `validate:"number,min=1,max=20"`
-	AgreementStart  rlib.JSONDate `validate:"date"` // TermStart
-	AgreementStop   rlib.JSONDate `validate:"date"` // TermStop
-	RentStart       rlib.JSONDate `validate:"date"`
-	RentStop        rlib.JSONDate `validate:"date"`
-	PossessionStart rlib.JSONDate `validate:"date"`
-	PossessionStop  rlib.JSONDate `validate:"date"`
+	AgreementStart  rlib.JSONDate // TermStart
+	AgreementStop   rlib.JSONDate // TermStop
+	RentStart       rlib.JSONDate
+	RentStop        rlib.JSONDate
+	PossessionStart rlib.JSONDate
+	PossessionStop  rlib.JSONDate
 }
 
 // RAPeopleFlowData contains data in the background-info part of RA flow
@@ -125,8 +125,8 @@ type RAPeopleFlowData struct {
 	EligibleFuturePayor bool   `validate:"number,min=1,max=1"`
 
 	// ---------- User -----------
-	Points      int64         `validate:"number,min=1,max=20"`
-	DateofBirth rlib.JSONDate `validate:"date"`
+	Points      int64 `validate:"number,min=1,max=20"`
+	DateofBirth rlib.JSONDate
 	// Emergency contact information
 	EmergencyContactName      string `validate:"string,min=1,max=100"`
 	EmergencyContactAddress   string `validate:"string,min=1,max=100"`
@@ -149,8 +149,8 @@ type RAPetsFlowData struct {
 	Breed    string `validate:"string,min=1,max=100"`
 	Color    string `validate:"string,min=1,max=100"`
 	Weight   int
-	DtStart  rlib.JSONDate `validate:"date"`
-	DtStop   rlib.JSONDate `validate:"date"`
+	DtStart  rlib.JSONDate
+	DtStop   rlib.JSONDate
 	Fees     []RAPetFee
 }
 
