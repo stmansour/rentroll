@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/pkg/errors"
 	"net/http"
 	"rentroll/bizlogic"
 	"rentroll/rlib"
@@ -1507,9 +1508,15 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	// Get flow information from the table to validate fields value
-	// TODO(Akshay): Give proper error when flowID doesn't exists
 	flow, err := rlib.GetFlow(r.Context(), foo.FlowID)
 	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// When flowId doesn't exists in database return and give error that flowId doesn't exists
+	if flow.FlowID == 0 {
+		err = errors.New(fmt.Sprintf("FlowID %d - doesn't exists.", foo.FlowID))
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
