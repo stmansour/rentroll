@@ -42,14 +42,16 @@ func getLedgerEntryDescription(ctx context.Context, l *rlib.LedgerEntry) (string
 		}
 		return "Unassociated", r.RentableName, sra
 	case rlib.JNLTYPERCPT:
-		ja, err := rlib.GetJournalAllocation(ctx, l.JAID)
-		if err != nil {
-			return "x", "x", "x"
-		}
-		a, err := rlib.GetAssessment(ctx, ja.ASMID)
-		if err != nil {
-			return "x", "x", "x"
-		}
+		/*
+			ja, err := rlib.GetJournalAllocation(ctx, l.JAID)
+			if err != nil {
+				return "x", "x", "x"
+			}
+				a, err := rlib.GetAssessment(ctx, ja.ASMID)
+				if err != nil {
+					return "x", "x", "x"
+				}
+		*/
 		r, err := rlib.GetRentable(ctx, l.RID)
 		if err != nil {
 			return "x", "x", "x"
@@ -62,9 +64,7 @@ func getLedgerEntryDescription(ctx context.Context, l *rlib.LedgerEntry) (string
 		if rcpt.ARID > 0 {
 			debit := rlib.RRdb.BizTypes[l.BID].AR[rcpt.ARID].DebitLID
 			p += fmt.Sprintf("deposited to %s (%s)", rlib.RRdb.BizTypes[l.BID].GLAccounts[debit].GLNumber, rlib.RRdb.BizTypes[l.BID].GLAccounts[debit].Name)
-		} else {
-			p += rlib.RRdb.BizTypes[l.BID].GLAccounts[a.ATypeLID].Name
-		}
+		} /* else {p += rlib.RRdb.BizTypes[l.BID].GLAccounts[a.ATypeLID].Name }*/
 		return p, r.RentableName, sra
 	case rlib.JNLTYPEASMT:
 		reason := ""
@@ -83,9 +83,7 @@ func getLedgerEntryDescription(ctx context.Context, l *rlib.LedgerEntry) (string
 			}
 			reason = ar.Name
 
-		} else {
-			reason = rlib.RRdb.BizTypes[l.BID].GLAccounts[a.ATypeLID].Name
-		}
+		} /*else {reason = rlib.RRdb.BizTypes[l.BID].GLAccounts[a.ATypeLID].Name }*/
 		return "Assessment - " + reason, r.RentableName, sra
 	case rlib.JNLTYPEEXP:
 		reason := ""

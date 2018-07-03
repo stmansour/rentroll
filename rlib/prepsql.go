@@ -117,13 +117,13 @@ func buildPreparedStatements() {
 	//===============================
 	//  Assessments
 	//===============================
-	flds = "ASMID,PASMID,RPASMID,AGRCPTID,BID,RID,ATypeLID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle,InvoiceNo,AcctRule,ARID,FLAGS,Comment,CreateTS,CreateBy,LastModTime,LastModBy"
+	flds = "ASMID,PASMID,RPASMID,AGRCPTID,BID,RID,AssocElemType,AssocElemID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle,InvoiceNo,AcctRule,ARID,FLAGS,Comment,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["Assessments"] = flds
 	RRdb.Prepstmt.GetAssessment, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE ASMID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetAssessmentInstance, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE Start=? AND PASMID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAssessmentDuplicate, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE Start=? AND Amount=? AND PASMID=? AND RID=? AND RAID=? AND ATypeLID=?")
+	RRdb.Prepstmt.GetAssessmentDuplicate, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE Start=? AND Amount=? AND PASMID=? AND RID=? AND RAID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetAllAssessmentsByBusiness, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE BID=? AND (PASMID=0 OR RentCycle=0) AND Start<? AND Stop>=?")
 	Errcheck(err)

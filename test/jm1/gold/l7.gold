@@ -8,19 +8,19 @@ Austin, TX 78738 USA
 
 Journal ID  Description                                                             Date        RntAgr      Rentable         GLAccount        Amount
 ----------  ----------------------------------------------------------------------  ----------  ----------  ---------------  ---------  ------------
-J-62        Gross Scheduled Rent-Not Taxable  311 Rexford [Rex3, monthly]                                                                           
+J-62          311 Rexford [Rex3, monthly]                                                                                                           
             Accounts Receivable                                                     07/01/2016  RA-4        311 Rexford      12000          4,150.00
             Gross Scheduled Rent-Not Taxable                                        07/01/2016  RA-4        311 Rexford      41000         -4,150.00
                                                                                                                                                     
-J-63        Security Deposits  311 Rexford [Rex3]                                                                                                   
+J-63          311 Rexford [Rex3]                                                                                                                    
             Accounts Receivable                                                     07/01/2016  RA-4        311 Rexford      12000          8,300.00
             Security Deposits                                                       07/01/2016  RA-4        311 Rexford      30000         -8,300.00
                                                                                                                                                     
-J-64        Gross Scheduled Rent-Not Taxable  309 Rexford [Rex1, monthly]                                                                           
+J-64          309 Rexford [Rex1, monthly]                                                                                                           
             Accounts Receivable                                                     07/01/2016  RA-1        309 Rexford      12000          3,750.00
             Gross Scheduled Rent-Not Taxable                                        07/01/2016  RA-1        309 Rexford      41000         -3,750.00
                                                                                                                                                     
-J-65        Gross Scheduled Rent-Not Taxable  309 1/2 Rexford [Rex2, monthly]                                                                       
+J-65          309 1/2 Rexford [Rex2, monthly]                                                                                                       
             Accounts Receivable                                                     07/01/2016  RA-2        309 1/2 Rexford  12000          3,800.00
             Gross Scheduled Rent-Not Taxable                                        07/01/2016  RA-2        309 1/2 Rexford  41000         -3,800.00
                                                                                                                                                     

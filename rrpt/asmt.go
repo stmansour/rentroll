@@ -84,7 +84,7 @@ func RRAssessmentsTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 		tbl.Puts(-1, 3, rlib.RentalPeriodToString(a.RentCycle))
 		tbl.Puts(-1, 4, rlib.RentalPeriodToString(a.ProrationCycle))
 		tbl.Putf(-1, 5, a.Amount)
-		tbl.Puts(-1, 6, rlib.RRdb.BizTypes[a.BID].GLAccounts[a.ATypeLID].Name)
+		// tbl.Puts(-1, 6, rlib.RRdb.BizTypes[a.BID].GLAccounts[a.ATypeLID].Name)
 		ar, err := rlib.GetAssessmentAccountRuleText(ctx, &a)
 		if err != nil {
 			// set errors in section3 and return

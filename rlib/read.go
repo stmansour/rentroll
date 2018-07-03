@@ -27,18 +27,60 @@ func ReadARs(rows *sql.Rows, a *AR) error {
 
 // ReadAssessment reads a full Assessment structure of data from the database based on the supplied Rows pointer.
 func ReadAssessment(row *sql.Row, a *Assessment) error {
-	err := row.Scan(&a.ASMID, &a.PASMID, &a.RPASMID, &a.AGRCPTID, &a.BID, &a.RID, &a.ATypeLID, &a.RAID, &a.Amount,
-		&a.Start, &a.Stop, &a.RentCycle, &a.ProrationCycle, &a.InvoiceNo, &a.AcctRule, &a.ARID, &a.FLAGS, &a.Comment,
-		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	err := row.Scan(
+		&a.ASMID,
+		&a.PASMID,
+		&a.RPASMID,
+		&a.AGRCPTID,
+		&a.BID,
+		&a.RID,
+		&a.AssocElemType,
+		&a.AssocElemID,
+		&a.RAID,
+		&a.Amount,
+		&a.Start,
+		&a.Stop,
+		&a.RentCycle,
+		&a.ProrationCycle,
+		&a.InvoiceNo,
+		&a.AcctRule,
+		&a.ARID,
+		&a.FLAGS,
+		&a.Comment,
+		&a.CreateTS,
+		&a.CreateBy,
+		&a.LastModTime,
+		&a.LastModBy)
 	SkipSQLNoRowsError(&err)
 	return err
 }
 
 // ReadAssessments reads a full Assessment structure of data from the database based on the supplied Rows pointer.
 func ReadAssessments(rows *sql.Rows, a *Assessment) error {
-	return rows.Scan(&a.ASMID, &a.PASMID, &a.RPASMID, &a.AGRCPTID, &a.BID, &a.RID, &a.ATypeLID, &a.RAID, &a.Amount,
-		&a.Start, &a.Stop, &a.RentCycle, &a.ProrationCycle, &a.InvoiceNo, &a.AcctRule, &a.ARID, &a.FLAGS, &a.Comment,
-		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	return rows.Scan(
+		&a.ASMID,
+		&a.PASMID,
+		&a.RPASMID,
+		&a.AGRCPTID,
+		&a.BID,
+		&a.RID,
+		&a.AssocElemType,
+		&a.AssocElemID,
+		&a.RAID,
+		&a.Amount,
+		&a.Start,
+		&a.Stop,
+		&a.RentCycle,
+		&a.ProrationCycle,
+		&a.InvoiceNo,
+		&a.AcctRule,
+		&a.ARID,
+		&a.FLAGS,
+		&a.Comment,
+		&a.CreateTS,
+		&a.CreateBy,
+		&a.LastModTime,
+		&a.LastModBy)
 }
 
 // ReadBuildingData reads the data for a building object from db based on the supplied pointer

@@ -90,9 +90,9 @@ func textPrintJournalAssessment(ctx context.Context, tbl *gotable.Table, jctx *j
 
 	if a.ARID > 0 {
 		s = rlib.RRdb.BizTypes[xbiz.P.BID].AR[a.ARID].Name
-	} else if a.ATypeLID > 0 {
+	} /*else if a.ATypeLID > 0 {
 		s = rlib.RRdb.BizTypes[xbiz.P.BID].GLAccounts[a.ATypeLID].Name
-	}
+	}*/
 
 	//-------------------------------------------------------------------------------------
 	// For reporting, we want to show any proration that needs to take place. To determine

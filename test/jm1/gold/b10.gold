@@ -6,8 +6,8 @@ Suite 301
 Austin, TX 78738 USA
 
 
-                                                      Proration                                                                                             
-ASMID        RAID        Rentable         Rent Cycle  Cycle          Amount  AsmType                           AR Name                                      
------------  ----------  ---------------  ----------  ---------  ----------  --------------------------------  ---------------------------------------------
-ASM00000036  RA00000005  309 1/2 Rexford  monthly     daily        4,000.00  Gross Scheduled Rent-Not Taxable  d 12000 _, c 41000 ${GSR}, d 41102 ${GSR} _ -
+                                                      Proration                                                                    
+ASMID        RAID        Rentable         Rent Cycle  Cycle          Amount  AsmType  AR Name                                      
+-----------  ----------  ---------------  ----------  ---------  ----------  -------  ---------------------------------------------
+ASM00000036  RA00000005  309 1/2 Rexford  monthly     daily        4,000.00           d 12000 _, c 41000 ${GSR}, d 41102 ${GSR} _ -
 

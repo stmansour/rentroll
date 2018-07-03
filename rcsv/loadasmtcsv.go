@@ -144,19 +144,19 @@ func CreateAssessmentsFromCSV(ctx context.Context, sa []string, lineno int) (int
 	// rlib.Assessment Type
 	//-------------------------------------------------------------------
 	// var gla rlib.GLAccount
-	var ok bool
-	if len(sa[GLAcctID]) > 0 {
-		a.ATypeLID, _ = rlib.IntFromString(sa[GLAcctID], "value for Assessment type is invalid")
-		// asmt, ok := (*AsmtTypes)[a.ATypeLID]
-		rlib.InitBusinessFields(a.BID)
-		// rlib.GetDefaultLedgers(a.BID) // Gather its chart of accounts
-		// TODO(Steve): ignore error?
-		rlib.RRdb.BizTypes[a.BID].GLAccounts, _ = rlib.GetGLAccountMap(ctx, a.BID)
-		/*gla,*/ _, ok = rlib.RRdb.BizTypes[a.BID].GLAccounts[a.ATypeLID]
-		if !ok {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Assessment type is invalid: %s", funcname, lineno, sa[2])
-		}
-	}
+	//	var ok bool
+	//	if len(sa[GLAcctID]) > 0 {
+	//		//a.ATypeLID, _ = rlib.IntFromString(sa[GLAcctID], "value for Assessment type is invalid")
+	//		// asmt, ok := (*AsmtTypes)[a.ATypeLID]
+	//		rlib.InitBusinessFields(a.BID)
+	//		// rlib.GetDefaultLedgers(a.BID) // Gather its chart of accounts
+	//		// TODO(Steve): ignore error?
+	//		rlib.RRdb.BizTypes[a.BID].GLAccounts, _ = rlib.GetGLAccountMap(ctx, a.BID)
+	//		// /*gla,*/ _, ok = rlib.RRdb.BizTypes[a.BID].GLAccounts[a.ATypeLID]
+	//		if !ok {
+	//			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Assessment type is invalid: %s", funcname, lineno, sa[2])
+	//		}
+	//	}
 
 	//-------------------------------------------------------------------
 	// Rental Agreement ID
@@ -247,11 +247,15 @@ func CreateAssessmentsFromCSV(ctx context.Context, sa []string, lineno int) (int
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Skipping this record as the Rental Agreement could not be found", funcname, lineno)
 	}
 
-	// TODO(Steve): ignore error?
-	adup, _ := rlib.GetAssessmentDuplicate(ctx, &a.Start, a.Amount, a.PASMID, a.RID, a.RAID, a.ATypeLID)
-	if adup.ASMID != 0 {
+	/*   This is not a valid duplicate check as it stands
+	adup, err := rlib.GetAssessmentDuplicate(ctx, &a.Start, a.Amount, a.PASMID, a.RID, a.RAID)
+	if err != nil {
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error getting Assessment: %s", funcname, lineno, err.Error())
+	}
+	dup.ASMID != 0 {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - this is a duplicate of an existing assessment: %s", funcname, lineno, adup.IDtoString())
 	}
+	*/
 
 	_, err = rlib.InsertAssessment(ctx, &a)
 	if err != nil {

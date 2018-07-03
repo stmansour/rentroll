@@ -98,7 +98,8 @@ CREATE TABLE `Assessments` (
   `AGRCPTID` bigint(20) NOT NULL DEFAULT '0',
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `RID` bigint(20) NOT NULL DEFAULT '0',
-  `ATypeLID` bigint(20) NOT NULL DEFAULT '0',
+  `AssocElemType` bigint(20) NOT NULL DEFAULT '0',
+  `AssocElemID` bigint(20) NOT NULL DEFAULT '0',
   `RAID` bigint(20) NOT NULL DEFAULT '0',
   `Amount` decimal(19,4) NOT NULL DEFAULT '0.0000',
   `Start` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
@@ -2569,4 +2570,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-06-29 22:14:36
+-- Dump completed on 2018-07-02 15:33:14

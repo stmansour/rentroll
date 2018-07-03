@@ -10,8 +10,8 @@ Austin, TX 78738 USA
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                              173,600.73
-Payment #3283 - Gross Scheduled Rent-Not Taxable         12/01/2016  J00000118          4   309 Rexford          4,150.00    177,750.73
-Payment #2167 - Gross Scheduled Rent-Not Taxable         12/01/2016  J00000117          1   309 1/2 Rexford      3,750.00    181,500.73
+Payment #3283 -                                          12/01/2016  J00000118          4   309 Rexford          4,150.00    177,750.73
+Payment #2167 -                                          12/01/2016  J00000117          1   309 1/2 Rexford      3,750.00    181,500.73
 Transfer                                                 12/02/2016  J00000120                                   4,150.00    185,650.73
 Transfer                                                 12/02/2016  J00000119                                   3,750.00    189,400.73
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -30,11 +30,11 @@ Austin, TX 78738 USA
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                               31,685.00
-Assessment - Gross Scheduled Rent-Not Taxable            12/01/2016  J00000114          4   311 Rexford          4,150.00     35,835.00
-Assessment - Gross Scheduled Rent-Not Taxable            12/01/2016  J00000115          5   309 1/2 Rexford      4,000.00     39,835.00
-Assessment - Gross Scheduled Rent-Not Taxable            12/01/2016  J00000113          1   309 Rexford          3,750.00     43,585.00
-Payment #2167 - Gross Scheduled Rent-Not Taxable         12/01/2016  J00000117          1   309 1/2 Rexford     -3,750.00     39,835.00
-Payment #3283 - Gross Scheduled Rent-Not Taxable         12/01/2016  J00000118          4   309 Rexford         -4,150.00     35,685.00
+Assessment -                                             12/01/2016  J00000114          4   311 Rexford          4,150.00     35,835.00
+Assessment -                                             12/01/2016  J00000115          5   309 1/2 Rexford      4,000.00     39,835.00
+Assessment -                                             12/01/2016  J00000113          1   309 Rexford          3,750.00     43,585.00
+Payment #2167 -                                          12/01/2016  J00000117          1   309 1/2 Rexford     -3,750.00     39,835.00
+Payment #3283 -                                          12/01/2016  J00000118          4   309 Rexford         -4,150.00     35,685.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2016                                                           35,685.00
 
@@ -67,9 +67,9 @@ Austin, TX 78738 USA
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                             -155,850.00
-Assessment - Gross Scheduled Rent-Not Taxable            12/01/2016  J00000113          1   309 Rexford         -3,750.00   -159,600.00
-Assessment - Gross Scheduled Rent-Not Taxable            12/01/2016  J00000115          5   309 1/2 Rexford     -4,000.00   -163,600.00
-Assessment - Gross Scheduled Rent-Not Taxable            12/01/2016  J00000114          4   311 Rexford         -4,150.00   -167,750.00
+Assessment -                                             12/01/2016  J00000113          1   309 Rexford         -3,750.00   -159,600.00
+Assessment -                                             12/01/2016  J00000115          5   309 1/2 Rexford     -4,000.00   -163,600.00
+Assessment -                                             12/01/2016  J00000114          4   311 Rexford         -4,150.00   -167,750.00
 Unassociated                                             12/31/2016  J00000116              311 1/2 Rexford     -2,500.00   -170,250.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2016                                                         -170,250.00
