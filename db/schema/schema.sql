@@ -233,7 +233,7 @@ CREATE TABLE RentalAgreement (
               0        Application Being Completed     Renters / Users have not completely filled out the application.
               1        Pending First Approval          Application has been filled out. It is being reviewed
               2        Pending Second Approval         The first approver needs to approve the application
-              3        Move In / Execute Modification  Time to print Rental Agreement, sign, the application, move the resident in if
+              3        Move-In / Execute Modification  Time to print Rental Agreement, sign, the application, move the resident in if
                                                        it is a new rental agreement or Updating a new linked rental agreement if modifying
                                                        *any* detail associate with the rental agreement.
               4        Active                          Tenant has moved in and the RA remains valid
@@ -1052,8 +1052,6 @@ CREATE TABLE Assessments (
     ARID BIGINT NOT NULL DEFAULT 0,                         -- The accounting rule to apply
     FLAGS BIGINT NOT NULL DEFAULT 0,                        -- Bits 0-1:  0 = unpaid, 1 = partially paid, 2 = fully paid, 3 = not-defined at this time
                                                             -- 1<<2 = This assessment has been reversed
-                                                            -- 1<<3 = PETID required  
-                                                            -- 1<<4 = VID required
 
     Comment VARCHAR(256) NOT NULL DEFAULT '',               -- for comments such as "Prior period adjustment"
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
@@ -1126,6 +1124,8 @@ CREATE TABLE AR (
                                                             -- 1<<4 = Is Rent Assessment
                                                             -- 1<<5 = Is Security Deposit Assessment
                                                             -- 1<<6 = Is NonRecur charge
+                                                            -- 1<<7 = PETID required  
+                                                            -- 1<<8 = VID required
     DefaultAmount DECIMAL(19,4) NOT NULL DEFAULT 0.0,       -- amount to initialize interface with
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it

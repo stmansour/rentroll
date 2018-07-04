@@ -152,7 +152,9 @@ type RAPetsFlowData struct {
 	Fees     []RAPetFee
 }
 
-// RAPetFee holds the fee details for a pet
+
+// RAPetFee holds the fee details for a pet.
+// Found in rafd.Pets.Fees[i]
 type RAPetFee struct {
 	TMPPETID int64
 	BID      int64
