@@ -500,6 +500,9 @@ DBNAME="rentroll"
 # ALTER TABLE Assessments CHANGE ATypeLID AssocElemType BIGINT NOT NULL DEFAULT 0;
 # ALTER TABLE Assessments ADD AssocElemID BIGINT NOT NULL DEFAULT 0 AFTER AssocElemType;
 
+# July 4, 2018
+# ALTER TABLE Prospect CHANGE CommissionableThirdParty CommissionableThirdParty TEXT NOT NULL;
+
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================
