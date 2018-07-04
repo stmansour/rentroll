@@ -125,7 +125,7 @@ window.loadRAPetsGrid = function () {
             name    : 'RAPetForm',
             header  : 'Add Pet information',
             style   : 'border: 0px; background-color: transparent; display: block;',
-            formURL : '/webclient/html/formrapets.html',
+            formURL : '/webclient/html/raflow/formrapets.html',
             toolbar : {
                 items: [
                     { id: 'bt3', type: 'spacer' },
@@ -538,7 +538,7 @@ window.loadRAPetsGrid = function () {
         $().w2form({
             name: 'RAPetFormBtns',
             style: 'border: none; background-color: transparent;',
-            formURL: '/webclient/html/formrapetbtns.html',
+            formURL: '/webclient/html/raflow/formrapetbtns.html',
             url: '',
             fields: [],
             actions: {
