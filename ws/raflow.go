@@ -40,24 +40,24 @@ type RAFlowMetaInfo struct {
 // RADatesFlowData contains data in the dates part of RA flow
 type RADatesFlowData struct {
 	BID             int64         `validate:"number,min=1,max=20"`
-	AgreementStart  rlib.JSONDate // TermStart
-	AgreementStop   rlib.JSONDate // TermStop
-	RentStart       rlib.JSONDate
-	RentStop        rlib.JSONDate
-	PossessionStart rlib.JSONDate
-	PossessionStop  rlib.JSONDate
+	AgreementStart  rlib.JSONDate `validate:"-"` // TermStart
+	AgreementStop   rlib.JSONDate `validate:"-"` // TermStop
+	RentStart       rlib.JSONDate `validate:"-"`
+	RentStop        rlib.JSONDate `validate:"-"`
+	PossessionStart rlib.JSONDate `validate:"-"`
+	PossessionStop  rlib.JSONDate `validate:"-"`
 }
 
 // RAPeopleFlowData contains data in the background-info part of RA flow
 type RAPeopleFlowData struct {
-	TMPTCID int64
+	TMPTCID int64 `validate:"number,min=1,max=20"`
 	BID     int64 `validate:"number,min=1,max=20"`
 	TCID    int64 `validate:"number,min=1,max=20"`
 
 	// Role
-	IsRenter    bool
-	IsOccupant  bool
-	IsGuarantor bool
+	IsRenter    bool `validate:"-"`
+	IsOccupant  bool `validate:"-"`
+	IsGuarantor bool `validate:"-"`
 
 	// ---------- Basic Info -----------
 	FirstName      string `validate:"string,min=1,max=100"`
@@ -71,13 +71,13 @@ type RAPeopleFlowData struct {
 	WorkPhone      string `validate:"number,min=1,max=100"`
 	CellPhone      string `validate:"number,min=1,max=100"`
 	Address        string `validate:"string,min=1,max=100"`
-	Address2       string `validate:"string,min=1,max=100"`
-	City           string `validate:"string,min=1,max=100"`
+	Address2       string `validate:"string,omitempty,min=0,max=100"`
+	City           string `validate:"string,min=1,max=100,n"`
 	State          string `validate:"string,min=1,max=25"`
 	PostalCode     string `validate:"number,min=1,max=100"`
 	Country        string `validate:"string,min=1,max=100"`
-	Website        string `validate:"string,min=1,max=100"`
-	Comment        string `validate:"string,min=1,max=2048"`
+	Website        string `validate:"string,omitempty,min=1,max=100"`
+	Comment        string `validate:"string,omitempty,min=1,max=2048"`
 
 	// ---------- Prospect -----------
 	CompanyAddress    string `validate:"string,min=1,max=100"`
@@ -103,11 +103,11 @@ type RAPeopleFlowData struct {
 	PriorReasonForMoving   int64  `validate:"number,min=1"` // Reason for moving
 
 	// Have you ever been
-	Evicted          bool   // Evicted
+	Evicted          bool   `validate:"-"` // Evicted
 	EvictedDes       string `validate:"string,min=1,max=2048"`
-	Convicted        bool   // Arrested or convicted of a Convicted
+	Convicted        bool   `validate:"-"` // Arrested or convicted of a Convicted
 	ConvictedDes     string `validate:"string,min=1,max=2048"`
-	Bankruptcy       bool   // Declared Bankruptcy
+	Bankruptcy       bool   `validate:"-"` // Declared Bankruptcy
 	BankruptcyDes    string `validate:"string,min=1,max=2048"`
 	OtherPreferences string `validate:"string,min=1,max=1024"`
 	//FollowUpDate             rlib.JSONDate
@@ -120,8 +120,8 @@ type RAPeopleFlowData struct {
 	GrossIncome         float64
 	SSN                 string `validate:"string,min=1,max=128"`
 	DriversLicense      string `validate:"string,min=1,max=128"`
-	ThirdPartySource    int64  `validate:"number,min=1,max=20"`
-	EligibleFuturePayor bool   `validate:"number,min=1,max=1"`
+	ThirdPartySource    int64  `validate:"number:float,min=1,max=20"`
+	EligibleFuturePayor bool   `validate:"number:float,min=1,max=1"`
 
 	// ---------- User -----------
 	Points      int64 `validate:"number,min=1,max=20"`
@@ -148,8 +148,8 @@ type RAPetsFlowData struct {
 	Breed    string `validate:"string,min=1,max=100"`
 	Color    string `validate:"string,min=1,max=100"`
 	Weight   int
-	DtStart  rlib.JSONDate
-	DtStop   rlib.JSONDate
+	DtStart  rlib.JSONDate `validate:"-"`
+	DtStop   rlib.JSONDate `validate:"-"`
 	Fees     []RAPetFee
 }
 
@@ -166,21 +166,21 @@ type RAPetFee struct {
 
 // RAVehiclesFlowData contains data in the vehicles part of RA flow
 type RAVehiclesFlowData struct {
-	TMPVID              int64  `validate:"number,min=1,max=20"`
-	BID                 int64  `validate:"number,min=1,max=20"`
-	VID                 int64  `validate:"number,min=1,max=20"`
-	TMPTCID             int64  `validate:"number,min=1,max=20"`
-	VIN                 string `validate:"string,min=1,max=20"`
-	VehicleType         string `validate:"string,min=1,max=80"`
-	VehicleMake         string `validate:"string,min=1,max=80"`
-	VehicleModel        string `validate:"string,min=1,max=80"`
-	VehicleColor        string `validate:"string,min=1,max=80"`
-	VehicleYear         int64  `validate:"number,min=1,max=20"`
-	LicensePlateState   string `validate:"string,min=1,max=80"`
-	LicensePlateNumber  string `validate:"string,min=1,max=80"`
-	ParkingPermitNumber string `validate:"string,min=1,max=80"`
-	DtStart             rlib.JSONDate
-	DtStop              rlib.JSONDate
+	TMPVID              int64         `validate:"number,min=1,max=20"`
+	BID                 int64         `validate:"number,min=1,max=20"`
+	VID                 int64         `validate:"number,min=1,max=20"`
+	TMPTCID             int64         `validate:"number,min=1,max=20"`
+	VIN                 string        `validate:"string,min=1,max=20"`
+	VehicleType         string        `validate:"string,min=1,max=80"`
+	VehicleMake         string        `validate:"string,min=1,max=80"`
+	VehicleModel        string        `validate:"string,min=1,max=80"`
+	VehicleColor        string        `validate:"string,min=1,max=80"`
+	VehicleYear         int64         `validate:"number,min=1,max=20"`
+	LicensePlateState   string        `validate:"string,min=1,max=80"`
+	LicensePlateNumber  string        `validate:"string,min=1,max=80"`
+	ParkingPermitNumber string        `validate:"string,min=1,max=80"`
+	DtStart             rlib.JSONDate `validate:"-"`
+	DtStop              rlib.JSONDate `validate:"-"`
 	Fees                []RAVehicleFee
 }
 
@@ -219,8 +219,8 @@ type RARentableFeesData struct {
 	ARName         string
 	ContractAmount float64
 	RentCycle      int64
-	Start          rlib.JSONDate
-	Stop           rlib.JSONDate
+	Start          rlib.JSONDate `validate:"-"`
+	Stop           rlib.JSONDate `validate:"-"`
 	AtSigningAmt   float64
 	ProrateAmt     float64
 	SalesTaxAmt    float64

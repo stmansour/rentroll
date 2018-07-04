@@ -15,6 +15,9 @@ import (
 //      // for string validation type
 //      Field int `validate:"string,min=2.max=3"`
 //
+//      // For omit the field when it is empty
+//      Field int `validate:"string,omitempty"`
+//
 func getValidatorFromTag(tagValue, fieldName string) Validator {
 
 	// replace any misplaced whitespace in tag value
@@ -69,6 +72,11 @@ func ValidateStructFromTagRules(s interface{}) map[string][]string {
 
 		// skip if tag not defined or ignored
 		if tag == "" || tag == "-" {
+			continue
+		}
+
+		// If field is set to omitempty and its have blank, nil, zero value than skip the field validation check
+		if isEmptyValue(v.Field(i)) && strings.Contains(tag, "omitempty") {
 			continue
 		}
 
