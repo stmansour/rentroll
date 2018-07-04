@@ -4,7 +4,7 @@ package rlib
 // string.
 //-----------------------------------------------------------------------------
 var RAStates = []string{
-	"Application Being Completed",
+	"Application Being Filled In",
 	"Pending First Approval",
 	"Pending Second Approval",
 	"Move In",

@@ -337,22 +337,17 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	//-------------------------------------------------------------------------
-	// Add Payors...
-	//-------------------------------------------------------------------------
-	m, err := rlib.GetRentalAgreementPayorsInRange(r.Context(), ra.RAID, &ra.AgreementStart, &ra.AgreementStop)
-	if err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
-	}
-	for i := 0; i < len(m); i++ {
-		if err = addRAPtoFlow(r.Context(), m[i].TCID, 0 /*no RID here*/, &raf, false, true, false); err != nil {
-			SvcErrorReturn(w, err, funcname)
-			return
-		}
-	}
-
-	//-------------------------------------------------------------------------
 	// Add Users...
+	//
+	// Note: we need to add users before payors in order to
+	// ensure that all the pets and vehicles are loaded.  This is because
+	// of two behaviors of the code.  First, pets and vehicles are loaded only
+	// when the person is loaded with the User (occupant) flag set.  Second,
+	// a person is not added twice, and if you load a Payor first -- the pets
+	// and vehicles will NOT be loaded then when you call it the second time
+	// to load the same transactant as a User the code will see that the
+	// transactant has already been loaded and return without doing anything
+	// other than setting the Payor (renter) flag.
 	//-------------------------------------------------------------------------
 	n, err := rlib.GetAllRentalAgreementRentables(r.Context(), ra.RAID)
 	if err != nil {
@@ -366,6 +361,21 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 		for k := 0; k < len(rulist); k++ {
 			addRAPtoFlow(r.Context(), rulist[k].TCID, n[j].RID, &raf, true, false, true)
+		}
+	}
+
+	//-------------------------------------------------------------------------
+	// Add Payors...
+	//-------------------------------------------------------------------------
+	m, err := rlib.GetRentalAgreementPayorsInRange(r.Context(), ra.RAID, &ra.AgreementStart, &ra.AgreementStop)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+	for i := 0; i < len(m); i++ {
+		if err = addRAPtoFlow(r.Context(), m[i].TCID, 0 /*no RID here*/, &raf, false, true, false); err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
 		}
 	}
 
@@ -414,23 +424,76 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			return
 		}
 		for j := 0; j < len(asms); j++ {
+
+			//----------------------------------------------------------
+			// Get the account rule for this assessment...
+			//----------------------------------------------------------
 			ar, err := rlib.GetAR(r.Context(), asms[j].ARID)
 			if err != nil {
 				SvcErrorReturn(w, err, funcname)
 				return
 			}
-			var fee = RARentableFeesData{
-				BID:            rfd.BID,
-				RID:            rfd.RID,
-				ASMID:          asms[j].ASMID,
-				ARID:           asms[j].ARID,
-				ARName:         ar.Name,
-				ContractAmount: asms[j].Amount,
-				RentCycle:      asms[j].RentCycle,
-				Start:          rlib.JSONDate(asms[j].Start),
-				Stop:           rlib.JSONDate(asms[j].Stop),
+
+			//----------------------------------------------------------
+			// Handle Rentable Fees that are NOT Pet or Vehicle related
+			//----------------------------------------------------------
+			if ar.FLAGS&(128|256) == 0 {
+				var fee = RARentableFeesData{
+					BID:            rfd.BID,
+					RID:            rfd.RID,
+					ASMID:          asms[j].ASMID,
+					ARID:           asms[j].ARID,
+					ARName:         ar.Name,
+					ContractAmount: asms[j].Amount,
+					RentCycle:      asms[j].RentCycle,
+					Start:          rlib.JSONDate(asms[j].Start),
+					Stop:           rlib.JSONDate(asms[j].Stop),
+				}
+				rfd.Fees = append(rfd.Fees, fee)
 			}
-			rfd.Fees = append(rfd.Fees, fee)
+
+			//----------------------------------------------------------
+			// Handle PET Fees
+			//----------------------------------------------------------
+			if ar.FLAGS&(128) != 0 { // Is it a pet fee?
+				petid := asms[j].AssocElemID // find the pet...
+				for k := 0; k < len(raf.Pets); k++ {
+					rlib.Console("FOUND PET FEE... petid = %d, ASMID = %d\n", petid, asms[j].ASMID)
+					if raf.Pets[k].PETID == petid {
+						var pf = RAPetFee{
+							TMPPETID: raf.Pets[k].TMPPETID,
+							BID:      raf.Pets[k].BID,
+							ARID:     asms[j].ARID,
+							ASMID:    asms[j].ASMID,
+							ARName:   ar.Name,
+							Amount:   asms[j].Amount,
+						}
+						raf.Pets[k].Fees = append(raf.Pets[k].Fees, pf)
+						break
+					}
+				}
+			}
+			//----------------------------------------------------------
+			// Handle VEHICLE Fees
+			//----------------------------------------------------------
+			if ar.FLAGS&(256) != 0 { // Is it a vehicle fee?
+				vid := asms[j].AssocElemID // find the vehicle...
+				for k := 0; k < len(raf.Vehicles); k++ {
+					rlib.Console("FOUND VEHICLE FEE... petid = %d, ASMID = %d\n", vid, asms[j].ASMID)
+					if raf.Vehicles[k].VID == vid {
+						var pf = RAVehicleFee{
+							TMPVID: raf.Vehicles[k].TMPVID,
+							BID:    raf.Vehicles[k].BID,
+							ARID:   asms[j].ARID,
+							ASMID:  asms[j].ASMID,
+							ARName: ar.Name,
+							Amount: asms[j].Amount,
+						}
+						raf.Vehicles[k].Fees = append(raf.Vehicles[k].Fees, pf)
+						break
+					}
+				}
+			}
 		}
 
 		raf.Rentables = append(raf.Rentables, rfd)
@@ -488,8 +551,10 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //      raf  - pointer to the flow struct to update
 //      chk  - check to see if the tcid exists in raf.People before adding.
 //             This is not always necessary, but only the caller knows.
-// isRenter  - true if we need to set the RAPerson isRenter bool to true
-// isOccupant- true if we need to set the RAPerson isOccupant bool to true
+// isRenter  - true if we need to set the RAPerson isRenter bool to true.
+//             It should be true for Payors.
+// isOccupant- true if we need to set the RAPerson isOccupant bool to true.
+//             It should be true for Users.
 //
 // RETURNS
 //     any error encountered
@@ -511,7 +576,7 @@ func addRAPtoFlow(ctx context.Context, tcid, rid int64, raf *RAFlowJSONData, chk
 		}
 	}
 
-	rap, err := createRAFlowPerson(ctx, tcid, raf)
+	rap, err := createRAFlowPerson(ctx, tcid, raf, isOccupant) // adds person AND associated pets and vehicles
 	if err != nil {
 		return err
 	}
@@ -538,19 +603,23 @@ func addRAPtoFlow(ctx context.Context, tcid, rid int64, raf *RAFlowJSONData, chk
 	return nil
 }
 
-// createRAFlowPerson returns a new RAPeopleFlowData based on the supplied tcid.
-// It does not set the Renter or Occupant flags
+// createRAFlowPerson returns a new RAPeopleFlowData based on the supplied
+// tcid. It does not set the Renter or Occupant flags
 //
 // INPUTS
-//      ctx  = db transaction context
-//     tcid  = the tcid of the transactant to load
-//      raf  = pointer to RAFlowJSONData
+//          ctx  = db transaction context
+//         tcid  = the tcid of the transactant to load
+//          raf  = pointer to RAFlowJSONData
+// addDependents = adds dependents (currently pets and vehicles) to the flow
+//                 data in addition to the transactant data. The recommended
+//                 usage of this flag is to set it to true when the person
+//                 being added is a user.
 //
 // RETURNS
 //     RAPeopleFlowData structure
 //     any error encountered
 //-----------------------------------------------------------------------------
-func createRAFlowPerson(ctx context.Context, tcid int64, raf *RAFlowJSONData) (RAPeopleFlowData, error) {
+func createRAFlowPerson(ctx context.Context, tcid int64, raf *RAFlowJSONData, addDependents bool) (RAPeopleFlowData, error) {
 	var p rlib.Transactant
 	var pu rlib.User
 	var pp rlib.Payor
@@ -576,11 +645,14 @@ func createRAFlowPerson(ctx context.Context, tcid int64, raf *RAFlowJSONData) (R
 	rlib.MigrateStructVals(&pp, &rap)
 	rlib.MigrateStructVals(&pu, &rap)
 	rlib.MigrateStructVals(&pr, &rap)
-	if err = addFlowPersonVehicles(ctx, tcid, rap.TMPTCID, raf); err != nil {
-		return rap, err
-	}
-	if err = addFlowPersonPets(ctx, tcid, rap.TMPTCID, raf); err != nil {
-		return rap, err
+
+	if addDependents {
+		if err = addFlowPersonVehicles(ctx, tcid, rap.TMPTCID, raf); err != nil {
+			return rap, err
+		}
+		if err = addFlowPersonPets(ctx, tcid, rap.TMPTCID, raf); err != nil {
+			return rap, err
+		}
 	}
 	return rap, nil
 }
