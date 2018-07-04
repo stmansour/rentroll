@@ -848,9 +848,9 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 			return err
 		}
 
-		//-------------------------------------
-		// Generate Rent Assessments
-		//-------------------------------------
+		//--------------------------------------------------------
+		// Generate assessments associated with the rentable...
+		//--------------------------------------------------------
 		var asmRent rlib.Assessment
 		var asmSecDep rlib.Assessment
 		asmRent.BID = BID
@@ -875,9 +875,9 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 		if err != nil {
 			return err
 		}
-		for k := 0; k < len(petList); k++ {
+		for k := 0; k < len(petList); k++ { // generate the assessment(s) for each pet
 			for j := 0; j < len(dbConf.PetFees); j++ {
-				if dbConf.PetFees[j].FLAGS&(1<<6) == 0 { // recurring pet fees...
+				if dbConf.PetFees[j].FLAGS&(1<<6) == 0 { // pet fees...
 					continue
 				}
 				var asm = rlib.Assessment{
@@ -908,7 +908,7 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 		if err != nil {
 			return err
 		}
-		for k := 0; k < len(vList); k++ {
+		for k := 0; k < len(vList); k++ { // generate recurring vehicle fees for each vehicle
 			for j := 0; j < len(dbConf.VehicleFees); j++ {
 				if dbConf.VehicleFees[j].FLAGS&(1<<6) == 0 {
 					continue
@@ -961,63 +961,81 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 				return bizlogic.BizErrorListToError(be)
 			}
 
-			//----------------------------------------
-			// Deal with any recurring pet fees...
-			//----------------------------------------
-			for j := 0; j < len(dbConf.PetFees); j++ {
-				if dbConf.PetFees[j].FLAGS&(1<<6) > 0 {
-					continue
-				}
-				cmt := ""
-				tot, np, tp := rlib.SimpleProrateAmount(dbConf.PetFees[j].DefaultAmount, dbConf.xbiz.RT[rtr.RTID].RentCycle, dbConf.xbiz.RT[rtr.RTID].Proration, &d1, &td2, &epoch)
-				if tot < dbConf.PetFees[j].DefaultAmount {
-					cmt = fmt.Sprintf("prorated for %d of %d %s", np, tp, rlib.ProrationUnits(dbConf.xbiz.RT[rtr.RTID].Proration))
-				}
-				var asm = rlib.Assessment{
-					BID:            BID,
-					RID:            RID,
-					RAID:           ra.RAID,
-					Amount:         tot,
-					RentCycle:      rlib.RECURNONE,
-					ProrationCycle: rlib.RECURNONE,
-					Start:          d1,
-					Stop:           d1,
-					ARID:           dbConf.PetFees[j].ARID,
-					Comment:        cmt,
-				}
-				be := bizlogic.InsertAssessment(ctx, &asm, 1)
-				if be != nil {
-					return bizlogic.BizErrorListToError(be)
-				}
-			}
-
-			for j := 0; j < len(dbConf.VehicleFees); j++ {
-				if dbConf.PetFees[j].FLAGS&(1<<6) > 0 {
-					continue
-				}
-				cmt := ""
-				tot, np, tp := rlib.SimpleProrateAmount(dbConf.VehicleFees[j].DefaultAmount, dbConf.xbiz.RT[rtr.RTID].RentCycle, dbConf.xbiz.RT[rtr.RTID].Proration, &d1, &td2, &epoch)
-				if tot < dbConf.VehicleFees[j].DefaultAmount {
-					cmt = fmt.Sprintf("prorated for %d of %d %s", np, tp, rlib.ProrationUnits(dbConf.xbiz.RT[rtr.RTID].Proration))
-				}
-				var asm = rlib.Assessment{
-					BID:            BID,
-					RID:            RID,
-					RAID:           ra.RAID,
-					Amount:         tot,
-					RentCycle:      rlib.RECURNONE,
-					ProrationCycle: rlib.RECURNONE,
-					Start:          d1,
-					Stop:           d1,
-					ARID:           dbConf.VehicleFees[j].ARID,
-					Comment:        cmt,
-				}
-				be := bizlogic.InsertAssessment(ctx, &asm, 1)
-				if be != nil {
-					return bizlogic.BizErrorListToError(be)
+			//--------------------------------------------------------------
+			// Handle prorated pet fees. These must be recurring fees. Skip
+			// the non-rent fees.
+			//--------------------------------------------------------------
+			for k := 0; k < len(petList); k++ {
+				for j := 0; j < len(dbConf.PetFees); j++ {
+					if dbConf.PetFees[j].FLAGS&(1<<3) > 0 {
+						continue // skip anything that's not a pet fee
+					}
+					if rlib.RRdb.BizTypes[BID].AR[dbConf.PetFees[j].ARID].FLAGS&(1<<4) == 0 {
+						continue // skip if it is NOT a rent fee
+					}
+					cmt := ""
+					tot, np, tp := rlib.SimpleProrateAmount(dbConf.PetFees[j].DefaultAmount, dbConf.xbiz.RT[rtr.RTID].RentCycle, dbConf.xbiz.RT[rtr.RTID].Proration, &d1, &td2, &epoch)
+					if tot < dbConf.PetFees[j].DefaultAmount {
+						cmt = fmt.Sprintf("prorated for %d of %d %s", np, tp, rlib.ProrationUnits(dbConf.xbiz.RT[rtr.RTID].Proration))
+					}
+					var asm = rlib.Assessment{
+						BID:            BID,
+						RID:            RID,
+						RAID:           ra.RAID,
+						Amount:         tot,
+						RentCycle:      rlib.RECURNONE,
+						ProrationCycle: rlib.RECURNONE,
+						AssocElemType:  rlib.ELEMPET,
+						AssocElemID:    petList[k].PETID,
+						Start:          d1,
+						Stop:           d1,
+						ARID:           dbConf.PetFees[j].ARID,
+						Comment:        cmt,
+					}
+					be := bizlogic.InsertAssessment(ctx, &asm, 1)
+					if be != nil {
+						return bizlogic.BizErrorListToError(be)
+					}
 				}
 			}
 
+			//------------------------------------------------------------------
+			// Handle prorated vehicle fees. These must be recurring fees. Skip
+			// the non-rent fees.
+			//------------------------------------------------------------------
+			for k := 0; k < len(vList); k++ {
+				for j := 0; j < len(dbConf.VehicleFees); j++ {
+					if dbConf.VehicleFees[j].FLAGS&(1<<4) > 0 {
+						continue // skip if not a vehicle fee
+					}
+					if rlib.RRdb.BizTypes[BID].AR[dbConf.PetFees[j].ARID].FLAGS&(1<<4) == 0 {
+						continue // skip if it is NOT a rent fee
+					}
+					cmt := ""
+					tot, np, tp := rlib.SimpleProrateAmount(dbConf.VehicleFees[j].DefaultAmount, dbConf.xbiz.RT[rtr.RTID].RentCycle, dbConf.xbiz.RT[rtr.RTID].Proration, &d1, &td2, &epoch)
+					if tot < dbConf.VehicleFees[j].DefaultAmount {
+						cmt = fmt.Sprintf("prorated for %d of %d %s", np, tp, rlib.ProrationUnits(dbConf.xbiz.RT[rtr.RTID].Proration))
+					}
+					var asm = rlib.Assessment{
+						BID:            BID,
+						RID:            RID,
+						RAID:           ra.RAID,
+						Amount:         tot,
+						RentCycle:      rlib.RECURNONE,
+						ProrationCycle: rlib.RECURNONE,
+						AssocElemType:  rlib.ELEMVEHICLE,
+						AssocElemID:    vList[k].VID,
+						Start:          d1,
+						Stop:           d1,
+						ARID:           dbConf.VehicleFees[j].ARID,
+						Comment:        cmt,
+					}
+					be := bizlogic.InsertAssessment(ctx, &asm, 1)
+					if be != nil {
+						return bizlogic.BizErrorListToError(be)
+					}
+				}
+			}
 		}
 
 		//-------------------------------------
@@ -1060,7 +1078,7 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 				return bizlogic.BizErrorListToError(be)
 			}
 		}
-		
+
 		for j := 0; j < len(dbConf.VehicleFees); j++ {
 			if dbConf.VehicleFees[j].FLAGS&(1<<6) == 0 {
 				continue

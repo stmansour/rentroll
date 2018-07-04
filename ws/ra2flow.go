@@ -424,28 +424,38 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			return
 		}
 		for j := 0; j < len(asms); j++ {
+
+			//----------------------------------------------------------
+			// Get the account rule for this assessment...
+			//----------------------------------------------------------
 			ar, err := rlib.GetAR(r.Context(), asms[j].ARID)
 			if err != nil {
 				SvcErrorReturn(w, err, funcname)
 				return
 			}
-			var fee = RARentableFeesData{
-				BID:            rfd.BID,
-				RID:            rfd.RID,
-				ASMID:          asms[j].ASMID,
-				ARID:           asms[j].ARID,
-				ARName:         ar.Name,
-				ContractAmount: asms[j].Amount,
-				RentCycle:      asms[j].RentCycle,
-				Start:          rlib.JSONDate(asms[j].Start),
-				Stop:           rlib.JSONDate(asms[j].Stop),
+
+			//----------------------------------------------------------
+			// Handle Rentable Fees that are NOT Pet or Vehicle related
+			//----------------------------------------------------------
+			if ar.FLAGS&(128|256) == 0 {
+				var fee = RARentableFeesData{
+					BID:            rfd.BID,
+					RID:            rfd.RID,
+					ASMID:          asms[j].ASMID,
+					ARID:           asms[j].ARID,
+					ARName:         ar.Name,
+					ContractAmount: asms[j].Amount,
+					RentCycle:      asms[j].RentCycle,
+					Start:          rlib.JSONDate(asms[j].Start),
+					Stop:           rlib.JSONDate(asms[j].Stop),
+				}
+				rfd.Fees = append(rfd.Fees, fee)
 			}
-			rfd.Fees = append(rfd.Fees, fee)
 
 			//----------------------------------------------------------
 			// Handle PET Fees
 			//----------------------------------------------------------
-			if asms[j].FLAGS&0x8 > 0 { // Is it a pet fee?
+			if ar.FLAGS&(128) != 0 { // Is it a pet fee?
 				petid := asms[j].AssocElemID // find the pet...
 				for k := 0; k < len(raf.Pets); k++ {
 					rlib.Console("FOUND PET FEE... petid = %d, ASMID = %d\n", petid, asms[j].ASMID)
@@ -466,7 +476,7 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			//----------------------------------------------------------
 			// Handle VEHICLE Fees
 			//----------------------------------------------------------
-			if asms[j].FLAGS&(1<<4) > 0 { // Is it a vehicle fee?
+			if ar.FLAGS&(256) != 0 { // Is it a vehicle fee?
 				vid := asms[j].AssocElemID // find the vehicle...
 				for k := 0; k < len(raf.Vehicles); k++ {
 					rlib.Console("FOUND VEHICLE FEE... petid = %d, ASMID = %d\n", vid, asms[j].ASMID)
