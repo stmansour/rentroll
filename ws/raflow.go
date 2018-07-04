@@ -257,9 +257,9 @@ type RATieVehiclesData struct {
 
 // RATiePeopleData holds data from tie section for a payor to a rentable
 type RATiePeopleData struct {
-	BID     int64
-	PRID    int64
-	TMPTCID int64 // user's temp json record reference id
+	BID     int64 `validate:"number,min=1,max=20"`
+	PRID    int64 `validate:"number,min=1,max=20"`
+	TMPTCID int64 `validate:"number,min=1,max=20"` // user's temp json record reference id
 }
 
 // getUpdateRAFlowPartJSONData returns json data in bytes
@@ -1419,8 +1419,8 @@ type RentablesFieldsError struct {
 	Errors map[string][]string `json:"errors"`
 }
 
-// ParentChileFieldsError is to hold Errorlist for Parent/Child section
-type ParentChileFieldsError struct {
+// ParentChildFieldsError is to hold Errorlist for Parent/Child section
+type ParentChildFieldsError struct {
 	PRID   int64               // parent rentable ID
 	CRID   int64               // child rentable ID
 	Total  int                 `json:"total"`
@@ -1434,15 +1434,19 @@ type TiePeopleFieldsError struct {
 	Errors  map[string][]string `json:"errors"`
 }
 
+type TieFieldsError struct {
+	TiePeople []TiePeopleFieldsError `json:"people"`
+}
+
 // RAFlowFieldsErrors is to hold Errorlist for each section of RAFlow
 type RAFlowFieldsErrors struct {
-	Dates       DatesFieldsError
+	Dates       DatesFieldsError         `json:"dates"`
 	People      []PeopleFieldsError      `json:"people"`
 	Pets        []PetFieldsError         `json:"pets"`
 	Vehicle     []VehicleFieldsError     `json:"vehicle"`
 	Rentables   []RentablesFieldsError   `json:"rentables"`
-	ParentChild []ParentChileFieldsError `json:"parentchild"`
-	Tie         []TiePeopleFieldsError   `json:"tie"`
+	ParentChild []ParentChildFieldsError `json:"parentchild"`
+	Tie         TieFieldsError           `json:"tie"`
 }
 
 // SvcValidateRAFlow is used to check/validate RAFlow's struct
@@ -1473,15 +1477,19 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("Entered %s\n", funcname)
 
 	var (
-		err                 error
-		foo                 RAFlowDetailRequest
-		raFlowData          RAFlowJSONData
-		raFlowFieldsErrors  RAFlowFieldsErrors
-		datesFieldsErrors   DatesFieldsError
-		peopleFieldsErrors  PeopleFieldsError
-		petFieldsErrors     PetFieldsError
-		vehicleFieldsErrors VehicleFieldsError
-		g                   ValidateRAFlowResponse
+		err                     error
+		foo                     RAFlowDetailRequest
+		raFlowData              RAFlowJSONData
+		raFlowFieldsErrors      RAFlowFieldsErrors
+		datesFieldsErrors       DatesFieldsError
+		peopleFieldsErrors      PeopleFieldsError
+		petFieldsErrors         PetFieldsError
+		vehicleFieldsErrors     VehicleFieldsError
+		rentablesFieldsErrors   RentablesFieldsError
+		parentChildFieldsErrors ParentChildFieldsError
+		tieFieldsErrors         TieFieldsError
+		tiePeopleFieldsErrors   TiePeopleFieldsError
+		g                       ValidateRAFlowResponse
 	)
 
 	// http method check
@@ -1504,8 +1512,10 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		Pets:        []PetFieldsError{},
 		Vehicle:     []VehicleFieldsError{},
 		Rentables:   []RentablesFieldsError{},
-		ParentChild: []ParentChileFieldsError{},
-		Tie:         []TiePeopleFieldsError{},
+		ParentChild: []ParentChildFieldsError{},
+		Tie: TieFieldsError{
+			TiePeople: []TiePeopleFieldsError{},
+		},
 	}
 
 	// Get flow information from the table to validate fields value
@@ -1617,6 +1627,74 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		raFlowFieldsErrors.Vehicle = append(raFlowFieldsErrors.Vehicle, vehicleFieldsErrors)
 	}
 
+	// ----------------------------------------------
+	// validate RARentablesFlowData structure
+	// ----------------------------------------------
+	for _, rentable := range raFlowData.Rentables {
+		// call validation function
+		errs := rtags.ValidateStructFromTagRules(rentable)
+
+		// Skip the row if it doesn't have error for the any fields
+		if len(errs) == 0 {
+			continue
+		}
+
+		// Modify error count for the response
+		rentablesFieldsErrors.Total = len(errs)
+		rentablesFieldsErrors.RID = rentable.RID
+		rentablesFieldsErrors.Errors = errs
+
+		// Modify Total Error
+		g.Total += rentablesFieldsErrors.Total
+
+		raFlowFieldsErrors.Rentables = append(raFlowFieldsErrors.Rentables, rentablesFieldsErrors)
+	}
+
+	// ----------------------------------------------
+	// validate RAParentChildFlowData structure
+	// ----------------------------------------------
+	for _, parentChild := range raFlowData.ParentChild {
+		// call validation function
+		errs := rtags.ValidateStructFromTagRules(parentChild)
+
+		// Skip the row if it doesn't have error for the any fields
+		if len(errs) == 0 {
+			continue
+		}
+
+		// Modify error count for the response
+		parentChildFieldsErrors.Total = len(errs)
+		parentChildFieldsErrors.PRID = parentChild.PRID
+		parentChildFieldsErrors.Errors = errs
+
+		// Modify Total Error
+		g.Total += rentablesFieldsErrors.Total
+
+		raFlowFieldsErrors.ParentChild = append(raFlowFieldsErrors.ParentChild, parentChildFieldsErrors)
+	}
+
+	// ----------------------------------------------
+	// validate RATieFlowData.People structure
+	// ----------------------------------------------
+	for _, people := range raFlowData.Tie.People {
+		// call validation function
+		errs = rtags.ValidateStructFromTagRules(people)
+
+		// Modify error count for the response
+		tiePeopleFieldsErrors.Total = len(errs)
+		tiePeopleFieldsErrors.TMPTCID = people.TMPTCID
+		tiePeopleFieldsErrors.Errors = errs
+
+		// Modify Total Error
+		g.Total += tiePeopleFieldsErrors.Total
+
+		tieFieldsErrors.TiePeople = append(tieFieldsErrors.TiePeople, tiePeopleFieldsErrors)
+	}
+
+	// Assign all(people/pet/vehicles) tie related error
+	raFlowFieldsErrors.Tie = tieFieldsErrors
+
+	//---------------------------------------
 	// set the response
 	g.Errors = raFlowFieldsErrors
 
