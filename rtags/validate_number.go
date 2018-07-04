@@ -49,9 +49,9 @@ func (v NumberValidator) Validate(val interface{}) error {
 	return nil
 }
 
-// getNumberValidatorFromTagValues returns instantiated `NumberValidator`
+// getIntegerNumberValidatorFromTagValues returns instantiated `NumberValidator`
 // from passed tag value options
-func getNumberValidatorFromTagValues(tagOptions, fieldName string) NumberValidator {
+func getIntegerNumberValidatorFromTagValues(tagOptions, fieldName string) NumberValidator {
 	validator := NumberValidator{
 		Min: NumberMin{Value: 0, Skip: false},
 		Max: NumberMax{Value: 0, Skip: false},
