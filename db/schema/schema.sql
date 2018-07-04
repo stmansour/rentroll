@@ -225,8 +225,8 @@ CREATE TABLE RentalAgreement (
     DesiredUsageStartDate DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- User's initial indication of move in date, actual move in date is in Rental Agreement
     RentableTypePreference BIGINT NOT NULL DEFAULT 0,                   -- This would be "model" preference  (Rentable Type name) for room or residence, but could apply to all rentables
     FLAGS BIGINT NOT NULL DEFAULT 0,                                    /* 0:3 - DecisionStatus for the application state as defined below
-                                                                           1<<4 - Approver1 decision, only valid if DecisionDate1 is year >1999, 0 = Declined, 1 = Approved
-           bits 0:3                                                        1<<5 - Approver2 decision, only valid if DecisionDate2 is year >1999, 0 = Declined, 1 = Approved
+                                                                           1<<4 - Approver1 decision, only valid if Approver1 > 0, 0 = Declined, 1 = Approved
+           bits 0:3                                                        1<<5 - Approver2 decision, only valid if Approver2 > 0, 0 = Declined, 1 = Approved
         -------------  ---------------------------     --------------------------------------
         (FLAGS & 0xF)  State                           Meaning
         -------------  ---------------------------     --------------------------------------
@@ -239,8 +239,8 @@ CREATE TABLE RentalAgreement (
               4        Active                          Tenant has moved in and the RA remains valid
               5        Terminated                      Agreement terminated. Reason in Outcome (SLSID of string from WhyLeaving)
               6        Notice To Move                  Resident has given notice that they will leave
-              7        unused
-              8        unused                          reserved for future expansion
+              7        unused 
+              8        unused
               9        unused                          reserved for future expansion
              10        unused                          reserved for future expansion
              11        unused                          reserved for future expansion
