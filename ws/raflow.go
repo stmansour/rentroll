@@ -6,7 +6,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/pkg/errors"
 	"net/http"
 	"rentroll/bizlogic"
 	"rentroll/rlib"
@@ -140,10 +139,10 @@ type RAPeopleFlowData struct {
 
 // RAPetsFlowData contains data in the pets part of RA flow
 type RAPetsFlowData struct {
-	TMPPETID int64
-	BID      int64 `validate:"number,min=1,max=20"`
-	PETID    int64 `validate:"number,min=1,max=20"`
-	TMPTCID  int64
+	TMPPETID int64  `validate:"number,min=1,max=20"`
+	BID      int64  `validate:"number,min=1,max=20"`
+	PETID    int64  `validate:"number,min=1,max=20"`
+	TMPTCID  int64  `validate:"number,min=1,max=20"`
 	Name     string `validate:"string,min=1,max=100"`
 	Type     string `validate:"string,min=1,max=100"`
 	Breed    string `validate:"string,min=1,max=100"`
@@ -153,7 +152,6 @@ type RAPetsFlowData struct {
 	DtStop   rlib.JSONDate
 	Fees     []RAPetFee
 }
-
 
 // RAPetFee holds the fee details for a pet.
 // Found in rafd.Pets.Fees[i]
@@ -168,10 +166,10 @@ type RAPetFee struct {
 
 // RAVehiclesFlowData contains data in the vehicles part of RA flow
 type RAVehiclesFlowData struct {
-	TMPVID              int64
-	BID                 int64 `validate:"number,min=1,max=20"`
-	VID                 int64 `validate:"number,min=1,max=20"`
-	TMPTCID             int64
+	TMPVID              int64  `validate:"number,min=1,max=20"`
+	BID                 int64  `validate:"number,min=1,max=20"`
+	VID                 int64  `validate:"number,min=1,max=20"`
+	TMPTCID             int64  `validate:"number,min=1,max=20"`
 	VIN                 string `validate:"string,min=1,max=20"`
 	VehicleType         string `validate:"string,min=1,max=80"`
 	VehicleMake         string `validate:"string,min=1,max=80"`
@@ -200,7 +198,7 @@ type RAVehicleFee struct {
 type RARentablesFlowData struct {
 	BID          int64 `validate:"number,min=1,max=20"`
 	RID          int64 `validate:"number,min=1,max=20"`
-	RTID         int64
+	RTID         int64 `validate:"number,min=1,max=20"`
 	RTFLAGS      uint64
 	RentableName string `validate:"string,min=1,max=100"`
 	RentCycle    int64  `validate:"number,min=1,max=20"`
@@ -214,10 +212,10 @@ type RARentablesFlowData struct {
 
 // RARentableFeesData struct
 type RARentableFeesData struct {
-	BID            int64
-	RID            int64
-	ARID           int64
-	ASMID          int64 // the permanent table assessment id if it is an existing RAID
+	BID            int64 `validate:"number,min=1,max=20"`
+	RID            int64 `validate:"number,min=1,max=20"`
+	ARID           int64 `validate:"number,min=1,max=20"`
+	ASMID          int64 `validate:"number,min=1,max=20"` // the permanent table assessment id if it is an existing RAID
 	ARName         string
 	ContractAmount float64
 	RentCycle      int64
@@ -233,9 +231,9 @@ type RARentableFeesData struct {
 
 // RAParentChildFlowData contains data in the Parent/Child part of RA flow
 type RAParentChildFlowData struct {
-	BID  int64
-	PRID int64 // parent rentable ID
-	CRID int64 // child rentable ID
+	BID  int64 `validate:"number,min=1,max=20"`
+	PRID int64 `validate:"number,min=1,max=20"` // parent rentable ID
+	CRID int64 `validate:"number,min=1,max=20"` // child rentable ID
 }
 
 // RATieFlowData contains data in the tie part of RA flow
@@ -1519,7 +1517,7 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	// When flowId doesn't exists in database return and give error that flowId doesn't exists
 	if flow.FlowID == 0 {
-		err = errors.New(fmt.Sprintf("FlowID %d - doesn't exists.", foo.FlowID))
+		err = fmt.Errorf("flowID %d - doesn't exists", foo.FlowID)
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
