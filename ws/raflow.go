@@ -156,12 +156,12 @@ type RAPetsFlowData struct {
 // RAPetFee holds the fee details for a pet.
 // Found in rafd.Pets.Fees[i]
 type RAPetFee struct {
-	TMPPETID int64
-	BID      int64
-	ARID     int64
-	ASMID    int64 // the permanent table assessment id if it is an existing RAID
-	ARName   string
-	Amount   float64
+	TMPPETID int64   `validate:"number,min=1,max=20"`
+	BID      int64   `validate:"number,min=1,max=20"`
+	ARID     int64   `validate:"number,min=1,max=20"`
+	ASMID    int64   `validate:"number,min=1,max=20"` // the permanent table assessment id if it is an existing RAID
+	ARName   string  `validate:"string,min=1,max=100"`
+	Amount   float64 `validate:"number:float,min=0.10"`
 }
 
 // RAVehiclesFlowData contains data in the vehicles part of RA flow
@@ -1400,14 +1400,30 @@ type PeopleFieldsError struct {
 
 // PetFieldsError is struct to hold Errorlist for Pet section
 type PetFieldsError struct {
-	TMPPETID int64
-	Total    int                 `json:"total"`
-	Errors   map[string][]string `json:"errors"`
+	TMPPETID   int64
+	Total      int                  `json:"total"`
+	Errors     map[string][]string  `json:"errors"`
+	FeesErrors []PetFeesFieldsError `json:"fees"`
+}
+
+// PetFeesFieldsError is struct to hold Errorlist for Fees of pets
+type PetFeesFieldsError struct {
+	ARID   int64
+	Total  int                 `json:"total"`
+	Errors map[string][]string `json:"errors"`
 }
 
 // VehicleFieldsError is struct to hold Errorlist for Vehicle section
 type VehicleFieldsError struct {
-	TMPVID int64
+	TMPVID     int64
+	Total      int                      `json:"total"`
+	Errors     map[string][]string      `json:"errors"`
+	FeesErrors []VehicleFeesFieldsError `json:"fees"`
+}
+
+// VehicleFeesFieldsError is struct to hold Errolist for Fees of vehicles
+type VehicleFeesFieldsError struct {
+	ARID   int64
 	Total  int                 `json:"total"`
 	Errors map[string][]string `json:"errors"`
 }
@@ -1485,7 +1501,9 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		datesFieldsErrors       DatesFieldsError
 		peopleFieldsErrors      PeopleFieldsError
 		petFieldsErrors         PetFieldsError
+		petFeesFieldsErrors     PetFeesFieldsError
 		vehicleFieldsErrors     VehicleFieldsError
+		vehicleFeesFieldsErrors VehicleFeesFieldsError
 		rentablesFieldsErrors   RentablesFieldsError
 		parentChildFieldsErrors ParentChildFieldsError
 		tieFieldsErrors         TieFieldsError
@@ -1603,6 +1621,28 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		g.Total += petFieldsErrors.Total
 
 		raFlowFieldsErrors.Pets = append(raFlowFieldsErrors.Pets, petFieldsErrors)
+
+		// ----------------------------------------------
+		// validate RAPetFlowData.Fees structure
+		// ----------------------------------------------
+		for _, fee := range pet.Fees {
+			// call validation function
+			errs := rtags.ValidateStructFromTagRules(fee)
+
+			// Skip the row if it doesn't have error for the any fields
+			if len(errs) == 0 {
+				continue
+			}
+
+			petFeesFieldsErrors.Total = len(errs)
+			petFeesFieldsErrors.ARID = fee.ARID
+			petFeesFieldsErrors.Errors = errs
+
+			g.Total += petFeesFieldsErrors.Total
+
+			petFieldsErrors.FeesErrors = append(petFieldsErrors.FeesErrors, petFeesFieldsErrors)
+		}
+
 	}
 
 	// ----------------------------------------------
@@ -1626,6 +1666,27 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		g.Total += vehicleFieldsErrors.Total
 
 		raFlowFieldsErrors.Vehicle = append(raFlowFieldsErrors.Vehicle, vehicleFieldsErrors)
+
+		// ----------------------------------------------
+		// validate RAVehicleFlowData.Fees structure
+		// ----------------------------------------------
+		for _, fee := range vehicle.Fees {
+			// call validation function
+			errs := rtags.ValidateStructFromTagRules(fee)
+
+			// Skip the row if it doesn't have error for the any fields
+			if len(errs) == 0 {
+				continue
+			}
+
+			vehicleFeesFieldsErrors.Total = len(errs)
+			vehicleFeesFieldsErrors.ARID = fee.ARID
+			vehicleFeesFieldsErrors.Errors = errs
+
+			g.Total += vehicleFeesFieldsErrors.Total
+
+			vehicleFieldsErrors.FeesErrors = append(vehicleFieldsErrors.FeesErrors, vehicleFeesFieldsErrors)
+		}
 	}
 
 	// ----------------------------------------------
