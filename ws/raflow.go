@@ -1427,13 +1427,14 @@ type ParentChildFieldsError struct {
 	Errors map[string][]string `json:"errors"`
 }
 
-// TiePeopleFieldsError is to hold Errorlist for Tie section
+// TiePeopleFieldsError is to hold Errorlist for TiePeople section
 type TiePeopleFieldsError struct {
 	TMPTCID int64
 	Total   int                 `json:"total"`
 	Errors  map[string][]string `json:"errors"`
 }
 
+// TieFieldsError is to hold Errorlist for Tie section
 type TieFieldsError struct {
 	TiePeople []TiePeopleFieldsError `json:"people"`
 }
