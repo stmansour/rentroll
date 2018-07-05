@@ -849,10 +849,9 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 		}
 
 		//--------------------------------------------------------
-		// Generate assessments associated with the rentable...
+		// Generate assessments for Rent and Security Deposit...
 		//--------------------------------------------------------
 		var asmRent rlib.Assessment
-		var asmSecDep rlib.Assessment
 		asmRent.BID = BID
 		asmRent.RID = RID
 		asmRent.RAID = ra.RAID
@@ -866,19 +865,46 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 		if be != nil {
 			return bizlogic.BizErrorListToError(be)
 		}
+		//-------------------------------------
+		// Generate SecDep Assessments
+		//-------------------------------------
+		var asmSecDep rlib.Assessment
+		asmSecDep.BID = BID
+		asmSecDep.RID = RID
+		asmSecDep.RAID = ra.RAID
+		asmSecDep.Amount = RIDMktRate * float64(2.0)
+		asmSecDep.RentCycle = rlib.RECURNONE
+		asmSecDep.ProrationCycle = rlib.RECURNONE
+		asmSecDep.Start = d1
+		asmSecDep.Stop = d1
+		asmSecDep.ARID = dbConf.ARIDsecdep
+		be = bizlogic.InsertAssessment(ctx, &asmSecDep, 1)
+		if be != nil {
+			return bizlogic.BizErrorListToError(be)
+		}
 
-		//-------------------------------------
-		// Pet Assessments - look for any users
-		// of this rentable that have pets...
-		//-------------------------------------
+		//--------------------------------------------------------------------
+		// Pet Assessments - Here we handle the Recurring Rent assessments
+		// (if any)
+		//
+		//     1<<4 -  Is Rent Assessment
+		//     1<<6 -  Is non-recur charge
+		//     1<<7 -  PETID Required in Assessment
+		//--------------------------------------------------------------------
 		petList, err := rlib.GetPetsByTransactant(ctx, TCID)
 		if err != nil {
 			return err
 		}
 		for k := 0; k < len(petList); k++ { // generate the assessment(s) for each pet
 			for j := 0; j < len(dbConf.PetFees); j++ {
-				if dbConf.PetFees[j].FLAGS&(1<<6) == 0 { // pet fees...
-					continue
+				//---------------------------------------------------------------------
+				// Since we're creating the rental / recurring assessments here, skip
+				// this fee if it is a one-time only fee...
+				//---------------------------------------------------------------------
+				flags := rlib.RRdb.BizTypes[BID].AR[dbConf.PetFees[j].ARID].FLAGS
+				//   non-recurring   OR       not rent
+				if flags&(1<<6) != 0 || flags&(1<<4) == 0 {
+					continue // skip if non-recurring or not rent
 				}
 				var asm = rlib.Assessment{
 					BID:            BID,
@@ -910,8 +936,14 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 		}
 		for k := 0; k < len(vList); k++ { // generate recurring vehicle fees for each vehicle
 			for j := 0; j < len(dbConf.VehicleFees); j++ {
-				if dbConf.VehicleFees[j].FLAGS&(1<<6) == 0 {
-					continue
+				//---------------------------------------------------------------------
+				// Since we're creating the rental / recurring assessments here, skip
+				// this fee if it is a one-time only fee...
+				//---------------------------------------------------------------------
+				flags := rlib.RRdb.BizTypes[BID].AR[dbConf.VehicleFees[j].ARID].FLAGS
+				//    non-recurring  OR        not rent
+				if flags&(1<<6) != 0 || flags&(1<<4) == 0 {
+					continue // skip if non-recurring or not rent
 				}
 				var asm = rlib.Assessment{
 					BID:            BID,
@@ -962,16 +994,23 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 			}
 
 			//--------------------------------------------------------------
-			// Handle prorated pet fees. These must be recurring fees. Skip
-			// the non-rent fees.
+			// Handle prorated pet fees and one-time only fees.
+			// Here are the AR.FLAGS bits:
+			//
+			//     1<<4 -  Is Rent Assessment
+			//     1<<6 -  Is non-recur charge
+			//     1<<7 -  PETID required
+			//     1<<8 -  VID required
 			//--------------------------------------------------------------
 			for k := 0; k < len(petList); k++ {
 				for j := 0; j < len(dbConf.PetFees); j++ {
-					if dbConf.PetFees[j].FLAGS&(1<<3) > 0 {
-						continue // skip anything that's not a pet fee
-					}
-					if rlib.RRdb.BizTypes[BID].AR[dbConf.PetFees[j].ARID].FLAGS&(1<<4) == 0 {
-						continue // skip if it is NOT a rent fee
+					flags := rlib.RRdb.BizTypes[BID].AR[dbConf.PetFees[j].ARID].FLAGS
+					//--------------------------------------------------------------------
+					// handle Pet-related Is-Rent prorations AND the one-time-only assessments...
+					//--------------------------------------------------------------------
+					//   it's not rent   OR   it's not a one-time
+					if flags&(1<<4) == 0 || flags&(1<<6) != 0 {
+						continue // skip if it's rent or it's not a one-time charge
 					}
 					cmt := ""
 					tot, np, tp := rlib.SimpleProrateAmount(dbConf.PetFees[j].DefaultAmount, dbConf.xbiz.RT[rtr.RTID].RentCycle, dbConf.xbiz.RT[rtr.RTID].Proration, &d1, &td2, &epoch)
@@ -1005,11 +1044,10 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 			//------------------------------------------------------------------
 			for k := 0; k < len(vList); k++ {
 				for j := 0; j < len(dbConf.VehicleFees); j++ {
-					if dbConf.VehicleFees[j].FLAGS&(1<<4) > 0 {
-						continue // skip if not a vehicle fee
-					}
-					if rlib.RRdb.BizTypes[BID].AR[dbConf.PetFees[j].ARID].FLAGS&(1<<4) == 0 {
-						continue // skip if it is NOT a rent fee
+					flags := rlib.RRdb.BizTypes[BID].AR[dbConf.PetFees[j].ARID].FLAGS
+					//   it's not rent   OR   it's not a one-time
+					if flags&(1<<4) == 0 || flags&(1<<6) != 0 {
+						continue // skip if it's rent or it's not a one-time charge
 					}
 					cmt := ""
 					tot, np, tp := rlib.SimpleProrateAmount(dbConf.VehicleFees[j].DefaultAmount, dbConf.xbiz.RT[rtr.RTID].RentCycle, dbConf.xbiz.RT[rtr.RTID].Proration, &d1, &td2, &epoch)
@@ -1036,23 +1074,6 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 					}
 				}
 			}
-		}
-
-		//-------------------------------------
-		// Generate SecDep Assessments
-		//-------------------------------------
-		asmSecDep.BID = BID
-		asmSecDep.RID = RID
-		asmSecDep.RAID = ra.RAID
-		asmSecDep.Amount = RIDMktRate * float64(2.0)
-		asmSecDep.RentCycle = rlib.RECURNONE
-		asmSecDep.ProrationCycle = rlib.RECURNONE
-		asmSecDep.Start = d1
-		asmSecDep.Stop = d1
-		asmSecDep.ARID = dbConf.ARIDsecdep
-		be = bizlogic.InsertAssessment(ctx, &asmSecDep, 1)
-		if be != nil {
-			return bizlogic.BizErrorListToError(be)
 		}
 
 		//-------------------------------------
