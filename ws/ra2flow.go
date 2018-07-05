@@ -453,15 +453,29 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			//----------------------------------------------------------
 			// Handle PET Fees
 			//----------------------------------------------------------
+			// TMPASMID        int64 // unique ID to manage fees uniquely across all fees in raflow json data
+			// ASMID           int64 // the permanent table assessment id if it is an existing RAID
+			// ARID            int64
+			// ARName          string
+			// ContractAmount  float64
+			// RentCycle       int64
+			// Start           rlib.JSONDate
+			// Stop            rlib.JSONDate
+			// AtSigningPreTax float64
+			// SalesTax        float64
 			if ar.FLAGS&(128) != 0 { // Is it a pet fee?
 				petid := asms[j].AssocElemID // find the pet...
 				for k := 0; k < len(raf.Pets); k++ {
-					rlib.Console("FOUND PET FEE... petid = %d, ASMID = %d\n", petid, asms[j].ASMID)
 					if raf.Pets[k].PETID == petid {
+						raf.Meta.LastTMPASMID++
 						var pf = RAFeesData{
+							TMPASMID:       raf.Meta.LastTMPASMID,
 							ARID:           asms[j].ARID,
 							ASMID:          asms[j].ASMID,
 							ARName:         ar.Name,
+							RentCycle:      asms[j].RentCycle,
+							Start:          rlib.JSONDate(asms[j].Start),
+							Stop:           rlib.JSONDate(asms[j].Stop),
 							ContractAmount: asms[j].Amount,
 						}
 						raf.Pets[k].Fees = append(raf.Pets[k].Fees, pf)
@@ -475,13 +489,17 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			if ar.FLAGS&(256) != 0 { // Is it a vehicle fee?
 				vid := asms[j].AssocElemID // find the vehicle...
 				for k := 0; k < len(raf.Vehicles); k++ {
-					rlib.Console("FOUND VEHICLE FEE... petid = %d, ASMID = %d\n", vid, asms[j].ASMID)
 					if raf.Vehicles[k].VID == vid {
+						raf.Meta.LastTMPASMID++
 						var pf = RAFeesData{
+							TMPASMID:       raf.Meta.LastTMPASMID,
 							ARID:           asms[j].ARID,
 							ASMID:          asms[j].ASMID,
 							ARName:         ar.Name,
 							ContractAmount: asms[j].Amount,
+							RentCycle:      asms[j].RentCycle,
+							Start:          rlib.JSONDate(asms[j].Start),
+							Stop:           rlib.JSONDate(asms[j].Stop),
 						}
 						raf.Vehicles[k].Fees = append(raf.Vehicles[k].Fees, pf)
 						break
