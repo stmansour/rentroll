@@ -52,10 +52,10 @@ func getValidatorFromTag(tagValue, fieldName string) Validator {
 		return getStringValidatorFromTagValues(strings.Join(args[1:], ","), fieldName)
 	case "email":
 		return getEmailValidatorFromTagValues(strings.Join(args[1:], ","), fieldName)
-	case "float":
-		// TODO: Return float validator
 	case "int":
 		return getIntegerNumberValidatorFromTagValues(strings.Join(args[1:], ","), fieldName)
+	case "float":
+		return getFloatNumberValidatorFromTagValues(strings.Join(args[1:], ","), fieldName)
 	default:
 		return DefaultValidator{}
 	}
