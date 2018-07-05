@@ -3,7 +3,8 @@ common things for fees strcture!
 */
 
 /* global
-    w2utils
+    w2utils, SetFormRecordFromData, GetFeeFormInitRecord,
+    getPetFeeLocalData, getVehicleFeeLocalData, getRentableFeeLocalData
 */
 
 "use strict";
@@ -174,6 +175,7 @@ window.GetFeeGridColumns = function() {
             field: 'RowTotal',
             caption: 'Grand Total',
             size: '100px',
+            style: 'text-align: right',
             render: function(record) {
                 var html = "";
                 var total = 0.0;
@@ -199,3 +201,46 @@ window.GetFeeGridColumns = function() {
     // RETURN the clone
     return $.extend(true, [], columns);
 };
+
+// -------------------------------------------------------------------------------
+// SetFeeFormRecordFromRAFlowData -  sets form record from given data
+//
+// It sets data from local raflow only for fields which are defined in form
+// definition
+// -------------------------------------------------------------------------------
+window.SetFeeFormRecordFromRAFlowData = function(TMPID, flowPart) {
+    var form, data;
+
+    switch(flowPart) {
+        case "pets":
+            form = w2ui.RAPetFeeForm;
+            if (TMPID === 0) {
+                data = GetFeeFormInitRecord();
+            } else {
+                data = getPetFeeLocalData(TMPID);
+            }
+            SetFormRecordFromData(form, data);
+            break;
+        case "vehicles":
+            form = w2ui.RAVehicleFeeForm;
+            if (TMPID === 0) {
+                data = GetFeeFormInitRecord();
+            } else {
+                data = getVehicleFeeLocalData(TMPID);
+            }
+            SetFormRecordFromData(form, data);
+            break;
+        case "rentables":
+            form = w2ui.RARentableFeeForm;
+            if (TMPID === 0) {
+                data = GetFeeFormInitRecord();
+            } else {
+                data = getRentableFeeLocalData(TMPID);
+            }
+            SetFormRecordFromData(form, data);
+            break;
+        default:
+            return false;
+    }
+};
+
