@@ -31,6 +31,7 @@ type RAFlowMetaInfo struct {
 	LastTMPPETID int64
 	LastTMPVID   int64
 	LastTMPTCID  int64
+	LastTMPASMID int64
 	HavePets     bool
 	HaveVehicles bool
 	RAFLAGS      int64
@@ -109,8 +110,8 @@ type RAPeopleFlowData struct {
 	Bankruptcy       bool // Declared Bankruptcy
 	BankruptcyDes    string
 	OtherPreferences string
-	//FollowUpDate             rlib.JSONDate
-	//CommissionableThirdParty string
+	// FollowUpDate             rlib.JSONDate
+	// CommissionableThirdParty string
 	SpecialNeeds string // In an effort to accommodate you, please advise us of any special needs
 
 	// ---------- Payor -----------
@@ -149,19 +150,7 @@ type RAPetsFlowData struct {
 	Weight   int
 	DtStart  rlib.JSONDate
 	DtStop   rlib.JSONDate
-	Fees     []RAPetFee
-}
-
-
-// RAPetFee holds the fee details for a pet.
-// Found in rafd.Pets.Fees[i]
-type RAPetFee struct {
-	TMPPETID int64
-	BID      int64
-	ARID     int64
-	ASMID    int64 // the permanent table assessment id if it is an existing RAID
-	ARName   string
-	Amount   float64
+	Fees     []RAFeesData
 }
 
 // RAVehiclesFlowData contains data in the vehicles part of RA flow
@@ -181,17 +170,7 @@ type RAVehiclesFlowData struct {
 	ParkingPermitNumber string
 	DtStart             rlib.JSONDate
 	DtStop              rlib.JSONDate
-	Fees                []RAVehicleFee
-}
-
-// RAVehicleFee holds the fee details for a vehicle
-type RAVehicleFee struct {
-	TMPVID int64
-	BID    int64
-	ARID   int64
-	ASMID  int64 // the permanent table assessment id if it is an existing RAID
-	ARName string
-	Amount float64
+	Fees                []RAFeesData
 }
 
 // RARentablesFlowData contains data in the rentables part of RA flow
@@ -207,26 +186,24 @@ type RARentablesFlowData struct {
 	TaxableAmt   float64
 	SalesTax     float64
 	TransOcc     float64
-	Fees         []RARentableFeesData
+	Fees         []RAFeesData
 }
 
-// RARentableFeesData struct
-type RARentableFeesData struct {
-	BID            int64
-	RID            int64
-	ARID           int64
-	ASMID          int64 // the permanent table assessment id if it is an existing RAID
-	ARName         string
-	ContractAmount float64
-	RentCycle      int64
-	Start          rlib.JSONDate
-	Stop           rlib.JSONDate
-	AtSigningAmt   float64
-	ProrateAmt     float64
-	SalesTaxAmt    float64
-	SalesTax       float64
-	TransOccAmt    float64
-	TransOcc       float64
+// RAFeesData struct used for pet, vehicles, rentable fees
+type RAFeesData struct {
+	TMPASMID        int64 // unique ID to manage fees uniquely across all fees in raflow json data
+	ASMID           int64 // the permanent table assessment id if it is an existing RAID
+	ARID            int64
+	ARName          string
+	ContractAmount  float64
+	RentCycle       int64
+	Start           rlib.JSONDate
+	Stop            rlib.JSONDate
+	AtSigningPreTax float64
+	SalesTax        float64
+	// SalesTaxAmt    float64 // FUTURE RELEASE
+	TransOccTax float64
+	// TransOccAmt    float64 // FUTURE RELEASE
 }
 
 // RAParentChildFlowData contains data in the Parent/Child part of RA flow
@@ -352,13 +329,21 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int, 
 
 			// auto assign TMPPETID
 			for i := range a {
+				// If Fees not initialized then
+				if len(a[i].Fees) == 0 {
+					a[i].Fees = []RAFeesData{}
+				}
+
 				if a[i].TMPPETID == 0 { // if zero then assign new from last saved ID
 					raFlowData.Meta.LastTMPPETID++
 					a[i].TMPPETID = raFlowData.Meta.LastTMPPETID
 
-					// also modify TMPPETID in all fees
+					// manage TMPASMID in Fees
 					for j := range a[i].Fees {
-						a[i].Fees[j].TMPPETID = a[i].TMPPETID
+						if a[i].Fees[j].TMPASMID == 0 {
+							raFlowData.Meta.LastTMPASMID++
+							a[i].Fees[j].TMPASMID = raFlowData.Meta.LastTMPASMID
+						}
 					}
 				}
 			}
@@ -385,13 +370,21 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int, 
 
 			// auto assign TMPVID
 			for i := range a {
+				// If Fees not initialized then
+				if len(a[i].Fees) == 0 {
+					a[i].Fees = []RAFeesData{}
+				}
+
 				if a[i].TMPVID == 0 { // if zero then assign new from last saved ID
 					raFlowData.Meta.LastTMPVID++
 					a[i].TMPVID = raFlowData.Meta.LastTMPVID
 
-					// also modify TMPVID in all fees
+					// manage TMPASMID in fees
 					for j := range a[i].Fees {
-						a[i].Fees[j].TMPVID = a[i].TMPVID
+						if a[i].Fees[j].TMPASMID == 0 {
+							raFlowData.Meta.LastTMPASMID++
+							a[i].Fees[j].TMPASMID = raFlowData.Meta.LastTMPASMID
+						}
 					}
 				}
 			}
@@ -416,12 +409,21 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int, 
 		if !(isBlankJSONData) {
 			err := json.Unmarshal(data, &a)
 
-			// check for each rentable data's Fees field
-			// if it's blank then initialize it
 			for i := range a {
+
+				// If Fees not initialized then
 				if len(a[i].Fees) == 0 {
-					a[i].Fees = []RARentableFeesData{}
+					a[i].Fees = []RAFeesData{}
 				}
+
+				// manage TMPASMID in fees
+				for j := range a[i].Fees {
+					if a[i].Fees[j].TMPASMID == 0 {
+						raFlowData.Meta.LastTMPASMID++
+						a[i].Fees[j].TMPASMID = raFlowData.Meta.LastTMPASMID
+					}
+				}
+
 			}
 
 			if err != nil {
@@ -581,7 +583,7 @@ func SvcGetRAFlowRentableFeesData(w http.ResponseWriter, r *http.Request, d *Ser
 		rfd         RARentablesFlowData
 		raFlowData  RAFlowJSONData
 		foo         RARentableFeesDataRequest
-		feesRecords = []RARentableFeesData{}
+		feesRecords = []RAFeesData{}
 		today       = time.Now()
 	)
 	fmt.Printf("Entered %s\n", funcname)
@@ -629,10 +631,8 @@ func SvcGetRAFlowRentableFeesData(w http.ResponseWriter, r *http.Request, d *Ser
 	if ar.ARID > 0 {
 		// make sure the IsRentASM is marked true
 		if ar.FLAGS&0x10 != 0 {
-			rec := RARentableFeesData{
-				BID:            ar.BID,
+			rec := RAFeesData{
 				ARID:           ar.ARID,
-				RID:            foo.RID,
 				ARName:         ar.Name,
 				ContractAmount: ar.DefaultAmount,
 				Start:          rlib.JSONDate(today),
@@ -664,10 +664,8 @@ func SvcGetRAFlowRentableFeesData(w http.ResponseWriter, r *http.Request, d *Ser
 			continue
 		}
 
-		rec := RARentableFeesData{
-			BID:            ar.BID,
+		rec := RAFeesData{
 			ARID:           ar.ARID,
-			RID:            foo.RID,
 			ARName:         ar.Name,
 			ContractAmount: ar.DefaultAmount,
 			Start:          rlib.JSONDate(today),
@@ -806,7 +804,7 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 	var (
 		raFlowData           RAFlowJSONData
 		foo                  RAPersonDetailsRequest
-		newRAFlowMeta        RAFlowMetaInfo // we might need to update meta info
+		modRAFlowMeta        RAFlowMetaInfo // we might need to update meta info
 		shouldModifyMetaData bool
 		g                    FlowResponse
 		err                  error
@@ -862,6 +860,9 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 		return
 	}
 
+	// get flow meta data in modRAFlowMeta, which is going to modified if required
+	modRAFlowMeta = raFlowData.Meta
+
 	// ----------------------------------------------
 	// get person details with given TCID
 	// ----------------------------------------------
@@ -907,8 +908,8 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 		}
 
 		// custom tmp tcid
-		newRAFlowPerson.TMPTCID = raFlowData.Meta.LastTMPTCID + 1
-		newRAFlowMeta.LastTMPTCID = newRAFlowPerson.TMPTCID
+		modRAFlowMeta.LastTMPTCID++
+		newRAFlowPerson.TMPTCID = modRAFlowMeta.LastTMPTCID
 		personTMPTCID = newRAFlowPerson.TMPTCID
 
 		// Manage "Have you ever been"(Prospect) section FLAGS
@@ -960,11 +961,14 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 
 		// if does not exist then append in the raflow data
 		if !exist {
-			newRAFlowPet := RAPetsFlowData{Fees: []RAPetFee{}}
+			// create new pet info
+			newRAFlowPet := RAPetsFlowData{Fees: []RAFeesData{}}
 			rlib.MigrateStructVals(&petList[i], &newRAFlowPet)
 
 			// assign new TMPPETID & mark in meta info
-			newRAFlowPet.TMPPETID = raFlowData.Meta.LastTMPPETID + 1
+			modRAFlowMeta.LastTMPPETID++
+			newRAFlowPet.TMPPETID = modRAFlowMeta.LastTMPPETID
+			newRAFlowPet.TMPTCID = personTMPTCID
 
 			// get pet fees data and feed into fees
 			var petFees []rlib.BizPropsPetFee
@@ -975,22 +979,24 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 
 			// loop over fees
 			for _, fee := range petFees {
-				var pf RAPetFee
-				rlib.MigrateStructVals(&fee, &pf)
-				pf.TMPPETID = newRAFlowPet.TMPPETID
+				modRAFlowMeta.LastTMPASMID++ // new asm id temp
+				pf := RAFeesData{
+					ARID:           fee.ARID,
+					ARName:         fee.ARName,
+					ContractAmount: fee.Amount,
+					TMPASMID:       modRAFlowMeta.LastTMPASMID,
+				}
+
+				// append fee for this pet
 				newRAFlowPet.Fees = append(newRAFlowPet.Fees, pf)
 			}
 
-			// update last TMPPETID in meta info too
-			newRAFlowMeta.LastTMPPETID = newRAFlowPet.TMPPETID
-
-			// reference of TMPTCID for the person
-			newRAFlowPet.TMPTCID = personTMPTCID
-
-			// append in pets list of json data
+			// append in pets list
 			raFlowData.Pets = append(raFlowData.Pets, newRAFlowPet)
+
+			// should modify the content in raflow json?
 			shouldModifyPetsData = true
-			shouldModifyMetaData = true // as new TMPPETID
+			shouldModifyMetaData = true // as new TMPASMID
 		}
 	}
 
@@ -1032,11 +1038,13 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 
 		// if does not exist then append in the raflow data
 		if !exist {
-			newRAFlowVehicle := RAVehiclesFlowData{Fees: []RAVehicleFee{}}
+			newRAFlowVehicle := RAVehiclesFlowData{Fees: []RAFeesData{}}
 			rlib.MigrateStructVals(&vehicleList[i], &newRAFlowVehicle)
 
 			// assign new TMPVID
-			newRAFlowVehicle.TMPVID = raFlowData.Meta.LastTMPVID + 1
+			modRAFlowMeta.LastTMPVID++
+			newRAFlowVehicle.TMPVID = modRAFlowMeta.LastTMPVID
+			newRAFlowVehicle.TMPTCID = personTMPTCID
 
 			// get pet fees data and feed into fees
 			var vehicleFees []rlib.BizPropsVehicleFee
@@ -1047,22 +1055,24 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 
 			// loop over fees
 			for _, fee := range vehicleFees {
-				var vf RAVehicleFee
-				rlib.MigrateStructVals(&fee, &vf)
-				vf.TMPVID = newRAFlowVehicle.TMPVID
+				modRAFlowMeta.LastTMPASMID++
+				vf := RAFeesData{
+					ARID:           fee.ARID,
+					ARName:         fee.ARName,
+					ContractAmount: fee.Amount,
+					TMPASMID:       modRAFlowMeta.LastTMPASMID,
+				}
+
+				// append fee for this vehicle
 				newRAFlowVehicle.Fees = append(newRAFlowVehicle.Fees, vf)
 			}
 
-			// also update last TMPVID in meta info
-			newRAFlowMeta.LastTMPVID = newRAFlowVehicle.TMPVID
-
-			// reference of TMPTCID to this vehicle
-			newRAFlowVehicle.TMPTCID = personTMPTCID
-
 			// append in vehicles list of json data
 			raFlowData.Vehicles = append(raFlowData.Vehicles, newRAFlowVehicle)
+
+			// should modify content for raflow json
 			shouldModifyVehiclesData = true
-			shouldModifyMetaData = true // as new TMPVID assigned
+			shouldModifyMetaData = true // as new TMPASMID assigned
 		}
 	}
 
@@ -1087,12 +1097,12 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 	if shouldModifyMetaData {
 
 		// Update HavePets Flag in meta information of flow
-		newRAFlowMeta.HavePets = len(raFlowData.Pets) > 0
-		newRAFlowMeta.HaveVehicles = len(raFlowData.Vehicles) > 0
+		modRAFlowMeta.HavePets = len(raFlowData.Pets) > 0
+		modRAFlowMeta.HaveVehicles = len(raFlowData.Vehicles) > 0
 
 		// get marshalled data
 		var modMetaData []byte
-		modMetaData, err = json.Marshal(&newRAFlowMeta)
+		modMetaData, err = json.Marshal(&modRAFlowMeta)
 		if err != nil {
 			return
 		}

@@ -438,9 +438,7 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			// Handle Rentable Fees that are NOT Pet or Vehicle related
 			//----------------------------------------------------------
 			if ar.FLAGS&(128|256) == 0 {
-				var fee = RARentableFeesData{
-					BID:            rfd.BID,
-					RID:            rfd.RID,
+				var fee = RAFeesData{
 					ASMID:          asms[j].ASMID,
 					ARID:           asms[j].ARID,
 					ARName:         ar.Name,
@@ -460,13 +458,11 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				for k := 0; k < len(raf.Pets); k++ {
 					rlib.Console("FOUND PET FEE... petid = %d, ASMID = %d\n", petid, asms[j].ASMID)
 					if raf.Pets[k].PETID == petid {
-						var pf = RAPetFee{
-							TMPPETID: raf.Pets[k].TMPPETID,
-							BID:      raf.Pets[k].BID,
-							ARID:     asms[j].ARID,
-							ASMID:    asms[j].ASMID,
-							ARName:   ar.Name,
-							Amount:   asms[j].Amount,
+						var pf = RAFeesData{
+							ARID:           asms[j].ARID,
+							ASMID:          asms[j].ASMID,
+							ARName:         ar.Name,
+							ContractAmount: asms[j].Amount,
 						}
 						raf.Pets[k].Fees = append(raf.Pets[k].Fees, pf)
 						break
@@ -481,13 +477,11 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				for k := 0; k < len(raf.Vehicles); k++ {
 					rlib.Console("FOUND VEHICLE FEE... petid = %d, ASMID = %d\n", vid, asms[j].ASMID)
 					if raf.Vehicles[k].VID == vid {
-						var pf = RAVehicleFee{
-							TMPVID: raf.Vehicles[k].TMPVID,
-							BID:    raf.Vehicles[k].BID,
-							ARID:   asms[j].ARID,
-							ASMID:  asms[j].ASMID,
-							ARName: ar.Name,
-							Amount: asms[j].Amount,
+						var pf = RAFeesData{
+							ARID:           asms[j].ARID,
+							ASMID:          asms[j].ASMID,
+							ARName:         ar.Name,
+							ContractAmount: asms[j].Amount,
 						}
 						raf.Vehicles[k].Fees = append(raf.Vehicles[k].Fees, pf)
 						break
