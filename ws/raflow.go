@@ -66,8 +66,8 @@ type RAPeopleFlowData struct {
 	PreferredName  string `validate:"string,min=1,max=100"`
 	IsCompany      bool   `validate:"number,min=1,max=1"`
 	CompanyName    string `validate:"string,min=1,max=100"`
-	PrimaryEmail   string `validate:"email"`
-	SecondaryEmail string `validate:"email"`
+	PrimaryEmail   string `validate:"email,omitempty"`
+	SecondaryEmail string `validate:"email,omitempty"`
 	WorkPhone      string `validate:"number,min=1,max=100"`
 	CellPhone      string `validate:"number,min=1,max=100"`
 	Address        string `validate:"string,min=1,max=100"`
@@ -115,13 +115,13 @@ type RAPeopleFlowData struct {
 	SpecialNeeds string `validate:"string,min=1,max=1024"` // In an effort to accommodate you, please advise us of any special needs
 
 	// ---------- Payor -----------
-	CreditLimit         float64
-	TaxpayorID          string `validate:"string,min=1,max=25"`
-	GrossIncome         float64
-	SSN                 string `validate:"string,min=1,max=128"`
-	DriversLicense      string `validate:"string,min=1,max=128"`
-	ThirdPartySource    int64  `validate:"number:float,min=1,max=20"`
-	EligibleFuturePayor bool   `validate:"number:float,min=1,max=1"`
+	CreditLimit         float64 `validate:"number:float,min=0.10"`
+	TaxpayorID          string  `validate:"string,min=1,max=25"`
+	GrossIncome         float64 `validate:"number:float,min=0.10"`
+	SSN                 string  `validate:"string,min=1,max=128"`
+	DriversLicense      string  `validate:"string,min=1,max=128"`
+	ThirdPartySource    int64   `validate:"number,min=1,max=20"`
+	EligibleFuturePayor bool
 
 	// ---------- User -----------
 	Points      int64 `validate:"number,min=1,max=20"`
@@ -200,13 +200,13 @@ type RARentablesFlowData struct {
 	RID          int64 `validate:"number,min=1,max=20"`
 	RTID         int64 `validate:"number,min=1,max=20"`
 	RTFLAGS      uint64
-	RentableName string `validate:"string,min=1,max=100"`
-	RentCycle    int64  `validate:"number,min=1,max=20"`
-	AtSigningAmt float64
-	ProrateAmt   float64
-	TaxableAmt   float64
-	SalesTax     float64
-	TransOcc     float64
+	RentableName string  `validate:"string,min=1,max=100"`
+	RentCycle    int64   `validate:"number,min=1,max=20"`
+	AtSigningAmt float64 `validate:"number:float,min=0.00"`
+	ProrateAmt   float64 `validate:"number:float,min=0.00"`
+	TaxableAmt   float64 `validate:"number:float,min=0.00"`
+	SalesTax     float64 `validate:"number:float,min=0.00"`
+	TransOcc     float64 `validate:"number:float,min=0.00"`
 	Fees         []RARentableFeesData
 }
 
@@ -217,16 +217,16 @@ type RARentableFeesData struct {
 	ARID           int64 `validate:"number,min=1,max=20"`
 	ASMID          int64 `validate:"number,min=1,max=20"` // the permanent table assessment id if it is an existing RAID
 	ARName         string
-	ContractAmount float64
+	ContractAmount float64 `validate:"number:float,min=0.00"`
 	RentCycle      int64
 	Start          rlib.JSONDate `validate:"-"`
 	Stop           rlib.JSONDate `validate:"-"`
-	AtSigningAmt   float64
-	ProrateAmt     float64
-	SalesTaxAmt    float64
-	SalesTax       float64
-	TransOccAmt    float64
-	TransOcc       float64
+	AtSigningAmt   float64       `validate:"number:float,min=0.00"`
+	ProrateAmt     float64       `validate:"number:float,min=0.00"`
+	SalesTaxAmt    float64       `validate:"number:float,min=0.00"`
+	SalesTax       float64       `validate:"number:float,min=0.00"`
+	TransOccAmt    float64       `validate:"number:float,min=0.00"`
+	TransOcc       float64       `validate:"number:float,min=0.00"`
 }
 
 // RAParentChildFlowData contains data in the Parent/Child part of RA flow

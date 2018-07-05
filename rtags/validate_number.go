@@ -61,7 +61,7 @@ func (v IntegerNumberValidator) Validate(val interface{}) error {
 
 	// max length check
 	if !v.Max.Skip && v.Max.Value >= v.Min.Value && num > v.Max.Value {
-		return fmt.Errorf("should be less than %d chars", v.Max.Value)
+		return fmt.Errorf("should be less than %d", v.Max.Value)
 	}
 
 	return nil
@@ -80,12 +80,12 @@ func (v FloatNumberValidator) Validate(val interface{}) error {
 
 	// min length check
 	if !v.Min.Skip && num < v.Min.Value {
-		return fmt.Errorf("should be greater than %d", v.Min.Value)
+		return fmt.Errorf("should be greater than %.2f", v.Min.Value)
 	}
 
 	// max length check
 	if !v.Max.Skip && v.Max.Value >= v.Min.Value && num > v.Max.Value {
-		return fmt.Errorf("should be less than %d chars", v.Max.Value)
+		return fmt.Errorf("should be less than %.2f", v.Max.Value)
 	}
 
 	return nil
