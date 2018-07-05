@@ -175,18 +175,18 @@ type RAVehiclesFlowData struct {
 
 // RARentablesFlowData contains data in the rentables part of RA flow
 type RARentablesFlowData struct {
-	BID          int64
-	RID          int64
-	RTID         int64
-	RTFLAGS      uint64
-	RentableName string
-	RentCycle    int64
-	AtSigningAmt float64
-	ProrateAmt   float64
-	TaxableAmt   float64
-	SalesTax     float64
-	TransOcc     float64
-	Fees         []RAFeesData
+	BID             int64
+	RID             int64
+	RTID            int64
+	RTFLAGS         uint64
+	RentableName    string
+	RentCycle       int64
+	AtSigningPreTax float64
+	SalesTax        float64
+	// SalesTaxAmt    float64 // FUTURE RELEASE
+	TransOccTax float64
+	// TransOccAmt    float64 // FUTURE RELEASE
+	Fees []RAFeesData
 }
 
 // RAFeesData struct used for pet, vehicles, rentable fees
