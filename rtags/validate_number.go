@@ -19,14 +19,14 @@ type NumberMax struct {
 	Skip  bool
 }
 
-// NumberValidator for string validation
-type NumberValidator struct {
+// IntegerNumberValidator for string validation
+type IntegerNumberValidator struct {
 	Min NumberMin
 	Max NumberMax
 }
 
-// Validate method for NumberValidator
-func (v NumberValidator) Validate(val interface{}) error {
+// Validate method for IntegerNumberValidator
+func (v IntegerNumberValidator) Validate(val interface{}) error {
 	// don't panic
 	n, ok := val.(int)
 	if !ok {
@@ -49,10 +49,10 @@ func (v NumberValidator) Validate(val interface{}) error {
 	return nil
 }
 
-// getIntegerNumberValidatorFromTagValues returns instantiated `NumberValidator`
+// getIntegerNumberValidatorFromTagValues returns instantiated `IntegerNumberValidator`
 // from passed tag value options
-func getIntegerNumberValidatorFromTagValues(tagOptions, fieldName string) NumberValidator {
-	validator := NumberValidator{
+func getIntegerNumberValidatorFromTagValues(tagOptions, fieldName string) IntegerNumberValidator {
+	validator := IntegerNumberValidator{
 		Min: NumberMin{Value: 0, Skip: false},
 		Max: NumberMax{Value: 0, Skip: false},
 	}

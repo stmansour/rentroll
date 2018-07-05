@@ -26,16 +26,35 @@ func getValidatorFromTag(tagValue, fieldName string) Validator {
 	// get args of tagValue by splitting ","
 	args := strings.Split(tagValue, ",")
 
-	// For float type validation in number
-	strings.Split(args[0], ":")
+	validatorType := ""
+
+	if strings.Contains(args[0], ":") {
+		nt := strings.Split(args[0], ":")
+		if nt[0] == "number" {
+			switch nt[1] {
+			case "float":
+				validatorType = "float"
+			case "integer":
+				validatorType = "int"
+			default:
+				validatorType = "int"
+			}
+		}
+	} else if args[0] == "number" {
+		validatorType = "int"
+	} else {
+		validatorType = args[0]
+	}
 
 	// switch case of numerous validation type
-	switch args[0] {
+	switch validatorType {
 	case "string":
 		return getStringValidatorFromTagValues(strings.Join(args[1:], ","), fieldName)
 	case "email":
 		return getEmailValidatorFromTagValues(strings.Join(args[1:], ","), fieldName)
-	case "number":
+	case "float":
+		// TODO: Return float validator
+	case "int":
 		return getIntegerNumberValidatorFromTagValues(strings.Join(args[1:], ","), fieldName)
 	default:
 		return DefaultValidator{}
