@@ -269,7 +269,7 @@ section[name="RATransactantForm"] .w2ui-form-box .w2ui-field > label, div[name="
     width: 160px;
 }
 
-section[name="RATransactantForm"] .w2ui-form-box .w2ui-field > div, div[name="transactantForm"] .w2ui-form-box .w2ui-field > div{
+section[name="RATransactantForm"] .w2ui-form-box .w2ui-field > div, div[name="transactantForm"] .w2ui-form-box .w2ui-field > div {
     margin-left: 168px;
 }
 
@@ -366,26 +366,6 @@ section[name="RATransactantForm"] .w2ui-form-box .w2ui-field > div, div[name="tr
 /* ----------- */
 /* FINAL SLIDE */
 /* ----------- */
-div#save-ra-btn-container {
-    position: absolute;
-    width: 100%;
-    bottom: 0px;
-}
-
-button.save-ra {
-    padding: 12px;
-    margin: 10px auto;
-    min-width: 80px;
-    text-align: center;
-    display: block;
-    font-size: 14px;
-    text-decoration: none;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    background-image: linear-gradient(to right, #6FD305 0%, #6DA0E5 100%);
-}
 
 /* ----------- */
 /* FOOTER PART */

@@ -1194,3 +1194,19 @@ window.reassignGridRecids = function(gridName) {
         grid.refresh();
     }
 };
+
+// -------------------------------------------------------------------------------
+// SetFormRecordFromData -  sets form record from given data
+//
+// It sets data from local raflow only for fields which are defined in form
+// definition
+// -------------------------------------------------------------------------------
+window.SetFormRecordFromData = function(form, data) {
+    var fields = form.fields || [];
+
+    fields.forEach(function(fieldItem) {
+        form.record[fieldItem.field] = data[fieldItem.field];
+    });
+
+    form.refresh();
+};

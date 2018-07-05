@@ -31,7 +31,7 @@ window.loadRAPeopleForm = function () {
             name: 'RAPeopleForm',
             header: 'People',
             style: 'display: block; border: none;',
-            formURL: '/webclient/html/formrapeople.html',
+            formURL: '/webclient/html/raflow/formrapeople.html',
             focus: -1,
             fields: [
                 {name: 'Transactant',   type: 'enum',       required: true,     html: {caption: "Transactant"},
@@ -231,6 +231,8 @@ window.loadRAPeopleForm = function () {
             name: 'RATransactantForm',
             header: 'Background Information',
             style: 'border: 0px; background-color: transparent; display: block;',
+            // This is using the transactant template same as used by
+            // "Transactants" sidebar node
             formURL: '/webclient/html/formtc.html',
             toolbar: {
                 items: [

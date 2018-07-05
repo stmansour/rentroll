@@ -129,7 +129,7 @@ window.loadRAVehiclesGrid = function () {
         $().w2form({
             name    : 'RAVehicleForm',
             header  : 'Add Vehicle form',
-            formURL : '/webclient/html/formravehicles.html',
+            formURL : '/webclient/html/raflow/formravehicles.html',
             toolbar :{
                 items: [
                     { id: 'bt3', type: 'spacer' },
@@ -571,7 +571,7 @@ window.loadRAVehiclesGrid = function () {
         $().w2form({
             name: 'RAVehicleFormBtns',
             style: 'border: none; background-color: transparent;',
-            formURL: '/webclient/html/formravehiclebtns.html',
+            formURL: '/webclient/html/raflow/formravehiclebtns.html',
             url: '',
             fields: [],
             actions: {
