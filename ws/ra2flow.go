@@ -373,7 +373,7 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 	for i := 0; i < len(m); i++ {
-		if err = addRAPtoFlow(r.Context(), m[i].TCID, 0 /*no RID here*/, &raf, false, true, false); err != nil {
+		if err = addRAPtoFlow(r.Context(), m[i].TCID, 0 /*no RID here*/, &raf, true /*check dups*/, true /*renter*/, false); err != nil {
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
