@@ -313,7 +313,7 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	flowID, err := getRa2FlowCore(ctx, &ra, d.sess.UID)
+	flowID, err := GetRA2FlowCore(ctx, &ra, d.sess.UID)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 	}
@@ -331,14 +331,20 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	SvcWriteResponse(d.BID, &g, w)
 }
 
-// getRa2FlowCore does all the heavy lifting to create a Flow from a
+// GetRA2FlowCore does all the heavy lifting to create a Flow from a
 // RentalAgreement
 //
 // INPUTS:
-// ctx    database context for transactions
-// ra     the rental agreement to move into a flow
+//     ctx    database context for transactions
+//     ra     the rental agreement to move into a flow
+//     uid    uid of the person creating this flow.  Typically it
+//            will be the uid in the session.
+//
+// RETURNS:
+//     the new flowID
+//     any error encountered
 //-------------------------------------------------------------------------
-func getRa2FlowCore(ctx context.Context, ra *rlib.RentalAgreement, uid int64) (int64, error) {
+func GetRA2FlowCore(ctx context.Context, ra *rlib.RentalAgreement, uid int64) (int64, error) {
 	var flowID int64
 	//-------------------------------------------------------------
 	// This is the datastructure we need to fill out and save...
