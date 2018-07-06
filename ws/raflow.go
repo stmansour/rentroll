@@ -64,15 +64,15 @@ type RAPeopleFlowData struct {
 	FirstName      string `validate:"string,min=1,max=100"`
 	MiddleName     string `validate:"string,min=1,max=100"`
 	LastName       string `validate:"string,min=1,max=100"`
-	PreferredName  string `validate:"string,min=1,max=100"`
+	PreferredName  string `validate:"string,min=1,max=100,omitempty"`
 	IsCompany      bool   `validate:"number,min=1,max=1"`
 	CompanyName    string `validate:"string,min=1,max=100"`
 	PrimaryEmail   string `validate:"email,omitempty"`
 	SecondaryEmail string `validate:"email,omitempty"`
-	WorkPhone      string `validate:"number,min=1,max=100"`
-	CellPhone      string `validate:"number,min=1,max=100"`
+	WorkPhone      string `validate:"number,min=1,max=100,omitempty"`
+	CellPhone      string `validate:"number,min=1,max=100,omitempty"`
 	Address        string `validate:"string,min=1,max=100"`
-	Address2       string `validate:"string,omitempty,min=0,max=100"`
+	Address2       string `validate:"string,min=0,max=100,omitempty"`
 	City           string `validate:"string,min=1,max=100,n"`
 	State          string `validate:"string,min=1,max=25"`
 	PostalCode     string `validate:"number,min=1,max=100"`
@@ -105,11 +105,11 @@ type RAPeopleFlowData struct {
 
 	// Have you ever been
 	Evicted          bool   `validate:"-"` // Evicted
-	EvictedDes       string `validate:"string,min=1,max=2048"`
+	EvictedDes       string `validate:"string,min=1,max=2048,omitempty"`
 	Convicted        bool   `validate:"-"` // Arrested or convicted of a Convicted
-	ConvictedDes     string `validate:"string,min=1,max=2048"`
+	ConvictedDes     string `validate:"string,min=1,max=2048,omitempty"`
 	Bankruptcy       bool   `validate:"-"` // Declared Bankruptcy
-	BankruptcyDes    string `validate:"string,min=1,max=2048"`
+	BankruptcyDes    string `validate:"string,min=1,max=2048,omitempty"`
 	OtherPreferences string `validate:"string,min=1,max=1024"`
 	//FollowUpDate             rlib.JSONDate
 	//CommissionableThirdParty string
@@ -121,11 +121,11 @@ type RAPeopleFlowData struct {
 	GrossIncome         float64 `validate:"number:float,min=0.10"`
 	SSN                 string  `validate:"string,min=1,max=128"`
 	DriversLicense      string  `validate:"string,min=1,max=128"`
-	ThirdPartySource    int64   `validate:"number,min=1"`
+	ThirdPartySource    int64   `validate:"number,min=1,omitempty"`
 	EligibleFuturePayor bool
 
 	// ---------- User -----------
-	Points      int64 `validate:"number,min=1"`
+	Points      int64 `validate:"number,min=1,omitempty"`
 	DateofBirth rlib.JSONDate
 	// Emergency contact information
 	EmergencyContactName      string `validate:"string,min=1,max=100"`

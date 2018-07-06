@@ -28,20 +28,20 @@ func getValidatorFromTag(tagValue, fieldName string) Validator {
 
 	validatorType := ""
 
-	if strings.Contains(args[0], ":") {
+	if strings.Contains(args[0], "number") {
 		nt := strings.Split(args[0], ":")
-		if nt[0] == "number" {
+		if nt[0] == "number" && len(nt) > 1 {
 			switch nt[1] {
 			case "float":
 				validatorType = "float"
-			case "integer":
+			case "int":
 				validatorType = "int"
 			default:
 				validatorType = "int"
 			}
+		} else {
+			validatorType = "int"
 		}
-	} else if args[0] == "number" {
-		validatorType = "int"
 	} else {
 		validatorType = args[0]
 	}
