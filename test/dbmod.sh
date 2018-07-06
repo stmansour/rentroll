@@ -447,7 +447,7 @@ DBNAME="rentroll"
 # ALTER TABLE User CHANGE EmergencyEmail EmergencyContactEmail VARCHAR(100) NOT NULL DEFAULT '';
 
 # June 20, 2018
-# ALTER TABLE Prospect ADD CommissionableThirdParty TEXT NOT NULL DEFAULT '' AFTER PriorLengthOfResidency;
+# ALTER TABLE Prospect ADD CommissionableThirdParty TEXT NOT NULL AFTER PriorLengthOfResidency;
 
 # June 20, 2018
 # ALTER TABLE GLAccount DROP COLUMN Status;
