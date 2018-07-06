@@ -28,7 +28,7 @@ var RACompConfig = {
     "rentables": {
         loader: "loadRARentablesGrid",
         w2uiComp: "RARentablesGrid",
-        sliderWidth: 800
+        sliderWidth: 850
     },
     "parentchild": {
         loader: "loadRAPeopleChildSection",

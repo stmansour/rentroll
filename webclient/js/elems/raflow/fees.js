@@ -4,7 +4,9 @@ common things for fees strcture!
 
 /* global
     w2utils, SetFormRecordFromData, GetFeeFormInitRecord,
-    getPetFeeLocalData, getVehicleFeeLocalData, getRentableFeeLocalData
+    getPetFeeLocalData, getVehicleFeeLocalData, getRentableFeeLocalData,
+    SetDataFromFormRecord, setPetFeeLocalData, setVehicleFeeLocalData,
+    SetRentableFeeLocalData
 */
 
 "use strict";
@@ -44,21 +46,21 @@ window.GetFeeFormInitRecord = function () {
 // -------------------------------------------------------------------------------
 window.GetFeeFormFields = function() {
     var fields = [
-        {name: 'recid',             type: 'int',    required: true, html: {page: 0, column: 0}},
-        {name: 'TMPASMID',          type: 'int',    required: true, html: {page: 0, column: 0}},
-        {name: 'ASMID',             type: 'int',    required: true, html: {page: 0, column: 0}},
-        {name: 'ARID',              type: 'list',   required: true, html: {page: 0, column: 0}, options: {items: [], selected: {}}},
-        {name: 'ARName',            type: 'text',   required: true, html: {page: 0, column: 0}},
-        {name: 'ContractAmount',    type: 'money',  required: true, html: {page: 0, column: 0}},
-        {name: 'RentCycle',         type: 'int',    required: true, html: {page: 0, column: 0}},
-        {name: 'RentCycleText',     type: 'list',   required: true, html: {page: 0, column: 0}, options: {items: app.cycleFreq}},
-        {name: 'Start',             type: 'date',   required: true, html: {page: 0, column: 0}},
-        {name: 'Stop',              type: 'date',   required: true, html: {page: 0, column: 0}},
-        {name: 'AtSigningPreTax',   type: 'money',  required: true, html: {page: 0, column: 0}},
-        {name: 'SalesTax',          type: 'money',  required: true, html: {page: 0, column: 0}},
-        // {name: 'SalesTaxAmt',       type: 'money',  required: true, html: {page: 0, column: 0}}, // FUTURE RELEASE
-        {name: 'TransOccTax',       type: 'money',  required: true, html: {page: 0, column: 0}},
-        // {name: 'TransOccAmt',       type: 'money',  required: true, html: {page: 0, column: 0}}, // FUTURE RELEASE
+        {name: 'recid',             type: 'int',    required: false,    html: {page: 0, column: 0}},
+        {name: 'TMPASMID',          type: 'int',    required: true,     html: {page: 0, column: 0}},
+        {name: 'ASMID',             type: 'int',    required: true,     html: {page: 0, column: 0}},
+        {name: 'ARID',              type: 'list',   required: true,     html: {page: 0, column: 0}, options: {items: [], selected: {}}},
+        {name: 'ARName',            type: 'text',   required: true,     html: {page: 0, column: 0}},
+        {name: 'ContractAmount',    type: 'money',  required: true,     html: {page: 0, column: 0}},
+        {name: 'RentCycle',         type: 'int',    required: true,     html: {page: 0, column: 0}},
+        {name: 'RentCycleText',     type: 'list',   required: false,    html: {page: 0, column: 0}, options: {items: app.cycleFreq}},
+        {name: 'Start',             type: 'date',   required: true,     html: {page: 0, column: 0}},
+        {name: 'Stop',              type: 'date',   required: true,     html: {page: 0, column: 0}},
+        {name: 'AtSigningPreTax',   type: 'money',  required: true,     html: {page: 0, column: 0}},
+        {name: 'SalesTax',          type: 'money',  required: true,     html: {page: 0, column: 0}},
+        // {name: 'SalesTaxAmt',       type: 'money',  required: true,     html: {page: 0, column: 0}}, // FUTURE RELEASE
+        {name: 'TransOccTax',       type: 'money',  required: true,     html: {page: 0, column: 0}},
+        // {name: 'TransOccAmt',       type: 'money',  required: true,     html: {page: 0, column: 0}}, // FUTURE RELEASE
     ];
 
     // RETURN the clone
@@ -94,7 +96,7 @@ window.GetFeeGridColumns = function() {
         {
             field: 'ARName',
             caption: 'Account Rule',
-            size: '150px'
+            size: '100%'
         },
         {
             field: 'ContractAmount',
@@ -203,44 +205,99 @@ window.GetFeeGridColumns = function() {
 };
 
 // -------------------------------------------------------------------------------
-// SetFeeFormRecordFromRAFlowData -  sets form record from given data
+// SetFeeFormRecordFromFeeData - sets form record from given data
 //
 // It sets data from local raflow only for fields which are defined in form
 // definition
 // -------------------------------------------------------------------------------
-window.SetFeeFormRecordFromRAFlowData = function(TMPID, flowPart) {
-    var form, data;
+window.SetFeeFormRecordFromFeeData = function(TMPID, TMPASMID, flowPart) {
+    var form,
+        data = {}; // for referenced typed variable --  undefined will not work
 
     switch(flowPart) {
         case "pets":
             form = w2ui.RAPetFeeForm;
-            if (TMPID === 0) {
+            if (TMPASMID === 0) {
                 data = GetFeeFormInitRecord();
             } else {
-                data = getPetFeeLocalData(TMPID);
+                data = getPetFeeLocalData(TMPID, TMPASMID);
             }
-            SetFormRecordFromData(form, data);
+            SetFormRecordFromData(true, form, data);
             break;
         case "vehicles":
             form = w2ui.RAVehicleFeeForm;
-            if (TMPID === 0) {
+            if (TMPASMID === 0) {
                 data = GetFeeFormInitRecord();
             } else {
-                data = getVehicleFeeLocalData(TMPID);
+                data = getVehicleFeeLocalData(TMPID, TMPASMID);
             }
-            SetFormRecordFromData(form, data);
+            SetFormRecordFromData(true, form, data);
             break;
         case "rentables":
             form = w2ui.RARentableFeeForm;
-            if (TMPID === 0) {
+            if (TMPASMID === 0) {
                 data = GetFeeFormInitRecord();
             } else {
-                data = getRentableFeeLocalData(TMPID);
+                data = getRentableFeeLocalData(TMPID, TMPASMID);
             }
-            SetFormRecordFromData(form, data);
+            SetFormRecordFromData(true, form, data);
             break;
         default:
             return false;
     }
 };
 
+// -------------------------------------------------------------------------------
+// SetFeeDataFromFeeFormRecord - sets form record from given data
+//
+// It sets data from local raflow only for fields which are defined in form
+// definition
+// -------------------------------------------------------------------------------
+window.SetFeeDataFromFeeFormRecord = function(TMPID, TMPASMID, flowPart) {
+    var form,
+        data = {};
+
+    switch(flowPart) {
+        case "pets":
+            form = w2ui.RAPetFeeForm;
+            if (TMPASMID !== 0) {
+                data = getPetFeeLocalData(TMPID, TMPASMID);
+            }
+
+            // set modified data from form record
+            data = SetDataFromFormRecord(TMPASMID, true, form, data);
+
+            // set data locally
+            setPetFeeLocalData(TMPID, TMPASMID, data);
+
+            break;
+        case "vehicles":
+            form = w2ui.RAVehicleFeeForm;
+            if (TMPASMID !== 0) {
+                data = getVehicleFeeLocalData(TMPID, TMPASMID);
+            }
+
+            // set modified data from form record
+            data = SetDataFromFormRecord(TMPASMID, true, form, data);
+
+            // set data locally
+            setVehicleFeeLocalData(TMPID, TMPASMID, data);
+
+            break;
+        case "rentables":
+            form = w2ui.RARentableFeeForm;
+            if (TMPASMID !== 0) {
+                data = getRentableFeeLocalData(TMPID, TMPASMID);
+            }
+
+            // set modified data from form record
+            data = SetDataFromFormRecord(TMPASMID, true, form, data);
+
+            // set data locally
+            SetRentableFeeLocalData(TMPID, TMPASMID, data);
+
+            break;
+        default:
+            return false;
+    }
+};
