@@ -1392,8 +1392,9 @@ type RAFlowDetailRequest struct {
 
 // ValidateRAFlowResponse is struct to hold ErrorList for Flow
 type ValidateRAFlowResponse struct {
-	Total  int                `json:"total"`
-	Errors RAFlowFieldsErrors `json:"errors"`
+	Total     int                `json:"total"`
+	ErrorType string             `json:"errortype"`
+	Errors    RAFlowFieldsErrors `json:"errors"`
 }
 
 // DatesFieldsError is struct to hold Errorlist for Dates section
@@ -1568,7 +1569,8 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// --------------------------------------------
 	// Perform Bizlogic check validation on RAFlow
 	// --------------------------------------------
-	//validateRAFlowBizLogic(r.Context(), &raFlowData)
+	// validateRAFlowBizLogic(r.Context(), &raFlowData)
+	// g.ErrorType = "biz"
 
 }
 
@@ -1828,6 +1830,7 @@ func basicValidateRAFlow(raFlowData RAFlowJSONData, raFlowFieldsErrors RAFlowFie
 	// set the response
 	//---------------------------------------
 	g.Errors = raFlowFieldsErrors
+	g.ErrorType = "basic"
 
 	return g
 }
