@@ -300,7 +300,8 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//  Check to see if a flow already exists for this RAID. If so, just
 	//  use it.
 	//-------------------------------------------------------------------------
-	flow, err = rlib.GetFlowForRAID(r.Context(), "RA", ra.RAID)
+	ctx := r.Context()
+	flow, err = rlib.GetFlowForRAID(ctx, "RA", ra.RAID)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 	}
@@ -312,12 +313,39 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
+	flowID, err := getRa2FlowCore(ctx, &ra, d.sess.UID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+	}
+
+	flow, err = rlib.GetFlow(ctx, flowID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// set the response
+	var g FlowResponse
+	g.Record = flow
+	g.Status = "success"
+	SvcWriteResponse(d.BID, &g, w)
+}
+
+// getRa2FlowCore does all the heavy lifting to create a Flow from a
+// RentalAgreement
+//
+// INPUTS:
+// ctx    database context for transactions
+// ra     the rental agreement to move into a flow
+//-------------------------------------------------------------------------
+func getRa2FlowCore(ctx context.Context, ra *rlib.RentalAgreement, uid int64) (int64, error) {
+	var flowID int64
 	//-------------------------------------------------------------
 	// This is the datastructure we need to fill out and save...
 	//-------------------------------------------------------------
 	var raf = RAFlowJSONData{
 		Dates: RADatesFlowData{
-			BID:             d.BID,
+			BID:             ra.BID,
 			RentStart:       rlib.JSONDate(ra.RentStart),
 			RentStop:        rlib.JSONDate(ra.RentStop),
 			AgreementStart:  rlib.JSONDate(ra.AgreementStart),
@@ -333,7 +361,7 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		Tie: RATieFlowData{
 			People: []RATiePeopleData{},
 		},
-		Meta: RAFlowMetaInfo{RAID: d.ID},
+		Meta: RAFlowMetaInfo{RAID: ra.RAID},
 	}
 
 	//-------------------------------------------------------------------------
@@ -349,33 +377,30 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// transactant has already been loaded and return without doing anything
 	// other than setting the Payor (renter) flag.
 	//-------------------------------------------------------------------------
-	n, err := rlib.GetAllRentalAgreementRentables(r.Context(), ra.RAID)
+	n, err := rlib.GetAllRentalAgreementRentables(ctx, ra.RAID)
 	if err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
+		return flowID, err
 	}
 	for j := 0; j < len(n); j++ {
-		rulist, err := rlib.GetRentableUsersInRange(r.Context(), n[j].RID, &ra.AgreementStart, &ra.AgreementStop)
+		rulist, err := rlib.GetRentableUsersInRange(ctx, n[j].RID, &ra.AgreementStart, &ra.AgreementStop)
 		if err != nil {
-			SvcErrorReturn(w, err, funcname)
+			return flowID, err
 		}
 		for k := 0; k < len(rulist); k++ {
-			addRAPtoFlow(r.Context(), rulist[k].TCID, n[j].RID, &raf, true, false, true)
+			addRAPtoFlow(ctx, rulist[k].TCID, n[j].RID, &raf, true, false, true)
 		}
 	}
 
 	//-------------------------------------------------------------------------
 	// Add Payors...
 	//-------------------------------------------------------------------------
-	m, err := rlib.GetRentalAgreementPayorsInRange(r.Context(), ra.RAID, &ra.AgreementStart, &ra.AgreementStop)
+	m, err := rlib.GetRentalAgreementPayorsInRange(ctx, ra.RAID, &ra.AgreementStart, &ra.AgreementStop)
 	if err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
+		return flowID, err
 	}
 	for i := 0; i < len(m); i++ {
-		if err = addRAPtoFlow(r.Context(), m[i].TCID, 0 /*no RID here*/, &raf, true /*check dups*/, true /*renter*/, false); err != nil {
-			SvcErrorReturn(w, err, funcname)
-			return
+		if err = addRAPtoFlow(ctx, m[i].TCID, 0 /*no RID here*/, &raf, true /*check dups*/, true /*renter*/, false); err != nil {
+			return flowID, err
 		}
 	}
 
@@ -383,26 +408,22 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// Add Rentables
 	//-------------------------------------------------------------------------
 	now := time.Now()
-	o, err := rlib.GetRentalAgreementRentables(r.Context(), ra.RAID, &ra.AgreementStart, &ra.AgreementStop)
+	o, err := rlib.GetRentalAgreementRentables(ctx, ra.RAID, &ra.AgreementStart, &ra.AgreementStop)
 	if err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
+		return flowID, err
 	}
 	for i := 0; i < len(o); i++ {
-		rnt, err := rlib.GetRentable(r.Context(), o[i].RID)
+		rnt, err := rlib.GetRentable(ctx, o[i].RID)
 		if err != nil {
-			SvcErrorReturn(w, err, funcname)
-			return
+			return flowID, err
 		}
-		rtr, err := rlib.GetRentableTypeRefForDate(r.Context(), o[i].RID, &now)
+		rtr, err := rlib.GetRentableTypeRefForDate(ctx, o[i].RID, &now)
 		if err != nil {
-			SvcErrorReturn(w, err, funcname)
-			return
+			return flowID, err
 		}
 		var rt rlib.RentableType
-		if err = rlib.GetRentableType(r.Context(), rtr.RTID, &rt); err != nil {
-			SvcErrorReturn(w, err, funcname)
-			return
+		if err = rlib.GetRentableType(ctx, rtr.RTID, &rt); err != nil {
+			return flowID, err
 		}
 		var rfd = RARentablesFlowData{
 			BID:          o[i].BID,
@@ -418,20 +439,18 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// For this we want to load all 1-time fees and all
 		// recurring fees.
 		//---------------------------------------------------------
-		asms, err := rlib.GetAssessmentsByRAIDRID(r.Context(), rfd.BID, ra.RAID, rfd.RID)
+		asms, err := rlib.GetAssessmentsByRAIDRID(ctx, rfd.BID, ra.RAID, rfd.RID)
 		if err != nil {
-			SvcErrorReturn(w, err, funcname)
-			return
+			return flowID, err
 		}
 		for j := 0; j < len(asms); j++ {
 
 			//----------------------------------------------------------
 			// Get the account rule for this assessment...
 			//----------------------------------------------------------
-			ar, err := rlib.GetAR(r.Context(), asms[j].ARID)
+			ar, err := rlib.GetAR(ctx, asms[j].ARID)
 			if err != nil {
-				SvcErrorReturn(w, err, funcname)
-				return
+				return flowID, err
 			}
 
 			//----------------------------------------------------------
@@ -516,42 +535,29 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//-------------------------------------------------------------------------
 	raflowJSONData, err := json.Marshal(&raf)
 	if err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
+		return flowID, err
 	}
 
 	//-------------------------------------------------------------------------
 	// Fill out the datastructure and save it to the db as a flow...
 	//-------------------------------------------------------------------------
 	a := rlib.Flow{
-		BID:       d.BID,
+		BID:       ra.BID,
 		FlowID:    0, // it's new flowID,
 		UserRefNo: rlib.GenerateUserRefNo(),
 		FlowType:  rlib.RAFlow,
 		ID:        ra.RAID,
 		Data:      raflowJSONData,
-		CreateBy:  d.sess.UID,
-		LastModBy: d.sess.UID,
+		CreateBy:  uid,
+		LastModBy: uid,
 	}
 
 	// insert new flow
-	flowID, err := rlib.InsertFlow(r.Context(), &a)
+	flowID, err = rlib.InsertFlow(ctx, &a)
 	if err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
+		return flowID, err
 	}
-
-	flow, err = rlib.GetFlow(r.Context(), flowID)
-	if err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
-	}
-
-	// set the response
-	var g FlowResponse
-	g.Record = flow
-	g.Status = "success"
-	SvcWriteResponse(d.BID, &g, w)
+	return flowID, nil
 }
 
 // addRAPtoFlow adds a new person to raf.People.  The renter/occupant flags
