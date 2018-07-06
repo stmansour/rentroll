@@ -1704,9 +1704,6 @@ func basicValidateRAFlow(raFlowData RAFlowJSONData, raFlowFieldsErrors RAFlowFie
 		// ----------------------------------------------
 		for _, fee := range vehicle.Fees {
 
-			fmt.Println("*********")
-			fmt.Println(fee)
-			fmt.Println("*********")
 			// call validation function
 			errs := rtags.ValidateStructFromTagRules(fee)
 
@@ -1752,9 +1749,6 @@ func basicValidateRAFlow(raFlowData RAFlowJSONData, raFlowFieldsErrors RAFlowFie
 		// ----------------------------------------------
 		for _, fee := range rentable.Fees {
 
-			fmt.Println("*********")
-			fmt.Println(fee)
-			fmt.Println("*********")
 			// call validation function
 			errs := rtags.ValidateStructFromTagRules(fee)
 
