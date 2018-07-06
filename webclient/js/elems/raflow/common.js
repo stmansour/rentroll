@@ -1,5 +1,5 @@
 /* global
-    RACompConfig, hideSliderContent, appendNewSlider, showSliderContentW2UIComp,
+    RACompConfig, HideSliderContent, appendNewSlider, ShowSliderContentW2UIComp,
     loadTargetSection, requiredFieldsFulFilled, initRAFlowAjax,
     saveActiveCompData, getRAFlowCompData,
     lockOnGrid, validateRAFlowComponents
@@ -533,14 +533,14 @@ window.loadTargetSection = function (target, previousActiveCompID) {
 };
 
 //-----------------------------------------------------------------------------
-// showSliderContentW2UIComp - renders the w2ui component into slider-content
+// ShowSliderContentW2UIComp - renders the w2ui component into slider-content
 //                             and apply the given width to it
 //
 // @params
 //   w2uiComp = w2ui component
 //   width    = width to apply to slider content div
 //-----------------------------------------------------------------------------
-window.showSliderContentW2UIComp = function(w2uiComp, width, sliderID) {
+window.ShowSliderContentW2UIComp = function(w2uiComp, width, sliderID) {
     if (!sliderID) {
         sliderID = 1;
     }
@@ -551,11 +551,11 @@ window.showSliderContentW2UIComp = function(w2uiComp, width, sliderID) {
 };
 
 //-----------------------------------------------------------------------------
-// hideSliderContent - hide the slider and empty the content inside
+// HideSliderContent - hide the slider and empty the content inside
 //                     slider-content div
 //
 //-----------------------------------------------------------------------------
-window.hideSliderContent = function(sliderID) {
+window.HideSliderContent = function(sliderID) {
     if (!sliderID) {
         sliderID = 1;
     }

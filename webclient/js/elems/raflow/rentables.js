@@ -1,15 +1,16 @@
 /* global
-    RACompConfig, sliderContentDivLength, reassignGridRecids,
-    hideSliderContent, appendNewSlider, showSliderContentW2UIComp,
+    RACompConfig, SliderContentDivLength, reassignGridRecids,
+    HideSliderContent, appendNewSlider, ShowSliderContentW2UIComp,
     saveActiveCompData, getRAFlowCompData,
     GetFeeFormInitRecord, getInitialRentableFeesData,
-    getRentableLocalData, setRentableLocalData, getAllARsWithAmount, GetRentableIndexInGridRecords,
-    saveRentableCompData, SetRentableFeeLocalData, getRentableFeeLocalData,
+    GetRentableLocalData, SetRentableLocalData, getAllARsWithAmount, GetRentableIndexInGridRecords,
+    SaveRentableCompData, SetRentableFeeLocalData, GetRentableFeeLocalData,
     ridRentablePickerRender, ridRentableDropRender, ridRentableCompare,
     AssignRentableGridRecords, AssignRentableFeesGridRecords,
     SetRentableAmountsFromFees, manageParentRentableW2UIItems,
     RenderRentablesGridSummary, GetFeeFormFields, GetFeeGridColumns,
-    SetFeeDataFromFeeFormRecord, SetFeeFormRecordFromFeeData
+    SetFeeDataFromFeeFormRecord, SetFeeFormRecordFromFeeData,
+    FeeFormOnChangeHandler, GetFeeFormToolbar, FeeFormOnRefreshHandler,
 */
 
 "use strict";
@@ -247,14 +248,14 @@ window.loadRARentablesGrid = function () {
                     if(w2ui.RARentablesGrid.getColumn("RemoveRec", true) == event.column) {
                         // remove entry from local data
                         var rec = w2ui.RARentablesGrid.get(event.recid);
-                        var index = getRentableLocalData(rec.RID, true);
+                        var index = GetRentableLocalData(rec.RID, true);
 
                         // also manage local data
                         var compData = getRAFlowCompData("rentables", app.raflow.activeFlowID);
                         compData.splice(index, 1);
 
                         // save data on server
-                        saveRentableCompData()
+                        SaveRentableCompData()
                         .done(function(data) {
                             if (data.status === "success") {
                                 // after saving rentable comp data re-calculate parent rentable
@@ -287,7 +288,7 @@ window.loadRARentablesGrid = function () {
                             app.raflow.last.RID = rec.RID;
 
                             // get local data of this rentable
-                            var localRData = getRentableLocalData(rec.RID);
+                            var localRData = GetRentableLocalData(rec.RID);
 
                             // just render the record from local data if fees are available
                             if(localRData.hasOwnProperty("Fees") && localRData.Fees.length > 0) {
@@ -295,7 +296,7 @@ window.loadRARentablesGrid = function () {
                                 AssignRentableFeesGridRecords(rec.RID);
 
                                 // show slider content
-                                showSliderContentW2UIComp(w2ui.RARentableFeesGrid, RACompConfig.rentables.sliderWidth);
+                                ShowSliderContentW2UIComp(w2ui.RARentableFeesGrid, RACompConfig.rentables.sliderWidth);
                             } else {
                                 // pull fees in case it's empty
                                 var BID = getCurrentBID();
@@ -306,7 +307,7 @@ window.loadRARentablesGrid = function () {
                                         AssignRentableFeesGridRecords(rec.RID);
 
                                         // show the slider content
-                                        showSliderContentW2UIComp(w2ui.RARentableFeesGrid, RACompConfig.rentables.sliderWidth);
+                                        ShowSliderContentW2UIComp(w2ui.RARentableFeesGrid, RACompConfig.rentables.sliderWidth);
                                     }
                                 })
                                 .fail(function(data) {
@@ -329,67 +330,68 @@ window.loadRARentablesGrid = function () {
             header: 'Rentables Fees',
             show: {
                 toolbar:        true,
-                footer:         true,
-                header:         true,
-                searchAll:      false,
+                header:         false,
                 toolbarSearch:  false,
+                toolbarAdd:     true,
+                toolbarReload:  false,
                 toolbarInput:   false,
+                toolbarColumns: true,
+                footer:         false,
             },
             style: 'border: 2px solid white; display: block;',
             columns: GetFeeGridColumns(),
             toolbar: {
                 items: [
-                    {id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus'},
                     {id: 'bt3', type: 'spacer'},
                     {id: 'btnClose', type: 'button', icon: 'fas fa-times'},
                 ],
                 onClick: function (event) {
                     switch(event.target) {
-                        case "add":
-                            var feesGrid    = w2ui.RARentableFeesGrid,
-                                feeForm     = w2ui.RARentableFeeForm;
-
-                            var sliderID = 2;
-                            appendNewSlider(sliderID);
-                            $("#raflow-container")
-                                .find(".slider[data-slider-id="+sliderID+"]")
-                                .find(".slider-content")
-                                .width(400)
-                                .w2render(feeForm);
-
-                            // new record so select none
-                            feesGrid.selectNone();
-
-                            // get RID from last of raflow
-                            var RID = app.raflow.last.RID;
-
-                            // get all account rules in fit those in form "ARID" field
-                            var BID = getCurrentBID();
-                            getAllARsWithAmount(BID)
-                            .done(function(data) {
-                                var arid_items = [];
-                                app.raflow.arList[BID].forEach(function(item) {
-                                    arid_items.push({id: item.ARID, text: item.Name});
-                                });
-                                feeForm.get("ARID").options.items = arid_items;
-
-                                // set form record
-                                SetFeeFormRecordFromFeeData(RID, 0, "rentables");
-                                feeForm.record.recid = feesGrid.records.length + 1;
-
-                                // show form in the DOM
-                                showSliderContentW2UIComp(feeForm, sliderContentDivLength, sliderID);
-                                feeForm.refresh();
-                            })
-                            .fail(function(data) {
-                                console.log("failure" + data);
-                            });
-                            break;
                         case "btnClose":
-                            hideSliderContent();
+                            HideSliderContent();
                             break;
                     }
                 }
+            },
+            onAdd: function(/*event*/) {
+                var feesGrid    = w2ui.RARentableFeesGrid,
+                    feeForm     = w2ui.RARentableFeeForm;
+
+                var sliderID = 2;
+                appendNewSlider(sliderID);
+                $("#raflow-container")
+                    .find(".slider[data-slider-id="+sliderID+"]")
+                    .find(".slider-content")
+                    .width(400)
+                    .w2render(feeForm);
+
+                // new record so select none
+                feesGrid.selectNone();
+
+                // get RID from last of raflow
+                var RID = app.raflow.last.RID;
+
+                // get all account rules in fit those in form "ARID" field
+                var BID = getCurrentBID();
+                getAllARsWithAmount(BID)
+                .done(function(data) {
+                    var arid_items = [];
+                    app.raflow.arList[BID].forEach(function(item) {
+                        arid_items.push({id: item.ARID, text: item.Name});
+                    });
+                    feeForm.get("ARID").options.items = arid_items;
+
+                    // set form record
+                    SetFeeFormRecordFromFeeData(RID, 0, "rentables");
+                    feeForm.record.recid = feesGrid.records.length + 1;
+
+                    // show form in the DOM
+                    ShowSliderContentW2UIComp(feeForm, SliderContentDivLength, sliderID);
+                    feeForm.refresh();
+                })
+                .fail(function(data) {
+                    console.log("failure" + data);
+                });
             },
             onClick: function(event) {
                 event.onComplete = function() {
@@ -435,7 +437,7 @@ window.loadRARentablesGrid = function () {
                                 SetFeeFormRecordFromFeeData(RID, TMPASMID, "rentables");
                                 feeForm.record.RentCycleText = app.cycleFreq[feeForm.record.RentCycle];
 
-                                showSliderContentW2UIComp(feeForm, sliderContentDivLength, sliderID);
+                                ShowSliderContentW2UIComp(feeForm, SliderContentDivLength, sliderID);
                                 feeForm.refresh(); // need to refresh for header changes
 
                                 // When RentCycle is Norecur then disable the RentCycle list field.
@@ -463,20 +465,7 @@ window.loadRARentablesGrid = function () {
             formURL: '/webclient/html/raflow/formra-fee.html',
             focus: -1,
             fields: GetFeeFormFields(),
-            toolbar : {
-                items: [
-                    { id: 'btnNotes', type: 'button', icon: 'far fa-sticky-note' },
-                    { id: 'bt3', type: 'spacer' },
-                    { id: 'btnClose', type: 'button', icon: 'fas fa-times'}
-                ],
-                onClick: function (event) {
-                    switch (event.target){
-                        case 'btnClose':
-                            hideSliderContent(2);
-                            break;
-                    }
-                }
-            },
+            toolbar : GetFeeFormToolbar(),
             actions: {
                 reset: function () {
                     w2ui.RARentableFeeForm.clear();
@@ -497,7 +486,7 @@ window.loadRARentablesGrid = function () {
                     // re-calculate amounts for rentable
                     SetRentableAmountsFromFees(RID);
 
-                    saveRentableCompData()
+                    SaveRentableCompData()
                     .done(function (data) {
                         if (data.status === 'success') {
                             // Re render the fees grid records
@@ -507,7 +496,7 @@ window.loadRARentablesGrid = function () {
                             feeForm.actions.reset();
 
                             // close the form
-                            hideSliderContent(2);
+                            HideSliderContent(2);
                         } else {
                             feeForm.message(data.message);
                         }
@@ -533,7 +522,7 @@ window.loadRARentablesGrid = function () {
                     // re-calculate amounts for rentable
                     SetRentableAmountsFromFees(RID);
 
-                    saveRentableCompData()
+                    SaveRentableCompData()
                     .done(function (data) {
                         if (data.status === 'success') {
 
@@ -567,21 +556,21 @@ window.loadRARentablesGrid = function () {
                     // get RID from last of raflow
                     var RID = app.raflow.last.RID;
 
-                    var localRData = getRentableLocalData(RID);
+                    var localRData = GetRentableLocalData(RID);
                     if (localRData.Fees.length > 0) {
-                        var itemIndex = getRentableFeeLocalData(RID, TMPASMID, true);
+                        var itemIndex = GetRentableFeeLocalData(RID, TMPASMID, true);
 
                         // remove fee item
                         localRData.Fees.splice(itemIndex, 1);
 
                         // set this modified local rentable data to back
-                        setRentableLocalData(RID, localRData);
+                        SetRentableLocalData(RID, localRData);
 
                         // re-calculate amounts for rentable
                         SetRentableAmountsFromFees(RID);
 
                         // sync data on backend side
-                        saveRentableCompData()
+                        SaveRentableCompData()
                         .done(function (data) {
                             if (data.status === 'success') {
                                 // reset form as well as remove record from the grid
@@ -593,7 +582,7 @@ window.loadRARentablesGrid = function () {
                                 AssignRentableFeesGridRecords(RID);
 
                                 // close the form
-                                hideSliderContent(2);
+                                HideSliderContent(2);
                             } else {
                                 feeForm.message(data.message);
                             }
@@ -608,61 +597,8 @@ window.loadRARentablesGrid = function () {
                 event.onComplete = function() {
                     var feeForm = w2ui.RARentableFeeForm;
 
-                    switch(event.target) {
-                        case "RentCycleText":
-                            if (event.value_new) {
-                                app.cycleFreq.forEach(function(itemText, itemIndex) {
-                                    if (event.value_new.text == itemText) {
-                                        feeForm.record.RentCycle = itemIndex;
-                                        return false;
-                                    }
-                                });
-                                feeForm.refresh();
-                            }
-                            break;
-                        case "ARID":
-                            if (event.value_new) {
-                                var BID = getCurrentBID();
-
-                                // find account rules
-                                var arItem = {};
-                                app.raflow.arList[BID].forEach(function(item) {
-                                    if (event.value_new.id == item.ARID) {
-                                        arItem = item;
-                                        return false;
-                                    }
-                                });
-
-                                // update form record based on selected account rules item
-                                feeForm.record.ContractAmount = arItem.DefaultAmount;
-                                feeForm.record.ARName = event.value_new.text;
-
-                                // check for non-recurring cycle flag
-                                if (arItem.FLAGS&0x40 != 0) { // then it is set to non-recur flag
-                                    // It indicates that rule follow non recur charge
-                                    // feeForm.record.RentCycleText = app.cycleFreq[0];
-                                    feeForm.record.RentCycle = 0;
-                                } else {
-                                    var RID = app.raflow.last.RID,
-                                        localRData = getRentableLocalData(RID);
-
-                                    // feeForm.record.RentCycleText = app.cycleFreq[localRData.RentCycle];
-                                    feeForm.record.RentCycle = localRData.RentCycle;
-                                }
-
-                                // select rentcycle as well
-                                var selectedRentCycle = app.cycleFreq[feeForm.record.RentCycle];
-                                var rentCycleW2UISel = { id: selectedRentCycle, text: selectedRentCycle };
-                                feeForm.get("RentCycleText").options.selected = rentCycleW2UISel;
-                                feeForm.record.RentCycleText = rentCycleW2UISel;
-                                feeForm.refresh();
-
-                                // When RentCycle is Norecur then disable the RentCycle list field.
-                                var isDisabled = feeForm.record.RentCycleText.text === app.cycleFreq[0];
-                                $(feeForm.box).find("#RentCycleText").prop("disabled", isDisabled);
-                            }
-                            break;
-                    }
+                    // take action on change event for this form
+                    FeeFormOnChangeHandler(feeForm, event.target, event.value_new);
 
                        // formRecDiffer: 1=current record, 2=original record, 3=diff object
                     var diff = formRecDiffer(this.record, app.active_form_original, {});
@@ -677,37 +613,16 @@ window.loadRARentablesGrid = function () {
             onRefresh: function(event) {
                 var feeForm = this;
                 event.onComplete = function() {
-                    // ARID value
-                    var ARIDSel = {};
-                    feeForm.get("ARID").options.items.forEach(function(item) {
-                        if (item.id == feeForm.record.ARID) {
-                            ARIDSel = {id: item.id, text: item.text};
-                        }
-                    });
-                    feeForm.get("ARID").options.selected = ARIDSel;
 
-                    // rent cycle text value
-                    var selectedRentCycle = app.cycleFreq[feeForm.record.RentCycle];
-                    var RentCycleTextSel = { id: selectedRentCycle, text: selectedRentCycle };
-                    feeForm.get("RentCycleText").options.selected = RentCycleTextSel;
-                    feeForm.record.RentCycleText = RentCycleTextSel;
-
-                    // if RentCycle is 0=nonrecur then disable Stop date field
-                    // and value should be same as Start
-                    if (feeForm.record.RentCycle === 0) {
-                        $(feeForm.box).find("input[name=Stop]").prop("disabled", true);
-                        $(feeForm.box).find("input[name=Stop]").w2field().set(feeForm.record.Start);
-                        feeForm.record.Stop = feeForm.record.Start;
-                    } else {
-                        $(feeForm.box).find("input[name=Stop]").prop("disabled", false);
-                    }
+                    // minimum actions need to be taken care in refres event for fee form
+                    FeeFormOnRefreshHandler(feeForm);
 
                     // there is NO PETID actually, so have to work around with recid key
                     formRefreshCallBack(feeForm);
 
                     // set header
                     var RID = app.raflow.last.RID,
-                        localRData = getRentableLocalData(RID);
+                        localRData = GetRentableLocalData(RID);
 
                     var header = "Fee ({0}) for {1}";
                     if (feeForm.record.TMPASMID > 0) {
@@ -766,7 +681,7 @@ window.AssignRentableGridRecords = function() {
 //-----------------------------------------------------------------------------
 window.SetRentableAmountsFromFees = function(RID) {
     // get the local data again after new data has been set
-    var localRData = getRentableLocalData(RID);
+    var localRData = GetRentableLocalData(RID);
 
     if (!localRData) {
         console.error("local rentable data not found for RID: ", RID);
@@ -799,7 +714,7 @@ window.SetRentableAmountsFromFees = function(RID) {
     // localRData.TransOccAmt = amountsSum.TransOccAmt;
 
     // save this modified rentable data
-    setRentableLocalData(RID, localRData);
+    SetRentableLocalData(RID, localRData);
 };
 
 //-----------------------------------------------------------------------------
@@ -854,7 +769,7 @@ window.AssignRentableFeesGridRecords = function(RID) {
     var grid = w2ui.RARentableFeesGrid;
 
     // get the local data again after new data has been set
-    var localRData = getRentableLocalData(RID);
+    var localRData = GetRentableLocalData(RID);
 
     // set the records list
     grid.records = localRData.Fees || [];
@@ -921,9 +836,9 @@ window.AssignRentableFeesGridRecords = function(RID) {
 };
 
 //-----------------------------------------------------------------------------
-// acceptRentable - add Rentable to the list rentables grid records
+// AcceptRentable - add Rentable to the list rentables grid records
 //-----------------------------------------------------------------------------
-window.acceptRentable = function () {
+window.AcceptRentable = function () {
     var recIndex = GetRentableIndexInGridRecords(w2ui.RARentableSearchForm.record.RID);
     var BID = getCurrentBID();
 
@@ -1005,9 +920,9 @@ window.manageParentRentableW2UIItems = function() {
 };
 
 //------------------------------------------------------------------------------
-// saveRentableCompData - saves the data on server side
+// SaveRentableCompData - saves the data on server side
 //------------------------------------------------------------------------------
-window.saveRentableCompData = function() {
+window.SaveRentableCompData = function() {
     var compData = getRAFlowCompData("rentables", app.raflow.activeFlowID);
     return saveActiveCompData(compData, "rentables");
 };
@@ -1027,10 +942,10 @@ window.GetRentableIndexInGridRecords = function(RID) {
 };
 
 //-----------------------------------------------------------------------------
-// getRentableLocalData - returns the clone of rentable data for requested
+// GetRentableLocalData - returns the clone of rentable data for requested
 //                        RID
 //-----------------------------------------------------------------------------
-window.getRentableLocalData = function(RID, returnIndex) {
+window.GetRentableLocalData = function(RID, returnIndex) {
     var cloneData = {};
     var foundIndex = -1;
     var compData = getRAFlowCompData("rentables", app.raflow.activeFlowID);
@@ -1051,9 +966,9 @@ window.getRentableLocalData = function(RID, returnIndex) {
 };
 
 //-----------------------------------------------------------------------------
-// setRentableLocalData - save the data for requested RID in local data
+// SetRentableLocalData - save the data for requested RID in local data
 //-----------------------------------------------------------------------------
-window.setRentableLocalData = function(RID, rentableData) {
+window.SetRentableLocalData = function(RID, rentableData) {
     var compData = getRAFlowCompData("rentables", app.raflow.activeFlowID);
     var dataIndex = -1;
     compData.forEach(function(item, index) {
@@ -1076,10 +991,10 @@ window.setRentableLocalData = function(RID, rentableData) {
 };
 
 //-----------------------------------------------------------------------------
-// getRentableFeeLocalData - returns the clone of rentable fee data for requested
+// GetRentableFeeLocalData - returns the clone of rentable fee data for requested
 //                           RID, TMPASMID from "Fees" list of a rentable
 //-----------------------------------------------------------------------------
-window.getRentableFeeLocalData = function(RID, TMPASMID, returnIndex) {
+window.GetRentableFeeLocalData = function(RID, TMPASMID, returnIndex) {
     var cloneData = {};
     var foundIndex = -1;
     var compData = getRAFlowCompData("rentables", app.raflow.activeFlowID);
