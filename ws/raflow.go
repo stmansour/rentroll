@@ -1505,21 +1505,11 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("Entered %s\n", funcname)
 
 	var (
-		err                     error
-		foo                     RAFlowDetailRequest
-		raFlowData              RAFlowJSONData
-		raFlowFieldsErrors      RAFlowFieldsErrors
-		datesFieldsErrors       DatesFieldsError
-		peopleFieldsErrors      PeopleFieldsError
-		petFieldsErrors         PetFieldsError
-		petFeesFieldsErrors     PetFeesFieldsError
-		vehicleFieldsErrors     VehicleFieldsError
-		vehicleFeesFieldsErrors VehicleFeesFieldsError
-		rentablesFieldsErrors   RentablesFieldsError
-		parentChildFieldsErrors ParentChildFieldsError
-		tieFieldsErrors         TieFieldsError
-		tiePeopleFieldsErrors   TiePeopleFieldsError
-		g                       ValidateRAFlowResponse
+		err                error
+		foo                RAFlowDetailRequest
+		raFlowData         RAFlowJSONData
+		raFlowFieldsErrors RAFlowFieldsErrors
+		g                  ValidateRAFlowResponse
 	)
 
 	// http method check
@@ -1568,6 +1558,36 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
+
+	// ---------------------------------------
+	// Perform basic validation on RAFlow
+	// ---------------------------------------
+	g = basicValidateRAFlow(raFlowData, raFlowFieldsErrors)
+
+	if g.Total > 0 {
+		// If RAFlow structure have more than 1 basic validation error than it return with the list of basic validation errors
+		SvcWriteResponse(d.BID, &g, w)
+		return
+	}
+}
+
+// basicValidateRAFlow validate RAFlow's fields section wise
+//-------------------------------------------------------------------------
+func basicValidateRAFlow(raFlowData RAFlowJSONData, raFlowFieldsErrors RAFlowFieldsErrors) ValidateRAFlowResponse {
+
+	var (
+		datesFieldsErrors       DatesFieldsError
+		peopleFieldsErrors      PeopleFieldsError
+		petFieldsErrors         PetFieldsError
+		petFeesFieldsErrors     PetFeesFieldsError
+		vehicleFieldsErrors     VehicleFieldsError
+		vehicleFeesFieldsErrors VehicleFeesFieldsError
+		rentablesFieldsErrors   RentablesFieldsError
+		parentChildFieldsErrors ParentChildFieldsError
+		tieFieldsErrors         TieFieldsError
+		tiePeopleFieldsErrors   TiePeopleFieldsError
+		g                       ValidateRAFlowResponse
+	)
 
 	//----------------------------------------------
 	// validate RADatesFlowData structure
@@ -1769,7 +1789,8 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	//---------------------------------------
 	// set the response
+	//---------------------------------------
 	g.Errors = raFlowFieldsErrors
 
-	SvcWriteResponse(d.BID, &g, w)
+	return g
 }
