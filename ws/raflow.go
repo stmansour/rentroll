@@ -40,7 +40,7 @@ type RAFlowMetaInfo struct {
 
 // RADatesFlowData contains data in the dates part of RA flow
 type RADatesFlowData struct {
-	BID             int64         `validate:"number,min=1,max=20"`
+	BID             int64         `validate:"number,min=1"`
 	AgreementStart  rlib.JSONDate `validate:"-"` // TermStart
 	AgreementStop   rlib.JSONDate `validate:"-"` // TermStop
 	RentStart       rlib.JSONDate `validate:"-"`
@@ -51,9 +51,9 @@ type RADatesFlowData struct {
 
 // RAPeopleFlowData contains data in the background-info part of RA flow
 type RAPeopleFlowData struct {
-	TMPTCID int64 `validate:"number,min=1,max=20"`
-	BID     int64 `validate:"number,min=1,max=20"`
-	TCID    int64 `validate:"number,min=1,max=20"`
+	TMPTCID int64 `validate:"number,min=1"`
+	BID     int64 `validate:"number,min=1"`
+	TCID    int64 `validate:"number,min=1"`
 
 	// Role
 	IsRenter    bool `validate:"-"`
@@ -92,14 +92,14 @@ type RAPeopleFlowData struct {
 	// Current Address information
 	CurrentAddress           string `validate:"string,min=1,max=100"`
 	CurrentLandLordName      string `validate:"string,min=1,max=100"`
-	CurrentLandLordPhoneNo   string `validate:"number,min=1,max=20"`
+	CurrentLandLordPhoneNo   string `validate:"number,min=1"`
 	CurrentLengthOfResidency string `validate:"string,min=1,max=100"`
 	CurrentReasonForMoving   int64  `validate:"number,min=1"` // Reason for moving
 
 	// Prior Address information
 	PriorAddress           string `validate:"string,min=1,max=100"`
 	PriorLandLordName      string `validate:"string,min=1,max=100"`
-	PriorLandLordPhoneNo   string `validate:"number,min=1,max=20"`
+	PriorLandLordPhoneNo   string `validate:"number,min=1"`
 	PriorLengthOfResidency string `validate:"string,min=1,max=100"`
 	PriorReasonForMoving   int64  `validate:"number,min=1"` // Reason for moving
 
@@ -121,11 +121,11 @@ type RAPeopleFlowData struct {
 	GrossIncome         float64 `validate:"number:float,min=0.10"`
 	SSN                 string  `validate:"string,min=1,max=128"`
 	DriversLicense      string  `validate:"string,min=1,max=128"`
-	ThirdPartySource    int64   `validate:"number,min=1,max=20"`
+	ThirdPartySource    int64   `validate:"number,min=1"`
 	EligibleFuturePayor bool
 
 	// ---------- User -----------
-	Points      int64 `validate:"number,min=1,max=20"`
+	Points      int64 `validate:"number,min=1"`
 	DateofBirth rlib.JSONDate
 	// Emergency contact information
 	EmergencyContactName      string `validate:"string,min=1,max=100"`
@@ -135,20 +135,20 @@ type RAPeopleFlowData struct {
 	AlternateAddress          string `validate:"string,min=1,max=100"`
 	EligibleFutureUser        bool   `validate:"number,min=1"`
 	Industry                  string `validate:"string,min=1,max=100"`
-	SourceSLSID               int64  `validate:"number,min=1,max=20"`
+	SourceSLSID               int64  `validate:"number,min=1"`
 }
 
 // RAPetsFlowData contains data in the pets part of RA flow
 type RAPetsFlowData struct {
-	TMPPETID int64  `validate:"number,min=1,max=20"`
-	BID      int64  `validate:"number,min=1,max=20"`
-	PETID    int64  `validate:"number,min=1,max=20"`
-	TMPTCID  int64  `validate:"number,min=1,max=20"`
+	TMPPETID int64  `validate:"number,min=1"`
+	BID      int64  `validate:"number,min=1"`
+	PETID    int64  `validate:"number,min=1"`
+	TMPTCID  int64  `validate:"number,min=1"`
 	Name     string `validate:"string,min=1,max=100"`
 	Type     string `validate:"string,min=1,max=100"`
 	Breed    string `validate:"string,min=1,max=100"`
 	Color    string `validate:"string,min=1,max=100"`
-	Weight   int
+	Weight   float64
 	DtStart  rlib.JSONDate `validate:"-"`
 	DtStop   rlib.JSONDate `validate:"-"`
 	Fees     []RAFeesData
@@ -156,16 +156,16 @@ type RAPetsFlowData struct {
 
 // RAVehiclesFlowData contains data in the vehicles part of RA flow
 type RAVehiclesFlowData struct {
-	TMPVID              int64         `validate:"number,min=1,max=20"`
-	BID                 int64         `validate:"number,min=1,max=20"`
-	VID                 int64         `validate:"number,min=1,max=20"`
-	TMPTCID             int64         `validate:"number,min=1,max=20"`
-	VIN                 string        `validate:"string,min=1,max=20"`
+	TMPVID              int64         `validate:"number,min=1"`
+	BID                 int64         `validate:"number,min=1"`
+	VID                 int64         `validate:"number,min=1"`
+	TMPTCID             int64         `validate:"number,min=1"`
+	VIN                 string        `validate:"string,min=1"`
 	VehicleType         string        `validate:"string,min=1,max=80"`
 	VehicleMake         string        `validate:"string,min=1,max=80"`
 	VehicleModel        string        `validate:"string,min=1,max=80"`
 	VehicleColor        string        `validate:"string,min=1,max=80"`
-	VehicleYear         int64         `validate:"number,min=1,max=20"`
+	VehicleYear         int64         `validate:"number,min=1"`
 	LicensePlateState   string        `validate:"string,min=1,max=80"`
 	LicensePlateNumber  string        `validate:"string,min=1,max=80"`
 	ParkingPermitNumber string        `validate:"string,min=1,max=80"`
@@ -176,12 +176,12 @@ type RAVehiclesFlowData struct {
 
 // RARentablesFlowData contains data in the rentables part of RA flow
 type RARentablesFlowData struct {
-	BID             int64 `validate:"number,min=1,max=20"`
-	RID             int64 `validate:"number,min=1,max=20"`
-	RTID            int64 `validate:"number,min=1,max=20"`
+	BID             int64 `validate:"number,min=1"`
+	RID             int64 `validate:"number,min=1"`
+	RTID            int64 `validate:"number,min=1"`
 	RTFLAGS         uint64
 	RentableName    string  `validate:"string,min=1,max=100"`
-	RentCycle       int64   `validate:"number,min=1,max=20"`
+	RentCycle       int64   `validate:"number,min=1"`
 	AtSigningPreTax float64 `validate:"number:float,min=0.00"`
 	SalesTax        float64 `validate:"number:float,min=0.00"`
 	// SalesTaxAmt    float64 // FUTURE RELEASE
@@ -192,12 +192,12 @@ type RARentablesFlowData struct {
 
 // RAFeesData struct used for pet, vehicles, rentable fees
 type RAFeesData struct {
-	TMPASMID        int64         `validate:"number,min=1,max=20"` // unique ID to manage fees uniquely across all fees in raflow json data
-	ASMID           int64         `validate:"number,min=1,max=20"` // the permanent table assessment id if it is an existing RAID
-	ARID            int64         `validate:"number,min=1,max=20"`
+	TMPASMID        int64         `validate:"number,min=1"` // unique ID to manage fees uniquely across all fees in raflow json data
+	ASMID           int64         `validate:"number,min=0"` // the permanent table assessment id if it is an existing RAID
+	ARID            int64         `validate:"number,min=1"`
 	ARName          string        `validate:"string,min=1,max=100"`
 	ContractAmount  float64       `validate:"number:float,min=0.00"`
-	RentCycle       int64         `validate:"number,min=1,max=20"`
+	RentCycle       int64         `validate:"number,min=1"`
 	Start           rlib.JSONDate `validate:"-"`
 	Stop            rlib.JSONDate `validate:"-"`
 	AtSigningPreTax float64       `validate:"number:float,min=0.00"`
@@ -209,9 +209,9 @@ type RAFeesData struct {
 
 // RAParentChildFlowData contains data in the Parent/Child part of RA flow
 type RAParentChildFlowData struct {
-	BID  int64 `validate:"number,min=1,max=20"`
-	PRID int64 `validate:"number,min=1,max=20"` // parent rentable ID
-	CRID int64 `validate:"number,min=1,max=20"` // child rentable ID
+	BID  int64 `validate:"number,min=1"`
+	PRID int64 `validate:"number,min=1"` // parent rentable ID
+	CRID int64 `validate:"number,min=1"` // child rentable ID
 }
 
 // RATieFlowData contains data in the tie part of RA flow
@@ -235,9 +235,9 @@ type RATieVehiclesData struct {
 
 // RATiePeopleData holds data from tie section for a payor to a rentable
 type RATiePeopleData struct {
-	BID     int64 `validate:"number,min=1,max=20"`
-	PRID    int64 `validate:"number,min=1,max=20"`
-	TMPTCID int64 `validate:"number,min=1,max=20"` // user's temp json record reference id
+	BID     int64 `validate:"number,min=1"`
+	PRID    int64 `validate:"number,min=1"`
+	TMPTCID int64 `validate:"number,min=1"` // user's temp json record reference id
 }
 
 // getUpdateRAFlowPartJSONData returns json data in bytes
@@ -1570,6 +1570,7 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// ---------------------------------------
 	// Perform basic validation on RAFlow
 	// ---------------------------------------
+	// TODO(Akshay): Enable basic validation check
 	g = basicValidateRAFlow(raFlowData, raFlowFieldsErrors)
 
 	if g.Total > 0 {
@@ -1577,6 +1578,12 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcWriteResponse(d.BID, &g, w)
 		return
 	}
+
+	// --------------------------------------------
+	// Perform Bizlogic check validation on RAFlow
+	// --------------------------------------------
+	//validateRAFlowBizLogic(r.Context(), &raFlowData)
+
 }
 
 // basicValidateRAFlow validate RAFlow's fields section wise
@@ -1824,4 +1831,17 @@ func basicValidateRAFlow(raFlowData RAFlowJSONData, raFlowFieldsErrors RAFlowFie
 	g.Errors = raFlowFieldsErrors
 
 	return g
+}
+
+// validateRAFlowBizLogic is to check RAFlow's business logic
+func validateRAFlowBizLogic(ctx context.Context, a *RAFlowJSONData) error {
+	const funcname = "ValidateRAFlowBizLogic"
+	fmt.Printf("Entered %s\n", funcname)
+
+	// ---------------------------------------------
+	// Perform business logic check on date section
+	// 1. Dates must be Jan 1, 2000 00:00:00 UTC or later.
+	// ---------------------------------------------
+
+	return nil
 }
