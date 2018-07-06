@@ -46,7 +46,7 @@ type FloatNumberValidator struct {
 // Validate method for IntegerNumberValidator
 func (v IntegerNumberValidator) Validate(val interface{}) error {
 	// don't panic
-	n, ok := val.(int)
+	n, ok := val.(int) // TODO(Akshay): Convert it to int64 and than check its type
 	if !ok {
 		return fmt.Errorf("should be type of number")
 	}
