@@ -585,53 +585,102 @@ func SvcGetRAFlowRentableFeesData(w http.ResponseWriter, r *http.Request, d *Ser
 		foo         RARentableFeesDataRequest
 		feesRecords = []RAFeesData{}
 		today       = time.Now()
+		err         error
+		tx          *sql.Tx
+		ctx         context.Context
 	)
 	fmt.Printf("Entered %s\n", funcname)
 
+	// ===============================================
+	// defer function to handle transactaion rollback
+	// ===============================================
+	defer func() {
+		if err != nil {
+			// if tx is not nil then roll back
+			if tx != nil {
+				tx.Rollback()
+			}
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+	}()
+
+	// HTTP METHOD CHECK
 	if r.Method != "POST" {
 		err := fmt.Errorf("Only POST method is allowed")
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
-	if err := json.Unmarshal([]byte(d.data), &foo); err != nil {
+	// SEE IF WE CAN UNMARSHAL THE DATA
+	if err = json.Unmarshal([]byte(d.data), &foo); err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
+	//-------------------------------------------------------
+	// GET THE NEW `tx`, UPDATED CTX FROM THE REQUEST CONTEXT
+	//-------------------------------------------------------
+	tx, ctx, err = rlib.NewTransactionWithContext(r.Context())
+	if err != nil {
+		return
+	}
+
+	//-------------------------------------------------------
+	// FLOW EXISTENCE CHECK
+	//-------------------------------------------------------
 	// get flow and it must exist
-	flow, err := rlib.GetFlow(r.Context(), foo.FlowID)
+	var flow rlib.Flow
+	flow, err = rlib.GetFlow(ctx, foo.FlowID)
 	if err != nil {
-		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
-	// get rentable
-	rentable, err := rlib.GetRentable(r.Context(), foo.RID)
+	// get unmarshalled raflow data into struct
+	err = json.Unmarshal(flow.Data, &raFlowData)
 	if err != nil {
-		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// get meta in modRAFlowMeta, we're going to modify it
+	modRAFlowMeta := raFlowData.Meta
+
+	//-------------------------------------------------------
+	// FIND RENTABLE AND RENTABLETYPE FROM REQUEST RID
+	//-------------------------------------------------------
+	var rentable rlib.Rentable
+	rentable, err = rlib.GetRentable(ctx, foo.RID)
+	if err != nil {
 		return
 	}
 
 	// get rentableType
-	rtid, err := rlib.GetRTIDForDate(r.Context(), foo.RID, &today)
+	var rtid int64
+	rtid, err = rlib.GetRTIDForDate(ctx, foo.RID, &today)
 	if err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
-	}
-	var rt rlib.RentableType
-	err = rlib.GetRentableType(r.Context(), rtid, &rt)
-	if err != nil {
-		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
+	var rt rlib.RentableType
+	err = rlib.GetRentableType(ctx, rtid, &rt)
+	if err != nil {
+		return
+	}
+
+	//-------------------------------------------------------
+	// GET ACCOUNT RULE ASSOCIATED WITH FOUND RENTABLE TYPE
+	// AND APPEND IT'S FEES IN RECORD LIST
+	//-------------------------------------------------------
 	// now get account rule based on this rentabletype
-	ar, _ := rlib.GetAR(r.Context(), rt.ARID)
+	var ar rlib.AR
+	ar, _ = rlib.GetAR(ctx, rt.ARID)
+
 	if ar.ARID > 0 {
 		// make sure the IsRentASM is marked true
 		if ar.FLAGS&0x10 != 0 {
+			modRAFlowMeta.LastTMPASMID++
 			rec := RAFeesData{
+				TMPASMID:       modRAFlowMeta.LastTMPASMID,
 				ARID:           ar.ARID,
 				ARName:         ar.Name,
 				ContractAmount: ar.DefaultAmount,
@@ -650,11 +699,16 @@ func SvcGetRAFlowRentableFeesData(w http.ResponseWriter, r *http.Request, d *Ser
 		}
 	}
 
+	//-------------------------------------------------------
+	// GET ALL AUTO POPULATED ACCOUNT RULES
+	// APPEND FEES IN THE LIST EXCEPT RENTASM ONE AS WE
+	// FOUND THAT PREVIOUSLY
+	//-------------------------------------------------------
 	// get all auto populated to new RA marked account rules by integer representation
+	var m []rlib.AR
 	arFLAGVal := 1 << uint64(bizlogic.ARFLAGS["AutoPopulateToNewRA"])
-	m, err := rlib.GetARsByFLAGS(r.Context(), d.BID, uint64(arFLAGVal))
+	m, err = rlib.GetARsByFLAGS(ctx, d.BID, uint64(arFLAGVal))
 	if err != nil {
-		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -664,7 +718,9 @@ func SvcGetRAFlowRentableFeesData(w http.ResponseWriter, r *http.Request, d *Ser
 			continue
 		}
 
+		modRAFlowMeta.LastTMPASMID++
 		rec := RAFeesData{
+			TMPASMID:       modRAFlowMeta.LastTMPASMID,
 			ARID:           ar.ARID,
 			ARName:         ar.Name,
 			ContractAmount: ar.DefaultAmount,
@@ -687,6 +743,10 @@ func SvcGetRAFlowRentableFeesData(w http.ResponseWriter, r *http.Request, d *Ser
 		feesRecords = append(feesRecords, rec)
 	}
 
+	//-------------------------------------------------------
+	// NOW SORT THE FEES LIST BASED ON ARNAME
+	// AND INSERT IT IN RENTABLE DATA
+	//-------------------------------------------------------
 	// sort based on name, needs version 1.8 later of golang
 	sort.Slice(feesRecords, func(i, j int) bool { return feesRecords[i].ARName < feesRecords[j].ARName })
 
@@ -698,13 +758,6 @@ func SvcGetRAFlowRentableFeesData(w http.ResponseWriter, r *http.Request, d *Ser
 	rfd.RTFLAGS = rt.FLAGS
 	rfd.RentCycle = rt.RentCycle
 	rfd.Fees = feesRecords
-
-	// get unmarshalled raflow data into struct
-	err = json.Unmarshal(flow.Data, &raFlowData)
-	if err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
-	}
 
 	// find this RID in flow data rentable list
 	var rIndex = -1
@@ -721,23 +774,53 @@ func SvcGetRAFlowRentableFeesData(w http.ResponseWriter, r *http.Request, d *Ser
 		raFlowData.Rentables[rIndex] = rfd
 	}
 
-	modRData, err := json.Marshal(&raFlowData.Rentables)
+	//-------------------------------------------------------
+	// MODIFY RENTABLE JSON DATA IN RAFLOW
+	//-------------------------------------------------------
+	var modRData []byte
+	modRData, err = json.Marshal(&raFlowData.Rentables)
 	if err != nil {
-		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
 	// update flow with this modified rentable part
-	err = rlib.UpdateFlowData(r.Context(), "rentables", modRData, &flow)
+	err = rlib.UpdateFlowData(ctx, "rentables", modRData, &flow)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
+	//-------------------------------------------------------
+	// MODIFY META DATA TOO
+	//-------------------------------------------------------
+	if raFlowData.Meta.LastTMPASMID < modRAFlowMeta.LastTMPASMID {
+		var modMetaData []byte
+		modMetaData, err = json.Marshal(&modRAFlowMeta)
+		if err != nil {
+			return
+		}
+
+		err = rlib.UpdateFlowData(ctx, "meta", modMetaData, &flow)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+	}
+
+	// ----------------------------------------------
+	// return response
+	// ----------------------------------------------
+
 	// get the modified flow
-	flow, err = rlib.GetFlow(r.Context(), flow.FlowID)
+	flow, err = rlib.GetFlow(ctx, flow.FlowID)
 	if err != nil {
-		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// ------------------
+	// COMMIT TRANSACTION
+	// ------------------
+	if err = tx.Commit(); err != nil {
 		return
 	}
 
@@ -802,15 +885,14 @@ func SvcGetRAFlowPersonHandler(w http.ResponseWriter, r *http.Request, d *Servic
 func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "SaveRAFlowPersonDetails"
 	var (
-		raFlowData           RAFlowJSONData
-		foo                  RAPersonDetailsRequest
-		modRAFlowMeta        RAFlowMetaInfo // we might need to update meta info
-		shouldModifyMetaData bool
-		g                    FlowResponse
-		err                  error
-		tx                   *sql.Tx
-		ctx                  context.Context
-		prospectFlag         uint64
+		raFlowData    RAFlowJSONData
+		foo           RAPersonDetailsRequest
+		modRAFlowMeta RAFlowMetaInfo // we might need to update meta info
+		g             FlowResponse
+		err           error
+		tx            *sql.Tx
+		ctx           context.Context
+		prospectFlag  uint64
 	)
 	fmt.Printf("Entered %s\n", funcname)
 
@@ -918,9 +1000,6 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 		newRAFlowPerson.Convicted = prospectFlag&0x2 != 0  // 1 << 1
 		newRAFlowPerson.Bankruptcy = prospectFlag&0x4 != 0 // 1 << 2
 
-		// we need to update meta at the end, as new TMPTCID assigned
-		shouldModifyMetaData = true
-
 		// append in json list
 		raFlowData.People = append(raFlowData.People, newRAFlowPerson)
 
@@ -996,7 +1075,6 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 
 			// should modify the content in raflow json?
 			shouldModifyPetsData = true
-			shouldModifyMetaData = true // as new TMPASMID
 		}
 	}
 
@@ -1072,7 +1150,6 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 
 			// should modify content for raflow json
 			shouldModifyVehiclesData = true
-			shouldModifyMetaData = true // as new TMPASMID assigned
 		}
 	}
 
@@ -1094,7 +1171,7 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 	// ----------------------------------------------
 	// update meta info if required
 	// ----------------------------------------------
-	if shouldModifyMetaData {
+	if raFlowData.Meta.LastTMPASMID < modRAFlowMeta.LastTMPASMID {
 
 		// Update HavePets Flag in meta information of flow
 		modRAFlowMeta.HavePets = len(raFlowData.Pets) > 0
