@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // BizPropsVehicleFee struct holds detailed info about vehicle fee
@@ -22,6 +23,16 @@ type BizPropsPetFee struct {
 	ARID   int64
 	ARName string
 	Amount float64
+}
+
+// BizPropsEpochs defines the default trigger due times for recurring
+// assessments.
+type BizPropsEpochs struct {
+	Daily     time.Time // default hour:minute:second rent becomes due on daily rentals
+	Weekly    time.Time // default dayOfTheWeek:hour:minute:second rent becomes due on weekly rentals
+	Monthly   time.Time // default dayOfTheMonth:hour:minute:second rent becomes due on Monthly rentals
+	Quarterly time.Time // default month:dayOfMonth:hour:minute:second rent becomes due on Quarterly rentals
+	Yearly    time.Time // default month:dayOfMonth:hour:minute:second rent becomes due on Quarterly rentals
 }
 
 // GetPetFeesFromGeneralBizProps returns pet fees with detailed data

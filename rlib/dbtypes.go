@@ -993,8 +993,9 @@ type BusinessProperties struct {
 // BizProps is the golang struct for a category of business properties.
 // This struct will be marshaled into JSON data and stored in BusinessProperties
 type BizProps struct {
-	PetFees     []string // AR names of all Pet Fees
-	VehicleFees []string // AR names of all Vehicle Fees
+	Epochs      BizPropsEpochs // default epochs for recurring assessments
+	PetFees     []string       // AR names of all Pet Fees
+	VehicleFees []string       // AR names of all Vehicle Fees
 }
 
 // Building defines the location of a Building that is part of a Business
