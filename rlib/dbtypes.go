@@ -554,6 +554,7 @@ type RentalAgreement struct {
 	Recid                  int64       `json:"recid"` // this is to support the grid widget
 	RAID                   int64       // internal unique id
 	PRAID                  int64       // Parent RAID, this rental agreement is an updated version of PRAID
+	ORIGIN                 int64       // the RAID of the original Rental Agreement (all descendants have this id)
 	RATID                  int64       // reference to Occupancy Master Agreement
 	BID                    int64       // Business (so that we can process by Business)
 	NLID                   int64       // Note ID

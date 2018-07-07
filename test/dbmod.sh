@@ -499,6 +499,7 @@ DBNAME="rentroll"
 # July 2, 2018
 # ALTER TABLE Assessments CHANGE ATypeLID AssocElemType BIGINT NOT NULL DEFAULT 0;
 # ALTER TABLE Assessments ADD AssocElemID BIGINT NOT NULL DEFAULT 0 AFTER AssocElemType;
+# ALTER TABLE RentalAgreement ADD ORIGIN BIGINT NOT NULL DEFAULT 0 AFTER PRAID;
 
 #=====================================================
 #  Put modifications to schema in the lines below
