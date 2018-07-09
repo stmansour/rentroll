@@ -6,10 +6,11 @@ import (
 	"time"
 )
 
+// DateValidator for date validation
 type DateValidator struct {
 }
 
-// validate method for DateValidator
+// Validate method for DateValidator
 func (v DateValidator) Validate(val interface{}) error {
 
 	// Date: Jan 1, 2000 00:00:00 UTC
