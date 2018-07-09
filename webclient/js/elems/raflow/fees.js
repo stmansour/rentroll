@@ -4,9 +4,9 @@ common things for fees strcture!
 
 /* global
     w2utils, SetFormRecordFromData, GetFeeFormInitRecord,
-    getPetFeeLocalData, getVehicleFeeLocalData, getRentableFeeLocalData,
-    SetDataFromFormRecord, setPetFeeLocalData, setVehicleFeeLocalData,
-    SetRentableFeeLocalData
+    GetPetFeeLocalData, getVehicleFeeLocalData, GetRentableFeeLocalData,
+    SetDataFromFormRecord, SetPetFeeLocalData, setVehicleFeeLocalData,
+    SetRentableFeeLocalData, HideSliderContent, GetRentableLocalData
 */
 
 "use strict";
@@ -127,6 +127,16 @@ window.GetFeeGridColumns = function() {
             hidden: true
         },
         {
+            field: 'Start',
+            caption: 'Start Date',
+            hidden: true
+        },
+        {
+            field: 'Stop',
+            caption: 'Stop Date',
+            hidden: true
+        },
+        {
             field: 'FeePeriod',
             caption: 'Fee Period',
             size: '100px',
@@ -205,6 +215,119 @@ window.GetFeeGridColumns = function() {
 };
 
 // -------------------------------------------------------------------------------
+// GetFeeFormToolbar - toolbar configured object for all fee form
+// -------------------------------------------------------------------------------
+window.GetFeeFormToolbar = function() {
+    return {
+        items: [
+            { id: 'btnNotes', type: 'button', icon: 'far fa-sticky-note' },
+            { id: 'bt3', type: 'spacer' },
+            { id: 'btnClose', type: 'button', icon: 'fas fa-times'}
+        ],
+        onClick: function (event) {
+            switch (event.target){
+                case 'btnClose':
+                    HideSliderContent(2);
+                    break;
+            }
+        }
+    };
+};
+
+// -------------------------------------------------------------------------------
+// FeeFormOnRefreshHandler - handle the action on fee form refresh event
+// -------------------------------------------------------------------------------
+window.FeeFormOnRefreshHandler = function(feeForm) {
+
+    // -- ARID -- //
+    var ARIDSel = {};
+    feeForm.get("ARID").options.items.forEach(function(item) {
+        if (item.id == feeForm.record.ARID) {
+            ARIDSel = {id: item.id, text: item.text};
+        }
+    });
+    feeForm.get("ARID").options.selected = ARIDSel;
+
+    // -- RENTCYCLE -- //
+    var selectedRentCycle = app.cycleFreq[feeForm.record.RentCycle];
+    var RentCycleTextSel = { id: selectedRentCycle, text: selectedRentCycle };
+    feeForm.get("RentCycleText").options.selected = RentCycleTextSel;
+    feeForm.record.RentCycleText = RentCycleTextSel;
+
+    // -- START & STOP DATES -- //
+    // if RentCycle is 0=nonrecur then disable Stop date field
+    // and value should be same as Start
+    if (feeForm.record.RentCycle === 0) {
+        $(feeForm.box).find("input[name=Stop]").prop("disabled", true);
+        $(feeForm.box).find("input[name=Stop]").w2field().set(feeForm.record.Start);
+        feeForm.record.Stop = feeForm.record.Start;
+    } else {
+        $(feeForm.box).find("input[name=Stop]").prop("disabled", false);
+    }
+};
+
+// -------------------------------------------------------------------------------
+// FeeFormOnChangeHandler - handle the action on fee form change event
+// -------------------------------------------------------------------------------
+window.FeeFormOnChangeHandler = function(feeForm, field, newValue) {
+    switch(field) {
+    case "RentCycleText":
+        if (newValue) {
+            app.cycleFreq.forEach(function(itemText, itemIndex) {
+                if (newValue.text == itemText) {
+                    feeForm.record.RentCycle = itemIndex;
+                    return false;
+                }
+            });
+            feeForm.refresh();
+        }
+        break;
+    case "ARID":
+        if (newValue) {
+            var BID = getCurrentBID();
+
+            // find account rules based on selected new value
+            var arItem = {};
+            app.raflow.arList[BID].forEach(function(item) {
+                if (newValue.id == item.ARID) {
+                    arItem = item;
+                    return false;
+                }
+            });
+
+            // update form record based on selected account rules item
+            feeForm.record.ContractAmount = arItem.DefaultAmount;
+            feeForm.record.ARName = newValue.text;
+
+            // check for non-recurring cycle flag
+            if (arItem.FLAGS&0x40 != 0) { // then it is set to non-recur flag
+                // It indicates that rule follow non recur charge
+                // feeForm.record.RentCycleText = app.cycleFreq[0];
+                feeForm.record.RentCycle = 0;
+            } else {
+                var RID = app.raflow.last.RID,
+                    localRData = GetRentableLocalData(RID);
+
+                // feeForm.record.RentCycleText = app.cycleFreq[localRData.RentCycle];
+                feeForm.record.RentCycle = localRData.RentCycle;
+            }
+
+            // select rentcycle as well
+            var selectedRentCycle = app.cycleFreq[feeForm.record.RentCycle];
+            var rentCycleW2UISel = { id: selectedRentCycle, text: selectedRentCycle };
+            feeForm.get("RentCycleText").options.selected = rentCycleW2UISel;
+            feeForm.record.RentCycleText = rentCycleW2UISel;
+            feeForm.refresh();
+
+            // When RentCycle is Norecur then disable the RentCycle list field.
+            var isDisabled = feeForm.record.RentCycleText.text === app.cycleFreq[0];
+            $(feeForm.box).find("#RentCycleText").prop("disabled", isDisabled);
+        }
+        break;
+    }
+};
+
+// -------------------------------------------------------------------------------
 // SetFeeFormRecordFromFeeData - sets form record from given data
 //
 // It sets data from local raflow only for fields which are defined in form
@@ -220,7 +343,7 @@ window.SetFeeFormRecordFromFeeData = function(TMPID, TMPASMID, flowPart) {
             if (TMPASMID === 0) {
                 data = GetFeeFormInitRecord();
             } else {
-                data = getPetFeeLocalData(TMPID, TMPASMID);
+                data = GetPetFeeLocalData(TMPID, TMPASMID);
             }
             SetFormRecordFromData(true, form, data);
             break;
@@ -238,7 +361,7 @@ window.SetFeeFormRecordFromFeeData = function(TMPID, TMPASMID, flowPart) {
             if (TMPASMID === 0) {
                 data = GetFeeFormInitRecord();
             } else {
-                data = getRentableFeeLocalData(TMPID, TMPASMID);
+                data = GetRentableFeeLocalData(TMPID, TMPASMID);
             }
             SetFormRecordFromData(true, form, data);
             break;
@@ -261,14 +384,14 @@ window.SetFeeDataFromFeeFormRecord = function(TMPID, TMPASMID, flowPart) {
         case "pets":
             form = w2ui.RAPetFeeForm;
             if (TMPASMID !== 0) {
-                data = getPetFeeLocalData(TMPID, TMPASMID);
+                data = GetPetFeeLocalData(TMPID, TMPASMID);
             }
 
             // set modified data from form record
             data = SetDataFromFormRecord(TMPASMID, true, form, data);
 
             // set data locally
-            setPetFeeLocalData(TMPID, TMPASMID, data);
+            SetPetFeeLocalData(TMPID, TMPASMID, data);
 
             break;
         case "vehicles":
@@ -287,7 +410,7 @@ window.SetFeeDataFromFeeFormRecord = function(TMPID, TMPASMID, flowPart) {
         case "rentables":
             form = w2ui.RARentableFeeForm;
             if (TMPASMID !== 0) {
-                data = getRentableFeeLocalData(TMPID, TMPASMID);
+                data = GetRentableFeeLocalData(TMPID, TMPASMID);
             }
 
             // set modified data from form record

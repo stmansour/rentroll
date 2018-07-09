@@ -170,6 +170,8 @@ var Svcs = []ServiceHandler{
 	{Cmd: "flow", Handler: SvcHandlerFlow, NeedBiz: true, NeedSession: true},
 	{Cmd: "raflow-rentable-fees", Handler: SvcGetRAFlowRentableFeesData, NeedBiz: true, NeedSession: true},
 	{Cmd: "raflow-person", Handler: SvcGetRAFlowPersonHandler, NeedBiz: true, NeedSession: true},
+	{Cmd: "raflow-pets", Handler: SvcRAFlowPetsHandler, NeedBiz: true, NeedSession: true},
+	{Cmd: "raflow-vehicles", Handler: SvcRAFlowVehiclesHandler, NeedBiz: true, NeedSession: true},
 	{Cmd: "ledger", Handler: SvcLedgerHandler, NeedBiz: true, NeedSession: true},
 	{Cmd: "ledgers", Handler: SvcLedgerHandler, NeedBiz: true, NeedSession: true},
 	{Cmd: "logoff", Handler: SvcLogoff, NeedBiz: false, NeedSession: true},
@@ -225,6 +227,7 @@ var Svcs = []ServiceHandler{
 	{Cmd: "unpaidasms", Handler: SvcHandlerGetUnpaidAsms, NeedBiz: true, NeedSession: true},
 	{Cmd: "userprofile", Handler: SvcUserProfile, NeedBiz: false, NeedSession: true},
 	{Cmd: "version", Handler: SvcHandlerVersion, NeedBiz: false, NeedSession: false},
+	{Cmd: "validate-raflow", Handler: SvcValidateRAFlow, NeedBiz: false, NeedSession: false}, // TODO(Akshay): Do NeedSession to True later on
 }
 
 // SvcCtx contains information global to the Svc handlers
