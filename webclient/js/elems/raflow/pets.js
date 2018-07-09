@@ -805,12 +805,12 @@ window.loadRAPetsGrid = function () {
                         localPetData = GetPetLocalData(TMPPETID);
 
                     var header = "Fee (<strong>{0}</strong>) for Pet - <strong>{1}</strong>";
+                    var petName = w2ui.RAPetForm.record.Name;
                     if (feeForm.record.ARID > 0) {
-                        header = header.format(feeForm.record.ARName);
+                        feeForm.header = header.format(feeForm.record.ARName, petName);
                     } else {
-                        header = header.format("new");
+                        feeForm.header = header.format("new", petName);
                     }
-                    feeForm.header = header.format(w2ui.RAPetForm.record.Name);
                 };
             }
         });
