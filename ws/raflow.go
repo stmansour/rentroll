@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"rentroll/bizlogic"
 	"rentroll/rlib"
+	"rentroll/rtags"
 	"sort"
 	"time"
 )
@@ -39,178 +40,178 @@ type RAFlowMetaInfo struct {
 
 // RADatesFlowData contains data in the dates part of RA flow
 type RADatesFlowData struct {
-	BID             int64
-	AgreementStart  rlib.JSONDate // TermStart
-	AgreementStop   rlib.JSONDate // TermStop
-	RentStart       rlib.JSONDate
-	RentStop        rlib.JSONDate
-	PossessionStart rlib.JSONDate
-	PossessionStop  rlib.JSONDate
+	BID             int64         `validate:"number,min=1"`
+	AgreementStart  rlib.JSONDate `validate:"date"` // TermStart
+	AgreementStop   rlib.JSONDate `validate:"date"` // TermStop
+	RentStart       rlib.JSONDate `validate:"date"`
+	RentStop        rlib.JSONDate `validate:"date"`
+	PossessionStart rlib.JSONDate `validate:"date"`
+	PossessionStop  rlib.JSONDate `validate:"date"`
 }
 
 // RAPeopleFlowData contains data in the background-info part of RA flow
 type RAPeopleFlowData struct {
-	TMPTCID int64
-	BID     int64
-	TCID    int64
+	TMPTCID int64 `validate:"number,min=1"`
+	BID     int64 `validate:"number,min=1"`
+	TCID    int64 `validate:"number,min=1"`
 
 	// Role
-	IsRenter    bool
-	IsOccupant  bool
-	IsGuarantor bool
+	IsRenter    bool `validate:"-"`
+	IsOccupant  bool `validate:"-"`
+	IsGuarantor bool `validate:"-"`
 
 	// ---------- Basic Info -----------
-	FirstName      string
-	MiddleName     string
-	LastName       string
-	PreferredName  string
-	IsCompany      bool
-	CompanyName    string
-	PrimaryEmail   string
-	SecondaryEmail string
-	WorkPhone      string
-	CellPhone      string
-	Address        string
-	Address2       string
-	City           string
-	State          string
-	PostalCode     string
-	Country        string
-	Website        string
-	Comment        string
+	FirstName      string `validate:"string,min=1,max=100"`
+	MiddleName     string `validate:"string,min=1,max=100"`
+	LastName       string `validate:"string,min=1,max=100"`
+	PreferredName  string `validate:"string,min=1,max=100,omitempty"`
+	IsCompany      bool   `validate:"number,min=1,max=1"`
+	CompanyName    string `validate:"string,min=1,max=100"`
+	PrimaryEmail   string `validate:"email,omitempty"`
+	SecondaryEmail string `validate:"email,omitempty"`
+	WorkPhone      string `validate:"number,min=1,max=100,omitempty"`
+	CellPhone      string `validate:"number,min=1,max=100,omitempty"`
+	Address        string `validate:"string,min=1,max=100"`
+	Address2       string `validate:"string,min=0,max=100,omitempty"`
+	City           string `validate:"string,min=1,max=100,n"`
+	State          string `validate:"string,min=1,max=25"`
+	PostalCode     string `validate:"number,min=1,max=100"`
+	Country        string `validate:"string,min=1,max=100"`
+	Website        string `validate:"string,omitempty,min=1,max=100"`
+	Comment        string `validate:"string,omitempty,min=1,max=2048"`
 
 	// ---------- Prospect -----------
-	CompanyAddress    string
-	CompanyCity       string
-	CompanyState      string
-	CompanyPostalCode string
-	CompanyEmail      string
-	CompanyPhone      string
-	Occupation        string
+	CompanyAddress    string `validate:"string,min=1,max=100"`
+	CompanyCity       string `validate:"string,min=1,max=100"`
+	CompanyState      string `validate:"string,min=1,max=100"`
+	CompanyPostalCode string `validate:"number,min=1,max=100"`
+	CompanyEmail      string `validate:"email"`
+	CompanyPhone      string `validate:"number,min=1,max=100"`
+	Occupation        string `validate:"string,min=1,max=100"`
 
 	// Current Address information
-	CurrentAddress           string
-	CurrentLandLordName      string
-	CurrentLandLordPhoneNo   string
-	CurrentLengthOfResidency string
-	CurrentReasonForMoving   int64 // Reason for moving
+	CurrentAddress           string `validate:"string,min=1,max=100"`
+	CurrentLandLordName      string `validate:"string,min=1,max=100"`
+	CurrentLandLordPhoneNo   string `validate:"number,min=1"`
+	CurrentLengthOfResidency string `validate:"string,min=1,max=100"`
+	CurrentReasonForMoving   int64  `validate:"number,min=1"` // Reason for moving
 
 	// Prior Address information
-	PriorAddress           string
-	PriorLandLordName      string
-	PriorLandLordPhoneNo   string
-	PriorLengthOfResidency string
-	PriorReasonForMoving   int64 // Reason for moving
+	PriorAddress           string `validate:"string,min=1,max=100"`
+	PriorLandLordName      string `validate:"string,min=1,max=100"`
+	PriorLandLordPhoneNo   string `validate:"number,min=1"`
+	PriorLengthOfResidency string `validate:"string,min=1,max=100"`
+	PriorReasonForMoving   int64  `validate:"number,min=1"` // Reason for moving
 
 	// Have you ever been
-	Evicted          bool // Evicted
-	EvictedDes       string
-	Convicted        bool // Arrested or convicted of a Convicted
-	ConvictedDes     string
-	Bankruptcy       bool // Declared Bankruptcy
-	BankruptcyDes    string
-	OtherPreferences string
-	// FollowUpDate             rlib.JSONDate
-	// CommissionableThirdParty string
-	SpecialNeeds string // In an effort to accommodate you, please advise us of any special needs
+	Evicted          bool   `validate:"-"` // Evicted
+	EvictedDes       string `validate:"string,min=1,max=2048,omitempty"`
+	Convicted        bool   `validate:"-"` // Arrested or convicted of a Convicted
+	ConvictedDes     string `validate:"string,min=1,max=2048,omitempty"`
+	Bankruptcy       bool   `validate:"-"` // Declared Bankruptcy
+	BankruptcyDes    string `validate:"string,min=1,max=2048,omitempty"`
+	OtherPreferences string `validate:"string,min=1,max=1024"`
+	//FollowUpDate             rlib.JSONDate
+	//CommissionableThirdParty string
+	SpecialNeeds string `validate:"string,min=1,max=1024"` // In an effort to accommodate you, please advise us of any special needs
 
 	// ---------- Payor -----------
-	CreditLimit         float64
-	TaxpayorID          string
-	GrossIncome         float64
-	SSN                 string
-	DriversLicense      string
-	ThirdPartySource    int64
+	CreditLimit         float64 `validate:"number:float,min=0.10"`
+	TaxpayorID          string  `validate:"string,min=1,max=25"`
+	GrossIncome         float64 `validate:"number:float,min=0.10"`
+	SSN                 string  `validate:"string,min=1,max=128"`
+	DriversLicense      string  `validate:"string,min=1,max=128"`
+	ThirdPartySource    int64   `validate:"number,min=1,omitempty"`
 	EligibleFuturePayor bool
 
 	// ---------- User -----------
-	Points      int64
+	Points      int64 `validate:"number,min=1,omitempty"`
 	DateofBirth rlib.JSONDate
 	// Emergency contact information
-	EmergencyContactName      string
-	EmergencyContactAddress   string
-	EmergencyContactTelephone string
-	EmergencyContactEmail     string
-	AlternateAddress          string
-	EligibleFutureUser        bool
-	Industry                  string
-	SourceSLSID               int64
+	EmergencyContactName      string `validate:"string,min=1,max=100"`
+	EmergencyContactAddress   string `validate:"string,min=1,max=100"`
+	EmergencyContactTelephone string `validate:"number,min=1,max=100"`
+	EmergencyContactEmail     string `validate:"email"`
+	AlternateAddress          string `validate:"string,min=1,max=100"`
+	EligibleFutureUser        bool   `validate:"number,min=1"`
+	Industry                  string `validate:"string,min=1,max=100"`
+	SourceSLSID               int64  `validate:"number,min=1"`
 }
 
 // RAPetsFlowData contains data in the pets part of RA flow
 type RAPetsFlowData struct {
-	TMPPETID int64
-	BID      int64
-	PETID    int64
-	TMPTCID  int64
-	Name     string
-	Type     string
-	Breed    string
-	Color    string
-	Weight   int
-	DtStart  rlib.JSONDate
-	DtStop   rlib.JSONDate
-	Fees     []RAFeesData
+	TMPPETID int64         `validate:"number,min=1"`
+	BID      int64         `validate:"number,min=1"`
+	PETID    int64         `validate:"number,min=1"`
+	TMPTCID  int64         `validate:"number,min=1"`
+	Name     string        `validate:"string,min=1,max=100"`
+	Type     string        `validate:"string,min=1,max=100"`
+	Breed    string        `validate:"string,min=1,max=100"`
+	Color    string        `validate:"string,min=1,max=100"`
+	Weight   float64       `validate:"number:float,min=0.0"`
+	DtStart  rlib.JSONDate `validate:"date"`
+	DtStop   rlib.JSONDate `validate:"date"`
+	Fees     []RAFeesData  `validate:"-"`
 }
 
 // RAVehiclesFlowData contains data in the vehicles part of RA flow
 type RAVehiclesFlowData struct {
-	TMPVID              int64
-	BID                 int64
-	VID                 int64
-	TMPTCID             int64
-	VIN                 string
-	VehicleType         string
-	VehicleMake         string
-	VehicleModel        string
-	VehicleColor        string
-	VehicleYear         int64
-	LicensePlateState   string
-	LicensePlateNumber  string
-	ParkingPermitNumber string
-	DtStart             rlib.JSONDate
-	DtStop              rlib.JSONDate
-	Fees                []RAFeesData
+	TMPVID              int64         `validate:"number,min=1"`
+	BID                 int64         `validate:"number,min=1"`
+	VID                 int64         `validate:"number,min=1"`
+	TMPTCID             int64         `validate:"number,min=1"`
+	VIN                 string        `validate:"string,min=1"`
+	VehicleType         string        `validate:"string,min=1,max=80"`
+	VehicleMake         string        `validate:"string,min=1,max=80"`
+	VehicleModel        string        `validate:"string,min=1,max=80"`
+	VehicleColor        string        `validate:"string,min=1,max=80"`
+	VehicleYear         int64         `validate:"number,min=1"`
+	LicensePlateState   string        `validate:"string,min=1,max=80"`
+	LicensePlateNumber  string        `validate:"string,min=1,max=80"`
+	ParkingPermitNumber string        `validate:"string,min=1,max=80"`
+	DtStart             rlib.JSONDate `validate:"date"`
+	DtStop              rlib.JSONDate `validate:"date"`
+	Fees                []RAFeesData  `validate:"-"`
 }
 
 // RARentablesFlowData contains data in the rentables part of RA flow
 type RARentablesFlowData struct {
-	BID             int64
-	RID             int64
-	RTID            int64
+	BID             int64 `validate:"number,min=1"`
+	RID             int64 `validate:"number,min=1"`
+	RTID            int64 `validate:"number,min=1"`
 	RTFLAGS         uint64
-	RentableName    string
-	RentCycle       int64
-	AtSigningPreTax float64
-	SalesTax        float64
+	RentableName    string  `validate:"string,min=1,max=100"`
+	RentCycle       int64   `validate:"number,min=1"`
+	AtSigningPreTax float64 `validate:"number:float,min=0.00"`
+	SalesTax        float64 `validate:"number:float,min=0.00"`
 	// SalesTaxAmt    float64 // FUTURE RELEASE
-	TransOccTax float64
+	TransOccTax float64 `validate:"number:float,min=0.00"`
 	// TransOccAmt    float64 // FUTURE RELEASE
-	Fees []RAFeesData
+	Fees []RAFeesData `validate:"-"`
 }
 
 // RAFeesData struct used for pet, vehicles, rentable fees
 type RAFeesData struct {
-	TMPASMID        int64 // unique ID to manage fees uniquely across all fees in raflow json data
-	ASMID           int64 // the permanent table assessment id if it is an existing RAID
-	ARID            int64
-	ARName          string
-	ContractAmount  float64
-	RentCycle       int64
-	Start           rlib.JSONDate
-	Stop            rlib.JSONDate
-	AtSigningPreTax float64
-	SalesTax        float64
+	TMPASMID        int64         `validate:"number,min=1"` // unique ID to manage fees uniquely across all fees in raflow json data
+	ASMID           int64         `validate:"number,min=0"` // the permanent table assessment id if it is an existing RAID
+	ARID            int64         `validate:"number,min=1"`
+	ARName          string        `validate:"string,min=1,max=100"`
+	ContractAmount  float64       `validate:"number:float,min=0.00"`
+	RentCycle       int64         `validate:"number,min=1"`
+	Start           rlib.JSONDate `validate:"date"`
+	Stop            rlib.JSONDate `validate:"date"`
+	AtSigningPreTax float64       `validate:"number:float,min=0.00"`
+	SalesTax        float64       `validate:"number:float,min=0.00"`
 	// SalesTaxAmt    float64 // FUTURE RELEASE
-	TransOccTax float64
+	TransOccTax float64 `validate:"number:float,min=0.00"`
 	// TransOccAmt    float64 // FUTURE RELEASE
 }
 
 // RAParentChildFlowData contains data in the Parent/Child part of RA flow
 type RAParentChildFlowData struct {
-	BID  int64
-	PRID int64 // parent rentable ID
-	CRID int64 // child rentable ID
+	BID  int64 `validate:"number,min=1"`
+	PRID int64 `validate:"number,min=1"` // parent rentable ID
+	CRID int64 `validate:"number,min=1"` // child rentable ID
 }
 
 // RATieFlowData contains data in the tie part of RA flow
@@ -234,9 +235,9 @@ type RATieVehiclesData struct {
 
 // RATiePeopleData holds data from tie section for a payor to a rentable
 type RATiePeopleData struct {
-	BID     int64
-	PRID    int64
-	TMPTCID int64 // user's temp json record reference id
+	BID     int64 `validate:"number,min=1"`
+	PRID    int64 `validate:"number,min=1"`
+	TMPTCID int64 `validate:"number,min=1"` // user's temp json record reference id
 }
 
 // getUpdateRAFlowPartJSONData returns json data in bytes
@@ -1458,4 +1459,482 @@ type GridRAFlowResponse struct {
 	BUD       string
 	FlowID    int64
 	UserRefNo string
+}
+
+// RAFlowDetailRequest is a struct to hold info for Flow which is going to be validate
+type RAFlowDetailRequest struct {
+	FlowID    int64
+	UserRefNo string
+}
+
+// ValidateRAFlowResponse is struct to hold ErrorList for Flow
+type ValidateRAFlowResponse struct {
+	Total     int                `json:"total"`
+	ErrorType string             `json:"errortype"`
+	Errors    RAFlowFieldsErrors `json:"errors"`
+}
+
+// DatesFieldsError is struct to hold Errorlist for Dates section
+type DatesFieldsError struct {
+	Total  int                 `json:"total"`
+	Errors map[string][]string `json:"errors"`
+}
+
+// PeopleFieldsError is struct to hold Errorlist for People section
+type PeopleFieldsError struct {
+	TMPTCID int64
+	Total   int                 `json:"total"`
+	Errors  map[string][]string `json:"errors"`
+}
+
+// PetFieldsError is struct to hold Errorlist for Pet section
+type PetFieldsError struct {
+	TMPPETID   int64
+	Total      int                 `json:"total"`
+	Errors     map[string][]string `json:"errors"`
+	FeesErrors []RAFeesError       `json:"fees"`
+}
+
+// VehicleFieldsError is struct to hold Errorlist for Vehicle section
+type VehicleFieldsError struct {
+	TMPVID     int64
+	Total      int                 `json:"total"`
+	Errors     map[string][]string `json:"errors"`
+	FeesErrors []RAFeesError       `json:"fees"`
+}
+
+// RentablesFieldsError is to hold Errorlist for Rentables section
+type RentablesFieldsError struct {
+	RID        int64
+	Total      int                 `json:"total"`
+	Errors     map[string][]string `json:"errors"`
+	FeesErrors []RAFeesError       `json:"fees"`
+}
+
+// RAFeesError is struct to hold Errolist for Fees of vehicles
+type RAFeesError struct {
+	TMPASMID int64
+	Total    int                 `json:"total"`
+	Errors   map[string][]string `json:"errors"`
+}
+
+// ParentChildFieldsError is to hold Errorlist for Parent/Child section
+type ParentChildFieldsError struct {
+	PRID   int64               // parent rentable ID
+	CRID   int64               // child rentable ID
+	Total  int                 `json:"total"`
+	Errors map[string][]string `json:"errors"`
+}
+
+// TiePeopleFieldsError is to hold Errorlist for TiePeople section
+type TiePeopleFieldsError struct {
+	TMPTCID int64
+	Total   int                 `json:"total"`
+	Errors  map[string][]string `json:"errors"`
+}
+
+// TieFieldsError is to hold Errorlist for Tie section
+type TieFieldsError struct {
+	TiePeople []TiePeopleFieldsError `json:"people"`
+}
+
+// RAFlowFieldsErrors is to hold Errorlist for each section of RAFlow
+type RAFlowFieldsErrors struct {
+	Dates       DatesFieldsError         `json:"dates"`
+	People      []PeopleFieldsError      `json:"people"`
+	Pets        []PetFieldsError         `json:"pets"`
+	Vehicle     []VehicleFieldsError     `json:"vehicle"`
+	Rentables   []RentablesFieldsError   `json:"rentables"`
+	ParentChild []ParentChildFieldsError `json:"parentchild"`
+	Tie         TieFieldsError           `json:"tie"`
+}
+
+// SvcValidateRAFlow is used to check/validate RAFlow's struct
+//------------------------------------------------------------------------------
+func SvcValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcValidateRAFlow"
+	var (
+		err error
+	)
+	fmt.Printf("Entered %s\n", funcname)
+	fmt.Printf("Request: %s:  BID = %d,  FlowID = %d\n", d.wsSearchReq.Cmd, d.BID, d.ID)
+
+	switch d.wsSearchReq.Cmd {
+	case "get":
+		ValidateRAFlow(w, r, d)
+		break
+	default:
+		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+}
+
+// ValidateRAFlow validate RAFlow's fields section wise
+//-------------------------------------------------------------------------
+func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "ValidateRAFlow"
+	fmt.Printf("Entered %s\n", funcname)
+
+	var (
+		err                error
+		foo                RAFlowDetailRequest
+		raFlowData         RAFlowJSONData
+		raFlowFieldsErrors RAFlowFieldsErrors
+		g                  ValidateRAFlowResponse
+	)
+
+	// http method check
+	if r.Method != "POST" {
+		err = fmt.Errorf("Only POST method is allowed")
+		return
+	}
+
+	// unmarshal data into request data struct
+	if err = json.Unmarshal([]byte(d.data), &foo); err != nil {
+		return
+	}
+
+	// Init RAFlowFields error list
+	raFlowFieldsErrors = RAFlowFieldsErrors{
+		Dates: DatesFieldsError{
+			Errors: map[string][]string{},
+		},
+		People:      []PeopleFieldsError{},
+		Pets:        []PetFieldsError{},
+		Vehicle:     []VehicleFieldsError{},
+		Rentables:   []RentablesFieldsError{},
+		ParentChild: []ParentChildFieldsError{},
+		Tie: TieFieldsError{
+			TiePeople: []TiePeopleFieldsError{},
+		},
+	}
+
+	// Get flow information from the table to validate fields value
+	flow, err := rlib.GetFlow(r.Context(), foo.FlowID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// When flowId doesn't exists in database return and give error that flowId doesn't exists
+	if flow.FlowID == 0 {
+		err = fmt.Errorf("flowID %d - doesn't exists", foo.FlowID)
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// get unmarshalled raflow data into struct
+	err = json.Unmarshal(flow.Data, &raFlowData)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// ---------------------------------------
+	// Perform basic validation on RAFlow
+	// ---------------------------------------
+	// TODO(Akshay): Enable basic validation check
+	g = basicValidateRAFlow(raFlowData, raFlowFieldsErrors)
+
+	if g.Total > 0 {
+		// If RAFlow structure have more than 1 basic validation error than it return with the list of basic validation errors
+		SvcWriteResponse(d.BID, &g, w)
+		return
+	}
+
+	// --------------------------------------------
+	// Perform Bizlogic check validation on RAFlow
+	// --------------------------------------------
+	// validateRAFlowBizLogic(r.Context(), &raFlowData)
+	// g.ErrorType = "biz"
+
+}
+
+// basicValidateRAFlow validate RAFlow's fields section wise
+//-------------------------------------------------------------------------
+func basicValidateRAFlow(raFlowData RAFlowJSONData, raFlowFieldsErrors RAFlowFieldsErrors) ValidateRAFlowResponse {
+
+	var (
+		datesFieldsErrors       DatesFieldsError
+		peopleFieldsErrors      PeopleFieldsError
+		petFieldsErrors         PetFieldsError
+		vehicleFieldsErrors     VehicleFieldsError
+		rentablesFieldsErrors   RentablesFieldsError
+		raFeesErrors            RAFeesError
+		parentChildFieldsErrors ParentChildFieldsError
+		tieFieldsErrors         TieFieldsError
+		tiePeopleFieldsErrors   TiePeopleFieldsError
+		g                       ValidateRAFlowResponse
+	)
+
+	fmt.Println(raFlowData.Pets)
+
+	//----------------------------------------------
+	// validate RADatesFlowData structure
+	// ----------------------------------------------
+	// NOTE: Validation not require for the date type fields.
+	// Because it handles while Unmarshalling string into rlib.JSONDate
+
+	// call validation function
+	errs := rtags.ValidateStructFromTagRules(raFlowData.Dates)
+
+	// Modify error count for the response
+	datesFieldsErrors.Total = len(errs)
+	datesFieldsErrors.Errors = errs
+
+	// Modify Total Error
+	g.Total += datesFieldsErrors.Total
+
+	// Assign dates fields error to
+	raFlowFieldsErrors.Dates = datesFieldsErrors
+
+	//----------------------------------------------
+	// validate RAPeopleFlowData structure
+	// ----------------------------------------------
+	for _, people := range raFlowData.People {
+		// call validation function
+		errs := rtags.ValidateStructFromTagRules(people)
+
+		// Modify error count for the response
+		peopleFieldsErrors.Total = len(errs)
+		peopleFieldsErrors.TMPTCID = people.TMPTCID
+		peopleFieldsErrors.Errors = errs
+
+		// Modify Total Error
+		g.Total += peopleFieldsErrors.Total
+
+		// Skip the row if it doesn't have error for the any fields
+		if len(errs) == 0 {
+			continue
+		}
+
+		raFlowFieldsErrors.People = append(raFlowFieldsErrors.People, peopleFieldsErrors)
+	}
+
+	// ----------------------------------------------
+	// validate RAPetFlowData structure
+	// ----------------------------------------------
+	for _, pet := range raFlowData.Pets {
+
+		// init raFeesErrors
+		raFeesErrors := RAFeesError{
+			Errors: map[string][]string{},
+		}
+
+		// call validation function
+		errs := rtags.ValidateStructFromTagRules(pet)
+
+		// Modify error count for the response
+		petFieldsErrors.Total = len(errs)
+		petFieldsErrors.TMPPETID = pet.TMPPETID
+		petFieldsErrors.Errors = errs
+		petFieldsErrors.FeesErrors = make([]RAFeesError, 0)
+
+		fmt.Printf("Petfields error: %d\n", petFieldsErrors.Total)
+
+		// ----------------------------------------------
+		// validate RAPetFlowData.Fees structure
+		// ----------------------------------------------
+		for _, fee := range pet.Fees {
+			// call validation function
+			errs := rtags.ValidateStructFromTagRules(fee)
+
+			raFeesErrors.Total = len(errs)
+			raFeesErrors.TMPASMID = fee.TMPASMID
+			raFeesErrors.Errors = errs
+
+			// Modify pets error count
+			petFieldsErrors.Total += raFeesErrors.Total
+
+			// Skip the row if it doesn't have error for the any fields
+			if len(errs) == 0 {
+				continue
+			}
+
+			petFieldsErrors.FeesErrors = append(petFieldsErrors.FeesErrors, raFeesErrors)
+		}
+
+		// Modify total error
+		g.Total += petFieldsErrors.Total
+
+		// If there is no error in pet than skip that pet's error being added.
+		if petFieldsErrors.Total == 0 {
+			continue
+		}
+
+		raFlowFieldsErrors.Pets = append(raFlowFieldsErrors.Pets, petFieldsErrors)
+	}
+
+	// ----------------------------------------------
+	// validate RAVehicleFlowData structure
+	// ----------------------------------------------
+	for _, vehicle := range raFlowData.Vehicles {
+
+		// init raFeesErrors
+		raFeesErrors := RAFeesError{
+			Errors: map[string][]string{},
+		}
+
+		// call validation function
+		errs := rtags.ValidateStructFromTagRules(vehicle)
+
+		// Modify error count for the response
+		vehicleFieldsErrors.Total = len(errs)
+		vehicleFieldsErrors.TMPVID = vehicle.TMPVID
+		vehicleFieldsErrors.Errors = errs
+		vehicleFieldsErrors.FeesErrors = make([]RAFeesError, 0)
+
+		// ----------------------------------------------
+		// validate RAVehicleFlowData.Fees structure
+		// ----------------------------------------------
+		for _, fee := range vehicle.Fees {
+
+			// call validation function
+			errs := rtags.ValidateStructFromTagRules(fee)
+
+			raFeesErrors.Total = len(errs)
+			raFeesErrors.TMPASMID = fee.TMPASMID
+			raFeesErrors.Errors = errs
+
+			// Modify vehicle error count
+			vehicleFieldsErrors.Total += raFeesErrors.Total
+
+			// Skip the row if it doesn't have error for the any fields
+			if len(errs) == 0 {
+				continue
+			}
+
+			vehicleFieldsErrors.FeesErrors = append(vehicleFieldsErrors.FeesErrors, raFeesErrors)
+		}
+
+		// Modify Total Error
+		g.Total += vehicleFieldsErrors.Total
+
+		// If there is no error in vehicle than skip that vehicle's error being added.
+		if vehicleFieldsErrors.Total == 0 {
+			continue
+		}
+
+		raFlowFieldsErrors.Vehicle = append(raFlowFieldsErrors.Vehicle, vehicleFieldsErrors)
+	}
+
+	// ----------------------------------------------
+	// validate RARentablesFlowData structure
+	// ----------------------------------------------
+	for _, rentable := range raFlowData.Rentables {
+		// init raFeesErrors
+		raFeesErrors = RAFeesError{
+			Errors: map[string][]string{},
+		}
+
+		// call validation function
+		errs := rtags.ValidateStructFromTagRules(rentable)
+
+		// Modify error count for the response
+		rentablesFieldsErrors.Total = len(errs)
+		rentablesFieldsErrors.RID = rentable.RID
+		rentablesFieldsErrors.Errors = errs
+		rentablesFieldsErrors.FeesErrors = make([]RAFeesError, 0)
+
+		// Modify Total Error
+		g.Total += rentablesFieldsErrors.Total
+
+		// ----------------------------------------------
+		// validate RAVehicleFlowData.Fees structure
+		// ----------------------------------------------
+		for _, fee := range rentable.Fees {
+
+			// call validation function
+			errs := rtags.ValidateStructFromTagRules(fee)
+
+			raFeesErrors.Total = len(errs)
+			raFeesErrors.TMPASMID = fee.TMPASMID
+			raFeesErrors.Errors = errs
+
+			rentablesFieldsErrors.Total += raFeesErrors.Total
+
+			// Skip the row if it doesn't have error for the any fields
+			if len(errs) == 0 {
+				continue
+			}
+
+			rentablesFieldsErrors.FeesErrors = append(rentablesFieldsErrors.FeesErrors, raFeesErrors)
+		}
+
+		// Modify Total Error
+		g.Total += raFeesErrors.Total
+
+		// If there is no error in vehicle than skip that rentable's error being added.
+		if rentablesFieldsErrors.Total == 0 {
+			continue
+		}
+
+		raFlowFieldsErrors.Rentables = append(raFlowFieldsErrors.Rentables, rentablesFieldsErrors)
+	}
+
+	// ----------------------------------------------
+	// validate RAParentChildFlowData structure
+	// ----------------------------------------------
+	for _, parentChild := range raFlowData.ParentChild {
+		// call validation function
+		errs := rtags.ValidateStructFromTagRules(parentChild)
+
+		// Skip the row if it doesn't have error for the any fields
+		if len(errs) == 0 {
+			continue
+		}
+
+		// Modify error count for the response
+		parentChildFieldsErrors.Total = len(errs)
+		parentChildFieldsErrors.PRID = parentChild.PRID
+		parentChildFieldsErrors.Errors = errs
+
+		// Modify Total Error
+		g.Total += rentablesFieldsErrors.Total
+
+		raFlowFieldsErrors.ParentChild = append(raFlowFieldsErrors.ParentChild, parentChildFieldsErrors)
+	}
+
+	// ----------------------------------------------
+	// validate RATieFlowData.People structure
+	// ----------------------------------------------
+	for _, people := range raFlowData.Tie.People {
+		// call validation function
+		errs = rtags.ValidateStructFromTagRules(people)
+
+		// Modify error count for the response
+		tiePeopleFieldsErrors.Total = len(errs)
+		tiePeopleFieldsErrors.TMPTCID = people.TMPTCID
+		tiePeopleFieldsErrors.Errors = errs
+
+		// Modify Total Error
+		g.Total += tiePeopleFieldsErrors.Total
+
+		tieFieldsErrors.TiePeople = append(tieFieldsErrors.TiePeople, tiePeopleFieldsErrors)
+	}
+
+	// Assign all(people/pet/vehicles) tie related error
+	raFlowFieldsErrors.Tie = tieFieldsErrors
+
+	//---------------------------------------
+	// set the response
+	//---------------------------------------
+	g.Errors = raFlowFieldsErrors
+	g.ErrorType = "basic"
+
+	return g
+}
+
+// validateRAFlowBizLogic is to check RAFlow's business logic
+func validateRAFlowBizLogic(ctx context.Context, a *RAFlowJSONData) error {
+	const funcname = "ValidateRAFlowBizLogic"
+	fmt.Printf("Entered %s\n", funcname)
+
+	// ---------------------------------------------
+	// Perform business logic check on date section
+	// 1. Dates must be Jan 1, 2000 00:00:00 UTC or later.
+	// ---------------------------------------------
+
+	return nil
 }

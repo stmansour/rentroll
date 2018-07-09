@@ -225,6 +225,7 @@ var Svcs = []ServiceHandler{
 	{Cmd: "unpaidasms", Handler: SvcHandlerGetUnpaidAsms, NeedBiz: true, NeedSession: true},
 	{Cmd: "userprofile", Handler: SvcUserProfile, NeedBiz: false, NeedSession: true},
 	{Cmd: "version", Handler: SvcHandlerVersion, NeedBiz: false, NeedSession: false},
+	{Cmd: "validate-raflow", Handler: SvcValidateRAFlow, NeedBiz: false, NeedSession: false}, // TODO(Akshay): Do NeedSession to True later on
 }
 
 // SvcCtx contains information global to the Svc handlers
