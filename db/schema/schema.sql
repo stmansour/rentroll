@@ -189,6 +189,7 @@ CREATE TABLE RentalAgreementTemplate (
 CREATE TABLE RentalAgreement (
     RAID BIGINT NOT NULL AUTO_INCREMENT,                                -- internal unique id
     PRAID BIGINT NOT NULL DEFAULT 0,                                    -- parent RAID -- this RA is an updated version of PRAID
+    ORIGIN BIGINT NOT NULL DEFAULT 0,                                   -- the RAID of the original Rental Agreement (all descendants have this id)
     RATID BIGINT NOT NULL DEFAULT 0,                                    -- reference to Rental Template (Occupancy Master Agreement)
     BID BIGINT NOT NULL DEFAULT 0,                                      -- Business (so that we can process by Business)
     NLID BIGINT NOT NULL DEFAULT 0,                                     -- NoteList ID
@@ -239,7 +240,7 @@ CREATE TABLE RentalAgreement (
               4        Active                          Tenant has moved in and the RA remains valid
               5        Terminated                      Agreement terminated. Reason in Outcome (SLSID of string from WhyLeaving)
               6        Notice To Move                  Resident has given notice that they will leave
-              7        unused 
+              7        unused
               8        unused
               9        unused                          reserved for future expansion
              10        unused                          reserved for future expansion
@@ -1124,7 +1125,7 @@ CREATE TABLE AR (
                                                             -- 1<<4 = Is Rent Assessment
                                                             -- 1<<5 = Is Security Deposit Assessment
                                                             -- 1<<6 = Is NonRecur charge
-                                                            -- 1<<7 = PETID required  
+                                                            -- 1<<7 = PETID required
                                                             -- 1<<8 = VID required
     DefaultAmount DECIMAL(19,4) NOT NULL DEFAULT 0.0,       -- amount to initialize interface with
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written

@@ -44,6 +44,9 @@ receiptsdb:
 rrdb:
 	mysql --no-defaults rentroll < rr.sql
 
+ctags:
+	ctags -R --exclude=test/webclient --exclude=.git --exclude=webclient
+
 dbschemachange:
 	cd test/testdb;make clean test dbbackup;cd ../ws;make get
 	@tools/bashtools/buildcheck.sh SCHEMA_UPDATE

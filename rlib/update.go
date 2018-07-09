@@ -815,6 +815,7 @@ func UpdateRentalAgreement(ctx context.Context, a *RentalAgreement) error {
 
 	fields := []interface{}{
 		a.PRAID,
+		a.ORIGIN,
 		a.RATID,
 		a.BID,
 		a.NLID,

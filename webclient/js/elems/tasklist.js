@@ -11,7 +11,8 @@
 */
 
 var TL = {
-    TaskWidth: 500,             // width of task form over tasklist grid
+    TLFormWidth: 700,           // width of the entire form
+    TaskWidth: 600,             // width of task form over tasklist grid
     formBtnsDisabled: false,    // indicates whether the tasklist save/delete buttons should be on/off
     TIME0: '1/1/1970',          // value of time if date control returns an empty string
 };
@@ -96,7 +97,7 @@ window.buildTaskListElements = function () {
         },
     });
 
-    addDateNavToToolbar('tls'); // "Grid" is appended to the 
+    addDateNavToToolbar('tls'); // "Grid" is appended to the
 
     //------------------------------------------------------------------------
     //  tlsInfoForm
@@ -239,7 +240,7 @@ window.buildTaskListElements = function () {
             { field: 'TID',         caption: 'TID',         size: '35px', sotrable: true, hidden: true},
             { field: 'BID',         caption: 'BID',         size: '35px', sotrable: true, hidden: true},
             { field: 'TLID',        caption: 'TLID',        size: '35px', sotrable: true, hidden: true},
-            { field: 'TaskName',    caption: 'Name',        size: '200px',sotrable: true, hidden: false},
+            { field: 'TaskName',    caption: 'Name',        size: '300px',sotrable: true, hidden: false},
             { field: 'Worker',      caption: 'Worker',      size: '75px', sotrable: true, hidden: false},
             { field: 'DtPreDue',    caption: 'DtPreDue',    size: '80px', sotrable: true, hidden: false,
                 render: function(record, index, col_index) {return renderTaskGridDate(record.DtPreDue); }
@@ -252,7 +253,7 @@ window.buildTaskListElements = function () {
             },
             { field: 'DtDone',      caption: 'DtDone',      size: '80px', sotrable: true, hidden: false,
                 render: function(record, index, col_index) {
-                    return renderTaskGridDate(record.DtDone); 
+                    return renderTaskGridDate(record.DtDone);
                 }
             },
             { field: 'FLAGS',       caption: 'FLAGS',       size: '35px', sotrable: true, hidden: true},
@@ -513,8 +514,8 @@ window.buildTaskListElements = function () {
         padding: 0,
         panels: [
             { type: 'left',    size: 0,     hidden: true },
-            { type: 'top',     size: '35%', hidden: false, content: 'top',  resizable: true, style: app.pstyle },
-            { type: 'main',    size: '65%', hidden: false, content: 'main', resizable: true, style: app.pstyle },
+            { type: 'top',     size: '40%', hidden: false, content: 'top',  resizable: true, style: app.pstyle },
+            { type: 'main',    size: '60%', hidden: false, content: 'main', resizable: true, style: app.pstyle },
             { type: 'preview', size: 0,     hidden: true,  content: 'PREVIEW'  },
             { type: 'bottom',  size: 50,    hidden: false, content: 'bottom', resizable: false, style: app.pstyle },
             { type: 'right',   size: 0,     hidden: true }
@@ -558,7 +559,7 @@ window.buildTaskListElements = function () {
                     }
                     w2ui.tlsGrid.reload();
                     var tlid = data.recid;
-                    setToTLForm(BID, tlid, app.D1, app.D2);                    
+                    setToTLForm(BID, tlid, app.D1, app.D2);
                     w2popup.close();
                 })
                 .fail(function(/*data*/){
@@ -593,13 +594,13 @@ window.finishTaskListForm = function () {
 
 //-----------------------------------------------------------------------------
 // createNewTaskList - pop up dialog where the user can select one of the
-//      defined TaskListDefinitions and set the Pivot date. Then create a 
+//      defined TaskListDefinitions and set the Pivot date. Then create a
 //      new TaskList, update the grid, and bring it up in the edit form
-// 
+//
 // @params
-//  
-// @returns 
-//  
+//
+// @returns
+//
 //-----------------------------------------------------------------------------
 window.createNewTaskList = function (bid) {
     //-------------------------------------------------------
@@ -612,17 +613,17 @@ window.createNewTaskList = function (bid) {
 //-----------------------------------------------------------------------------
 // renderTaskGridDate - if the year is 1970 or less return '', otherwise
 //      return the date string (ds).
-// 
+//
 // @params - ds = date string
-//  
+//
 // @return date string or ''
-//  
+//
 //-----------------------------------------------------------------------------
 window.renderTaskGridDate = function (ds) {
     var d = new Date(ds);
     if (d.getFullYear() > 1970) {
         return ds;
-    } 
+    }
     return '';
 };
 
@@ -659,12 +660,12 @@ window.getTLDs = function (BID,handler) {
 
 //-----------------------------------------------------------------------------
 // popupNewTaskListForm - Bring up the task edit form
-// 
+//
 // @params
 //     bid = business id
-//  
+//
 // @returns
-//  
+//
 //-----------------------------------------------------------------------------
 window.popupNewTaskListForm = function (bid) {
     w2ui.newTaskListForm.url = '/v1/tl/' + bid + '/0';
@@ -712,7 +713,7 @@ window.setToTLForm = function (bid, id, d1,d2) {
 
         w2ui.toplayout.content('right', w2ui.tlLayout);
         w2ui.toplayout.show('right', true);
-        w2ui.toplayout.sizeTo('right', 600);
+        w2ui.toplayout.sizeTo('right', TL.TLFormWidth);
         w2ui.toplayout.render();
         app.new_form_rec = false;  // mark as record exists
         app.form_is_dirty = false; // mark as no changes yet
@@ -748,13 +749,13 @@ window.taskDateRender = function (x) {
 
 //-----------------------------------------------------------------------------
 // openTaskForm - Bring up the task edit form
-// 
+//
 // @params
 //     bid = business id
 //     tid = task id
-//  
+//
 // @returns
-//  
+//
 //-----------------------------------------------------------------------------
 window.openTaskForm = function (bid,tid) {
     TL.formBtnsDisabled = true;
@@ -770,13 +771,13 @@ window.openTaskForm = function (bid,tid) {
 
 //-----------------------------------------------------------------------------
 // closeTaskForm - Close the task descriptor edit form
-// 
+//
 // @params
 //     bid = business id
 //     tdid = task descriptor id
-//  
+//
 // @returns
-//  
+//
 //-----------------------------------------------------------------------------
 window.closeTaskForm = function (bid,tdid) {
     w2ui.tlLayout.hide('right');
@@ -787,13 +788,13 @@ window.closeTaskForm = function (bid,tdid) {
 
 //-----------------------------------------------------------------------------
 // setInnerHTML - form formatting.  saves a few lines by handling the null case.
-// 
+//
 // @params
 //      id  = html element id for string update
-//      s   = string for no date value 
-//  
-// @returns 
-//  
+//      s   = string for no date value
+//
+// @returns
+//
 //-----------------------------------------------------------------------------
 window.setInnerHTML = function (id,s) {
     var e = document.getElementById(id);
@@ -804,16 +805,16 @@ window.setInnerHTML = function (id,s) {
 
 //-----------------------------------------------------------------------------
 // taskFormDueDate - form formatting
-// 
+//
 // @params
 //       dt = datetime string
 //       b  = boolean check box value (false = unchecked)
 //      id  = html element id for string update
-//      txt = string for no date value 
-//  
-// @returns 
+//      txt = string for no date value
+//
+// @returns
 //      updated value for ChkDt...  true if year >= 2000
-//  
+//
 //-----------------------------------------------------------------------------
 window.taskFormDueDate = function (dt,b,id,txt) {
     if (dt !== null && dt.length > 0) {
@@ -821,7 +822,7 @@ window.taskFormDueDate = function (dt,b,id,txt) {
         var s = '';
         b = y.getFullYear() >= 2000;
         if (b) {
-            s = taskDateRender(dt); 
+            s = taskDateRender(dt);
         } else {
             s = txt;
         }
@@ -841,16 +842,16 @@ window.taskFormDueDate = function (dt,b,id,txt) {
 //              supplied (thus the task is not completed)
 //      sDtDone  = datetime string when the task was completed
 //      sDtDue  = due datetime string - indicates when the task was due
-//      
+//
 //      uid  = uid of user who marked this as done
 //      name = name associated with uid
 //      id   = html element id for string update
 //      id2  = html area for name
 //      id3  = string to indicate late
-//  
-// @returns 
+//
+// @returns
 //      updated value for ChkDt...  true if year >= 2000
-//  
+//
 //-----------------------------------------------------------------------------
 window.taskFormDoneDate = function (bDone,sDtDone,sDtDue,b,uid,name,id,id2,id3) {
     var strDoneDate = ""; // string for sDtDone
@@ -874,7 +875,7 @@ window.taskFormDoneDate = function (bDone,sDtDone,sDtDue,b,uid,name,id,id2,id3) 
             }
         }
         setInnerHTML(id,s);
-        
+
         //--------------------------
         // id2: name indicator
         //--------------------------
@@ -904,14 +905,14 @@ window.taskFormDoneDate = function (bDone,sDtDone,sDtDue,b,uid,name,id,id2,id3) 
 
 //-----------------------------------------------------------------------------
 // taskCompletionChange - form formatting
-// 
+//
 // @params
 //       b  = boolean check box value (false = unchecked)
 //      id  = html element id for string update
-//  
-// @returns 
+//
+// @returns
 //      updated value for ChkDt...  true if year >= 2000
-//  
+//
 //-----------------------------------------------------------------------------
 window.taskCompletionChange = function (b,id) {
     var s;
@@ -924,13 +925,13 @@ window.taskCompletionChange = function (b,id) {
 };
 
 //-----------------------------------------------------------------------------
-// setTaskButtonsState - set the form Save / Delete button state to 
+// setTaskButtonsState - set the form Save / Delete button state to
 //                       the value in TL.
-// 
+//
 // @params
-//  
-// @returns 
-//  
+//
+// @returns
+//
 //-----------------------------------------------------------------------------
 window.setTaskButtonsState = function() {
     $(w2ui.tlsCloseForm.box).find("button[name=save]").prop( "disabled", TL.formBtnsDisabled );

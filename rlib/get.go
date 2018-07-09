@@ -36,12 +36,8 @@ func GetCountByTableName(ctx context.Context, t string, bid int64) (int, error) 
 		count int
 	)
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return count, ErrSessionRequired
-		}
+	if sessionCheck(ctx) {
+		return count, ErrSessionRequired
 	}
 
 	q := fmt.Sprintf("SELECT COUNT(*) FROM %s WHERE BID=%d", t, bid)
@@ -306,12 +302,8 @@ func GetPetsByTransactant(ctx context.Context, TCID int64) ([]RentalAgreementPet
 		t   []RentalAgreementPet
 	)
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return t, ErrSessionRequired
-		}
+	if sessionCheck(ctx) {
+		return t, ErrSessionRequired
 	}
 
 	var rows *sql.Rows

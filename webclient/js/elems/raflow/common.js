@@ -468,7 +468,7 @@ window.loadTargetSection = function (target, previousActiveCompID) {
             // modCompData = compData;
             w2ui.RARentablesGrid.clear();
             w2ui.RARentableFeesGrid.clear();
-            w2ui.RARentableFeesForm.actions.reset();
+            w2ui.RARentableFeeForm.actions.reset();
             break;
         case "parentchild":
             // modCompData = compData;
