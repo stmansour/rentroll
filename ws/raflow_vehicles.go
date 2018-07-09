@@ -10,57 +10,57 @@ import (
 	"time"
 )
 
-// NewRAFlowPet create new pet entry for the raflow and returns strcture
+// NewRAFlowVehicle create new vehicle entry for the raflow and returns strcture
 // with fees configured it in bizprops
-func NewRAFlowPet(ctx context.Context, BID int64, meta *RAFlowMetaInfo) (pet RAPetsFlowData, err error) {
-	const funcname = "NewRAFlowPet"
+func NewRAFlowVehicle(ctx context.Context, BID int64, meta *RAFlowMetaInfo) (vehicle RAVehiclesFlowData, err error) {
+	const funcname = "NewRAFlowVehicle"
 	var (
 		today = time.Now()
 	)
 	fmt.Printf("Entered in %s\n", funcname)
 
 	// initialize
-	// assign new TMPPETID & mark in meta info
-	meta.LastTMPPETID++
-	pet = RAPetsFlowData{
-		Fees:     []RAFeesData{},
-		TMPPETID: meta.LastTMPPETID,
-		DtStart:  rlib.JSONDate(today),
-		DtStop:   rlib.JSONDate(today.AddDate(1, 0, 0)),
+	// assign new TMPVID & mark in meta info
+	meta.LastTMPVID++
+	vehicle = RAVehiclesFlowData{
+		Fees:    []RAFeesData{},
+		TMPVID:  meta.LastTMPVID,
+		DtStart: rlib.JSONDate(today),
+		DtStop:  rlib.JSONDate(today.AddDate(1, 0, 0)),
 	}
 
-	// get pet fees data and feed into fees
-	var petFees []rlib.BizPropsPetFee
-	petFees, err = rlib.GetPetFeesFromGeneralBizProps(ctx, BID)
+	// get vehicle fees data and feed into fees
+	var vehicleFees []rlib.BizPropsVehicleFee
+	vehicleFees, err = rlib.GetVehicleFeesFromGeneralBizProps(ctx, BID)
 	if err != nil {
 		return
 	}
 
 	// loop over fees
-	for _, fee := range petFees {
+	for _, fee := range vehicleFees {
 		meta.LastTMPASMID++ // new asm id temp
-		pf := RAFeesData{
+		vf := RAFeesData{
 			ARID:           fee.ARID,
 			ARName:         fee.ARName,
 			ContractAmount: fee.Amount,
 			TMPASMID:       meta.LastTMPASMID,
 		}
 
-		// append fee for this pet
-		pet.Fees = append(pet.Fees, pf)
+		// append fee for this vehicle
+		vehicle.Fees = append(vehicle.Fees, vf)
 	}
 
 	return
 }
 
-// SvcRAFlowPetsHandler handles operation on pets of raflow json data
+// SvcRAFlowVehiclesHandler handles operation on vehicles of raflow json data
 //           0    1     2   3
-// uri /v1/raflow-pets/BID/flowID
+// uri /v1/raflow-vehicles/BID/flowID
 // The server command can be:
 //      new
 //-----------------------------------------------------------------------------------
-func SvcRAFlowPetsHandler(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	const funcname = "SvcRAFlowPetsHandler"
+func SvcRAFlowVehiclesHandler(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcRAFlowVehiclesHandler"
 	var (
 		err error
 	)
@@ -69,7 +69,7 @@ func SvcRAFlowPetsHandler(w http.ResponseWriter, r *http.Request, d *ServiceData
 
 	switch d.wsSearchReq.Cmd {
 	case "new":
-		CreateNewRAFlowPet(w, r, d)
+		CreateNewRAFlowVehicle(w, r, d)
 		break
 	default:
 		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
@@ -78,27 +78,27 @@ func SvcRAFlowPetsHandler(w http.ResponseWriter, r *http.Request, d *ServiceData
 	}
 }
 
-// RAFlowNewPetRequest struct for new pet request
-type RAFlowNewPetRequest struct {
+// RAFlowNewVehicleRequest struct for new vehicle request
+type RAFlowNewVehicleRequest struct {
 	FlowID int64
 }
 
-// CreateNewRAFlowPet creates new entry in pets list of raflow json data
+// CreateNewRAFlowVehicle creates new entry in vehicles list of raflow json data
 // wsdoc {
-//  @Title create brand new pet entry in pet list
-//  @URL /v1/raflow-pets/:BUI/:FlowID
+//  @Title create brand new vehicle entry in vehicle list
+//  @URL /v1/raflow-vehicles/:BUI/:FlowID
 //  @Method POST
-//  @Synopsis create new entry of pet in RAFlow json data
-//  @Description create new entry of pet in RAFlow json data with all available fees
-//  @Input RAFlowNewPetRequest
+//  @Synopsis create new entry of vehicle in RAFlow json data
+//  @Description create new entry of vehicle in RAFlow json data with all available fees
+//  @Input RAFlowNewVehicleRequest
 //  @Response FlowResponse
 // wsdoc }
 //-----------------------------------------------------------------------------------
-func CreateNewRAFlowPet(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	const funcname = "CreateNewRAFlowPet"
+func CreateNewRAFlowVehicle(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "CreateNewRAFlowVehicle"
 	var (
 		g             FlowResponse
-		foo           RAFlowNewPetRequest
+		foo           RAFlowNewVehicleRequest
 		raFlowData    RAFlowJSONData
 		err           error
 		tx            *sql.Tx
@@ -154,28 +154,28 @@ func CreateNewRAFlowPet(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 	modRAFlowMeta = raFlowData.Meta
 
 	// --------------------------------------------------------
-	// APPEND FEES FOR PETS
+	// APPEND FEES FOR VEHICLES
 	// --------------------------------------------------------
-	var newRAFlowPet RAPetsFlowData
-	newRAFlowPet, err = NewRAFlowPet(r.Context(), d.BID, &modRAFlowMeta)
+	var newRAFlowVehicle RAVehiclesFlowData
+	newRAFlowVehicle, err = NewRAFlowVehicle(r.Context(), d.BID, &modRAFlowMeta)
 	if err != nil {
 		return
 	}
 
-	// append in pets list
-	raFlowData.Pets = append(raFlowData.Pets, newRAFlowPet)
+	// append in vehicles list
+	raFlowData.Vehicles = append(raFlowData.Vehicles, newRAFlowVehicle)
 
 	// --------------------------------------------------------
-	// UPDATE JSON DOC WITH NEW PET DATA (BLANK)
+	// UPDATE JSON DOC WITH NEW VEHICLE DATA (BLANK)
 	// --------------------------------------------------------
-	var modPetsData []byte
-	modPetsData, err = json.Marshal(&raFlowData.Pets)
+	var modVehiclesData []byte
+	modVehiclesData, err = json.Marshal(&raFlowData.Vehicles)
 	if err != nil {
 		return
 	}
 
-	// update flow with this modified pets part
-	err = rlib.UpdateFlowData(ctx, "pets", modPetsData, &flow)
+	// update flow with this modified vehicles part
+	err = rlib.UpdateFlowData(ctx, "vehicles", modVehiclesData, &flow)
 	if err != nil {
 		return
 	}
@@ -185,8 +185,8 @@ func CreateNewRAFlowPet(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 	// --------------------------------------------------------
 	if raFlowData.Meta.LastTMPASMID < modRAFlowMeta.LastTMPASMID {
 
-		// Update HavePets Flag in meta information of flow
-		modRAFlowMeta.HavePets = len(raFlowData.Pets) > 0
+		// Update HaveVehicles Flag in meta information of flow
+		modRAFlowMeta.HaveVehicles = len(raFlowData.Vehicles) > 0
 
 		// get marshalled data
 		var modMetaData []byte
