@@ -35,6 +35,7 @@ test/irex/statements.txt
 test/irex/tables/
 admin/rrloadcsv/buildno
 test/dropdb
+test/webclient/cypress/screenshots/
 
 # ignore conf file
 **conf*.json

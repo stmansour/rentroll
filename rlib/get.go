@@ -7758,6 +7758,8 @@ func GetCountBusinessRentalAgreements(ctx context.Context, bid int64) (int, erro
 
 // GetFlow reads a Flow structure based on the supplied flowId
 func GetFlow(ctx context.Context, flowID int64) (Flow, error) {
+	const funcname = "GetFlow"
+	fmt.Printf("Entered %s\n", funcname)
 
 	var (
 		// err error

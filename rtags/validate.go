@@ -10,11 +10,19 @@ import (
 // validation type should be defined in first argument of tag string value
 // Example:
 //      // For number validation type
-//      Field int `validate:"number,min=2.max=3"`
+//      Field int64 `validate:"number,min=2.max=3"`
 //
 //      // for string validation type
-//      Field int `validate:"string,min=2.max=3"`
+//      Field int64 `validate:"string,min=2.max=3"`
 //
+//      // For omit the field when it is empty
+//      Field int64 `validate:"string,omitempty"`
+//
+//      // For float number validation
+//      Field float64 `validate:"number:float,min=0.01`
+//
+//      // For date validation type
+//      Field rlib.JSONDate `validate:"date"
 func getValidatorFromTag(tagValue, fieldName string) Validator {
 
 	// replace any misplaced whitespace in tag value
@@ -23,14 +31,38 @@ func getValidatorFromTag(tagValue, fieldName string) Validator {
 	// get args of tagValue by splitting ","
 	args := strings.Split(tagValue, ",")
 
+	validatorType := ""
+
+	if strings.Contains(args[0], "number") {
+		nt := strings.Split(args[0], ":")
+		if nt[0] == "number" && len(nt) > 1 {
+			switch nt[1] {
+			case "float":
+				validatorType = "float"
+			case "int":
+				validatorType = "int"
+			default:
+				validatorType = "int"
+			}
+		} else {
+			validatorType = "int"
+		}
+	} else {
+		validatorType = args[0]
+	}
+
 	// switch case of numerous validation type
-	switch args[0] {
+	switch validatorType {
 	case "string":
 		return getStringValidatorFromTagValues(strings.Join(args[1:], ","), fieldName)
 	case "email":
 		return getEmailValidatorFromTagValues(strings.Join(args[1:], ","), fieldName)
-	case "number":
-		return getNumberValidatorFromTagValues(strings.Join(args[1:], ","), fieldName)
+	case "int":
+		return getIntegerNumberValidatorFromTagValues(strings.Join(args[1:], ","), fieldName)
+	case "float":
+		return getFloatNumberValidatorFromTagValues(strings.Join(args[1:], ","), fieldName)
+	case "date":
+		return getDateValidatorFromTagValues(strings.Join(args[1:], ","), fieldName)
 	default:
 		return DefaultValidator{}
 	}
@@ -48,7 +80,10 @@ func getValidatorFromTag(tagValue, fieldName string) Validator {
 //          Email string `validate:"string,min=3,max=32"`
 //      }
 //
-func ValidateStructFromTagRules(s interface{}) []error {
+func ValidateStructFromTagRules(s interface{}) map[string][]string {
+
+	m := make(map[string][]string)
+
 	errs := []error{}
 
 	// get reflected value
@@ -69,6 +104,11 @@ func ValidateStructFromTagRules(s interface{}) []error {
 			continue
 		}
 
+		// If field is set to omitempty and its have blank, nil, zero value than skip the field validation check
+		if isEmptyValue(v.Field(i)) && strings.Contains(tag, "omitempty") {
+			continue
+		}
+
 		// get validator from the tag string value
 		validator := getValidatorFromTag(tag, v.Type().Field(i).Name)
 
@@ -77,9 +117,11 @@ func ValidateStructFromTagRules(s interface{}) []error {
 
 		// append error to list
 		if err != nil {
-			errs = append(errs, fmt.Errorf("%s: %s", v.Type().Field(i).Name, err.Error()))
+			fieldName := v.Type().Field(i).Name
+			errs = append(errs, fmt.Errorf("%s: %s", fieldName, err.Error()))
+			m[fieldName] = append(m[fieldName], err.Error())
 		}
 	}
 
-	return errs
+	return m
 }
