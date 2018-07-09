@@ -6,7 +6,8 @@
     LoadRAFlowTemplate,
     validateRAFlowComponents,
     getVehicleFees, getPetFees,
-    renderRAStateInToolbar
+    renderRAStateInToolbar,
+    loadRAActionTemplate
 */
 
 "use strict";
@@ -258,7 +259,7 @@ window.buildRAApplicantElements = function() {
                         { id: 'raState', type: 'html',
                             html: '<span style="padding: 0 10px">State: <span id="RAState">StateText</span></span>'
                         },
-                        { id: 'stateAction', type: 'button', caption: 'Actions Form...', icon: 'fas fa-pencil-alt'},
+                        { id: 'stateAction', type: 'button', caption: 'Actions Forms', icon: 'fas fa-pencil-alt'},
                         { id: 'bt3', type: 'spacer' },
                         { id: 'btnClose', type: 'button', icon: 'fas fa-times' }
                     ],
@@ -274,7 +275,8 @@ window.buildRAApplicantElements = function() {
                             form_dirty_alert(yes_callBack, no_callBack);
                             break;
                         case 'stateAction':
-                            console.log("It will open action form");
+                            // set the newralayout's right panel content
+                            loadRAActionTemplate();
                             break;
                         }
                     },
