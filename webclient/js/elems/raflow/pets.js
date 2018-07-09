@@ -16,6 +16,7 @@
     AssignPetFeesGridRecords, GetFeeFormInitRecord, GetPetLocalData,
     FeeFormOnChangeHandler, FeeFormOnRefreshHandler,
     SliderContentDivLength, SetFeeFormRecordFromFeeData,
+    RenderPetFeesGridSummary
 */
 
 "use strict";
@@ -646,9 +647,6 @@ window.loadRAPetsGrid = function () {
                     // set local fee data from fee form
                     SetFeeDataFromFeeFormRecord(TMPPETID, TMPASMID, "pets");
 
-                    // // re-calculate amounts for pet
-                    // SetRentableAmountsFromFees(TMPPETID);
-
                     SavePetsCompData()
                     .done(function (data) {
                         if (data.status === 'success') {
@@ -681,9 +679,6 @@ window.loadRAPetsGrid = function () {
 
                     // set local fee data from fee form
                     SetFeeDataFromFeeFormRecord(TMPPETID, TMPASMID, "pets");
-
-                    // // re-calculate amounts for pet
-                    // SetRentableAmountsFromFees(TMPPETID);
 
                     SavePetsCompData()
                     .done(function (data) {
@@ -728,9 +723,6 @@ window.loadRAPetsGrid = function () {
 
                         // set this modified local pet data to back
                         SetPetLocalData(TMPPETID, localPetData);
-
-                        // // re-calculate amounts for pet
-                        // SetRentableAmountsFromFees(TMPPETID);
 
                         // sync data on backend side
                         SavePetsCompData()
@@ -787,11 +779,11 @@ window.loadRAPetsGrid = function () {
                     var TMPPETID = app.raflow.last.TMPPETID,
                         localPetData = GetPetLocalData(TMPPETID);
 
-                    var header = "Fee ({0}) for {1}";
+                    var header = "Fee (<strong>{0}</strong>) for Pet - <strong>{1}</strong>";
                     if (feeForm.record.TMPASMID > 0) {
                         feeForm.header = header.format(feeForm.record.ARName, localPetData.Name);
                     } else {
-                        feeForm.header = header.format("new", localPetData.Name);
+                        feeForm.header = header.format("new", w2ui.RAPetForm.record.Name);
                     }
                 };
             }
@@ -976,6 +968,47 @@ window.SetPetFeeLocalData = function(TMPPETID, TMPASMID, petFeeData) {
 };
 
 //-----------------------------------------------------------------------------
+// RenderPetFeesGridSummary - will render grid summary row from pet
+//                            comp data
+//-----------------------------------------------------------------------------
+window.RenderPetFeesGridSummary = function(TMPPETID) {
+    var petData = GetPetLocalData(TMPPETID),
+        grid = w2ui.RAPetFeesGrid,
+        Fees = petData.Fees || [];
+
+    // summary record in fees grid
+    var summaryRec = {
+        recid:              0,
+        ARName:             "Grand Total",
+        // ContractAmount:     0.0,
+        AtSigningPreTax:    0.0,
+        SalesTax:           0.0,
+        // SalesTaxAmt:        0.0,
+        TransOccTax:        0.0,
+        // TransOccAmt:        0.0,
+    };
+
+    // summing up all amounts from fees
+    Fees.forEach(function(feeItem) {
+        summaryRec.AtSigningPreTax += feeItem.AtSigningPreTax;
+        summaryRec.SalesTax += feeItem.SalesTax;
+        // summaryRec.SalesTaxAmt += feeItem.SalesTaxAmt;
+        summaryRec.TransOccTax += feeItem.TransOccTax;
+        // summaryRec.TransOccAmt += feeItem.TransOccAmt;
+        summaryRec.RowTotal += feeItem.RowTotal;
+    });
+
+    // set style of entire summary row
+    summaryRec.w2ui = {style: "font-weight: bold"};
+
+    // set the summary rec in summary array of grid
+    grid.summary = [summaryRec];
+
+    // refresh the grid
+    grid.refresh();
+};
+
+//-----------------------------------------------------------------------------
 // AssignPetFeesGridRecords - will set the pet fees grid records from local
 //                            copy of pet fees data again
 //-----------------------------------------------------------------------------
@@ -993,7 +1026,14 @@ window.AssignPetFeesGridRecords = function(TMPPETID) {
     if (TMPPETID === 0) {
         // get initial fees from bizProps
         app.petFees[BID].forEach(function(bizPropPetFee) {
-            petFeesData.push($.extend(true, {TMPPETID: 0, ASMID: 0}, bizPropPetFee));
+            // NOTE: this method returns a record for fee form
+            // it contains the same fields we required for to maintain
+            // fee in local data, so we're using it
+            var rec = GetFeeFormInitRecord();
+            rec.ARID = bizPropPetFee.ARID;
+            rec.ARName = bizPropPetFee.ARName;
+            rec.ContractAmount = bizPropPetFee.Amount;
+            petFeesData.push(rec);
         });
     } else {
         var petData = GetPetLocalData(TMPPETID);
@@ -1015,5 +1055,8 @@ window.AssignPetFeesGridRecords = function(TMPPETID) {
         // assign recid again
         reassignGridRecids(grid.name);
     });
+
+    // render pet fees grid summary
+    RenderPetFeesGridSummary(TMPPETID);
 };
 
