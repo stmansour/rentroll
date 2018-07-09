@@ -16,10 +16,38 @@
     AssignPetFeesGridRecords, GetFeeFormInitRecord, GetPetLocalData,
     FeeFormOnChangeHandler, FeeFormOnRefreshHandler,
     SliderContentDivLength, SetFeeFormRecordFromFeeData,
-    RenderPetFeesGridSummary
+    RenderPetFeesGridSummary, RAFlowNewPetAJAX
 */
 
 "use strict";
+
+//-----------------------------------------------------------------------------
+// RAFlowNewPetAJAX - Request to create new entry for a pet in raflow json
+//-----------------------------------------------------------------------------
+window.RAFlowNewPetAJAX = function() {
+    var BID = getCurrentBID();
+    var data = {"cmd": "new", "FlowID": app.raflow.activeFlowID};
+
+    return $.ajax({
+        url: '/v1/raflow-pets/' + BID.toString() + "/" + app.raflow.activeFlowID.toString() + "/",
+        method: "POST",
+        data: JSON.stringify(data),
+        contentType: "application/json",
+        dataType: "json"
+    })
+    .done(function(data) {
+        if (data.status === "success") {
+            // update the local copy of flow for the active one
+            app.raflow.data[data.record.FlowID] = data.record;
+
+            // set the rentable grid records again
+            AssignPetsGridRecords();
+
+            // mark new TMPPETID from meta
+            app.raflow.last.TMPPETID = data.record.Data.meta.LastTMPPETID;
+        }
+    });
+};
 
 window.GetPetFormInitRecord = function (previousFormRecord){
     var BID = getCurrentBID();
@@ -72,12 +100,8 @@ window.SetlocalDataFromRAPetFormRecord = function(TMPPETID) {
     // local pet data
     var localPetData;
 
-    if (TMPPETID === 0) {
-        localPetData = petFormData;
-    } else {
-        // get data from form field's TMPPETID
-        localPetData = GetPetLocalData(petFormData.TMPPETID);
-    }
+    // get data from form field's TMPPETID
+    localPetData = GetPetLocalData(petFormData.TMPPETID);
 
     // set data from form
     localPetData = SetDataFromFormRecord(TMPPETID, true, form, localPetData);
@@ -103,12 +127,9 @@ window.SetRAPetFormRecordFromLocalData = function(TMPPETID) {
         fields      = form.fields || [];
 
     var petData = {};
-    if (TMPPETID === 0) {
-        petData = GetPetFormInitRecord(null);
-    } else {
-        // get data from form field's TMPPETID
-        petData = GetPetLocalData(TMPPETID);
-    }
+
+    // get data from form field's TMPPETID
+    petData = GetPetLocalData(TMPPETID);
 
     // set form record from data
     SetFormRecordFromData(true, form, petData);
@@ -284,17 +305,21 @@ window.loadRAPetsGrid = function () {
                         app.last.grid_sel_recid = -1;
                         grid.selectNone();
 
-                        // keep this clicked TMPPETID in last object
-                        app.raflow.last.TMPPETID = 0;
+                        // get new entry for pet
+                        RAFlowNewPetAJAX()
+                        .done(function(data) {
+                            // keep this clicked TMPPETID in last object
+                            var TMPPETID = app.raflow.last.TMPPETID;
 
-                        // render the layout in slider
-                        ShowSliderContentW2UIComp(w2ui.RAPetLayout, RACompConfig.pets.sliderWidth);
+                            // render the layout in slider
+                            ShowSliderContentW2UIComp(w2ui.RAPetLayout, RACompConfig.pets.sliderWidth);
 
-                        // load pet fees grid
-                        setTimeout(function() {
-                            // fill layout with components
-                            SetRAPetLayoutContent(0);
-                        }, 0);
+                            // load pet fees grid
+                            setTimeout(function() {
+                                // fill layout with components
+                                SetRAPetLayoutContent(TMPPETID);
+                            }, 0);
+                        });
                     };
 
                 // warn user if form content has been changed
@@ -780,11 +805,12 @@ window.loadRAPetsGrid = function () {
                         localPetData = GetPetLocalData(TMPPETID);
 
                     var header = "Fee (<strong>{0}</strong>) for Pet - <strong>{1}</strong>";
-                    if (feeForm.record.TMPASMID > 0) {
-                        feeForm.header = header.format(feeForm.record.ARName, localPetData.Name);
+                    if (feeForm.record.ARID > 0) {
+                        header = header.format(feeForm.record.ARName);
                     } else {
-                        feeForm.header = header.format("new", w2ui.RAPetForm.record.Name);
+                        header = header.format("new");
                     }
+                    feeForm.header = header.format(w2ui.RAPetForm.record.Name);
                 };
             }
         });
@@ -1021,24 +1047,9 @@ window.AssignPetFeesGridRecords = function(TMPPETID) {
 
     // list of fees
     var petFeesData = [];
+    var petData = GetPetLocalData(TMPPETID);
+    petFeesData = petData.Fees;
 
-    // SPECIAL CASE if adding new pet //
-    if (TMPPETID === 0) {
-        // get initial fees from bizProps
-        app.petFees[BID].forEach(function(bizPropPetFee) {
-            // NOTE: this method returns a record for fee form
-            // it contains the same fields we required for to maintain
-            // fee in local data, so we're using it
-            var rec = GetFeeFormInitRecord();
-            rec.ARID = bizPropPetFee.ARID;
-            rec.ARName = bizPropPetFee.ARName;
-            rec.ContractAmount = bizPropPetFee.Amount;
-            petFeesData.push(rec);
-        });
-    } else {
-        var petData = GetPetLocalData(TMPPETID);
-        petFeesData = petData.Fees;
-    }
 
     // pet fees data
     petFeesData.forEach(function(fee) {

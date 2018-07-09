@@ -28,7 +28,7 @@ window.getAllARsWithAmount = function(BID) {
         dataType: "json"
     })
     .done(function(data) {
-        if (data.success !== "error") {
+        if (data.status !== "error") {
             app.raflow.arList[BID] = data.records || [];
             app.raflow.arW2UIItems = [{id: 0, text: " -- select account rule -- " }];
             app.raflow.arList[BID].forEach(function(arItem) {
