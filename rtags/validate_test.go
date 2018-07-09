@@ -8,7 +8,7 @@ import (
 // TestUserStruct just a sample test with all combine tag rules in one struct
 func TestUserStruct(t *testing.T) {
 	type User struct {
-		ID     int     `validate:"number,min=1,max=1000"`
+		ID     int64   `validate:"number,min=1,max=1000"`
 		Name   string  `validate:"string,min=8,max=50"`
 		Bio    string  `validate:"string,omitempty"`
 		Email  string  `validate:"email"`
