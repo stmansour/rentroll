@@ -636,6 +636,7 @@ func ReadRentalAgreement(row *sql.Row, a *RentalAgreement) error {
 	err := row.Scan(
 		&a.RAID,
 		&a.PRAID,
+		&a.ORIGIN,
 		&a.RATID,
 		&a.BID,
 		&a.NLID,
@@ -698,6 +699,7 @@ func ReadRentalAgreements(rows *sql.Rows, a *RentalAgreement) error {
 	return rows.Scan(
 		&a.RAID,
 		&a.PRAID,
+		&a.ORIGIN,
 		&a.RATID,
 		&a.BID,
 		&a.NLID,
