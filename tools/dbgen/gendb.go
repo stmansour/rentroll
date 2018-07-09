@@ -848,6 +848,18 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 			return err
 		}
 
+		//-------------------------------------------------------
+		// Assign all Pets associated with this TCID to
+		// this RAID
+		//-------------------------------------------------------
+		pl, err := rlib.GetPetsByTransactant(ctx, TCID)
+		for j := 0; j < len(pl); j++ {
+			pl[j].RAID = ra.RAID
+			if err = rlib.UpdateRentalAgreementPet(ctx, &pl[j]); err != nil {
+				return err
+			}
+		}
+
 		//--------------------------------------------------------
 		// Generate assessments for Rent and Security Deposit...
 		//--------------------------------------------------------
@@ -1104,51 +1116,6 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 				}
 			}
 		}
-
-		// //-------------------------------------
-		// // Single instanced Pet, vehicle fees
-		// //-------------------------------------
-		// for j := 0; j < len(dbConf.PetFees); j++ {
-		// 	if dbConf.PetFees[j].FLAGS&(1<<6) == 0 {
-		// 		continue
-		// 	}
-		// 	var asm = rlib.Assessment{
-		// 		BID:            BID,
-		// 		RID:            RID,
-		// 		RAID:           ra.RAID,
-		// 		Amount:         dbConf.PetFees[j].DefaultAmount,
-		// 		RentCycle:      rlib.RECURNONE,
-		// 		ProrationCycle: rlib.RECURNONE,
-		// 		Start:          d1,
-		// 		Stop:           d1,
-		// 		ARID:           dbConf.PetFees[j].ARID,
-		// 	}
-		// 	be := bizlogic.InsertAssessment(ctx, &asm, 1)
-		// 	if be != nil {
-		// 		return bizlogic.BizErrorListToError(be)
-		// 	}
-		// }
-		//
-		// for j := 0; j < len(dbConf.VehicleFees); j++ {
-		// 	if dbConf.VehicleFees[j].FLAGS&(1<<6) == 0 {
-		// 		continue
-		// 	}
-		// 	var asm = rlib.Assessment{
-		// 		BID:            BID,
-		// 		RID:            RID,
-		// 		RAID:           ra.RAID,
-		// 		Amount:         dbConf.VehicleFees[j].DefaultAmount,
-		// 		RentCycle:      rlib.RECURNONE,
-		// 		ProrationCycle: rlib.RECURNONE,
-		// 		Start:          d1,
-		// 		Stop:           d1,
-		// 		ARID:           dbConf.VehicleFees[j].ARID,
-		// 	}
-		// 	be := bizlogic.InsertAssessment(ctx, &asm, 1)
-		// 	if be != nil {
-		// 		return bizlogic.BizErrorListToError(be)
-		// 	}
-		// }
 
 		RID++
 		if i+1 < dbConf.RACount && RID > MaxRID {
