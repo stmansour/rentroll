@@ -10,14 +10,19 @@ import (
 // validation type should be defined in first argument of tag string value
 // Example:
 //      // For number validation type
-//      Field int `validate:"number,min=2.max=3"`
+//      Field int64 `validate:"number,min=2.max=3"`
 //
 //      // for string validation type
-//      Field int `validate:"string,min=2.max=3"`
+//      Field int64 `validate:"string,min=2.max=3"`
 //
 //      // For omit the field when it is empty
-//      Field int `validate:"string,omitempty"`
+//      Field int64 `validate:"string,omitempty"`
 //
+//      // For float number validation
+//      Field float64 `validate:"number:float,min=0.01`
+//
+//      // For date validation type
+//      Field rlib.JSONDate `validate:"date"
 func getValidatorFromTag(tagValue, fieldName string) Validator {
 
 	// replace any misplaced whitespace in tag value
@@ -56,6 +61,8 @@ func getValidatorFromTag(tagValue, fieldName string) Validator {
 		return getIntegerNumberValidatorFromTagValues(strings.Join(args[1:], ","), fieldName)
 	case "float":
 		return getFloatNumberValidatorFromTagValues(strings.Join(args[1:], ","), fieldName)
+	case "date":
+		return getDateValidatorFromTagValues(strings.Join(args[1:], ","), fieldName)
 	default:
 		return DefaultValidator{}
 	}

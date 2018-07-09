@@ -41,12 +41,12 @@ type RAFlowMetaInfo struct {
 // RADatesFlowData contains data in the dates part of RA flow
 type RADatesFlowData struct {
 	BID             int64         `validate:"number,min=1"`
-	AgreementStart  rlib.JSONDate `validate:"-"` // TermStart
-	AgreementStop   rlib.JSONDate `validate:"-"` // TermStop
-	RentStart       rlib.JSONDate `validate:"-"`
-	RentStop        rlib.JSONDate `validate:"-"`
-	PossessionStart rlib.JSONDate `validate:"-"`
-	PossessionStop  rlib.JSONDate `validate:"-"`
+	AgreementStart  rlib.JSONDate `validate:"date"` // TermStart
+	AgreementStop   rlib.JSONDate `validate:"date"` // TermStop
+	RentStart       rlib.JSONDate `validate:"date"`
+	RentStop        rlib.JSONDate `validate:"date"`
+	PossessionStart rlib.JSONDate `validate:"date"`
+	PossessionStop  rlib.JSONDate `validate:"date"`
 }
 
 // RAPeopleFlowData contains data in the background-info part of RA flow
@@ -149,8 +149,8 @@ type RAPetsFlowData struct {
 	Breed    string `validate:"string,min=1,max=100"`
 	Color    string `validate:"string,min=1,max=100"`
 	Weight   float64
-	DtStart  rlib.JSONDate `validate:"-"`
-	DtStop   rlib.JSONDate `validate:"-"`
+	DtStart  rlib.JSONDate `validate:"date"`
+	DtStop   rlib.JSONDate `validate:"date"`
 	Fees     []RAFeesData
 }
 
@@ -169,8 +169,8 @@ type RAVehiclesFlowData struct {
 	LicensePlateState   string        `validate:"string,min=1,max=80"`
 	LicensePlateNumber  string        `validate:"string,min=1,max=80"`
 	ParkingPermitNumber string        `validate:"string,min=1,max=80"`
-	DtStart             rlib.JSONDate `validate:"-"`
-	DtStop              rlib.JSONDate `validate:"-"`
+	DtStart             rlib.JSONDate `validate:"date"`
+	DtStop              rlib.JSONDate `validate:"date"`
 	Fees                []RAFeesData
 }
 
@@ -198,8 +198,8 @@ type RAFeesData struct {
 	ARName          string        `validate:"string,min=1,max=100"`
 	ContractAmount  float64       `validate:"number:float,min=0.00"`
 	RentCycle       int64         `validate:"number,min=1"`
-	Start           rlib.JSONDate `validate:"-"`
-	Stop            rlib.JSONDate `validate:"-"`
+	Start           rlib.JSONDate `validate:"date"`
+	Stop            rlib.JSONDate `validate:"date"`
 	AtSigningPreTax float64       `validate:"number:float,min=0.00"`
 	SalesTax        float64       `validate:"number:float,min=0.00"`
 	// SalesTaxAmt    float64 // FUTURE RELEASE
