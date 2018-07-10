@@ -4,8 +4,8 @@ common things for fees strcture!
 
 /* global
     w2utils, SetFormRecordFromData, GetFeeFormInitRecord,
-    GetPetFeeLocalData, getVehicleFeeLocalData, GetRentableFeeLocalData,
-    SetDataFromFormRecord, SetPetFeeLocalData, setVehicleFeeLocalData,
+    GetPetFeeLocalData, GetVehicleFeeLocalData, GetRentableFeeLocalData,
+    SetDataFromFormRecord, SetPetFeeLocalData, SetVehicleFeeLocalData,
     SetRentableFeeLocalData, HideSliderContent, GetRentableLocalData
 */
 
@@ -352,7 +352,7 @@ window.SetFeeFormRecordFromFeeData = function(TMPID, TMPASMID, flowPart) {
             if (TMPASMID === 0) {
                 data = GetFeeFormInitRecord();
             } else {
-                data = getVehicleFeeLocalData(TMPID, TMPASMID);
+                data = GetVehicleFeeLocalData(TMPID, TMPASMID);
             }
             SetFormRecordFromData(true, form, data);
             break;
@@ -397,14 +397,14 @@ window.SetFeeDataFromFeeFormRecord = function(TMPID, TMPASMID, flowPart) {
         case "vehicles":
             form = w2ui.RAVehicleFeeForm;
             if (TMPASMID !== 0) {
-                data = getVehicleFeeLocalData(TMPID, TMPASMID);
+                data = GetVehicleFeeLocalData(TMPID, TMPASMID);
             }
 
             // set modified data from form record
             data = SetDataFromFormRecord(TMPASMID, true, form, data);
 
             // set data locally
-            setVehicleFeeLocalData(TMPID, TMPASMID, data);
+            SetVehicleFeeLocalData(TMPID, TMPASMID, data);
 
             break;
         case "rentables":

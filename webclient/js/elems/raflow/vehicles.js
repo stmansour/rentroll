@@ -3,22 +3,56 @@
     HideSliderContent, ShowSliderContentW2UIComp,
     saveActiveCompData, getRAFlowCompData,
     lockOnGrid,
-    getVehicleFormInitRecord, setVehicleLocalData, getVehicleLocalData,
-    AssignVehiclesGridRecords, saveVehiclesCompData,
+    GetVehicleFormInitRecord, SetVehicleLocalData, GetVehicleLocalData,
+    AssignVehiclesGridRecords, SaveVehiclesCompData,
     SetRAVehicleLayoutContent,
-    getVehicleFeeLocalData, setVehicleFeeLocalData,
+    GetVehicleFeeLocalData, SetVehicleFeeLocalData,
     AssignVehicleFeesGridRecords,
     SetRAVehicleFormRecordFromLocalData,
     SetlocalDataFromRAVehicleFormRecord,
-    getAllARsWithAmount
+    getAllARsWithAmount, SetDataFromFormRecord, SetFormRecordFromData,
+    GetFeeGridColumns, GetFeeFormFields, GetFeeFormToolbar,
+    SetFeeDataFromFeeFormRecord,
+    GetFeeFormInitRecord,
+    FeeFormOnChangeHandler, FeeFormOnRefreshHandler,
+    SliderContentDivLength, SetFeeFormRecordFromFeeData,
+    RenderVehicleFeesGridSummary, RAFlowNewVehicleAJAX
 */
 
 "use strict";
 
+//-----------------------------------------------------------------------------
+// RAFlowNewVehicleAJAX - Request to create new vehicle in raflow json
+//-----------------------------------------------------------------------------
+window.RAFlowNewVehicleAJAX = function() {
+    var BID = getCurrentBID();
+    var data = {"cmd": "new", "FlowID": app.raflow.activeFlowID};
+
+    return $.ajax({
+        url: '/v1/raflow-vehicles/' + BID.toString() + "/" + app.raflow.activeFlowID.toString() + "/",
+        method: "POST",
+        data: JSON.stringify(data),
+        contentType: "application/json",
+        dataType: "json"
+    })
+    .done(function(data) {
+        if (data.status === "success") {
+            // update the local copy of flow for the active one
+            app.raflow.data[data.record.FlowID] = data.record;
+
+            // set the rentable grid records again
+            AssignVehiclesGridRecords();
+
+            // mark new TMPVID from meta
+            app.raflow.last.TMPVID = data.record.Data.meta.LastTMPVID;
+        }
+    });
+};
+
 // -------------------------------------------------------------------------------
 // Rental Agreement - Vehicles Grid
 // -------------------------------------------------------------------------------
-window.getVehicleFormInitRecord = function (previousFormRecord) {
+window.GetVehicleFormInitRecord = function (previousFormRecord) {
     var BID = getCurrentBID();
 
     var t = new Date(),
@@ -65,32 +99,22 @@ window.getVehicleFormInitRecord = function (previousFormRecord) {
 // -------------------------------------------------------------
 window.SetlocalDataFromRAVehicleFormRecord = function(TMPVID) {
     var form            = w2ui.RAVehicleForm,
-        fields          = form.fields || [],
         vehicleFormData = getFormSubmitData(form.record, true);
 
-    // local vehicle data
-    var localVehicleData;
+    // get data from form field's TMPVID
+    var localVehicleData = GetVehicleLocalData(TMPVID);
 
-    if (TMPVID === 0) {
-        localVehicleData = vehicleFormData;
-    } else {
-        // get data from form field's TMPVID
-        localVehicleData = getVehicleLocalData(vehicleFormData.TMPVID);
-
-        // loop over form fields
-        fields.forEach(function(fieldItem) {
-            localVehicleData[fieldItem.field] = vehicleFormData[fieldItem.field];
-        });
-    }
+    // set data from form
+    var vehicleData = SetDataFromFormRecord(TMPVID, true, form, localVehicleData);
 
     // if not Fees then assign in vehicle data
-    if (!localVehicleData.hasOwnProperty("Fees")) {
-        localVehicleData.Fees = [];
+    if (!vehicleData.hasOwnProperty("Fees")) {
+        vehicleData.Fees = [];
     }
-    localVehicleData.Fees = w2ui.RAVehicleFeesGrid.records;
+    vehicleData.Fees = w2ui.RAVehicleFeesGrid.records;
 
     // set this modified data back
-    setVehicleLocalData(TMPVID, localVehicleData);
+    SetVehicleLocalData(TMPVID, localVehicleData);
 };
 
 // -------------------------------------------------------------
@@ -100,20 +124,13 @@ window.SetlocalDataFromRAVehicleFormRecord = function(TMPVID) {
 // from local vehicle data
 // -------------------------------------------------------------
 window.SetRAVehicleFormRecordFromLocalData = function(TMPVID) {
-    var form        = w2ui.RAVehicleForm,
-        fields      = form.fields || [];
+    var form = w2ui.RAVehicleForm;
 
-    if (TMPVID === 0) {
-        form.record = getVehicleFormInitRecord(null);
-    } else {
-        // get data from form field's TMPVID
-        var localVehicleData = getVehicleLocalData(TMPVID);
+    // get data from form field's TMPVID
+    var localVehicleData = GetVehicleLocalData(TMPVID);
 
-        // loop over form fields
-        fields.forEach(function(fieldItem) {
-            form.record[fieldItem.field] = localVehicleData[fieldItem.field];
-        });
-    }
+    // set form record from data
+    SetFormRecordFromData(true, form, localVehicleData);
 
     // refresh the form after setting the record
     form.refresh();
@@ -125,97 +142,9 @@ window.loadRAVehiclesGrid = function () {
     // if form is loaded then return
     if (!("RAVehiclesGrid" in w2ui)) {
 
-        // Add vehicle information form
-        $().w2form({
-            name    : 'RAVehicleForm',
-            header  : 'Add Vehicle form',
-            formURL : '/webclient/html/raflow/formravehicles.html',
-            toolbar :{
-                items: [
-                    { id: 'bt3', type: 'spacer' },
-                    { id: 'btnClose', type: 'button', icon: 'fas fa-times'}
-                ],
-                onClick: function (event) {
-                    switch (event.target){
-                        case 'btnClose':
-                            HideSliderContent();
-                            break;
-                    }
-                }
-            },
-            fields  : [
-                { field: 'recid',               type: 'int',    required: false,    html: { caption: 'recid', page: 0, column: 0 } },
-                { field: 'TMPVID',              type: 'int',    required: true  },
-                { field: 'TMPTCID',             type: 'list',   required: true,     options: {items: [], selected: {}} },
-                { field: 'VehicleType',         type: 'text',   required: true  },
-                { field: 'VehicleMake',         type: 'text',   required: true  },
-                { field: 'VehicleModel',        type: 'text',   required: true  },
-                { field: 'VehicleColor',        type: 'text',   required: false },
-                { field: 'VehicleYear',         type: 'int',    required: false },
-                { field: 'LicensePlateState',   type: 'text',   required: false },
-                { field: 'LicensePlateNumber',  type: 'text',   required: false },
-                { field: 'VIN',                 type: 'text',   required: false },
-                { field: 'ParkingPermitNumber', type: 'text',   required: false },
-                { field: 'DtStart',             type: 'date',   required: false,    html: { caption: 'DtStart', page: 0, column: 0 } },
-                { field: 'DtStop',              type: 'date',   required: false,    html: { caption: 'DtStop', page: 0, column: 0 } },
-                { field: 'LastModTime',         type: 'time',   required: false,    html: { caption: 'LastModTime', page: 0, column: 0 } },
-                { field: 'LastModBy',           type: 'int',    required: false,    html: { caption: 'LastModBy', page: 0, column: 0 } },
-            ],
-            actions: {
-                reset: function () {
-                    w2ui.RAVehicleForm.clear();
-                }
-            },
-            onRefresh: function(event) {
-                event.onComplete = function() {
-                    var f = w2ui.RAVehicleForm,
-                        header = "Edit Rental Agreement Vehicles ({0})";
-
-                    // there is NO VID actually, so have to work around with TMPVID key
-                    formRefreshCallBack(f, "TMPVID", header);
-
-                    // selection of contact person
-                    var TMPTCIDSel = {};
-                    app.raflow.peopleW2UIItems.forEach(function(item) {
-                        if (item.id === f.record.TMPTCID) {
-                            $.extend(TMPTCIDSel, item);
-                        }
-                    });
-                    f.get("TMPTCID").options.items = app.raflow.peopleW2UIItems;
-                    f.get("TMPTCID").options.selected = TMPTCIDSel;
-
-                    // hide delete button if it is NewRecord
-                    if (f.record.TMPVID === 0) {
-                        $(f.box).find("button[name=delete]").addClass("hidden");
-                    } else {
-                        $(f.box).find("button[name=delete]").removeClass("hidden");
-                    }
-
-                    // get RAID for active flow
-                    var RAID = app.raflow.data[app.raflow.activeFlowID].ID;
-                    if (RAID > 0) {
-                        $(f.box).find("input[name=ParkingPermitNumber]").prop("disabled", false);
-                    } else {
-                        // if RAID is not available then disable
-                        $(f.box).find("input[name=ParkingPermitNumber]").prop("disabled", true);
-                    }
-                };
-            },
-            onChange: function(event) {
-                event.onComplete = function() {
-                    // formRecDiffer: 1=current record, 2=original record, 3=diff object
-                    var diff = formRecDiffer(this.record, app.active_form_original, {});
-                    // if diff == {} then make dirty flag as false, else true
-                    if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
-                        app.form_is_dirty = false;
-                    } else {
-                        app.form_is_dirty = true;
-                    }
-                };
-            }
-        });
-
-        // vehicles grid
+        // -----------------------------------------------------------
+        //      VEHICLES GRID
+        // -----------------------------------------------------------
         $().w2grid({
             name    : 'RAVehiclesGrid',
             header  : 'Vehicles',
@@ -319,11 +248,6 @@ window.loadRAVehiclesGrid = function () {
                     size: '100px'
                 }
             ],
-            onChange: function (event) {
-                event.onComplete = function () {
-                    this.save();
-                };
-            },
             onRefresh: function(event) {
                 // have to manage recid on every refresh of this grid
                 event.onComplete = function() {
@@ -347,12 +271,15 @@ window.loadRAVehiclesGrid = function () {
                             grid.select(app.last.grid_sel_recid);
 
                             // get TMPVID from grid
-                            var TMPVID = grid.get(app.last.grid_sel_recid).TMPVID;
+                            var TMPVID = grid.get(recid).TMPVID;
+
+                            // keep this clicked TMPVID in last object
+                            app.raflow.last.TMPVID = TMPVID;
 
                             // render layout in the slider
                             ShowSliderContentW2UIComp(w2ui.RAVehicleLayout, RACompConfig.vehicles.sliderWidth);
 
-                            // load pet fees grid
+                            // load vehicle fees grid
                             setTimeout(function() {
                                 // fill layout with components and with data
                                 SetRAVehicleLayoutContent(TMPVID);
@@ -372,14 +299,21 @@ window.loadRAVehiclesGrid = function () {
                         app.last.grid_sel_recid = -1;
                         grid.selectNone();
 
-                        // render the layout in slider
-                        ShowSliderContentW2UIComp(w2ui.RAVehicleLayout, RACompConfig.vehicles.sliderWidth);
+                        // get new entry for vehicle
+                        RAFlowNewVehicleAJAX()
+                        .done(function(data) {
+                            // get last clicked TMPVID
+                            var TMPVID = app.raflow.last.TMPVID;
 
-                        // load pet fees grid
-                        setTimeout(function() {
-                            // fill layout with components
-                            SetRAVehicleLayoutContent(0);
-                        }, 0);
+                            // render the layout in slider
+                            ShowSliderContentW2UIComp(w2ui.RAVehicleLayout, RACompConfig.vehicles.sliderWidth);
+
+                            // load vehicle fees grid
+                            setTimeout(function() {
+                                // fill layout with components
+                                SetRAVehicleLayoutContent(TMPVID);
+                            }, 0);
+                        });
                     };
 
                 // warn user if form content has been changed
@@ -387,214 +321,148 @@ window.loadRAVehiclesGrid = function () {
             }
         });
 
-        // vehicle fees grid
-        $().w2grid({
-            name: 'RAVehicleFeesGrid',
-            header: 'Vehicle Fees',
-            show: {
-                toolbar:        true,
-                header:         false,
-                toolbarSearch:  false,
-                toolbarAdd:     true,
-                toolbarReload:  false,
-                toolbarInput:   false,
-                toolbarColumns: true,
-                footer:         false,
-            },
-            multiSelect: false,
-            style: 'border: 1px solid silver;',
-            columns: [
-                {
-                    field: 'recid',
-                    hidden: true
-                },
-                {
-                    field: 'TMPVID',
-                    caption: 'TMPVID',
-                    hidden: true
-                },
-                {
-                    field: 'BID',
-                    caption: 'BID',
-                    hidden: true
-                },
-                {
-                    field: 'ASMID',
-                    caption: 'ASMID',
-                    hidden: true
-                },
-                {
-                    field: 'ARID',
-                    caption: 'ARID',
-                    hidden: true
-                },
-                {
-                    field: 'ARName',
-                    caption: 'Name',
-                    size: '70%',
-                    editable: {
-                        type: 'select',
-                        items: [],
-                    },
-                    render: function (record/*, index, col_index*/) {
-                        var html = '';
+        //------------------------------------------------------------------------
+        //  vehicleLayout - The layout to contain the vehicleForm and vehicleFees grid
+        //              top  -      vehicleForm
+        //              main -      vehicleFeesGrid
+        //              bottom -    action buttons form
+        //------------------------------------------------------------------------
+        $().w2layout({
+            name: 'RAVehicleLayout',
+            padding: 0,
+            panels: [
+                { type: 'left',    size: 0,     hidden: true },
+                { type: 'top',     size: '50%', hidden: false, content: 'top',  resizable: true, style: app.pstyle },
+                { type: 'main',    size: '50%', hidden: false, content: 'main', resizable: true, style: app.pstyle },
+                { type: 'preview', size: 0,     hidden: true,  content: 'PREVIEW'  },
+                { type: 'bottom',  size: 50,    hidden: false, content: 'bottom', resizable: false, style: app.pstyle },
+                { type: 'right',   size: 0,     hidden: true }
+            ]
+        });
 
-                        if (record) {
-                            var items = app.raflow.arW2UIItems;
-                            for (var s in items) {
-                                if (items[s].id == record.ARID) html = items[s].text;
-                            }
-                        }
-                        return html;
+        // -----------------------------------------------------------
+        //      ***** VEHICLE FORM *****
+        // -----------------------------------------------------------
+        $().w2form({
+            name    : 'RAVehicleForm',
+            header  : 'Add Vehicle form',
+            formURL : '/webclient/html/raflow/formra-vehicles.html',
+            toolbar :{
+                items: [
+                    { id: 'bt3', type: 'spacer' },
+                    { id: 'btnClose', type: 'button', icon: 'fas fa-times'}
+                ],
+                onClick: function (event) {
+                    switch (event.target){
+                        case 'btnClose':
+                            HideSliderContent();
+                            break;
                     }
-                },
-                {
-                    field: 'Amount',
-                    caption: 'Amount',
-                    size: '100px',
-                    render: 'money',
-                    editable: {
-                        type: 'money',
-                    }
-                },
-                {
-                    field: 'RemoveRec',
-                    caption: "Remove Vehicle Fee",
-                    size: '100px',
-                    style: 'text-align: center;',
-                    render: function (record/*, index, col_index*/) {
-                        var html = "";
-                        if (record && record.ARID > -1) {
-                            html = '<i class="fas fa-minus-circle" style="color: #DC3545; cursor: pointer;" title="remove rentable"></i>';
-                        }
-                        return html;
-                    },
                 }
+            },
+            fields  : [
+                { field: 'recid',               type: 'int',    required: false,    html: { caption: 'recid', page: 0, column: 0 } },
+                { field: 'TMPVID',              type: 'int',    required: true  },
+                { field: 'BID',                 type: 'int',    required: true,     html: { caption: 'BID', page: 0, column: 0 } },
+                { field: 'VID',                 type: 'int',    required: true,     html: { caption: 'VID', page: 0, column: 0 } },
+                { field: 'TMPTCID',             type: 'list',   required: true,     options: {items: [], selected: {}} },
+                { field: 'VehicleType',         type: 'text',   required: true  },
+                { field: 'VehicleMake',         type: 'text',   required: true  },
+                { field: 'VehicleModel',        type: 'text',   required: true  },
+                { field: 'VehicleColor',        type: 'text',   required: true  },
+                { field: 'VehicleYear',         type: 'int',    required: true  },
+                { field: 'LicensePlateState',   type: 'text',   required: true  },
+                { field: 'LicensePlateNumber',  type: 'text',   required: true  },
+                { field: 'VIN',                 type: 'text',   required: true  },
+                { field: 'ParkingPermitNumber', type: 'text',   required: true  },
+                { field: 'DtStart',             type: 'date',   required: true,    html: { caption: 'DtStart', page: 0, column: 0 } },
+                { field: 'DtStop',              type: 'date',   required: true,    html: { caption: 'DtStop', page: 0, column: 0 } },
             ],
-            onChange: function (event) {
-                var grid = this;
-                event.onComplete = function () {
-                    var BID = getCurrentBID(),
-                        record = grid.get(event.recid),
-                        localVehicleFeeData = getVehicleFeeLocalData(record.TMPVID, record.ARID);
-
-                    switch(event.column) {
-                    case grid.getColumn("Amount", true):
-                        // update data in local and grid record
-                        localVehicleFeeData.Amount = record.Amount = parseFloat(event.value_new);
-                        // set data
-                        grid.set(event.recid, record);
-                        setVehicleFeeLocalData(record.TMPVID, record.ARID, localVehicleFeeData);
-                        break;
-                    case grid.getColumn("ARName", true):
-                        var arItem = {};
-                        // get aritem
-                        app.raflow.arList[BID].forEach(function(item) {
-                            if (parseInt(event.value_new) == item.ARID) {
-                                arItem = item;
-                                return false;
-                            }
-                        });
-
-                        // change the values
-                        localVehicleFeeData.Amount = record.Amount = arItem.DefaultAmount;
-                        localVehicleFeeData.ARID = record.ARID = parseInt(event.value_new);
-                        // set data
-                        grid.set(event.recid, record);
-                        // grid.getColumn("ARName").render();
-                        setVehicleFeeLocalData(record.TMPVID, record.ARID, localVehicleFeeData);
-                        break;
-                    }
-
-                    w2ui.RAVehicleFeesGrid.save();
-                    // TODO(Sudip): we still need to update data locally
-                };
+            actions: {
+                reset: function () {
+                    w2ui.RAVehicleForm.clear();
+                }
             },
-            onClick: function(event) {
+            onRefresh: function(event) {
                 event.onComplete = function() {
-                    // if it's remove column then remove the record
-                    // maybe confirm dialog will be added
-                    if(w2ui.RAVehicleFeesGrid.getColumn("RemoveRec", true) == event.column) {
+                    var f = w2ui.RAVehicleForm,
+                        header = "Edit Rental Agreement Vehicles ({0})";
 
-                        // remove entry from local data
-                        var rec = w2ui.RAVehicleFeesGrid.get(event.recid);
-                        var vehicleData = getVehicleLocalData(rec.TMPVID);
+                    // there is NO VID actually, so have to work around with TMPVID key
+                    formRefreshCallBack(f, "TMPVID", header);
 
-                        if (vehicleData.hasOwnProperty("Fees")) {
-                            var feeIndex = getVehicleFeeLocalData(rec.TMPVID, rec.ARID, true);
-
-                            // also manage local data
-                            vehicleData.Fees.splice(feeIndex, 1);
-
-                            // set modified vehicleData back in local
-                            setVehicleLocalData(rec.TMPVID, vehicleData);
-
-                            // save the data on server data
-                            saveVehiclesCompData()
-                            .done(function(data) {
-                                if (data.status === "success") {
-                                    // remove from grid
-                                    w2ui.RAVehicleFeesGrid.remove(event.recid);
-                                }
-                            });
-                        } else {
-                            // simple remove record from grid
-                            w2ui.RAVehicleFeesGrid.remove(event.recid);
+                    // selection of contact person
+                    var TMPTCIDSel = {};
+                    app.raflow.peopleW2UIItems.forEach(function(item) {
+                        if (item.id === f.record.TMPTCID) {
+                            $.extend(TMPTCIDSel, item);
                         }
+                    });
+                    f.get("TMPTCID").options.items = app.raflow.peopleW2UIItems;
+                    f.get("TMPTCID").options.selected = TMPTCIDSel;
 
-                        return;
+                    // hide delete button if it is NewRecord
+                    if (f.record.TMPVID === 0) {
+                        $(f.box).find("button[name=delete]").addClass("hidden");
+                    } else {
+                        $(f.box).find("button[name=delete]").removeClass("hidden");
+                    }
+
+                    // get RAID for active flow
+                    var RAID = app.raflow.data[app.raflow.activeFlowID].ID;
+                    // TODO(Sudip): This condition will be changed,
+                    //              we just can't be depend on RAID to
+                    //              disable permitnumber input
+                    if (RAID > 0) {
+                        $(f.box).find("input[name=ParkingPermitNumber]").prop("disabled", false);
+                    } else {
+                        // make it required false
+                        f.get("ParkingPermitNumber").required = false;
+                        // if RAID is not available then disable
+                        $(f.box).find("input[name=ParkingPermitNumber]").prop("disabled", true);
                     }
                 };
             },
-            onAdd: function(/*event*/) {
-                var grid = w2ui.RAVehicleFeesGrid;
-                var rec     = {
-                    recid:  grid.records.length + 1,
-                    TMPVID: 0,
-                    BID:    0,
-                    ASMID:  0,
-                    ARID:   0,
-                    ARName: "",
-                    Amount: 0.0,
+            onChange: function(event) {
+                event.onComplete = function() {
+                    // formRecDiffer: 1=current record, 2=original record, 3=diff object
+                    var diff = formRecDiffer(this.record, app.active_form_original, {});
+                    // if diff == {} then make dirty flag as false, else true
+                    if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
+                        app.form_is_dirty = false;
+                    } else {
+                        app.form_is_dirty = true;
+                    }
                 };
-                grid.add(rec);
-                grid.select(rec.recid);
-                grid.getColumn("ARName").editable.items = app.raflow.arW2UIItems;
-                grid.getColumn("ARName").render();
-                grid.refresh();
-            },
+            }
         });
 
         //------------------------------------------------------------------------
-        //          Vehicle Form Buttons
+        //      ***** VEHICLE ACTION FORM BUTTONS *****
         //------------------------------------------------------------------------
         $().w2form({
             name: 'RAVehicleFormBtns',
             style: 'border: none; background-color: transparent;',
-            formURL: '/webclient/html/raflow/formravehiclebtns.html',
+            formURL: '/webclient/html/raflow/formra-vehiclebtns.html',
             url: '',
             fields: [],
             actions: {
                 save: function () {
-                    var f =     w2ui.RAVehicleForm,
-                        grid =  w2ui.RAVehiclesGrid,
-                        TMPVID = f.record.TMPVID;
+                    var f       = w2ui.RAVehicleForm,
+                        TMPVID  = f.record.TMPVID;
+
+                    // clean dirty flag of form
+                    app.form_is_dirty = false;
 
                     // validate form record
                     var errors = f.validate();
                     if (errors.length > 0) return;
 
-                    // sync this info in local data
-                    var vehicleData = getFormSubmitData(f.record, true);
-
-                    // set data locally
-                    setVehicleLocalData(TMPVID, vehicleData);
-
-                    // clean dirty flag of form
-                    app.form_is_dirty = false;
+                    // update the modified data
+                    SetlocalDataFromRAVehicleFormRecord(TMPVID);
 
                     // save this records in json Data
-                    saveVehiclesCompData()
+                    SaveVehiclesCompData()
                     .done(function(data) {
                         if (data.status === 'success') {
                             // re-assign records in grid
@@ -614,32 +482,27 @@ window.loadRAVehiclesGrid = function () {
                     });
                 },
                 saveadd: function () {
-                    var f =     w2ui.RAVehicleForm,
-                        grid =  w2ui.RAVehiclesGrid,
-                        TMPVID = f.record.TMPVID;
+                    var f       = w2ui.RAVehicleForm,
+                        grid    = w2ui.RAVehiclesGrid,
+                        TMPVID  = f.record.TMPVID;
+
+                    // clean dirty flag of form
+                    app.form_is_dirty = false;
 
                     // validate the form first
                     var errors = f.validate();
                     if (errors.length > 0) return;
 
-
-                    // sync this info in local data
-                    var vehicleData = getFormSubmitData(f.record, true);
-
-                    // set data locally
-                    setVehicleLocalData(TMPVID, vehicleData);
-
-                    // clean dirty flag of form
-                    app.form_is_dirty = false;
+                    // update local data from this form record
+                    SetlocalDataFromRAVehicleFormRecord(TMPVID);
 
                     // save this records in json Data
-                    saveVehiclesCompData()
+                    SaveVehiclesCompData()
                     .done(function(data) {
                         if (data.status === 'success') {
                             // reset form
                             f.actions.reset();
-                            f.record = getVehicleFormInitRecord(f.record);
-                            f.record.recid =grid.records.length + 1;
+                            f.record = GetVehicleFormInitRecord(f.record);
                             f.refresh();
                             f.refresh();
 
@@ -658,51 +521,332 @@ window.loadRAVehiclesGrid = function () {
 
                     // get local data from TMPVID
                     var compData = getRAFlowCompData("vehicles", app.raflow.activeFlowID) || [];
-                    var itemIndex = getVehicleLocalData(f.record.TMPVID, true);
-                    compData.splice(itemIndex, 1);
+                    var itemIndex = GetVehicleLocalData(f.record.TMPVID, true);
 
-                    // save this records in json Data
-                    saveVehiclesCompData()
-                    .done(function(data) {
+                    // if it exists then
+                    if (itemIndex > -1) {
+
+                        // remove locally
+                        compData.splice(itemIndex, 1);
+
+                        // save this records in json Data
+                        SaveVehiclesCompData()
+                        .done(function(data) {
+                            if (data.status === 'success') {
+                                // reset form
+                                f.actions.reset();
+
+                                // re-assign records in grid
+                                AssignVehiclesGridRecords();
+
+                                // close the form
+                                HideSliderContent();
+                            } else {
+                                f.message(data.message);
+                            }
+                        })
+                        .fail(function(data) {
+                            console.log("failure " + data);
+                        });
+                    }
+                },
+            },
+        });
+
+        // -----------------------------------------------------------
+        //      ***** VEHICLE ***** FEES ***** GRID *****
+        // -----------------------------------------------------------
+        $().w2grid({
+            name: 'RAVehicleFeesGrid',
+            header: 'Vehicle Fees',
+            show: {
+                toolbar:        true,
+                header:         false,
+                toolbarSearch:  false,
+                toolbarAdd:     true,
+                toolbarReload:  false,
+                toolbarInput:   false,
+                toolbarColumns: true,
+                footer:         false,
+            },
+            multiSelect: false,
+            style: 'border: 1px solid silver;',
+            columns: GetFeeGridColumns(),
+            onClick: function(event) {
+                event.onComplete = function() {
+                    var yes_args = [this, event.recid],
+                        no_args = [this],
+                        no_callBack = function(grid) {
+                            grid.select(app.last.grid_sel_recid);
+                            return false;
+                        },
+                        yes_callBack = function(grid, recid) {
+                            var feeForm = w2ui.RAVehicleFeeForm;
+
+                            var sliderID = 2;
+                            appendNewSlider(sliderID);
+                            $("#raflow-container")
+                                .find(".slider[data-slider-id="+sliderID+"]")
+                                .find(".slider-content")
+                                .width(400)
+                                .w2render(feeForm);
+
+                            app.last.grid_sel_recid = parseInt(recid);
+
+                            // keep highlighting current row in any case
+                            grid.select(app.last.grid_sel_recid);
+
+                            // get TMPVID from last of raflow
+                            var TMPVID = app.raflow.last.TMPVID;
+
+                            // get TMPASMID from grid record
+                            var TMPASMID = grid.get(recid).TMPASMID;
+
+                            // get all account rules then
+                            var BID = getCurrentBID();
+                            getAllARsWithAmount(BID)
+                            .done(function(data) {
+                                var arid_items = [];
+                                app.raflow.arList[BID].forEach(function(item) {
+                                    arid_items.push({id: item.ARID, text: item.Name});
+                                });
+                                feeForm.get("ARID").options.items = arid_items;
+
+                                // set record in form
+                                SetFeeFormRecordFromFeeData(TMPVID, TMPASMID, "vehicles");
+                                feeForm.record.RentCycleText = app.cycleFreq[feeForm.record.RentCycle];
+
+                                ShowSliderContentW2UIComp(feeForm, SliderContentDivLength, sliderID);
+                                feeForm.refresh(); // need to refresh for header changes
+
+                                // When RentCycle is Norecur then disable the RentCycle list field.
+                                var isDisabled = feeForm.record.RentCycleText.text === app.cycleFreq[0];
+                                $("#RentCycleText").prop("disabled", isDisabled);
+                            })
+                            .fail(function(data) {
+                                console.log("failure" + data);
+                            });
+                        };
+
+                    // warn user if form content has been changed
+                    form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);
+                };
+            },
+            onAdd: function(/*event*/) {
+                var feesGrid    = w2ui.RAVehicleFeesGrid,
+                    feeForm     = w2ui.RAVehicleFeeForm;
+
+                var sliderID = 2;
+                appendNewSlider(sliderID);
+                $("#raflow-container")
+                    .find(".slider[data-slider-id="+sliderID+"]")
+                    .find(".slider-content")
+                    .width(400)
+                    .w2render(feeForm);
+
+                // new record so select none
+                feesGrid.selectNone();
+
+                var TMPVID = app.raflow.last.TMPVID;
+
+                // get all account rules in fit those in form "ARID" field
+                var BID = getCurrentBID();
+                getAllARsWithAmount(BID)
+                .done(function(data) {
+                    var arid_items = [];
+                    app.raflow.arList[BID].forEach(function(item) {
+                        arid_items.push({id: item.ARID, text: item.Name});
+                    });
+                    feeForm.get("ARID").options.items = arid_items;
+
+                    // set form record
+                    SetFeeFormRecordFromFeeData(TMPVID, 0, "vehicles");
+                    feeForm.record.recid = feesGrid.records.length + 1;
+
+                    // show form in the DOM
+                    ShowSliderContentW2UIComp(feeForm, SliderContentDivLength, sliderID);
+                    feeForm.refresh();
+                })
+                .fail(function(data) {
+                    console.log("failure" + data);
+                });
+            },
+        });
+
+        // -----------------------------------------------------------
+        //      ***** VEHICLE ***** FEE ***** FORM *****
+        // -----------------------------------------------------------
+        $().w2form({
+            name: 'RAVehicleFeeForm',
+            header: 'Add New Vehicle Fee',
+            style: 'display: block;',
+            formURL: '/webclient/html/raflow/formra-fee.html',
+            focus: -1,
+            fields: GetFeeFormFields(),
+            toolbar : GetFeeFormToolbar(),
+            actions: {
+                reset: function () {
+                    w2ui.RAVehicleFeeForm.clear();
+                },
+                save: function() {
+                    var feeForm     = w2ui.RAVehicleFeeForm,
+                        TMPASMID    = feeForm.record.TMPASMID;
+
+                    // get TMPVID from last of raflow
+                    var TMPVID = app.raflow.last.TMPVID;
+
+                    // clean dirty flag of form
+                    app.form_is_dirty = false;
+
+                    // set local fee data from fee form
+                    SetFeeDataFromFeeFormRecord(TMPVID, TMPASMID, "vehicles");
+
+                    SaveVehiclesCompData()
+                    .done(function (data) {
                         if (data.status === 'success') {
-                            // reset form
-                            f.actions.reset();
+                            // Re render the fees grid records
+                            AssignVehicleFeesGridRecords(TMPVID);
 
-                            // re-assign records in grid
-                            AssignVehiclesGridRecords();
+                            // reset the form
+                            feeForm.actions.reset();
 
                             // close the form
-                            HideSliderContent();
+                            HideSliderContent(2);
                         } else {
-                            f.message(data.message);
+                            feeForm.message(data.message);
                         }
                     })
-                    .fail(function(data) {
+                    .fail(function (data) {
                         console.log("failure " + data);
                     });
+                },
+                saveadd: function() {
+                    var feeForm     = w2ui.RAVehicleFeeForm,
+                        feesGrid    = w2ui.RAVehicleFeesGrid,
+                        TMPASMID    = feeForm.record.TMPASMID;
+
+                    // get TMPVID from last of raflow
+                    var TMPVID = app.raflow.last.TMPVID;
+
+                    // clean dirty flag of form
+                    app.form_is_dirty = false;
+
+                    // set local fee data from fee form
+                    SetFeeDataFromFeeFormRecord(TMPVID, TMPASMID, "vehicles");
+
+                    SaveVehiclesCompData()
+                    .done(function (data) {
+                        if (data.status === 'success') {
+
+                            // reset the form
+                            feeForm.actions.reset();
+
+                            // set record in form
+                            feeForm.record = GetFeeFormInitRecord();
+                            feeForm.record.recid = feesGrid.records.length + 1;
+                            feeForm.refresh();
+
+                            // enable this field
+                            $(feeForm.box).find("#RentCycleText").prop("disabled", false);
+
+                            // Re render the fees grid records
+                            AssignVehicleFeesGridRecords(TMPVID);
+
+                        } else {
+                            feeForm.message(data.message);
+                        }
+                    })
+                    .fail(function (data) {
+                        console.log("failure " + data);
+                    });
+                },
+                delete: function() {
+                    var feeForm     = w2ui.RAVehicleFeeForm,
+                        feesGrid    = w2ui.RAVehicleFeesGrid,
+                        TMPASMID    = feeForm.record.TMPASMID;
+
+                    // get TMPVID from last of raflow
+                    var TMPVID = app.raflow.last.TMPVID;
+
+                    var localVehicleData = GetVehicleLocalData(TMPVID);
+                    if (localVehicleData.Fees.length > 0) {
+                        var itemIndex = GetVehicleFeeLocalData(TMPVID, TMPASMID, true);
+
+                        // remove fee item
+                        localVehicleData.Fees.splice(itemIndex, 1);
+
+                        // set this modified local vehicle data to back
+                        SetVehicleLocalData(TMPVID, localVehicleData);
+
+                        // sync data on backend side
+                        SaveVehiclesCompData()
+                        .done(function (data) {
+                            if (data.status === 'success') {
+                                // reset form as well as remove record from the grid
+                                feesGrid.remove(TMPVID);
+                                feesGrid.refresh();
+                                feeForm.actions.reset();
+
+                                // // Re render the fees grid records
+                                AssignVehicleFeesGridRecords(TMPVID);
+
+                                // close the form
+                                HideSliderContent(2);
+                            } else {
+                                feeForm.message(data.message);
+                            }
+                        })
+                        .fail(function (data) {
+                            console.log("failure " + data);
+                        });
+                    }
                 }
+            },
+            onChange: function(event) {
+                event.onComplete = function() {
+                    var feeForm = w2ui.RAVehicleFeeForm;
+
+                    // take action on change event for this form
+                    FeeFormOnChangeHandler(feeForm, event.target, event.value_new);
+
+                       // formRecDiffer: 1=current record, 2=original record, 3=diff object
+                    var diff = formRecDiffer(this.record, app.active_form_original, {});
+                    // if diff == {} then make dirty flag as false, else true
+                    if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
+                        app.form_is_dirty = false;
+                    } else {
+                        app.form_is_dirty = true;
+                    }
+                };
+            },
+            onRefresh: function(event) {
+                var feeForm = this;
+                event.onComplete = function() {
+
+                    // minimum actions need to be taken care in refres event for fee form
+                    FeeFormOnRefreshHandler(feeForm);
+
+                    // there is NO VID actually, so have to work around with recid key
+                    formRefreshCallBack(feeForm);
+
+                    // set header
+                    var TMPVID = app.raflow.last.TMPVID,
+                        localVehicleData = GetVehicleLocalData(TMPVID);
+
+                    var header = "Fee (<strong>{0}</strong>) for Vehicle - {1}";
+                    var vehicleIdentity = "(<strong>{0} - {1}</strong>)";
+                    vehicleIdentity = vehicleIdentity.format(
+                        w2ui.RAVehicleForm.record.VehicleMake,
+                        w2ui.RAVehicleForm.record.VehicleModel
+                    );
+                    if (feeForm.record.ARID > 0) {
+                        feeForm.header = header.format(feeForm.record.ARName, vehicleIdentity);
+                    } else {
+                        feeForm.header = header.format("new", vehicleIdentity);
+                    }
+                };
             }
         });
-
-        //------------------------------------------------------------------------
-        //  vehicleLayout - The layout to contain the vehicleForm and vehicleFees grid
-        //              top  -      vehicleForm
-        //              main -      vehicleFeesGrid
-        //              bottom -    action buttons form
-        //------------------------------------------------------------------------
-        $().w2layout({
-            name: 'RAVehicleLayout',
-            padding: 0,
-            panels: [
-                { type: 'left',    size: 0,     hidden: true },
-                { type: 'top',     size: '60%', hidden: false, content: 'top',  resizable: true, style: app.pstyle },
-                { type: 'main',    size: '40%', hidden: false, content: 'main', resizable: true, style: app.pstyle },
-                { type: 'preview', size: 0,     hidden: true,  content: 'PREVIEW'  },
-                { type: 'bottom',  size: 50,    hidden: false, content: 'bottom', resizable: false, style: app.pstyle },
-                { type: 'right',   size: 0,     hidden: true }
-            ]
-        });
-
     }
 
     // now load grid in target division
@@ -736,9 +880,9 @@ window.SetRAVehicleLayoutContent = function(TMPVID) {
 };
 
 //-----------------------------------------------------------------------------
-// getVehicleLocalData - returns the clone of vehicle data for requested TMPVID
+// GetVehicleLocalData - returns the clone of vehicle data for requested TMPVID
 //-----------------------------------------------------------------------------
-window.getVehicleLocalData = function(TMPVID, returnIndex) {
+window.GetVehicleLocalData = function(TMPVID, returnIndex) {
     var cloneData = {};
     var foundIndex = -1;
     var compData = getRAFlowCompData("vehicles", app.raflow.activeFlowID) || [];
@@ -760,9 +904,9 @@ window.getVehicleLocalData = function(TMPVID, returnIndex) {
 
 
 //-----------------------------------------------------------------------------
-// setVehicleLocalData - save the data for requested a TMPVID in local data
+// SetVehicleLocalData - save the data for requested a TMPVID in local data
 //-----------------------------------------------------------------------------
-window.setVehicleLocalData = function(TMPVID, vehicleData) {
+window.SetVehicleLocalData = function(TMPVID, vehicleData) {
     var compData = getRAFlowCompData("vehicles", app.raflow.activeFlowID) || [];
     var dataIndex = -1;
     compData.forEach(function(item, index) {
@@ -806,21 +950,24 @@ window.AssignVehiclesGridRecords = function() {
         // assign record in grid
         reassignGridRecids(grid.name);
     });
+
+    // lock the grid until "Have vehicles?" checkbox checked.
+    lockOnGrid(grid.name);
 };
 
 //------------------------------------------------------------------------------
-// saveVehiclesCompData - saves the data on server side
+// SaveVehiclesCompData - saves the data on server side
 //------------------------------------------------------------------------------
-window.saveVehiclesCompData = function() {
+window.SaveVehiclesCompData = function() {
     var compData = getRAFlowCompData("vehicles", app.raflow.activeFlowID);
     return saveActiveCompData(compData, "vehicles");
 };
 
 //-----------------------------------------------------------------------------
-// getVehicleFeeLocalData - returns the clone of vehicle fee data for requested
-//                      TMPVID and ARID
+// GetVehicleFeeLocalData - returns the clone of vehicle fee data for requested
+//                          TMPVID and TMPASMID
 //-----------------------------------------------------------------------------
-window.getVehicleFeeLocalData = function(TMPVID, ARID, returnIndex) {
+window.GetVehicleFeeLocalData = function(TMPVID, TMPASMID, returnIndex) {
     var cloneData = {};
     var foundIndex = -1;
     var compData = getRAFlowCompData("vehicles", app.raflow.activeFlowID) || [];
@@ -828,7 +975,7 @@ window.getVehicleFeeLocalData = function(TMPVID, ARID, returnIndex) {
         if (item.TMPVID == TMPVID) {
             var feesData = item.Fees || [];
             feesData.forEach(function(feeItem, index) {
-                if (feeItem.ARID == ARID) {
+                if (feeItem.TMPASMID == TMPASMID) {
                     if (returnIndex) {
                         foundIndex = index;
                     } else {
@@ -847,10 +994,10 @@ window.getVehicleFeeLocalData = function(TMPVID, ARID, returnIndex) {
 
 
 //-----------------------------------------------------------------------------
-// setVehicleFeeLocalData - save the data for requested a TMPVID, ARID
-//                   in local data
+// SetVehicleFeeLocalData - save the data for requested a TMPVID, TMPASMID
+//                          in local data
 //-----------------------------------------------------------------------------
-window.setVehicleFeeLocalData = function(TMPVID, ARID, vehicleFeeData) {
+window.SetVehicleFeeLocalData = function(TMPVID, TMPASMID, vehicleFeeData) {
     var compData = getRAFlowCompData("vehicles", app.raflow.activeFlowID);
     var pIndex = -1,
         fIndex = -1;
@@ -859,7 +1006,7 @@ window.setVehicleFeeLocalData = function(TMPVID, ARID, vehicleFeeData) {
         if (item.TMPVID == TMPVID) {
             var feesData = item.Fees || [];
             feesData.forEach(function(feeItem, feeItemIndex) {
-                if (feeItem.ARID == ARID) {
+                if (feeItem.TMPASMID == TMPASMID) {
                     fIndex = feeItemIndex;
                 }
                 return false;
@@ -880,8 +1027,49 @@ window.setVehicleFeeLocalData = function(TMPVID, ARID, vehicleFeeData) {
 };
 
 //-----------------------------------------------------------------------------
+// RenderVehicleFeesGridSummary - will render grid summary row from vehicle
+//                                comp data
+//-----------------------------------------------------------------------------
+window.RenderVehicleFeesGridSummary = function(TMPVID) {
+    var vehicleData = GetVehicleLocalData(TMPVID),
+        grid = w2ui.RAVehicleFeesGrid,
+        Fees = vehicleData.Fees || [];
+
+    // summary record in fees grid
+    var summaryRec = {
+        recid:              0,
+        ARName:             "Grand Total",
+        // ContractAmount:     0.0,
+        AtSigningPreTax:    0.0,
+        SalesTax:           0.0,
+        // SalesTaxAmt:        0.0,
+        TransOccTax:        0.0,
+        // TransOccAmt:        0.0,
+    };
+
+    // summing up all amounts from fees
+    Fees.forEach(function(feeItem) {
+        summaryRec.AtSigningPreTax += feeItem.AtSigningPreTax;
+        summaryRec.SalesTax += feeItem.SalesTax;
+        // summaryRec.SalesTaxAmt += feeItem.SalesTaxAmt;
+        summaryRec.TransOccTax += feeItem.TransOccTax;
+        // summaryRec.TransOccAmt += feeItem.TransOccAmt;
+        summaryRec.RowTotal += feeItem.RowTotal;
+    });
+
+    // set style of entire summary row
+    summaryRec.w2ui = {style: "font-weight: bold"};
+
+    // set the summary rec in summary array of grid
+    grid.summary = [summaryRec];
+
+    // refresh the grid
+    grid.refresh();
+};
+
+//-----------------------------------------------------------------------------
 // AssignVehicleFeesGridRecords - will set the vehicle fees grid records from local
-//                            copy of vehicle fees data again
+//                                copy of vehicle fees data again
 //-----------------------------------------------------------------------------
 window.AssignVehicleFeesGridRecords = function(TMPVID) {
     var grid    = w2ui.RAVehicleFeesGrid,
@@ -891,18 +1079,8 @@ window.AssignVehicleFeesGridRecords = function(TMPVID) {
     grid.clear();
 
     // list of fees
-    var vehicleFeesData = [];
-
-    // SPECIAL CASE if adding new vehicle //
-    if (TMPVID === 0) {
-        // get initial fees from bizProps
-        app.vehicleFees[BID].forEach(function(bizPropVehicleFee) {
-            vehicleFeesData.push($.extend(true, {TMPVID: 0, ASMID: 0}, bizPropVehicleFee));
-        });
-    } else {
-        var vehicleData = getVehicleLocalData(TMPVID);
+    var vehicleData = GetVehicleLocalData(TMPVID),
         vehicleFeesData = vehicleData.Fees;
-    }
 
     // vehicle fees data
     vehicleFeesData.forEach(function(fee) {
@@ -918,10 +1096,8 @@ window.AssignVehicleFeesGridRecords = function(TMPVID) {
 
         // assign recid again
         reassignGridRecids(grid.name);
-
-        // assign item prepared earlier for parent rentable list
-        grid.getColumn("ARName").editable.items = app.raflow.arW2UIItems;
-        grid.getColumn("ARName").render();
     });
-};
 
+    // render vehicle fees grid summary
+    RenderVehicleFeesGridSummary(TMPVID);
+};
