@@ -1,7 +1,7 @@
 /* global
     RACompConfig, reassignGridRecids,
     getFullName, getTCIDName,
-    hideSliderContent, showSliderContentW2UIComp,
+    HideSliderContent, ShowSliderContentW2UIComp,
     saveActiveCompData, getRAFlowCompData,
     openNewTransactantForm, acceptTransactant, loadRAPeopleForm,
     setRATransactantFormHeader, showHideRATransactantFormFields,
@@ -201,7 +201,7 @@ window.loadRAPeopleForm = function () {
                             });
 
                             // show slider content in w2ui comp
-                            showSliderContentW2UIComp(form, RACompConfig.people.sliderWidth);
+                            ShowSliderContentW2UIComp(form, RACompConfig.people.sliderWidth);
 
                             // show/hide list of fields based on role
                             manageBGInfoFormFields(raBGInfoGridRecord);
@@ -243,7 +243,7 @@ window.loadRAPeopleForm = function () {
                 onClick: function (event) {
                     switch (event.target) {
                         case 'btnClose':
-                            hideSliderContent();
+                            HideSliderContent();
                             break;
                         case 'addInfo':
                             addDummyBackgroundInfo();
@@ -288,7 +288,7 @@ window.loadRAPeopleForm = function () {
                             ReassignPeopleGridRecords();
 
                             // close the form
-                            hideSliderContent();
+                            HideSliderContent();
                         } else {
                             form.message(data.message);
                         }
@@ -311,7 +311,7 @@ window.loadRAPeopleForm = function () {
                             ReassignPeopleGridRecords();
 
                             // close the form
-                            hideSliderContent();
+                            HideSliderContent();
                         } else {
                             form.message(data.message);
                         }
@@ -550,7 +550,7 @@ window.openNewTransactantForm = function () {
         form.message(data.message);
     });
 
-    showSliderContentW2UIComp(form, RACompConfig.people.sliderWidth);
+    ShowSliderContentW2UIComp(form, RACompConfig.people.sliderWidth);
 
     form.refresh(); // need to refresh for header changes
 };
