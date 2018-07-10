@@ -2769,7 +2769,22 @@ func InsertVehicle(ctx context.Context, a *Vehicle) (int64, error) {
 	}
 
 	// transaction... context
-	fields := []interface{}{a.TCID, a.BID, a.VehicleType, a.VehicleMake, a.VehicleModel, a.VehicleColor, a.VehicleYear, a.VIN, a.LicensePlateState, a.LicensePlateNumber, a.ParkingPermitNumber, a.DtStart, a.DtStop, a.CreateBy, a.LastModBy}
+	fields := []interface{}{a.TCID,
+		a.BID,
+		a.VehicleType,
+		a.VehicleMake,
+		a.VehicleModel,
+		a.VehicleColor,
+		a.VehicleYear,
+		a.VIN,
+		a.LicensePlateState,
+		a.LicensePlateNumber,
+		a.ParkingPermitNumber,
+		a.DtStart,
+		a.DtStop,
+		a.CreateBy,
+		a.LastModBy,
+	}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertVehicle)
 		defer stmt.Close()
