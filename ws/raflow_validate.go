@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"rentroll/rlib"
 	"rentroll/rtags"
+	"time"
 )
 
 // RAFlowDetailRequest is a struct to hold info for Flow which is going to be validate
@@ -185,8 +186,8 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// TODO(Akshay): Enable basic validation check
 	g = basicValidateRAFlow(raFlowData, raFlowFieldsErrors)
 
+	// If RAFlow structure have more than 1 basic validation error than it return with the list of basic validation errors
 	if g.Total > 0 {
-		// If RAFlow structure have more than 1 basic validation error than it return with the list of basic validation errors
 		SvcWriteResponse(d.BID, &g, w)
 		return
 	}
@@ -194,8 +195,13 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// --------------------------------------------
 	// Perform Bizlogic check validation on RAFlow
 	// --------------------------------------------
-	// validateRAFlowBizLogic(r.Context(), &raFlowData)
-	// g.ErrorType = "biz"
+	g = validateRAFlowBizLogic(r.Context(), &raFlowData, raFlowFieldsErrors)
+
+	// If RAFlow structure have more than 1 biz logic check validation error than it return with the list of biz logic validation errors
+	if g.Total > 0 {
+		SvcWriteResponse(d.BID, &g, w)
+		return
+	}
 
 }
 
@@ -215,8 +221,6 @@ func basicValidateRAFlow(raFlowData RAFlowJSONData, raFlowFieldsErrors RAFlowFie
 		tiePeopleFieldsErrors   TiePeopleFieldsError
 		g                       ValidateRAFlowResponse
 	)
-
-	fmt.Println(raFlowData.Pets)
 
 	//----------------------------------------------
 	// validate RADatesFlowData structure
@@ -475,14 +479,88 @@ func basicValidateRAFlow(raFlowData RAFlowJSONData, raFlowFieldsErrors RAFlowFie
 }
 
 // validateRAFlowBizLogic is to check RAFlow's business logic
-func validateRAFlowBizLogic(ctx context.Context, a *RAFlowJSONData) error {
+func validateRAFlowBizLogic(ctx context.Context, a *RAFlowJSONData, raFlowFieldsErrors RAFlowFieldsErrors) ValidateRAFlowResponse {
 	const funcname = "ValidateRAFlowBizLogic"
 	fmt.Printf("Entered %s\n", funcname)
 
-	// ---------------------------------------------
-	// Perform business logic check on date section
-	// 1. Dates must be Jan 1, 2000 00:00:00 UTC or later.
-	// ---------------------------------------------
+	var (
+		datesFieldsErrors DatesFieldsError
+		g                 ValidateRAFlowResponse
+	)
 
-	return nil
+	// -----------------------------------------------
+	// -------- Bizlogic check on date section -------
+	// -----------------------------------------------
+	datesFieldsErrors = validateDatesBizLogic(a.Dates)
+	// Modify global error count
+	g.Total += datesFieldsErrors.Total
+	// Update date section error
+	raFlowFieldsErrors.Dates = datesFieldsErrors
+
+	// Set the response
+	g.Errors = raFlowFieldsErrors
+	g.ErrorType = "biz"
+	return g
+}
+
+// validateDatesBizLogic Perform business logic check on date section
+// ---------------------------------------------
+// 1. Start dates must be prior to End/Stop date
+// ---------------------------------------------
+func validateDatesBizLogic(dates RADatesFlowData) DatesFieldsError {
+
+	var (
+		datesFieldsErrors DatesFieldsError
+		err               error
+	)
+
+	// -----------------------------------------------
+	// -------- Agreements Date check ----------------
+	// -----------------------------------------------
+	agreementStartDate := time.Time(dates.AgreementStart)
+	agreementStopDate := time.Time(dates.AgreementStop)
+	// Start date must be prior to End/Stop date
+	if !agreementStartDate.Before(agreementStopDate) {
+
+		// define and assign error
+		err = fmt.Errorf("agreement start date must be prior to agreement stop date")
+		datesFieldsErrors.Errors["AgreementStart"] = append(datesFieldsErrors.Errors["AgreementStart"], err.Error())
+
+		// Modify date section error count
+		datesFieldsErrors.Total++
+	}
+
+	// -----------------------------------------------
+	// -------- Rent Date check ---------------------
+	// -----------------------------------------------
+	rentStartDate := time.Time(dates.RentStart)
+	rentStopDate := time.Time(dates.RentStop)
+	// Start date must be prior to End/Stop date
+	if !rentStartDate.Before(rentStopDate) {
+
+		// define and assign error
+		err = fmt.Errorf("rent start date must be prior to rent stop date")
+		datesFieldsErrors.Errors["RentStart"] = append(datesFieldsErrors.Errors["RentStart"], err.Error())
+
+		// Modify date section error count
+		datesFieldsErrors.Total++
+	}
+
+	// -----------------------------------------------
+	// --------- Possession Date check ---------------
+	// -----------------------------------------------
+	possessionStartDate := time.Time(dates.PossessionStart)
+	possessionStopDate := time.Time(dates.PossessionStop)
+	// Start date must be prior to End/Stop date
+	if !possessionStartDate.Before(possessionStopDate) {
+
+		// define and assign error
+		err = fmt.Errorf("possessions start date must be prior to possessions stop date")
+		datesFieldsErrors.Errors["PossessionStart"] = append(datesFieldsErrors.Errors["PossessionStart"], err.Error())
+
+		// Modify date section error count
+		datesFieldsErrors.Total++
+	}
+
+	return datesFieldsErrors
 }
