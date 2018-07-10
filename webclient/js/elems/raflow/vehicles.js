@@ -10,13 +10,14 @@
     AssignVehicleFeesGridRecords,
     SetRAVehicleFormRecordFromLocalData,
     SetlocalDataFromRAVehicleFormRecord,
-    getAllARsWithAmount, SetDataFromFormRecord, SetFormRecordFromData,
+    GetAllARForFeeForm, SetDataFromFormRecord, SetFormRecordFromData,
     GetFeeGridColumns, GetFeeFormFields, GetFeeFormToolbar,
     SetFeeDataFromFeeFormRecord,
     GetFeeFormInitRecord,
     FeeFormOnChangeHandler, FeeFormOnRefreshHandler,
     SliderContentDivLength, SetFeeFormRecordFromFeeData,
-    RenderVehicleFeesGridSummary, RAFlowNewVehicleAJAX
+    RenderVehicleFeesGridSummary, RAFlowNewVehicleAJAX,
+    GetFeeAccountRulesW2UIListItems
 */
 
 "use strict";
@@ -604,13 +605,10 @@ window.loadRAVehiclesGrid = function () {
 
                             // get all account rules then
                             var BID = getCurrentBID();
-                            getAllARsWithAmount(BID)
+                            GetAllARForFeeForm(BID)
                             .done(function(data) {
-                                var arid_items = [];
-                                app.raflow.arList[BID].forEach(function(item) {
-                                    arid_items.push({id: item.ARID, text: item.Name});
-                                });
-                                feeForm.get("ARID").options.items = arid_items;
+                                // get filtered account rules items
+                                feeForm.get("ARID").options.items = GetFeeAccountRulesW2UIListItems(BID, "vehicles");
 
                                 // set record in form
                                 SetFeeFormRecordFromFeeData(TMPVID, TMPASMID, "vehicles");
@@ -651,13 +649,10 @@ window.loadRAVehiclesGrid = function () {
 
                 // get all account rules in fit those in form "ARID" field
                 var BID = getCurrentBID();
-                getAllARsWithAmount(BID)
+                GetAllARForFeeForm(BID)
                 .done(function(data) {
-                    var arid_items = [];
-                    app.raflow.arList[BID].forEach(function(item) {
-                        arid_items.push({id: item.ARID, text: item.Name});
-                    });
-                    feeForm.get("ARID").options.items = arid_items;
+                    // get filtered account rules
+                    feeForm.get("ARID").options.items = GetFeeAccountRulesW2UIListItems(BID, "vehicles");
 
                     // set form record
                     SetFeeFormRecordFromFeeData(TMPVID, 0, "vehicles");
@@ -872,7 +867,7 @@ window.SetRAVehicleLayoutContent = function(TMPVID) {
 
         // assign vehicle fees grid
         var BID = getCurrentBID();
-        getAllARsWithAmount(BID)
+        GetAllARForFeeForm(BID)
         .done(function() {
             AssignVehicleFeesGridRecords(TMPVID);
         });

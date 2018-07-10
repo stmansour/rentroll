@@ -167,7 +167,9 @@ func SvcGetRAFlowRentableFeesData(w http.ResponseWriter, r *http.Request, d *Ser
 
 	// append feesRecords in ascending order
 	for _, ar := range m {
-		if ar.FLAGS&0x10 != 0 { // if it's rent asm then continue
+		if ar.FLAGS&(1<<uint64(bizlogic.ARFLAGS["IsRentASM"])) != 0 || // if it's rent asm then continue
+			ar.FLAGS&(1<<uint64(bizlogic.ARFLAGS["PETIDReq"])) != 0 || // if it's pet related AR
+			ar.FLAGS&(1<<uint64(bizlogic.ARFLAGS["VIDReq"])) != 0 { // if it's vehicle related AR
 			continue
 		}
 

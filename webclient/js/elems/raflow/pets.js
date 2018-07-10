@@ -10,13 +10,14 @@
     AssignPetFeesGridRecords,
     SetRAPetFormRecordFromLocalData,
     SetlocalDataFromRAPetFormRecord,
-    getAllARsWithAmount, SetDataFromFormRecord, SetFormRecordFromData,
+    GetAllARForFeeForm, SetDataFromFormRecord, SetFormRecordFromData,
     GetFeeGridColumns, GetFeeFormFields, GetFeeFormToolbar,
     SetFeeDataFromFeeFormRecord,
     GetFeeFormInitRecord,
     FeeFormOnChangeHandler, FeeFormOnRefreshHandler,
     SliderContentDivLength, SetFeeFormRecordFromFeeData,
-    RenderPetFeesGridSummary, RAFlowNewPetAJAX
+    RenderPetFeesGridSummary, RAFlowNewPetAJAX,
+    GetFeeAccountRulesW2UIListItems
 */
 
 "use strict";
@@ -564,13 +565,10 @@ window.loadRAPetsGrid = function () {
 
                             // get all account rules then
                             var BID = getCurrentBID();
-                            getAllARsWithAmount(BID)
+                            GetAllARForFeeForm(BID)
                             .done(function(data) {
-                                var arid_items = [];
-                                app.raflow.arList[BID].forEach(function(item) {
-                                    arid_items.push({id: item.ARID, text: item.Name});
-                                });
-                                feeForm.get("ARID").options.items = arid_items;
+                                // get filtered account rules items
+                                feeForm.get("ARID").options.items = GetFeeAccountRulesW2UIListItems(BID, "pets");
 
                                 // set record in form
                                 SetFeeFormRecordFromFeeData(TMPPETID, TMPASMID, "pets");
@@ -611,13 +609,10 @@ window.loadRAPetsGrid = function () {
 
                 // get all account rules in fit those in form "ARID" field
                 var BID = getCurrentBID();
-                getAllARsWithAmount(BID)
+                GetAllARForFeeForm(BID)
                 .done(function(data) {
-                    var arid_items = [];
-                    app.raflow.arList[BID].forEach(function(item) {
-                        arid_items.push({id: item.ARID, text: item.Name});
-                    });
-                    feeForm.get("ARID").options.items = arid_items;
+                    // get filtered account rules items
+                    feeForm.get("ARID").options.items = GetFeeAccountRulesW2UIListItems(BID, "pets");
 
                     // set form record
                     SetFeeFormRecordFromFeeData(TMPPETID, 0, "pets");
@@ -828,7 +823,7 @@ window.SetRAPetLayoutContent = function(TMPPETID) {
 
         // assign pet fees grid
         var BID = getCurrentBID();
-        getAllARsWithAmount(BID)
+        GetAllARForFeeForm(BID)
         .done(function() {
             AssignPetFeesGridRecords(TMPPETID);
         });

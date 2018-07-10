@@ -6,7 +6,8 @@ common things for fees strcture!
     w2utils, SetFormRecordFromData, GetFeeFormInitRecord,
     GetPetFeeLocalData, GetVehicleFeeLocalData, GetRentableFeeLocalData,
     SetDataFromFormRecord, SetPetFeeLocalData, SetVehicleFeeLocalData,
-    SetRentableFeeLocalData, HideSliderContent, GetRentableLocalData
+    SetRentableFeeLocalData, HideSliderContent, GetRentableLocalData,
+    GetFeeAccountRules
 */
 
 "use strict";
@@ -423,4 +424,80 @@ window.SetFeeDataFromFeeFormRecord = function(TMPID, TMPASMID, flowPart) {
         default:
             return false;
     }
+};
+
+// -------------------------------------------------------------------------------
+// GetAllARForFeeForm - pull down all account rules with amount, flags info
+// -------------------------------------------------------------------------------
+window.GetAllARForFeeForm = function(BID) {
+    var data = {"type": "ALL"};
+    return $.ajax({
+        url: '/v1/arslist/' + BID.toString() + "/",
+        method: "POST",
+        data: JSON.stringify(data),
+        contentType: "application/json",
+        dataType: "json"
+    })
+    .done(function(data) {
+        if (data.status !== "error") {
+            app.raflow.arList[BID] = data.records || [];
+        }
+    });
+};
+
+// -----------------------------------------------------------------------------
+// GetFeeAccountRulesW2UIListItems - returns w2ui item list from received
+//                                   filtered account rules based on flow part
+// -----------------------------------------------------------------------------
+window.GetFeeAccountRulesW2UIListItems = function(BID, flowPart) {
+    var w2uiListItems = [{id: 0, text: " -- select account rule -- " }];
+
+    // get filtered account rules
+    var filteredList = GetFeeAccountRules(BID, flowPart);
+
+    // prepare w2ui item for AR list and push
+    filteredList.forEach(function(arItem) {
+        w2uiListItems.push({id: arItem.ARID, text: arItem.Name});
+    });
+
+    return w2uiListItems;
+};
+
+// -----------------------------------------------------------------------------
+// GetFeeAccountRules - returns filtered account rules list based on flow part
+// -----------------------------------------------------------------------------
+window.GetFeeAccountRules = function(BID, flowPart) {
+    var filteredRules = [];
+
+    switch(flowPart) {
+        case "pets":
+        filteredRules = app.raflow.arList[BID].filter(function(ARObject) {
+            return ( (ARObject.FLAGS&(1<<app.arFLAGS.PETIDReq)) !== 0 );
+        });
+            break;
+        case "vehicles":
+            filteredRules = app.raflow.arList[BID].filter(function(ARObject) {
+                return ( (ARObject.FLAGS&(1<<app.arFLAGS.VIDReq)) !== 0 );
+            });
+            break;
+        case "rentables":
+            // push only those item which are only set to RentASM flag and
+            // not to pet/vehicles AR
+
+            // get AutoPopulateToNewRA or IsRentASM marked rules
+            var allowedRules = app.raflow.arList[BID].filter(function(ARObject) {
+                return (
+                    ( (ARObject.FLAGS&(1<<app.arFLAGS.AutoPopulateToNewRA)) !== 0 ) ||
+                    ( (ARObject.FLAGS&(1<<app.arFLAGS.IsRentASM)) !== 0 )
+                );
+            });
+
+            // it should not be pet/vehicle AR
+            filteredRules = allowedRules.filter(function(ARObject) {
+                return ( (ARObject.FLAGS&(3<<7)) === 0 );
+            });
+            break;
+    }
+
+    return filteredRules;
 };
