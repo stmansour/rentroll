@@ -1,6 +1,6 @@
 /* global
     RACompConfig, reassignGridRecids,
-    hideSliderContent, showSliderContentW2UIComp,
+    HideSliderContent, ShowSliderContentW2UIComp,
     saveActiveCompData, getRAFlowCompData,
     lockOnGrid,
     getVehicleFormInitRecord, setVehicleLocalData, getVehicleLocalData,
@@ -138,7 +138,7 @@ window.loadRAVehiclesGrid = function () {
                 onClick: function (event) {
                     switch (event.target){
                         case 'btnClose':
-                            hideSliderContent();
+                            HideSliderContent();
                             break;
                     }
                 }
@@ -350,7 +350,7 @@ window.loadRAVehiclesGrid = function () {
                             var TMPVID = grid.get(app.last.grid_sel_recid).TMPVID;
 
                             // render layout in the slider
-                            showSliderContentW2UIComp(w2ui.RAVehicleLayout, RACompConfig.vehicles.sliderWidth);
+                            ShowSliderContentW2UIComp(w2ui.RAVehicleLayout, RACompConfig.vehicles.sliderWidth);
 
                             // load pet fees grid
                             setTimeout(function() {
@@ -373,7 +373,7 @@ window.loadRAVehiclesGrid = function () {
                         grid.selectNone();
 
                         // render the layout in slider
-                        showSliderContentW2UIComp(w2ui.RAVehicleLayout, RACompConfig.vehicles.sliderWidth);
+                        ShowSliderContentW2UIComp(w2ui.RAVehicleLayout, RACompConfig.vehicles.sliderWidth);
 
                         // load pet fees grid
                         setTimeout(function() {
@@ -604,7 +604,7 @@ window.loadRAVehiclesGrid = function () {
                             f.actions.reset();
 
                             // close the form
-                            hideSliderContent();
+                            HideSliderContent();
                         } else {
                             f.message(data.message);
                         }
@@ -672,7 +672,7 @@ window.loadRAVehiclesGrid = function () {
                             AssignVehiclesGridRecords();
 
                             // close the form
-                            hideSliderContent();
+                            HideSliderContent();
                         } else {
                             f.message(data.message);
                         }

@@ -1,7 +1,7 @@
 "use strict";
 
 // right side slider content div length
-var sliderContentDivLength = 400;
+var SliderContentDivLength = 400;
 
 // RACompConfig for each section
 var RACompConfig = {
@@ -18,7 +18,7 @@ var RACompConfig = {
     "pets": {
         loader: "loadRAPetsGrid",
         w2uiComp: "RAPetsGrid",
-        sliderWidth: 500
+        sliderWidth: 850
     },
     "vehicles": {
         loader: "loadRAVehiclesGrid",
