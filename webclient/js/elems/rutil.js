@@ -1176,6 +1176,22 @@ window.prepareW2UIStuff = function prepareW2UIStuff(app) {
             app.w2ui.listItems.cycleFreq.push({ id: index, text: freq });
         });
     }
+
+    // rental agreement states
+    app.w2ui.listItems.RAStates = [];
+    if (app.RAStates) {
+        app.RAStates.forEach(function(freq, index) {
+            app.w2ui.listItems.RAStates.push({ id: index, text: freq });
+        });
+    }
+
+    // rental agreement action
+    app.w2ui.listItems.RAActions = [];
+    if (app.RAActions) {
+        app.RAActions.forEach(function(freq, index) {
+            app.w2ui.listItems.RAActions.push({ id: index, text: freq });
+        });
+    }
 };
 
 //-----------------------------------------------------------------------------

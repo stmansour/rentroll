@@ -120,7 +120,7 @@
                 focus: -1,
                 formURL: '/webclient/html/raflow/formra-actioninprogress.html',
                 fields: [
-                	{ field: 'RAActions', type: 'list', width: 120, required: true, options: {items: app.RAActions}},
+                	{ field: 'RAActions', type: 'list', width: 120, required: true, options: {items: app.w2ui.listItems.RAActions}},
                 ],
                 onRefresh: function (event) {
                 	console.log('onRefresh of RAActionInProgress');
@@ -136,7 +136,7 @@
                     });
                 },
                 onRender: function (event) {
-                    w2ui.RAActionInProgress.record = {RAActions: {id:"Edit Rental Agreement Information", text: "Edit Rental Agreement Information"}};
+                    w2ui.RAActionInProgress.record = {RAActions: {id: 0, text: "Edit Rental Agreement Information"}};
                 },
                 actions: {
                     save: function () {
@@ -185,7 +185,7 @@
                 fields: [
                     { field: 'RAActions', type: 'list', width: 120, required: true,
                         options: {
-                            items: app.RAActions
+                            items: app.w2ui.listItems.RAActions
                         }
                     },
                     { field: 'RAApprovalDecision1', type: 'list', width: 120, required: true,
@@ -252,7 +252,7 @@
                     $('#RAActionStateLable').text(raStateString);
                 },
                 onRender: function (event) {
-                    w2ui.RAActionFirstApproval.record = {RAActions: {id:"Authorize First Approval", text: "Authorize First Approval"}};
+                    w2ui.RAActionFirstApproval.record = {RAActions: {id: 1, text: "Authorize First Approval"}};
     
                 },
                 actions: {
