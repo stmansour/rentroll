@@ -532,7 +532,7 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	xp.Pay.EligibleFuturePayor = gxpo.EligibleFuturePayor
 
 	// Manage Prospect FLAGS
-	xp.Psp.FLAGS &= ^uint64(0x4 & 0x2 & 0x1) // 1<<0 and 1<< 1 and 1<<2:  these are the three flags that can be set.  Assume we turn them off
+	xp.Psp.FLAGS &= ^uint64(0x4 | 0x2 | 0x1) // 1<<0 and 1<< 1 and 1<<2:  these are the three flags that can be set.  Assume we turn them off. Set all bits to 0.
 	if gxp.Evicted {
 		// mask: 1 << 0
 		xp.Psp.FLAGS |= 0x1
