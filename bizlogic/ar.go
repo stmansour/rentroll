@@ -15,6 +15,8 @@ var ARFLAGS = rlib.Str2Int64Map{
 	"IsRentASM":                4,
 	"IsSecDepASM":              5,
 	"IsNonRecurCharge":         6,
+	"PETIDReq":                 7,
+	"VIDReq":                   8,
 }
 
 // ARType user defined type of account rule
