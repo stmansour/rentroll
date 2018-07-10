@@ -3,7 +3,7 @@
     HideSliderContent, appendNewSlider, ShowSliderContentW2UIComp,
     saveActiveCompData, getRAFlowCompData,
     GetFeeFormInitRecord, getInitialRentableFeesData,
-    GetRentableLocalData, SetRentableLocalData, getAllARsWithAmount, GetRentableIndexInGridRecords,
+    GetRentableLocalData, SetRentableLocalData, GetAllARForFeeForm, GetRentableIndexInGridRecords,
     SaveRentableCompData, SetRentableFeeLocalData, GetRentableFeeLocalData,
     ridRentablePickerRender, ridRentableDropRender, ridRentableCompare,
     AssignRentableGridRecords, AssignRentableFeesGridRecords,
@@ -11,33 +11,10 @@
     RenderRentablesGridSummary, GetFeeFormFields, GetFeeGridColumns,
     SetFeeDataFromFeeFormRecord, SetFeeFormRecordFromFeeData,
     FeeFormOnChangeHandler, GetFeeFormToolbar, FeeFormOnRefreshHandler,
+    GetFeeAccountRulesW2UIListItems
 */
 
 "use strict";
-
-// -------------------------------------------------------------------------------
-// getAllARsWithAmount - pull down all account rules with amount, flags info
-// -------------------------------------------------------------------------------
-window.getAllARsWithAmount = function(BID) {
-    var data = {"type": "ALL"};
-    return $.ajax({
-        url: '/v1/arslist/' + BID.toString() + "/",
-        method: "POST",
-        data: JSON.stringify(data),
-        contentType: "application/json",
-        dataType: "json"
-    })
-    .done(function(data) {
-        if (data.status !== "error") {
-            app.raflow.arList[BID] = data.records || [];
-            app.raflow.arW2UIItems = [{id: 0, text: " -- select account rule -- " }];
-            app.raflow.arList[BID].forEach(function(arItem) {
-                app.raflow.arW2UIItems.push({id: arItem.ARID, text: arItem.Name});
-            });
-        }
-    });
-};
-
 
 // -------------------------------------------------------------------------------
 // getInitialRentableFeesData - pull down all fees records for the requested RID
@@ -373,13 +350,10 @@ window.loadRARentablesGrid = function () {
 
                 // get all account rules in fit those in form "ARID" field
                 var BID = getCurrentBID();
-                getAllARsWithAmount(BID)
+                GetAllARForFeeForm(BID)
                 .done(function(data) {
-                    var arid_items = [];
-                    app.raflow.arList[BID].forEach(function(item) {
-                        arid_items.push({id: item.ARID, text: item.Name});
-                    });
-                    feeForm.get("ARID").options.items = arid_items;
+                    // get filtered account rules items
+                    feeForm.get("ARID").options.items = GetFeeAccountRulesW2UIListItems(BID, "rentables");
 
                     // set form record
                     SetFeeFormRecordFromFeeData(RID, 0, "rentables");
@@ -425,13 +399,10 @@ window.loadRARentablesGrid = function () {
 
                             // get all account rules then
                             var BID = getCurrentBID();
-                            getAllARsWithAmount(BID)
+                            GetAllARForFeeForm(BID)
                             .done(function(data) {
-                                var arid_items = [];
-                                app.raflow.arList[BID].forEach(function(item) {
-                                    arid_items.push({id: item.ARID, text: item.Name});
-                                });
-                                feeForm.get("ARID").options.items = arid_items;
+                                // get filtered account rules items
+                                feeForm.get("ARID").options.items = GetFeeAccountRulesW2UIListItems(BID, "rentables");
 
                                 // set record in form
                                 SetFeeFormRecordFromFeeData(RID, TMPASMID, "rentables");
@@ -624,11 +595,12 @@ window.loadRARentablesGrid = function () {
                     var RID = app.raflow.last.RID,
                         localRData = GetRentableLocalData(RID);
 
-                    var header = "Fee ({0}) for {1}";
+                    var header = "Fee (<strong>{0}</strong>) for <strong>{1}</strong>";
+                    var rentableName = localRData.RentableName;
                     if (feeForm.record.TMPASMID > 0) {
-                        feeForm.header = header.format(feeForm.record.ARName, localRData.RentableName);
+                        feeForm.header = header.format(feeForm.record.ARName, rentableName);
                     } else {
-                        feeForm.header = header.format("new", localRData.RentableName);
+                        feeForm.header = header.format("new", rentableName);
                     }
                 };
             }
@@ -1053,4 +1025,3 @@ window.SetRentableFeeLocalData = function(RID, TMPASMID, rentableFeeData) {
         }
     }
 };
-

@@ -31,7 +31,7 @@ window.loadRAPeopleForm = function () {
             name: 'RAPeopleForm',
             header: 'People',
             style: 'display: block; border: none;',
-            formURL: '/webclient/html/raflow/formrapeople.html',
+            formURL: '/webclient/html/raflow/formra-people.html',
             focus: -1,
             fields: [
                 {name: 'Transactant',   type: 'enum',       required: true,     html: {caption: "Transactant"},
@@ -807,4 +807,3 @@ window.managePeopleW2UIItems = function() {
         });
     }
 };
-

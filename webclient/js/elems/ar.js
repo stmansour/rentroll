@@ -11,26 +11,28 @@ window.getARRulesInitRecord = function (BID, BUD, post_accounts_pre_selected, pr
     var ny = new Date(9999, 11, 31, 0, 0, 0);
 
     var defaultFormData = {
-        recid: 0,
-        BID: BID,
-        BUD: BUD,
-        ARID: 0,
-        ARType: -1,
-        DebitLID: post_accounts_pre_selected,
-        CreditLID: post_accounts_pre_selected,
-        Name: '',
-        Description: '',
-        DtStart: w2uiDateControlString(y),
-        DtStop: w2uiDateControlString(ny),
-        PriorToRAStart: true,
-        PriorToRAStop: true,
-        ApplyRcvAccts: false,
-        RAIDrqd: false,
-        AutoPopulateToNewRA: false,
-        IsRentASM: false,
-        IsSecDepASM: false,
-        IsNonRecurCharge: false,
-        DefaultAmount: 0.0,
+        recid:                  0,
+        BID:                    BID,
+        BUD:                    BUD,
+        ARID:                   0,
+        ARType:                 -1,
+        DebitLID:               post_accounts_pre_selected,
+        CreditLID:              post_accounts_pre_selected,
+        Name:                   '',
+        Description:            '',
+        DtStart:                w2uiDateControlString(y),
+        DtStop:                 w2uiDateControlString(ny),
+        PriorToRAStart:         true,
+        PriorToRAStop:          true,
+        ApplyRcvAccts:          false,
+        RAIDrqd:                false,
+        AutoPopulateToNewRA:    false,
+        IsRentASM:              false,
+        IsSecDepASM:            false,
+        IsNonRecurCharge:       false,
+        PETIDReq:               false,
+        VIDReq:                 false,
+        DefaultAmount:          0.0,
     };
 
 
@@ -222,29 +224,31 @@ $().w2grid({
         formURL: '/webclient/html/formar.html',
         fields: [
             { field: 'recid',                type: 'int',      required: false, html: { page: 0, column: 0 } },
-            { field: 'ARID',                 type: 'int',      required: false, html: { page: 0, column: 0 } },
+            { field: 'ARID',                 type: 'int',      required: true,  html: { page: 0, column: 0 } },
             { field: 'BID',                  type: 'int',      required: true,  html: { page: 0, column: 0 } },
             { field: 'BUD',                  type: 'list',     required: true,  html: { page: 0, column: 0 }, options: { items: app.businesses } },
             { field: 'Name',                 type: 'text',     required: true,  html: { page: 0, column: 0 } },
             { field: 'ARType',               type: 'list',     required: true,  html: { page: 0, column: 0 }, options: { items: [], selected: {}, maxDropHeight: 200 } },
             { field: 'DebitLID',             type: 'list',     required: true,  html: { page: 0, column: 0 }, options: { items: [], selected: {}, maxDropHeight: 200 } },
             { field: 'CreditLID',            type: 'list',     required: true,  html: { page: 0, column: 0 }, options: { items: [], selected: {}, maxDropHeight: 200 } },
-            { field: 'Description',          type: 'text',     required: false, html: { page: 0, column: 0} },
+            { field: 'Description',          type: 'text',     required: false, html: { page: 0, column: 0 } },
             { field: 'DtStart',              type: 'date',     required: true,  html: { page: 0, column: 0 } },
             { field: 'DtStop',               type: 'date',     required: true,  html: { page: 0, column: 0 } },
-            { field: 'PriorToRAStart',       type: 'checkbox', required: false, html: { page: 0, column: 0 } },
-            { field: 'PriorToRAStop',        type: 'checkbox', required: false, html: { page: 0, column: 0 } },
-            { field: 'ApplyRcvAccts',        type: 'checkbox', required: false, html: { page: 0, column: 0 } },
-            { field: 'RAIDrqd',              type: 'checkbox', required: false, html: { page: 0, column: 0 } },
+            { field: 'PriorToRAStart',       type: 'checkbox', required: true,  html: { page: 0, column: 0 } },
+            { field: 'PriorToRAStop',        type: 'checkbox', required: true,  html: { page: 0, column: 0 } },
+            { field: 'ApplyRcvAccts',        type: 'checkbox', required: true,  html: { page: 0, column: 0 } },
+            { field: 'RAIDrqd',              type: 'checkbox', required: true,  html: { page: 0, column: 0 } },
             { field: 'DefaultAmount',        type: 'money',    required: true,  html: { page: 0, column: 0 } },
-            { field: 'AutoPopulateToNewRA',  type: 'checkbox', required: false, html: { page: 0, column: 0 } },
-            { field: 'IsRentASM',            type: 'checkbox', required: false, html: { page: 0, column: 0 } },
-            { field: 'IsSecDepASM',          type: 'checkbox', required: false, html: { page: 0, column: 0 } },
-            { field: 'IsNonRecurCharge',     type: 'checkbox', required: false, html: { page: 0, column: 0 } },
-            { field: "LastModTime",          type: 'time',     required: false, html: { caption: "LastModTime", page: 0, column: 0 } },
-            { field: "LastModBy",            type: 'int',      required: false, html: { caption: "LastModBy", page: 0, column: 0 } },
-            { field: "CreateTS",             type: 'time',     required: false, html: { caption: "CreateTS", page: 0, column: 0 } },
-            { field: "CreateBy",             type: 'int',      required: false, html: { caption: "CreateBy", page: 0, column: 0 } }
+            { field: 'AutoPopulateToNewRA',  type: 'checkbox', required: true,  html: { page: 0, column: 0 } },
+            { field: 'IsRentASM',            type: 'checkbox', required: true,  html: { page: 0, column: 0 } },
+            { field: 'IsSecDepASM',          type: 'checkbox', required: true,  html: { page: 0, column: 0 } },
+            { field: 'IsNonRecurCharge',     type: 'checkbox', required: true,  html: { page: 0, column: 0 } },
+            { field: 'PETIDReq',             type: 'checkbox', required: true,  html: { page: 0, column: 0 } },
+            { field: 'VIDReq',               type: 'checkbox', required: true,  html: { page: 0, column: 0 } },
+            { field: "LastModTime",          type: 'time',     required: false, html: { page: 0, column: 0, caption: "LastModTime" } },
+            { field: "LastModBy",            type: 'int',      required: false, html: { page: 0, column: 0, caption: "LastModBy" } },
+            { field: "CreateTS",             type: 'time',     required: false, html: { page: 0, column: 0, caption: "CreateTS" } },
+            { field: "CreateBy",             type: 'int',      required: false, html: { page: 0, column: 0, caption: "CreateBy" } }
         ],
         toolbar: {
             items: [
@@ -377,6 +381,7 @@ $().w2grid({
             delete data.postData.record.CreateTS;
             delete data.postData.record.CreateBy;
             getFormSubmitData(data.postData.record);
+
             // object to value before submit to server
             data.postData.record.PriorToRAStart = int_to_bool(data.postData.record.PriorToRAStart);
             data.postData.record.PriorToRAStop = int_to_bool(data.postData.record.PriorToRAStop);
@@ -386,6 +391,8 @@ $().w2grid({
             data.postData.record.IsRentASM = int_to_bool(data.postData.record.IsRentASM);
             data.postData.record.IsSecDepASM = int_to_bool(data.postData.record.IsSecDepASM);
             data.postData.record.IsNonRecurCharge = int_to_bool(data.postData.record.IsNonRecurCharge);
+            data.postData.record.PETIDReq = int_to_bool(data.postData.record.PETIDReq);
+            data.postData.record.VIDReq = int_to_bool(data.postData.record.VIDReq);
         },
         onRefresh: function(event) {
             event.onComplete = function() {
@@ -409,6 +416,18 @@ $().w2grid({
                     case "IsSecDepASM":
                         if (event.value_new) {
                             f.record.IsRentASM = false;
+                            f.refresh();
+                        }
+                        break;
+                    case "PETIDReq":
+                        if (event.value_new) { // then it should be rent assessment
+                            f.record.IsRentASM = true;
+                            f.refresh();
+                        }
+                        break;
+                    case "VIDReq":
+                        if (event.value_new) { // then it should be rent assessment
+                            f.record.IsRentASM = true;
                             f.refresh();
                         }
                         break;

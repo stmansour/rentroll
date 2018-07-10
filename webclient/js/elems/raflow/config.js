@@ -23,7 +23,7 @@ var RACompConfig = {
     "vehicles": {
         loader: "loadRAVehiclesGrid",
         w2uiComp: "RAVehiclesGrid",
-        sliderWidth: 500
+        sliderWidth: 850
     },
     "rentables": {
         loader: "loadRARentablesGrid",

@@ -38,6 +38,8 @@ type ARSendForm struct {
 	IsRentASM           bool    // if true, then it represents Rent Assessment
 	IsSecDepASM         bool    // if true, then it represents Security Deposit Assessment
 	IsNonRecurCharge    bool    // if true, then it represents Non recur charge
+	PETIDReq            bool    // if true, then it represents Pet charges
+	VIDReq              bool    // it true, then it represents Vehicle charges
 	DefaultAmount       float64 // default amount for this account rule
 	LastModTime         rlib.JSONDateTime
 	LastModBy           int64
@@ -73,6 +75,8 @@ type ARSaveForm struct {
 	IsRentASM           bool
 	IsSecDepASM         bool
 	IsNonRecurCharge    bool
+	PETIDReq            bool
+	VIDReq              bool
 }
 
 // PrARGrid is a structure specifically for the UI Grid.
@@ -400,6 +404,12 @@ func saveARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if foo.Record.IsNonRecurCharge { // IsNonRecurCharge - 1<<6
 		a.FLAGS |= 0x40
 	}
+	if foo.Record.PETIDReq { // PETID required - 1<<7
+		a.FLAGS |= 0x80
+	}
+	if foo.Record.VIDReq { // VID required - 1<<8
+		a.FLAGS |= 0x100
+	}
 	rlib.Console("=============>>>>>>>>>> a.FLAGS = %x\n", a.FLAGS)
 
 	// Ensure that the supplied data is valid
@@ -537,6 +547,12 @@ func getARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 		if gg.FLAGS&0x40 != 0 {
 			gg.IsNonRecurCharge = true
+		}
+		if gg.FLAGS&0x80 != 0 {
+			gg.PETIDReq = true
+		}
+		if gg.FLAGS&0x100 != 0 {
+			gg.VIDReq = true
 		}
 
 		g.Record = gg

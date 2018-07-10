@@ -17,7 +17,7 @@ window.loadRADatesForm = function () {
             header: 'Dates',
             style: 'border: 1px black solid; display: block;',
             focus: -1,
-            formURL: '/webclient/html/raflow/formradates.html',
+            formURL: '/webclient/html/raflow/formra-dates.html',
             fields: [
                 {name: 'recid',             type: 'int',    required: true, html: {page: 0, column: 0}},
                 {name: 'BID',               type: 'int',    required: true, html: {page: 0, column: 0}},
