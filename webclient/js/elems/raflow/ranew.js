@@ -280,6 +280,13 @@ window.buildRAApplicantElements = function() {
                             break;
                         }
                     },
+                    onRefresh: function(event) {
+                        console.log("Main Panel of newralayout Refreshed");
+                        if(app.raflow.activeFlowID) {
+                            var raflags = app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS;
+                            renderRAStateInToolbar(raflags);
+                        }
+                    }
                 }
             },
             { type: 'preview',      hidden: true },
