@@ -76,8 +76,8 @@ type RAPeopleFlowData struct {
 	State          string `validate:"string,min=1,max=25"`
 	PostalCode     string `validate:"number,min=1,max=100"`
 	Country        string `validate:"string,min=1,max=100"`
-	Website        string `validate:"string,omitempty,min=1,max=100"`
-	Comment        string `validate:"string,omitempty,min=1,max=2048"`
+	Website        string `validate:"string,min=1,max=100,omitempty"`
+	Comment        string `validate:"string,min=1,max=2048,omitempty"`
 
 	// ---------- Prospect -----------
 	CompanyAddress    string `validate:"string,min=1,max=100"`
@@ -121,11 +121,11 @@ type RAPeopleFlowData struct {
 	SSN                 string  `validate:"string,min=1,max=128"`
 	DriversLicense      string  `validate:"string,min=1,max=128"`
 	ThirdPartySource    int64   `validate:"number,min=1,omitempty"`
-	EligibleFuturePayor bool
+	EligibleFuturePayor bool    `validate:"-"`
 
 	// ---------- User -----------
-	Points      int64 `validate:"number,min=1,omitempty"`
-	DateofBirth rlib.JSONDate
+	Points      int64         `validate:"number,min=1,omitempty"`
+	DateofBirth rlib.JSONDate `validate:"date"`
 	// Emergency contact information
 	EmergencyContactName      string `validate:"string,min=1,max=100"`
 	EmergencyContactAddress   string `validate:"string,min=1,max=100"`
