@@ -484,8 +484,9 @@ func validateRAFlowBizLogic(ctx context.Context, a *RAFlowJSONData, raFlowFields
 	fmt.Printf("Entered %s\n", funcname)
 
 	var (
-		datesFieldsErrors DatesFieldsError
-		g                 ValidateRAFlowResponse
+		datesFieldsErrors  DatesFieldsError
+		peopleFieldsErrors []PeopleFieldsError
+		g                  ValidateRAFlowResponse
 	)
 
 	// -----------------------------------------------
@@ -496,6 +497,15 @@ func validateRAFlowBizLogic(ctx context.Context, a *RAFlowJSONData, raFlowFields
 	g.Total += datesFieldsErrors.Total
 	// Update date section error
 	raFlowFieldsErrors.Dates = datesFieldsErrors
+
+	// -----------------------------------------------
+	// ------ Bizlogic check on people section -------
+	// -----------------------------------------------
+	peopleFieldsErrors = validatePeopleBizLogic(a.People)
+	// Modify global error count
+	//g.Total += peopleFieldsErrors.Total
+	// Update people section error
+	raFlowFieldsErrors.People = peopleFieldsErrors
 
 	// Set the response
 	g.Errors = raFlowFieldsErrors
@@ -563,4 +573,60 @@ func validateDatesBizLogic(dates RADatesFlowData) DatesFieldsError {
 	}
 
 	return datesFieldsErrors
+}
+
+// validatePeopleBizLogic Perform business logic check on people section
+// ----------------------------------------------------------------------
+// 1. If isCompany flag is true then CompanyName is required
+// 2. If isCompany flag is false than FirstName and LastName are required
+// 3. If only one person exist in the list, then it should have isRenter role marked as true.
+// ----------------------------------------------------------------------
+func validatePeopleBizLogic(people []RAPeopleFlowData) []PeopleFieldsError {
+	var (
+		peopleFieldsError  PeopleFieldsError
+		peopleFieldsErrors []PeopleFieldsError
+		err                error
+	)
+
+	// ----------- Check rule no. 3 ----------------
+	// TODO(Akshay): Here is glitch. It will create two entry with same TMPTCID if it have error for rule no. 1/2 and 3.
+	if len(people) == 1 {
+		if !people[0].IsRenter {
+			err = fmt.Errorf("person should be renter")
+			peopleFieldsError.TMPTCID = people[0].TMPTCID
+			peopleFieldsError.Errors["IsRenter"] = append(peopleFieldsError.Errors["IsRenter"], err.Error())
+			peopleFieldsError.Total++
+			peopleFieldsErrors = append(peopleFieldsErrors, peopleFieldsError)
+		}
+	}
+
+	err = fmt.Errorf("should not be blank")
+	for _, p := range people {
+
+		peopleFieldsError.TMPTCID = p.TMPTCID
+
+		// ----------- Check rule no. 1 and 2 ----------------
+		if p.IsCompany {
+			if len(p.CompanyName) == 0 {
+				peopleFieldsError.Errors["CompanyName"] = append(peopleFieldsError.Errors["CompanyName"], err.Error())
+				peopleFieldsError.Total++
+			}
+		} else {
+
+			if len(p.FirstName) == 0 {
+				peopleFieldsError.Errors["FirstName"] = append(peopleFieldsError.Errors["FirstName"], err.Error())
+				peopleFieldsError.Total++
+			}
+
+			if len(p.LastName) == 0 {
+				peopleFieldsError.Errors["LastName"] = append(peopleFieldsError.Errors["LastName"], err.Error())
+				peopleFieldsError.Total++
+			}
+
+		}
+
+		peopleFieldsErrors = append(peopleFieldsErrors, peopleFieldsError)
+	}
+
+	return peopleFieldsErrors
 }
