@@ -56,6 +56,9 @@ describe('AIR Roller UI Tests - Task Lists', function () {
             common.changeDate(testConfig.sidebarID, testConfig.fromDate, testConfig.toDate);
         }
 
+        // waiting for response of second call on api at date change
+        cy.wait(constants.WAIT_TIME);
+
         // Check http status
         cy.wait('@getRecords').its('status').should('eq', constants.HTTP_OK_STATUS);
 

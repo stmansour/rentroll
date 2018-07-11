@@ -10,13 +10,14 @@
     AssignPetFeesGridRecords,
     SetRAPetFormRecordFromLocalData,
     SetlocalDataFromRAPetFormRecord,
-    getAllARsWithAmount, SetDataFromFormRecord, SetFormRecordFromData,
+    GetAllARForFeeForm, SetDataFromFormRecord, SetFormRecordFromData,
     GetFeeGridColumns, GetFeeFormFields, GetFeeFormToolbar,
-    SetFeeDataFromFeeFormRecord, SavePetsCompData,
-    AssignPetFeesGridRecords, GetFeeFormInitRecord, GetPetLocalData,
+    SetFeeDataFromFeeFormRecord,
+    GetFeeFormInitRecord,
     FeeFormOnChangeHandler, FeeFormOnRefreshHandler,
     SliderContentDivLength, SetFeeFormRecordFromFeeData,
-    RenderPetFeesGridSummary, RAFlowNewPetAJAX
+    RenderPetFeesGridSummary, RAFlowNewPetAJAX,
+    GetFeeAccountRulesW2UIListItems
 */
 
 "use strict";
@@ -94,23 +95,19 @@ window.GetPetFormInitRecord = function (previousFormRecord){
 // -------------------------------------------------------------
 window.SetlocalDataFromRAPetFormRecord = function(TMPPETID) {
     var form        = w2ui.RAPetForm,
-        fields      = form.fields || [],
         petFormData = getFormSubmitData(form.record, true);
 
-    // local pet data
-    var localPetData;
-
     // get data from form field's TMPPETID
-    localPetData = GetPetLocalData(petFormData.TMPPETID);
+    var localPetData = GetPetLocalData(TMPPETID);
 
     // set data from form
-    localPetData = SetDataFromFormRecord(TMPPETID, true, form, localPetData);
+    var petData = SetDataFromFormRecord(TMPPETID, true, form, localPetData);
 
     // if not Fees then assign in pet data
-    if (!localPetData.hasOwnProperty("Fees")) {
-        localPetData.Fees = [];
+    if (!petData.hasOwnProperty("Fees")) {
+        petData.Fees = [];
     }
-    localPetData.Fees = w2ui.RAPetFeesGrid.records;
+    petData.Fees = w2ui.RAPetFeesGrid.records;
 
     // set this modified data back
     SetPetLocalData(TMPPETID, localPetData);
@@ -123,16 +120,13 @@ window.SetlocalDataFromRAPetFormRecord = function(TMPPETID) {
 // from local pet data
 // -------------------------------------------------------------
 window.SetRAPetFormRecordFromLocalData = function(TMPPETID) {
-    var form        = w2ui.RAPetForm,
-        fields      = form.fields || [];
-
-    var petData = {};
+    var form = w2ui.RAPetForm;
 
     // get data from form field's TMPPETID
-    petData = GetPetLocalData(TMPPETID);
+    var localPetData = GetPetLocalData(TMPPETID);
 
     // set form record from data
-    SetFormRecordFromData(true, form, petData);
+    SetFormRecordFromData(true, form, localPetData);
 
     // refresh the form after setting the record
     form.refresh();
@@ -144,27 +138,8 @@ window.loadRAPetsGrid = function () {
     // if form is loaded then return
     if (!("RAPetsGrid" in w2ui)) {
 
-        //------------------------------------------------------------------------
-        //  petLayout - The layout to contain the petForm and petFees grid
-        //              top  -      petForm
-        //              main -      petFeesGrid
-        //              bottom -    action buttons form
-        //------------------------------------------------------------------------
-        $().w2layout({
-            name: 'RAPetLayout',
-            padding: 0,
-            panels: [
-                { type: 'left',    size: 0,     hidden: true },
-                { type: 'top',     size: '50%', hidden: false, content: 'top',  resizable: true, style: app.pstyle },
-                { type: 'main',    size: '50%', hidden: false, content: 'main', resizable: true, style: app.pstyle },
-                { type: 'preview', size: 0,     hidden: true,  content: 'PREVIEW'  },
-                { type: 'bottom',  size: 50,    hidden: false, content: 'bottom', resizable: false, style: app.pstyle },
-                { type: 'right',   size: 0,     hidden: true }
-            ]
-        });
-
         // -----------------------------------------------------------
-        //      ***** PET GTMPPETID *****
+        //      ***** PET GRID *****
         // -----------------------------------------------------------
         $().w2grid({
             name: 'RAPetsGrid',
@@ -273,14 +248,11 @@ window.loadRAPetsGrid = function () {
                             // keep highlighting current row in any case
                             grid.select(app.last.grid_sel_recid);
 
-                            // get auto populated to new RA account rules
-                            var rec = grid.get(recid);
-
                             // get TMPPETID from grid
-                            var TMPPETID = rec.TMPPETID;
+                            var TMPPETID = grid.get(recid).TMPPETID;
 
                             // keep this clicked TMPPETID in last object
-                            app.raflow.last.TMPPETID = rec.TMPPETID;
+                            app.raflow.last.TMPPETID = TMPPETID;
 
                             // render layout in the slider
                             ShowSliderContentW2UIComp(w2ui.RAPetLayout, RACompConfig.pets.sliderWidth);
@@ -308,7 +280,7 @@ window.loadRAPetsGrid = function () {
                         // get new entry for pet
                         RAFlowNewPetAJAX()
                         .done(function(data) {
-                            // keep this clicked TMPPETID in last object
+                            // get last clicked TMPPETID
                             var TMPPETID = app.raflow.last.TMPPETID;
 
                             // render the layout in slider
@@ -325,6 +297,25 @@ window.loadRAPetsGrid = function () {
                 // warn user if form content has been changed
                 form_dirty_alert(yes_callBack, no_callBack, yes_args);
             }
+        });
+
+        //------------------------------------------------------------------------
+        //  petLayout - The layout to contain the petForm and petFees grid
+        //              top  -      petForm
+        //              main -      petFeesGrid
+        //              bottom -    action buttons form
+        //------------------------------------------------------------------------
+        $().w2layout({
+            name: 'RAPetLayout',
+            padding: 0,
+            panels: [
+                { type: 'left',    size: 0,     hidden: true },
+                { type: 'top',     size: '50%', hidden: false, content: 'top',  resizable: true, style: app.pstyle },
+                { type: 'main',    size: '50%', hidden: false, content: 'main', resizable: true, style: app.pstyle },
+                { type: 'preview', size: 0,     hidden: true,  content: 'PREVIEW'  },
+                { type: 'bottom',  size: 50,    hidden: false, content: 'bottom', resizable: false, style: app.pstyle },
+                { type: 'right',   size: 0,     hidden: true }
+            ]
         });
 
         // -----------------------------------------------------------
@@ -361,8 +352,6 @@ window.loadRAPetsGrid = function () {
                 { field: 'Weight',                  type: 'int',    required: true  },
                 { field: 'DtStart',                 type: 'date',   required: true,     html: { caption: 'DtStart', page: 0, column: 0 } },
                 { field: 'DtStop',                  type: 'date',   required: true,     html: { caption: 'DtStop', page: 0, column: 0 } },
-                { field: 'LastModTime',             type: 'time',   required: false,    html: { caption: 'LastModTime', page: 0, column: 0 } },
-                { field: 'LastModBy',               type: 'int',    required: false,    html: { caption: 'LastModBy', page: 0, column: 0 } },
             ],
             actions: {
                 reset: function() {
@@ -420,8 +409,8 @@ window.loadRAPetsGrid = function () {
             fields: [],
             actions: {
                 save: function() {
-                    var f = w2ui.RAPetForm,
-                        TMPPETID = f.record.TMPPETID;
+                    var f           = w2ui.RAPetForm,
+                        TMPPETID    = f.record.TMPPETID;
 
                     // clean dirty flag of form
                     app.form_is_dirty = false;
@@ -454,9 +443,9 @@ window.loadRAPetsGrid = function () {
                     });
                 },
                 saveadd: function() {
-                    var f = w2ui.RAPetForm,
-                        grid = w2ui.RAPetsGrid,
-                        TMPPETID = f.record.TMPPETID;
+                    var f           = w2ui.RAPetForm,
+                        grid        = w2ui.RAPetsGrid,
+                        TMPPETID    = f.record.TMPPETID;
 
                     // clean dirty flag of form
                     app.form_is_dirty = false;
@@ -473,6 +462,7 @@ window.loadRAPetsGrid = function () {
                     .done(function(data) {
                         if (data.status === 'success') {
                             // add new formatted record to current form
+                            f.actions.reset();
                             f.record = GetPetFormInitRecord(f.record);
                             f.refresh();
                             f.refresh();
@@ -525,7 +515,7 @@ window.loadRAPetsGrid = function () {
         });
 
         // -----------------------------------------------------------
-        //      ***** PET ***** FEES ***** GTMPPETID *****
+        //      ***** PET ***** FEES ***** GRID *****
         // -----------------------------------------------------------
         $().w2grid({
             name: 'RAPetFeesGrid',
@@ -575,13 +565,10 @@ window.loadRAPetsGrid = function () {
 
                             // get all account rules then
                             var BID = getCurrentBID();
-                            getAllARsWithAmount(BID)
+                            GetAllARForFeeForm(BID)
                             .done(function(data) {
-                                var arid_items = [];
-                                app.raflow.arList[BID].forEach(function(item) {
-                                    arid_items.push({id: item.ARID, text: item.Name});
-                                });
-                                feeForm.get("ARID").options.items = arid_items;
+                                // get filtered account rules items
+                                feeForm.get("ARID").options.items = GetFeeAccountRulesW2UIListItems(BID, "pets");
 
                                 // set record in form
                                 SetFeeFormRecordFromFeeData(TMPPETID, TMPASMID, "pets");
@@ -622,13 +609,10 @@ window.loadRAPetsGrid = function () {
 
                 // get all account rules in fit those in form "ARID" field
                 var BID = getCurrentBID();
-                getAllARsWithAmount(BID)
+                GetAllARForFeeForm(BID)
                 .done(function(data) {
-                    var arid_items = [];
-                    app.raflow.arList[BID].forEach(function(item) {
-                        arid_items.push({id: item.ARID, text: item.Name});
-                    });
-                    feeForm.get("ARID").options.items = arid_items;
+                    // get filtered account rules items
+                    feeForm.get("ARID").options.items = GetFeeAccountRulesW2UIListItems(BID, "pets");
 
                     // set form record
                     SetFeeFormRecordFromFeeData(TMPPETID, 0, "pets");
@@ -839,7 +823,7 @@ window.SetRAPetLayoutContent = function(TMPPETID) {
 
         // assign pet fees grid
         var BID = getCurrentBID();
-        getAllARsWithAmount(BID)
+        GetAllARForFeeForm(BID)
         .done(function() {
             AssignPetFeesGridRecords(TMPPETID);
         });
@@ -1046,10 +1030,8 @@ window.AssignPetFeesGridRecords = function(TMPPETID) {
     grid.clear();
 
     // list of fees
-    var petFeesData = [];
-    var petData = GetPetLocalData(TMPPETID);
-    petFeesData = petData.Fees;
-
+    var petData = GetPetLocalData(TMPPETID),
+        petFeesData = petData.Fees;
 
     // pet fees data
     petFeesData.forEach(function(fee) {
@@ -1070,4 +1052,3 @@ window.AssignPetFeesGridRecords = function(TMPPETID) {
     // render pet fees grid summary
     RenderPetFeesGridSummary(TMPPETID);
 };
-
