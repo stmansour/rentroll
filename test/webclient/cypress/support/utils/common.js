@@ -423,7 +423,7 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                         case "IsRentASM":
                         case "IsSecDepASM":
                         case "IsNonRecurCharge":
-                        case "PRIDReq":
+                        case "PETIDReq":
                         case "VIDReq":
                         case "PriorToRAStop":
                         case "PriorToRAStart":
@@ -571,7 +571,7 @@ export function addNewFormTest(testConfig) {
                     case "IsRentASM":
                     case "IsSecDepASM":
                     case "IsNonRecurCharge":
-                    case "PRIDReq":
+                    case "PETIDReq":
                     case "VIDReq":
                     case "PriorToRAStop":
                     case "PriorToRAStart":
