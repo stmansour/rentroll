@@ -486,6 +486,7 @@ func validateRAFlowBizLogic(ctx context.Context, a *RAFlowJSONData, raFlowFields
 	var (
 		datesFieldsErrors  DatesFieldsError
 		peopleFieldsErrors []PeopleFieldsError
+		petFieldsErrors    []PetFieldsError
 		g                  ValidateRAFlowResponse
 	)
 
@@ -506,6 +507,11 @@ func validateRAFlowBizLogic(ctx context.Context, a *RAFlowJSONData, raFlowFields
 	//g.Total += peopleFieldsErrors.Total
 	// Update people section error
 	raFlowFieldsErrors.People = peopleFieldsErrors
+
+	// -----------------------------------------------
+	// ------- Bizlogic check on pet section ---------
+	// -----------------------------------------------
+	petFieldsErrors = validatePetBizLogic(a)
 
 	// Set the response
 	g.Errors = raFlowFieldsErrors
@@ -629,4 +635,16 @@ func validatePeopleBizLogic(people []RAPeopleFlowData) []PeopleFieldsError {
 	}
 
 	return peopleFieldsErrors
+}
+
+// validatePetBizLogic Perform business logic check on pet section
+// ----------------------------------------------------------------------
+// 1. Every pet must be associated with a transactant
+// ----------------------------------------------------------------------
+func validatePetBizLogic(a RAFlowJSONData) []PetFieldsError {
+	var (
+		petFieldsError  PetFieldsError
+		petFieldsErrors []PetFieldsError
+	)
+	return petFieldsErrors
 }
