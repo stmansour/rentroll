@@ -237,7 +237,7 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                     case "DtDone":
                         valueForCell = win.dtFormatISOToW2ui(record[w2uiGridColumn.field]);
                         break;
-                    
+
                 }
 
                 // Check visibility and default value of cell in the grid
@@ -313,10 +313,10 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                 // Convert fieldValue to w2ui money type
                 if (field.type === "money") {
                     fieldValue = win.w2utils.formatters.money(recordDetailFromAPIResponse[fieldID]);
-                
+
                 } else if(field.type === "datetime") {
-                    fieldValue = win.dtFormatISOToW2ui(recordDetailFromAPIResponse[fieldID]);    
-                } 
+                    fieldValue = win.dtFormatISOToW2ui(recordDetailFromAPIResponse[fieldID]);
+                }
 
                 let types;
                 let type;
@@ -423,6 +423,8 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                         case "IsRentASM":
                         case "IsSecDepASM":
                         case "IsNonRecurCharge":
+                        case "PETIDReq":
+                        case "VIDReq":
                         case "PriorToRAStop":
                         case "PriorToRAStart":
                         // Assessment Charges form checkbox
@@ -569,6 +571,8 @@ export function addNewFormTest(testConfig) {
                     case "IsRentASM":
                     case "IsSecDepASM":
                     case "IsNonRecurCharge":
+                    case "PETIDReq":
+                    case "VIDReq":
                     case "PriorToRAStop":
                     case "PriorToRAStart":
                     // Assessment Charges form checkbox
@@ -769,7 +773,7 @@ export function testDetailFormWithGrid(recordsAPIResponse, testConfig, testConfi
                     cy.get('#RentalAgreementDates').should('be.visible').should('contain', recordDetailFromAPIResponse.AgreementStart).should('contain', recordDetailFromAPIResponse.AgreementStop);
                     cy.get('#PossessionDates').should('be.visible').should('contain', recordDetailFromAPIResponse.PossessionStart).should('contain', recordDetailFromAPIResponse.PossessionStop);
                     cy.get('#RentDates').should('be.visible').should('contain', recordDetailFromAPIResponse.RentStart).should('contain', recordDetailFromAPIResponse.RentStop);
-                
+
                 }else if(testConfig.grid === "payorstmtGrid"){
                     cy.get('#bannerTCID').should('be.visible').should('contain', recordDetailFromAPIResponse.FirstName).should('contain', recordDetailFromAPIResponse.MiddleName).should('contain', recordDetailFromAPIResponse.LastName);
                     // cy.get('#payorstmtaddr').should('be.visible').should('contain', recordDetailFromAPIResponse.Address); TODO(Akshay): Uncomment afterwards
@@ -792,7 +796,7 @@ export function testDetailFormWithGrid(recordsAPIResponse, testConfig, testConfi
             if (testConfig2.grid === "tldsDetailGrid" || testConfig2.grid === "tlsDetailGrid"){
 
                 cy.log("Checking Form Inside the Detail Form");
-            
+
                 testRecordDetailForm(recordDetailFromAPIResponse, testConfig2);
                 closeInsideFormTests(selectors.getFormSelector(testConfig2.form));
             }
@@ -977,9 +981,9 @@ export function testSaveNewRecord(testConfig) {
     testConfig.skipFields.push('BUD');
 
     if(testConfig.form == "rtForm") {
-        testConfig.skipFields.push('ManageToBudget');        
+        testConfig.skipFields.push('ManageToBudget');
     }
-    
+
     cy.fixture(testConfig.fixtureFile).then((json) => {
 
         cy.get(formSelector)

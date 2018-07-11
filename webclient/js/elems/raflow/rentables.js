@@ -3,7 +3,8 @@
     HideSliderContent, appendNewSlider, ShowSliderContentW2UIComp,
     saveActiveCompData, getRAFlowCompData,
     GetFeeFormInitRecord, getInitialRentableFeesData,
-    GetRentableLocalData, SetRentableLocalData, GetAllARForFeeForm, GetRentableIndexInGridRecords,
+    GetRentableLocalData, SetRentableLocalData, GetAllARForFeeForm,
+    GetRentableIndexInGridRecords,
     SaveRentableCompData, SetRentableFeeLocalData, GetRentableFeeLocalData,
     ridRentablePickerRender, ridRentableDropRender, ridRentableCompare,
     AssignRentableGridRecords, AssignRentableFeesGridRecords,
@@ -11,7 +12,7 @@
     RenderRentablesGridSummary, GetFeeFormFields, GetFeeGridColumns,
     SetFeeDataFromFeeFormRecord, SetFeeFormRecordFromFeeData,
     FeeFormOnChangeHandler, GetFeeFormToolbar, FeeFormOnRefreshHandler,
-    GetFeeAccountRulesW2UIListItems
+    GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary
 */
 
 "use strict";
@@ -307,7 +308,7 @@ window.loadRARentablesGrid = function () {
             header: 'Rentables Fees',
             show: {
                 toolbar:        true,
-                header:         false,
+                header:         true,
                 toolbarSearch:  false,
                 toolbarAdd:     true,
                 toolbarReload:  false,
@@ -592,12 +593,12 @@ window.loadRARentablesGrid = function () {
                     formRefreshCallBack(feeForm);
 
                     // set header
-                    var RID = app.raflow.last.RID,
-                        localRData = GetRentableLocalData(RID);
+                    var RID             = app.raflow.last.RID,
+                        localRData      = GetRentableLocalData(RID),
+                        rentableName    = localRData.RentableName;
 
                     var header = "Fee (<strong>{0}</strong>) for <strong>{1}</strong>";
-                    var rentableName = localRData.RentableName;
-                    if (feeForm.record.TMPASMID > 0) {
+                    if (feeForm.record.ARName && feeForm.record.ARName.length > 0) {
                         feeForm.header = header.format(feeForm.record.ARName, rentableName);
                     } else {
                         feeForm.header = header.format("new", rentableName);
@@ -741,41 +742,16 @@ window.AssignRentableFeesGridRecords = function(RID) {
     var grid = w2ui.RARentableFeesGrid;
 
     // get the local data again after new data has been set
-    var localRData = GetRentableLocalData(RID);
+    var localRData = GetRentableLocalData(RID),
+        Fees = localRData.Fees || [];
 
-    // set the records list
-    grid.records = localRData.Fees || [];
+    grid.records = Fees;
 
     // set the header as well
-    grid.header = "Fees for " + localRData.RentableName;
+    grid.header = "Fees for (<strong>{0}</strong>)".format(localRData.RentableName);
 
-    // summary record in fees grid
-    var summaryRec = {
-        recid:              0,
-        ARName:             "Grand Total",
-        // ContractAmount:     0.0,
-        AtSigningPreTax:    0.0,
-        SalesTax:           0.0,
-        // SalesTaxAmt:        0.0,
-        TransOccTax:        0.0,
-        // TransOccAmt:        0.0,
-    };
-
-    // calculate amount for summary row
-    grid.records.forEach(function(item) {
-        // summaryRec.ContractAmount += item.ContractAmount;
-        summaryRec.AtSigningPreTax += item.AtSigningPreTax;
-        summaryRec.SalesTax += item.SalesTax;
-        // summaryRec.SalesTaxAmt += item.SalesTaxAmt;
-        summaryRec.TransOccTax += item.TransOccTax;
-        // summaryRec.TransOccAmt += item.TransOccAmt;
-    });
-
-    // set style of entire summary row
-    summaryRec.w2ui = {style: "font-weight: bold"};
-
-    // set the summary rec in summary array of grid
-    grid.summary = [summaryRec];
+    // render fees amount summary
+    RenderFeesGridSummary(grid, Fees);
 
     // reassign records id in feees grid and refresh it
     reassignGridRecids(grid.name);
@@ -792,6 +768,9 @@ window.AssignRentableFeesGridRecords = function(RID) {
 
     if (foundRIDIndex > -1) {
         var rentableGridRec = w2ui.RARentablesGrid.get(foundRIDIndex);
+        var summaryRec = grid.summary[0]; //only one summary we have
+
+        // summing up total
         rentableGridRec.AtSigningPreTax = summaryRec.AtSigningPreTax;
         rentableGridRec.SalesTax = summaryRec.SalesTax;
         // rentableGridRec.SalesTaxAmt = summaryRec.SalesTaxAmt;

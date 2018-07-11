@@ -366,6 +366,30 @@ section[name="RATransactantForm"] .w2ui-form-box .w2ui-field > div, div[name="tr
 /* ----------- */
 /* FINAL SLIDE */
 /* ----------- */
+.ra-form-component#final {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+}
+
+.ra-form-component#final .container {
+    overflow: auto;
+    box-sizing: border-box;
+    padding: 0px 10px;
+    width: 100%;
+    height: 100%;
+}
+
+.ra-form-component#final .container .grid-container {
+    /* min-height: 50%; */
+    height: 60%;
+    margin-top: 20px;
+    box-sizing: border-box;
+}
+
+.ra-form-component#final .container .grid-container:last-child {
+    margin-bottom: 20px;
+}
 
 /* ----------- */
 /* FOOTER PART */

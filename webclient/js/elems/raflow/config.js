@@ -41,7 +41,7 @@ var RACompConfig = {
         sliderWidth: 0
     },
     "final": {
-        loader: "",
+        loader: "loadFinalSection",
         w2uiComp: "",
         sliderWidth: 0
     }
