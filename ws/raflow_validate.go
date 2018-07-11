@@ -484,11 +484,12 @@ func validateRAFlowBizLogic(ctx context.Context, a *RAFlowJSONData, raFlowFields
 	fmt.Printf("Entered %s\n", funcname)
 
 	var (
-		datesFieldsErrors   DatesFieldsError
-		peopleFieldsErrors  []PeopleFieldsError
-		petFieldsErrors     []PetFieldsError
-		vehicleFieldsErrors []VehicleFieldsError
-		g                   ValidateRAFlowResponse
+		datesFieldsErrors     DatesFieldsError
+		peopleFieldsErrors    []PeopleFieldsError
+		petFieldsErrors       []PetFieldsError
+		vehicleFieldsErrors   []VehicleFieldsError
+		rentablesFieldsErrors []RentablesFieldsError
+		g                     ValidateRAFlowResponse
 	)
 
 	// -----------------------------------------------
@@ -520,6 +521,12 @@ func validateRAFlowBizLogic(ctx context.Context, a *RAFlowJSONData, raFlowFields
 	// -----------------------------------------------
 	vehicleFieldsErrors = validateVehicleBizLogic(a)
 	raFlowFieldsErrors.Vehicle = vehicleFieldsErrors
+
+	// -----------------------------------------------
+	// ---- Bizlogic check on rentables section ------
+	// -----------------------------------------------
+	rentablesFieldsErrors = validateRentableBizLogic(a.Rentables)
+	raFlowFieldsErrors.Rentables = rentablesFieldsErrors
 
 	// Set the response
 	g.Errors = raFlowFieldsErrors
@@ -650,6 +657,7 @@ func validatePeopleBizLogic(people []RAPeopleFlowData) []PeopleFieldsError {
 // 1. Every pet must be associated with a transactant
 // 2. Pets are optional. Means if HavePets is set to false in meta
 // information than it should not have any pets.
+// 3. DtStart must be prior to DtStop
 // ----------------------------------------------------------------------
 func validatePetBizLogic(a *RAFlowJSONData) []PetFieldsError {
 	var (
@@ -680,9 +688,29 @@ func validatePetBizLogic(a *RAFlowJSONData) []PetFieldsError {
 
 			// list error
 			petFieldsError.Errors["TMPPETID"] = append(petFieldsError.Errors["TMPPETID"], err.Error())
-
-			petFieldsErrors = append(petFieldsErrors, petFieldsError)
 		}
+
+		// -----------------------------------------------
+		// --------- Check for rule no 3 ---------------
+		// -----------------------------------------------
+		startDate := time.Time(pet.DtStart)
+		stopDate := time.Time(pet.DtStop)
+		// Start date must be prior to End/Stop date
+		if !startDate.Before(stopDate) {
+
+			// define and assign error
+			err = fmt.Errorf("start date must be prior to stop date")
+			petFieldsError.Errors["DtStart"] = append(petFieldsError.Errors["DtStart"], err.Error())
+
+			// Modify vehicle section error count
+			petFieldsError.Total++
+		}
+
+		// ---------------------------------------------------
+		// --------- Biz logic check for fees section --------
+		// ---------------------------------------------------
+		petFieldsError.FeesErrors = validateFeesBizLogic(pet.Fees)
+		petFieldsErrors = append(petFieldsErrors, petFieldsError)
 	}
 
 	return petFieldsErrors
@@ -693,6 +721,7 @@ func validatePetBizLogic(a *RAFlowJSONData) []PetFieldsError {
 // 1. Every vehicle must be associated with a transactant
 // 2. Vehicle are optional. Means if HaveVehicles is set to false in meta
 // information than it should not have any vehicles.
+// 3. DtStart must be prior to DtStop
 // ----------------------------------------------------------------------
 func validateVehicleBizLogic(a *RAFlowJSONData) []VehicleFieldsError {
 	var (
@@ -701,8 +730,11 @@ func validateVehicleBizLogic(a *RAFlowJSONData) []VehicleFieldsError {
 		err                 error
 	)
 
-	// ------------- Check for rule no 1 ---------------
 	for _, vehicle := range a.Vehicles {
+		// Get vehicle tmp id
+		vehicleFieldsError.TMPVID = vehicle.TMPVID
+
+		// ------------- Check for rule no 1 ---------------
 		if !isAssociatedWithPerson(vehicle.TMPTCID, a.People) {
 			//Error
 			err = fmt.Errorf("vehicle must be associated with a person")
@@ -710,17 +742,117 @@ func validateVehicleBizLogic(a *RAFlowJSONData) []VehicleFieldsError {
 			// Modify error count
 			vehicleFieldsError.Total++
 
-			// Get pet tmp id
-			vehicleFieldsError.TMPVID = vehicle.TMPVID
-
 			// list error
 			vehicleFieldsError.Errors["TMPVID"] = append(vehicleFieldsError.Errors["TMPVID"], err.Error())
-
-			vehicleFieldsErrors = append(vehicleFieldsErrors, vehicleFieldsError)
 		}
+
+		// -----------------------------------------------
+		// --------- Check for rule no 3 ---------------
+		// -----------------------------------------------
+		startDate := time.Time(vehicle.DtStart)
+		stopDate := time.Time(vehicle.DtStop)
+		// Start date must be prior to End/Stop date
+		if !startDate.Before(stopDate) {
+
+			// define and assign error
+			err = fmt.Errorf("start date must be prior to stop date")
+			vehicleFieldsError.Errors["DtStart"] = append(vehicleFieldsError.Errors["DtStart"], err.Error())
+
+			// Modify vehicle section error count
+			vehicleFieldsError.Total++
+		}
+
+		// ---------------------------------------------------
+		// --------- Biz logic check for fees section --------
+		// ---------------------------------------------------
+		vehicleFieldsError.FeesErrors = validateFeesBizLogic(vehicle.Fees)
+
+		vehicleFieldsErrors = append(vehicleFieldsErrors, vehicleFieldsError)
 	}
 
 	return vehicleFieldsErrors
+}
+
+// validateRentableBizLogic Perform business logic check on rentable section
+// ----------------------------------------------------------------------
+// 1. There must be one parent rentables available. (Parent rentables decide based on RTFlags)
+// 2. For every rentables, there must be one entry for the Fees.
+// ----------------------------------------------------------------------
+func validateRentableBizLogic(rentables []RARentablesFlowData) []RentablesFieldsError {
+
+	var (
+		rentablesFieldsError  RentablesFieldsError
+		rentablesFieldsErrors []RentablesFieldsError
+		err                   error
+	)
+
+	parentRentableCount := 0
+
+	for _, rentable := range rentables {
+
+		// There must be one entry for the Fees
+		// ----------- Check for rule no 2 ------------
+		if len(rentable.Fees) < 1 {
+			err = fmt.Errorf("should be one entry for the fees")
+			rentablesFieldsError.Total++
+			rentablesFieldsError.Errors["Fees"] = append(rentablesFieldsError.Errors["Fees"], err.Error())
+		}
+
+		// Check if rentable is parent. If yes than increment parentRentableCount
+		if rentable.RTFLAGS&(1<<1) == 0 {
+			parentRentableCount++
+		}
+
+		// ---------------------------------------------------
+		// --------- Biz logic check for fees section --------
+		// ---------------------------------------------------
+		rentablesFieldsError.FeesErrors = validateFeesBizLogic(rentable.Fees)
+
+		// Modify rentable error list
+		rentablesFieldsErrors = append(rentablesFieldsErrors, rentablesFieldsError)
+	}
+
+	// There must be one parent rentable
+	// TODO(Akshay): Add this error to rentables
+	//if parentRentableCount < 1 {
+	//	err = fmt.Errorf("should be at least one parent rentable")
+	//}
+
+	return rentablesFieldsErrors
+}
+
+// validateFeesBizLogic perform business logic check on fees section
+// ----------------------------------------------------------------------
+// 1. Start date must be prior to Stop date
+// ----------------------------------------------------------------------
+func validateFeesBizLogic(fees []RAFeesData) []RAFeesError {
+	var (
+		raFeesError  RAFeesError
+		raFeesErrors []RAFeesError
+		err          error
+	)
+
+	for _, fee := range fees {
+		// -----------------------------------------------
+		// --------- Check for rule no 1 ---------------
+		// -----------------------------------------------
+		startDate := time.Time(fee.Start)
+		stopDate := time.Time(fee.Stop)
+		// Start date must be prior to End/Stop date
+		if !startDate.Before(stopDate) {
+			// define and assign error
+			err = fmt.Errorf("start date must be prior to stop date")
+			raFeesError.TMPASMID = fee.TMPASMID
+			raFeesError.Errors["Start"] = append(raFeesError.Errors["Stop"], err.Error())
+
+			// Modify vehicle section error count
+			raFeesError.Total++
+		}
+
+		raFeesErrors = append(raFeesErrors, raFeesError)
+	}
+
+	return raFeesErrors
 }
 
 // isAssociatedWithPerson Check Pets/Vehicles is associated with Person or not
