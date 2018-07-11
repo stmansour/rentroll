@@ -484,10 +484,11 @@ func validateRAFlowBizLogic(ctx context.Context, a *RAFlowJSONData, raFlowFields
 	fmt.Printf("Entered %s\n", funcname)
 
 	var (
-		datesFieldsErrors  DatesFieldsError
-		peopleFieldsErrors []PeopleFieldsError
-		petFieldsErrors    []PetFieldsError
-		g                  ValidateRAFlowResponse
+		datesFieldsErrors   DatesFieldsError
+		peopleFieldsErrors  []PeopleFieldsError
+		petFieldsErrors     []PetFieldsError
+		vehicleFieldsErrors []VehicleFieldsError
+		g                   ValidateRAFlowResponse
 	)
 
 	// -----------------------------------------------
@@ -512,6 +513,13 @@ func validateRAFlowBizLogic(ctx context.Context, a *RAFlowJSONData, raFlowFields
 	// ------- Bizlogic check on pet section ---------
 	// -----------------------------------------------
 	petFieldsErrors = validatePetBizLogic(a)
+	raFlowFieldsErrors.Pets = petFieldsErrors
+
+	// -----------------------------------------------
+	// ------ Bizlogic check on vehicle section ------
+	// -----------------------------------------------
+	vehicleFieldsErrors = validateVehicleBizLogic(a)
+	raFlowFieldsErrors.Vehicle = vehicleFieldsErrors
 
 	// Set the response
 	g.Errors = raFlowFieldsErrors
@@ -640,11 +648,89 @@ func validatePeopleBizLogic(people []RAPeopleFlowData) []PeopleFieldsError {
 // validatePetBizLogic Perform business logic check on pet section
 // ----------------------------------------------------------------------
 // 1. Every pet must be associated with a transactant
+// 2. Pets are optional. Means if HavePets is set to false in meta
+// information than it should not have any pets.
 // ----------------------------------------------------------------------
-func validatePetBizLogic(a RAFlowJSONData) []PetFieldsError {
+func validatePetBizLogic(a *RAFlowJSONData) []PetFieldsError {
 	var (
 		petFieldsError  PetFieldsError
 		petFieldsErrors []PetFieldsError
+		err             error
 	)
+
+	// If meta doesn't set HavePets to true than RAFlow shouldn't have any pets
+	//if a.Meta.HavePets && len(a.Pets) != 0{
+	//	//err = fmt.Errorf("should be")
+	//	//petFieldsError.Total++
+	//	//petFieldsError.Errors["pet"] = append(petFieldsError.Errors["pet"], )
+	//
+	//}
+
+	// ------------- Check for rule no 1 ---------------
+	for _, pet := range a.Pets {
+		if !isAssociatedWithPerson(pet.TMPTCID, a.People) {
+			//Error
+			err = fmt.Errorf("pet must be associated with a person")
+
+			// Modify error count
+			petFieldsError.Total++
+
+			// Get pet tmp id
+			petFieldsError.TMPPETID = pet.TMPPETID
+
+			// list error
+			petFieldsError.Errors["TMPPETID"] = append(petFieldsError.Errors["TMPPETID"], err.Error())
+
+			petFieldsErrors = append(petFieldsErrors, petFieldsError)
+		}
+	}
+
 	return petFieldsErrors
+}
+
+// validateVehicleBizLogic Perform business logic check on vehicle section
+// ----------------------------------------------------------------------
+// 1. Every vehicle must be associated with a transactant
+// 2. Vehicle are optional. Means if HaveVehicles is set to false in meta
+// information than it should not have any vehicles.
+// ----------------------------------------------------------------------
+func validateVehicleBizLogic(a *RAFlowJSONData) []VehicleFieldsError {
+	var (
+		vehicleFieldsError  VehicleFieldsError
+		vehicleFieldsErrors []VehicleFieldsError
+		err                 error
+	)
+
+	// ------------- Check for rule no 1 ---------------
+	for _, vehicle := range a.Vehicles {
+		if !isAssociatedWithPerson(vehicle.TMPTCID, a.People) {
+			//Error
+			err = fmt.Errorf("vehicle must be associated with a person")
+
+			// Modify error count
+			vehicleFieldsError.Total++
+
+			// Get pet tmp id
+			vehicleFieldsError.TMPVID = vehicle.TMPVID
+
+			// list error
+			vehicleFieldsError.Errors["TMPVID"] = append(vehicleFieldsError.Errors["TMPVID"], err.Error())
+
+			vehicleFieldsErrors = append(vehicleFieldsErrors, vehicleFieldsError)
+		}
+	}
+
+	return vehicleFieldsErrors
+}
+
+// isAssociatedWithPerson Check Pets/Vehicles is associated with Person or not
+func isAssociatedWithPerson(TMPTCID int64, people []RAPeopleFlowData) bool {
+	for _, p := range people {
+		if p.TMPTCID == TMPTCID {
+			return true
+		} else {
+			continue
+		}
+	}
+	return false
 }
