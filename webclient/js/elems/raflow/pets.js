@@ -17,7 +17,7 @@
     FeeFormOnChangeHandler, FeeFormOnRefreshHandler,
     SliderContentDivLength, SetFeeFormRecordFromFeeData,
     RenderPetFeesGridSummary, RAFlowNewPetAJAX,
-    GetFeeAccountRulesW2UIListItems
+    GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary
 */
 
 "use strict";
@@ -382,6 +382,10 @@ window.loadRAPetsGrid = function () {
                     } else {
                         $("#RAPetFormBtns").find("button[name=delete]").removeClass("hidden");
                     }
+
+                    // format header
+                    var petName = f.record.Name;
+                    f.header = "Edit Pet Entry for (<strong>{0}</strong>)".format(petName);
                 };
             },
             onChange: function(event) {
@@ -785,12 +789,9 @@ window.loadRAPetsGrid = function () {
                     formRefreshCallBack(feeForm);
 
                     // set header
-                    var TMPPETID = app.raflow.last.TMPPETID,
-                        localPetData = GetPetLocalData(TMPPETID);
-
                     var header = "Fee (<strong>{0}</strong>) for Pet - <strong>{1}</strong>";
                     var petName = w2ui.RAPetForm.record.Name;
-                    if (feeForm.record.ARID > 0) {
+                    if (feeForm.record.ARName && feeForm.record.ARName.length > 0) {
                         feeForm.header = header.format(feeForm.record.ARName, petName);
                     } else {
                         feeForm.header = header.format("new", petName);
@@ -897,10 +898,10 @@ window.AssignPetsGridRecords = function() {
 
         // push the record in grid
         grid.records.push(gridRec);
-
-        // assign record in grid
-        reassignGridRecids(grid.name);
     });
+
+    // assign record in grid
+    reassignGridRecids(grid.name);
 
     // lock the grid until "Have pets?" checkbox checked.
     lockOnGrid(grid.name);
@@ -986,36 +987,8 @@ window.RenderPetFeesGridSummary = function(TMPPETID) {
         grid = w2ui.RAPetFeesGrid,
         Fees = petData.Fees || [];
 
-    // summary record in fees grid
-    var summaryRec = {
-        recid:              0,
-        ARName:             "Grand Total",
-        // ContractAmount:     0.0,
-        AtSigningPreTax:    0.0,
-        SalesTax:           0.0,
-        // SalesTaxAmt:        0.0,
-        TransOccTax:        0.0,
-        // TransOccAmt:        0.0,
-    };
-
-    // summing up all amounts from fees
-    Fees.forEach(function(feeItem) {
-        summaryRec.AtSigningPreTax += feeItem.AtSigningPreTax;
-        summaryRec.SalesTax += feeItem.SalesTax;
-        // summaryRec.SalesTaxAmt += feeItem.SalesTaxAmt;
-        summaryRec.TransOccTax += feeItem.TransOccTax;
-        // summaryRec.TransOccAmt += feeItem.TransOccAmt;
-        summaryRec.RowTotal += feeItem.RowTotal;
-    });
-
-    // set style of entire summary row
-    summaryRec.w2ui = {style: "font-weight: bold"};
-
-    // set the summary rec in summary array of grid
-    grid.summary = [summaryRec];
-
-    // refresh the grid
-    grid.refresh();
+    // render fees amount summary
+    RenderFeesGridSummary(grid, Fees);
 };
 
 //-----------------------------------------------------------------------------
