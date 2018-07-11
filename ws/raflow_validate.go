@@ -860,9 +860,8 @@ func isAssociatedWithPerson(TMPTCID int64, people []RAPeopleFlowData) bool {
 	for _, p := range people {
 		if p.TMPTCID == TMPTCID {
 			return true
-		} else {
-			continue
 		}
+		continue
 	}
 	return false
 }
