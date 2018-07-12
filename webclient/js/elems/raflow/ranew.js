@@ -275,6 +275,7 @@ window.buildRAApplicantElements = function() {
                             form_dirty_alert(yes_callBack, no_callBack);
                             break;
                         case 'stateAction':
+                            w2ui.newraLayout.lock('main');
                             // set the newralayout's right panel content
                             loadRAActionTemplate();
                             break;
