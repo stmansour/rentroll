@@ -196,6 +196,7 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// Perform Bizlogic check validation on RAFlow
 	// --------------------------------------------
 	g = validateRAFlowBizLogic(r.Context(), &raFlowData, raFlowFieldsErrors)
+	fmt.Println(g)
 
 	// If RAFlow structure have more than 1 biz logic check validation error than it return with the list of biz logic validation errors
 	if g.Total > 0 {
@@ -203,6 +204,7 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // basicValidateRAFlow validate RAFlow's fields section wise
@@ -257,11 +259,9 @@ func basicValidateRAFlow(raFlowData RAFlowJSONData, raFlowFieldsErrors RAFlowFie
 		g.Total += peopleFieldsErrors.Total
 
 		// Skip the row if it doesn't have error for the any fields
-		if len(errs) == 0 {
-			continue
+		if len(errs) > 0 {
+			raFlowFieldsErrors.People = append(raFlowFieldsErrors.People, peopleFieldsErrors)
 		}
-
-		raFlowFieldsErrors.People = append(raFlowFieldsErrors.People, peopleFieldsErrors)
 	}
 
 	// ----------------------------------------------
@@ -300,11 +300,9 @@ func basicValidateRAFlow(raFlowData RAFlowJSONData, raFlowFieldsErrors RAFlowFie
 			petFieldsErrors.Total += raFeesErrors.Total
 
 			// Skip the row if it doesn't have error for the any fields
-			if len(errs) == 0 {
-				continue
+			if len(errs) > 0 {
+				petFieldsErrors.FeesErrors = append(petFieldsErrors.FeesErrors, raFeesErrors)
 			}
-
-			petFieldsErrors.FeesErrors = append(petFieldsErrors.FeesErrors, raFeesErrors)
 		}
 
 		// Modify total error
@@ -353,11 +351,10 @@ func basicValidateRAFlow(raFlowData RAFlowJSONData, raFlowFieldsErrors RAFlowFie
 			vehicleFieldsErrors.Total += raFeesErrors.Total
 
 			// Skip the row if it doesn't have error for the any fields
-			if len(errs) == 0 {
-				continue
+			if len(errs) > 0 {
+				vehicleFieldsErrors.FeesErrors = append(vehicleFieldsErrors.FeesErrors, raFeesErrors)
 			}
 
-			vehicleFieldsErrors.FeesErrors = append(vehicleFieldsErrors.FeesErrors, raFeesErrors)
 		}
 
 		// Modify Total Error
@@ -407,11 +404,10 @@ func basicValidateRAFlow(raFlowData RAFlowJSONData, raFlowFieldsErrors RAFlowFie
 			rentablesFieldsErrors.Total += raFeesErrors.Total
 
 			// Skip the row if it doesn't have error for the any fields
-			if len(errs) == 0 {
-				continue
+			if len(errs) > 0 {
+				rentablesFieldsErrors.FeesErrors = append(rentablesFieldsErrors.FeesErrors, raFeesErrors)
 			}
 
-			rentablesFieldsErrors.FeesErrors = append(rentablesFieldsErrors.FeesErrors, raFeesErrors)
 		}
 
 		// Modify Total Error
@@ -484,12 +480,12 @@ func validateRAFlowBizLogic(ctx context.Context, a *RAFlowJSONData, raFlowFields
 	fmt.Printf("Entered %s\n", funcname)
 
 	var (
-		datesFieldsErrors     DatesFieldsError
-		peopleFieldsErrors    []PeopleFieldsError
-		petFieldsErrors       []PetFieldsError
-		vehicleFieldsErrors   []VehicleFieldsError
-		rentablesFieldsErrors []RentablesFieldsError
-		g                     ValidateRAFlowResponse
+		datesFieldsErrors  DatesFieldsError
+		peopleFieldsErrors []PeopleFieldsError
+		//petFieldsErrors       []PetFieldsError
+		//vehicleFieldsErrors   []VehicleFieldsError
+		//rentablesFieldsErrors []RentablesFieldsError
+		g ValidateRAFlowResponse
 	)
 
 	// -----------------------------------------------
@@ -513,20 +509,20 @@ func validateRAFlowBizLogic(ctx context.Context, a *RAFlowJSONData, raFlowFields
 	// -----------------------------------------------
 	// ------- Bizlogic check on pet section ---------
 	// -----------------------------------------------
-	petFieldsErrors = validatePetBizLogic(a)
-	raFlowFieldsErrors.Pets = petFieldsErrors
+	//petFieldsErrors = validatePetBizLogic(a)
+	//raFlowFieldsErrors.Pets = petFieldsErrors
 
 	// -----------------------------------------------
 	// ------ Bizlogic check on vehicle section ------
 	// -----------------------------------------------
-	vehicleFieldsErrors = validateVehicleBizLogic(a)
-	raFlowFieldsErrors.Vehicle = vehicleFieldsErrors
+	//vehicleFieldsErrors = validateVehicleBizLogic(a)
+	//raFlowFieldsErrors.Vehicle = vehicleFieldsErrors
 
 	// -----------------------------------------------
 	// ---- Bizlogic check on rentables section ------
 	// -----------------------------------------------
-	rentablesFieldsErrors = validateRentableBizLogic(a.Rentables)
-	raFlowFieldsErrors.Rentables = rentablesFieldsErrors
+	//rentablesFieldsErrors = validateRentableBizLogic(a.Rentables)
+	//raFlowFieldsErrors.Rentables = rentablesFieldsErrors
 
 	// Set the response
 	g.Errors = raFlowFieldsErrors
@@ -547,6 +543,9 @@ func validateDatesBizLogic(dates RADatesFlowData) DatesFieldsError {
 		datesFieldsErrors DatesFieldsError
 		err               error
 	)
+
+	// Init Errors map
+	datesFieldsErrors.Errors = map[string][]string{}
 
 	// -----------------------------------------------
 	// -------- Agreements Date check ----------------
@@ -615,29 +614,23 @@ func validatePeopleBizLogic(people []RAPeopleFlowData) []PeopleFieldsError {
 		err                error
 	)
 
-	// ----------- Check rule no. 3 ----------------
-	// TODO(Akshay): Here is glitch. It will create two entry with same TMPTCID if it have error for rule no. 1/2 and 3.
-	if len(people) == 1 {
-		if !people[0].IsRenter {
-			err = fmt.Errorf("person should be renter")
-			peopleFieldsError.TMPTCID = people[0].TMPTCID
-			peopleFieldsError.Errors["IsRenter"] = append(peopleFieldsError.Errors["IsRenter"], err.Error())
-			peopleFieldsError.Total++
-			peopleFieldsErrors = append(peopleFieldsErrors, peopleFieldsError)
-		}
-	}
+	// init peopleFieldsErrors
+	peopleFieldsErrors = make([]PeopleFieldsError, 0)
 
 	err = fmt.Errorf("should not be blank")
 	for _, p := range people {
 		peopleFieldsError.TMPTCID = p.TMPTCID
 		peopleFieldsError.Errors = map[string][]string{}
 
-		// ----------- Check rule no. 1 and 2 ----------------
+		// ----------- Check rule no. 1  ----------------
+		// If isCompany flag is true then CompanyName is required
 		if p.IsCompany && len(p.CompanyName) == 0 {
 			peopleFieldsError.Errors["CompanyName"] = append(peopleFieldsError.Errors["CompanyName"], err.Error())
 			peopleFieldsError.Total++
 		}
 
+		// ----------- Check rule no. 2  ----------------
+		// If isCompany flag is false than FirstName and LastName are required
 		if !p.IsCompany && len(p.FirstName) == 0 {
 			peopleFieldsError.Errors["FirstName"] = append(peopleFieldsError.Errors["FirstName"], err.Error())
 			peopleFieldsError.Total++
@@ -648,7 +641,26 @@ func validatePeopleBizLogic(people []RAPeopleFlowData) []PeopleFieldsError {
 			peopleFieldsError.Total++
 		}
 
-		peopleFieldsErrors = append(peopleFieldsErrors, peopleFieldsError)
+		// If transanctant have error than only add it in the list of error
+		if peopleFieldsError.Total > 0 {
+			peopleFieldsErrors = append(peopleFieldsErrors, peopleFieldsError)
+		}
+	}
+
+	// ----------- Check rule no. 3 ----------------
+	// If only one person exist in the list, then it should have isRenter role marked as true
+	if len(people) == 1 && !people[0].IsRenter {
+		err = fmt.Errorf("person should be renter")
+
+		if len(peopleFieldsErrors) == 1 {
+			peopleFieldsErrors[0].Errors["IsRenter"] = append(peopleFieldsErrors[0].Errors["IsRenter"], err.Error())
+			peopleFieldsErrors[0].Total++
+		} else {
+			peopleFieldsError.TMPTCID = people[0].TMPTCID
+			peopleFieldsError.Errors["IsRenter"] = append(peopleFieldsError.Errors["IsRenter"], err.Error())
+			peopleFieldsError.Total++
+			peopleFieldsErrors = append(peopleFieldsErrors, peopleFieldsError)
+		}
 	}
 
 	return peopleFieldsErrors
@@ -662,6 +674,9 @@ func validatePeopleBizLogic(people []RAPeopleFlowData) []PeopleFieldsError {
 // 3. DtStart must be prior to DtStop
 // ----------------------------------------------------------------------
 func validatePetBizLogic(a *RAFlowJSONData) []PetFieldsError {
+	const funcname = "validatePetBizLogic"
+	fmt.Printf("Entered %s\n", funcname)
+
 	var (
 		petFieldsError  PetFieldsError
 		petFieldsErrors []PetFieldsError
@@ -726,6 +741,9 @@ func validatePetBizLogic(a *RAFlowJSONData) []PetFieldsError {
 // 3. DtStart must be prior to DtStop
 // ----------------------------------------------------------------------
 func validateVehicleBizLogic(a *RAFlowJSONData) []VehicleFieldsError {
+	const funcname = "validateVehicleBizLogic"
+	fmt.Printf("Entered %s\n", funcname)
+
 	var (
 		vehicleFieldsError  VehicleFieldsError
 		vehicleFieldsErrors []VehicleFieldsError
@@ -782,6 +800,8 @@ func validateVehicleBizLogic(a *RAFlowJSONData) []VehicleFieldsError {
 // 2. For every rentables, there must be one entry for the Fees.
 // ----------------------------------------------------------------------
 func validateRentableBizLogic(rentables []RARentablesFlowData) []RentablesFieldsError {
+	const funcname = "validateRentableBizLogic"
+	fmt.Printf("Entered %s\n", funcname)
 
 	var (
 		rentablesFieldsError  RentablesFieldsError
@@ -831,6 +851,9 @@ func validateRentableBizLogic(rentables []RARentablesFlowData) []RentablesFields
 // 1. Start date must be prior to Stop date
 // ----------------------------------------------------------------------
 func validateFeesBizLogic(fees []RAFeesData) []RAFeesError {
+	const funcname = "validateFeesBizLogic"
+	fmt.Printf("Entered %s\n", funcname)
+
 	var (
 		raFeesError  RAFeesError
 		raFeesErrors []RAFeesError
