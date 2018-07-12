@@ -469,35 +469,44 @@ window.GetFeeAccountRulesW2UIListItems = function(BID, flowPart) {
 window.GetFeeAccountRules = function(BID, flowPart) {
     var filteredRules = [];
 
-    switch(flowPart) {
-        case "pets":
-        filteredRules = app.raflow.arList[BID].filter(function(ARObject) {
-            return ( (ARObject.FLAGS&(1<<app.arFLAGS.PETIDReq)) !== 0 );
-        });
-            break;
-        case "vehicles":
-            filteredRules = app.raflow.arList[BID].filter(function(ARObject) {
-                return ( (ARObject.FLAGS&(1<<app.arFLAGS.VIDReq)) !== 0 );
-            });
-            break;
-        case "rentables":
-            // push only those item which are only set to RentASM flag and
-            // not to pet/vehicles AR
+    // /^*^/ =================================================================
+    // NOTE: at the moment, just return list of account rules stored for BID.
+    //       Don't filter out based on section.
+    // =======================================================================
 
-            // get AutoPopulateToNewRA or IsRentASM marked rules
-            var allowedRules = app.raflow.arList[BID].filter(function(ARObject) {
-                return (
-                    ( (ARObject.FLAGS&(1<<app.arFLAGS.AutoPopulateToNewRA)) !== 0 ) ||
-                    ( (ARObject.FLAGS&(1<<app.arFLAGS.IsRentASM)) !== 0 )
-                );
-            });
+    filteredRules = app.raflow.arList[BID];
 
-            // it should not be pet/vehicle AR
-            filteredRules = allowedRules.filter(function(ARObject) {
-                return ( (ARObject.FLAGS&(3<<7)) === 0 );
-            });
-            break;
-    }
+    // ================================================================= /^*^/
+
+    // switch(flowPart) {
+    //     case "pets":
+    //     filteredRules = app.raflow.arList[BID].filter(function(ARObject) {
+    //         return ( (ARObject.FLAGS&(1<<app.arFLAGS.PETIDReq)) !== 0 );
+    //     });
+    //         break;
+    //     case "vehicles":
+    //         filteredRules = app.raflow.arList[BID].filter(function(ARObject) {
+    //             return ( (ARObject.FLAGS&(1<<app.arFLAGS.VIDReq)) !== 0 );
+    //         });
+    //         break;
+    //     case "rentables":
+    //         // push only those item which are only set to RentASM flag and
+    //         // not to pet/vehicles AR
+    //
+    //         // get AutoPopulateToNewRA or IsRentASM marked rules
+    //         var allowedRules = app.raflow.arList[BID].filter(function(ARObject) {
+    //             return (
+    //                 ( (ARObject.FLAGS&(1<<app.arFLAGS.AutoPopulateToNewRA)) !== 0 ) ||
+    //                 ( (ARObject.FLAGS&(1<<app.arFLAGS.IsRentASM)) !== 0 )
+    //             );
+    //         });
+    //
+    //         // it should not be pet/vehicle AR
+    //         filteredRules = allowedRules.filter(function(ARObject) {
+    //             return ( (ARObject.FLAGS&(3<<7)) === 0 );
+    //         });
+    //         break;
+    // }
 
     return filteredRules;
 };
