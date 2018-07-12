@@ -102,13 +102,13 @@ window.GetFeeGridColumns = function() {
         {
             field: 'ContractAmount',
             caption: 'Contract<br>Amount',
-            size: '100px',
+            size: '80px',
             render: 'money'
         },
         {
             field: 'RentCycleText',
             caption: 'Rent Cycle',
-            size: '100px',
+            size: '80px',
             render: function (record/*, index, col_index*/) {
                 var text = '';
                 if (record) {
@@ -140,7 +140,7 @@ window.GetFeeGridColumns = function() {
         {
             field: 'FeePeriod',
             caption: 'Fee Period',
-            size: '100px',
+            size: '80px',
             render: function(record) {
                 var html = "";
                 if (record) {
@@ -157,37 +157,37 @@ window.GetFeeGridColumns = function() {
         {
             field: 'AtSigningPreTax',
             caption: 'At Signing<br>(pre-tax)',
-            size: '100px',
+            size: '80px',
             render: 'money'
         },
         {
             field: 'SalesTax',
             caption: 'Sales Tax',
-            size: '100px',
+            size: '80px',
             render: 'money'
         },
         /*{ // FUTURE RELEASE
             field: 'SalesTaxAmt',
             caption: 'Sales Tax Amt',
-            size: '100px',
+            size: '80px',
             render: 'money'
         },*/
         {
             field: 'TransOccTax',
             caption: 'Trans Occ Tax',
-            size: '100px',
+            size: '80px',
             render: 'money'
         },/*,
         { // FUTURE RELEASE
             field: 'TransOccAmt',
             caption: 'Trans Occ Amt',
-            size: '100px',
+            size: '80px',
             render: 'money'
         },*/
         {
             field: 'RowTotal',
             caption: 'Grand Total',
-            size: '100px',
+            size: '80px',
             style: 'text-align: right',
             render: function(record) {
                 var html = "";
@@ -500,4 +500,41 @@ window.GetFeeAccountRules = function(BID, flowPart) {
     }
 
     return filteredRules;
+};
+
+// -----------------------------------------------------------------------------
+// RenderFeesGridSummary - renders fees grid summary from given list of fees
+// -----------------------------------------------------------------------------
+window.RenderFeesGridSummary = function(grid, fees) {
+
+    // summary record in fees grid
+    var summaryRec = {
+        recid:              0,
+        ARName:             "Grand Total",
+        // ContractAmount:     0.0,
+        AtSigningPreTax:    0.0,
+        SalesTax:           0.0,
+        // SalesTaxAmt:        0.0,
+        TransOccTax:        0.0,
+        // TransOccAmt:        0.0,
+    };
+
+    // summing up all amounts from fees
+    fees.forEach(function(feeItem) {
+        summaryRec.AtSigningPreTax += feeItem.AtSigningPreTax;
+        summaryRec.SalesTax += feeItem.SalesTax;
+        // summaryRec.SalesTaxAmt += feeItem.SalesTaxAmt;
+        summaryRec.TransOccTax += feeItem.TransOccTax;
+        // summaryRec.TransOccAmt += feeItem.TransOccAmt;
+        summaryRec.RowTotal += feeItem.RowTotal;
+    });
+
+    // set style of entire summary row
+    summaryRec.w2ui = {style: "font-weight: bold"};
+
+    // set the summary rec in summary array of grid
+    grid.summary = [summaryRec];
+
+    // refresh the grid
+    grid.refresh();
 };

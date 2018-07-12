@@ -17,7 +17,7 @@
     FeeFormOnChangeHandler, FeeFormOnRefreshHandler,
     SliderContentDivLength, SetFeeFormRecordFromFeeData,
     RenderVehicleFeesGridSummary, RAFlowNewVehicleAJAX,
-    GetFeeAccountRulesW2UIListItems
+    GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary
 */
 
 "use strict";
@@ -422,6 +422,11 @@ window.loadRAVehiclesGrid = function () {
                         // if RAID is not available then disable
                         $(f.box).find("input[name=ParkingPermitNumber]").prop("disabled", true);
                     }
+
+                    // format header
+                    var make    = f.record.VehicleMake,
+                        model   = f.record.VehicleModel;
+                    f.header = "Edit Vehicle Entry for (<strong>{0} - {1}</strong>)".format(make, model);
                 };
             },
             onChange: function(event) {
@@ -825,16 +830,13 @@ window.loadRAVehiclesGrid = function () {
                     formRefreshCallBack(feeForm);
 
                     // set header
-                    var TMPVID = app.raflow.last.TMPVID,
-                        localVehicleData = GetVehicleLocalData(TMPVID);
-
                     var header = "Fee (<strong>{0}</strong>) for Vehicle - {1}";
                     var vehicleIdentity = "(<strong>{0} - {1}</strong>)";
                     vehicleIdentity = vehicleIdentity.format(
                         w2ui.RAVehicleForm.record.VehicleMake,
                         w2ui.RAVehicleForm.record.VehicleModel
                     );
-                    if (feeForm.record.ARID > 0) {
+                    if (feeForm.record.ARName && feeForm.record.ARName.length > 0) {
                         feeForm.header = header.format(feeForm.record.ARName, vehicleIdentity);
                     } else {
                         feeForm.header = header.format("new", vehicleIdentity);
@@ -941,10 +943,10 @@ window.AssignVehiclesGridRecords = function() {
 
         // push the record in grid
         grid.records.push(gridRec);
-
-        // assign record in grid
-        reassignGridRecids(grid.name);
     });
+
+    // assign record in grid
+    reassignGridRecids(grid.name);
 
     // lock the grid until "Have vehicles?" checkbox checked.
     lockOnGrid(grid.name);
@@ -1030,36 +1032,8 @@ window.RenderVehicleFeesGridSummary = function(TMPVID) {
         grid = w2ui.RAVehicleFeesGrid,
         Fees = vehicleData.Fees || [];
 
-    // summary record in fees grid
-    var summaryRec = {
-        recid:              0,
-        ARName:             "Grand Total",
-        // ContractAmount:     0.0,
-        AtSigningPreTax:    0.0,
-        SalesTax:           0.0,
-        // SalesTaxAmt:        0.0,
-        TransOccTax:        0.0,
-        // TransOccAmt:        0.0,
-    };
-
-    // summing up all amounts from fees
-    Fees.forEach(function(feeItem) {
-        summaryRec.AtSigningPreTax += feeItem.AtSigningPreTax;
-        summaryRec.SalesTax += feeItem.SalesTax;
-        // summaryRec.SalesTaxAmt += feeItem.SalesTaxAmt;
-        summaryRec.TransOccTax += feeItem.TransOccTax;
-        // summaryRec.TransOccAmt += feeItem.TransOccAmt;
-        summaryRec.RowTotal += feeItem.RowTotal;
-    });
-
-    // set style of entire summary row
-    summaryRec.w2ui = {style: "font-weight: bold"};
-
-    // set the summary rec in summary array of grid
-    grid.summary = [summaryRec];
-
-    // refresh the grid
-    grid.refresh();
+    // render fees amount summary
+    RenderFeesGridSummary(grid, Fees);
 };
 
 //-----------------------------------------------------------------------------
