@@ -500,9 +500,9 @@ func validateRAFlowBizLogic(ctx context.Context, a *RAFlowJSONData, raFlowFields
 	// -----------------------------------------------
 	// ------ Bizlogic check on people section -------
 	// -----------------------------------------------
-	peopleFieldsErrors = validatePeopleBizLogic(a.People)
+	peopleFieldsErrors, peopleErrorTotal := validatePeopleBizLogic(a.People)
 	// Modify global error count
-	//g.Total += peopleFieldsErrors.Total
+	g.Total += peopleErrorTotal
 	// Update people section error
 	raFlowFieldsErrors.People = peopleFieldsErrors
 
@@ -604,7 +604,7 @@ func validateDatesBizLogic(dates RADatesFlowData) DatesFieldsError {
 // 2. If isCompany flag is false than FirstName and LastName are required
 // 3. If only one person exist in the list, then it should have isRenter role marked as true.
 // ----------------------------------------------------------------------
-func validatePeopleBizLogic(people []RAPeopleFlowData) []PeopleFieldsError {
+func validatePeopleBizLogic(people []RAPeopleFlowData) ([]PeopleFieldsError, int) {
 	const funcname = "validatePeopleBizLogic"
 	fmt.Printf("Entered %s\n", funcname)
 
@@ -612,6 +612,7 @@ func validatePeopleBizLogic(people []RAPeopleFlowData) []PeopleFieldsError {
 		peopleFieldsError  PeopleFieldsError
 		peopleFieldsErrors []PeopleFieldsError
 		err                error
+		errCount           int
 	)
 
 	// init peopleFieldsErrors
@@ -643,6 +644,7 @@ func validatePeopleBizLogic(people []RAPeopleFlowData) []PeopleFieldsError {
 
 		// If transanctant have error than only add it in the list of error
 		if peopleFieldsError.Total > 0 {
+			errCount += peopleFieldsError.Total
 			peopleFieldsErrors = append(peopleFieldsErrors, peopleFieldsError)
 		}
 	}
@@ -655,15 +657,17 @@ func validatePeopleBizLogic(people []RAPeopleFlowData) []PeopleFieldsError {
 		if len(peopleFieldsErrors) == 1 {
 			peopleFieldsErrors[0].Errors["IsRenter"] = append(peopleFieldsErrors[0].Errors["IsRenter"], err.Error())
 			peopleFieldsErrors[0].Total++
+			errCount++
 		} else {
 			peopleFieldsError.TMPTCID = people[0].TMPTCID
 			peopleFieldsError.Errors["IsRenter"] = append(peopleFieldsError.Errors["IsRenter"], err.Error())
 			peopleFieldsError.Total++
+			errCount += peopleFieldsError.Total
 			peopleFieldsErrors = append(peopleFieldsErrors, peopleFieldsError)
 		}
 	}
 
-	return peopleFieldsErrors
+	return peopleFieldsErrors, errCount
 }
 
 // validatePetBizLogic Perform business logic check on pet section
