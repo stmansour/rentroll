@@ -406,6 +406,7 @@ window.requiredFieldsFulFilled = function (compID) {
             break;
 
         case "final":
+            // TODO(Sudip): Validation rules for this slide
             break;
     }
 
@@ -480,6 +481,9 @@ window.loadTargetSection = function (target, previousActiveCompID) {
             break;
         case "final":
             modCompData = null;
+            w2ui.RAFinalRentablesFeesGrid.clear();
+            w2ui.RAFinalPetsFeesGrid.clear();
+            w2ui.RAFinalVehiclesFeesGrid.clear();
             break;
         default:
             alert("invalid active comp: ", previousActiveCompID);
