@@ -480,12 +480,13 @@ func validateRAFlowBizLogic(ctx context.Context, a *RAFlowJSONData, raFlowFields
 	fmt.Printf("Entered %s\n", funcname)
 
 	var (
-		datesFieldsErrors     DatesFieldsError
-		peopleFieldsErrors    []PeopleFieldsError
-		petFieldsErrors       []PetFieldsError
-		vehicleFieldsErrors   []VehicleFieldsError
-		rentablesFieldsErrors []RentablesFieldsError
-		g                     ValidateRAFlowResponse
+		datesFieldsErrors       DatesFieldsError
+		peopleFieldsErrors      []PeopleFieldsError
+		petFieldsErrors         []PetFieldsError
+		vehicleFieldsErrors     []VehicleFieldsError
+		rentablesFieldsErrors   []RentablesFieldsError
+		parentChildFieldsErrors []ParentChildFieldsError
+		g                       ValidateRAFlowResponse
 	)
 
 	// -----------------------------------------------
@@ -526,6 +527,13 @@ func validateRAFlowBizLogic(ctx context.Context, a *RAFlowJSONData, raFlowFields
 	rentablesFieldsErrors, rentableErrorTotal := validateRentableBizLogic(a.Rentables)
 	g.Total += rentableErrorTotal
 	raFlowFieldsErrors.Rentables = rentablesFieldsErrors
+
+	// -----------------------------------------------
+	// --- Bizlogic check on parent/child section ----
+	// -----------------------------------------------
+	parentChildFieldsErrors, parentChildErrorTotal := validateParentChildBizLogic(ctx, a.ParentChild)
+	g.Total += parentChildErrorTotal
+	raFlowFieldsErrors.ParentChild = parentChildFieldsErrors
 
 	// Set the response
 	g.Errors = raFlowFieldsErrors
@@ -927,6 +935,57 @@ func validateFeesBizLogic(fees []RAFeesData) ([]RAFeesError, int) {
 	}
 
 	return raFeesErrors, errCount
+}
+
+// validateParentChildBizLogic Perform business logic check on parent/child section
+// ----------------------------------------------------------------------
+// 1. If there are any entries are in the list then id of parent/child rentable must be greater than 0. Also check does it exist in database?
+// ----------------------------------------------------------------------
+func validateParentChildBizLogic(ctx context.Context, pcData []RAParentChildFlowData) ([]ParentChildFieldsError, int) {
+	const funcname = "validateParentChildBizLogic"
+	fmt.Printf("Entered %s\n", funcname)
+
+	var (
+		parentChildFieldsError  ParentChildFieldsError
+		parentChildFieldsErrors []ParentChildFieldsError
+		//err                     error
+		errCount int
+	)
+
+	parentChildFieldsErrors = make([]ParentChildFieldsError, 0)
+
+	for _, pc := range pcData {
+		parentChildFieldsError.Total = 0
+
+		parentChildFieldsError.PRID = pc.PRID
+		parentChildFieldsError.CRID = pc.CRID
+
+		// Check PRID exists in database which refer to RID in rentable table
+		r, err := rlib.GetRentable(ctx, pc.PRID)
+		// Not exist than RID will be 0
+		if r.RID == 0 || pc.PRID == 0 {
+			err = fmt.Errorf("parent rentable should exists")
+			parentChildFieldsError.Errors["PRID"] = append(parentChildFieldsError.Errors["PRID"], err.Error())
+			parentChildFieldsError.Total++
+			fmt.Println(parentChildFieldsError)
+		}
+
+		// Check CRID exists in database which refer to RID in rentable table
+		r, err = rlib.GetRentable(ctx, pc.CRID)
+		// Not exist than RID will be 0
+		if r.RID == 0 || pc.CRID == 0 {
+			err = fmt.Errorf("child rentable should exists")
+			parentChildFieldsError.Errors["CRID"] = append(parentChildFieldsError.Errors["CRID"], err.Error())
+			parentChildFieldsError.Total++
+		}
+
+		errCount += parentChildFieldsError.Total
+		if parentChildFieldsError.Total > 0 {
+			parentChildFieldsErrors = append(parentChildFieldsErrors, parentChildFieldsError)
+		}
+	}
+
+	return parentChildFieldsErrors, errCount
 }
 
 // isAssociatedWithPerson Check Pets/Vehicles is associated with Person or not
