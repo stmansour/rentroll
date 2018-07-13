@@ -4,7 +4,6 @@
     saveActiveCompData, getRAFlowCompData,
     GetFeeFormInitRecord, getInitialRentableFeesData,
     GetRentableLocalData, SetRentableLocalData, GetAllARForFeeForm,
-    GetRentableIndexInGridRecords,
     SaveRentableCompData, SetRentableFeeLocalData, GetRentableFeeLocalData,
     ridRentablePickerRender, ridRentableDropRender, ridRentableCompare,
     AssignRentableGridRecords, AssignRentableFeesGridRecords,
@@ -790,16 +789,26 @@ window.AssignRentableFeesGridRecords = function(RID) {
 // AcceptRentable - add Rentable to the list rentables grid records
 //-----------------------------------------------------------------------------
 window.AcceptRentable = function () {
-    var recIndex = GetRentableIndexInGridRecords(w2ui.RARentableSearchForm.record.RID);
-    var BID = getCurrentBID();
+    var RID = w2ui.RARentableSearchForm.record.RID;
 
-    if(recIndex > -1 ) {
-        w2ui.RARentablesGrid.select(recIndex); // highlight the existing record
+    // find index of this RID in grid if it exists
+    var gridRecIndex = -1;
+    w2ui.RARentablesGrid.records.forEach(function(rec) {
+        if (RID == rec.RID) {
+            gridRecIndex = rec.recid;
+            return false;
+        }
+    });
+
+    if(gridRecIndex > -1 ) {
+        w2ui.RARentablesGrid.select(gridRecIndex); // highlight the existing record
+        w2ui.RARentableSearchForm.clear(); // clear the search rentable form
     } else {
-        var fRec = w2ui.RARentableSearchForm.record;
+        var BID     = getCurrentBID(),
+            fRec    = w2ui.RARentableSearchForm.record;
+
         getInitialRentableFeesData(BID, fRec.RID, app.raflow.activeFlowID)
         .done(function(data) {
-
             if (data.status === "success") {
                 // reset the form
                 w2ui.RARentableSearchForm.actions.reset();
@@ -876,20 +885,6 @@ window.manageParentRentableW2UIItems = function() {
 window.SaveRentableCompData = function() {
     var compData = getRAFlowCompData("rentables", app.raflow.activeFlowID);
     return saveActiveCompData(compData, "rentables");
-};
-
-//------------------------------------------------------------------------------
-// GetRentableIndexInGridRecords - returns record index in grid records list
-//------------------------------------------------------------------------------
-window.GetRentableIndexInGridRecords = function(RID) {
-    var found = -1;
-    w2ui.RARentablesGrid.records.forEach(function(rec, index) {
-        if (RID == rec.RID) {
-            found = index;
-            return false;
-        }
-    });
-    return found;
 };
 
 //-----------------------------------------------------------------------------
