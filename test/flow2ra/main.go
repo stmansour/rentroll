@@ -25,8 +25,9 @@ var App struct {
 	PortRR  int            // rentroll port
 	Bud     string         // Biz Unit Descriptor
 	Xbiz    rlib.XBusiness // lots of info about this biz
-	NoAuth  bool
-	Verbose bool
+	NoAuth  bool           //
+	Verbose bool           //
+	FlowID  int64          // the flow to migrate to permanent tables
 }
 
 func readCommandLineArgs() {
@@ -35,6 +36,7 @@ func readCommandLineArgs() {
 	dbrrPtr := flag.String("M", "rentroll", "database name (rentroll)")
 	pBud := flag.String("b", "REX", "Business Unit Identifier (Bud)")
 	portPtr := flag.Int("p", 8270, "port on which RentRoll server listens")
+	idPtr := flag.Int("flowid", 0, "FlowID to migrate. If not specified then RAID 1 is migrated.")
 	noauth := flag.Bool("noauth", false, "if specified, inhibit authentication")
 	verb := flag.Bool("v", false, "verbose output - shows the ciphertext")
 
@@ -47,6 +49,7 @@ func readCommandLineArgs() {
 	App.Bud = *pBud
 	App.NoAuth = *noauth
 	App.Verbose = *verb
+	App.FlowID = int64(*idPtr)
 }
 
 func main() {
@@ -108,29 +111,36 @@ func main() {
 
 // DoTest does all the useful and interesting work
 func DoTest(ctx context.Context, s *rlib.Session) {
-	rlib.Console("Retrieving Rental Agreement\n")
-	//--------------------------------------
-	// Make a Flow out of one of the RAs
-	//--------------------------------------
-	raid := int64(1)
-	ra, err := rlib.GetRentalAgreement(ctx, raid)
-	if err != nil {
-		fmt.Printf("Could not read RentalAgreement: %s\n", err.Error())
-		return
-	}
+	var flowID = int64(App.FlowID)
+	var err error
 
-	//--------------------------------------
-	// Insert new flow
-	//--------------------------------------
-	rlib.Console("Creating a Flow for RAID %d\n", ra.RAID)
-	flowID, err := ws.GetRA2FlowCore(ctx, &ra, s.UID)
-	if err != nil {
-		rlib.Console("DoTest - CB.err\n")
-		fmt.Printf("Could not get Flow for RAID = %d: %s\n", ra.RAID, err.Error())
-		return
-	}
+	if flowID == 0 {
+		rlib.Console("Retrieving Rental Agreement\n")
+		//--------------------------------------
+		// Make a Flow out of one of the RAs
+		//--------------------------------------
+		raid := int64(1)
+		ra, err := rlib.GetRentalAgreement(ctx, raid)
+		if err != nil {
+			fmt.Printf("Could not read RentalAgreement: %s\n", err.Error())
+			return
+		}
 
-	fmt.Printf("Successfully created FlowID = %d\n", flowID)
+		//--------------------------------------
+		// Insert new flow
+		//--------------------------------------
+		rlib.Console("Creating a Flow for RAID %d\n", ra.RAID)
+		flowID, err = ws.GetRA2FlowCore(ctx, &ra, s.UID)
+		if err != nil {
+			rlib.Console("DoTest - CB.err\n")
+			fmt.Printf("Could not get Flow for RAID = %d: %s\n", ra.RAID, err.Error())
+			return
+		}
+
+		fmt.Printf("Successfully created FlowID = %d\n", flowID)
+	} else {
+		fmt.Printf("FlowID set to %d\n", flowID)
+	}
 
 	//------------------------------------------------------------
 	// Insert it back into the permanent db tables as an updated

@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"rentroll/rlib"
 	"rentroll/rtags"
+	"time"
 )
 
 // RAFlowDetailRequest is a struct to hold info for Flow which is going to be validate
@@ -185,8 +186,8 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// TODO(Akshay): Enable basic validation check
 	g = basicValidateRAFlow(raFlowData, raFlowFieldsErrors)
 
+	// If RAFlow structure have more than 1 basic validation error than it return with the list of basic validation errors
 	if g.Total > 0 {
-		// If RAFlow structure have more than 1 basic validation error than it return with the list of basic validation errors
 		SvcWriteResponse(d.BID, &g, w)
 		return
 	}
@@ -194,9 +195,15 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// --------------------------------------------
 	// Perform Bizlogic check validation on RAFlow
 	// --------------------------------------------
-	// validateRAFlowBizLogic(r.Context(), &raFlowData)
-	// g.ErrorType = "biz"
+	g = validateRAFlowBizLogic(r.Context(), &raFlowData, raFlowFieldsErrors)
 
+	// If RAFlow structure have more than 1 biz logic check validation error than it return with the list of biz logic validation errors
+	if g.Total > 0 {
+		SvcWriteResponse(d.BID, &g, w)
+		return
+	}
+
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // basicValidateRAFlow validate RAFlow's fields section wise
@@ -215,8 +222,6 @@ func basicValidateRAFlow(raFlowData RAFlowJSONData, raFlowFieldsErrors RAFlowFie
 		tiePeopleFieldsErrors   TiePeopleFieldsError
 		g                       ValidateRAFlowResponse
 	)
-
-	fmt.Println(raFlowData.Pets)
 
 	//----------------------------------------------
 	// validate RADatesFlowData structure
@@ -253,11 +258,9 @@ func basicValidateRAFlow(raFlowData RAFlowJSONData, raFlowFieldsErrors RAFlowFie
 		g.Total += peopleFieldsErrors.Total
 
 		// Skip the row if it doesn't have error for the any fields
-		if len(errs) == 0 {
-			continue
+		if len(errs) > 0 {
+			raFlowFieldsErrors.People = append(raFlowFieldsErrors.People, peopleFieldsErrors)
 		}
-
-		raFlowFieldsErrors.People = append(raFlowFieldsErrors.People, peopleFieldsErrors)
 	}
 
 	// ----------------------------------------------
@@ -296,11 +299,9 @@ func basicValidateRAFlow(raFlowData RAFlowJSONData, raFlowFieldsErrors RAFlowFie
 			petFieldsErrors.Total += raFeesErrors.Total
 
 			// Skip the row if it doesn't have error for the any fields
-			if len(errs) == 0 {
-				continue
+			if len(errs) > 0 {
+				petFieldsErrors.FeesErrors = append(petFieldsErrors.FeesErrors, raFeesErrors)
 			}
-
-			petFieldsErrors.FeesErrors = append(petFieldsErrors.FeesErrors, raFeesErrors)
 		}
 
 		// Modify total error
@@ -349,11 +350,10 @@ func basicValidateRAFlow(raFlowData RAFlowJSONData, raFlowFieldsErrors RAFlowFie
 			vehicleFieldsErrors.Total += raFeesErrors.Total
 
 			// Skip the row if it doesn't have error for the any fields
-			if len(errs) == 0 {
-				continue
+			if len(errs) > 0 {
+				vehicleFieldsErrors.FeesErrors = append(vehicleFieldsErrors.FeesErrors, raFeesErrors)
 			}
 
-			vehicleFieldsErrors.FeesErrors = append(vehicleFieldsErrors.FeesErrors, raFeesErrors)
 		}
 
 		// Modify Total Error
@@ -403,11 +403,10 @@ func basicValidateRAFlow(raFlowData RAFlowJSONData, raFlowFieldsErrors RAFlowFie
 			rentablesFieldsErrors.Total += raFeesErrors.Total
 
 			// Skip the row if it doesn't have error for the any fields
-			if len(errs) == 0 {
-				continue
+			if len(errs) > 0 {
+				rentablesFieldsErrors.FeesErrors = append(rentablesFieldsErrors.FeesErrors, raFeesErrors)
 			}
 
-			rentablesFieldsErrors.FeesErrors = append(rentablesFieldsErrors.FeesErrors, raFeesErrors)
 		}
 
 		// Modify Total Error
@@ -475,14 +474,606 @@ func basicValidateRAFlow(raFlowData RAFlowJSONData, raFlowFieldsErrors RAFlowFie
 }
 
 // validateRAFlowBizLogic is to check RAFlow's business logic
-func validateRAFlowBizLogic(ctx context.Context, a *RAFlowJSONData) error {
+func validateRAFlowBizLogic(ctx context.Context, a *RAFlowJSONData, raFlowFieldsErrors RAFlowFieldsErrors) ValidateRAFlowResponse {
 	const funcname = "ValidateRAFlowBizLogic"
 	fmt.Printf("Entered %s\n", funcname)
 
-	// ---------------------------------------------
-	// Perform business logic check on date section
-	// 1. Dates must be Jan 1, 2000 00:00:00 UTC or later.
-	// ---------------------------------------------
+	var (
+		datesFieldsErrors       DatesFieldsError
+		peopleFieldsErrors      []PeopleFieldsError
+		petFieldsErrors         []PetFieldsError
+		vehicleFieldsErrors     []VehicleFieldsError
+		rentablesFieldsErrors   []RentablesFieldsError
+		parentChildFieldsErrors []ParentChildFieldsError
+		tiePeopleFieldsErrors   []TiePeopleFieldsError
+		g                       ValidateRAFlowResponse
+	)
 
-	return nil
+	// -----------------------------------------------
+	// -------- Bizlogic check on date section -------
+	// -----------------------------------------------
+	datesFieldsErrors = validateDatesBizLogic(a.Dates)
+	// Modify global error count
+	g.Total += datesFieldsErrors.Total
+	// Update date section error
+	raFlowFieldsErrors.Dates = datesFieldsErrors
+
+	// -----------------------------------------------
+	// ------ Bizlogic check on people section -------
+	// -----------------------------------------------
+	peopleFieldsErrors, peopleErrorTotal := validatePeopleBizLogic(a.People)
+	// Modify global error count
+	g.Total += peopleErrorTotal
+	// Update people section error
+	raFlowFieldsErrors.People = peopleFieldsErrors
+
+	// -----------------------------------------------
+	// ------- Bizlogic check on pet section ---------
+	// -----------------------------------------------
+	petFieldsErrors, petErrorTotal := validatePetBizLogic(a)
+	g.Total += petErrorTotal
+	raFlowFieldsErrors.Pets = petFieldsErrors
+
+	// -----------------------------------------------
+	// ------ Bizlogic check on vehicle section ------
+	// -----------------------------------------------
+	vehicleFieldsErrors, vehicleErrorTotal := validateVehicleBizLogic(a)
+	g.Total += vehicleErrorTotal
+	raFlowFieldsErrors.Vehicle = vehicleFieldsErrors
+
+	// -----------------------------------------------
+	// ---- Bizlogic check on rentables section ------
+	// -----------------------------------------------
+	rentablesFieldsErrors, rentableErrorTotal := validateRentableBizLogic(a.Rentables)
+	g.Total += rentableErrorTotal
+	raFlowFieldsErrors.Rentables = rentablesFieldsErrors
+
+	// -----------------------------------------------
+	// --- Bizlogic check on parent/child section ----
+	// -----------------------------------------------
+	parentChildFieldsErrors, parentChildErrorTotal := validateParentChildBizLogic(ctx, a.ParentChild)
+	g.Total += parentChildErrorTotal
+	raFlowFieldsErrors.ParentChild = parentChildFieldsErrors
+
+	// -----------------------------------------------
+	// --- Bizlogic check on tie-people section ----
+	// -----------------------------------------------
+	tiePeopleFieldsErrors, tiePeopleErrorTotal := validateTiePeopleBizLogic(ctx, a)
+	g.Total += tiePeopleErrorTotal
+	raFlowFieldsErrors.Tie.TiePeople = tiePeopleFieldsErrors
+
+	// Set the response
+	g.Errors = raFlowFieldsErrors
+	g.ErrorType = "biz"
+
+	return g
+}
+
+// validateDatesBizLogic Perform business logic check on date section
+// ---------------------------------------------
+// 1. Start dates must be prior to End/Stop date
+// ---------------------------------------------
+func validateDatesBizLogic(dates RADatesFlowData) DatesFieldsError {
+	const funcname = "validateDatesBizLogic"
+	fmt.Printf("Entered %s\n", funcname)
+
+	var (
+		datesFieldsErrors DatesFieldsError
+		err               error
+	)
+
+	// Init Errors map
+	datesFieldsErrors.Errors = map[string][]string{}
+
+	// -----------------------------------------------
+	// -------- Agreements Date check ----------------
+	// -----------------------------------------------
+	agreementStartDate := time.Time(dates.AgreementStart)
+	agreementStopDate := time.Time(dates.AgreementStop)
+	// Start date must be prior to End/Stop date
+	if !agreementStartDate.Before(agreementStopDate) {
+
+		// define and assign error
+		err = fmt.Errorf("agreement start date must be prior to agreement stop date")
+		datesFieldsErrors.Errors["AgreementStart"] = append(datesFieldsErrors.Errors["AgreementStart"], err.Error())
+
+		// Modify date section error count
+		datesFieldsErrors.Total++
+	}
+
+	// -----------------------------------------------
+	// -------- Rent Date check ---------------------
+	// -----------------------------------------------
+	rentStartDate := time.Time(dates.RentStart)
+	rentStopDate := time.Time(dates.RentStop)
+	// Start date must be prior to End/Stop date
+	if !rentStartDate.Before(rentStopDate) {
+
+		// define and assign error
+		err = fmt.Errorf("rent start date must be prior to rent stop date")
+		datesFieldsErrors.Errors["RentStart"] = append(datesFieldsErrors.Errors["RentStart"], err.Error())
+
+		// Modify date section error count
+		datesFieldsErrors.Total++
+	}
+
+	// -----------------------------------------------
+	// --------- Possession Date check ---------------
+	// -----------------------------------------------
+	possessionStartDate := time.Time(dates.PossessionStart)
+	possessionStopDate := time.Time(dates.PossessionStop)
+	// Start date must be prior to End/Stop date
+	if !possessionStartDate.Before(possessionStopDate) {
+
+		// define and assign error
+		err = fmt.Errorf("possessions start date must be prior to possessions stop date")
+		datesFieldsErrors.Errors["PossessionStart"] = append(datesFieldsErrors.Errors["PossessionStart"], err.Error())
+
+		// Modify date section error count
+		datesFieldsErrors.Total++
+	}
+
+	return datesFieldsErrors
+}
+
+// validatePeopleBizLogic Perform business logic check on people section
+// ----------------------------------------------------------------------
+// 1. If isCompany flag is true then CompanyName is required
+// 2. If isCompany flag is false than FirstName and LastName are required
+// 3. If only one person exist in the list, then it should have isRenter role marked as true.
+// ----------------------------------------------------------------------
+func validatePeopleBizLogic(people []RAPeopleFlowData) ([]PeopleFieldsError, int) {
+	const funcname = "validatePeopleBizLogic"
+	fmt.Printf("Entered %s\n", funcname)
+
+	var (
+		peopleFieldsError  PeopleFieldsError
+		peopleFieldsErrors []PeopleFieldsError
+		err                error
+		errCount           int
+	)
+
+	// init peopleFieldsErrors
+	peopleFieldsErrors = make([]PeopleFieldsError, 0)
+
+	err = fmt.Errorf("should not be blank")
+	for _, p := range people {
+		peopleFieldsError.TMPTCID = p.TMPTCID
+		peopleFieldsError.Total = 0
+		peopleFieldsError.Errors = map[string][]string{}
+
+		// ----------- Check rule no. 1  ----------------
+		// If isCompany flag is true then CompanyName is required
+		if p.IsCompany && len(p.CompanyName) == 0 {
+			peopleFieldsError.Errors["CompanyName"] = append(peopleFieldsError.Errors["CompanyName"], err.Error())
+			peopleFieldsError.Total++
+		}
+
+		// ----------- Check rule no. 2  ----------------
+		// If isCompany flag is false than FirstName and LastName are required
+		if !p.IsCompany && len(p.FirstName) == 0 {
+			peopleFieldsError.Errors["FirstName"] = append(peopleFieldsError.Errors["FirstName"], err.Error())
+			peopleFieldsError.Total++
+		}
+
+		if !p.IsCompany && len(p.LastName) == 0 {
+			peopleFieldsError.Errors["LastName"] = append(peopleFieldsError.Errors["LastName"], err.Error())
+			peopleFieldsError.Total++
+		}
+
+		// If transanctant have error than only add it in the list of error
+		if peopleFieldsError.Total > 0 {
+			errCount += peopleFieldsError.Total
+			peopleFieldsErrors = append(peopleFieldsErrors, peopleFieldsError)
+		}
+	}
+
+	// ----------- Check rule no. 3 ----------------
+	// If only one person exist in the list, then it should have isRenter role marked as true
+	if len(people) == 1 && !people[0].IsRenter {
+		err = fmt.Errorf("person should be renter")
+
+		if len(peopleFieldsErrors) == 1 {
+			peopleFieldsErrors[0].Errors["IsRenter"] = append(peopleFieldsErrors[0].Errors["IsRenter"], err.Error())
+			peopleFieldsErrors[0].Total++
+			errCount++
+		} else {
+			peopleFieldsError.TMPTCID = people[0].TMPTCID
+			peopleFieldsError.Errors["IsRenter"] = append(peopleFieldsError.Errors["IsRenter"], err.Error())
+			peopleFieldsError.Total++
+			errCount += peopleFieldsError.Total
+			peopleFieldsErrors = append(peopleFieldsErrors, peopleFieldsError)
+		}
+	}
+
+	return peopleFieldsErrors, errCount
+}
+
+// validatePetBizLogic Perform business logic check on pet section
+// ----------------------------------------------------------------------
+// 1. Every pet must be associated with a transactant
+// 2. Pets are optional. Means if HavePets is set to false in meta
+// information than it should not have any pets.
+// 3. DtStart must be prior to DtStop
+// ----------------------------------------------------------------------
+func validatePetBizLogic(a *RAFlowJSONData) ([]PetFieldsError, int) {
+	const funcname = "validatePetBizLogic"
+	fmt.Printf("Entered %s\n", funcname)
+
+	var (
+		petFieldsError  PetFieldsError
+		petFieldsErrors []PetFieldsError
+		err             error
+		errCount        int
+	)
+
+	// Init fees slice
+	petFieldsError.FeesErrors = make([]RAFeesError, 0)
+
+	// Init error slice
+	petFieldsError.Errors = map[string][]string{}
+
+	// ------------- Check for rule no 1 ---------------
+	for _, pet := range a.Pets {
+		// Get pet tmp id
+		petFieldsError.TMPPETID = pet.TMPPETID
+		petFieldsError.Total = 0
+
+		if !isAssociatedWithPerson(pet.TMPTCID, a.People) {
+			//Error
+			err = fmt.Errorf("pet must be associated with a person")
+			// Modify error count
+			petFieldsError.Total++
+			// list error
+			petFieldsError.Errors["TMPPETID"] = append(petFieldsError.Errors["TMPPETID"], err.Error())
+		}
+
+		// -----------------------------------------------
+		// --------- Check for rule no 3 ---------------
+		// -----------------------------------------------
+		startDate := time.Time(pet.DtStart)
+		stopDate := time.Time(pet.DtStop)
+		// Start date must be prior to End/Stop date
+		if !startDate.Before(stopDate) {
+
+			// define and assign error
+			err = fmt.Errorf("start date must be prior to stop date")
+			petFieldsError.Errors["DtStart"] = append(petFieldsError.Errors["DtStart"], err.Error())
+
+			// Modify vehicle section error count
+			petFieldsError.Total++
+		}
+
+		// ---------------------------------------------------
+		// --------- Biz logic check for fees section --------
+		// ---------------------------------------------------
+		feeErrorTotal := 0
+		petFieldsError.FeesErrors, feeErrorTotal = validateFeesBizLogic(pet.Fees)
+		petFieldsError.Total += feeErrorTotal
+
+		if petFieldsError.Total > 0 {
+			errCount += petFieldsError.Total
+			petFieldsErrors = append(petFieldsErrors, petFieldsError)
+		}
+	}
+
+	return petFieldsErrors, errCount
+}
+
+// validateVehicleBizLogic Perform business logic check on vehicle section
+// ----------------------------------------------------------------------
+// 1. Every vehicle must be associated with a transactant
+// 2. Vehicle are optional. Means if HaveVehicles is set to false in meta
+// information than it should not have any vehicles.
+// 3. DtStart must be prior to DtStop
+// ----------------------------------------------------------------------
+func validateVehicleBizLogic(a *RAFlowJSONData) ([]VehicleFieldsError, int) {
+	const funcname = "validateVehicleBizLogic"
+	fmt.Printf("Entered %s\n", funcname)
+
+	var (
+		vehicleFieldsError  VehicleFieldsError
+		vehicleFieldsErrors []VehicleFieldsError
+		err                 error
+		errCount            int
+	)
+
+	// Init error slice
+	vehicleFieldsError.Errors = map[string][]string{}
+
+	for _, vehicle := range a.Vehicles {
+		// Get vehicle tmp id
+		vehicleFieldsError.TMPVID = vehicle.TMPVID
+		vehicleFieldsError.Total = 0
+		// Init fees slice
+		vehicleFieldsError.FeesErrors = make([]RAFeesError, 0)
+
+		// ------------- Check for rule no 1 ---------------
+		if !isAssociatedWithPerson(vehicle.TMPTCID, a.People) {
+			//Error
+			err = fmt.Errorf("vehicle must be associated with a person")
+
+			// Modify error count
+			vehicleFieldsError.Total++
+
+			// list error
+			vehicleFieldsError.Errors["TMPVID"] = append(vehicleFieldsError.Errors["TMPVID"], err.Error())
+		}
+
+		// -----------------------------------------------
+		// --------- Check for rule no 3 ---------------
+		// -----------------------------------------------
+		startDate := time.Time(vehicle.DtStart)
+		stopDate := time.Time(vehicle.DtStop)
+		// Start date must be prior to End/Stop date
+		if !startDate.Before(stopDate) {
+
+			// define and assign error
+			err = fmt.Errorf("start date must be prior to stop date")
+			vehicleFieldsError.Errors["DtStart"] = append(vehicleFieldsError.Errors["DtStart"], err.Error())
+
+			// Modify vehicle section error count
+			vehicleFieldsError.Total++
+		}
+
+		// ---------------------------------------------------
+		// --------- Biz logic check for fees section --------
+		// ---------------------------------------------------
+		feeErrorTotal := 0
+		vehicleFieldsError.FeesErrors, feeErrorTotal = validateFeesBizLogic(vehicle.Fees)
+		vehicleFieldsError.Total += feeErrorTotal
+
+		if vehicleFieldsError.Total > 0 {
+			errCount += vehicleFieldsError.Total
+			vehicleFieldsErrors = append(vehicleFieldsErrors, vehicleFieldsError)
+		}
+	}
+
+	return vehicleFieldsErrors, errCount
+}
+
+// validateRentableBizLogic Perform business logic check on rentable section
+// ----------------------------------------------------------------------
+// 1. There must be one parent rentables available. (Parent rentables decide based on RTFlags)
+// 2. For every rentables, there must be one entry for the Fees.
+// ----------------------------------------------------------------------
+func validateRentableBizLogic(rentables []RARentablesFlowData) ([]RentablesFieldsError, int) {
+	const funcname = "validateRentableBizLogic"
+	fmt.Printf("Entered %s\n", funcname)
+
+	var (
+		rentablesFieldsError  RentablesFieldsError
+		rentablesFieldsErrors []RentablesFieldsError
+		err                   error
+		errCount              int
+	)
+
+	rentablesFieldsErrors = make([]RentablesFieldsError, 0)
+
+	parentRentableCount := 0
+
+	for _, rentable := range rentables {
+		rentablesFieldsError.RID = rentable.RID
+		rentablesFieldsError.Errors = map[string][]string{}
+		rentablesFieldsError.Total = 0
+		// Init fees slice
+		rentablesFieldsError.FeesErrors = make([]RAFeesError, 0)
+
+		// There must be one entry for the Fees
+		// ----------- Check for rule no 2 ------------
+		if !(len(rentable.Fees) > 0) {
+			err = fmt.Errorf("should be at least one entry for the fees")
+			rentablesFieldsError.Total++
+			rentablesFieldsError.Errors["Fees"] = append(rentablesFieldsError.Errors["Fees"], err.Error())
+		}
+
+		// Check if rentable is parent. If yes than increment parentRentableCount
+		// And use this count to check there is parent rentable exists or not.
+		if rentable.RTFLAGS&(1<<1) == 0 {
+			parentRentableCount++
+		}
+
+		// ---------------------------------------------------
+		// --------- Biz logic check for fees section --------
+		// ---------------------------------------------------
+		feeErrorTotal := 0
+		rentablesFieldsError.FeesErrors, feeErrorTotal = validateFeesBizLogic(rentable.Fees)
+		rentablesFieldsError.Total += feeErrorTotal
+
+		// Modify rentable error list
+		if rentablesFieldsError.Total > 0 {
+			errCount += rentablesFieldsError.Total
+			rentablesFieldsErrors = append(rentablesFieldsErrors, rentablesFieldsError)
+		}
+	}
+
+	// There must be one parent rentable
+	// TODO(Akshay): Add this error to rentables
+	//if parentRentableCount < 1 {
+	//	err = fmt.Errorf("should be at least one parent rentable")
+	//}
+
+	return rentablesFieldsErrors, errCount
+}
+
+// validateFeesBizLogic perform business logic check on fees section
+// ----------------------------------------------------------------------
+// 1. Start date must be prior to Stop date
+// ----------------------------------------------------------------------
+func validateFeesBizLogic(fees []RAFeesData) ([]RAFeesError, int) {
+	const funcname = "validateFeesBizLogic"
+	fmt.Printf("Entered %s\n", funcname)
+
+	var (
+		raFeesError  RAFeesError
+		raFeesErrors []RAFeesError
+		err          error
+		errCount     int
+	)
+	// Init error slice
+	raFeesError.Errors = map[string][]string{}
+
+	raFeesErrors = make([]RAFeesError, 0)
+
+	for _, fee := range fees {
+		raFeesError.TMPASMID = fee.TMPASMID
+
+		// Init error slice
+		raFeesError.Errors = map[string][]string{}
+		raFeesError.Total = 0
+
+		// -----------------------------------------------
+		// --------- Check for rule no 1 ---------------
+		// -----------------------------------------------
+		startDate := time.Time(fee.Start)
+		stopDate := time.Time(fee.Stop)
+		// Start date must be prior to End/Stop date
+		if !startDate.Before(stopDate) {
+			// define and assign error
+			err = fmt.Errorf("start date must be prior to stop date")
+			raFeesError.Errors["Start"] = append(raFeesError.Errors["Start"], err.Error())
+			// Modify vehicle section error count
+			raFeesError.Total++
+		}
+
+		if raFeesError.Total > 0 {
+			errCount += raFeesError.Total
+			raFeesErrors = append(raFeesErrors, raFeesError)
+		}
+	}
+
+	return raFeesErrors, errCount
+}
+
+// validateParentChildBizLogic Perform business logic check on parent/child section
+// ----------------------------------------------------------------------
+// 1. If there are any entries are in the list then id of parent/child rentable must be greater than 0. Also check does it exist in database?
+// ----------------------------------------------------------------------
+func validateParentChildBizLogic(ctx context.Context, pcData []RAParentChildFlowData) ([]ParentChildFieldsError, int) {
+	const funcname = "validateParentChildBizLogic"
+	fmt.Printf("Entered %s\n", funcname)
+
+	var (
+		parentChildFieldsError  ParentChildFieldsError
+		parentChildFieldsErrors []ParentChildFieldsError
+		//err                     error
+		errCount int
+	)
+
+	parentChildFieldsErrors = make([]ParentChildFieldsError, 0)
+
+	for _, pc := range pcData {
+		parentChildFieldsError.Errors = map[string][]string{}
+		parentChildFieldsError.Total = 0
+		parentChildFieldsError.PRID = pc.PRID
+		parentChildFieldsError.CRID = pc.CRID
+
+		// Check PRID exists in database which refer to RID in rentable table
+		r, err := rlib.GetRentable(ctx, pc.PRID)
+		// Not exist than RID will be 0
+		if !(r.RID > 0 && pc.PRID > 0) {
+			err = fmt.Errorf("parent rentable should exists")
+			parentChildFieldsError.Errors["PRID"] = append(parentChildFieldsError.Errors["PRID"], err.Error())
+			parentChildFieldsError.Total++
+		}
+
+		// Check CRID exists in database which refer to RID in rentable table
+		r, err = rlib.GetRentable(ctx, pc.CRID)
+		// Not exist than RID will be 0
+		if !(r.RID > 0 && pc.CRID > 0) {
+			err = fmt.Errorf("child rentable should exists")
+			parentChildFieldsError.Errors["CRID"] = append(parentChildFieldsError.Errors["CRID"], err.Error())
+			parentChildFieldsError.Total++
+		}
+
+		if parentChildFieldsError.Total > 0 {
+			errCount += parentChildFieldsError.Total
+			parentChildFieldsErrors = append(parentChildFieldsErrors, parentChildFieldsError)
+		}
+	}
+
+	return parentChildFieldsErrors, errCount
+}
+
+// validateTiePeopleBizLogic Perform business logic check on Tie section for people
+// ----------------------------------------------------------------------
+// 1. PRID must be greater than 0. It should exists in database
+// 2. Person must be occupant.
+// ----------------------------------------------------------------------
+func validateTiePeopleBizLogic(ctx context.Context, a *RAFlowJSONData) ([]TiePeopleFieldsError, int) {
+	const funcname = "validateParentChildBizLogic"
+	fmt.Printf("Entered %s\n", funcname)
+
+	var (
+		tiePeopleFieldsError  TiePeopleFieldsError
+		tiePeopleFieldsErrors []TiePeopleFieldsError
+		//err                     error
+		errCount int
+	)
+
+	tiePeopleFieldsErrors = make([]TiePeopleFieldsError, 0)
+	occupantCount := 0
+
+	for _, p := range a.Tie.People {
+		tiePeopleFieldsError.Errors = map[string][]string{}
+		tiePeopleFieldsError.Total = 0
+		tiePeopleFieldsError.TMPTCID = p.TMPTCID
+
+		// ---------- Check rule no 1 ---------------
+		// 1. PRID must be greater than 0. It should exists in database
+		// Check PRID exists in database which refer to RID in rentable table
+		r, err := rlib.GetRentable(ctx, p.PRID)
+		// Not exist than RID will be 0
+		if !(r.RID > 0 && p.PRID > 0) {
+			err = fmt.Errorf("parent rentable should be tied")
+			tiePeopleFieldsError.Errors["PRID"] = append(tiePeopleFieldsError.Errors["PRID"], err.Error())
+			tiePeopleFieldsError.Total++
+		}
+
+		// ---------- Check rule no 2 ---------------
+		// 2. Person must be occupant.
+		if !isPersonOccupant(p.TMPTCID, a.People) {
+			// Person is not occupant
+			err = fmt.Errorf("person should be an occupant")
+			tiePeopleFieldsError.Errors["IsOccupant"] = append(tiePeopleFieldsError.Errors["IsOccupant"], err.Error())
+			tiePeopleFieldsError.Total++
+		} else {
+			// Person is occupant
+			occupantCount++
+		}
+
+		if tiePeopleFieldsError.Total > 0 {
+			errCount += tiePeopleFieldsError.Total
+			tiePeopleFieldsErrors = append(tiePeopleFieldsErrors, tiePeopleFieldsError)
+		}
+	}
+
+	// TODO(Akshay): Add this to non field error
+	//if !(occupantCount > 0){
+	//	// Add error: There should be at least one occupant
+	//}
+
+	return tiePeopleFieldsErrors, errCount
+}
+
+// isPersonOccupant Check provided TMPTCID refered person is occupant status
+func isPersonOccupant(TMPTCID int64, people []RAPeopleFlowData) bool {
+	for _, p := range people {
+		if p.TMPTCID == TMPTCID && p.IsOccupant {
+			return true
+		}
+		continue
+	}
+	return false
+}
+
+// isAssociatedWithPerson Check Pets/Vehicles is associated with Person or not
+func isAssociatedWithPerson(TMPTCID int64, people []RAPeopleFlowData) bool {
+	for _, p := range people {
+		if p.TMPTCID == TMPTCID {
+			return true
+		}
+		continue
+	}
+	return false
 }
