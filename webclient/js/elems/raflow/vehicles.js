@@ -17,7 +17,8 @@
     FeeFormOnChangeHandler, FeeFormOnRefreshHandler,
     SliderContentDivLength, SetFeeFormRecordFromFeeData,
     RenderVehicleFeesGridSummary, RAFlowNewVehicleAJAX,
-    GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary
+    GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary,
+    GetVehicleIdentity
 */
 
 "use strict";
@@ -106,7 +107,7 @@ window.SetlocalDataFromRAVehicleFormRecord = function(TMPVID) {
     var localVehicleData = GetVehicleLocalData(TMPVID);
 
     // set data from form
-    var vehicleData = SetDataFromFormRecord(TMPVID, true, form, localVehicleData);
+    var vehicleData = SetDataFromFormRecord(TMPVID, form, localVehicleData);
 
     // if not Fees then assign in vehicle data
     if (!vehicleData.hasOwnProperty("Fees")) {
@@ -131,7 +132,7 @@ window.SetRAVehicleFormRecordFromLocalData = function(TMPVID) {
     var localVehicleData = GetVehicleLocalData(TMPVID);
 
     // set form record from data
-    SetFormRecordFromData(true, form, localVehicleData);
+    SetFormRecordFromData(form, localVehicleData);
 
     // refresh the form after setting the record
     form.refresh();
@@ -411,9 +412,6 @@ window.loadRAVehiclesGrid = function () {
 
                     // get RAID for active flow
                     var RAID = app.raflow.data[app.raflow.activeFlowID].ID;
-                    // TODO(Sudip): This condition will be changed,
-                    //              we just can't be depend on RAID to
-                    //              disable permitnumber input
                     if (RAID > 0) {
                         $(f.box).find("input[name=ParkingPermitNumber]").prop("disabled", false);
                     } else {
@@ -424,9 +422,15 @@ window.loadRAVehiclesGrid = function () {
                     }
 
                     // format header
-                    var make    = f.record.VehicleMake,
-                        model   = f.record.VehicleModel;
-                    f.header = "Edit Vehicle Entry for (<strong>{0} - {1}</strong>)".format(make, model);
+                    var vehicleIdentity = GetVehicleIdentity(f.record),
+                        vehicleString   = "<em>new</em>";
+
+                    if (f.record.VID > 0) {
+                        vehicleString = vehicleIdentity;
+                    } else if (vehicleIdentity) {
+                        vehicleString = "<em>new</em> - {0}".format(vehicleIdentity);
+                    }
+                    f.header = "Edit Vehicle (<strong>{0}</strong>)".format(vehicleString);
                 };
             },
             onChange: function(event) {
@@ -830,16 +834,20 @@ window.loadRAVehiclesGrid = function () {
                     formRefreshCallBack(feeForm);
 
                     // set header
-                    var header = "Fee (<strong>{0}</strong>) for Vehicle - {1}";
-                    var vehicleIdentity = "(<strong>{0} - {1}</strong>)";
-                    vehicleIdentity = vehicleIdentity.format(
-                        w2ui.RAVehicleForm.record.VehicleMake,
-                        w2ui.RAVehicleForm.record.VehicleModel
-                    );
+                    var header          = "Edit Fee (<strong>{0}</strong>) for Vehicle (<strong>{1}</strong>)".format(vehicleIdentity),
+                        vehicleIdentity = GetVehicleIdentity(w2ui.RAVehicleForm.record),
+                        vehicleString   = "<em>new</em>";
+
+                    if (w2ui.RAVehicleForm.record.VID > 0) {
+                        vehicleString = vehicleIdentity;
+                    } else if (vehicleIdentity) {
+                        vehicleString = "<em>new</em> - {0}".format(vehicleIdentity);
+                    }
+
                     if (feeForm.record.ARName && feeForm.record.ARName.length > 0) {
-                        feeForm.header = header.format(feeForm.record.ARName, vehicleIdentity);
+                        feeForm.header = header.format(feeForm.record.ARName, vehicleString);
                     } else {
-                        feeForm.header = header.format("new", vehicleIdentity);
+                        feeForm.header = header.format("new", vehicleString);
                     }
                 };
             }
@@ -1069,4 +1077,19 @@ window.AssignVehicleFeesGridRecords = function(TMPVID) {
 
     // render vehicle fees grid summary
     RenderVehicleFeesGridSummary(TMPVID);
+};
+
+//-----------------------------------------------------------------------------
+// GetVehicleIdentity - return easily readable vehicle identity string
+//-----------------------------------------------------------------------------
+window.GetVehicleIdentity = function(record) {
+    var year    = record.VehicleYear,
+        make    = record.VehicleMake,
+        model   = record.VehicleModel;
+
+    if (year || make || model) {
+        return "{0} - {1} - {2}".format(year, make, model);
+    }
+
+    return "";
 };

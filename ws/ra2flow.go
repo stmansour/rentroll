@@ -346,6 +346,58 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //-------------------------------------------------------------------------
 func GetRA2FlowCore(ctx context.Context, ra *rlib.RentalAgreement, uid int64) (int64, error) {
 	var flowID int64
+
+	// convert permanent ra to flow data and get it
+	raf, err := ConvertRA2Flow(ctx, ra)
+	if err != nil {
+		return flowID, err
+	}
+
+	//-------------------------------------------------------------------------
+	// Save the flow to the db
+	//-------------------------------------------------------------------------
+	raflowJSONData, err := json.Marshal(&raf)
+	if err != nil {
+		return flowID, err
+	}
+
+	//-------------------------------------------------------------------------
+	// Fill out the datastructure and save it to the db as a flow...
+	//-------------------------------------------------------------------------
+	a := rlib.Flow{
+		BID:       ra.BID,
+		FlowID:    0, // it's new flowID,
+		UserRefNo: rlib.GenerateUserRefNo(),
+		FlowType:  rlib.RAFlow,
+		ID:        ra.RAID,
+		Data:      raflowJSONData,
+		CreateBy:  uid,
+		LastModBy: uid,
+	}
+
+	// insert new flow
+	flowID, err = rlib.InsertFlow(ctx, &a)
+	if err != nil {
+		return flowID, err
+	}
+	return flowID, nil
+}
+
+// ConvertRA2Flow does all the heavy lifting to convert existing
+// rental agreement data to raflow data
+//
+// INPUTS:
+//     ctx    database context for transactions
+//     ra     the rental agreement to move into a flow
+//
+// RETURNS:
+//     the RAFlowJSONData
+//     any error encountered
+//-------------------------------------------------------------------------
+func ConvertRA2Flow(ctx context.Context, ra *rlib.RentalAgreement) (RAFlowJSONData, error) {
+	const funcname = "ConvertRA2Flow"
+	fmt.Printf("Entered in %s\n", funcname)
+
 	//-------------------------------------------------------------
 	// This is the datastructure we need to fill out and save...
 	//-------------------------------------------------------------
@@ -385,12 +437,12 @@ func GetRA2FlowCore(ctx context.Context, ra *rlib.RentalAgreement, uid int64) (i
 	//-------------------------------------------------------------------------
 	n, err := rlib.GetAllRentalAgreementRentables(ctx, ra.RAID)
 	if err != nil {
-		return flowID, err
+		return raf, nil
 	}
 	for j := 0; j < len(n); j++ {
 		rulist, err := rlib.GetRentableUsersInRange(ctx, n[j].RID, &ra.AgreementStart, &ra.AgreementStop)
 		if err != nil {
-			return flowID, err
+			return raf, nil
 		}
 		for k := 0; k < len(rulist); k++ {
 			addRAPtoFlow(ctx, rulist[k].TCID, n[j].RID, &raf, true, false, true)
@@ -402,11 +454,11 @@ func GetRA2FlowCore(ctx context.Context, ra *rlib.RentalAgreement, uid int64) (i
 	//-------------------------------------------------------------------------
 	m, err := rlib.GetRentalAgreementPayorsInRange(ctx, ra.RAID, &ra.AgreementStart, &ra.AgreementStop)
 	if err != nil {
-		return flowID, err
+		return raf, nil
 	}
 	for i := 0; i < len(m); i++ {
 		if err = addRAPtoFlow(ctx, m[i].TCID, 0 /*no RID here*/, &raf, true /*check dups*/, true /*renter*/, false); err != nil {
-			return flowID, err
+			return raf, nil
 		}
 	}
 
@@ -416,20 +468,20 @@ func GetRA2FlowCore(ctx context.Context, ra *rlib.RentalAgreement, uid int64) (i
 	now := time.Now()
 	o, err := rlib.GetRentalAgreementRentables(ctx, ra.RAID, &ra.AgreementStart, &ra.AgreementStop)
 	if err != nil {
-		return flowID, err
+		return raf, nil
 	}
 	for i := 0; i < len(o); i++ {
 		rnt, err := rlib.GetRentable(ctx, o[i].RID)
 		if err != nil {
-			return flowID, err
+			return raf, nil
 		}
 		rtr, err := rlib.GetRentableTypeRefForDate(ctx, o[i].RID, &now)
 		if err != nil {
-			return flowID, err
+			return raf, nil
 		}
 		var rt rlib.RentableType
 		if err = rlib.GetRentableType(ctx, rtr.RTID, &rt); err != nil {
-			return flowID, err
+			return raf, nil
 		}
 		var rfd = RARentablesFlowData{
 			BID:          o[i].BID,
@@ -447,7 +499,7 @@ func GetRA2FlowCore(ctx context.Context, ra *rlib.RentalAgreement, uid int64) (i
 		//---------------------------------------------------------
 		asms, err := rlib.GetAssessmentsByRAIDRID(ctx, rfd.BID, ra.RAID, rfd.RID)
 		if err != nil {
-			return flowID, err
+			return raf, nil
 		}
 		for j := 0; j < len(asms); j++ {
 
@@ -456,7 +508,7 @@ func GetRA2FlowCore(ctx context.Context, ra *rlib.RentalAgreement, uid int64) (i
 			//----------------------------------------------------------
 			ar, err := rlib.GetAR(ctx, asms[j].ARID)
 			if err != nil {
-				return flowID, err
+				return raf, nil
 			}
 
 			//----------------------------------------------------------
@@ -471,6 +523,7 @@ func GetRA2FlowCore(ctx context.Context, ra *rlib.RentalAgreement, uid int64) (i
 					RentCycle:      asms[j].RentCycle,
 					Start:          rlib.JSONDate(asms[j].Start),
 					Stop:           rlib.JSONDate(asms[j].Stop),
+					Comment:        asms[j].Comment,
 				}
 				rfd.Fees = append(rfd.Fees, fee)
 			}
@@ -502,6 +555,7 @@ func GetRA2FlowCore(ctx context.Context, ra *rlib.RentalAgreement, uid int64) (i
 							Start:          rlib.JSONDate(asms[j].Start),
 							Stop:           rlib.JSONDate(asms[j].Stop),
 							ContractAmount: asms[j].Amount,
+							Comment:        asms[j].Comment,
 						}
 						raf.Pets[k].Fees = append(raf.Pets[k].Fees, pf)
 						break
@@ -525,6 +579,7 @@ func GetRA2FlowCore(ctx context.Context, ra *rlib.RentalAgreement, uid int64) (i
 							RentCycle:      asms[j].RentCycle,
 							Start:          rlib.JSONDate(asms[j].Start),
 							Stop:           rlib.JSONDate(asms[j].Stop),
+							Comment:        asms[j].Comment,
 						}
 						raf.Vehicles[k].Fees = append(raf.Vehicles[k].Fees, pf)
 						break
@@ -536,34 +591,7 @@ func GetRA2FlowCore(ctx context.Context, ra *rlib.RentalAgreement, uid int64) (i
 		raf.Rentables = append(raf.Rentables, rfd)
 	}
 
-	//-------------------------------------------------------------------------
-	// Save the flow to the db
-	//-------------------------------------------------------------------------
-	raflowJSONData, err := json.Marshal(&raf)
-	if err != nil {
-		return flowID, err
-	}
-
-	//-------------------------------------------------------------------------
-	// Fill out the datastructure and save it to the db as a flow...
-	//-------------------------------------------------------------------------
-	a := rlib.Flow{
-		BID:       ra.BID,
-		FlowID:    0, // it's new flowID,
-		UserRefNo: rlib.GenerateUserRefNo(),
-		FlowType:  rlib.RAFlow,
-		ID:        ra.RAID,
-		Data:      raflowJSONData,
-		CreateBy:  uid,
-		LastModBy: uid,
-	}
-
-	// insert new flow
-	flowID, err = rlib.InsertFlow(ctx, &a)
-	if err != nil {
-		return flowID, err
-	}
-	return flowID, nil
+	return raf, nil
 }
 
 // addRAPtoFlow adds a new person to raf.People.  The renter/occupant flags

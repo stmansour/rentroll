@@ -6,7 +6,7 @@
     AssignRAFinalRentablesFeesGridRecords,
     AssignRAFinalPetsFeesGridRecords,
     AssignRAFinalVehiclesFeesGridRecords,
-    RenderFeesGridSummary,
+    RenderFeesGridSummary, GetVehicleIdentity,
 */
 
 
@@ -243,9 +243,6 @@ window.AssignRAFinalPetsFeesGridRecords = function() {
 window.AssignRAFinalVehiclesFeesGridRecords = function() {
     var grid = w2ui.RAFinalVehiclesFeesGrid;
 
-    // vehicle column
-    var vehicleIdentity = "{0} - {1}";
-
     // clear the grid
     grid.clear();
 
@@ -260,10 +257,7 @@ window.AssignRAFinalVehiclesFeesGridRecords = function() {
             // take a clone of local fee record
             var vehicleFee = $.extend(true, {}, feeItem);
 
-            vehicleIdentity = vehicleIdentity.format(
-                vehicle.VehicleMake, vehicle.VehicleModel);
-
-            vehicleFee.Vehicle = vehicleIdentity;
+            vehicleFee.Vehicle = GetVehicleIdentity(vehicle);
             vehicleFee.TMPVID = vehicle.TMPVID;
             grid.records.push(vehicleFee);
         });
