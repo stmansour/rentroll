@@ -486,6 +486,7 @@ func validateRAFlowBizLogic(ctx context.Context, a *RAFlowJSONData, raFlowFields
 		vehicleFieldsErrors     []VehicleFieldsError
 		rentablesFieldsErrors   []RentablesFieldsError
 		parentChildFieldsErrors []ParentChildFieldsError
+		tiePeopleFieldsErrors   []TiePeopleFieldsError
 		g                       ValidateRAFlowResponse
 	)
 
@@ -534,6 +535,13 @@ func validateRAFlowBizLogic(ctx context.Context, a *RAFlowJSONData, raFlowFields
 	parentChildFieldsErrors, parentChildErrorTotal := validateParentChildBizLogic(ctx, a.ParentChild)
 	g.Total += parentChildErrorTotal
 	raFlowFieldsErrors.ParentChild = parentChildFieldsErrors
+
+	// -----------------------------------------------
+	// --- Bizlogic check on tie-people section ----
+	// -----------------------------------------------
+	tiePeopleFieldsErrors, tiePeopleErrorTotal := validateTiePeopleBizLogic(ctx, a)
+	g.Total += tiePeopleErrorTotal
+	raFlowFieldsErrors.Tie.TiePeople = tiePeopleFieldsErrors
 
 	// Set the response
 	g.Errors = raFlowFieldsErrors
@@ -843,6 +851,8 @@ func validateRentableBizLogic(rentables []RARentablesFlowData) ([]RentablesField
 		errCount              int
 	)
 
+	rentablesFieldsErrors = make([]RentablesFieldsError, 0)
+
 	parentRentableCount := 0
 
 	for _, rentable := range rentables {
@@ -876,7 +886,9 @@ func validateRentableBizLogic(rentables []RARentablesFlowData) ([]RentablesField
 		errCount += rentablesFieldsError.Total
 
 		// Modify rentable error list
-		rentablesFieldsErrors = append(rentablesFieldsErrors, rentablesFieldsError)
+		if rentablesFieldsError.Total > 0 {
+			rentablesFieldsErrors = append(rentablesFieldsErrors, rentablesFieldsError)
+		}
 	}
 
 	// There must be one parent rentable
@@ -963,11 +975,10 @@ func validateParentChildBizLogic(ctx context.Context, pcData []RAParentChildFlow
 		// Check PRID exists in database which refer to RID in rentable table
 		r, err := rlib.GetRentable(ctx, pc.PRID)
 		// Not exist than RID will be 0
-		if r.RID == 0 || pc.PRID == 0 {
+		if r.RID == 0 || pc.PRID < 1 {
 			err = fmt.Errorf("parent rentable should exists")
 			parentChildFieldsError.Errors["PRID"] = append(parentChildFieldsError.Errors["PRID"], err.Error())
 			parentChildFieldsError.Total++
-			fmt.Println(parentChildFieldsError)
 		}
 
 		// Check CRID exists in database which refer to RID in rentable table
@@ -986,6 +997,79 @@ func validateParentChildBizLogic(ctx context.Context, pcData []RAParentChildFlow
 	}
 
 	return parentChildFieldsErrors, errCount
+}
+
+// validateTiePeopleBizLogic Perform business logic check on Tie section for people
+// ----------------------------------------------------------------------
+// 1. PRID must be greater than 0. It should exists in database
+// 2. Person must be occupant.
+// ----------------------------------------------------------------------
+func validateTiePeopleBizLogic(ctx context.Context, a *RAFlowJSONData) ([]TiePeopleFieldsError, int) {
+	const funcname = "validateParentChildBizLogic"
+	fmt.Printf("Entered %s\n", funcname)
+
+	var (
+		tiePeopleFieldsError  TiePeopleFieldsError
+		tiePeopleFieldsErrors []TiePeopleFieldsError
+		//err                     error
+		errCount int
+	)
+
+	tiePeopleFieldsErrors = make([]TiePeopleFieldsError, 0)
+	occupantCount := 0
+
+	for _, p := range a.Tie.People {
+		tiePeopleFieldsError.Errors = map[string][]string{}
+		tiePeopleFieldsError.Total = 0
+		tiePeopleFieldsError.TMPTCID = p.TMPTCID
+
+		// ---------- Check rule no 1 ---------------
+		// 1. PRID must be greater than 0. It should exists in database
+		// Check PRID exists in database which refer to RID in rentable table
+		r, err := rlib.GetRentable(ctx, p.PRID)
+		// Not exist than RID will be 0
+		if !(r.RID > 0 && p.PRID > 0) {
+			err = fmt.Errorf("parent rentable should be tied")
+			tiePeopleFieldsError.Errors["PRID"] = append(tiePeopleFieldsError.Errors["PRID"], err.Error())
+			tiePeopleFieldsError.Total++
+		}
+
+		// ---------- Check rule no 2 ---------------
+		// 2. Person must be occupant.
+		fmt.Println(isPersonOccupant(p.TMPTCID, a.People))
+		if !isPersonOccupant(p.TMPTCID, a.People) {
+			// Person is not occupant
+			err = fmt.Errorf("person should be an occupant")
+			tiePeopleFieldsError.Errors["IsOccupant"] = append(tiePeopleFieldsError.Errors["IsOccupant"], err.Error())
+			tiePeopleFieldsError.Total++
+		} else {
+			// Person is occupant
+			occupantCount++
+		}
+
+		errCount += tiePeopleFieldsError.Total
+		if tiePeopleFieldsError.Total > 0 {
+			tiePeopleFieldsErrors = append(tiePeopleFieldsErrors, tiePeopleFieldsError)
+		}
+	}
+
+	// TODO(Akshay): Add this to non field error
+	//if !(occupantCount > 0){
+	//	// Add error: There should be at least one occupant
+	//}
+
+	return tiePeopleFieldsErrors, errCount
+}
+
+// isPersonOccupant Check provided TMPTCID refered person is occupant status
+func isPersonOccupant(TMPTCID int64, people []RAPeopleFlowData) bool {
+	for _, p := range people {
+		if p.TMPTCID == TMPTCID && p.IsOccupant {
+			return true
+		}
+		continue
+	}
+	return false
 }
 
 // isAssociatedWithPerson Check Pets/Vehicles is associated with Person or not
