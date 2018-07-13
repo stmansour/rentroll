@@ -955,8 +955,8 @@ func validateParentChildBizLogic(ctx context.Context, pcData []RAParentChildFlow
 	parentChildFieldsErrors = make([]ParentChildFieldsError, 0)
 
 	for _, pc := range pcData {
+		parentChildFieldsError.Errors = map[string][]string{}
 		parentChildFieldsError.Total = 0
-
 		parentChildFieldsError.PRID = pc.PRID
 		parentChildFieldsError.CRID = pc.CRID
 
