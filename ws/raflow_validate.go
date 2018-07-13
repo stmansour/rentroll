@@ -713,22 +713,15 @@ func validatePetBizLogic(a *RAFlowJSONData) ([]PetFieldsError, int) {
 	// Init error slice
 	petFieldsError.Errors = map[string][]string{}
 
-	// If meta doesn't set HavePets to true than RAFlow shouldn't have any pets
-	//if a.Meta.HavePets && len(a.Pets) != 0{
-	//	//err = fmt.Errorf("should be")
-	//	//petFieldsError.Total++
-	//	//petFieldsError.Errors["pet"] = append(petFieldsError.Errors["pet"], )
-	//
-	//}
-
 	// ------------- Check for rule no 1 ---------------
 	for _, pet := range a.Pets {
 		// Get pet tmp id
 		petFieldsError.TMPPETID = pet.TMPPETID
+		petFieldsError.Total = 0
+
 		if !isAssociatedWithPerson(pet.TMPTCID, a.People) {
 			//Error
 			err = fmt.Errorf("pet must be associated with a person")
-
 			// Modify error count
 			petFieldsError.Total++
 			// list error
@@ -758,8 +751,10 @@ func validatePetBizLogic(a *RAFlowJSONData) ([]PetFieldsError, int) {
 		petFieldsError.FeesErrors, feeErrorTotal = validateFeesBizLogic(pet.Fees)
 		petFieldsError.Total += feeErrorTotal
 
-		errCount += petFieldsError.Total
-		petFieldsErrors = append(petFieldsErrors, petFieldsError)
+		if petFieldsError.Total > 0 {
+			errCount += petFieldsError.Total
+			petFieldsErrors = append(petFieldsErrors, petFieldsError)
+		}
 	}
 
 	return petFieldsErrors, errCount
@@ -783,15 +778,15 @@ func validateVehicleBizLogic(a *RAFlowJSONData) ([]VehicleFieldsError, int) {
 		errCount            int
 	)
 
-	// Init fees slice
-	vehicleFieldsError.FeesErrors = make([]RAFeesError, 0)
-
 	// Init error slice
 	vehicleFieldsError.Errors = map[string][]string{}
 
 	for _, vehicle := range a.Vehicles {
 		// Get vehicle tmp id
 		vehicleFieldsError.TMPVID = vehicle.TMPVID
+		vehicleFieldsError.Total = 0
+		// Init fees slice
+		vehicleFieldsError.FeesErrors = make([]RAFeesError, 0)
 
 		// ------------- Check for rule no 1 ---------------
 		if !isAssociatedWithPerson(vehicle.TMPTCID, a.People) {
@@ -827,9 +822,11 @@ func validateVehicleBizLogic(a *RAFlowJSONData) ([]VehicleFieldsError, int) {
 		feeErrorTotal := 0
 		vehicleFieldsError.FeesErrors, feeErrorTotal = validateFeesBizLogic(vehicle.Fees)
 		vehicleFieldsError.Total += feeErrorTotal
-		errCount += vehicleFieldsError.Total
 
-		vehicleFieldsErrors = append(vehicleFieldsErrors, vehicleFieldsError)
+		if vehicleFieldsError.Total > 0 {
+			errCount += vehicleFieldsError.Total
+			vehicleFieldsErrors = append(vehicleFieldsErrors, vehicleFieldsError)
+		}
 	}
 
 	return vehicleFieldsErrors, errCount
@@ -864,7 +861,7 @@ func validateRentableBizLogic(rentables []RARentablesFlowData) ([]RentablesField
 
 		// There must be one entry for the Fees
 		// ----------- Check for rule no 2 ------------
-		if len(rentable.Fees) < 1 {
+		if !(len(rentable.Fees) > 0) {
 			err = fmt.Errorf("should be at least one entry for the fees")
 			rentablesFieldsError.Total++
 			rentablesFieldsError.Errors["Fees"] = append(rentablesFieldsError.Errors["Fees"], err.Error())
@@ -883,10 +880,9 @@ func validateRentableBizLogic(rentables []RARentablesFlowData) ([]RentablesField
 		rentablesFieldsError.FeesErrors, feeErrorTotal = validateFeesBizLogic(rentable.Fees)
 		rentablesFieldsError.Total += feeErrorTotal
 
-		errCount += rentablesFieldsError.Total
-
 		// Modify rentable error list
 		if rentablesFieldsError.Total > 0 {
+			errCount += rentablesFieldsError.Total
 			rentablesFieldsErrors = append(rentablesFieldsErrors, rentablesFieldsError)
 		}
 	}
@@ -939,9 +935,9 @@ func validateFeesBizLogic(fees []RAFeesData) ([]RAFeesError, int) {
 			// Modify vehicle section error count
 			raFeesError.Total++
 		}
-		errCount += raFeesError.Total
 
 		if raFeesError.Total > 0 {
+			errCount += raFeesError.Total
 			raFeesErrors = append(raFeesErrors, raFeesError)
 		}
 	}
@@ -975,7 +971,7 @@ func validateParentChildBizLogic(ctx context.Context, pcData []RAParentChildFlow
 		// Check PRID exists in database which refer to RID in rentable table
 		r, err := rlib.GetRentable(ctx, pc.PRID)
 		// Not exist than RID will be 0
-		if r.RID == 0 || pc.PRID < 1 {
+		if !(r.RID > 0 && pc.PRID > 0) {
 			err = fmt.Errorf("parent rentable should exists")
 			parentChildFieldsError.Errors["PRID"] = append(parentChildFieldsError.Errors["PRID"], err.Error())
 			parentChildFieldsError.Total++
@@ -984,14 +980,14 @@ func validateParentChildBizLogic(ctx context.Context, pcData []RAParentChildFlow
 		// Check CRID exists in database which refer to RID in rentable table
 		r, err = rlib.GetRentable(ctx, pc.CRID)
 		// Not exist than RID will be 0
-		if r.RID == 0 || pc.CRID == 0 {
+		if !(r.RID > 0 && pc.CRID > 0) {
 			err = fmt.Errorf("child rentable should exists")
 			parentChildFieldsError.Errors["CRID"] = append(parentChildFieldsError.Errors["CRID"], err.Error())
 			parentChildFieldsError.Total++
 		}
 
-		errCount += parentChildFieldsError.Total
 		if parentChildFieldsError.Total > 0 {
+			errCount += parentChildFieldsError.Total
 			parentChildFieldsErrors = append(parentChildFieldsErrors, parentChildFieldsError)
 		}
 	}
@@ -1036,7 +1032,6 @@ func validateTiePeopleBizLogic(ctx context.Context, a *RAFlowJSONData) ([]TiePeo
 
 		// ---------- Check rule no 2 ---------------
 		// 2. Person must be occupant.
-		fmt.Println(isPersonOccupant(p.TMPTCID, a.People))
 		if !isPersonOccupant(p.TMPTCID, a.People) {
 			// Person is not occupant
 			err = fmt.Errorf("person should be an occupant")
@@ -1047,8 +1042,8 @@ func validateTiePeopleBizLogic(ctx context.Context, a *RAFlowJSONData) ([]TiePeo
 			occupantCount++
 		}
 
-		errCount += tiePeopleFieldsError.Total
 		if tiePeopleFieldsError.Total > 0 {
+			errCount += tiePeopleFieldsError.Total
 			tiePeopleFieldsErrors = append(tiePeopleFieldsErrors, tiePeopleFieldsError)
 		}
 	}
