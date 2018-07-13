@@ -101,7 +101,7 @@ window.SetlocalDataFromRAPetFormRecord = function(TMPPETID) {
     var localPetData = GetPetLocalData(TMPPETID);
 
     // set data from form
-    var petData = SetDataFromFormRecord(TMPPETID, true, form, localPetData);
+    var petData = SetDataFromFormRecord(TMPPETID, form, localPetData);
 
     // if not Fees then assign in pet data
     if (!petData.hasOwnProperty("Fees")) {
@@ -126,7 +126,7 @@ window.SetRAPetFormRecordFromLocalData = function(TMPPETID) {
     var localPetData = GetPetLocalData(TMPPETID);
 
     // set form record from data
-    SetFormRecordFromData(true, form, localPetData);
+    SetFormRecordFromData(form, localPetData);
 
     // refresh the form after setting the record
     form.refresh();
@@ -384,11 +384,19 @@ window.loadRAPetsGrid = function () {
                     }
 
                     // format header
-                    var petName = f.record.Name;
-                    f.header = "Edit Pet Entry for (<strong>{0}</strong>)".format(petName);
+                    var petIdentity = f.record.Name,
+                        petString   = "<em>new</em>";
+
+                    if (f.record.PETID > 0) {
+                        petString = petIdentity;
+                    } else if (petIdentity) {
+                        petString = "<em>new</em> - {0}".format(petIdentity);
+                    }
+                    f.header = "Edit Pet (<strong>{0}</strong>)".format(petString);
                 };
             },
             onChange: function(event) {
+
                 event.onComplete = function() {
                     // formRecDiffer: 1=current record, 2=original record, 3=diff object
                     var diff = formRecDiffer(this.record, app.active_form_original, {});
@@ -789,12 +797,20 @@ window.loadRAPetsGrid = function () {
                     formRefreshCallBack(feeForm);
 
                     // set header
-                    var header = "Fee (<strong>{0}</strong>) for Pet - <strong>{1}</strong>";
-                    var petName = w2ui.RAPetForm.record.Name;
+                    var header      = "Edit Fee (<strong>{0}</strong>) for Pet (<strong>{1}</strong>)",
+                        petIdentity = w2ui.RAPetForm.record.Name,
+                        petString   = "<em>new</em>";
+
+                    if (w2ui.RAPetForm.record.PETID > 0) {
+                        petString = petIdentity;
+                    } else if (petIdentity) {
+                        petString = "<em>new</em> - {0}".format(petIdentity);
+                    }
+
                     if (feeForm.record.ARName && feeForm.record.ARName.length > 0) {
-                        feeForm.header = header.format(feeForm.record.ARName, petName);
+                        feeForm.header = header.format(feeForm.record.ARName, petString);
                     } else {
-                        feeForm.header = header.format("new", petName);
+                        feeForm.header = header.format("new", petString);
                     }
                 };
             }

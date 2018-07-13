@@ -5,9 +5,19 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"reflect"
 	"rentroll/rlib"
 	"time"
 )
+
+// GridRAFlowResponse is a struct to hold info for rental agreement for the grid response
+type GridRAFlowResponse struct {
+	Recid     int64 `json:"recid"`
+	BID       int64
+	BUD       string
+	FlowID    int64
+	UserRefNo string
+}
 
 // RAFlowJSONData holds the struct for all the parts being involed in rental agreement flow
 type RAFlowJSONData struct {
@@ -197,9 +207,10 @@ type RAFeesData struct {
 	Stop            rlib.JSONDate `validate:"date"`
 	AtSigningPreTax float64       `validate:"number:float,min=0.00"`
 	SalesTax        float64       `validate:"number:float,min=0.00"`
-	// SalesTaxAmt    float64 // FUTURE RELEASE
+	// SalesTaxAmt     float64       // FUTURE RELEASE
 	TransOccTax float64 `validate:"number:float,min=0.00"`
-	// TransOccAmt    float64 // FUTURE RELEASE
+	// TransOccAmt float64 // FUTURE RELEASE
+	Comment string `validate:"-"`
 }
 
 // RAParentChildFlowData contains data in the Parent/Child part of RA flow
@@ -212,20 +223,6 @@ type RAParentChildFlowData struct {
 // RATieFlowData contains data in the tie part of RA flow
 type RATieFlowData struct {
 	People []RATiePeopleData `json:"people"`
-}
-
-// RATiePetsData holds data from tie section for a pet to a rentable
-type RATiePetsData struct {
-	BID      int64
-	PRID     int64
-	TMPPETID int64 // reference to pet record ID stored temporarily
-}
-
-// RATieVehiclesData holds data from tie section for a vehicle to a rentable
-type RATieVehiclesData struct {
-	BID    int64
-	PRID   int64
-	TMPVID int64 // reference to vehicle record ID in json
 }
 
 // RATiePeopleData holds data from tie section for a payor to a rentable
@@ -615,11 +612,106 @@ func saveRentalAgreementFlow(ctx context.Context, flowID int64) (int64, error) {
 	return RAID, nil
 }
 
-// GridRAFlowResponse is a struct to hold info for rental agreement for the grid response
-type GridRAFlowResponse struct {
-	Recid     int64 `json:"recid"`
-	BID       int64
-	BUD       string
-	FlowID    int64
-	UserRefNo string
+// RAFlowDataDiff returns true/false if there is any data
+// difference between raflow json data and permanent table
+// data
+func RAFlowDataDiff(ctx context.Context, RAID int64) (isDiff bool, err error) {
+	const funcname = "RAFlowDataDiff"
+	var (
+		ra                      rlib.RentalAgreement
+		flow                    rlib.Flow
+		flowData, permanentData RAFlowJSONData
+	)
+
+	// --------------------------------------------------------
+	// GET DATA FROM TEMP FLOW table
+	// --------------------------------------------------------
+	flow, err = rlib.GetFlowForRAID(ctx, "RA", RAID)
+	if err != nil {
+		return
+	}
+
+	err = json.Unmarshal(flow.Data, &flowData)
+	if err != nil {
+		return
+	}
+
+	// --------------------------------------------------------
+	// GET PERMANENT RA and GET FLOWDATA FOR IT
+	// --------------------------------------------------------
+	ra, err = rlib.GetRentalAgreement(ctx, RAID)
+	if err != nil {
+		return
+	}
+
+	// convert permanent ra to flow data and get it
+	permanentData, err = ConvertRA2Flow(ctx, &ra)
+	if err != nil {
+		return
+	}
+
+	// --------------------------------------------------------
+	// WE DON'T NEED meta DATA TO DIFF BETWEEN BOTH JSON DATA
+	// --------------------------------------------------------
+	permanentData.Meta, flowData.Meta = RAFlowMetaInfo{}, RAFlowMetaInfo{}
+
+	// NOW TAKE THE DIFF USING REFLECT
+	sameData := reflect.DeepEqual(permanentData, flowData) // returns true, if both are equal
+	isDiff = !sameData
+
+	return
 }
+
+/*// RAFlowDiffRequest struct
+type RAFlowDiffRequest struct {
+	RAID int64
+}
+
+// SvcRAFlowDiffHandler to tell diff in raflow data for existing RA
+// wsdoc {
+//  @Title raflow data difference
+//	@URL /v1/raflow-diff/:BUI/:RAID
+//	@Method POST
+//	@Synopsis yes/no if there is any difference in raflow data
+//  @Description This service tells whether if there is any difference between raflow json and permanent data
+//  @Input RAFlowDiffRequest
+//  @Response SvcStatusResponse
+// wsdoc }
+func SvcRAFlowDiffHandler(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcRAFlowDiffHandler"
+	fmt.Printf("Entered in %s\n", funcname)
+
+	var (
+		err error
+		foo RAFlowDiffRequest
+		g   struct {
+			Diff   bool
+			Status string
+		}
+	)
+
+	// http method check
+	if r.Method != "POST" {
+		err = fmt.Errorf("Only POST method is allowed")
+		return
+	}
+
+	// unmarshal data into request data struct
+	if err = json.Unmarshal([]byte(d.data), &foo); err != nil {
+		return
+	}
+
+	// get diff for raflow
+	var diff bool
+	diff, err = RAFlowDataDiff(r.Context(), foo.RAID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// set the response
+	g.Diff = diff
+	g.Status = "success"
+	SvcWriteResponse(d.BID, &g, w)
+}
+*/

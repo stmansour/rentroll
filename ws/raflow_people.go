@@ -21,15 +21,15 @@ type RAFlowRemovePersonRequest struct {
 	FlowID  int64
 }
 
-// SvcGetRAFlowPersonHandler handles operation on person of raflow json data
+// SvcRAFlowPersonHandler handles operation on person of raflow json data
 //           0    1     2   3
 // uri /v1/raflow-person/BID/flowID
 // The server command can be:
-//      get
+//      save
 //      delete
 //-----------------------------------------------------------------------------------
-func SvcGetRAFlowPersonHandler(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	const funcname = "SvcGetRAFlowPersonHandler"
+func SvcRAFlowPersonHandler(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcRAFlowPersonHandler"
 	var (
 		err error
 	)
