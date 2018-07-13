@@ -184,13 +184,13 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// Perform basic validation on RAFlow
 	// ---------------------------------------
 	// TODO(Akshay): Enable basic validation check
-	//g = basicValidateRAFlow(raFlowData, raFlowFieldsErrors)
-	//
-	//// If RAFlow structure have more than 1 basic validation error than it return with the list of basic validation errors
-	//if g.Total > 0 {
-	//	SvcWriteResponse(d.BID, &g, w)
-	//	return
-	//}
+	g = basicValidateRAFlow(raFlowData, raFlowFieldsErrors)
+
+	// If RAFlow structure have more than 1 basic validation error than it return with the list of basic validation errors
+	if g.Total > 0 {
+		SvcWriteResponse(d.BID, &g, w)
+		return
+	}
 
 	// --------------------------------------------
 	// Perform Bizlogic check validation on RAFlow
