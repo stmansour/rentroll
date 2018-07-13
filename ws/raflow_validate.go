@@ -196,7 +196,6 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// Perform Bizlogic check validation on RAFlow
 	// --------------------------------------------
 	g = validateRAFlowBizLogic(r.Context(), &raFlowData, raFlowFieldsErrors)
-	fmt.Println(g)
 
 	// If RAFlow structure have more than 1 biz logic check validation error than it return with the list of biz logic validation errors
 	if g.Total > 0 {
@@ -640,6 +639,7 @@ func validatePeopleBizLogic(people []RAPeopleFlowData) ([]PeopleFieldsError, int
 	err = fmt.Errorf("should not be blank")
 	for _, p := range people {
 		peopleFieldsError.TMPTCID = p.TMPTCID
+		peopleFieldsError.Total = 0
 		peopleFieldsError.Errors = map[string][]string{}
 
 		// ----------- Check rule no. 1  ----------------

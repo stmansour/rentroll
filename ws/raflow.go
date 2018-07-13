@@ -246,8 +246,6 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int, 
 		raFlowData      RAFlowJSONData
 	)
 
-	// TODO: Add validation on field level, it must be done.
-
 	// get the whole raflow data from Flow type data
 	err = json.Unmarshal(flow.Data, &raFlowData)
 	if err != nil {
