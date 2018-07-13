@@ -523,6 +523,7 @@ func ConvertRA2Flow(ctx context.Context, ra *rlib.RentalAgreement) (RAFlowJSONDa
 					RentCycle:      asms[j].RentCycle,
 					Start:          rlib.JSONDate(asms[j].Start),
 					Stop:           rlib.JSONDate(asms[j].Stop),
+					Comment:        asms[j].Comment,
 				}
 				rfd.Fees = append(rfd.Fees, fee)
 			}
@@ -554,6 +555,7 @@ func ConvertRA2Flow(ctx context.Context, ra *rlib.RentalAgreement) (RAFlowJSONDa
 							Start:          rlib.JSONDate(asms[j].Start),
 							Stop:           rlib.JSONDate(asms[j].Stop),
 							ContractAmount: asms[j].Amount,
+							Comment:        asms[j].Comment,
 						}
 						raf.Pets[k].Fees = append(raf.Pets[k].Fees, pf)
 						break
@@ -577,6 +579,7 @@ func ConvertRA2Flow(ctx context.Context, ra *rlib.RentalAgreement) (RAFlowJSONDa
 							RentCycle:      asms[j].RentCycle,
 							Start:          rlib.JSONDate(asms[j].Start),
 							Stop:           rlib.JSONDate(asms[j].Stop),
+							Comment:        asms[j].Comment,
 						}
 						raf.Vehicles[k].Fees = append(raf.Vehicles[k].Fees, pf)
 						break
