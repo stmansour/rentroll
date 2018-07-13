@@ -197,9 +197,10 @@ type RAFeesData struct {
 	Stop            rlib.JSONDate `validate:"date"`
 	AtSigningPreTax float64       `validate:"number:float,min=0.00"`
 	SalesTax        float64       `validate:"number:float,min=0.00"`
-	// SalesTaxAmt    float64 // FUTURE RELEASE
+	// SalesTaxAmt     float64       // FUTURE RELEASE
 	TransOccTax float64 `validate:"number:float,min=0.00"`
-	// TransOccAmt    float64 // FUTURE RELEASE
+	// TransOccAmt float64 // FUTURE RELEASE
+	Comment string `validate:"-"`
 }
 
 // RAParentChildFlowData contains data in the Parent/Child part of RA flow
@@ -212,20 +213,6 @@ type RAParentChildFlowData struct {
 // RATieFlowData contains data in the tie part of RA flow
 type RATieFlowData struct {
 	People []RATiePeopleData `json:"people"`
-}
-
-// RATiePetsData holds data from tie section for a pet to a rentable
-type RATiePetsData struct {
-	BID      int64
-	PRID     int64
-	TMPPETID int64 // reference to pet record ID stored temporarily
-}
-
-// RATieVehiclesData holds data from tie section for a vehicle to a rentable
-type RATieVehiclesData struct {
-	BID    int64
-	PRID   int64
-	TMPVID int64 // reference to vehicle record ID in json
 }
 
 // RATiePeopleData holds data from tie section for a payor to a rentable
