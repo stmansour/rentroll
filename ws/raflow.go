@@ -131,7 +131,7 @@ type RAPeopleFlowData struct {
 
 	// ---------- User -----------
 	Points      int64         `validate:"number,min=1,omitempty"`
-	DateofBirth rlib.JSONDate `validate:"date"`
+	DateofBirth rlib.JSONDate `validate:"-"`
 	// Emergency contact information
 	EmergencyContactName      string `validate:"string,min=1,max=100"`
 	EmergencyContactAddress   string `validate:"string,min=1,max=100"`
