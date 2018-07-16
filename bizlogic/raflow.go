@@ -500,7 +500,7 @@ func validateDatesBizLogic(dates rlib.RADatesFlowData, g *ValidateRAFlowResponse
 
 	g.Errors.Dates = datesFieldsErrors
 	g.NonFieldsErrors.Dates = datesNonFieldsErrors
-	g.Total += datesFieldsErrors.Total
+	g.Total += datesFieldsErrors.Total + len(datesNonFieldsErrors.Errors)
 }
 
 // validatePeopleBizLogic Perform business logic check on people section
@@ -577,8 +577,8 @@ func validatePeopleBizLogic(people []rlib.RAPeopleFlowData, g *ValidateRAFlowRes
 	}
 
 	g.Errors.People = peopleFieldsErrors
-	g.Total += errCount
 	g.NonFieldsErrors.People = peopleNonFieldsErrors
+	g.Total += errCount + len(peopleNonFieldsErrors.Errors)
 }
 
 // validatePetBizLogic Perform business logic check on pet section
@@ -655,7 +655,7 @@ func validatePetBizLogic(a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) {
 
 	g.Errors.Pets = petFieldsErrors
 	g.NonFieldsErrors.Pets = petNonFieldsErrors
-	g.Total += errCount
+	g.Total += errCount + len(petNonFieldsErrors.Errors)
 }
 
 // validateVehicleBizLogic Perform business logic check on vehicle section
@@ -733,7 +733,7 @@ func validateVehicleBizLogic(a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) 
 
 	g.Errors.Vehicle = vehicleFieldsErrors
 	g.NonFieldsErrors.Vehicle = vehicleNonFieldsErrors
-	g.Total += errCount
+	g.Total += errCount + len(vehicleNonFieldsErrors.Errors)
 }
 
 // validateRentableBizLogic Perform business logic check on rentable section
@@ -798,9 +798,9 @@ func validateRentableBizLogic(rentables []rlib.RARentablesFlowData, g *ValidateR
 		rentablesNonFieldsErrors.Errors = append(rentablesNonFieldsErrors.Errors, err.Error())
 	}
 
-	g.NonFieldsErrors.Rentables = rentablesNonFieldsErrors
 	g.Errors.Rentables = rentablesFieldsErrors
-	g.Total += errCount
+	g.NonFieldsErrors.Rentables = rentablesNonFieldsErrors
+	g.Total += errCount + len(rentablesNonFieldsErrors.Errors)
 }
 
 // validateFeesBizLogic perform business logic check on fees section
@@ -864,8 +864,7 @@ func validateParentChildBizLogic(ctx context.Context, pcData []rlib.RAParentChil
 		parentChildFieldsError     ParentChildFieldsError
 		parentChildFieldsErrors    []ParentChildFieldsError
 		parentChildNonFieldsErrors NonFieldsError
-		//err                     error
-		errCount int
+		errCount                   int
 	)
 
 	parentChildFieldsErrors = make([]ParentChildFieldsError, 0)
@@ -967,7 +966,7 @@ func validateTiePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *V
 
 	g.Errors.Tie.TiePeople = tiePeopleFieldsErrors
 	g.NonFieldsErrors.TiePeople = tiePeopleNonFieldsErrors
-	g.Total += errCount
+	g.Total += errCount + len(tiePeopleNonFieldsErrors.Errors)
 }
 
 // isPersonOccupant Check provided TMPTCID refered person is occupant status
