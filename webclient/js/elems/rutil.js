@@ -1188,6 +1188,7 @@ window.prepareW2UIStuff = function prepareW2UIStuff(app) {
     // rental agreement action
     app.w2ui.listItems.RAActions = [];
     if (app.RAActions) {
+        app.w2ui.listItems.RAActions.push({ id: -1, text: '--Select an Action--' });
         app.RAActions.forEach(function(freq, index) {
             app.w2ui.listItems.RAActions.push({ id: index, text: freq });
         });
