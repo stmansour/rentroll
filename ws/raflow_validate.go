@@ -582,6 +582,7 @@ func validateDatesBizLogic(dates RADatesFlowData) DatesFieldsError {
 
 	// Init Errors map
 	datesFieldsErrors.Errors = map[string][]string{}
+	datesFieldsErrors.NonFieldsErrors = make([]string, 0)
 
 	// -----------------------------------------------
 	// -------- Agreements Date check ----------------
@@ -659,6 +660,7 @@ func validatePeopleBizLogic(people []RAPeopleFlowData) ([]PeopleFieldsError, int
 		peopleFieldsError.TMPTCID = p.TMPTCID
 		peopleFieldsError.Total = 0
 		peopleFieldsError.Errors = map[string][]string{}
+		peopleFieldsError.NonFieldsErrors = make([]string, 0)
 
 		// ----------- Check rule no. 1  ----------------
 		// If isCompany flag is true then CompanyName is required
@@ -730,6 +732,7 @@ func validatePetBizLogic(a *RAFlowJSONData) ([]PetFieldsError, int) {
 
 	// Init error slice
 	petFieldsError.Errors = map[string][]string{}
+	petFieldsError.NonFieldsErrors = make([]string, 0)
 
 	// ------------- Check for rule no 1 ---------------
 	for _, pet := range a.Pets {
@@ -798,6 +801,7 @@ func validateVehicleBizLogic(a *RAFlowJSONData) ([]VehicleFieldsError, int) {
 
 	// Init error slice
 	vehicleFieldsError.Errors = map[string][]string{}
+	vehicleFieldsError.NonFieldsErrors = make([]string, 0)
 
 	for _, vehicle := range a.Vehicles {
 		// Get vehicle tmp id
@@ -874,6 +878,7 @@ func validateRentableBizLogic(rentables []RARentablesFlowData) ([]RentablesField
 		rentablesFieldsError.RID = rentable.RID
 		rentablesFieldsError.Errors = map[string][]string{}
 		rentablesFieldsError.Total = 0
+		rentablesFieldsError.NonFieldsErrors = make([]string, 0)
 		// Init fees slice
 		rentablesFieldsError.FeesErrors = make([]RAFeesError, 0)
 
@@ -939,6 +944,7 @@ func validateFeesBizLogic(fees []RAFeesData) ([]RAFeesError, int) {
 		// Init error slice
 		raFeesError.Errors = map[string][]string{}
 		raFeesError.Total = 0
+		raFeesError.NonFieldsErrors = make([]string, 0)
 
 		// -----------------------------------------------
 		// --------- Check for rule no 1 ---------------
@@ -985,6 +991,7 @@ func validateParentChildBizLogic(ctx context.Context, pcData []RAParentChildFlow
 		parentChildFieldsError.Total = 0
 		parentChildFieldsError.PRID = pc.PRID
 		parentChildFieldsError.CRID = pc.CRID
+		parentChildFieldsError.NonFieldsErrors = make([]string, 0)
 
 		// Check PRID exists in database which refer to RID in rentable table
 		r, err := rlib.GetRentable(ctx, pc.PRID)
@@ -1035,6 +1042,7 @@ func validateTiePeopleBizLogic(ctx context.Context, a *RAFlowJSONData) ([]TiePeo
 	for _, p := range a.Tie.People {
 		tiePeopleFieldsError.Errors = map[string][]string{}
 		tiePeopleFieldsError.Total = 0
+		tiePeopleFieldsError.NonFieldsErrors = make([]string, 0)
 		tiePeopleFieldsError.TMPTCID = p.TMPTCID
 
 		// ---------- Check rule no 1 ---------------
