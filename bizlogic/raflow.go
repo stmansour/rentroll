@@ -392,32 +392,32 @@ func ValidateRAFlowBizLogic(ctx context.Context, a *rlib.RAFlowJSONData) Validat
 	// -----------------------------------------------
 	// -------- Bizlogic check on date section -------
 	// -----------------------------------------------
-	validateDatesBizLogic(a.Dates, &g)
+	validateDatesBizLogic(ctx, a, &g)
 
 	// -----------------------------------------------
 	// ------ Bizlogic check on people section -------
 	// -----------------------------------------------
-	validatePeopleBizLogic(a.People, &g)
+	validatePeopleBizLogic(ctx, a, &g)
 
 	// -----------------------------------------------
 	// ------- Bizlogic check on pet section ---------
 	// -----------------------------------------------
-	validatePetBizLogic(a, &g)
+	validatePetBizLogic(ctx, a, &g)
 
 	// -----------------------------------------------
 	// ------ Bizlogic check on vehicle section ------
 	// -----------------------------------------------
-	validateVehicleBizLogic(a, &g)
+	validateVehicleBizLogic(ctx, a, &g)
 
 	// -----------------------------------------------
 	// ---- Bizlogic check on rentables section ------
 	// -----------------------------------------------
-	validateRentableBizLogic(a.Rentables, &g)
+	validateRentableBizLogic(ctx, a, &g)
 
 	// -----------------------------------------------
 	// --- Bizlogic check on parent/child section ----
 	// -----------------------------------------------
-	validateParentChildBizLogic(ctx, a.ParentChild, &g)
+	validateParentChildBizLogic(ctx, a, &g)
 
 	// -----------------------------------------------
 	// --- Bizlogic check on tie-people section ----
@@ -434,7 +434,7 @@ func ValidateRAFlowBizLogic(ctx context.Context, a *rlib.RAFlowJSONData) Validat
 // ---------------------------------------------
 // 1. Start dates must be prior to End/Stop date
 // ---------------------------------------------
-func validateDatesBizLogic(dates rlib.RADatesFlowData, g *ValidateRAFlowResponse) {
+func validateDatesBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) {
 	const funcname = "validateDatesBizLogic"
 	fmt.Printf("Entered %s\n", funcname)
 
@@ -443,6 +443,8 @@ func validateDatesBizLogic(dates rlib.RADatesFlowData, g *ValidateRAFlowResponse
 		datesNonFieldsErrors NonFieldsError
 		err                  error
 	)
+
+	dates := a.Dates
 
 	// Init Errors map
 	datesFieldsErrors.Errors = map[string][]string{}
@@ -509,7 +511,7 @@ func validateDatesBizLogic(dates rlib.RADatesFlowData, g *ValidateRAFlowResponse
 // 2. If isCompany flag is false than FirstName and LastName are required
 // 3. If only one person exist in the list, then it should have isRenter role marked as true.
 // ----------------------------------------------------------------------
-func validatePeopleBizLogic(people []rlib.RAPeopleFlowData, g *ValidateRAFlowResponse) {
+func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) {
 	const funcname = "validatePeopleBizLogic"
 	fmt.Printf("Entered %s\n", funcname)
 
@@ -520,6 +522,8 @@ func validatePeopleBizLogic(people []rlib.RAPeopleFlowData, g *ValidateRAFlowRes
 		err                   error
 		errCount              int
 	)
+
+	people := a.People
 
 	// init peopleFieldsErrors
 	peopleFieldsErrors = make([]PeopleFieldsError, 0)
@@ -588,7 +592,7 @@ func validatePeopleBizLogic(people []rlib.RAPeopleFlowData, g *ValidateRAFlowRes
 // information than it should not have any pets.
 // 3. DtStart must be prior to DtStop
 // ----------------------------------------------------------------------
-func validatePetBizLogic(a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) {
+func validatePetBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) {
 	const funcname = "validatePetBizLogic"
 	fmt.Printf("Entered %s\n", funcname)
 
@@ -665,7 +669,7 @@ func validatePetBizLogic(a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) {
 // information than it should not have any vehicles.
 // 3. DtStart must be prior to DtStop
 // ----------------------------------------------------------------------
-func validateVehicleBizLogic(a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) {
+func validateVehicleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) {
 	const funcname = "validateVehicleBizLogic"
 	fmt.Printf("Entered %s\n", funcname)
 
@@ -741,7 +745,7 @@ func validateVehicleBizLogic(a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) 
 // 1. There must be one parent rentables available. (Parent rentables decide based on RTFlags)
 // 2. For every rentables, there must be one entry for the Fees.
 // ----------------------------------------------------------------------
-func validateRentableBizLogic(rentables []rlib.RARentablesFlowData, g *ValidateRAFlowResponse) {
+func validateRentableBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) {
 	const funcname = "validateRentableBizLogic"
 	fmt.Printf("Entered %s\n", funcname)
 
@@ -752,6 +756,8 @@ func validateRentableBizLogic(rentables []rlib.RARentablesFlowData, g *ValidateR
 		err                      error
 		errCount                 int
 	)
+
+	rentables := a.Rentables
 
 	rentablesFieldsErrors = make([]RentablesFieldsError, 0)
 
@@ -856,7 +862,7 @@ func validateFeesBizLogic(fees []rlib.RAFeesData) ([]RAFeesError, int) {
 // ----------------------------------------------------------------------
 // 1. If there are any entries are in the list then id of parent/child rentable must be greater than 0. Also check does it exist in database?
 // ----------------------------------------------------------------------
-func validateParentChildBizLogic(ctx context.Context, pcData []rlib.RAParentChildFlowData, g *ValidateRAFlowResponse) {
+func validateParentChildBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) {
 	const funcname = "validateParentChildBizLogic"
 	fmt.Printf("Entered %s\n", funcname)
 
@@ -867,6 +873,7 @@ func validateParentChildBizLogic(ctx context.Context, pcData []rlib.RAParentChil
 		errCount                   int
 	)
 
+	pcData := a.ParentChild
 	parentChildFieldsErrors = make([]ParentChildFieldsError, 0)
 	parentChildNonFieldsErrors.Errors = make([]string, 0)
 
