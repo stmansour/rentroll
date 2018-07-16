@@ -16,9 +16,10 @@ type RAFlowDetailRequest struct {
 
 // ValidateRAFlowResponse is struct to hold ErrorList for Flow
 type ValidateRAFlowResponse struct {
-	Total     int                `json:"total"`
-	ErrorType string             `json:"errortype"`
-	Errors    RAFlowFieldsErrors `json:"errors"`
+	Total           int                   `json:"total"`
+	ErrorType       string                `json:"errortype"`
+	Errors          RAFlowFieldsErrors    `json:"errors"`
+	NonFieldsErrors RAFlowNonFieldsErrors `json:"nonFieldsErrors"`
 }
 
 // DatesFieldsError is struct to hold Errorlist for Dates section
@@ -94,6 +95,22 @@ type RAFlowFieldsErrors struct {
 	Rentables   []RentablesFieldsError   `json:"rentables"`
 	ParentChild []ParentChildFieldsError `json:"parentchild"`
 	Tie         TieFieldsError           `json:"tie"`
+}
+
+// RAFlowNonFieldsErrors
+type RAFlowNonFieldsErrors struct {
+	Dates       NonFieldsError `json:"dates"`
+	People      NonFieldsError `json:"people"`
+	Pets        NonFieldsError `json:"pets"`
+	Vehicle     NonFieldsError `json:"vehicle"`
+	Rentables   NonFieldsError `json:"rentables"`
+	ParentChild NonFieldsError `json:"parentchild"`
+	TiePeople   NonFieldsError `json:"tiepeople"`
+}
+
+// NonFieldsError
+type NonFieldsError struct {
+	Errors []string `json:"errors"`
 }
 
 // BasicValidateRAFlow validate RAFlow's fields section wise
@@ -364,76 +381,50 @@ func BasicValidateRAFlow(raFlowData rlib.RAFlowJSONData, raFlowFieldsErrors RAFl
 }
 
 // ValidateRAFlowBizLogic is to check RAFlow's business logic
-func ValidateRAFlowBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, raFlowFieldsErrors RAFlowFieldsErrors) ValidateRAFlowResponse {
+func ValidateRAFlowBizLogic(ctx context.Context, a *rlib.RAFlowJSONData) ValidateRAFlowResponse {
 	const funcname = "ValidateRAFlowBizLogic"
 	fmt.Printf("Entered %s\n", funcname)
 
 	var (
-		datesFieldsErrors       DatesFieldsError
-		peopleFieldsErrors      []PeopleFieldsError
-		petFieldsErrors         []PetFieldsError
-		vehicleFieldsErrors     []VehicleFieldsError
-		rentablesFieldsErrors   []RentablesFieldsError
-		parentChildFieldsErrors []ParentChildFieldsError
-		tiePeopleFieldsErrors   []TiePeopleFieldsError
-		g                       ValidateRAFlowResponse
+		g ValidateRAFlowResponse
 	)
 
 	// -----------------------------------------------
 	// -------- Bizlogic check on date section -------
 	// -----------------------------------------------
-	datesFieldsErrors = validateDatesBizLogic(a.Dates)
-	// Modify global error count
-	g.Total += datesFieldsErrors.Total
-	// Update date section error
-	raFlowFieldsErrors.Dates = datesFieldsErrors
+	validateDatesBizLogic(a.Dates, &g)
 
 	// -----------------------------------------------
 	// ------ Bizlogic check on people section -------
 	// -----------------------------------------------
-	peopleFieldsErrors, peopleErrorTotal := validatePeopleBizLogic(a.People)
-	// Modify global error count
-	g.Total += peopleErrorTotal
-	// Update people section error
-	raFlowFieldsErrors.People = peopleFieldsErrors
+	validatePeopleBizLogic(a.People, &g)
 
 	// -----------------------------------------------
 	// ------- Bizlogic check on pet section ---------
 	// -----------------------------------------------
-	petFieldsErrors, petErrorTotal := validatePetBizLogic(a)
-	g.Total += petErrorTotal
-	raFlowFieldsErrors.Pets = petFieldsErrors
+	validatePetBizLogic(a, &g)
 
 	// -----------------------------------------------
 	// ------ Bizlogic check on vehicle section ------
 	// -----------------------------------------------
-	vehicleFieldsErrors, vehicleErrorTotal := validateVehicleBizLogic(a)
-	g.Total += vehicleErrorTotal
-	raFlowFieldsErrors.Vehicle = vehicleFieldsErrors
+	validateVehicleBizLogic(a, &g)
 
 	// -----------------------------------------------
 	// ---- Bizlogic check on rentables section ------
 	// -----------------------------------------------
-	rentablesFieldsErrors, rentableErrorTotal := validateRentableBizLogic(a.Rentables)
-	g.Total += rentableErrorTotal
-	raFlowFieldsErrors.Rentables = rentablesFieldsErrors
+	validateRentableBizLogic(a.Rentables, &g)
 
 	// -----------------------------------------------
 	// --- Bizlogic check on parent/child section ----
 	// -----------------------------------------------
-	parentChildFieldsErrors, parentChildErrorTotal := validateParentChildBizLogic(ctx, a.ParentChild)
-	g.Total += parentChildErrorTotal
-	raFlowFieldsErrors.ParentChild = parentChildFieldsErrors
+	validateParentChildBizLogic(ctx, a.ParentChild, &g)
 
 	// -----------------------------------------------
 	// --- Bizlogic check on tie-people section ----
 	// -----------------------------------------------
-	tiePeopleFieldsErrors, tiePeopleErrorTotal := validateTiePeopleBizLogic(ctx, a)
-	g.Total += tiePeopleErrorTotal
-	raFlowFieldsErrors.Tie.TiePeople = tiePeopleFieldsErrors
+	validateTiePeopleBizLogic(ctx, a, &g)
 
 	// Set the response
-	g.Errors = raFlowFieldsErrors
 	g.ErrorType = "biz"
 
 	return g
@@ -443,17 +434,21 @@ func ValidateRAFlowBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, raFlowF
 // ---------------------------------------------
 // 1. Start dates must be prior to End/Stop date
 // ---------------------------------------------
-func validateDatesBizLogic(dates rlib.RADatesFlowData) DatesFieldsError {
+func validateDatesBizLogic(dates rlib.RADatesFlowData, g *ValidateRAFlowResponse) {
 	const funcname = "validateDatesBizLogic"
 	fmt.Printf("Entered %s\n", funcname)
 
 	var (
-		datesFieldsErrors DatesFieldsError
-		err               error
+		datesFieldsErrors    DatesFieldsError
+		datesNonFieldsErrors NonFieldsError
+		err                  error
 	)
 
 	// Init Errors map
 	datesFieldsErrors.Errors = map[string][]string{}
+
+	// Init non fields error fields
+	datesNonFieldsErrors.Errors = make([]string, 0)
 
 	// -----------------------------------------------
 	// -------- Agreements Date check ----------------
@@ -503,7 +498,9 @@ func validateDatesBizLogic(dates rlib.RADatesFlowData) DatesFieldsError {
 		datesFieldsErrors.Total++
 	}
 
-	return datesFieldsErrors
+	g.Errors.Dates = datesFieldsErrors
+	g.NonFieldsErrors.Dates = datesNonFieldsErrors
+	g.Total += datesFieldsErrors.Total
 }
 
 // validatePeopleBizLogic Perform business logic check on people section
@@ -512,19 +509,22 @@ func validateDatesBizLogic(dates rlib.RADatesFlowData) DatesFieldsError {
 // 2. If isCompany flag is false than FirstName and LastName are required
 // 3. If only one person exist in the list, then it should have isRenter role marked as true.
 // ----------------------------------------------------------------------
-func validatePeopleBizLogic(people []rlib.RAPeopleFlowData) ([]PeopleFieldsError, int) {
+func validatePeopleBizLogic(people []rlib.RAPeopleFlowData, g *ValidateRAFlowResponse) {
 	const funcname = "validatePeopleBizLogic"
 	fmt.Printf("Entered %s\n", funcname)
 
 	var (
-		peopleFieldsError  PeopleFieldsError
-		peopleFieldsErrors []PeopleFieldsError
-		err                error
-		errCount           int
+		peopleFieldsError     PeopleFieldsError
+		peopleFieldsErrors    []PeopleFieldsError
+		peopleNonFieldsErrors NonFieldsError
+		err                   error
+		errCount              int
 	)
 
 	// init peopleFieldsErrors
 	peopleFieldsErrors = make([]PeopleFieldsError, 0)
+	// Init non field error
+	peopleNonFieldsErrors.Errors = make([]string, 0)
 
 	err = fmt.Errorf("should not be blank")
 	for _, p := range people {
@@ -576,7 +576,9 @@ func validatePeopleBizLogic(people []rlib.RAPeopleFlowData) ([]PeopleFieldsError
 		}
 	}
 
-	return peopleFieldsErrors, errCount
+	g.Errors.People = peopleFieldsErrors
+	g.Total += errCount
+	g.NonFieldsErrors.People = peopleNonFieldsErrors
 }
 
 // validatePetBizLogic Perform business logic check on pet section
@@ -586,16 +588,20 @@ func validatePeopleBizLogic(people []rlib.RAPeopleFlowData) ([]PeopleFieldsError
 // information than it should not have any pets.
 // 3. DtStart must be prior to DtStop
 // ----------------------------------------------------------------------
-func validatePetBizLogic(a *rlib.RAFlowJSONData) ([]PetFieldsError, int) {
+func validatePetBizLogic(a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) {
 	const funcname = "validatePetBizLogic"
 	fmt.Printf("Entered %s\n", funcname)
 
 	var (
-		petFieldsError  PetFieldsError
-		petFieldsErrors []PetFieldsError
-		err             error
-		errCount        int
+		petFieldsError     PetFieldsError
+		petFieldsErrors    []PetFieldsError
+		petNonFieldsErrors NonFieldsError
+		err                error
+		errCount           int
 	)
+
+	// Init non fields error
+	petNonFieldsErrors.Errors = make([]string, 0)
 
 	// Init fees slice
 	petFieldsError.FeesErrors = make([]RAFeesError, 0)
@@ -647,7 +653,9 @@ func validatePetBizLogic(a *rlib.RAFlowJSONData) ([]PetFieldsError, int) {
 		}
 	}
 
-	return petFieldsErrors, errCount
+	g.Errors.Pets = petFieldsErrors
+	g.NonFieldsErrors.Pets = petNonFieldsErrors
+	g.Total += errCount
 }
 
 // validateVehicleBizLogic Perform business logic check on vehicle section
@@ -657,16 +665,20 @@ func validatePetBizLogic(a *rlib.RAFlowJSONData) ([]PetFieldsError, int) {
 // information than it should not have any vehicles.
 // 3. DtStart must be prior to DtStop
 // ----------------------------------------------------------------------
-func validateVehicleBizLogic(a *rlib.RAFlowJSONData) ([]VehicleFieldsError, int) {
+func validateVehicleBizLogic(a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) {
 	const funcname = "validateVehicleBizLogic"
 	fmt.Printf("Entered %s\n", funcname)
 
 	var (
-		vehicleFieldsError  VehicleFieldsError
-		vehicleFieldsErrors []VehicleFieldsError
-		err                 error
-		errCount            int
+		vehicleFieldsError     VehicleFieldsError
+		vehicleFieldsErrors    []VehicleFieldsError
+		vehicleNonFieldsErrors NonFieldsError
+		err                    error
+		errCount               int
 	)
+
+	// Init Non fields error
+	vehicleNonFieldsErrors.Errors = make([]string, 0)
 
 	// Init error slice
 	vehicleFieldsError.Errors = map[string][]string{}
@@ -719,7 +731,9 @@ func validateVehicleBizLogic(a *rlib.RAFlowJSONData) ([]VehicleFieldsError, int)
 		}
 	}
 
-	return vehicleFieldsErrors, errCount
+	g.Errors.Vehicle = vehicleFieldsErrors
+	g.NonFieldsErrors.Vehicle = vehicleNonFieldsErrors
+	g.Total += errCount
 }
 
 // validateRentableBizLogic Perform business logic check on rentable section
@@ -727,15 +741,16 @@ func validateVehicleBizLogic(a *rlib.RAFlowJSONData) ([]VehicleFieldsError, int)
 // 1. There must be one parent rentables available. (Parent rentables decide based on RTFlags)
 // 2. For every rentables, there must be one entry for the Fees.
 // ----------------------------------------------------------------------
-func validateRentableBizLogic(rentables []rlib.RARentablesFlowData) ([]RentablesFieldsError, int) {
+func validateRentableBizLogic(rentables []rlib.RARentablesFlowData, g *ValidateRAFlowResponse) {
 	const funcname = "validateRentableBizLogic"
 	fmt.Printf("Entered %s\n", funcname)
 
 	var (
-		rentablesFieldsError  RentablesFieldsError
-		rentablesFieldsErrors []RentablesFieldsError
-		err                   error
-		errCount              int
+		rentablesFieldsError     RentablesFieldsError
+		rentablesFieldsErrors    []RentablesFieldsError
+		rentablesNonFieldsErrors NonFieldsError
+		err                      error
+		errCount                 int
 	)
 
 	rentablesFieldsErrors = make([]RentablesFieldsError, 0)
@@ -778,12 +793,14 @@ func validateRentableBizLogic(rentables []rlib.RARentablesFlowData) ([]Rentables
 	}
 
 	// There must be one parent rentable
-	// TODO(Akshay): Add this error to rentables
-	//if parentRentableCount < 1 {
-	//  err = fmt.Errorf("should be at least one parent rentable")
-	//}
+	if !(parentRentableCount > 0) {
+		err = fmt.Errorf("should be at least one parent rentable")
+		rentablesNonFieldsErrors.Errors = append(rentablesNonFieldsErrors.Errors, err.Error())
+	}
 
-	return rentablesFieldsErrors, errCount
+	g.NonFieldsErrors.Rentables = rentablesNonFieldsErrors
+	g.Errors.Rentables = rentablesFieldsErrors
+	g.Total += errCount
 }
 
 // validateFeesBizLogic perform business logic check on fees section
@@ -839,18 +856,20 @@ func validateFeesBizLogic(fees []rlib.RAFeesData) ([]RAFeesError, int) {
 // ----------------------------------------------------------------------
 // 1. If there are any entries are in the list then id of parent/child rentable must be greater than 0. Also check does it exist in database?
 // ----------------------------------------------------------------------
-func validateParentChildBizLogic(ctx context.Context, pcData []rlib.RAParentChildFlowData) ([]ParentChildFieldsError, int) {
+func validateParentChildBizLogic(ctx context.Context, pcData []rlib.RAParentChildFlowData, g *ValidateRAFlowResponse) {
 	const funcname = "validateParentChildBizLogic"
 	fmt.Printf("Entered %s\n", funcname)
 
 	var (
-		parentChildFieldsError  ParentChildFieldsError
-		parentChildFieldsErrors []ParentChildFieldsError
+		parentChildFieldsError     ParentChildFieldsError
+		parentChildFieldsErrors    []ParentChildFieldsError
+		parentChildNonFieldsErrors NonFieldsError
 		//err                     error
 		errCount int
 	)
 
 	parentChildFieldsErrors = make([]ParentChildFieldsError, 0)
+	parentChildNonFieldsErrors.Errors = make([]string, 0)
 
 	for _, pc := range pcData {
 		parentChildFieldsError.Errors = map[string][]string{}
@@ -882,7 +901,9 @@ func validateParentChildBizLogic(ctx context.Context, pcData []rlib.RAParentChil
 		}
 	}
 
-	return parentChildFieldsErrors, errCount
+	g.Errors.ParentChild = parentChildFieldsErrors
+	g.NonFieldsErrors.ParentChild = parentChildNonFieldsErrors
+	g.Total += errCount
 }
 
 // validateTiePeopleBizLogic Perform business logic check on Tie section for people
@@ -890,13 +911,14 @@ func validateParentChildBizLogic(ctx context.Context, pcData []rlib.RAParentChil
 // 1. PRID must be greater than 0. It should exists in database
 // 2. Person must be occupant.
 // ----------------------------------------------------------------------
-func validateTiePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData) ([]TiePeopleFieldsError, int) {
+func validateTiePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) {
 	const funcname = "validateParentChildBizLogic"
 	fmt.Printf("Entered %s\n", funcname)
 
 	var (
-		tiePeopleFieldsError  TiePeopleFieldsError
-		tiePeopleFieldsErrors []TiePeopleFieldsError
+		tiePeopleFieldsError     TiePeopleFieldsError
+		tiePeopleFieldsErrors    []TiePeopleFieldsError
+		tiePeopleNonFieldsErrors NonFieldsError
 		//err                     error
 		errCount int
 	)
@@ -938,13 +960,14 @@ func validateTiePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData) ([]T
 		}
 	}
 
-	// TODO(Akshay): Add this into non fields error
-	//if !(occupantCount > 0){
-	// err = fmt.Errorf("should be at least one occupant")
-	//
-	//}
+	if !(occupantCount > 0) {
+		err := fmt.Errorf("should be at least one occupant")
+		tiePeopleNonFieldsErrors.Errors = append(tiePeopleNonFieldsErrors.Errors, err.Error())
+	}
 
-	return tiePeopleFieldsErrors, errCount
+	g.Errors.Tie.TiePeople = tiePeopleFieldsErrors
+	g.NonFieldsErrors.TiePeople = tiePeopleNonFieldsErrors
+	g.Total += errCount
 }
 
 // isPersonOccupant Check provided TMPTCID refered person is occupant status
