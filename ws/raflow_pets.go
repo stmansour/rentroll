@@ -12,7 +12,7 @@ import (
 
 // NewRAFlowPet create new pet entry for the raflow and returns strcture
 // with fees configured it in bizprops
-func NewRAFlowPet(ctx context.Context, BID int64, meta *RAFlowMetaInfo) (pet RAPetsFlowData, err error) {
+func NewRAFlowPet(ctx context.Context, BID int64, meta *rlib.RAFlowMetaInfo) (pet rlib.RAPetsFlowData, err error) {
 	const funcname = "NewRAFlowPet"
 	var (
 		today = time.Now()
@@ -22,8 +22,8 @@ func NewRAFlowPet(ctx context.Context, BID int64, meta *RAFlowMetaInfo) (pet RAP
 	// initialize
 	// assign new TMPPETID & mark in meta info
 	meta.LastTMPPETID++
-	pet = RAPetsFlowData{
-		Fees:     []RAFeesData{},
+	pet = rlib.RAPetsFlowData{
+		Fees:     []rlib.RAFeesData{},
 		TMPPETID: meta.LastTMPPETID,
 		DtStart:  rlib.JSONDate(today),
 		DtStop:   rlib.JSONDate(today.AddDate(1, 0, 0)),
@@ -39,7 +39,7 @@ func NewRAFlowPet(ctx context.Context, BID int64, meta *RAFlowMetaInfo) (pet RAP
 	// loop over fees
 	for _, fee := range petFees {
 		meta.LastTMPASMID++ // new asm id temp
-		pf := RAFeesData{
+		pf := rlib.RAFeesData{
 			ARID:           fee.ARID,
 			ARName:         fee.ARName,
 			ContractAmount: fee.Amount,
@@ -99,11 +99,11 @@ func CreateNewRAFlowPet(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 	var (
 		g             FlowResponse
 		foo           RAFlowNewPetRequest
-		raFlowData    RAFlowJSONData
+		raFlowData    rlib.RAFlowJSONData
 		err           error
 		tx            *sql.Tx
 		ctx           context.Context
-		modRAFlowMeta RAFlowMetaInfo
+		modRAFlowMeta rlib.RAFlowMetaInfo
 	)
 	fmt.Printf("Entered in %s\n", funcname)
 
@@ -156,7 +156,7 @@ func CreateNewRAFlowPet(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 	// --------------------------------------------------------
 	// APPEND FEES FOR PETS
 	// --------------------------------------------------------
-	var newRAFlowPet RAPetsFlowData
+	var newRAFlowPet rlib.RAPetsFlowData
 	newRAFlowPet, err = NewRAFlowPet(r.Context(), d.BID, &modRAFlowMeta)
 	if err != nil {
 		return

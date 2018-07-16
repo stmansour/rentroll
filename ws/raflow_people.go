@@ -64,9 +64,9 @@ func SvcRAFlowPersonHandler(w http.ResponseWriter, r *http.Request, d *ServiceDa
 func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "SaveRAFlowPersonDetails"
 	var (
-		raFlowData    RAFlowJSONData
+		raFlowData    rlib.RAFlowJSONData
 		foo           RAPersonDetailsRequest
-		modRAFlowMeta RAFlowMetaInfo // we might need to update meta info
+		modRAFlowMeta rlib.RAFlowMetaInfo // we might need to update meta info
 		g             FlowResponse
 		err           error
 		tx            *sql.Tx
@@ -140,7 +140,7 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 	}
 
 	if !tcidExistInJSONData {
-		newRAFlowPerson := RAPeopleFlowData{}
+		newRAFlowPerson := rlib.RAPeopleFlowData{}
 		var xp rlib.XPerson
 		err = rlib.GetXPerson(ctx, foo.TCID, &xp)
 		if err != nil {
@@ -220,7 +220,7 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 		// if does not exist then append in the raflow data
 		if !exist {
 			// create new pet info
-			var newRAFlowPet RAPetsFlowData
+			var newRAFlowPet rlib.RAPetsFlowData
 			newRAFlowPet, err = NewRAFlowPet(r.Context(), d.BID, &modRAFlowMeta)
 			if err != nil {
 				return
@@ -279,7 +279,7 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 		// if does not exist then append in the raflow data
 		if !exist {
 			// create new pet info
-			var newRAFlowVehicle RAVehiclesFlowData
+			var newRAFlowVehicle rlib.RAVehiclesFlowData
 			newRAFlowVehicle, err = NewRAFlowVehicle(r.Context(), d.BID, &modRAFlowMeta)
 			if err != nil {
 				return
@@ -374,7 +374,7 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 func DeleteRAFlowPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "DeleteRAFlowPerson"
 	var (
-		raFlowData RAFlowJSONData
+		raFlowData rlib.RAFlowJSONData
 		foo        RAFlowRemovePersonRequest
 		g          FlowResponse
 		err        error
