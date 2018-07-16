@@ -281,46 +281,56 @@ type RATiePeopleData struct {
 	TMPTCID int64 `validate:"number,min=1"` // user's temp json record reference id
 }
 
-// GetRAFlowPartDataFromJSON returns json data in bytes
-// in structure of a raflow part from client data
-func GetRAFlowPartDataFromJSON(BID int64, data json.RawMessage, partType int, flow *Flow) ([]byte, []byte, error) {
-
+// UpdateRAFlowJSON updates json data based on requested
+// flowPart (string)
+func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessage, flowPart string, flow *Flow) (err error) {
+	const funcname = "UpdateRAFlowJSON"
 	var (
-		modFlowPartData = []byte(nil)
-		modMetaData     = []byte(nil)
-		err             error
 		raFlowData      RAFlowJSONData
+		modFlowPartData = []byte(nil)
+		// possessDatesChanged bool
+		// rentDatesChanged    bool
 	)
+	fmt.Printf("Entered in %s\n", funcname)
 
-	// get the whole raflow data from Flow type data
-	err = json.Unmarshal(flow.Data, &raFlowData)
-	if err != nil {
-		// if it's an error then return with nil data
-		return modMetaData, modFlowPartData, err
+	// CHECK REQUESTED FLOW PART IS VALID
+	RAFlowPart, OK := RAFlowPartsMap[flowPart]
+	if !OK {
+		err = fmt.Errorf("RAFlow part key: %s with flowID: %d is not valid, Error: %s",
+			flowPart, flow.FlowID, err.Error())
+		return
 	}
 
-	// JSON Marshal with address
+	// ----- GET THE RAFLOW DATA FROM FLOW ------ //
+	err = json.Unmarshal(flow.Data, &raFlowData)
+	if err != nil {
+		return
+	}
+	meta := raFlowData.Meta
+
+	// JSON MARSHAL WITH ADDRESS
 	// REF: https://stackoverflow.com/questions/21390979/custom-marshaljson-never-gets-called-in-go
 
-	// is it blank string or null json data
-	isBlankJSONData := bytes.Equal([]byte(data), []byte(``)) ||
-		bytes.Equal([]byte(data), []byte(`null`)) ||
-		bytes.Equal([]byte(data), []byte(nil))
+	// BYTES DATA BLANK OR NULL VALUE CHECK
+	isBlankJSONData := bytes.Equal([]byte(dataToUpdate), []byte(``)) ||
+		bytes.Equal([]byte(dataToUpdate), []byte(`null`)) ||
+		bytes.Equal([]byte(dataToUpdate), []byte(nil))
 
-	switch RAFlowPartType(partType) {
+	//-------------------------------------------------------
+	// FLOW PARTS SWITCH CASES
+	//-------------------------------------------------------
+	switch RAFlowPartType(RAFlowPart) {
 	case DatesRAFlowPart:
 		a := RADatesFlowData{}
 
-		// if the struct provided with some data then check it for
-		// json validation
+		// IF DATA IS PROVIDED THEN
 		if !(isBlankJSONData) {
-			err := json.Unmarshal(data, &a)
+			err = json.Unmarshal(dataToUpdate, &a)
 			if err != nil {
-				// if it's an error then return with nil data
-				return modMetaData, modFlowPartData, err
+				return
 			}
 		} else {
-			// it's null/blank data then initialize with default data
+			// IF DATA IS BLANK OR NULL THEN INITIAZE WITH IT SOME DEFAULTS
 			currentDateTime := time.Now()
 			nextYearDateTime := currentDateTime.AddDate(1, 0, 0)
 
@@ -333,208 +343,217 @@ func GetRAFlowPartDataFromJSON(BID int64, data json.RawMessage, partType int, fl
 			a.PossessionStop = JSONDate(nextYearDateTime)
 		}
 
-		// json marshalled for struct
+		// MODIFIED PART DATA
 		modFlowPartData, err = json.Marshal(&a)
+		if err != nil {
+			return
+		}
 
 	case PeopleRAFlowPart:
 		a := []RAPeopleFlowData{}
 
-		// if the struct provided with some data then check it for
-		// json validation
+		// IF DATA IS PROVIDED THEN
 		if !(isBlankJSONData) {
-			err := json.Unmarshal(data, &a)
-
-			// auto assign TMPTCID
-			for i := range a {
-				if a[i].TMPTCID == 0 { // if zero then assign new from last saved ID
-					raFlowData.Meta.LastTMPTCID++
-					a[i].TMPTCID = raFlowData.Meta.LastTMPTCID
-				}
+			err = json.Unmarshal(dataToUpdate, &a)
+			if err != nil {
+				return
 			}
 
-			if err != nil {
-				// if it's an error then return with nil data
-				return modMetaData, modFlowPartData, err
+			// IF NOT TMPTCID THEN ASSIGN IT
+			for i := range a {
+				if a[i].TMPTCID == 0 {
+					meta.LastTMPTCID++
+					a[i].TMPTCID = meta.LastTMPTCID
+				}
 			}
 		}
 
-		// json marshalled for struct
+		// MODIFIED PART DATA
 		modFlowPartData, err = json.Marshal(&a)
+		if err != nil {
+			return
+		}
 
 	case PetsRAFlowPart:
 		a := []RAPetsFlowData{}
 
-		// if the struct provided with some data then check it for
-		// json validation
+		// IF DATA IS PROVIDED THEN
 		if !(isBlankJSONData) {
-			err := json.Unmarshal(data, &a)
+			err = json.Unmarshal(dataToUpdate, &a)
+			if err != nil {
+				return
+			}
 
-			// auto assign TMPPETID
+			// IF NOT TMPPETID THEN ASSIGN IT
 			for i := range a {
-				// If Fees not initialized then
+
+				// IF NOT FEES LIST THEN
 				if len(a[i].Fees) == 0 {
 					a[i].Fees = []RAFeesData{}
 				}
 
-				if a[i].TMPPETID == 0 { // if zero then assign new from last saved ID
-					raFlowData.Meta.LastTMPPETID++
-					a[i].TMPPETID = raFlowData.Meta.LastTMPPETID
+				if a[i].TMPPETID == 0 {
+					meta.LastTMPPETID++
+					a[i].TMPPETID = meta.LastTMPPETID
 
-					// manage TMPASMID in Fees
+					// IF NOT TMPASMID IN EACH FEE THEN
 					for j := range a[i].Fees {
 						if a[i].Fees[j].TMPASMID == 0 {
-							raFlowData.Meta.LastTMPASMID++
-							a[i].Fees[j].TMPASMID = raFlowData.Meta.LastTMPASMID
+							meta.LastTMPASMID++
+							a[i].Fees[j].TMPASMID = meta.LastTMPASMID
 						}
 					}
 				}
 			}
 
-			// Update HavePets flag in meta information
-			raFlowData.Meta.HavePets = len(a) > 0
-
-			if err != nil {
-				// if it's an error then return with nil data
-				return modMetaData, modFlowPartData, err
-			}
+			// HAVEPETS  - BASED ON PET LIST LENGTH
+			meta.HavePets = len(a) > 0
 		}
 
-		// json marshalled for struct
+		// MODIFIED PART DATA
 		modFlowPartData, err = json.Marshal(&a)
+		if err != nil {
+			return
+		}
 
 	case VehiclesRAFlowPart:
 		a := []RAVehiclesFlowData{}
 
-		// if the struct provided with some data then check it for
-		// json validation
+		// IF DATA IS PROVIDED THEN
 		if !(isBlankJSONData) {
-			err := json.Unmarshal(data, &a)
+			err = json.Unmarshal(dataToUpdate, &a)
+			if err != nil {
+				return
+			}
 
-			// auto assign TMPVID
+			// IF NOT TMPPETID THEN
 			for i := range a {
-				// If Fees not initialized then
+
+				// IF NOT FEES ASSOCIATED
 				if len(a[i].Fees) == 0 {
 					a[i].Fees = []RAFeesData{}
 				}
 
-				if a[i].TMPVID == 0 { // if zero then assign new from last saved ID
-					raFlowData.Meta.LastTMPVID++
-					a[i].TMPVID = raFlowData.Meta.LastTMPVID
+				if a[i].TMPVID == 0 {
+					meta.LastTMPVID++
+					a[i].TMPVID = meta.LastTMPVID
 
-					// manage TMPASMID in fees
+					// IF NOT TMPASMID IN EACH FEE
 					for j := range a[i].Fees {
 						if a[i].Fees[j].TMPASMID == 0 {
-							raFlowData.Meta.LastTMPASMID++
-							a[i].Fees[j].TMPASMID = raFlowData.Meta.LastTMPASMID
+							meta.LastTMPASMID++
+							a[i].Fees[j].TMPASMID = meta.LastTMPASMID
 						}
 					}
 				}
 			}
 
-			// Update HaveVehicles flag in meta information
-			raFlowData.Meta.HaveVehicles = len(a) > 0
-
-			if err != nil {
-				// if it's an error then return with nil data
-				return modMetaData, modFlowPartData, err
-			}
+			// HAVE VEHICLES - BASED ON VEHICLE LIST LENGTH
+			meta.HaveVehicles = len(a) > 0
 		}
 
-		// json marshalled for struct
+		// MODIFIED PART DATA
 		modFlowPartData, err = json.Marshal(&a)
+		if err != nil {
+			return
+		}
 
 	case RentablesRAFlowPart:
 		a := []RARentablesFlowData{}
 
-		// if the struct provided with some data then check it for
-		// json validation
+		// IF DATA IS PROVIDED THEN
 		if !(isBlankJSONData) {
-			err := json.Unmarshal(data, &a)
+			err = json.Unmarshal(dataToUpdate, &a)
+			if err != nil {
+				return
+			}
 
+			// FEES TMPASMID
 			for i := range a {
 
-				// If Fees not initialized then
+				// IF NOT FEES ASSOCIATED THEN
 				if len(a[i].Fees) == 0 {
 					a[i].Fees = []RAFeesData{}
 				}
 
-				// manage TMPASMID in fees
+				// IF NOT TMPASMID IN EACH FEE THEN
 				for j := range a[i].Fees {
 					if a[i].Fees[j].TMPASMID == 0 {
-						raFlowData.Meta.LastTMPASMID++
-						a[i].Fees[j].TMPASMID = raFlowData.Meta.LastTMPASMID
+						meta.LastTMPASMID++
+						a[i].Fees[j].TMPASMID = meta.LastTMPASMID
 					}
 				}
 
 			}
-
-			if err != nil {
-				// if it's an error then return with nil data
-				return modMetaData, modFlowPartData, err
-			}
 		}
 
-		// json marshalled for struct
+		// MODIFIED PART DATA
 		modFlowPartData, err = json.Marshal(&a)
+		if err != nil {
+			return
+		}
 
 	case ParentChildRAFlowPart:
 		a := []RAParentChildFlowData{}
 
-		// if the struct provided with some data then check it for
-		// json validation
+		// IF DATA IS PROVIDED THEN
 		if !(isBlankJSONData) {
-			err := json.Unmarshal(data, &a)
+			err = json.Unmarshal(dataToUpdate, &a)
 			if err != nil {
-				// if it's an error then return with nil data
-				return modMetaData, modFlowPartData, err
+				return
 			}
 		}
 
-		// json marshalled for struct
+		// MODIFIED PART DATA
 		modFlowPartData, err = json.Marshal(&a)
+		if err != nil {
+			return
+		}
 
 	case TieRAFlowPart:
 		a := RATieFlowData{}
 
-		// if the struct provided with some data then check it for
-		// json validation
+		// IF DATA IS PROVIDED THEN
 		if !(isBlankJSONData) {
-			err := json.Unmarshal(data, &a)
+			err = json.Unmarshal(dataToUpdate, &a)
+			if err != nil {
+				return
+			}
 
-			// check for each sliced data field
-			// if it's blank then initialize it
+			// IF NOT PEOPLE IN TIE THEN
 			if len(a.People) == 0 {
 				a.People = []RATiePeopleData{}
 			}
-
-			if err != nil {
-				// if it's an error then return with nil data
-				return modMetaData, modFlowPartData, err
-			}
 		}
 
-		// json marshalled for struct
+		// MODIFIED PART DATA
 		modFlowPartData, err = json.Marshal(&a)
+		if err != nil {
+			return
+		}
 
 	default:
-		err = fmt.Errorf("unrecognized part type in RA flow: %d", partType)
+		err = fmt.Errorf("unrecognized part type in RA flow: %s", flowPart)
+		return
 	}
 
-	// if error occured in above switch cases execution
-	// while marshaling content in json then only
+	// NOW UPDATE THE JSON FOR GIVEN FLOW PART
+	err = UpdateFlowData(ctx, flowPart, modFlowPartData, flow)
 	if err != nil {
-		return modMetaData, modFlowPartData, err
+		return
 	}
 
-	// now marshal json data back to raflow
-	modMetaData, err = json.Marshal(&raFlowData.Meta)
-	if err != nil {
-		// if it's an error then return with nil data
-		return modMetaData, modFlowPartData, err
+	// IF MODIFIED META IS NOT EQUAL TO FLOW META THEN ONLY UPDATE META JSON
+	if !reflect.DeepEqual(meta, raFlowData.Meta) {
+		var modMetaInfo []byte
+		modMetaInfo, err = json.Marshal(&meta)
+		if err != nil {
+			return
+		}
+		err = UpdateFlowData(ctx, "meta", modMetaInfo, flow)
 	}
 
-	// finally return with modified data
-	return modMetaData, modFlowPartData, err
+	return
 }
 
 // InsertInitialRAFlow writes a bunch of flow's sections record for a particular RA

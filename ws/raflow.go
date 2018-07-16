@@ -1,10 +1,5 @@
 package ws
 
-import (
-	"context"
-	"fmt"
-)
-
 // GridRAFlowResponse is a struct to hold info for rental agreement for the grid response
 type GridRAFlowResponse struct {
 	Recid     int64 `json:"recid"`
@@ -67,38 +62,3 @@ func SvcRAFlowDiffHandler(w http.ResponseWriter, r *http.Request, d *ServiceData
 	SvcWriteResponse(d.BID, &g, w)
 }
 */
-
-// SaveRAFlowData saves data of raflow from client requested data
-func SaveRAFlowData(ctx context.Context, sf SaveFlowRequest, flow *rlib.Flow) (err error) {
-	var (
-		jsBtData    []byte
-		modMetaInfo []byte
-	)
-
-	// is valid part
-	partType, ok := rlib.RAFlowPartsMap[sf.FlowPartKey]
-	if !ok {
-		err = fmt.Errorf("Unable to find part with key: %s for flowID: %d, flowType: %s, Error: %s",
-			sf.FlowPartKey, sf.FlowID, sf.FlowType, err.Error())
-	}
-
-	modMetaInfo, jsBtData, err = rlib.GetRAFlowPartDataFromJSON(d.BID, sf.Data, int(partType), &flow)
-	if err != nil {
-		rlib.Console("Error while getting data from GetRAFlowPartDataFromJSON %s\n", err.Error())
-		err = fmt.Errorf("Data is not in valid format for flowID: %d, flowType: %s, Error: %s",
-			sf.FlowID, sf.FlowType, err.Error())
-		return
-	}
-
-	// update data with given json data key
-	err = rlib.UpdateFlowData(ctx, sf.FlowPartKey, jsBtData, &flow)
-	if err != nil {
-		return
-	}
-
-	// update data for modified meta data
-	err = rlib.UpdateFlowData(ctx, "meta", modMetaInfo, &flow)
-	if err != nil {
-		return
-	}
-}

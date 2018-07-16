@@ -287,7 +287,7 @@ func SaveFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// handle data for update based on flow and part type
 	switch flowReq.FlowType {
 	case rlib.RAFlow:
-		err = SaveRAFlowData(ctx, flowReq, &flow)
+		err = rlib.UpdateRAFlowJSON(ctx, d.BID, flowReq.Data, flowReq.FlowPartKey, &flow)
 		if err != nil {
 			return
 		}
@@ -301,6 +301,7 @@ func SaveFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// ----------------------------------------------
 
 	// get flow data in return it back
+	var updatedFlow rlib.Flow
 	updatedFlow, err = rlib.GetFlow(ctx, flow.FlowID)
 	if err != nil {
 		return
