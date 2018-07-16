@@ -91,7 +91,7 @@ func initiateFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var flowID int64
 	switch f.FlowType {
 	case rlib.RAFlow:
-		flowID, err = insertInitialRAFlow(r.Context(), d.BID, d.sess.UID)
+		flowID, err = rlib.InsertInitialRAFlow(r.Context(), d.BID, d.sess.UID)
 		break
 	default:
 		err = fmt.Errorf("unrecognized flowType: %s", f.FlowType)

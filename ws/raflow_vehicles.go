@@ -23,7 +23,7 @@ func NewRAFlowVehicle(ctx context.Context, BID int64, meta *rlib.RAFlowMetaInfo)
 	// assign new TMPVID & mark in meta info
 	meta.LastTMPVID++
 	vehicle = rlib.RAVehiclesFlowData{
-		Fees:    []RAFeesData{},
+		Fees:    []rlib.RAFeesData{},
 		TMPVID:  meta.LastTMPVID,
 		DtStart: rlib.JSONDate(today),
 		DtStop:  rlib.JSONDate(today.AddDate(1, 0, 0)),
