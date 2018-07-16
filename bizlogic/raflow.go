@@ -118,16 +118,21 @@ type NonFieldsError struct {
 func ValidateRAFlowBasic(ctx context.Context, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) {
 
 	var (
-		datesFieldsErrors       DatesFieldsError
-		peopleFieldsErrors      PeopleFieldsError
-		petFieldsErrors         PetFieldsError
-		vehicleFieldsErrors     VehicleFieldsError
-		rentablesFieldsErrors   RentablesFieldsError
-		raFeesErrors            RAFeesError
-		parentChildFieldsErrors ParentChildFieldsError
-		tieFieldsErrors         TieFieldsError
-		tiePeopleFieldsErrors   TiePeopleFieldsError
-		raFlowFieldsErrors      RAFlowFieldsErrors
+		datesFieldsErrors        DatesFieldsError
+		datesNonFieldsErrors     NonFieldsError
+		peopleFieldsErrors       PeopleFieldsError
+		peopleNonFieldsErrors    NonFieldsError
+		petFieldsErrors          PetFieldsError
+		petNonFieldsErrors       NonFieldsError
+		vehicleFieldsErrors      VehicleFieldsError
+		vehicleNonFieldsErrors   NonFieldsError
+		rentablesFieldsErrors    RentablesFieldsError
+		rentablesNonFieldsErrors NonFieldsError
+		raFeesErrors             RAFeesError
+		parentChildFieldsErrors  ParentChildFieldsError
+		tieFieldsErrors          TieFieldsError
+		tiePeopleFieldsErrors    TiePeopleFieldsError
+		raFlowFieldsErrors       RAFlowFieldsErrors
 	)
 
 	//----------------------------------------------
@@ -135,6 +140,9 @@ func ValidateRAFlowBasic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 	// ----------------------------------------------
 	// NOTE: Validation not require for the date type fields.
 	// Because it handles while Unmarshalling string into rlib.JSONDate
+
+	// Init non fields error
+	datesNonFieldsErrors.Errors = make([]string, 0)
 
 	// call validation function
 	errs := rtags.ValidateStructFromTagRules(a.Dates)
