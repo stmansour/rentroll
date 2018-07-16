@@ -57,9 +57,6 @@ func SvcHandlerFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	case "save":
 		saveFlow(w, r, d)
 		break
-	case "migrate":
-		migrateFlowDataToDB(w, r, d)
-		break
 	default:
 		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
 		SvcErrorReturn(w, err, funcname)
@@ -308,40 +305,4 @@ func saveFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	g.Record = flow
 	g.Status = "success"
 	SvcWriteResponse(d.BID, &g, w)
-}
-
-// migrateFlowDataToDB saves the data from temp data stored in flowPart with flowID into actual
-// database instance for the given flow type
-func migrateFlowDataToDB(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	const funcname = "saveFlow"
-	var (
-		err error
-		f   struct {
-			FlowType string
-			FlowID   int64
-		}
-	)
-
-	rlib.Console("Entered %s\n", funcname)
-	rlib.Console("record data = %s\n", d.data)
-
-	if err := json.Unmarshal([]byte(d.data), &f); err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
-	}
-
-	switch f.FlowType {
-	case rlib.RAFlow:
-		_, err = saveRentalAgreementFlow(r.Context(), f.FlowID)
-		if err != nil {
-			SvcErrorReturn(w, err, funcname)
-			return
-		}
-		break
-	default:
-		err = fmt.Errorf("unrecognized flow type: %s", f.FlowType)
-		SvcErrorReturn(w, err, funcname)
-		return
-	}
-	SvcWriteSuccessResponse(d.BID, w)
 }

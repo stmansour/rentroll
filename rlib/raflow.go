@@ -303,7 +303,9 @@ func GetRAFlowPartDataFromJSON(BID int64, data json.RawMessage, partType int, fl
 	// REF: https://stackoverflow.com/questions/21390979/custom-marshaljson-never-gets-called-in-go
 
 	// is it blank string or null json data
-	isBlankJSONData := bytes.Equal([]byte(data), []byte(``)) || bytes.Equal([]byte(data), []byte(`null`))
+	isBlankJSONData := bytes.Equal([]byte(data), []byte(``)) ||
+		bytes.Equal([]byte(data), []byte(`null`)) ||
+		bytes.Equal([]byte(data), []byte(nil))
 
 	switch RAFlowPartType(partType) {
 	case DatesRAFlowPart:
