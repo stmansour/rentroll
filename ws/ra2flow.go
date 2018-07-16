@@ -515,7 +515,10 @@ func ConvertRA2Flow(ctx context.Context, ra *rlib.RentalAgreement) (RAFlowJSONDa
 			// Handle Rentable Fees that are NOT Pet or Vehicle related
 			//----------------------------------------------------------
 			if ar.FLAGS&(128|256) == 0 {
+				raf.Meta.LastTMPASMID++
+
 				var fee = RAFeesData{
+					TMPASMID:       raf.Meta.LastTMPASMID,
 					ASMID:          asms[j].ASMID,
 					ARID:           asms[j].ARID,
 					ARName:         ar.Name,
