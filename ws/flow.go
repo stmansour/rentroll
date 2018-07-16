@@ -7,6 +7,12 @@ import (
 	"rentroll/rlib"
 )
 
+// FlowResponse is the response of returning updated flow with status
+type FlowResponse struct {
+	Record rlib.Flow `json:"record"`
+	Status string    `json:"status"`
+}
+
 // SvcHandlerFlow handles operations on a whole flow which affects on its
 // all flow parts associated with given flowID
 // For this call, we expect the URI to contain the BID and the FlowID as follows:
@@ -59,12 +65,6 @@ func SvcHandlerFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
-}
-
-// FlowResponse is the response of returning updated flow with status
-type FlowResponse struct {
-	Record rlib.Flow `json:"record"`
-	Status string    `json:"status"`
 }
 
 // initiateFlow inserts a new flow with default data and returns it
@@ -272,7 +272,7 @@ func saveFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			return
 		}
 
-		modMetaInfo, jsBtData, err = getUpdateRAFlowPartJSONData(d.BID, flowReq.Data, int(partType), &existFlow)
+		modMetaInfo, jsBtData, err = rlib.GetRAFlowPartDataFromJSON(d.BID, flowReq.Data, int(partType), &existFlow)
 		if err != nil {
 			err1 := fmt.Errorf("Data is not in valid format for flowID: %d, flowType: %s, Error: %s", flowReq.FlowID, flowReq.FlowType, err.Error())
 			SvcErrorReturn(w, err1, funcname)

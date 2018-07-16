@@ -12,7 +12,7 @@ import (
 
 // NewRAFlowVehicle create new vehicle entry for the raflow and returns strcture
 // with fees configured it in bizprops
-func NewRAFlowVehicle(ctx context.Context, BID int64, meta *RAFlowMetaInfo) (vehicle RAVehiclesFlowData, err error) {
+func NewRAFlowVehicle(ctx context.Context, BID int64, meta *rlib.RAFlowMetaInfo) (vehicle rlib.RAVehiclesFlowData, err error) {
 	const funcname = "NewRAFlowVehicle"
 	var (
 		today = time.Now()
@@ -22,7 +22,7 @@ func NewRAFlowVehicle(ctx context.Context, BID int64, meta *RAFlowMetaInfo) (veh
 	// initialize
 	// assign new TMPVID & mark in meta info
 	meta.LastTMPVID++
-	vehicle = RAVehiclesFlowData{
+	vehicle = rlib.RAVehiclesFlowData{
 		Fees:    []RAFeesData{},
 		TMPVID:  meta.LastTMPVID,
 		DtStart: rlib.JSONDate(today),
@@ -39,7 +39,7 @@ func NewRAFlowVehicle(ctx context.Context, BID int64, meta *RAFlowMetaInfo) (veh
 	// loop over fees
 	for _, fee := range vehicleFees {
 		meta.LastTMPASMID++ // new asm id temp
-		vf := RAFeesData{
+		vf := rlib.RAFeesData{
 			ARID:           fee.ARID,
 			ARName:         fee.ARName,
 			ContractAmount: fee.Amount,
@@ -99,11 +99,11 @@ func CreateNewRAFlowVehicle(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	var (
 		g             FlowResponse
 		foo           RAFlowNewVehicleRequest
-		raFlowData    RAFlowJSONData
+		raFlowData    rlib.RAFlowJSONData
 		err           error
 		tx            *sql.Tx
 		ctx           context.Context
-		modRAFlowMeta RAFlowMetaInfo
+		modRAFlowMeta rlib.RAFlowMetaInfo
 	)
 	fmt.Printf("Entered in %s\n", funcname)
 
@@ -156,7 +156,7 @@ func CreateNewRAFlowVehicle(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	// --------------------------------------------------------
 	// APPEND FEES FOR VEHICLES
 	// --------------------------------------------------------
-	var newRAFlowVehicle RAVehiclesFlowData
+	var newRAFlowVehicle rlib.RAVehiclesFlowData
 	newRAFlowVehicle, err = NewRAFlowVehicle(r.Context(), d.BID, &modRAFlowMeta)
 	if err != nil {
 		return
