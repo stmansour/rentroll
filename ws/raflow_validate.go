@@ -45,8 +45,7 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		err        error
 		foo        RAFlowDetailRequest
 		raFlowData rlib.RAFlowJSONData
-		//raFlowFieldsErrors bizlogic.RAFlowFieldsErrors
-		g bizlogic.ValidateRAFlowResponse
+		g          bizlogic.ValidateRAFlowResponse
 	)
 
 	// http method check
@@ -59,21 +58,6 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if err = json.Unmarshal([]byte(d.data), &foo); err != nil {
 		return
 	}
-
-	// Init RAFlowFields error list
-	//raFlowFieldsErrors = bizlogic.RAFlowFieldsErrors{
-	//	Dates: bizlogic.DatesFieldsError{
-	//		Errors: map[string][]string{},
-	//	},
-	//	People:      []bizlogic.PeopleFieldsError{},
-	//	Pets:        []bizlogic.PetFieldsError{},
-	//	Vehicle:     []bizlogic.VehicleFieldsError{},
-	//	Rentables:   []bizlogic.RentablesFieldsError{},
-	//	ParentChild: []bizlogic.ParentChildFieldsError{},
-	//	Tie: bizlogic.TieFieldsError{
-	//		TiePeople: []bizlogic.TiePeopleFieldsError{},
-	//	},
-	//}
 
 	// Get flow information from the table to validate fields value
 	flow, err := rlib.GetFlow(r.Context(), foo.FlowID)
@@ -100,18 +84,18 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// Perform basic validation on RAFlow
 	// ---------------------------------------
 	// TODO(Akshay): Enable basic validation check
-	//g = bizlogic.BasicValidateRAFlow(raFlowData, raFlowFieldsErrors)
-	//
-	//// If RAFlow structure have more than 1 basic validation error than it return with the list of basic validation errors
-	//if g.Total > 0 {
-	//	SvcWriteResponse(d.BID, &g, w)
-	//	return
-	//}
+	g = bizlogic.ValidateRAFlowBasic(r.Context(), &raFlowData, &g)
+
+	// If RAFlow structure have more than 1 basic validation error than it return with the list of basic validation errors
+	if g.Total > 0 {
+		SvcWriteResponse(d.BID, &g, w)
+		return
+	}
 
 	// --------------------------------------------
 	// Perform Bizlogic check validation on RAFlow
 	// --------------------------------------------
-	g = bizlogic.ValidateRAFlowBizLogic(r.Context(), &raFlowData)
+	g = bizlogic.ValidateRAFlowBizLogic(r.Context(), &raFlowData, &g)
 
 	// If RAFlow structure have more than 1 biz logic check validation error than it return with the list of biz logic validation errors
 	if g.Total > 0 {

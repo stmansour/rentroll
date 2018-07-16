@@ -113,9 +113,9 @@ type NonFieldsError struct {
 	Errors []string `json:"errors"`
 }
 
-// BasicValidateRAFlow validate RAFlow's fields section wise
+// ValidateRAFlowBasic validate RAFlow's fields section wise
 //-------------------------------------------------------------------------
-func BasicValidateRAFlow(raFlowData rlib.RAFlowJSONData, raFlowFieldsErrors RAFlowFieldsErrors) ValidateRAFlowResponse {
+func ValidateRAFlowBasic(ctx context.Context, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) {
 
 	var (
 		datesFieldsErrors       DatesFieldsError
@@ -127,7 +127,7 @@ func BasicValidateRAFlow(raFlowData rlib.RAFlowJSONData, raFlowFieldsErrors RAFl
 		parentChildFieldsErrors ParentChildFieldsError
 		tieFieldsErrors         TieFieldsError
 		tiePeopleFieldsErrors   TiePeopleFieldsError
-		g                       ValidateRAFlowResponse
+		raFlowFieldsErrors      RAFlowFieldsErrors
 	)
 
 	//----------------------------------------------
@@ -137,7 +137,7 @@ func BasicValidateRAFlow(raFlowData rlib.RAFlowJSONData, raFlowFieldsErrors RAFl
 	// Because it handles while Unmarshalling string into rlib.JSONDate
 
 	// call validation function
-	errs := rtags.ValidateStructFromTagRules(raFlowData.Dates)
+	errs := rtags.ValidateStructFromTagRules(a.Dates)
 
 	// Modify error count for the response
 	datesFieldsErrors.Total = len(errs)
@@ -152,7 +152,7 @@ func BasicValidateRAFlow(raFlowData rlib.RAFlowJSONData, raFlowFieldsErrors RAFl
 	//----------------------------------------------
 	// validate RAPeopleFlowData structure
 	// ----------------------------------------------
-	for _, people := range raFlowData.People {
+	for _, people := range a.People {
 		// call validation function
 		errs := rtags.ValidateStructFromTagRules(people)
 
@@ -173,7 +173,7 @@ func BasicValidateRAFlow(raFlowData rlib.RAFlowJSONData, raFlowFieldsErrors RAFl
 	// ----------------------------------------------
 	// validate RAPetFlowData structure
 	// ----------------------------------------------
-	for _, pet := range raFlowData.Pets {
+	for _, pet := range a.Pets {
 
 		// init raFeesErrors
 		raFeesErrors := RAFeesError{
@@ -225,7 +225,7 @@ func BasicValidateRAFlow(raFlowData rlib.RAFlowJSONData, raFlowFieldsErrors RAFl
 	// ----------------------------------------------
 	// validate RAVehicleFlowData structure
 	// ----------------------------------------------
-	for _, vehicle := range raFlowData.Vehicles {
+	for _, vehicle := range a.Vehicles {
 
 		// init raFeesErrors
 		raFeesErrors := RAFeesError{
@@ -277,7 +277,7 @@ func BasicValidateRAFlow(raFlowData rlib.RAFlowJSONData, raFlowFieldsErrors RAFl
 	// ----------------------------------------------
 	// validate RARentablesFlowData structure
 	// ----------------------------------------------
-	for _, rentable := range raFlowData.Rentables {
+	for _, rentable := range a.Rentables {
 		// init raFeesErrors
 		raFeesErrors = RAFeesError{
 			Errors: map[string][]string{},
@@ -330,7 +330,7 @@ func BasicValidateRAFlow(raFlowData rlib.RAFlowJSONData, raFlowFieldsErrors RAFl
 	// ----------------------------------------------
 	// validate RAParentChildFlowData structure
 	// ----------------------------------------------
-	for _, parentChild := range raFlowData.ParentChild {
+	for _, parentChild := range a.ParentChild {
 		// call validation function
 		errs := rtags.ValidateStructFromTagRules(parentChild)
 
@@ -353,7 +353,7 @@ func BasicValidateRAFlow(raFlowData rlib.RAFlowJSONData, raFlowFieldsErrors RAFl
 	// ----------------------------------------------
 	// validate RATieFlowData.People structure
 	// ----------------------------------------------
-	for _, people := range raFlowData.Tie.People {
+	for _, people := range a.Tie.People {
 		// call validation function
 		errs = rtags.ValidateStructFromTagRules(people)
 
@@ -376,58 +376,50 @@ func BasicValidateRAFlow(raFlowData rlib.RAFlowJSONData, raFlowFieldsErrors RAFl
 	//---------------------------------------
 	g.Errors = raFlowFieldsErrors
 	g.ErrorType = "basic"
-
-	return g
 }
 
 // ValidateRAFlowBizLogic is to check RAFlow's business logic
-func ValidateRAFlowBizLogic(ctx context.Context, a *rlib.RAFlowJSONData) ValidateRAFlowResponse {
+func ValidateRAFlowBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) {
 	const funcname = "ValidateRAFlowBizLogic"
 	fmt.Printf("Entered %s\n", funcname)
-
-	var (
-		g ValidateRAFlowResponse
-	)
 
 	// -----------------------------------------------
 	// -------- Bizlogic check on date section -------
 	// -----------------------------------------------
-	validateDatesBizLogic(ctx, a, &g)
+	validateDatesBizLogic(ctx, a, g)
 
 	// -----------------------------------------------
 	// ------ Bizlogic check on people section -------
 	// -----------------------------------------------
-	validatePeopleBizLogic(ctx, a, &g)
+	validatePeopleBizLogic(ctx, a, g)
 
 	// -----------------------------------------------
 	// ------- Bizlogic check on pet section ---------
 	// -----------------------------------------------
-	validatePetBizLogic(ctx, a, &g)
+	validatePetBizLogic(ctx, a, g)
 
 	// -----------------------------------------------
 	// ------ Bizlogic check on vehicle section ------
 	// -----------------------------------------------
-	validateVehicleBizLogic(ctx, a, &g)
+	validateVehicleBizLogic(ctx, a, g)
 
 	// -----------------------------------------------
 	// ---- Bizlogic check on rentables section ------
 	// -----------------------------------------------
-	validateRentableBizLogic(ctx, a, &g)
+	validateRentableBizLogic(ctx, a, g)
 
 	// -----------------------------------------------
 	// --- Bizlogic check on parent/child section ----
 	// -----------------------------------------------
-	validateParentChildBizLogic(ctx, a, &g)
+	validateParentChildBizLogic(ctx, a, g)
 
 	// -----------------------------------------------
 	// --- Bizlogic check on tie-people section ----
 	// -----------------------------------------------
-	validateTiePeopleBizLogic(ctx, a, &g)
+	validateTiePeopleBizLogic(ctx, a, g)
 
 	// Set the response
 	g.ErrorType = "biz"
-
-	return g
 }
 
 // validateDatesBizLogic Perform business logic check on date section
