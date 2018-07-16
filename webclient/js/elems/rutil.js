@@ -1218,13 +1218,13 @@ window.reassignGridRecids = function(gridName) {
 // It sets data from local raflow only for fields which are defined in form
 // definition
 // -------------------------------------------------------------------------------
-window.SetFormRecordFromData = function(onlyRequired, form, data) {
+window.SetFormRecordFromData = function(/*onlyRequired, */form, data) {
     var fields = form.fields || [];
 
-    // if onlyRequired is true, then set data only on required fields
+    /*// if onlyRequired is true, then set data only on required fields
     if (onlyRequired) {
         fields = fields.filter(function(field) { return field.required; });
-    }
+    }*/
 
     // for each field in form
     fields.forEach(function(fieldItem) {
@@ -1240,18 +1240,18 @@ window.SetFormRecordFromData = function(onlyRequired, form, data) {
 //
 // It sets data from form record only on those field which do exist in data
 // -------------------------------------------------------------------------------
-window.SetDataFromFormRecord = function(ID, onlyRequired, form, data) {
+window.SetDataFromFormRecord = function(ID, /*onlyRequired,*/ form, data) {
     var fields = form.fields || [],
         formData = getFormSubmitData(form.record, true);
 
-    // if onlyRequired is true, then only deal with required field defined in the form
+    /*// if onlyRequired is true, then only deal with required field defined in the form
     if (onlyRequired) {
         fields.forEach(function(fieldItem) {
             if ( !fieldItem.required && formData.hasOwnProperty(fieldItem.field) ) {
                 delete formData[fieldItem.field];
             }
         });
-    }
+    }*/
 
     // set data
     if (ID === 0) {
@@ -1266,4 +1266,3 @@ window.SetDataFromFormRecord = function(ID, onlyRequired, form, data) {
 
     return data;
 };
-

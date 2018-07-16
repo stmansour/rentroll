@@ -37,7 +37,8 @@ window.GetFeeFormInitRecord = function () {
         SalesTax:           0.0,
         // SalesTaxAmt:        0.0, // FUTURE RELEASE
         TransOccTax:        0.0,
-        // TransOccAmt:        0.0, // FUTURE RELEASE
+        // TransOccAmt:        0.0, // FUTURE RELEASE,
+        Comment:            "",
     };
 };
 
@@ -62,6 +63,7 @@ window.GetFeeFormFields = function() {
         // {name: 'SalesTaxAmt',       type: 'money',  required: true,     html: {page: 0, column: 0}}, // FUTURE RELEASE
         {name: 'TransOccTax',       type: 'money',  required: true,     html: {page: 0, column: 0}},
         // {name: 'TransOccAmt',       type: 'money',  required: true,     html: {page: 0, column: 0}}, // FUTURE RELEASE
+        {name: 'Comment',           type: 'text',   required: false,    html: {page: 0, column: 0}},
     ];
 
     // RETURN the clone
@@ -184,6 +186,11 @@ window.GetFeeGridColumns = function() {
             size: '80px',
             render: 'money'
         },*/
+        {
+            field: 'Comment',
+            caption: 'Comment',
+            hidden: true
+        },
         {
             field: 'RowTotal',
             caption: 'Grand Total',
@@ -346,7 +353,7 @@ window.SetFeeFormRecordFromFeeData = function(TMPID, TMPASMID, flowPart) {
             } else {
                 data = GetPetFeeLocalData(TMPID, TMPASMID);
             }
-            SetFormRecordFromData(true, form, data);
+            SetFormRecordFromData(form, data);
             break;
         case "vehicles":
             form = w2ui.RAVehicleFeeForm;
@@ -355,7 +362,7 @@ window.SetFeeFormRecordFromFeeData = function(TMPID, TMPASMID, flowPart) {
             } else {
                 data = GetVehicleFeeLocalData(TMPID, TMPASMID);
             }
-            SetFormRecordFromData(true, form, data);
+            SetFormRecordFromData(form, data);
             break;
         case "rentables":
             form = w2ui.RARentableFeeForm;
@@ -364,7 +371,7 @@ window.SetFeeFormRecordFromFeeData = function(TMPID, TMPASMID, flowPart) {
             } else {
                 data = GetRentableFeeLocalData(TMPID, TMPASMID);
             }
-            SetFormRecordFromData(true, form, data);
+            SetFormRecordFromData(form, data);
             break;
         default:
             return false;
@@ -389,7 +396,7 @@ window.SetFeeDataFromFeeFormRecord = function(TMPID, TMPASMID, flowPart) {
             }
 
             // set modified data from form record
-            data = SetDataFromFormRecord(TMPASMID, true, form, data);
+            data = SetDataFromFormRecord(TMPASMID, form, data);
 
             // set data locally
             SetPetFeeLocalData(TMPID, TMPASMID, data);
@@ -402,7 +409,7 @@ window.SetFeeDataFromFeeFormRecord = function(TMPID, TMPASMID, flowPart) {
             }
 
             // set modified data from form record
-            data = SetDataFromFormRecord(TMPASMID, true, form, data);
+            data = SetDataFromFormRecord(TMPASMID, form, data);
 
             // set data locally
             SetVehicleFeeLocalData(TMPID, TMPASMID, data);
@@ -415,7 +422,7 @@ window.SetFeeDataFromFeeFormRecord = function(TMPID, TMPASMID, flowPart) {
             }
 
             // set modified data from form record
-            data = SetDataFromFormRecord(TMPASMID, true, form, data);
+            data = SetDataFromFormRecord(TMPASMID, form, data);
 
             // set data locally
             SetRentableFeeLocalData(TMPID, TMPASMID, data);
