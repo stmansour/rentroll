@@ -348,7 +348,7 @@ func GetRA2FlowCore(ctx context.Context, ra *rlib.RentalAgreement, uid int64) (i
 	var flowID int64
 
 	// convert permanent ra to flow data and get it
-	raf, err := ConvertRA2Flow(ctx, ra)
+	raf, err := rlib.ConvertRA2Flow(ctx, ra)
 	if err != nil {
 		return flowID, err
 	}
@@ -391,18 +391,18 @@ func GetRA2FlowCore(ctx context.Context, ra *rlib.RentalAgreement, uid int64) (i
 //     ra     the rental agreement to move into a flow
 //
 // RETURNS:
-//     the RAFlowJSONData
+//     the rlib.RAFlowJSONData
 //     any error encountered
 //-------------------------------------------------------------------------
-func ConvertRA2Flow(ctx context.Context, ra *rlib.RentalAgreement) (RAFlowJSONData, error) {
+func ConvertRA2Flow(ctx context.Context, ra *rlib.RentalAgreement) (rlib.RAFlowJSONData, error) {
 	const funcname = "ConvertRA2Flow"
 	fmt.Printf("Entered in %s\n", funcname)
 
 	//-------------------------------------------------------------
 	// This is the datastructure we need to fill out and save...
 	//-------------------------------------------------------------
-	var raf = RAFlowJSONData{
-		Dates: RADatesFlowData{
+	var raf = rlib.RAFlowJSONData{
+		Dates: rlib.RADatesFlowData{
 			BID:             ra.BID,
 			RentStart:       rlib.JSONDate(ra.RentStart),
 			RentStop:        rlib.JSONDate(ra.RentStop),
@@ -411,15 +411,15 @@ func ConvertRA2Flow(ctx context.Context, ra *rlib.RentalAgreement) (RAFlowJSONDa
 			PossessionStart: rlib.JSONDate(ra.PossessionStart),
 			PossessionStop:  rlib.JSONDate(ra.PossessionStop),
 		},
-		People:      []RAPeopleFlowData{},
-		Pets:        []RAPetsFlowData{},
-		Vehicles:    []RAVehiclesFlowData{},
-		Rentables:   []RARentablesFlowData{},
-		ParentChild: []RAParentChildFlowData{},
-		Tie: RATieFlowData{
-			People: []RATiePeopleData{},
+		People:      []rlib.RAPeopleFlowData{},
+		Pets:        []rlib.RAPetsFlowData{},
+		Vehicles:    []rlib.RAVehiclesFlowData{},
+		Rentables:   []rlib.RARentablesFlowData{},
+		ParentChild: []rlib.RAParentChildFlowData{},
+		Tie: rlib.RATieFlowData{
+			People: []rlib.RATiePeopleData{},
 		},
-		Meta: RAFlowMetaInfo{RAID: ra.RAID},
+		Meta: rlib.RAFlowMetaInfo{RAID: ra.RAID},
 	}
 
 	//-------------------------------------------------------------------------
@@ -483,7 +483,7 @@ func ConvertRA2Flow(ctx context.Context, ra *rlib.RentalAgreement) (RAFlowJSONDa
 		if err = rlib.GetRentableType(ctx, rtr.RTID, &rt); err != nil {
 			return raf, nil
 		}
-		var rfd = RARentablesFlowData{
+		var rfd = rlib.RARentablesFlowData{
 			BID:          o[i].BID,
 			RID:          o[i].RID,
 			RTID:         rtr.RTID,
@@ -517,7 +517,7 @@ func ConvertRA2Flow(ctx context.Context, ra *rlib.RentalAgreement) (RAFlowJSONDa
 			if ar.FLAGS&(128|256) == 0 {
 				raf.Meta.LastTMPASMID++
 
-				var fee = RAFeesData{
+				var fee = rlib.RAFeesData{
 					TMPASMID:       raf.Meta.LastTMPASMID,
 					ASMID:          asms[j].ASMID,
 					ARID:           asms[j].ARID,
@@ -549,7 +549,7 @@ func ConvertRA2Flow(ctx context.Context, ra *rlib.RentalAgreement) (RAFlowJSONDa
 				for k := 0; k < len(raf.Pets); k++ {
 					if raf.Pets[k].PETID == petid {
 						raf.Meta.LastTMPASMID++
-						var pf = RAFeesData{
+						var pf = rlib.RAFeesData{
 							TMPASMID:       raf.Meta.LastTMPASMID,
 							ARID:           asms[j].ARID,
 							ASMID:          asms[j].ASMID,
@@ -573,7 +573,7 @@ func ConvertRA2Flow(ctx context.Context, ra *rlib.RentalAgreement) (RAFlowJSONDa
 				for k := 0; k < len(raf.Vehicles); k++ {
 					if raf.Vehicles[k].VID == vid {
 						raf.Meta.LastTMPASMID++
-						var pf = RAFeesData{
+						var pf = rlib.RAFeesData{
 							TMPASMID:       raf.Meta.LastTMPASMID,
 							ARID:           asms[j].ARID,
 							ASMID:          asms[j].ASMID,
@@ -615,7 +615,7 @@ func ConvertRA2Flow(ctx context.Context, ra *rlib.RentalAgreement) (RAFlowJSONDa
 //     any error encountered
 //     raf is updated
 //-----------------------------------------------------------------------------
-func addRAPtoFlow(ctx context.Context, tcid, rid int64, raf *RAFlowJSONData, chk, isRenter, isOccupant bool) error {
+func addRAPtoFlow(ctx context.Context, tcid, rid int64, raf *rlib.RAFlowJSONData, chk, isRenter, isOccupant bool) error {
 	// Is this user already present?
 	if chk {
 		for l := 0; l < len(raf.People); l++ {
@@ -644,7 +644,7 @@ func addRAPtoFlow(ctx context.Context, tcid, rid int64, raf *RAFlowJSONData, chk
 		rap.IsOccupant = true
 
 		// only tie occupants to rentable
-		var t RATiePeopleData
+		var t rlib.RATiePeopleData
 		t.BID = rap.BID
 		t.TMPTCID = rap.TMPTCID
 		if rid > 0 {
@@ -658,28 +658,28 @@ func addRAPtoFlow(ctx context.Context, tcid, rid int64, raf *RAFlowJSONData, chk
 	return nil
 }
 
-// createRAFlowPerson returns a new RAPeopleFlowData based on the supplied
+// createRAFlowPerson returns a new rlib.RAPeopleFlowData based on the supplied
 // tcid. It does not set the Renter or Occupant flags
 //
 // INPUTS
 //          ctx  = db transaction context
 //         tcid  = the tcid of the transactant to load
-//          raf  = pointer to RAFlowJSONData
+//          raf  = pointer to rlib.RAFlowJSONData
 // addDependents = adds dependents (currently pets and vehicles) to the flow
 //                 data in addition to the transactant data. The recommended
 //                 usage of this flag is to set it to true when the person
 //                 being added is a user.
 //
 // RETURNS
-//     RAPeopleFlowData structure
+//     rlib.RAPeopleFlowData structure
 //     any error encountered
 //-----------------------------------------------------------------------------
-func createRAFlowPerson(ctx context.Context, tcid int64, raf *RAFlowJSONData, addDependents bool) (RAPeopleFlowData, error) {
+func createRAFlowPerson(ctx context.Context, tcid int64, raf *rlib.RAFlowJSONData, addDependents bool) (rlib.RAPeopleFlowData, error) {
 	var p rlib.Transactant
 	var pu rlib.User
 	var pp rlib.Payor
 	var pr rlib.Prospect
-	var rap RAPeopleFlowData
+	var rap rlib.RAPeopleFlowData
 	var err error
 
 	raf.Meta.LastTMPTCID++
@@ -713,24 +713,24 @@ func createRAFlowPerson(ctx context.Context, tcid int64, raf *RAFlowJSONData, ad
 }
 
 // addFlowPersonPets adds pets belonging to tcid to the supplied
-// RAFlowJSONData struct
+// rlib.RAFlowJSONData struct
 //
 // INPUTS
 //      ctx  = db transaction context
 //     tcid  = the tcid of the transactant to load
 //
 // RETURNS
-//     RAPetsFlowData structure
+//     rlib.RAPetsFlowData structure
 //     any error encountered
 //-----------------------------------------------------------------------------
-func addFlowPersonPets(ctx context.Context, tcid, tmptcid int64, raf *RAFlowJSONData) error {
+func addFlowPersonPets(ctx context.Context, tcid, tmptcid int64, raf *rlib.RAFlowJSONData) error {
 	petList, err := rlib.GetPetsByTransactant(ctx, tcid)
 	if err != nil {
 		return err
 	}
 	for i := 0; i < len(petList); i++ {
 		raf.Meta.LastTMPPETID++
-		var p = RAPetsFlowData{
+		var p = rlib.RAPetsFlowData{
 			TMPTCID:  tmptcid,
 			TMPPETID: raf.Meta.LastTMPPETID,
 		}
@@ -741,24 +741,24 @@ func addFlowPersonPets(ctx context.Context, tcid, tmptcid int64, raf *RAFlowJSON
 }
 
 // addFlowPersonVehicles adds vehicles belonging to tcid to the supplied
-// RAFlowJSONData struct
+// rlib.RAFlowJSONData struct
 //
 // INPUTS
 //      ctx  = db transaction context
 //     tcid  = the tcid of the transactant to load
 //
 // RETURNS
-//     RAPetsFlowData structure
+//     rlib.RAPetsFlowData structure
 //     any error encountered
 //-----------------------------------------------------------------------------
-func addFlowPersonVehicles(ctx context.Context, tcid, tmptcid int64, raf *RAFlowJSONData) error {
+func addFlowPersonVehicles(ctx context.Context, tcid, tmptcid int64, raf *rlib.RAFlowJSONData) error {
 	vehicleList, err := rlib.GetVehiclesByTransactant(ctx, tcid)
 	if err != nil {
 		return err
 	}
 	for i := 0; i < len(vehicleList); i++ {
 		raf.Meta.LastTMPVID++
-		var v = RAVehiclesFlowData{
+		var v = rlib.RAVehiclesFlowData{
 			TMPTCID: tmptcid,
 			TMPVID:  raf.Meta.LastTMPVID,
 		}
