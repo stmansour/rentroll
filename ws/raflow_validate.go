@@ -25,61 +25,69 @@ type ValidateRAFlowResponse struct {
 
 // DatesFieldsError is struct to hold Errorlist for Dates section
 type DatesFieldsError struct {
-	Total  int                 `json:"total"`
-	Errors map[string][]string `json:"errors"`
+	Total           int                 `json:"total"`
+	Errors          map[string][]string `json:"errors"`
+	NonFieldsErrors []string            `json:"nonFieldsError"`
 }
 
 // PeopleFieldsError is struct to hold Errorlist for People section
 type PeopleFieldsError struct {
-	TMPTCID int64
-	Total   int                 `json:"total"`
-	Errors  map[string][]string `json:"errors"`
+	TMPTCID         int64
+	Total           int                 `json:"total"`
+	Errors          map[string][]string `json:"errors"`
+	NonFieldsErrors []string            `json:"nonFieldsError"`
 }
 
 // PetFieldsError is struct to hold Errorlist for Pet section
 type PetFieldsError struct {
-	TMPPETID   int64
-	Total      int                 `json:"total"`
-	Errors     map[string][]string `json:"errors"`
-	FeesErrors []RAFeesError       `json:"fees"`
+	TMPPETID        int64
+	Total           int                 `json:"total"`
+	Errors          map[string][]string `json:"errors"`
+	FeesErrors      []RAFeesError       `json:"fees"`
+	NonFieldsErrors []string            `json:"nonFieldsError"`
 }
 
 // VehicleFieldsError is struct to hold Errorlist for Vehicle section
 type VehicleFieldsError struct {
-	TMPVID     int64
-	Total      int                 `json:"total"`
-	Errors     map[string][]string `json:"errors"`
-	FeesErrors []RAFeesError       `json:"fees"`
+	TMPVID          int64
+	Total           int                 `json:"total"`
+	Errors          map[string][]string `json:"errors"`
+	FeesErrors      []RAFeesError       `json:"fees"`
+	NonFieldsErrors []string            `json:"nonFieldsError"`
 }
 
 // RentablesFieldsError is to hold Errorlist for Rentables section
 type RentablesFieldsError struct {
-	RID        int64
-	Total      int                 `json:"total"`
-	Errors     map[string][]string `json:"errors"`
-	FeesErrors []RAFeesError       `json:"fees"`
+	RID             int64
+	Total           int                 `json:"total"`
+	Errors          map[string][]string `json:"errors"`
+	FeesErrors      []RAFeesError       `json:"fees"`
+	NonFieldsErrors []string            `json:"nonFieldsError"`
 }
 
 // RAFeesError is struct to hold Errolist for Fees of vehicles
 type RAFeesError struct {
-	TMPASMID int64
-	Total    int                 `json:"total"`
-	Errors   map[string][]string `json:"errors"`
+	TMPASMID        int64
+	Total           int                 `json:"total"`
+	Errors          map[string][]string `json:"errors"`
+	NonFieldsErrors []string            `json:"nonFieldsError"`
 }
 
 // ParentChildFieldsError is to hold Errorlist for Parent/Child section
 type ParentChildFieldsError struct {
-	PRID   int64               // parent rentable ID
-	CRID   int64               // child rentable ID
-	Total  int                 `json:"total"`
-	Errors map[string][]string `json:"errors"`
+	PRID            int64               // parent rentable ID
+	CRID            int64               // child rentable ID
+	Total           int                 `json:"total"`
+	Errors          map[string][]string `json:"errors"`
+	NonFieldsErrors []string            `json:"nonFieldsError"`
 }
 
 // TiePeopleFieldsError is to hold Errorlist for TiePeople section
 type TiePeopleFieldsError struct {
-	TMPTCID int64
-	Total   int                 `json:"total"`
-	Errors  map[string][]string `json:"errors"`
+	TMPTCID         int64
+	Total           int                 `json:"total"`
+	Errors          map[string][]string `json:"errors"`
+	NonFieldsErrors []string            `json:"nonFieldsError"`
 }
 
 // TieFieldsError is to hold Errorlist for Tie section
@@ -235,6 +243,7 @@ func basicValidateRAFlow(raFlowData RAFlowJSONData, raFlowFieldsErrors RAFlowFie
 	// Modify error count for the response
 	datesFieldsErrors.Total = len(errs)
 	datesFieldsErrors.Errors = errs
+	datesFieldsErrors.NonFieldsErrors = make([]string, 0)
 
 	// Modify Total Error
 	g.Total += datesFieldsErrors.Total
@@ -253,6 +262,7 @@ func basicValidateRAFlow(raFlowData RAFlowJSONData, raFlowFieldsErrors RAFlowFie
 		peopleFieldsErrors.Total = len(errs)
 		peopleFieldsErrors.TMPTCID = people.TMPTCID
 		peopleFieldsErrors.Errors = errs
+		peopleFieldsErrors.NonFieldsErrors = make([]string, 0)
 
 		// Modify Total Error
 		g.Total += peopleFieldsErrors.Total
@@ -280,6 +290,7 @@ func basicValidateRAFlow(raFlowData RAFlowJSONData, raFlowFieldsErrors RAFlowFie
 		petFieldsErrors.Total = len(errs)
 		petFieldsErrors.TMPPETID = pet.TMPPETID
 		petFieldsErrors.Errors = errs
+		petFieldsErrors.NonFieldsErrors = make([]string, 0)
 		petFieldsErrors.FeesErrors = make([]RAFeesError, 0)
 
 		fmt.Printf("Petfields error: %d\n", petFieldsErrors.Total)
@@ -293,6 +304,7 @@ func basicValidateRAFlow(raFlowData RAFlowJSONData, raFlowFieldsErrors RAFlowFie
 
 			raFeesErrors.Total = len(errs)
 			raFeesErrors.TMPASMID = fee.TMPASMID
+			raFeesErrors.NonFieldsErrors = make([]string, 0)
 			raFeesErrors.Errors = errs
 
 			// Modify pets error count
@@ -332,6 +344,7 @@ func basicValidateRAFlow(raFlowData RAFlowJSONData, raFlowFieldsErrors RAFlowFie
 		vehicleFieldsErrors.Total = len(errs)
 		vehicleFieldsErrors.TMPVID = vehicle.TMPVID
 		vehicleFieldsErrors.Errors = errs
+		vehicleFieldsErrors.NonFieldsErrors = make([]string, 0)
 		vehicleFieldsErrors.FeesErrors = make([]RAFeesError, 0)
 
 		// ----------------------------------------------
@@ -345,6 +358,7 @@ func basicValidateRAFlow(raFlowData RAFlowJSONData, raFlowFieldsErrors RAFlowFie
 			raFeesErrors.Total = len(errs)
 			raFeesErrors.TMPASMID = fee.TMPASMID
 			raFeesErrors.Errors = errs
+			raFeesErrors.NonFieldsErrors = make([]string, 0)
 
 			// Modify vehicle error count
 			vehicleFieldsErrors.Total += raFeesErrors.Total
@@ -383,6 +397,7 @@ func basicValidateRAFlow(raFlowData RAFlowJSONData, raFlowFieldsErrors RAFlowFie
 		rentablesFieldsErrors.Total = len(errs)
 		rentablesFieldsErrors.RID = rentable.RID
 		rentablesFieldsErrors.Errors = errs
+		rentablesFieldsErrors.NonFieldsErrors = make([]string, 0)
 		rentablesFieldsErrors.FeesErrors = make([]RAFeesError, 0)
 
 		// Modify Total Error
@@ -399,6 +414,7 @@ func basicValidateRAFlow(raFlowData RAFlowJSONData, raFlowFieldsErrors RAFlowFie
 			raFeesErrors.Total = len(errs)
 			raFeesErrors.TMPASMID = fee.TMPASMID
 			raFeesErrors.Errors = errs
+			raFeesErrors.NonFieldsErrors = make([]string, 0)
 
 			rentablesFieldsErrors.Total += raFeesErrors.Total
 
@@ -436,6 +452,7 @@ func basicValidateRAFlow(raFlowData RAFlowJSONData, raFlowFieldsErrors RAFlowFie
 		parentChildFieldsErrors.Total = len(errs)
 		parentChildFieldsErrors.PRID = parentChild.PRID
 		parentChildFieldsErrors.Errors = errs
+		parentChildFieldsErrors.NonFieldsErrors = make([]string, 0)
 
 		// Modify Total Error
 		g.Total += rentablesFieldsErrors.Total
@@ -454,6 +471,7 @@ func basicValidateRAFlow(raFlowData RAFlowJSONData, raFlowFieldsErrors RAFlowFie
 		tiePeopleFieldsErrors.Total = len(errs)
 		tiePeopleFieldsErrors.TMPTCID = people.TMPTCID
 		tiePeopleFieldsErrors.Errors = errs
+		tiePeopleFieldsErrors.NonFieldsErrors = make([]string, 0)
 
 		// Modify Total Error
 		g.Total += tiePeopleFieldsErrors.Total
