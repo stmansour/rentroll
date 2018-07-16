@@ -286,10 +286,10 @@ type RATiePeopleData struct {
 func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessage, flowPart string, flow *Flow) (err error) {
 	const funcname = "UpdateRAFlowJSON"
 	var (
-		raFlowData      RAFlowJSONData
-		modFlowPartData = []byte(nil)
-		// possessDatesChanged bool
-		// rentDatesChanged    bool
+		raFlowData          RAFlowJSONData
+		modFlowPartData     = []byte(nil)
+		possessDatesChanged bool
+		rentDatesChanged    bool
 	)
 	fmt.Printf("Entered in %s\n", funcname)
 
@@ -329,6 +329,19 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 			if err != nil {
 				return
 			}
+
+			// ----- POSSESSION DATES CHANGED CHECK ----- //
+			if !((time.Time)(raFlowData.Dates.PossessionStart).Equal((time.Time)(a.PossessionStart)) &&
+				(time.Time)(raFlowData.Dates.PossessionStop).Equal((time.Time)(a.PossessionStop))) {
+				possessDatesChanged = true
+			}
+
+			// ----- RENT DATES CHANGED CHECK ----- //
+			if !((time.Time)(raFlowData.Dates.RentStart).Equal((time.Time)(a.RentStart)) &&
+				(time.Time)(raFlowData.Dates.RentStop).Equal((time.Time)(a.RentStop))) {
+				rentDatesChanged = true
+			}
+
 		} else {
 			// IF DATA IS BLANK OR NULL THEN INITIAZE WITH IT SOME DEFAULTS
 			currentDateTime := time.Now()
@@ -551,9 +564,113 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 			return
 		}
 		err = UpdateFlowData(ctx, "meta", modMetaInfo, flow)
+		if err != nil {
+			return
+		}
+	}
+
+	// IF POSSESSION DATES WERE CHANGED THEN TAKE NECESSARY ACTION
+	if possessDatesChanged {
+		err = possessDateChangeRAFlowUpdates(ctx, flow.FlowID)
+		if err != nil {
+			return
+		}
+	}
+
+	// IF RENT DATES WERE CHANGED THEN TAKE NECESSARY ACTION
+	if rentDatesChanged {
+		err = rentDateChangeRAFlowUpdates(ctx, flow.FlowID)
+		if err != nil {
+			return
+		}
 	}
 
 	return
+}
+
+// possessDateChangeRAFlowUpdates updates raflow json with required
+// modification if possession dates are changed
+func possessDateChangeRAFlowUpdates(ctx context.Context, flowID int64) (err error) {
+
+	// ----- GET THE UPDATED FLOW ----- //
+	var flow Flow
+	flow, err = GetFlow(ctx, flowID)
+	if err != nil {
+		return
+	}
+	if flow.FlowID == 0 {
+		err = fmt.Errorf("given flow with ID (%d) doesn't exist", flowID)
+		return
+	}
+
+	// ----- GET THE RAFLOW DATA FROM FLOW ------ //
+	var raFlowData RAFlowJSONData
+	err = json.Unmarshal(flow.Data, &raFlowData)
+	if err != nil {
+		return
+	}
+
+	// ----- UPDATE PETS DTSTART/DTSTOP WITH NEW DATES ----- //
+	pets := raFlowData.Pets
+	for i := range pets {
+		pets[i].DtStart = raFlowData.Dates.PossessionStart
+		pets[i].DtStop = raFlowData.Dates.PossessionStop
+	}
+
+	var modPetsData []byte
+	modPetsData, err = json.Marshal(&pets)
+	if err != nil {
+		return
+	}
+	err = UpdateFlowData(ctx, "pets", modPetsData, &flow)
+	if err != nil {
+		return
+	}
+
+	// ----- UPDATE PETS DTSTART/DTSTOP WITH NEW DATES ----- //
+	vehicles := raFlowData.Vehicles
+	for i := range vehicles {
+		vehicles[i].DtStart = raFlowData.Dates.PossessionStart
+		vehicles[i].DtStop = raFlowData.Dates.PossessionStop
+	}
+
+	var modVehiclesData []byte
+	modVehiclesData, err = json.Marshal(&vehicles)
+	if err != nil {
+		return
+	}
+	err = UpdateFlowData(ctx, "vehicles", modVehiclesData, &flow)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+// rentDateChangeRAFlowUpdates updates raflow json with required
+// modification if rent dates are changed
+func rentDateChangeRAFlowUpdates(ctx context.Context, flowID int64) (err error) {
+
+	// ----- GET THE UPDATED FLOW ----- //
+	var flow Flow
+	flow, err = GetFlow(ctx, flowID)
+	if err != nil {
+		return
+	}
+	if flow.FlowID == 0 {
+		err = fmt.Errorf("given flow with ID (%d) doesn't exist", flowID)
+		return
+	}
+
+	// ----- GET THE RAFLOW DATA FROM FLOW ------ //
+	var raFlowData RAFlowJSONData
+	err = json.Unmarshal(flow.Data, &raFlowData)
+	if err != nil {
+		return
+	}
+
+	// IMPLEMENTATION ERROR //
+	return fmt.Errorf("implementation error")
 }
 
 // InsertInitialRAFlow writes a bunch of flow's sections record for a particular RA
