@@ -113,18 +113,25 @@ type RAFlowNonFieldsErrors struct {
 func ValidateRAFlowBasic(ctx context.Context, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) {
 
 	var (
-		datesFieldsErrors       DatesFieldsError
-		peopleFieldsErrors      PeopleFieldsError
-		petFieldsErrors         PetFieldsError
-		vehicleFieldsErrors     VehicleFieldsError
-		rentablesFieldsErrors   RentablesFieldsError
-		raFeesErrors            RAFeesError
-		parentChildFieldsErrors ParentChildFieldsError
-		tieFieldsErrors         TieFieldsError
-		tiePeopleFieldsErrors   TiePeopleFieldsError
-		raFlowFieldsErrors      RAFlowFieldsErrors
-		raFlowNonFieldsErrors   RAFlowNonFieldsErrors
+		tieFieldsErrors       TieFieldsError
+		raFlowFieldsErrors    RAFlowFieldsErrors
+		raFlowNonFieldsErrors RAFlowNonFieldsErrors
 	)
+
+	// Initialize fields error
+	raFlowFieldsErrors = RAFlowFieldsErrors{
+		Dates: DatesFieldsError{
+			Errors: make(map[string][]string, 0),
+		},
+		People:      []PeopleFieldsError{},
+		Pets:        []PetFieldsError{},
+		Vehicle:     []VehicleFieldsError{},
+		Rentables:   []RentablesFieldsError{},
+		ParentChild: []ParentChildFieldsError{},
+		Tie: TieFieldsError{
+			TiePeople: []TiePeopleFieldsError{},
+		},
+	}
 
 	// Initialize non fields errors
 	raFlowNonFieldsErrors = RAFlowNonFieldsErrors{
@@ -145,10 +152,11 @@ func ValidateRAFlowBasic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 
 	// call validation function
 	errs := rtags.ValidateStructFromTagRules(a.Dates)
-
-	// Modify error count for the response
-	datesFieldsErrors.Total = len(errs)
-	datesFieldsErrors.Errors = errs
+	// Modify error count for the response and initialize error object
+	datesFieldsErrors := DatesFieldsError{
+		Total:  len(errs),
+		Errors: errs,
+	}
 
 	// Modify Total Error
 	g.Total += datesFieldsErrors.Total
@@ -164,9 +172,11 @@ func ValidateRAFlowBasic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 		errs := rtags.ValidateStructFromTagRules(people)
 
 		// Modify error count for the response
-		peopleFieldsErrors.Total = len(errs)
-		peopleFieldsErrors.TMPTCID = people.TMPTCID
-		peopleFieldsErrors.Errors = errs
+		peopleFieldsErrors := PeopleFieldsError{
+			Total:   len(errs),
+			TMPTCID: people.TMPTCID,
+			Errors:  errs,
+		}
 
 		// Modify Total Error
 		g.Total += peopleFieldsErrors.Total
@@ -182,21 +192,16 @@ func ValidateRAFlowBasic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 	// ----------------------------------------------
 	for _, pet := range a.Pets {
 
-		// init raFeesErrors
-		raFeesErrors := RAFeesError{
-			Errors: map[string][]string{},
-		}
-
 		// call validation function
 		errs := rtags.ValidateStructFromTagRules(pet)
 
 		// Modify error count for the response
-		petFieldsErrors.Total = len(errs)
-		petFieldsErrors.TMPPETID = pet.TMPPETID
-		petFieldsErrors.Errors = errs
-		petFieldsErrors.FeesErrors = make([]RAFeesError, 0)
-
-		fmt.Printf("Petfields error: %d\n", petFieldsErrors.Total)
+		petFieldsErrors := PetFieldsError{
+			Total:      len(errs),
+			TMPPETID:   pet.TMPPETID,
+			Errors:     errs,
+			FeesErrors: make([]RAFeesError, 0),
+		}
 
 		// ----------------------------------------------
 		// validate RAPetFlowData.Fees structure
@@ -205,9 +210,11 @@ func ValidateRAFlowBasic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 			// call validation function
 			errs := rtags.ValidateStructFromTagRules(fee)
 
-			raFeesErrors.Total = len(errs)
-			raFeesErrors.TMPASMID = fee.TMPASMID
-			raFeesErrors.Errors = errs
+			raFeesErrors := RAFeesError{
+				Total:    len(errs),
+				TMPASMID: fee.TMPASMID,
+				Errors:   errs,
+			}
 
 			// Modify pets error count
 			petFieldsErrors.Total += raFeesErrors.Total
@@ -234,19 +241,16 @@ func ValidateRAFlowBasic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 	// ----------------------------------------------
 	for _, vehicle := range a.Vehicles {
 
-		// init raFeesErrors
-		raFeesErrors := RAFeesError{
-			Errors: map[string][]string{},
-		}
-
 		// call validation function
 		errs := rtags.ValidateStructFromTagRules(vehicle)
 
 		// Modify error count for the response
-		vehicleFieldsErrors.Total = len(errs)
-		vehicleFieldsErrors.TMPVID = vehicle.TMPVID
-		vehicleFieldsErrors.Errors = errs
-		vehicleFieldsErrors.FeesErrors = make([]RAFeesError, 0)
+		vehicleFieldsErrors := VehicleFieldsError{
+			Total:      len(errs),
+			TMPVID:     vehicle.TMPVID,
+			Errors:     errs,
+			FeesErrors: make([]RAFeesError, 0),
+		}
 
 		// ----------------------------------------------
 		// validate RAVehicleFlowData.Fees structure
@@ -256,9 +260,11 @@ func ValidateRAFlowBasic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 			// call validation function
 			errs := rtags.ValidateStructFromTagRules(fee)
 
-			raFeesErrors.Total = len(errs)
-			raFeesErrors.TMPASMID = fee.TMPASMID
-			raFeesErrors.Errors = errs
+			raFeesErrors := RAFeesError{
+				Total:    len(errs),
+				TMPASMID: fee.TMPASMID,
+				Errors:   errs,
+			}
 
 			// Modify vehicle error count
 			vehicleFieldsErrors.Total += raFeesErrors.Total
@@ -274,45 +280,43 @@ func ValidateRAFlowBasic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 		g.Total += vehicleFieldsErrors.Total
 
 		// If there is no error in vehicle than skip that vehicle's error being added.
-		if vehicleFieldsErrors.Total == 0 {
-			continue
+		if vehicleFieldsErrors.Total > 0 {
+			raFlowFieldsErrors.Vehicle = append(raFlowFieldsErrors.Vehicle, vehicleFieldsErrors)
 		}
-
-		raFlowFieldsErrors.Vehicle = append(raFlowFieldsErrors.Vehicle, vehicleFieldsErrors)
 	}
 
 	// ----------------------------------------------
 	// validate RARentablesFlowData structure
 	// ----------------------------------------------
 	for _, rentable := range a.Rentables {
-		// init raFeesErrors
-		raFeesErrors = RAFeesError{
-			Errors: map[string][]string{},
-		}
 
 		// call validation function
 		errs := rtags.ValidateStructFromTagRules(rentable)
 
 		// Modify error count for the response
-		rentablesFieldsErrors.Total = len(errs)
-		rentablesFieldsErrors.RID = rentable.RID
-		rentablesFieldsErrors.Errors = errs
-		rentablesFieldsErrors.FeesErrors = make([]RAFeesError, 0)
+		rentablesFieldsErrors := RentablesFieldsError{
+			Total:      len(errs),
+			RID:        rentable.RID,
+			Errors:     errs,
+			FeesErrors: make([]RAFeesError, 0),
+		}
 
 		// Modify Total Error
 		g.Total += rentablesFieldsErrors.Total
 
 		// ----------------------------------------------
-		// validate RAVehicleFlowData.Fees structure
+		// validate Rentables.Fees structure
 		// ----------------------------------------------
 		for _, fee := range rentable.Fees {
 
 			// call validation function
 			errs := rtags.ValidateStructFromTagRules(fee)
 
-			raFeesErrors.Total = len(errs)
-			raFeesErrors.TMPASMID = fee.TMPASMID
-			raFeesErrors.Errors = errs
+			raFeesErrors := RAFeesError{
+				Total:    len(errs),
+				TMPASMID: fee.TMPASMID,
+				Errors:   errs,
+			}
 
 			rentablesFieldsErrors.Total += raFeesErrors.Total
 
@@ -324,14 +328,13 @@ func ValidateRAFlowBasic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 		}
 
 		// Modify Total Error
-		g.Total += raFeesErrors.Total
+		g.Total += rentablesFieldsErrors.Total
 
 		// If there is no error in vehicle than skip that rentable's error being added.
-		if rentablesFieldsErrors.Total == 0 {
-			continue
+		if rentablesFieldsErrors.Total > 0 {
+			raFlowFieldsErrors.Rentables = append(raFlowFieldsErrors.Rentables, rentablesFieldsErrors)
 		}
 
-		raFlowFieldsErrors.Rentables = append(raFlowFieldsErrors.Rentables, rentablesFieldsErrors)
 	}
 
 	// ----------------------------------------------
@@ -341,20 +344,19 @@ func ValidateRAFlowBasic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 		// call validation function
 		errs := rtags.ValidateStructFromTagRules(parentChild)
 
-		// Skip the row if it doesn't have error for the any fields
-		if len(errs) == 0 {
-			continue
+		// Modify error count for the response
+		parentChildFieldsErrors := ParentChildFieldsError{
+			Total:  len(errs),
+			PRID:   parentChild.PRID,
+			Errors: errs,
 		}
 
-		// Modify error count for the response
-		parentChildFieldsErrors.Total = len(errs)
-		parentChildFieldsErrors.PRID = parentChild.PRID
-		parentChildFieldsErrors.Errors = errs
-
 		// Modify Total Error
-		g.Total += rentablesFieldsErrors.Total
+		g.Total += parentChildFieldsErrors.Total
 
-		raFlowFieldsErrors.ParentChild = append(raFlowFieldsErrors.ParentChild, parentChildFieldsErrors)
+		if parentChildFieldsErrors.Total > 0 {
+			raFlowFieldsErrors.ParentChild = append(raFlowFieldsErrors.ParentChild, parentChildFieldsErrors)
+		}
 	}
 
 	// ----------------------------------------------
@@ -365,14 +367,18 @@ func ValidateRAFlowBasic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 		errs = rtags.ValidateStructFromTagRules(people)
 
 		// Modify error count for the response
-		tiePeopleFieldsErrors.Total = len(errs)
-		tiePeopleFieldsErrors.TMPTCID = people.TMPTCID
-		tiePeopleFieldsErrors.Errors = errs
+		tiePeopleFieldsErrors := TiePeopleFieldsError{
+			Total:   len(errs),
+			TMPTCID: people.TMPTCID,
+			Errors:  errs,
+		}
 
 		// Modify Total Error
 		g.Total += tiePeopleFieldsErrors.Total
 
-		tieFieldsErrors.TiePeople = append(tieFieldsErrors.TiePeople, tiePeopleFieldsErrors)
+		if tiePeopleFieldsErrors.Total > 0 {
+			tieFieldsErrors.TiePeople = append(tieFieldsErrors.TiePeople, tiePeopleFieldsErrors)
+		}
 	}
 
 	// Assign all(people/pet/vehicles) tie related error
