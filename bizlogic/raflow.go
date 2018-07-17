@@ -97,7 +97,7 @@ type RAFlowFieldsErrors struct {
 	Tie         TieFieldsError           `json:"tie"`
 }
 
-// RAFlowNonFieldsErrors
+// RAFlowNonFieldsErrors is to hold non fields error
 type RAFlowNonFieldsErrors struct {
 	Dates       NonFieldsError `json:"dates"`
 	People      NonFieldsError `json:"people"`
@@ -108,7 +108,7 @@ type RAFlowNonFieldsErrors struct {
 	TiePeople   NonFieldsError `json:"tiepeople"`
 }
 
-// NonFieldsError
+// NonFieldsError is struct for to hold non fields error
 type NonFieldsError struct {
 	Errors []string `json:"errors"`
 }
@@ -118,22 +118,48 @@ type NonFieldsError struct {
 func ValidateRAFlowBasic(ctx context.Context, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) {
 
 	var (
-		datesFieldsErrors        DatesFieldsError
-		datesNonFieldsErrors     NonFieldsError
-		peopleFieldsErrors       PeopleFieldsError
-		peopleNonFieldsErrors    NonFieldsError
-		petFieldsErrors          PetFieldsError
-		petNonFieldsErrors       NonFieldsError
-		vehicleFieldsErrors      VehicleFieldsError
-		vehicleNonFieldsErrors   NonFieldsError
-		rentablesFieldsErrors    RentablesFieldsError
-		rentablesNonFieldsErrors NonFieldsError
-		raFeesErrors             RAFeesError
-		parentChildFieldsErrors  ParentChildFieldsError
-		tieFieldsErrors          TieFieldsError
-		tiePeopleFieldsErrors    TiePeopleFieldsError
-		raFlowFieldsErrors       RAFlowFieldsErrors
+		datesFieldsErrors    DatesFieldsError
+		datesNonFieldsErrors NonFieldsError
+		peopleFieldsErrors   PeopleFieldsError
+		//peopleNonFieldsErrors    NonFieldsError
+		petFieldsErrors PetFieldsError
+		//petNonFieldsErrors       NonFieldsError
+		vehicleFieldsErrors VehicleFieldsError
+		//vehicleNonFieldsErrors   NonFieldsError
+		rentablesFieldsErrors RentablesFieldsError
+		//rentablesNonFieldsErrors NonFieldsError
+		raFeesErrors            RAFeesError
+		parentChildFieldsErrors ParentChildFieldsError
+		tieFieldsErrors         TieFieldsError
+		tiePeopleFieldsErrors   TiePeopleFieldsError
+		raFlowFieldsErrors      RAFlowFieldsErrors
+		raFlowNonFieldsErrors   RAFlowNonFieldsErrors
 	)
+
+	// Initialize non fields errors
+	raFlowNonFieldsErrors = RAFlowNonFieldsErrors{
+		Dates: NonFieldsError{
+			Errors: make([]string, 0),
+		},
+		People: NonFieldsError{
+			Errors: make([]string, 0),
+		},
+		Pets: NonFieldsError{
+			Errors: make([]string, 0),
+		},
+		Vehicle: NonFieldsError{
+			Errors: make([]string, 0),
+		},
+		Rentables: NonFieldsError{
+			Errors: make([]string, 0),
+		},
+		ParentChild: NonFieldsError{
+			Errors: make([]string, 0),
+		},
+		TiePeople: NonFieldsError{
+			Errors: make([]string, 0),
+		},
+	}
 
 	//----------------------------------------------
 	// validate RADatesFlowData structure
@@ -383,6 +409,7 @@ func ValidateRAFlowBasic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 	// set the response
 	//---------------------------------------
 	g.Errors = raFlowFieldsErrors
+	g.NonFieldsErrors = raFlowNonFieldsErrors
 	g.ErrorType = "basic"
 }
 
