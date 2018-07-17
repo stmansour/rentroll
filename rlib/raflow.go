@@ -214,7 +214,7 @@ type RAVehiclesFlowData struct {
 	BID                 int64        `validate:"number,min=1"`
 	VID                 int64        `validate:"number,min=1"`
 	TMPTCID             int64        `validate:"number,min=1"`
-	VIN                 string       `validate:"string,min=1"`
+	VIN                 string       `validate:"string,min=1,omitempty"`
 	VehicleType         string       `validate:"string,min=1,max=80"`
 	VehicleMake         string       `validate:"string,min=1,max=80"`
 	VehicleModel        string       `validate:"string,min=1,max=80"`
@@ -222,7 +222,7 @@ type RAVehiclesFlowData struct {
 	VehicleYear         int64        `validate:"number,min=1"`
 	LicensePlateState   string       `validate:"string,min=1,max=80"`
 	LicensePlateNumber  string       `validate:"string,min=1,max=80"`
-	ParkingPermitNumber string       `validate:"string,min=1,max=80"`
+	ParkingPermitNumber string       `validate:"string,min=1,max=80,omitempty"`
 	DtStart             JSONDate     `validate:"date"`
 	DtStop              JSONDate     `validate:"date"`
 	Fees                []RAFeesData `validate:"-"`
