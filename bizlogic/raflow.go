@@ -515,7 +515,6 @@ func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Vali
 	fmt.Printf("Entered %s\n", funcname)
 
 	var (
-		peopleFieldsError  PeopleFieldsError
 		peopleFieldsErrors []PeopleFieldsError
 		err                error
 		errCount           int
@@ -525,14 +524,19 @@ func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Vali
 
 	// init peopleFieldsErrors
 	peopleFieldsErrors = make([]PeopleFieldsError, 0)
-	// Init non field error
+
+	// init peopleNonFieldsErrors
 	peopleNonFieldsErrors := make([]string, 0)
 
 	err = fmt.Errorf("should not be blank")
 	for _, p := range people {
-		peopleFieldsError.TMPTCID = p.TMPTCID
-		peopleFieldsError.Total = 0
-		peopleFieldsError.Errors = map[string][]string{}
+
+		// Init PeopleFieldsError
+		peopleFieldsError := PeopleFieldsError{
+			TMPTCID: p.TMPTCID,
+			Total:   0,
+			Errors:  make(map[string][]string, 0),
+		}
 
 		// ----------- Check rule no. 1  ----------------
 		// If isCompany flag is true then CompanyName is required
@@ -569,6 +573,8 @@ func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Vali
 			peopleFieldsErrors[0].Errors["IsRenter"] = append(peopleFieldsErrors[0].Errors["IsRenter"], err.Error())
 			peopleFieldsErrors[0].Total++
 		} else {
+			var peopleFieldsError PeopleFieldsError
+
 			peopleFieldsError.TMPTCID = people[0].TMPTCID
 			peopleFieldsError.Errors["IsRenter"] = append(peopleFieldsError.Errors["IsRenter"], err.Error())
 			peopleFieldsError.Total++
@@ -596,7 +602,6 @@ func validatePetBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 	fmt.Printf("Entered %s\n", funcname)
 
 	var (
-		petFieldsError  PetFieldsError
 		petFieldsErrors []PetFieldsError
 		err             error
 		errCount        int
@@ -605,29 +610,28 @@ func validatePetBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 	// Init non fields error
 	petNonFieldsErrors := make([]string, 0)
 
-	// Init error slice
-	petFieldsError.Errors = map[string][]string{}
-
 	// ------------- Check for rule no 1 ---------------
 	for _, pet := range a.Pets {
-		// Init fees slice
-		petFieldsError.FeesErrors = make([]RAFeesError, 0)
 
-		// Get pet tmp id
-		petFieldsError.TMPPETID = pet.TMPPETID
-		petFieldsError.Total = 0
+		// Init pet fields error struct
+		petFieldsError := PetFieldsError{
+			TMPPETID:   pet.TMPPETID,
+			Total:      0,
+			Errors:     make(map[string][]string, 0),
+			FeesErrors: make([]RAFeesError, 0),
+		}
 
 		if !isAssociatedWithPerson(pet.TMPTCID, a.People) {
 			//Error
 			err = fmt.Errorf("pet must be associated with a person")
-			// Modify error count
-			petFieldsError.Total++
 			// list error
 			petFieldsError.Errors["TMPPETID"] = append(petFieldsError.Errors["TMPPETID"], err.Error())
+			// Modify error count
+			petFieldsError.Total++
 		}
 
 		// -----------------------------------------------
-		// --------- Check for rule no 3 ---------------
+		// --------- Check for rule no 3 -----------------
 		// -----------------------------------------------
 		startDate := time.Time(pet.DtStart)
 		stopDate := time.Time(pet.DtStop)
@@ -638,7 +642,7 @@ func validatePetBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 			err = fmt.Errorf("start date must be prior to stop date")
 			petFieldsError.Errors["DtStart"] = append(petFieldsError.Errors["DtStart"], err.Error())
 
-			// Modify vehicle section error count
+			// Modify pet section error count
 			petFieldsError.Total++
 		}
 
@@ -672,7 +676,6 @@ func validateVehicleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Val
 	fmt.Printf("Entered %s\n", funcname)
 
 	var (
-		vehicleFieldsError  VehicleFieldsError
 		vehicleFieldsErrors []VehicleFieldsError
 		err                 error
 		errCount            int
@@ -681,15 +684,15 @@ func validateVehicleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Val
 	// Init Non fields error
 	vehicleNonFieldsErrors := make([]string, 0)
 
-	// Init error slice
-	vehicleFieldsError.Errors = map[string][]string{}
-
 	for _, vehicle := range a.Vehicles {
-		// Get vehicle tmp id
-		vehicleFieldsError.TMPVID = vehicle.TMPVID
-		vehicleFieldsError.Total = 0
-		// Init fees slice
-		vehicleFieldsError.FeesErrors = make([]RAFeesError, 0)
+
+		// Init pet fields error struct
+		vehicleFieldsError := VehicleFieldsError{
+			TMPVID:     vehicle.TMPVID,
+			Total:      0,
+			Errors:     make(map[string][]string, 0),
+			FeesErrors: make([]RAFeesError, 0),
+		}
 
 		// ------------- Check for rule no 1 ---------------
 		if !isAssociatedWithPerson(vehicle.TMPTCID, a.People) {
@@ -747,7 +750,6 @@ func validateRentableBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Va
 	fmt.Printf("Entered %s\n", funcname)
 
 	var (
-		rentablesFieldsError  RentablesFieldsError
 		rentablesFieldsErrors []RentablesFieldsError
 		err                   error
 		errCount              int
@@ -761,11 +763,13 @@ func validateRentableBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Va
 	parentRentableCount := 0
 
 	for _, rentable := range rentables {
-		rentablesFieldsError.RID = rentable.RID
-		rentablesFieldsError.Errors = map[string][]string{}
-		rentablesFieldsError.Total = 0
-		// Init fees slice
-		rentablesFieldsError.FeesErrors = make([]RAFeesError, 0)
+		// Init rentables fields error
+		rentablesFieldsError := RentablesFieldsError{
+			RID:        rentable.RID,
+			Total:      0,
+			Errors:     make(map[string][]string, 0),
+			FeesErrors: make([]RAFeesError, 0),
+		}
 
 		// There must be one entry for the Fees
 		// ----------- Check for rule no 2 ------------
@@ -815,7 +819,6 @@ func validateFeesBizLogic(ctx context.Context, fees []rlib.RAFeesData) ([]RAFees
 	fmt.Printf("Entered %s\n", funcname)
 
 	var (
-		raFeesError  RAFeesError
 		raFeesErrors []RAFeesError
 		err          error
 		errCount     int
@@ -824,11 +827,13 @@ func validateFeesBizLogic(ctx context.Context, fees []rlib.RAFeesData) ([]RAFees
 	raFeesErrors = make([]RAFeesError, 0)
 
 	for _, fee := range fees {
-		raFeesError.TMPASMID = fee.TMPASMID
 
-		// Init error slice
-		raFeesError.Errors = map[string][]string{}
-		raFeesError.Total = 0
+		// Init RAFeesError
+		raFeesError := RAFeesError{
+			TMPASMID: fee.TMPASMID,
+			Total:    0,
+			Errors:   make(map[string][]string, 0),
+		}
 
 		// -----------------------------------------------
 		// --------- Check for rule no 1 ---------------
@@ -848,10 +853,6 @@ func validateFeesBizLogic(ctx context.Context, fees []rlib.RAFeesData) ([]RAFees
 			errCount += raFeesError.Total
 			raFeesErrors = append(raFeesErrors, raFeesError)
 		}
-
-		fmt.Println("##############")
-		fmt.Println(errCount)
-		fmt.Println("##############")
 	}
 
 	return raFeesErrors, errCount
@@ -866,20 +867,22 @@ func validateParentChildBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g 
 	fmt.Printf("Entered %s\n", funcname)
 
 	var (
-		parentChildFieldsError  ParentChildFieldsError
 		parentChildFieldsErrors []ParentChildFieldsError
 		errCount                int
 	)
 
 	pcData := a.ParentChild
-	parentChildFieldsErrors = make([]ParentChildFieldsError, 0)
 	parentChildNonFieldsErrors := make([]string, 0)
 
 	for _, pc := range pcData {
-		parentChildFieldsError.Errors = map[string][]string{}
-		parentChildFieldsError.Total = 0
-		parentChildFieldsError.PRID = pc.PRID
-		parentChildFieldsError.CRID = pc.CRID
+
+		// Init ParentChildFieldsError
+		parentChildFieldsError := ParentChildFieldsError{
+			PRID:   pc.PRID,
+			CRID:   pc.CRID,
+			Total:  0,
+			Errors: make(map[string][]string, 0),
+		}
 
 		// Check PRID exists in database which refer to RID in rentable table
 		r, err := rlib.GetRentable(ctx, pc.PRID)
@@ -920,7 +923,6 @@ func validateTiePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *V
 	fmt.Printf("Entered %s\n", funcname)
 
 	var (
-		tiePeopleFieldsError  TiePeopleFieldsError
 		tiePeopleFieldsErrors []TiePeopleFieldsError
 		//err                     error
 		errCount int
@@ -931,9 +933,13 @@ func validateTiePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *V
 	occupantCount := 0
 
 	for _, p := range a.Tie.People {
-		tiePeopleFieldsError.Errors = map[string][]string{}
-		tiePeopleFieldsError.Total = 0
-		tiePeopleFieldsError.TMPTCID = p.TMPTCID
+
+		// Init TiePeopleFieldsError
+		tiePeopleFieldsError := TiePeopleFieldsError{
+			TMPTCID: p.TMPTCID,
+			Total:   0,
+			Errors:  make(map[string][]string, 0),
+		}
 
 		// ---------- Check rule no 1 ---------------
 		// 1. PRID must be greater than 0. It should exists in database
