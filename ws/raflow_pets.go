@@ -7,51 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"rentroll/rlib"
-	"time"
 )
-
-// NewRAFlowPet create new pet entry for the raflow and returns strcture
-// with fees configured it in bizprops
-func NewRAFlowPet(ctx context.Context, BID int64, meta *rlib.RAFlowMetaInfo) (pet rlib.RAPetsFlowData, err error) {
-	const funcname = "NewRAFlowPet"
-	var (
-		today = time.Now()
-	)
-	fmt.Printf("Entered in %s\n", funcname)
-
-	// initialize
-	// assign new TMPPETID & mark in meta info
-	meta.LastTMPPETID++
-	pet = rlib.RAPetsFlowData{
-		Fees:     []rlib.RAFeesData{},
-		TMPPETID: meta.LastTMPPETID,
-		DtStart:  rlib.JSONDate(today),
-		DtStop:   rlib.JSONDate(today.AddDate(1, 0, 0)),
-	}
-
-	// get pet fees data and feed into fees
-	var petFees []rlib.BizPropsPetFee
-	petFees, err = rlib.GetPetFeesFromGeneralBizProps(ctx, BID)
-	if err != nil {
-		return
-	}
-
-	// loop over fees
-	for _, fee := range petFees {
-		meta.LastTMPASMID++ // new asm id temp
-		pf := rlib.RAFeesData{
-			ARID:           fee.ARID,
-			ARName:         fee.ARName,
-			ContractAmount: fee.Amount,
-			TMPASMID:       meta.LastTMPASMID,
-		}
-
-		// append fee for this pet
-		pet.Fees = append(pet.Fees, pf)
-	}
-
-	return
-}
 
 // SvcRAFlowPetsHandler handles operation on pets of raflow json data
 //           0    1     2   3
@@ -157,7 +113,8 @@ func CreateNewRAFlowPet(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 	// APPEND FEES FOR PETS
 	// --------------------------------------------------------
 	var newRAFlowPet rlib.RAPetsFlowData
-	newRAFlowPet, err = NewRAFlowPet(r.Context(), d.BID, &modRAFlowMeta)
+	newRAFlowPet, err = rlib.NewRAFlowPet(ctx, d.BID,
+		raFlowData.Dates.PossessionStart, raFlowData.Dates.PossessionStop, &modRAFlowMeta)
 	if err != nil {
 		return
 	}
@@ -181,7 +138,7 @@ func CreateNewRAFlowPet(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 	}
 
 	// --------------------------------------------------------
-	// UPDATE JSON DOC WITH NEW META DATA
+	// UPDATE JSON DOC WITH NEW META DATA IF APPLICABLE
 	// --------------------------------------------------------
 	if raFlowData.Meta.LastTMPASMID < modRAFlowMeta.LastTMPASMID {
 

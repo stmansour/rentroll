@@ -894,6 +894,7 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement) (RAFlowJSONData, e
 			RTFLAGS:      rt.FLAGS,
 			RentableName: rnt.RentableName,
 			RentCycle:    rt.RentCycle,
+			Fees:         []RAFeesData{},
 		}
 
 		//---------------------------------------------------------
@@ -1136,6 +1137,7 @@ func addFlowPersonPets(ctx context.Context, tcid, tmptcid int64, raf *RAFlowJSON
 		var p = RAPetsFlowData{
 			TMPTCID:  tmptcid,
 			TMPPETID: raf.Meta.LastTMPPETID,
+			Fees:     []RAFeesData{},
 		}
 		MigrateStructVals(&petList[i], &p)
 		raf.Pets = append(raf.Pets, p)
@@ -1164,9 +1166,114 @@ func addFlowPersonVehicles(ctx context.Context, tcid, tmptcid int64, raf *RAFlow
 		var v = RAVehiclesFlowData{
 			TMPTCID: tmptcid,
 			TMPVID:  raf.Meta.LastTMPVID,
+			Fees:    []RAFeesData{},
 		}
 		MigrateStructVals(&vehicleList[i], &v)
 		raf.Vehicles = append(raf.Vehicles, v)
 	}
 	return nil
+}
+
+// NewRAFlowPet create new pet entry for the raflow and returns strcture
+// with fees configured it in bizprops
+//
+// INPUTS
+//             ctx  = db transaction context
+//             BID  = Business ID
+//  possesionStart  = possession start date
+//   possesionStop  = possession stop date
+//            meta  = RAFlowMetaInfo data
+//
+// RETURNS
+//     RAPetsFlowData structure
+//     any error encountered
+//-----------------------------------------------------------------------------
+func NewRAFlowPet(ctx context.Context, BID int64, possesionStart, possesionStop JSONDate, meta *RAFlowMetaInfo) (pet RAPetsFlowData, err error) {
+	const funcname = "NewRAFlowPet"
+	fmt.Printf("Entered in %s\n", funcname)
+
+	// initialize
+	// assign new TMPPETID & mark in meta info
+	meta.LastTMPPETID++
+	pet = RAPetsFlowData{
+		TMPPETID: meta.LastTMPPETID,
+		DtStart:  possesionStart,
+		DtStop:   possesionStop,
+		Fees:     []RAFeesData{},
+	}
+
+	// get pet fees data and feed into fees
+	var petFees []BizPropsPetFee
+	petFees, err = GetPetFeesFromGeneralBizProps(ctx, BID)
+	if err != nil {
+		return
+	}
+
+	// loop over fees
+	for _, fee := range petFees {
+		meta.LastTMPASMID++ // new asm id temp
+		pf := RAFeesData{
+			TMPASMID:       meta.LastTMPASMID,
+			ARID:           fee.ARID,
+			ARName:         fee.ARName,
+			ContractAmount: fee.Amount,
+		}
+
+		// append fee for this pet
+		pet.Fees = append(pet.Fees, pf)
+	}
+
+	return
+}
+
+// NewRAFlowVehicle create new vehicle entry for the raflow and returns strcture
+// with fees configured it in bizprops
+//
+// INPUTS
+//             ctx  = db transaction context
+//             BID  = Business ID
+//  possesionStart  = possession start date
+//   possesionStop  = possession stop date
+//            meta  = RAFlowMetaInfo data
+//
+// RETURNS
+//     RAVehiclesFlowData structure
+//     any error encountered
+//-----------------------------------------------------------------------------
+func NewRAFlowVehicle(ctx context.Context, BID int64, possesionStart, possesionStop JSONDate, meta *RAFlowMetaInfo) (vehicle RAVehiclesFlowData, err error) {
+	const funcname = "NewRAFlowVehicle"
+	fmt.Printf("Entered in %s\n", funcname)
+
+	// initialize
+	// assign new TMPVID & mark in meta info
+	meta.LastTMPVID++
+	vehicle = RAVehiclesFlowData{
+		TMPVID:  meta.LastTMPVID,
+		DtStart: possesionStart,
+		DtStop:  possesionStop,
+		Fees:    []RAFeesData{},
+	}
+
+	// get vehicle fees data and feed into fees
+	var vehicleFees []BizPropsVehicleFee
+	vehicleFees, err = GetVehicleFeesFromGeneralBizProps(ctx, BID)
+	if err != nil {
+		return
+	}
+
+	// loop over fees
+	for _, fee := range vehicleFees {
+		meta.LastTMPASMID++ // new asm id temp
+		vf := RAFeesData{
+			TMPASMID:       meta.LastTMPASMID,
+			ARID:           fee.ARID,
+			ARName:         fee.ARName,
+			ContractAmount: fee.Amount,
+		}
+
+		// append fee for this vehicle
+		vehicle.Fees = append(vehicle.Fees, vf)
+	}
+
+	return
 }
