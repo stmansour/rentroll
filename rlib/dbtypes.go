@@ -2021,6 +2021,27 @@ func InitBusinessFields(bid int64) {
 	}
 }
 
+// ARIDFromBizFieldByName returns the AR associated with the AR Name
+// Assumes you have done InitBizInternals.
+//
+// INPUTS
+//     bid = business id
+//     s   = name of Account Rule
+//
+// RETURNS
+//   ARID = the ARID of associated AR, or 0 if not found
+//     AR struct (will be uninitialized if ARID == 0)
+//
+func ARIDFromBizFieldByName(bid int64, s string) (int64, AR) {
+	for k, v := range RRdb.BizTypes[bid].AR {
+		if v.Name == s {
+			return k, v
+		}
+	}
+	var a AR
+	return int64(0), a
+}
+
 // InitBizInternals initializes several internal structures with information about the business.
 func InitBizInternals(bid int64, xbiz *XBusiness) error {
 	var (
@@ -2047,6 +2068,8 @@ func InitBizInternals(bid int64, xbiz *XBusiness) error {
 	}
 
 	// TODO(Steve): why we're ignoring note types here? shouldnt we store somewhere?
+	// SM: yes we should store them, but we have not implemented Notes yet. We
+	//     will add this when we have a Notes service.
 	_, err = getBusinessAllNoteTypes(bid)
 	if err != nil {
 		return err

@@ -33,10 +33,10 @@ func SvcGetRAFlowRentableFeesData(w http.ResponseWriter, r *http.Request, d *Ser
 	const funcname = "SvcGetRAFlowRentableFeesData"
 	var (
 		g           FlowResponse
-		rfd         RARentablesFlowData
-		raFlowData  RAFlowJSONData
+		rfd         rlib.RARentablesFlowData
+		raFlowData  rlib.RAFlowJSONData
 		foo         RARentableFeesDataRequest
-		feesRecords = []RAFeesData{}
+		feesRecords = []rlib.RAFeesData{}
 		today       = time.Now()
 		err         error
 		tx          *sql.Tx
@@ -132,7 +132,7 @@ func SvcGetRAFlowRentableFeesData(w http.ResponseWriter, r *http.Request, d *Ser
 		// make sure the IsRentASM is marked true
 		if ar.FLAGS&0x10 != 0 {
 			modRAFlowMeta.LastTMPASMID++
-			rec := RAFeesData{
+			rec := rlib.RAFeesData{
 				TMPASMID:       modRAFlowMeta.LastTMPASMID,
 				ARID:           ar.ARID,
 				ARName:         ar.Name,
@@ -174,7 +174,7 @@ func SvcGetRAFlowRentableFeesData(w http.ResponseWriter, r *http.Request, d *Ser
 		}
 
 		modRAFlowMeta.LastTMPASMID++
-		rec := RAFeesData{
+		rec := rlib.RAFeesData{
 			TMPASMID:       modRAFlowMeta.LastTMPASMID,
 			ARID:           ar.ARID,
 			ARName:         ar.Name,
