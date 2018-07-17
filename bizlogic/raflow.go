@@ -445,8 +445,9 @@ func validateDatesBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Valid
 	fmt.Printf("Entered %s\n", funcname)
 
 	var (
-		datesFieldsErrors DatesFieldsError
-		err               error
+		datesFieldsErrors    DatesFieldsError
+		datesNonFieldsErrors = []string{}
+		err                  error
 	)
 
 	dates := a.Dates
@@ -455,7 +456,7 @@ func validateDatesBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Valid
 	datesFieldsErrors.Errors = map[string][]string{}
 
 	// Init non fields error fields
-	datesNonFieldsErrors := make([]string, 0)
+	//datesNonFieldsErrors = make([]string, 0)
 
 	// -----------------------------------------------
 	// -------- Agreements Date check ----------------
@@ -521,18 +522,16 @@ func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Vali
 	fmt.Printf("Entered %s\n", funcname)
 
 	var (
-		peopleFieldsErrors []PeopleFieldsError
-		err                error
-		errCount           int
+		peopleFieldsErrors    []PeopleFieldsError
+		peopleNonFieldsErrors = []string{}
+		err                   error
+		errCount              int
 	)
 
 	people := a.People
 
 	// init peopleFieldsErrors
 	peopleFieldsErrors = make([]PeopleFieldsError, 0)
-
-	// init peopleNonFieldsErrors
-	peopleNonFieldsErrors := make([]string, 0)
 
 	err = fmt.Errorf("should not be blank")
 	for _, p := range people {
@@ -608,13 +607,11 @@ func validatePetBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 	fmt.Printf("Entered %s\n", funcname)
 
 	var (
-		petFieldsErrors []PetFieldsError
-		err             error
-		errCount        int
+		petFieldsErrors    []PetFieldsError
+		petNonFieldsErrors = []string{}
+		err                error
+		errCount           int
 	)
-
-	// Init non fields error
-	petNonFieldsErrors := make([]string, 0)
 
 	// ------------- Check for rule no 1 ---------------
 	for _, pet := range a.Pets {
@@ -682,13 +679,11 @@ func validateVehicleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Val
 	fmt.Printf("Entered %s\n", funcname)
 
 	var (
-		vehicleFieldsErrors []VehicleFieldsError
-		err                 error
-		errCount            int
+		vehicleFieldsErrors    []VehicleFieldsError
+		vehicleNonFieldsErrors = []string{}
+		err                    error
+		errCount               int
 	)
-
-	// Init Non fields error
-	vehicleNonFieldsErrors := make([]string, 0)
 
 	for _, vehicle := range a.Vehicles {
 
@@ -756,15 +751,15 @@ func validateRentableBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Va
 	fmt.Printf("Entered %s\n", funcname)
 
 	var (
-		rentablesFieldsErrors []RentablesFieldsError
-		err                   error
-		errCount              int
+		rentablesFieldsErrors    []RentablesFieldsError
+		rentablesNonFieldsErrors = []string{}
+		err                      error
+		errCount                 int
 	)
 
 	rentables := a.Rentables
 
 	rentablesFieldsErrors = make([]RentablesFieldsError, 0)
-	rentablesNonFieldsErrors := make([]string, 0)
 
 	parentRentableCount := 0
 
@@ -873,12 +868,12 @@ func validateParentChildBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g 
 	fmt.Printf("Entered %s\n", funcname)
 
 	var (
-		parentChildFieldsErrors []ParentChildFieldsError
-		errCount                int
+		parentChildFieldsErrors    []ParentChildFieldsError
+		parentChildNonFieldsErrors = []string{}
+		errCount                   int
 	)
 
 	pcData := a.ParentChild
-	parentChildNonFieldsErrors := make([]string, 0)
 
 	for _, pc := range pcData {
 
@@ -930,12 +925,12 @@ func validateTiePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *V
 
 	var (
 		tiePeopleFieldsErrors []TiePeopleFieldsError
+		tieNonFieldsErrors    = []string{}
 		//err                     error
 		errCount int
 	)
 
 	tiePeopleFieldsErrors = make([]TiePeopleFieldsError, 0)
-	tieNonFieldsErrors := make([]string, 0)
 	occupantCount := 0
 
 	for _, p := range a.Tie.People {
