@@ -7,51 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"rentroll/rlib"
-	"time"
 )
-
-// NewRAFlowVehicle create new vehicle entry for the raflow and returns strcture
-// with fees configured it in bizprops
-func NewRAFlowVehicle(ctx context.Context, BID int64, meta *rlib.RAFlowMetaInfo) (vehicle rlib.RAVehiclesFlowData, err error) {
-	const funcname = "NewRAFlowVehicle"
-	var (
-		today = time.Now()
-	)
-	fmt.Printf("Entered in %s\n", funcname)
-
-	// initialize
-	// assign new TMPVID & mark in meta info
-	meta.LastTMPVID++
-	vehicle = rlib.RAVehiclesFlowData{
-		Fees:    []rlib.RAFeesData{},
-		TMPVID:  meta.LastTMPVID,
-		DtStart: rlib.JSONDate(today),
-		DtStop:  rlib.JSONDate(today.AddDate(1, 0, 0)),
-	}
-
-	// get vehicle fees data and feed into fees
-	var vehicleFees []rlib.BizPropsVehicleFee
-	vehicleFees, err = rlib.GetVehicleFeesFromGeneralBizProps(ctx, BID)
-	if err != nil {
-		return
-	}
-
-	// loop over fees
-	for _, fee := range vehicleFees {
-		meta.LastTMPASMID++ // new asm id temp
-		vf := rlib.RAFeesData{
-			ARID:           fee.ARID,
-			ARName:         fee.ARName,
-			ContractAmount: fee.Amount,
-			TMPASMID:       meta.LastTMPASMID,
-		}
-
-		// append fee for this vehicle
-		vehicle.Fees = append(vehicle.Fees, vf)
-	}
-
-	return
-}
 
 // SvcRAFlowVehiclesHandler handles operation on vehicles of raflow json data
 //           0    1     2   3
@@ -99,7 +55,7 @@ func CreateNewRAFlowVehicle(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	var (
 		g             FlowResponse
 		foo           RAFlowNewVehicleRequest
-		raFlowData    rlib.RAFlowJSONData
+		raFlowData    = rlib.RAFlowJSONData{}
 		err           error
 		tx            *sql.Tx
 		ctx           context.Context
@@ -157,7 +113,8 @@ func CreateNewRAFlowVehicle(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	// APPEND FEES FOR VEHICLES
 	// --------------------------------------------------------
 	var newRAFlowVehicle rlib.RAVehiclesFlowData
-	newRAFlowVehicle, err = NewRAFlowVehicle(r.Context(), d.BID, &modRAFlowMeta)
+	newRAFlowVehicle, err = rlib.NewRAFlowVehicle(ctx, d.BID,
+		raFlowData.Dates.PossessionStart, raFlowData.Dates.PossessionStop, &modRAFlowMeta)
 	if err != nil {
 		return
 	}
@@ -181,7 +138,7 @@ func CreateNewRAFlowVehicle(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	}
 
 	// --------------------------------------------------------
-	// UPDATE JSON DOC WITH NEW META DATA
+	// UPDATE JSON DOC WITH NEW META DATA IF APPLICABLE
 	// --------------------------------------------------------
 	if raFlowData.Meta.LastTMPASMID < modRAFlowMeta.LastTMPASMID {
 
