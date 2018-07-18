@@ -4,13 +4,25 @@ package rlib
 // string.
 //-----------------------------------------------------------------------------
 var RAStates = []string{
-	"Application Being Filled In",
+	"Application Being Completed",
 	"Pending First Approval",
 	"Pending Second Approval",
-	"Move In",
+	"Move-In / Execute Modification",
 	"Active",
 	"Terminated",
 	"Notice To Move",
+}
+
+// RAAction is an array that maps the Rental Agreement Action number to a
+// string.
+//-----------------------------------------------------------------------------
+var RAActions = []string{
+	"Edit Rental Agreement Information",
+	"Authorize First Approval",
+	"Authorize Second Approval",
+	"Complete Move In",
+	"Terminate",
+	"Received Notice To Move",
 }
 
 // GetStatusString returns a string representation of the Rental Agreement

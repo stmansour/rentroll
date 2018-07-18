@@ -35,26 +35,41 @@ type BizPropsEpochs struct {
 	Yearly    time.Time // default month:dayOfMonth:hour:minute:second rent becomes due on Quarterly rentals
 }
 
+// GetDataFromBusinessPropertyName returns instance of BizProps with
+// JSON parsing from business properties data for requested name
+func GetDataFromBusinessPropertyName(ctx context.Context, name string, BID int64) (bizPropJSON BizProps, err error) {
+
+	// initialize
+	bizPropJSON = BizProps{}
+
+	// get business properties
+	var bizProp BusinessProperties
+	bizProp, err = GetBusinessPropertiesByName(ctx, name, BID)
+	if err != nil {
+		return
+	}
+
+	// get json doc from Data column
+	err = json.Unmarshal(bizProp.Data, &bizPropJSON)
+	return
+}
+
 // GetPetFeesFromGeneralBizProps returns pet fees with detailed data
 // defined in BizPropsPetFee
 func GetPetFeesFromGeneralBizProps(ctx context.Context, BID int64) (fees []BizPropsPetFee, err error) {
 	const funcname = "GetPetFeesFromGeneralBizProps"
 	var (
 		bizPropName = "general"
-		bizPropJSON = BizProps{}
+		bizPropJSON BizProps
 	)
-	fees = []BizPropsPetFee{}
 	fmt.Printf("Entered in %s\n", funcname)
 
-	// get business properties
-	var bizProp BusinessProperties
-	bizProp, err = GetBusinessPropertiesByName(ctx, bizPropName, BID)
-	if err != nil {
-		return
-	}
+	// initialize pet fees
+	fees = []BizPropsPetFee{}
 
-	// get json doc from Data column
-	if err = json.Unmarshal(bizProp.Data, &bizPropJSON); err != nil {
+	// get business properties data
+	bizPropJSON, err = GetDataFromBusinessPropertyName(ctx, bizPropName, BID)
+	if err != nil {
 		return
 	}
 
@@ -87,20 +102,16 @@ func GetVehicleFeesFromGeneralBizProps(ctx context.Context, BID int64) (fees []B
 	const funcname = "GetVehicleFeesFromGeneralBizProps"
 	var (
 		bizPropName = "general"
-		bizPropJSON = BizProps{}
+		bizPropJSON BizProps
 	)
-	fees = []BizPropsVehicleFee{}
 	fmt.Printf("Entered in %s\n", funcname)
 
-	// get business properties
-	var bizProp BusinessProperties
-	bizProp, err = GetBusinessPropertiesByName(ctx, bizPropName, BID)
-	if err != nil {
-		return
-	}
+	// initialize vehicle fees
+	fees = []BizPropsVehicleFee{}
 
-	// get json doc from Data column
-	if err = json.Unmarshal(bizProp.Data, &bizPropJSON); err != nil {
+	// get business properties data
+	bizPropJSON, err = GetDataFromBusinessPropertyName(ctx, bizPropName, BID)
+	if err != nil {
 		return
 	}
 
@@ -124,5 +135,27 @@ func GetVehicleFeesFromGeneralBizProps(ctx context.Context, BID int64) (fees []B
 	}
 
 	// return finally
+	return
+}
+
+// GetEpochsFromGeneralBizProps returns epochs configured for a business
+func GetEpochsFromGeneralBizProps(ctx context.Context, BID int64) (epochs BizPropsEpochs, err error) {
+	const funcname = "GetVehicleFeesFromGeneralBizProps"
+	var (
+		bizPropName = "general"
+		bizPropJSON BizProps
+	)
+	fmt.Printf("Entered in %s\n", funcname)
+
+	// initialize epochs
+	epochs = BizPropsEpochs{}
+
+	// get business properties data
+	bizPropJSON, err = GetDataFromBusinessPropertyName(ctx, bizPropName, BID)
+	if err != nil {
+		return
+	}
+	epochs = bizPropJSON.Epochs
+
 	return
 }

@@ -18,7 +18,7 @@ type WriteHandlerContext struct {
 
 // RAWriteHandler a handler function for part of the work of migrating
 // RAFlow data into the permanent tables for a complete RentalAgreement
-type RAWriteHandler = struct {
+type RAWriteHandler struct {
 	Name    string
 	Handler func(context.Context, *WriteHandlerContext) error
 }
