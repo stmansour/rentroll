@@ -393,7 +393,7 @@ func ValidateRAFlowBasic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 }
 
 // ValidateRAFlowBizLogic is to check RAFlow's business logic
-func ValidateRAFlowBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) {
+func ValidateRAFlowBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse, RAID int64) {
 	const funcname = "ValidateRAFlowBizLogic"
 	fmt.Printf("Entered %s\n", funcname)
 
@@ -405,7 +405,7 @@ func ValidateRAFlowBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Vali
 	// -----------------------------------------------
 	// ------ Bizlogic check on people section -------
 	// -----------------------------------------------
-	validatePeopleBizLogic(ctx, a, g)
+	validatePeopleBizLogic(ctx, a, g, RAID)
 
 	// -----------------------------------------------
 	// ------- Bizlogic check on pet section ---------
@@ -522,8 +522,9 @@ func validateDatesBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Valid
 // 7. EmergencyContactName, EmergencyContactAddress, EmergencyContactTelephone, EmergencyEmail are required when IsCompany flag is false.
 // 8. SourceSLSID must be greater than 0 when role is set to Renter, User
 // 9. When role is set to User/Occupant than EligibleFutureUser flag must be true.
+// 10.When it is brand new RA Application(RAID==0) it require "current" address related information
 // ----------------------------------------------------------------------
-func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) {
+func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse, RAID int64) {
 	const funcname = "validatePeopleBizLogic"
 	fmt.Printf("Entered %s\n", funcname)
 
@@ -628,6 +629,35 @@ func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Vali
 		err = fmt.Errorf("should be true")
 		if (p.IsOccupant) && !(p.EligibleFutureUser) {
 			peopleFieldsError.Errors["EligibleFutureUser"] = append(peopleFieldsError.Errors["EligibleFutureUser"], err.Error())
+			peopleFieldsError.Total++
+		}
+
+		// ----------- Check rule no. 10  ----------------
+		// When it is brand new RA Application(RAID==0) it require "current" address related information
+		err = fmt.Errorf("should not be blank")
+		if p.CurrentAddress == "" {
+			peopleFieldsError.Errors["CurrentAddress"] = append(peopleFieldsError.Errors["CurrentAddress"], err.Error())
+			peopleFieldsError.Total++
+		}
+
+		if p.CurrentLandLordName == "" {
+			peopleFieldsError.Errors["CurrentLandLordName"] = append(peopleFieldsError.Errors["CurrentLandLordName"], err.Error())
+			peopleFieldsError.Total++
+		}
+
+		if p.CurrentLandLordPhoneNo == "" {
+			peopleFieldsError.Errors["CurrentLandLordPhoneNo"] = append(peopleFieldsError.Errors["CurrentLandLordPhoneNo"], err.Error())
+			peopleFieldsError.Total++
+		}
+
+		if p.CurrentLengthOfResidency == "" {
+			peopleFieldsError.Errors["CurrentLengthOfResidency"] = append(peopleFieldsError.Errors["CurrentLengthOfResidency"], err.Error())
+			peopleFieldsError.Total++
+		}
+
+		err = fmt.Errorf("should provide reason")
+		if p.CurrentReasonForMoving == 0 {
+			peopleFieldsError.Errors["CurrentReasonForMoving"] = append(peopleFieldsError.Errors["CurrentReasonForMoving"], err.Error())
 			peopleFieldsError.Total++
 		}
 

@@ -144,18 +144,18 @@ type RAPeopleFlowData struct {
 	Occupation        string `validate:"string,min=1,max=100"`
 
 	// Current Address information
-	CurrentAddress           string `validate:"string,min=1,max=100"`
-	CurrentLandLordName      string `validate:"string,min=1,max=100"`
-	CurrentLandLordPhoneNo   string `validate:"string,min=1,max=100"`
-	CurrentLengthOfResidency string `validate:"string,min=1,max=100"`
-	CurrentReasonForMoving   int64  `validate:"number,min=1"` // Reason for moving
+	CurrentAddress           string `validate:"string,min=1,max=100,omitempty"`
+	CurrentLandLordName      string `validate:"string,min=1,max=100,omitempty"`
+	CurrentLandLordPhoneNo   string `validate:"string,min=1,max=100,omitempty"`
+	CurrentLengthOfResidency string `validate:"string,min=1,max=100,omitempty"`
+	CurrentReasonForMoving   int64  `validate:"number,min=1,omitempty"` // Reason for moving
 
 	// Prior Address information
-	PriorAddress           string `validate:"string,min=1,max=100"`
-	PriorLandLordName      string `validate:"string,min=1,max=100"`
-	PriorLandLordPhoneNo   string `validate:"string,min=1,max=100"`
-	PriorLengthOfResidency string `validate:"string,min=1,max=100"`
-	PriorReasonForMoving   int64  `validate:"number,min=1"` // Reason for moving
+	PriorAddress           string `validate:"string,min=1,max=100,omitempty"`
+	PriorLandLordName      string `validate:"string,min=1,max=100,omitempty"`
+	PriorLandLordPhoneNo   string `validate:"string,min=1,max=100,omitempty"`
+	PriorLengthOfResidency string `validate:"string,min=1,max=100,omitempty"`
+	PriorReasonForMoving   int64  `validate:"number,min=1,omitempty"` // Reason for moving
 
 	// Have you ever been
 	Evicted          bool   `validate:"-"` // Evicted
