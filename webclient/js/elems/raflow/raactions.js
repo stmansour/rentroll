@@ -7,9 +7,31 @@
     loadRAActionTerminated,
     loadRAActionNoticeToMove,
     loadRAActionTemplate,
-    loadActionFormByState
+    loadActionFormByState,
+    submitActionForm
 */
 "use strict";
+
+// -------------------------------------------------------------------------------
+// submitActionForm - submits the data of action form
+// @params - FlowID, Decision, Reason, Action
+// -------------------------------------------------------------------------------
+window.submitActionForm = function(FlowID, Decision, Reason, Action) {
+    var data = {"FlowID": FlowID, "Decision": Decision, "Reason":Reason, "Action":Action};
+    return $.ajax({
+        url: "/v1/actions/",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(data)
+    }).done(function(data) {
+        if (data.status === "success") {
+            // update the local copy of flow for the active one
+            app.raflow.data[data.record.FlowID] = data.record;
+            var raState = parseInt(data.record.Data.meta.RAFLAGS & 0xf);
+            loadActionFormByState(raState);
+        }
+    });
+};
 
 //------------------------------------------------------------------------
 // loadActionFormByState - It loads the Action Form on basis of the state
@@ -197,6 +219,7 @@ window.loadRAActionInProgress = function () {
             name: 'RAActionInProgress',
             style: 'background-color: white; display: block;',
             focus: -1,
+            url: 'v1/actionss/',
             formURL: '/webclient/html/raflow/formra-actioninprogress.html',
             fields: [
                 { field: 'RAActions', type: 'list', width: 120, required: true, options: {items: app.w2ui.listItems.RAActions}},
@@ -244,50 +267,49 @@ window.loadRAActionInProgress = function () {
                         return;
                     }
 
-                    /////////////////////////////////////////////////////////
-                    //
-                    // There will be AJAX call for setting the flags
-                    // Right now it is done statically for testing purpose
-                    //
-                    /////////////////////////////////////////////////////////
+                    var FlowID = app.raflow.activeFlowID;
+                    var Decision = 0;
+                    var Reason = 0;
+                    var Action = this.record.RAActions.id;
+                    submitActionForm(FlowID, Decision, Reason, Action);
 
-                    var actionn = w2ui.RAActionInProgress.record.RAActions.text;
-                    var raFlags = app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS;
-                    raFlags = raFlags & ~(0xf);
+                    // var actionn = w2ui.RAActionInProgress.record.RAActions.text;
+                    // var raFlags = app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS;
+                    // raFlags = raFlags & ~(0xf);
 
-                    switch (actionn) {
-                        case "Edit Rental Agreement Information" :
-                            raFlags = raFlags | 0;
-                            app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            break;
-                        case "Authorize First Approval" :
-                            raFlags = raFlags | 1;
-                            app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            break;
-                        case "Authorize Second Approval" :
-                            raFlags = raFlags | 2;
-                            app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            break;
-                        case "Complete Move In" :
-                            raFlags = raFlags | 3;
-                            app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            break;
-                        case "Terminate" :
-                            if(this.record.RATerminationReason != undefined) {
-                                raFlags = raFlags | 5;
-                                app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            }else {
-                                return;
-                            }
-                            break;
-                        case "Received Notice To Move" :
-                            raFlags = raFlags | 6;
-                            app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            break;
-                        default:
-                    }
+                    // switch (actionn) {
+                    //     case "Edit Rental Agreement Information" :
+                    //         raFlags = raFlags | 0;
+                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         break;
+                    //     case "Authorize First Approval" :
+                    //         raFlags = raFlags | 1;
+                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         break;
+                    //     case "Authorize Second Approval" :
+                    //         raFlags = raFlags | 2;
+                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         break;
+                    //     case "Complete Move In" :
+                    //         raFlags = raFlags | 3;
+                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         break;
+                    //     case "Terminate" :
+                    //         if(this.record.RATerminationReason != undefined) {
+                    //             raFlags = raFlags | 5;
+                    //             app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         }else {
+                    //             return;
+                    //         }
+                    //         break;
+                    //     case "Received Notice To Move" :
+                    //         raFlags = raFlags | 6;
+                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         break;
+                    //     default:
+                    // }
 
-                    loadRAActionTemplate();
+                    // loadRAActionTemplate();
                 }
             }
         });
@@ -393,49 +415,55 @@ window.loadRAActionFirstApproval = function () {
                         return;
                     }
 
-                    var actionn = w2ui.RAActionFirstApproval.record.RAActions.text;
-                    var raFlags = app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS;
-                    raFlags = raFlags & ~(0xf);
+                    var FlowID = app.raflow.activeFlowID;
+                    var Decision = (this.record.RAApprovalDecision1 != undefined) ? this.record.RAApprovalDecision1 : 0;
+                    var Reason = (this.record.RADeclineReason1 != undefined) ? this.record.RADeclineReason1 : 0;
+                    var Action = this.record.RAActions.id;
+                    submitActionForm(FlowID, Decision, Reason, Action);
 
-                    switch (actionn) {
-                        case "Edit Rental Agreement Information" :
-                            raFlags = raFlags | 0;
-                            app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            break;
-                        case "Authorize First Approval" :
-                            if(this.record.RAApprovalDecision1 != undefined) {
-                                if (this.record.RAApprovalDecision1.text === 'Decline' && this.record.RADeclineReason1 === undefined) {
-                                    return;
-                                }
-                                raFlags = raFlags | 2;
-                                app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            }else {
-                                return;
-                            }
-                            break;
-                        case "Authorize Second Approval" :
-                            raFlags = raFlags | 2;
-                            app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            break;
-                        case "Complete Move In" :
-                            raFlags = raFlags | 3;
-                            app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            break;
-                        case "Terminate" :
-                            if(this.record.RATerminationReason != undefined) {
-                                raFlags = raFlags | 5;
-                                app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            }else {
-                                return;
-                            }
-                            break;
-                        case "Received Notice To Move" :
-                            raFlags = raFlags | 6;
-                            app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            break;
-                    }
-                    w2ui.actionLayout.get('main').content.destroy();
-                    loadRAActionTemplate();
+                    // var actionn = w2ui.RAActionFirstApproval.record.RAActions.text;
+                    // var raFlags = app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS;
+                    // raFlags = raFlags & ~(0xf);
+
+                    // switch (actionn) {
+                    //     case "Edit Rental Agreement Information" :
+                    //         raFlags = raFlags | 0;
+                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         break;
+                    //     case "Authorize First Approval" :
+                    //         if(this.record.RAApprovalDecision1 != undefined) {
+                    //             if (this.record.RAApprovalDecision1.text === 'Decline' && this.record.RADeclineReason1 === undefined) {
+                    //                 return;
+                    //             }
+                    //             raFlags = raFlags | 2;
+                    //             app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         }else {
+                    //             return;
+                    //         }
+                    //         break;
+                    //     case "Authorize Second Approval" :
+                    //         raFlags = raFlags | 2;
+                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         break;
+                    //     case "Complete Move In" :
+                    //         raFlags = raFlags | 3;
+                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         break;
+                    //     case "Terminate" :
+                    //         if(this.record.RATerminationReason != undefined) {
+                    //             raFlags = raFlags | 5;
+                    //             app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         }else {
+                    //             return;
+                    //         }
+                    //         break;
+                    //     case "Received Notice To Move" :
+                    //         raFlags = raFlags | 6;
+                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         break;
+                    // }
+                    // w2ui.actionLayout.get('main').content.destroy();
+                    // loadRAActionTemplate();
                 }
             }
         });
@@ -536,49 +564,59 @@ window.loadRAActionSecondApproval = function () {
             },
             actions: {
                 save: function () {
-                    var actionn = w2ui.RAActionSecondApproval.record.RAActions.text;
-                    var raFlags = app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS;
-                    raFlags = raFlags & ~(0xf);
-
-                    switch (actionn) {
-                        case "Edit Rental Agreement Information" :
-                            raFlags = raFlags | 0;
-                            app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            break;
-                        case "Authorize First Approval" :
-                            raFlags = raFlags | 1;
-                            app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            break;
-                        case "Authorize Second Approval" :
-                            if(this.record.RAApprovalDecision2 != undefined) {
-                                if (this.record.RAApprovalDecision2.text === 'Decline' && this.record.RADeclineReason2 === undefined) {
-                                    return;
-                                }
-                                raFlags = raFlags | 3;
-                                app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            }else {
-                                return;
-                            }
-                            break;
-                        case "Complete Move In" :
-                            raFlags = raFlags | 3;
-                            app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            break;
-                        case "Terminate" :
-                            if(this.record.RATerminationReason != undefined) {
-                                raFlags = raFlags | 5;
-                                app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            }else {
-                                return;
-                            }
-                            break;
-                        case "Received Notice To Move" :
-                            raFlags = raFlags | 6;
-                            app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            break;
+                    if( this.record.RAActions.id === -1 ) {
+                        return;
                     }
-                    w2ui.actionLayout.get('main').content.destroy();
-                    loadRAActionTemplate();
+
+                    var FlowID = app.raflow.activeFlowID;
+                    var Decision = (this.record.RAApprovalDecision2 != undefined) ? this.record.RAApprovalDecision2 : 0;
+                    var Reason = (this.record.RADeclineReason2 != undefined) ? this.record.RADeclineReason2 : 0;
+                    var Action = this.record.RAActions.id;
+                    submitActionForm(FlowID, Decision, Reason, Action);
+
+                    // var actionn = w2ui.RAActionSecondApproval.record.RAActions.text;
+                    // var raFlags = app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS;
+                    // raFlags = raFlags & ~(0xf);
+
+                    // switch (actionn) {
+                    //     case "Edit Rental Agreement Information" :
+                    //         raFlags = raFlags | 0;
+                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         break;
+                    //     case "Authorize First Approval" :
+                    //         raFlags = raFlags | 1;
+                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         break;
+                    //     case "Authorize Second Approval" :
+                    //         if(this.record.RAApprovalDecision2 != undefined) {
+                    //             if (this.record.RAApprovalDecision2.text === 'Decline' && this.record.RADeclineReason2 === undefined) {
+                    //                 return;
+                    //             }
+                    //             raFlags = raFlags | 3;
+                    //             app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         }else {
+                    //             return;
+                    //         }
+                    //         break;
+                    //     case "Complete Move In" :
+                    //         raFlags = raFlags | 3;
+                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         break;
+                    //     case "Terminate" :
+                    //         if(this.record.RATerminationReason != undefined) {
+                    //             raFlags = raFlags | 5;
+                    //             app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         }else {
+                    //             return;
+                    //         }
+                    //         break;
+                    //     case "Received Notice To Move" :
+                    //         raFlags = raFlags | 6;
+                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         break;
+                    // }
+                    // w2ui.actionLayout.get('main').content.destroy();
+                    // loadRAActionTemplate();
                 }
             }
         });
@@ -667,42 +705,52 @@ window.loadRAActionMoveIn = function () {
             },
             actions: {
                 save: function () {
-                    var actionn = w2ui.RAActionMoveIn.record.RAActions.text;
-                    var raFlags = app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS;
-                    raFlags = raFlags & ~(0xf);
-
-                    switch (actionn) {
-                        case "Edit Rental Agreement Information" :
-                            raFlags = raFlags | 0;
-                            app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            break;
-                        case "Authorize First Approval" :
-                            raFlags = raFlags | 1;
-                            app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            break;
-                        case "Authorize Second Approval" :
-                            raFlags = raFlags | 2;
-                            app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            break;
-                        case "Complete Move In" :
-                            raFlags = raFlags | 4;
-                            app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            break;
-                        case "Terminate" :
-                            if(this.record.RATerminationReason != undefined) {
-                                raFlags = raFlags | 5;
-                                app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            }else {
-                                return;
-                            }
-                            break;
-                        case "Received Notice To Move" :
-                            raFlags = raFlags | 6;
-                            app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            break;
+                    if( this.record.RAActions.id === -1 ) {
+                        return;
                     }
-                    w2ui.actionLayout.get('main').content.destroy();
-                    loadRAActionTemplate();
+
+                    var FlowID = app.raflow.activeFlowID;
+                    var Decision = 0;
+                    var Reason = 0;
+                    var Action = this.record.RAActions.id;
+                    submitActionForm(FlowID, Decision, Reason, Action);
+
+                    // var actionn = w2ui.RAActionMoveIn.record.RAActions.text;
+                    // var raFlags = app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS;
+                    // raFlags = raFlags & ~(0xf);
+
+                    // switch (actionn) {
+                    //     case "Edit Rental Agreement Information" :
+                    //         raFlags = raFlags | 0;
+                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         break;
+                    //     case "Authorize First Approval" :
+                    //         raFlags = raFlags | 1;
+                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         break;
+                    //     case "Authorize Second Approval" :
+                    //         raFlags = raFlags | 2;
+                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         break;
+                    //     case "Complete Move In" :
+                    //         raFlags = raFlags | 4;
+                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         break;
+                    //     case "Terminate" :
+                    //         if(this.record.RATerminationReason != undefined) {
+                    //             raFlags = raFlags | 5;
+                    //             app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         }else {
+                    //             return;
+                    //         }
+                    //         break;
+                    //     case "Received Notice To Move" :
+                    //         raFlags = raFlags | 6;
+                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         break;
+                    // }
+                    // w2ui.actionLayout.get('main').content.destroy();
+                    // loadRAActionTemplate();
                 },
                 RAGenerateRAForm: function() {
                 },
@@ -772,42 +820,52 @@ window.loadRAActionActive = function () {
             },
             actions: {
                 save: function () {
-                    var actionn = w2ui.RAActionActive.record.RAActions.text;
-                    var raFlags = app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS;
-                    raFlags = raFlags & ~(0xf);
-
-                    switch (actionn) {
-                        case "Edit Rental Agreement Information" :
-                            raFlags = raFlags | 0;
-                            app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            break;
-                        case "Authorize First Approval" :
-                            raFlags = raFlags | 1;
-                            app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            break;
-                        case "Authorize Second Approval" :
-                            raFlags = raFlags | 2;
-                            app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            break;
-                        case "Complete Move In" :
-                            raFlags = raFlags | 3;
-                            app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            break;
-                        case "Terminate" :
-                            if(this.record.RATerminationReason != undefined) {
-                                raFlags = raFlags | 5;
-                                app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            }else {
-                                return;
-                            }
-                            break;
-                        case "Received Notice To Move" :
-                            raFlags = raFlags | 6;
-                            app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            break;
+                    if( this.record.RAActions.id === -1 ) {
+                        return;
                     }
-                    w2ui.actionLayout.get('main').content.destroy();
-                    loadRAActionTemplate();
+
+                    var FlowID = app.raflow.activeFlowID;
+                    var Decision = 0;
+                    var Reason = 0;
+                    var Action = this.record.RAActions.id;
+                    submitActionForm(FlowID, Decision, Reason, Action);
+
+                    // var actionn = w2ui.RAActionActive.record.RAActions.text;
+                    // var raFlags = app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS;
+                    // raFlags = raFlags & ~(0xf);
+
+                    // switch (actionn) {
+                    //     case "Edit Rental Agreement Information" :
+                    //         raFlags = raFlags | 0;
+                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         break;
+                    //     case "Authorize First Approval" :
+                    //         raFlags = raFlags | 1;
+                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         break;
+                    //     case "Authorize Second Approval" :
+                    //         raFlags = raFlags | 2;
+                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         break;
+                    //     case "Complete Move In" :
+                    //         raFlags = raFlags | 3;
+                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         break;
+                    //     case "Terminate" :
+                    //         if(this.record.RATerminationReason != undefined) {
+                    //             raFlags = raFlags | 5;
+                    //             app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         }else {
+                    //             return;
+                    //         }
+                    //         break;
+                    //     case "Received Notice To Move" :
+                    //         raFlags = raFlags | 6;
+                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         break;
+                    // }
+                    // w2ui.actionLayout.get('main').content.destroy();
+                    // loadRAActionTemplate();
                 }
             }
         });
@@ -850,36 +908,46 @@ window.loadRAActionTerminated = function () {
             },
             actions: {
                 save: function () {
-                    var actionn = w2ui.RAActionTerminated.record.RAActions.text;
-                    var raFlags = app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS;
-                    raFlags = raFlags & ~(0xf);
-
-                    switch (actionn) {
-                        case "Edit Rental Agreement Information" :
-                            raFlags = raFlags | 0;
-                            app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            break;
-                        case "Authorize First Approval" :
-                            raFlags = raFlags | 1;
-                            app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            break;
-                        case "Authorize Second Approval" :
-                            raFlags = raFlags | 2;
-                            app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            break;
-                        case "Complete Move In" :
-                            raFlags = raFlags | 3;
-                            app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            break;
-                        case "Terminate" :
-                            return;
-                        case "Received Notice To Move" :
-                            raFlags = raFlags | 6;
-                            app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            break;
+                    if( this.record.RAActions.id === -1 ) {
+                        return;
                     }
-                    w2ui.actionLayout.get('main').content.destroy();
-                    loadRAActionTemplate();
+
+                    var FlowID = app.raflow.activeFlowID;
+                    var Decision = 0;
+                    var Reason = 0;
+                    var Action = this.record.RAActions.id;
+                    submitActionForm(FlowID, Decision, Reason, Action);
+
+                    // var actionn = w2ui.RAActionTerminated.record.RAActions.text;
+                    // var raFlags = app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS;
+                    // raFlags = raFlags & ~(0xf);
+
+                    // switch (actionn) {
+                    //     case "Edit Rental Agreement Information" :
+                    //         raFlags = raFlags | 0;
+                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         break;
+                    //     case "Authorize First Approval" :
+                    //         raFlags = raFlags | 1;
+                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         break;
+                    //     case "Authorize Second Approval" :
+                    //         raFlags = raFlags | 2;
+                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         break;
+                    //     case "Complete Move In" :
+                    //         raFlags = raFlags | 3;
+                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         break;
+                    //     case "Terminate" :
+                    //         return;
+                    //     case "Received Notice To Move" :
+                    //         raFlags = raFlags | 6;
+                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         break;
+                    // }
+                    // w2ui.actionLayout.get('main').content.destroy();
+                    // loadRAActionTemplate();
                 },
                 RAGenerateMoveOutForm: function () {
 
@@ -966,40 +1034,50 @@ window.loadRAActionNoticeToMove = function () {
             },
             actions: {
                 save: function () {
-                    var actionn = w2ui.RAActionNoticeToMove.record.RAActions.text;
-                    var raFlags = app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS;
-                    raFlags = raFlags & ~(0xf);
-
-                    switch (actionn) {
-                        case "Edit Rental Agreement Information" :
-                            raFlags = raFlags | 0;
-                            app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            break;
-                        case "Authorize First Approval" :
-                            raFlags = raFlags | 1;
-                            app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            break;
-                        case "Authorize Second Approval" :
-                            raFlags = raFlags | 2;
-                            app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            break;
-                        case "Complete Move In" :
-                            raFlags = raFlags | 3;
-                            app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            break;
-                        case "Terminate" :
-                            if(this.record.RATerminationReason != undefined) {
-                                raFlags = raFlags | 5;
-                                app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                            }else {
-                                return;
-                            }
-                            break;
-                        case "Received Notice To Move" :
-                            break;
+                    if( this.record.RAActions.id === -1 ) {
+                        return;
                     }
-                    w2ui.actionLayout.get('main').content.destroy();
-                    loadRAActionTemplate();
+
+                    var FlowID = app.raflow.activeFlowID;
+                    var Decision = 0;
+                    var Reason = 0;
+                    var Action = this.record.RAActions.id;
+                    submitActionForm(FlowID, Decision, Reason, Action);
+                    
+                    // var actionn = w2ui.RAActionNoticeToMove.record.RAActions.text;
+                    // var raFlags = app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS;
+                    // raFlags = raFlags & ~(0xf);
+
+                    // switch (actionn) {
+                    //     case "Edit Rental Agreement Information" :
+                    //         raFlags = raFlags | 0;
+                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         break;
+                    //     case "Authorize First Approval" :
+                    //         raFlags = raFlags | 1;
+                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         break;
+                    //     case "Authorize Second Approval" :
+                    //         raFlags = raFlags | 2;
+                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         break;
+                    //     case "Complete Move In" :
+                    //         raFlags = raFlags | 3;
+                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         break;
+                    //     case "Terminate" :
+                    //         if(this.record.RATerminationReason != undefined) {
+                    //             raFlags = raFlags | 5;
+                    //             app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
+                    //         }else {
+                    //             return;
+                    //         }
+                    //         break;
+                    //     case "Received Notice To Move" :
+                    //         break;
+                    // }
+                    // w2ui.actionLayout.get('main').content.destroy();
+                    // loadRAActionTemplate();
                 }
             }
 
