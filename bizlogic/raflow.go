@@ -516,6 +516,7 @@ func validateDatesBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Valid
 // 1. If isCompany flag is true then CompanyName is required
 // 2. If isCompany flag is false than FirstName and LastName are required
 // 3. If only one person exist in the list, then it should have isRenter role marked as true.
+// 4. If role is set to Renter or guarantor than it must have mentioned GrossIncome
 // ----------------------------------------------------------------------
 func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) {
 	const funcname = "validatePeopleBizLogic"
@@ -533,7 +534,6 @@ func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Vali
 	// init peopleFieldsErrors
 	peopleFieldsErrors = make([]PeopleFieldsError, 0)
 
-	err = fmt.Errorf("should not be blank")
 	for _, p := range people {
 
 		// Init PeopleFieldsError
@@ -542,6 +542,8 @@ func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Vali
 			Total:   0,
 			Errors:  make(map[string][]string, 0),
 		}
+
+		err = fmt.Errorf("should not be blank")
 
 		// ----------- Check rule no. 1  ----------------
 		// If isCompany flag is true then CompanyName is required
@@ -559,6 +561,14 @@ func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Vali
 
 		if !p.IsCompany && len(p.LastName) == 0 {
 			peopleFieldsError.Errors["LastName"] = append(peopleFieldsError.Errors["LastName"], err.Error())
+			peopleFieldsError.Total++
+		}
+
+		// ----------- Check rule no. 4  ----------------
+		// If role is set to Renter or guarantor than it must have mentioned GrossIncome
+		err = fmt.Errorf("gross income should be greater than 0.00")
+		if (p.IsRenter || p.IsGuarantor) && !(p.GrossIncome > 0.00) {
+			peopleFieldsError.Errors["GrossIncome"] = append(peopleFieldsError.Errors["GrossIncome"], err.Error())
 			peopleFieldsError.Total++
 		}
 
