@@ -82,14 +82,23 @@ type RAFlowJSONData struct {
 
 // RAFlowMetaInfo holds meta info about a rental agreement flow data
 type RAFlowMetaInfo struct {
-	RAID         int64 // 0 = it's new, >0 = existing one
-	LastTMPPETID int64
-	LastTMPVID   int64
-	LastTMPTCID  int64
-	LastTMPASMID int64
-	HavePets     bool
-	HaveVehicles bool
-	RAFLAGS      int64
+	RAID                   int64 // 0 = it's new, >0 = existing one
+	LastTMPPETID           int64
+	LastTMPVID             int64
+	LastTMPTCID            int64
+	LastTMPASMID           int64
+	HavePets               bool
+	HaveVehicles           bool
+	RAFLAGS                int64
+	Approver1              int64
+	DecisionDate1          JSONDateTime
+	DeclineReason1         int64
+	Approver2              int64
+	DecisionDate2          JSONDateTime
+	DeclineReason2         int64
+	TerminatorUID          int64
+	TerminationDate        JSONDateTime
+	LeaseTerminationReason int64
 }
 
 // RADatesFlowData contains data in the dates part of RA flow
