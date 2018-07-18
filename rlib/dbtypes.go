@@ -928,23 +928,25 @@ type Expense struct {
 //  1<<2 = RAID required,
 //  1<<3 = subARIDs apply
 type AR struct {
-	ARID          int64
-	BID           int64
-	Name          string
-	ARType        int64 // 0 = Assessment, 1 = Receipt, 2 = Expense
-	DebitLID      int64
-	CreditLID     int64
-	Description   string
-	RARequired    int64
-	DtStart       time.Time
-	DtStop        time.Time
-	FLAGS         uint64
-	DefaultAmount float64 // use this as the default amount in ui for newly created Assessments
-	LastModTime   time.Time
-	LastModBy     int64
-	CreateTS      time.Time // when was this record created
-	CreateBy      int64     // employee UID (from phonebook) that created it
-	SubARs        []SubAR   // the SubARs if FLAGS & 1<<3 > 0
+	ARID                  int64
+	BID                   int64
+	Name                  string
+	ARType                int64 // 0 = Assessment, 1 = Receipt, 2 = Expense
+	DebitLID              int64
+	CreditLID             int64
+	Description           string
+	RARequired            int64
+	DtStart               time.Time
+	DtStop                time.Time
+	FLAGS                 uint64
+	DefaultAmount         float64 // use this as the default amount in ui for newly created Assessments
+	DefaultRentCycle      int64   // Default Rent Cycle for this account rule
+	DefaultProrationCycle int64   // Default Proration Cycle for this account rule
+	LastModTime           time.Time
+	LastModBy             int64
+	CreateTS              time.Time // when was this record created
+	CreateBy              int64     // employee UID (from phonebook) that created it
+	SubARs                []SubAR   // the SubARs if FLAGS & 1<<3 > 0
 }
 
 // SubAR is the table that defines multiple ARIDs for transactions that require multiple ARIDs
