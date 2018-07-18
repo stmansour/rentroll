@@ -521,6 +521,7 @@ func validateDatesBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Valid
 // 6. CompanyName is required when IsCompany flag is true
 // 7. EmergencyContactName, EmergencyContactAddress, EmergencyContactTelephone, EmergencyEmail are required when IsCompany flag is false.
 // 8. SourceSLSID must be greater than 0 when role is set to Renter, User
+// 9. When role is set to User/Occupant than EligibleFutureUser flag must be true.
 // ----------------------------------------------------------------------
 func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) {
 	const funcname = "validatePeopleBizLogic"
@@ -619,6 +620,14 @@ func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Vali
 		err = fmt.Errorf("provide SourceSLSID")
 		if (p.IsRenter || p.IsOccupant) && !(p.SourceSLSID > 0) {
 			peopleFieldsError.Errors["SourceSLSID"] = append(peopleFieldsError.Errors["SourceSLSID"], err.Error())
+			peopleFieldsError.Total++
+		}
+
+		// ----------- Check rule no. 9  ----------------
+		// When role is set to User/Occupant than EligibleFutureUser flag must be true.
+		err = fmt.Errorf("should be true")
+		if (p.IsOccupant) && !(p.EligibleFutureUser) {
+			peopleFieldsError.Errors["EligibleFutureUser"] = append(peopleFieldsError.Errors["EligibleFutureUser"], err.Error())
 			peopleFieldsError.Total++
 		}
 
