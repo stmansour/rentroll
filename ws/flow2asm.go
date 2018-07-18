@@ -23,7 +23,7 @@ func Fees2RA(ctx context.Context, x *WriteHandlerContext) error {
 	rlib.Console("Entered Fees2RA\n")
 
 	//--------------------------------------------------
-	// Handle Rentables first
+	// Handle Rentables first...
 	//--------------------------------------------------
 	for i := 0; i < len(x.raf.Rentables); i++ {
 		for j := 0; j < len(x.raf.Rentables[i].Fees); j++ {
@@ -34,12 +34,23 @@ func Fees2RA(ctx context.Context, x *WriteHandlerContext) error {
 		}
 	}
 	//--------------------------------------------------
-	// look for the fee in Pets
+	// Handle pet fees...
 	//--------------------------------------------------
 	for i := 0; i < len(x.raf.Pets); i++ {
 		for j := 0; j < len(x.raf.Pets[i].Fees); j++ {
 			if 0 < x.raf.Pets[i].Fees[j].ASMID {
 				err = F2RAUpdateExistingAssessment(ctx, x, &x.raf.Rentables[i].Fees[j], rlib.ELEMPET, x.raf.Pets[i].PETID, x.raf.Pets[i].TMPTCID)
+				return err
+			}
+		}
+	}
+	//--------------------------------------------------
+	// Handle vehicle fees...
+	//--------------------------------------------------
+	for i := 0; i < len(x.raf.Vehicles); i++ {
+		for j := 0; j < len(x.raf.Vehicles[i].Fees); j++ {
+			if 0 < x.raf.Vehicles[i].Fees[j].ASMID {
+				err = F2RAUpdateExistingAssessment(ctx, x, &x.raf.Rentables[i].Fees[j], rlib.ELEMVEHICLE, x.raf.Vehicles[i].VID, x.raf.Vehicles[i].TMPTCID)
 				return err
 			}
 		}
