@@ -120,11 +120,11 @@ type RAPeopleFlowData struct {
 	LastName       string `validate:"string,min=1,max=100"`
 	PreferredName  string `validate:"string,min=1,max=100"`
 	IsCompany      bool   `validate:"number,min=1,max=1"`
-	CompanyName    string `validate:"string,min=1,max=100"`
+	CompanyName    string `validate:"string,min=1,max=100,omitempty"` // It is required when IsCompany flag is true. It'll be checked in bizlogic validation.
 	PrimaryEmail   string `validate:"email"`
 	SecondaryEmail string `validate:"email,omitempty"`
-	WorkPhone      string `validate:"string,min=1,max=100,omitempty"` // TODO(Akshay): Either Workphone or CellPhone is compulsory. It'll be checked in bizlogic validation
-	CellPhone      string `validate:"string,min=1,max=100,omitempty"` // TODO(Akshay): Either Workphone or CellPhone is compulsory. It'll be checked in bizlogic validation
+	WorkPhone      string `validate:"string,min=1,max=100,omitempty"` // Either Workphone or CellPhone is compulsory. It'll be checked in bizlogic validation
+	CellPhone      string `validate:"string,min=1,max=100,omitempty"` // Either Workphone or CellPhone is compulsory. It'll be checked in bizlogic validation
 	Address        string `validate:"string,min=1,max=100"`
 	Address2       string `validate:"string,min=0,max=100,omitempty"`
 	City           string `validate:"string,min=1,max=100"`
