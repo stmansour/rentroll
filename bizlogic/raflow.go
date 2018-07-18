@@ -519,6 +519,8 @@ func validateDatesBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Valid
 // 4. If role is set to Renter or guarantor than it must have mentioned GrossIncome
 // 5. Either Workphone or CellPhone is compulsory
 // 6. CompanyName is required when IsCompany flag is true
+// 7. EmergencyContactName, EmergencyContactAddress, EmergencyContactTelephone, EmergencyEmail are required when IsCompany flag is false.
+// 8. SourceSLSID must be greater than 0 when role is set to Renter, User
 // ----------------------------------------------------------------------
 func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) {
 	const funcname = "validatePeopleBizLogic"
@@ -587,6 +589,36 @@ func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Vali
 		err = fmt.Errorf("should not be blank")
 		if p.IsCompany && p.CompanyName == "" {
 			peopleFieldsError.Errors["CompanyName"] = append(peopleFieldsError.Errors["CompanyName"], err.Error())
+			peopleFieldsError.Total++
+		}
+
+		// ----------- Check rule no. 7  ----------------
+		// EmergencyContactName, EmergencyContactAddress, EmergencyContactTelephone, EmergencyEmail are required when IsCompany flag is false.
+		if !p.IsCompany && p.EmergencyContactName == "" {
+			peopleFieldsError.Errors["EmergencyContactName"] = append(peopleFieldsError.Errors["EmergencyContactName"], err.Error())
+			peopleFieldsError.Total++
+		}
+
+		if !p.IsCompany && p.EmergencyContactAddress == "" {
+			peopleFieldsError.Errors["EmergencyContactAddress"] = append(peopleFieldsError.Errors["EmergencyContactAddress"], err.Error())
+			peopleFieldsError.Total++
+		}
+
+		if !p.IsCompany && p.EmergencyContactTelephone == "" {
+			peopleFieldsError.Errors["EmergencyContactTelephone"] = append(peopleFieldsError.Errors["EmergencyContactTelephone"], err.Error())
+			peopleFieldsError.Total++
+		}
+
+		if !p.IsCompany && p.EmergencyContactEmail == "" {
+			peopleFieldsError.Errors["EmergencyContactEmail"] = append(peopleFieldsError.Errors["EmergencyContactEmail"], err.Error())
+			peopleFieldsError.Total++
+		}
+
+		// ----------- Check rule no. 8  ----------------
+		// SourceSLSID must be greater than 0 when role is set to Renter, User
+		err = fmt.Errorf("provide SourceSLSID")
+		if (p.IsRenter || p.IsOccupant) && !(p.SourceSLSID > 0) {
+			peopleFieldsError.Errors["SourceSLSID"] = append(peopleFieldsError.Errors["SourceSLSID"], err.Error())
 			peopleFieldsError.Total++
 		}
 
