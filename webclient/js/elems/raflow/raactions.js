@@ -27,8 +27,8 @@ window.submitActionForm = function(FlowID, Decision, Reason, Action) {
         if (data.status === "success") {
             // update the local copy of flow for the active one
             app.raflow.data[data.record.FlowID] = data.record;
-            var raState = parseInt(data.record.Data.meta.RAFLAGS & 0xf);
-            loadActionFormByState(raState);
+            w2ui.actionLayout.get('main').content.destroy();
+            loadRAActionTemplate();
         }
     });
 };
