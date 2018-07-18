@@ -118,13 +118,13 @@ type RAPeopleFlowData struct {
 	FirstName      string `validate:"string,min=1,max=100"`
 	MiddleName     string `validate:"string,min=1,max=100"`
 	LastName       string `validate:"string,min=1,max=100"`
-	PreferredName  string `validate:"string,min=1,max=100,omitempty"`
+	PreferredName  string `validate:"string,min=1,max=100"`
 	IsCompany      bool   `validate:"number,min=1,max=1"`
 	CompanyName    string `validate:"string,min=1,max=100"`
-	PrimaryEmail   string `validate:"email,omitempty"`
+	PrimaryEmail   string `validate:"email"`
 	SecondaryEmail string `validate:"email,omitempty"`
-	WorkPhone      string `validate:"number,min=1,max=100,omitempty"`
-	CellPhone      string `validate:"number,min=1,max=100,omitempty"`
+	WorkPhone      string `validate:"number,min=1,max=100,omitempty"` // TODO(Akshay): Either Workphone or CellPhone is compulsory. It'll be checked in bizlogic validation
+	CellPhone      string `validate:"number,min=1,max=100,omitempty"` // TODO(Akshay): Either Workphone or CellPhone is compulsory. It'll be checked in bizlogic validation
 	Address        string `validate:"string,min=1,max=100"`
 	Address2       string `validate:"string,min=0,max=100,omitempty"`
 	City           string `validate:"string,min=1,max=100"`
@@ -135,12 +135,12 @@ type RAPeopleFlowData struct {
 	Comment        string `validate:"string,min=1,max=2048,omitempty"`
 
 	// ---------- Prospect -----------
-	CompanyAddress    string `validate:"string,min=1,max=100"`
-	CompanyCity       string `validate:"string,min=1,max=100"`
-	CompanyState      string `validate:"string,min=1,max=100"`
-	CompanyPostalCode string `validate:"number,min=1,max=100"`
-	CompanyEmail      string `validate:"email"`
-	CompanyPhone      string `validate:"number,min=1,max=100"`
+	CompanyAddress    string `validate:"string,min=1,max=100,omitempty"`
+	CompanyCity       string `validate:"string,min=1,max=100,omitempty"`
+	CompanyState      string `validate:"string,min=1,max=100,omitempty"`
+	CompanyPostalCode string `validate:"number,min=1,max=100,omitempty"`
+	CompanyEmail      string `validate:"email,omitempty"`
+	CompanyPhone      string `validate:"number,min=1,max=100,omitempty"`
 	Occupation        string `validate:"string,min=1,max=100"`
 
 	// Current Address information
@@ -159,20 +159,21 @@ type RAPeopleFlowData struct {
 
 	// Have you ever been
 	Evicted          bool   `validate:"-"` // Evicted
-	EvictedDes       string `validate:"string,min=1,max=2048,omitempty"`
+	EvictedDes       string `validate:"string,min=1,max=2048"`
 	Convicted        bool   `validate:"-"` // Arrested or convicted of a Convicted
-	ConvictedDes     string `validate:"string,min=1,max=2048,omitempty"`
+	ConvictedDes     string `validate:"string,min=1,max=2048"`
 	Bankruptcy       bool   `validate:"-"` // Declared Bankruptcy
-	BankruptcyDes    string `validate:"string,min=1,max=2048,omitempty"`
+	BankruptcyDes    string `validate:"string,min=1,max=2048"`
 	OtherPreferences string `validate:"string,min=1,max=1024"`
 	//FollowUpDate             JSONDate
 	//CommissionableThirdParty string
-	SpecialNeeds string `validate:"string,min=1,max=1024"` // In an effort to accommodate you, please advise us of any special needs
+	SpecialNeeds string `validate:"string,min=1,max=1024,omitempty"` // In an effort to accommodate you, please advise us of any special needs
+	// TODO(Akshay):It'll be none. If there is no special needs
 
 	// ---------- Payor -----------
-	CreditLimit         float64 `validate:"number:float,min=0.10"`
+	CreditLimit         float64 `validate:"number:float,min=0.10,omitempty"`
 	TaxpayorID          string  `validate:"string,min=1,max=25"`
-	GrossIncome         float64 `validate:"number:float,min=0.10"`
+	GrossIncome         float64 `validate:"number:float,min=0.10,omitempty"` // When role is set to renter or guarantor than it is compulsory. It'll be check via bizlogic.
 	SSN                 string  `validate:"string,min=1,max=128"`
 	DriversLicense      string  `validate:"string,min=1,max=128"`
 	ThirdPartySource    int64   `validate:"number,min=1,omitempty"`
@@ -186,10 +187,10 @@ type RAPeopleFlowData struct {
 	EmergencyContactAddress   string `validate:"string,min=1,max=100"`
 	EmergencyContactTelephone string `validate:"number,min=1,max=100"`
 	EmergencyContactEmail     string `validate:"email"`
-	AlternateAddress          string `validate:"string,min=1,max=100"`
+	AlternateAddress          string `validate:"string,min=1,max=100,omitempty"`
 	EligibleFutureUser        bool   `validate:"number,min=1"`
-	Industry                  string `validate:"string,min=1,max=100"`
-	SourceSLSID               int64  `validate:"number,min=1"`
+	Industry                  string `validate:"string,min=1,max=100,omitempty"`
+	SourceSLSID               int64  `validate:"number,min=1"` // TODO(Akshay): It is compulsory when role is set to renter or user. It'll be check via bizlogic.
 }
 
 // RAPetsFlowData contains data in the pets part of RA flow
@@ -214,7 +215,7 @@ type RAVehiclesFlowData struct {
 	BID                 int64        `validate:"number,min=1"`
 	VID                 int64        `validate:"number,min=1"`
 	TMPTCID             int64        `validate:"number,min=1"`
-	VIN                 string       `validate:"string,min=1"`
+	VIN                 string       `validate:"string,min=1,omitempty"`
 	VehicleType         string       `validate:"string,min=1,max=80"`
 	VehicleMake         string       `validate:"string,min=1,max=80"`
 	VehicleModel        string       `validate:"string,min=1,max=80"`
@@ -222,7 +223,7 @@ type RAVehiclesFlowData struct {
 	VehicleYear         int64        `validate:"number,min=1"`
 	LicensePlateState   string       `validate:"string,min=1,max=80"`
 	LicensePlateNumber  string       `validate:"string,min=1,max=80"`
-	ParkingPermitNumber string       `validate:"string,min=1,max=80"`
+	ParkingPermitNumber string       `validate:"string,min=1,max=80,omitempty"`
 	DtStart             JSONDate     `validate:"date"`
 	DtStop              JSONDate     `validate:"date"`
 	Fees                []RAFeesData `validate:"-"`
