@@ -229,6 +229,7 @@ var Svcs = []ServiceHandler{
 	{Cmd: "userprofile", Handler: SvcUserProfile, NeedBiz: false, NeedSession: true},
 	{Cmd: "version", Handler: SvcHandlerVersion, NeedBiz: false, NeedSession: false},
 	{Cmd: "validate-raflow", Handler: SvcValidateRAFlow, NeedBiz: true, NeedSession: true},
+	{Cmd: "actions", Handler: SvcSetRAState, NeedBiz: false, NeedSession: true},
 }
 
 // SvcCtx contains information global to the Svc handlers

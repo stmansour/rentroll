@@ -6,7 +6,8 @@
     LoadRAFlowTemplate,
     validateRAFlowComponents,
     getVehicleFees, getPetFees,
-    renderRAStateInToolbar
+    renderRAStateInToolbar,
+    loadRAActionTemplate
 */
 
 "use strict";
@@ -258,7 +259,7 @@ window.buildRAApplicantElements = function() {
                         { id: 'raState', type: 'html',
                             html: '<span style="padding: 0 10px">State: <span id="RAState">StateText</span></span>'
                         },
-                        { id: 'btnRAState', type: 'button', text: 'Action...', icon: 'far fa-sticky-note'},
+                        { id: 'stateAction', type: 'button', caption: 'Actions Forms', icon: 'fas fa-pencil-alt'},
                         { id: 'bt3', type: 'spacer' },
                         { id: 'btnClose', type: 'button', icon: 'fas fa-times' }
                     ],
@@ -273,8 +274,20 @@ window.buildRAApplicantElements = function() {
                                 };
                             form_dirty_alert(yes_callBack, no_callBack);
                             break;
+                        case 'stateAction':
+                            w2ui.newraLayout.lock('main');
+                            // set the newralayout's right panel content
+                            loadRAActionTemplate();
+                            break;
                         }
                     },
+                    onRefresh: function(event) {
+                        console.log("Main Panel of newralayout Refreshed");
+                        if(app.raflow.activeFlowID) {
+                            var raflags = app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS;
+                            renderRAStateInToolbar(raflags);
+                        }
+                    }
                 }
             },
             { type: 'preview',      hidden: true },
