@@ -15,14 +15,14 @@ import (
 
 // ReadAR reads a full AR structure from the database based on the supplied row object
 func ReadAR(row *sql.Row, a *AR) error {
-	err := row.Scan(&a.ARID, &a.BID, &a.Name, &a.ARType, &a.DebitLID, &a.CreditLID, &a.Description, &a.RARequired, &a.DtStart, &a.DtStop, &a.FLAGS, &a.DefaultAmount, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	err := row.Scan(&a.ARID, &a.BID, &a.Name, &a.ARType, &a.DebitLID, &a.CreditLID, &a.Description, &a.RARequired, &a.DtStart, &a.DtStop, &a.FLAGS, &a.DefaultAmount, &a.DefaultRentCycle, &a.DefaultProrationCycle, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	SkipSQLNoRowsError(&err)
 	return err
 }
 
 // ReadARs reads a full AR structure from the database based on the supplied rows object
 func ReadARs(rows *sql.Rows, a *AR) error {
-	return rows.Scan(&a.ARID, &a.BID, &a.Name, &a.ARType, &a.DebitLID, &a.CreditLID, &a.Description, &a.RARequired, &a.DtStart, &a.DtStop, &a.FLAGS, &a.DefaultAmount, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	return rows.Scan(&a.ARID, &a.BID, &a.Name, &a.ARType, &a.DebitLID, &a.CreditLID, &a.Description, &a.RARequired, &a.DtStart, &a.DtStop, &a.FLAGS, &a.DefaultAmount, &a.DefaultRentCycle, &a.DefaultProrationCycle, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 
 // ReadAssessment reads a full Assessment structure of data from the database based on the supplied Rows pointer.
