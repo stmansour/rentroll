@@ -33,6 +33,8 @@ window.getARRulesInitRecord = function (BID, BUD, post_accounts_pre_selected, pr
         PETIDReq:               false,
         VIDReq:                 false,
         DefaultAmount:          0.0,
+        DefaultRentCycle:       6,
+        DefaultProrationCycle:  4,
     };
 
 
@@ -223,32 +225,34 @@ $().w2grid({
         url: '/v1/ar',
         formURL: '/webclient/html/formar.html',
         fields: [
-            { field: 'recid',                type: 'int',      required: false, html: { page: 0, column: 0 } },
-            { field: 'ARID',                 type: 'int',      required: true,  html: { page: 0, column: 0 } },
-            { field: 'BID',                  type: 'int',      required: true,  html: { page: 0, column: 0 } },
-            { field: 'BUD',                  type: 'list',     required: true,  html: { page: 0, column: 0 }, options: { items: app.businesses } },
-            { field: 'Name',                 type: 'text',     required: true,  html: { page: 0, column: 0 } },
-            { field: 'ARType',               type: 'list',     required: true,  html: { page: 0, column: 0 }, options: { items: [], selected: {}, maxDropHeight: 200 } },
-            { field: 'DebitLID',             type: 'list',     required: true,  html: { page: 0, column: 0 }, options: { items: [], selected: {}, maxDropHeight: 200 } },
-            { field: 'CreditLID',            type: 'list',     required: true,  html: { page: 0, column: 0 }, options: { items: [], selected: {}, maxDropHeight: 200 } },
-            { field: 'Description',          type: 'text',     required: false, html: { page: 0, column: 0 } },
-            { field: 'DtStart',              type: 'date',     required: true,  html: { page: 0, column: 0 } },
-            { field: 'DtStop',               type: 'date',     required: true,  html: { page: 0, column: 0 } },
-            { field: 'PriorToRAStart',       type: 'checkbox', required: true,  html: { page: 0, column: 0 } },
-            { field: 'PriorToRAStop',        type: 'checkbox', required: true,  html: { page: 0, column: 0 } },
-            { field: 'ApplyRcvAccts',        type: 'checkbox', required: true,  html: { page: 0, column: 0 } },
-            { field: 'RAIDrqd',              type: 'checkbox', required: true,  html: { page: 0, column: 0 } },
-            { field: 'DefaultAmount',        type: 'money',    required: true,  html: { page: 0, column: 0 } },
-            { field: 'AutoPopulateToNewRA',  type: 'checkbox', required: true,  html: { page: 0, column: 0 } },
-            { field: 'IsRentASM',            type: 'checkbox', required: true,  html: { page: 0, column: 0 } },
-            { field: 'IsSecDepASM',          type: 'checkbox', required: true,  html: { page: 0, column: 0 } },
-            { field: 'IsNonRecurCharge',     type: 'checkbox', required: true,  html: { page: 0, column: 0 } },
-            { field: 'PETIDReq',             type: 'checkbox', required: true,  html: { page: 0, column: 0 } },
-            { field: 'VIDReq',               type: 'checkbox', required: true,  html: { page: 0, column: 0 } },
-            { field: "LastModTime",          type: 'time',     required: false, html: { page: 0, column: 0, caption: "LastModTime" } },
-            { field: "LastModBy",            type: 'int',      required: false, html: { page: 0, column: 0, caption: "LastModBy" } },
-            { field: "CreateTS",             type: 'time',     required: false, html: { page: 0, column: 0, caption: "CreateTS" } },
-            { field: "CreateBy",             type: 'int',      required: false, html: { page: 0, column: 0, caption: "CreateBy" } }
+            { field: 'recid',                   type: 'int',      required: false, html: { page: 0, column: 0 } },
+            { field: 'ARID',                    type: 'int',      required: true,  html: { page: 0, column: 0 } },
+            { field: 'BID',                     type: 'int',      required: true,  html: { page: 0, column: 0 } },
+            { field: 'BUD',                     type: 'list',     required: true,  html: { page: 0, column: 0 }, options: { items: app.businesses } },
+            { field: 'Name',                    type: 'text',     required: true,  html: { page: 0, column: 0 } },
+            { field: 'ARType',                  type: 'list',     required: true,  html: { page: 0, column: 0 }, options: { items: [], selected: {}, maxDropHeight: 200 } },
+            { field: 'DebitLID',                type: 'list',     required: true,  html: { page: 0, column: 0 }, options: { items: [], selected: {}, maxDropHeight: 200 } },
+            { field: 'CreditLID',               type: 'list',     required: true,  html: { page: 0, column: 0 }, options: { items: [], selected: {}, maxDropHeight: 200 } },
+            { field: 'Description',             type: 'text',     required: false, html: { page: 0, column: 0 } },
+            { field: 'DtStart',                 type: 'date',     required: true,  html: { page: 0, column: 0 } },
+            { field: 'DtStop',                  type: 'date',     required: true,  html: { page: 0, column: 0 } },
+            { field: 'PriorToRAStart',          type: 'checkbox', required: true,  html: { page: 0, column: 0 } },
+            { field: 'PriorToRAStop',           type: 'checkbox', required: true,  html: { page: 0, column: 0 } },
+            { field: 'ApplyRcvAccts',           type: 'checkbox', required: true,  html: { page: 0, column: 0 } },
+            { field: 'RAIDrqd',                 type: 'checkbox', required: true,  html: { page: 0, column: 0 } },
+            { field: 'DefaultAmount',           type: 'money',    required: true,  html: { page: 0, column: 0 } },
+            { field: 'DefaultRentCycle',        type: 'list',     required: true,  html: { page: 0, column: 0 }, options: {items: app.w2ui.listItems.cycleFreq, selected: {}} },
+            { field: 'DefaultProrationCycle',   type: 'list',     required: true,  html: { page: 0, column: 0 }, options: {items: app.w2ui.listItems.cycleFreq, selected: {}} },
+            { field: 'AutoPopulateToNewRA',     type: 'checkbox', required: true,  html: { page: 0, column: 0 } },
+            { field: 'IsRentASM',               type: 'checkbox', required: true,  html: { page: 0, column: 0 } },
+            { field: 'IsSecDepASM',             type: 'checkbox', required: true,  html: { page: 0, column: 0 } },
+            { field: 'IsNonRecurCharge',        type: 'checkbox', required: true,  html: { page: 0, column: 0 } },
+            { field: 'PETIDReq',                type: 'checkbox', required: true,  html: { page: 0, column: 0 } },
+            { field: 'VIDReq',                  type: 'checkbox', required: true,  html: { page: 0, column: 0 } },
+            { field: "LastModTime",             type: 'time',     required: false, html: { page: 0, column: 0, caption: "LastModTime" } },
+            { field: "LastModBy",               type: 'int',      required: false, html: { page: 0, column: 0, caption: "LastModBy" } },
+            { field: "CreateTS",                type: 'time',     required: false, html: { page: 0, column: 0, caption: "CreateTS" } },
+            { field: "CreateBy",                type: 'int',      required: false, html: { page: 0, column: 0, caption: "CreateBy" } }
         ],
         toolbar: {
             items: [
@@ -395,9 +399,24 @@ $().w2grid({
             data.postData.record.VIDReq = int_to_bool(data.postData.record.VIDReq);
         },
         onRefresh: function(event) {
+            var f = this;
             event.onComplete = function() {
-                var f = this,
-                    header = "Edit Account Rule ({0})";
+                var header          = "Edit Account Rule ({0})",
+                    rentCycleSel    = {},
+                    prorationSel    = {};
+
+                app.w2ui.listItems.cycleFreq.map(function(item) {
+                    if (item.id === f.record.DefaultRentCycle) {
+                        rentCycleSel = item;
+                    }
+                    if (item.id === f.record.DefaultProrationCycle) {
+                        prorationSel = item;
+                    }
+                });
+
+                f.get("DefaultRentCycle").options.selected = rentCycleSel;
+                f.get("DefaultProrationCycle").options.selected = prorationSel;
+
                 formRefreshCallBack(f, "ARID", header);
                 var b = ("Receipt" === f.record.ARType.text && f.record.ApplyRcvAccts);
                 $(f.box).find("input[name=RAIDrqd]").prop( "disabled", !b);
@@ -407,6 +426,20 @@ $().w2grid({
             event.onComplete = function() {
                 var f = this;
                 switch (event.target) {
+                    case "IsNonRecurCharge":
+                        var cycleDisable = false;
+                        if (event.value_new) {
+                            f.record.DefaultRentCycle = 0;
+                            f.record.DefaultProrationCycle = 0;
+                            f.refresh();
+                            cycleDisable = true;
+                        }
+
+                        // ENABLE/DISABLE RENT/PRORATION CYCLE
+                        $(f.box).find("input[name=RAIDrqd]").prop("disabled", cycleDisable);
+                        $(f.box).find("input[name=RAIDrqd]").prop("disabled", cycleDisable);
+
+                        break;
                     case "IsRentASM":
                         if (event.value_new) {
                             f.record.IsSecDepASM = false;
@@ -443,7 +476,7 @@ $().w2grid({
                 }
 
                 var b = ("Receipt" === f.record.ARType.text && f.record.ApplyRcvAccts);
-                $(f.box).find("input[name=RAIDrqd]").prop( "disabled", !b);
+                $(f.box).find("input[name=RAIDrqd]").prop("disabled", !b);
             };
         }
     });

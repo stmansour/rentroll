@@ -46,7 +46,7 @@ func UpdateAR(ctx context.Context, a *AR) error {
 		a.LastModBy = sess.UID
 	}
 
-	fields := []interface{}{a.BID, a.Name, a.ARType, a.DebitLID, a.CreditLID, a.Description, a.RARequired, a.DtStart, a.DtStop, a.FLAGS, a.DefaultAmount, a.LastModBy, a.ARID}
+	fields := []interface{}{a.BID, a.Name, a.ARType, a.DebitLID, a.CreditLID, a.Description, a.RARequired, a.DtStart, a.DtStop, a.FLAGS, a.DefaultAmount, a.DefaultRentCycle, a.DefaultProrationCycle, a.LastModBy, a.ARID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateAR)
 		defer stmt.Close()
