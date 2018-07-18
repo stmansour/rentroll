@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"rentroll/bizlogic"
 	"rentroll/rlib"
+	"time"
 )
 
 // WriteHandlerContext contains context information for RA Write Handlers
@@ -69,7 +70,8 @@ func Flow2RA(ctx context.Context, flowid int64) (int64, error) {
 		//------------------------------
 		changes := true
 		if changes {
-			return FlowSaveRA(ctx, &x)
+			nraid, err = FlowSaveRA(ctx, &x)
+			return nraid, err
 		}
 
 		//----------------------------------------------------
@@ -129,6 +131,47 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 	}
 
 	return nraid, nil
+}
+
+// FlowSaveRentables adds/updates rentables from the flow data.  This means
+// that we update or add the RentalAgreementRentables list.  Update means
+// that we set the stop date for the existing RentalAgreementRentables RAID.
+// Then we add the Rentables in x.raf.Rentables[] into a
+// RentalAgreementRentables for the new RAID
+//
+// INPUTS
+//     ctx - db context for transactions
+//     x - all the contextual info we need for performing this operation
+//         Note: this routine adds ra and raOrig to x
+//
+// RETURNS
+//     RAID of newly created Rental Agreement
+//     Any errors encountered
+//-----------------------------------------------------------------------------
+func FlowSaveRentables(ctx context.Context, x *WriteHandlerContext) error {
+	rlib.Console("Entered FlowSaveRentables\n")
+	//----------------------------------------------------------------
+	// Update the stop date on any existing RentalAgreementRentables
+	//----------------------------------------------------------------
+	if x.raf.Meta.RAID > 0 {
+		rarl, err := rlib.GetAllRentalAgreementRentables(ctx, x.raf.Meta.RAID)
+		if err != nil {
+			return err
+		}
+		for _, v := range rarl {
+			v.RARDtStop = time.Time(x.raf.Dates.AgreementStart)
+			if err = rlib.UpdateRentalAgreementRentable(ctx, &v); err != nil {
+				return err
+			}
+		}
+	}
+
+	// spin through the rentables found in x.raf.Rentables.  Add any new
+	// rentables, and delete any rentables that were in the old
+	for k, v := range x.raf.Rentables {
+	}
+
+	return nil
 }
 
 // F2RAUpdatePets updates all pets. If the pet already exists then
