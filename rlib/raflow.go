@@ -1180,15 +1180,15 @@ func addFlowPersonVehicles(ctx context.Context, tcid, tmptcid int64, raf *RAFlow
 // INPUTS
 //             ctx  = db transaction context
 //             BID  = Business ID
-//  possesionStart  = possession start date
-//   possesionStop  = possession stop date
+//          pStart  = possession start date
+//           pStop  = possession stop date
 //            meta  = RAFlowMetaInfo data
 //
 // RETURNS
 //     RAPetsFlowData structure
 //     any error encountered
 //-----------------------------------------------------------------------------
-func NewRAFlowPet(ctx context.Context, BID int64, possesionStart, possesionStop JSONDate, meta *RAFlowMetaInfo) (pet RAPetsFlowData, err error) {
+func NewRAFlowPet(ctx context.Context, BID int64, pStart, pStop JSONDate, meta *RAFlowMetaInfo) (pet RAPetsFlowData, err error) {
 	const funcname = "NewRAFlowPet"
 	fmt.Printf("Entered in %s\n", funcname)
 
@@ -1197,8 +1197,8 @@ func NewRAFlowPet(ctx context.Context, BID int64, possesionStart, possesionStop 
 	meta.LastTMPPETID++
 	pet = RAPetsFlowData{
 		TMPPETID: meta.LastTMPPETID,
-		DtStart:  possesionStart,
-		DtStop:   possesionStop,
+		DtStart:  pStart,
+		DtStop:   pStop,
 		Fees:     []RAFeesData{},
 	}
 
@@ -1232,15 +1232,15 @@ func NewRAFlowPet(ctx context.Context, BID int64, possesionStart, possesionStop 
 // INPUTS
 //             ctx  = db transaction context
 //             BID  = Business ID
-//  possesionStart  = possession start date
-//   possesionStop  = possession stop date
+//          pStart  = possession start date
+//           pStop  = possession stop date
 //            meta  = RAFlowMetaInfo data
 //
 // RETURNS
 //     RAVehiclesFlowData structure
 //     any error encountered
 //-----------------------------------------------------------------------------
-func NewRAFlowVehicle(ctx context.Context, BID int64, possesionStart, possesionStop JSONDate, meta *RAFlowMetaInfo) (vehicle RAVehiclesFlowData, err error) {
+func NewRAFlowVehicle(ctx context.Context, BID int64, pStart, pStop JSONDate, meta *RAFlowMetaInfo) (vehicle RAVehiclesFlowData, err error) {
 	const funcname = "NewRAFlowVehicle"
 	fmt.Printf("Entered in %s\n", funcname)
 
@@ -1249,8 +1249,8 @@ func NewRAFlowVehicle(ctx context.Context, BID int64, possesionStart, possesionS
 	meta.LastTMPVID++
 	vehicle = RAVehiclesFlowData{
 		TMPVID:  meta.LastTMPVID,
-		DtStart: possesionStart,
-		DtStop:  possesionStop,
+		DtStart: pStart,
+		DtStop:  pStop,
 		Fees:    []RAFeesData{},
 	}
 
