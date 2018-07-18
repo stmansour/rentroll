@@ -123,13 +123,13 @@ type RAPeopleFlowData struct {
 	CompanyName    string `validate:"string,min=1,max=100"`
 	PrimaryEmail   string `validate:"email"`
 	SecondaryEmail string `validate:"email,omitempty"`
-	WorkPhone      string `validate:"number,min=1,max=100,omitempty"` // TODO(Akshay): Either Workphone or CellPhone is compulsory. It'll be checked in bizlogic validation
-	CellPhone      string `validate:"number,min=1,max=100,omitempty"` // TODO(Akshay): Either Workphone or CellPhone is compulsory. It'll be checked in bizlogic validation
+	WorkPhone      string `validate:"string,min=1,max=100,omitempty"` // TODO(Akshay): Either Workphone or CellPhone is compulsory. It'll be checked in bizlogic validation
+	CellPhone      string `validate:"string,min=1,max=100,omitempty"` // TODO(Akshay): Either Workphone or CellPhone is compulsory. It'll be checked in bizlogic validation
 	Address        string `validate:"string,min=1,max=100"`
 	Address2       string `validate:"string,min=0,max=100,omitempty"`
 	City           string `validate:"string,min=1,max=100"`
 	State          string `validate:"string,min=1,max=25"`
-	PostalCode     string `validate:"number,min=1,max=100"`
+	PostalCode     string `validate:"string,min=1,max=100"`
 	Country        string `validate:"string,min=1,max=100"`
 	Website        string `validate:"string,min=1,max=100,omitempty"`
 	Comment        string `validate:"string,min=1,max=2048,omitempty"`
@@ -138,22 +138,22 @@ type RAPeopleFlowData struct {
 	CompanyAddress    string `validate:"string,min=1,max=100,omitempty"`
 	CompanyCity       string `validate:"string,min=1,max=100,omitempty"`
 	CompanyState      string `validate:"string,min=1,max=100,omitempty"`
-	CompanyPostalCode string `validate:"number,min=1,max=100,omitempty"`
+	CompanyPostalCode string `validate:"string,min=1,max=100,omitempty"`
 	CompanyEmail      string `validate:"email,omitempty"`
-	CompanyPhone      string `validate:"number,min=1,max=100,omitempty"`
+	CompanyPhone      string `validate:"string,min=1,max=100,omitempty"`
 	Occupation        string `validate:"string,min=1,max=100"`
 
 	// Current Address information
 	CurrentAddress           string `validate:"string,min=1,max=100"`
 	CurrentLandLordName      string `validate:"string,min=1,max=100"`
-	CurrentLandLordPhoneNo   string `validate:"number,min=1"`
+	CurrentLandLordPhoneNo   string `validate:"string,min=1,max=100"`
 	CurrentLengthOfResidency string `validate:"string,min=1,max=100"`
 	CurrentReasonForMoving   int64  `validate:"number,min=1"` // Reason for moving
 
 	// Prior Address information
 	PriorAddress           string `validate:"string,min=1,max=100"`
 	PriorLandLordName      string `validate:"string,min=1,max=100"`
-	PriorLandLordPhoneNo   string `validate:"number,min=1"`
+	PriorLandLordPhoneNo   string `validate:"string,min=1,max=100"`
 	PriorLengthOfResidency string `validate:"string,min=1,max=100"`
 	PriorReasonForMoving   int64  `validate:"number,min=1"` // Reason for moving
 
@@ -168,7 +168,7 @@ type RAPeopleFlowData struct {
 	//FollowUpDate             JSONDate
 	//CommissionableThirdParty string
 	SpecialNeeds string `validate:"string,min=1,max=1024,omitempty"` // In an effort to accommodate you, please advise us of any special needs
-	// TODO(Akshay):It'll be none. If there is no special needs
+	// It'll be none. If there is no special needs
 
 	// ---------- Payor -----------
 	CreditLimit         float64 `validate:"number:float,min=0.10,omitempty"`
@@ -185,7 +185,7 @@ type RAPeopleFlowData struct {
 	// Emergency contact information
 	EmergencyContactName      string `validate:"string,min=1,max=100"`
 	EmergencyContactAddress   string `validate:"string,min=1,max=100"`
-	EmergencyContactTelephone string `validate:"number,min=1,max=100"`
+	EmergencyContactTelephone string `validate:"string,min=1,max=100"`
 	EmergencyContactEmail     string `validate:"email"`
 	AlternateAddress          string `validate:"string,min=1,max=100,omitempty"`
 	EligibleFutureUser        bool   `validate:"number,min=1"`
