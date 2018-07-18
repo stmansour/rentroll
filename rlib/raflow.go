@@ -379,7 +379,13 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 					meta.LastTMPTCID++
 					a[i].TMPTCID = meta.LastTMPTCID
 				}
+
+				// if Special needs are none, then it should indicate none
+				if a[i].SpecialNeeds == "" {
+					a[i].SpecialNeeds = "None"
+				}
 			}
+
 		}
 
 		// MODIFIED PART DATA
