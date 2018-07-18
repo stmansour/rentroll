@@ -416,8 +416,13 @@ $().w2grid({
 
                 f.get("DefaultRentCycle").options.selected = rentCycleSel;
                 f.get("DefaultProrationCycle").options.selected = prorationSel;
+                // ENABLE/DISABLE RENT/PRORATION CYCLE
+                f.get("DefaultRentCycle").disabled = f.record.IsNonRecurCharge;
+                f.get("DefaultProrationCycle").disabled = f.record.IsNonRecurCharge;
 
                 formRefreshCallBack(f, "ARID", header);
+
+                // HANDLE FORM INPUTS
                 var b = ("Receipt" === f.record.ARType.text && f.record.ApplyRcvAccts);
                 $(f.box).find("input[name=RAIDrqd]").prop( "disabled", !b);
             };
@@ -427,42 +432,36 @@ $().w2grid({
                 var f = this;
                 switch (event.target) {
                     case "IsNonRecurCharge":
-                        var cycleDisable = false;
                         if (event.value_new) {
                             f.record.DefaultRentCycle = 0;
                             f.record.DefaultProrationCycle = 0;
-                            f.refresh();
-                            cycleDisable = true;
                         }
-
-                        // ENABLE/DISABLE RENT/PRORATION CYCLE
-                        $(f.box).find("input[name=RAIDrqd]").prop("disabled", cycleDisable);
-                        $(f.box).find("input[name=RAIDrqd]").prop("disabled", cycleDisable);
-
+                        f.refresh();
+                        f.refresh();
                         break;
                     case "IsRentASM":
                         if (event.value_new) {
                             f.record.IsSecDepASM = false;
-                            f.refresh();
                         }
+                        f.refresh();
                         break;
                     case "IsSecDepASM":
                         if (event.value_new) {
                             f.record.IsRentASM = false;
-                            f.refresh();
                         }
+                        f.refresh();
                         break;
                     case "PETIDReq":
                         if (event.value_new) { // then it should be rent assessment
                             f.record.IsRentASM = true;
-                            f.refresh();
                         }
+                        f.refresh();
                         break;
                     case "VIDReq":
                         if (event.value_new) { // then it should be rent assessment
                             f.record.IsRentASM = true;
-                            f.refresh();
                         }
+                        f.refresh();
                         break;
                 }
 
