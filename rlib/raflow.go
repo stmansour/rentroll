@@ -159,11 +159,11 @@ type RAPeopleFlowData struct {
 
 	// Have you ever been
 	Evicted          bool   `validate:"-"` // Evicted
-	EvictedDes       string `validate:"string,min=1,max=2048"`
+	EvictedDes       string `validate:"string,min=1,max=2048,omitempty"`
 	Convicted        bool   `validate:"-"` // Arrested or convicted of a Convicted
-	ConvictedDes     string `validate:"string,min=1,max=2048"`
+	ConvictedDes     string `validate:"string,min=1,max=2048,omitempty"`
 	Bankruptcy       bool   `validate:"-"` // Declared Bankruptcy
-	BankruptcyDes    string `validate:"string,min=1,max=2048"`
+	BankruptcyDes    string `validate:"string,min=1,max=2048,omitempty"`
 	OtherPreferences string `validate:"string,min=1,max=1024"`
 	//FollowUpDate             JSONDate
 	//CommissionableThirdParty string
