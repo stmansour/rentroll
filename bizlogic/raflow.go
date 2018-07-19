@@ -523,6 +523,7 @@ func validateDatesBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Valid
 // 8. SourceSLSID must be greater than 0 when role is set to Renter, User
 // 9. When role is set to User/Occupant than EligibleFutureUser flag must be true.
 // 10.When it is brand new RA Application(RAID==0) it require "current" address related information
+// 11.TaxpayorID is only require when role is set to Renter or Guarantor
 // ----------------------------------------------------------------------
 func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse, RAID int64) {
 	const funcname = "validatePeopleBizLogic"
@@ -658,6 +659,14 @@ func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Vali
 		err = fmt.Errorf("should provide reason")
 		if p.CurrentReasonForMoving == 0 {
 			peopleFieldsError.Errors["CurrentReasonForMoving"] = append(peopleFieldsError.Errors["CurrentReasonForMoving"], err.Error())
+			peopleFieldsError.Total++
+		}
+
+		// ----------- Check rule no. 11  ----------------
+		// 11.TaxpayorID is only require when role is set to Renter or Guarantor
+		err = fmt.Errorf("no taxpayer ID available")
+		if (p.IsRenter || p.IsGuarantor) && p.TaxpayorID == "" {
+			peopleFieldsError.Errors["TaxpayorID"] = append(peopleFieldsError.Errors["TaxpayorID"], err.Error())
 			peopleFieldsError.Total++
 		}
 
