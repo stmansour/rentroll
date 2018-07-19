@@ -82,14 +82,23 @@ type RAFlowJSONData struct {
 
 // RAFlowMetaInfo holds meta info about a rental agreement flow data
 type RAFlowMetaInfo struct {
-	RAID         int64 // 0 = it's new, >0 = existing one
-	LastTMPPETID int64
-	LastTMPVID   int64
-	LastTMPTCID  int64
-	LastTMPASMID int64
-	HavePets     bool
-	HaveVehicles bool
-	RAFLAGS      int64
+	RAID                   int64 // 0 = it's new, >0 = existing one
+	LastTMPPETID           int64
+	LastTMPVID             int64
+	LastTMPTCID            int64
+	LastTMPASMID           int64
+	HavePets               bool
+	HaveVehicles           bool
+	RAFLAGS                int64
+	Approver1              int64
+	DecisionDate1          JSONDateTime
+	DeclineReason1         int64
+	Approver2              int64
+	DecisionDate2          JSONDateTime
+	DeclineReason2         int64
+	TerminatorUID          int64
+	TerminationDate        JSONDateTime
+	LeaseTerminationReason int64
 }
 
 // RADatesFlowData contains data in the dates part of RA flow
@@ -1187,15 +1196,15 @@ func addFlowPersonVehicles(ctx context.Context, tcid, tmptcid int64, raf *RAFlow
 // INPUTS
 //             ctx  = db transaction context
 //             BID  = Business ID
-//  possesionStart  = possession start date
-//   possesionStop  = possession stop date
+//          pStart  = possession start date
+//           pStop  = possession stop date
 //            meta  = RAFlowMetaInfo data
 //
 // RETURNS
 //     RAPetsFlowData structure
 //     any error encountered
 //-----------------------------------------------------------------------------
-func NewRAFlowPet(ctx context.Context, BID int64, possesionStart, possesionStop JSONDate, meta *RAFlowMetaInfo) (pet RAPetsFlowData, err error) {
+func NewRAFlowPet(ctx context.Context, BID int64, pStart, pStop JSONDate, meta *RAFlowMetaInfo) (pet RAPetsFlowData, err error) {
 	const funcname = "NewRAFlowPet"
 	fmt.Printf("Entered in %s\n", funcname)
 
@@ -1204,8 +1213,8 @@ func NewRAFlowPet(ctx context.Context, BID int64, possesionStart, possesionStop 
 	meta.LastTMPPETID++
 	pet = RAPetsFlowData{
 		TMPPETID: meta.LastTMPPETID,
-		DtStart:  possesionStart,
-		DtStop:   possesionStop,
+		DtStart:  pStart,
+		DtStop:   pStop,
 		Fees:     []RAFeesData{},
 	}
 
@@ -1239,15 +1248,15 @@ func NewRAFlowPet(ctx context.Context, BID int64, possesionStart, possesionStop 
 // INPUTS
 //             ctx  = db transaction context
 //             BID  = Business ID
-//  possesionStart  = possession start date
-//   possesionStop  = possession stop date
+//          pStart  = possession start date
+//           pStop  = possession stop date
 //            meta  = RAFlowMetaInfo data
 //
 // RETURNS
 //     RAVehiclesFlowData structure
 //     any error encountered
 //-----------------------------------------------------------------------------
-func NewRAFlowVehicle(ctx context.Context, BID int64, possesionStart, possesionStop JSONDate, meta *RAFlowMetaInfo) (vehicle RAVehiclesFlowData, err error) {
+func NewRAFlowVehicle(ctx context.Context, BID int64, pStart, pStop JSONDate, meta *RAFlowMetaInfo) (vehicle RAVehiclesFlowData, err error) {
 	const funcname = "NewRAFlowVehicle"
 	fmt.Printf("Entered in %s\n", funcname)
 
@@ -1256,8 +1265,8 @@ func NewRAFlowVehicle(ctx context.Context, BID int64, possesionStart, possesionS
 	meta.LastTMPVID++
 	vehicle = RAVehiclesFlowData{
 		TMPVID:  meta.LastTMPVID,
-		DtStart: possesionStart,
-		DtStop:  possesionStop,
+		DtStart: pStart,
+		DtStop:  pStop,
 		Fees:    []RAFeesData{},
 	}
 
