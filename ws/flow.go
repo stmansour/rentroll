@@ -6,13 +6,20 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"rentroll/bizlogic"
 	"rentroll/rlib"
 )
 
 // FlowResponse is the response of returning updated flow with status
 type FlowResponse struct {
-	Record rlib.Flow `json:"record"`
-	Status string    `json:"status"`
+	//Record rlib.Flow `json:"record"`
+	Record interface{} `json:"record"`
+	Status string      `json:"status"`
+}
+
+type RAFlowResponse struct {
+	Flow       rlib.Flow
+	BasicCheck bizlogic.ValidateRAFlowResponse
 }
 
 // SvcHandlerFlow handles operations on a whole flow which affects on its
@@ -75,7 +82,9 @@ func InitiateFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		f   struct {
 			FlowType string
 		}
-		g FlowResponse
+		g              FlowResponse
+		raFlowResponse RAFlowResponse
+		raFlowData     rlib.RAFlowJSONData
 	)
 
 	rlib.Console("Entered %s\n", funcname)
@@ -109,7 +118,20 @@ func InitiateFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	g.Record = flow
+	// get unmarshalled raflow data into struct
+	err = json.Unmarshal(flow.Data, &raFlowData)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// Perform basic validation on flow data
+	bizlogic.ValidateRAFlowBasic(r.Context(), &raFlowData, &raFlowResponse.BasicCheck)
+
+	// Set the response
+	raFlowResponse.Flow = flow
+
+	g.Record = raFlowResponse
 	g.Status = "success"
 	SvcWriteResponse(d.BID, &g, w)
 }
