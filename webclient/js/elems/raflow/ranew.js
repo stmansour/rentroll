@@ -7,7 +7,8 @@
     validateRAFlowComponents,
     getVehicleFees, getPetFees,
     renderRAStateInToolbar,
-    loadRAActionTemplate
+    loadRAActionTemplate,
+    getStringListData
 */
 
 "use strict";
@@ -275,6 +276,10 @@ window.buildRAApplicantElements = function() {
                             form_dirty_alert(yes_callBack, no_callBack);
                             break;
                         case 'stateAction':
+                            var BID = getCurrentBID();
+                            var BUD = getBUDfromBID(BID);
+                            getStringListData(BID, BUD);
+
                             w2ui.newraLayout.lock('main');
                             // set the newralayout's right panel content
                             loadRAActionTemplate();
