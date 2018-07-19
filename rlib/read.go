@@ -942,18 +942,10 @@ func ReadTransactantTypeDowns(rows *sql.Rows, a *TransactantTypeDown) error {
 
 // ReadPayor reads a full Payor structure from the database based on the supplied row object
 func ReadPayor(row *sql.Row, a *Payor) error {
-	var b1, d1 string
+	var d1 string
 	err := row.Scan(&a.TCID, &a.BID, &a.CreditLimit, &a.TaxpayorID, &a.ThirdPartySource, &a.EligibleFuturePayor,
-		&a.FLAGS, &b1, &d1, &a.GrossIncome, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+		&a.FLAGS, &d1, &a.GrossIncome, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	SkipSQLNoRowsError(&err)
-	if err != nil {
-		return err
-	}
-	b, err := hex.DecodeString(b1)
-	if err != nil {
-		return err
-	}
-	a.SSN, err = DecryptOrEmpty(b)
 	if err != nil {
 		return err
 	}
@@ -967,8 +959,19 @@ func ReadPayor(row *sql.Row, a *Payor) error {
 
 // ReadPayors reads a full Payor structure from the database based on the supplied rows object
 func ReadPayors(rows *sql.Rows, a *Payor) error {
-	return rows.Scan(&a.TCID, &a.BID, &a.CreditLimit, &a.TaxpayorID, &a.ThirdPartySource, &a.EligibleFuturePayor,
-		&a.FLAGS, &a.SSN, &a.DriversLicense, &a.GrossIncome, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	var d1 string
+	// &a.DriversLicense
+	err := rows.Scan(&a.TCID, &a.BID, &a.CreditLimit, &a.TaxpayorID, &a.ThirdPartySource, &a.EligibleFuturePayor,
+		&a.FLAGS, &d1, &a.GrossIncome, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	if err != nil {
+		return err
+	}
+	d, err := hex.DecodeString(d1)
+	a.DriversLicense, err = DecryptOrEmpty(d)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // ReadUser reads a full User structure from the database based on the supplied row object

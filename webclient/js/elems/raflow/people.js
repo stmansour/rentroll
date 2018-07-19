@@ -630,7 +630,6 @@ window.addDummyBackgroundInfo = function () {
     record.MiddleName = Math.random().toString(32).slice(2);
     record.LastName = Math.random().toString(32).slice(2);
     record.DateofBirth = "8/30/1990";
-    record.SSN = Math.random().toString(32).slice(4);
     record.DriversLicense = Math.random().toString(32).slice(2);
     record.CellPhone = Math.random().toString(32).slice(2);
     record.PrimaryEmail = Math.random().toString(32).slice(2) + "@yopmail.com";

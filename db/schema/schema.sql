@@ -992,7 +992,6 @@ CREATE TABLE Payor (
     EligibleFuturePayor TINYINT(1) NOT NULL DEFAULT 1,           -- yes/no
     FLAGS BIGINT NOT NULL DEFAULT 0,                             /*
                                                                   */
-    SSN CHAR(128) NOT NULL DEFAULT '',                           -- ssn - encrypted
     DriversLicense CHAR(128) NOT NULL DEFAULT '',                -- drivers license number - encrypted
     GrossIncome DECIMAL(19,4) NOT NULL DEFAULT 0.0,              -- gross wages
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
