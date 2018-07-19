@@ -535,10 +535,10 @@ window.getSLStringList = function(BID, SLName){
                     defaultItem = {id: 0, text: " -- Select Source SLSID -- "};
                     break;
                 case "WhyLeaving":
-                    defaultItem = {id: 0, text: " -- Select reason for leaving -- "};
+                    defaultItem = {id: 0, text: " -- Select a Reason -- "};
                     break;
                 case "ApplDeny":
-                    defaultItem = {id: 0, text: " -- Select DeclineReason -- "};
+                    defaultItem = {id: 0, text: " -- Select Decline Reason -- "};
                     break;
                 default:
                     console.log("SLName doesn't exists");
