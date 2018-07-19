@@ -91,7 +91,7 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 
 	// http method check
 	if r.Method != "POST" {
-		err = fmt.Errorf("Only POST method is allowed")
+		err = fmt.Errorf("only POST method is allowed")
 		return
 	}
 

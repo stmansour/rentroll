@@ -47,7 +47,6 @@ window.getTransactantInitRecord = function (BID, BUD) {
         CreditLimit: 0.00,
         TaxpayorID: "",
         GrossIncome: 0,
-        SSN: "",
         DriversLicense: "",
         ThirdPartySource: 0,
         EligibleFuturePayor: true,
@@ -147,7 +146,6 @@ window.buildTransactElements = function() {
         {field: 'CreditLimit',               type: 'money',     required: false, html: {page: 2, column: 0}},
         {field: 'TaxpayorID',                type: 'text',      required: false, html: {page: 2, column: 0}},
         {field: 'GrossIncome',               type: 'money',     required: false, html: {page: 2, column: 0}},
-        {field: 'SSN',                       type: 'text',      required: false, html: {page: 2, column: 0}},  // Social security number of applicants
         {field: 'DriversLicense',            type: 'text',      required: false, html: {page: 2, column: 0}},  // Driving licence number of applicants
         {field: 'ThirdPartySource',          type: 'text',      required: false, html: {page: 2, column: 0}},
         {field: 'EligibleFuturePayor',       type: 'checkbox',  required: false, html: {page: 2, column: 0}},

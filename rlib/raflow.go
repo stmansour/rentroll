@@ -132,16 +132,16 @@ type RAPeopleFlowData struct {
 	LastName       string `validate:"string,min=1,max=100"`
 	PreferredName  string `validate:"string,min=1,max=100"`
 	IsCompany      bool   `validate:"number,min=1,max=1"`
-	CompanyName    string `validate:"string,min=1,max=100"`
+	CompanyName    string `validate:"string,min=1,max=100,omitempty"` // It is required when IsCompany flag is true. It'll be checked in bizlogic validation.
 	PrimaryEmail   string `validate:"email"`
 	SecondaryEmail string `validate:"email,omitempty"`
-	WorkPhone      string `validate:"number,min=1,max=100,omitempty"` // TODO(Akshay): Either Workphone or CellPhone is compulsory. It'll be checked in bizlogic validation
-	CellPhone      string `validate:"number,min=1,max=100,omitempty"` // TODO(Akshay): Either Workphone or CellPhone is compulsory. It'll be checked in bizlogic validation
+	WorkPhone      string `validate:"string,min=1,max=100,omitempty"` // Either Workphone or CellPhone is compulsory. It'll be checked in bizlogic validation
+	CellPhone      string `validate:"string,min=1,max=100,omitempty"` // Either Workphone or CellPhone is compulsory. It'll be checked in bizlogic validation
 	Address        string `validate:"string,min=1,max=100"`
 	Address2       string `validate:"string,min=0,max=100,omitempty"`
 	City           string `validate:"string,min=1,max=100"`
 	State          string `validate:"string,min=1,max=25"`
-	PostalCode     string `validate:"number,min=1,max=100"`
+	PostalCode     string `validate:"string,min=1,max=100"`
 	Country        string `validate:"string,min=1,max=100"`
 	Website        string `validate:"string,min=1,max=100,omitempty"`
 	Comment        string `validate:"string,min=1,max=2048,omitempty"`
@@ -150,43 +150,42 @@ type RAPeopleFlowData struct {
 	CompanyAddress    string `validate:"string,min=1,max=100,omitempty"`
 	CompanyCity       string `validate:"string,min=1,max=100,omitempty"`
 	CompanyState      string `validate:"string,min=1,max=100,omitempty"`
-	CompanyPostalCode string `validate:"number,min=1,max=100,omitempty"`
+	CompanyPostalCode string `validate:"string,min=1,max=100,omitempty"`
 	CompanyEmail      string `validate:"email,omitempty"`
-	CompanyPhone      string `validate:"number,min=1,max=100,omitempty"`
+	CompanyPhone      string `validate:"string,min=1,max=100,omitempty"`
 	Occupation        string `validate:"string,min=1,max=100"`
 
 	// Current Address information
-	CurrentAddress           string `validate:"string,min=1,max=100"`
-	CurrentLandLordName      string `validate:"string,min=1,max=100"`
-	CurrentLandLordPhoneNo   string `validate:"number,min=1"`
-	CurrentLengthOfResidency string `validate:"string,min=1,max=100"`
-	CurrentReasonForMoving   int64  `validate:"number,min=1"` // Reason for moving
+	CurrentAddress           string `validate:"string,min=1,max=100,omitempty"`
+	CurrentLandLordName      string `validate:"string,min=1,max=100,omitempty"`
+	CurrentLandLordPhoneNo   string `validate:"string,min=1,max=100,omitempty"`
+	CurrentLengthOfResidency string `validate:"string,min=1,max=100,omitempty"`
+	CurrentReasonForMoving   int64  `validate:"number,min=1,omitempty"` // Reason for moving
 
 	// Prior Address information
-	PriorAddress           string `validate:"string,min=1,max=100"`
-	PriorLandLordName      string `validate:"string,min=1,max=100"`
-	PriorLandLordPhoneNo   string `validate:"number,min=1"`
-	PriorLengthOfResidency string `validate:"string,min=1,max=100"`
-	PriorReasonForMoving   int64  `validate:"number,min=1"` // Reason for moving
+	PriorAddress           string `validate:"string,min=1,max=100,omitempty"`
+	PriorLandLordName      string `validate:"string,min=1,max=100,omitempty"`
+	PriorLandLordPhoneNo   string `validate:"string,min=1,max=100,omitempty"`
+	PriorLengthOfResidency string `validate:"string,min=1,max=100,omitempty"`
+	PriorReasonForMoving   int64  `validate:"number,min=1,omitempty"` // Reason for moving
 
 	// Have you ever been
 	Evicted          bool   `validate:"-"` // Evicted
-	EvictedDes       string `validate:"string,min=1,max=2048"`
+	EvictedDes       string `validate:"string,min=1,max=2048,omitempty"`
 	Convicted        bool   `validate:"-"` // Arrested or convicted of a Convicted
-	ConvictedDes     string `validate:"string,min=1,max=2048"`
+	ConvictedDes     string `validate:"string,min=1,max=2048,omitempty"`
 	Bankruptcy       bool   `validate:"-"` // Declared Bankruptcy
-	BankruptcyDes    string `validate:"string,min=1,max=2048"`
+	BankruptcyDes    string `validate:"string,min=1,max=2048,omitempty"`
 	OtherPreferences string `validate:"string,min=1,max=1024"`
 	//FollowUpDate             JSONDate
 	//CommissionableThirdParty string
 	SpecialNeeds string `validate:"string,min=1,max=1024,omitempty"` // In an effort to accommodate you, please advise us of any special needs
-	// TODO(Akshay):It'll be none. If there is no special needs
+	// It'll be none. If there is no special needs
 
 	// ---------- Payor -----------
 	CreditLimit         float64 `validate:"number:float,min=0.10,omitempty"`
-	TaxpayorID          string  `validate:"string,min=1,max=25"`
+	TaxpayorID          string  `validate:"string,min=1,max=25,omitempty"`
 	GrossIncome         float64 `validate:"number:float,min=0.10,omitempty"` // When role is set to renter or guarantor than it is compulsory. It'll be check via bizlogic.
-	SSN                 string  `validate:"string,min=1,max=128"`
 	DriversLicense      string  `validate:"string,min=1,max=128"`
 	ThirdPartySource    int64   `validate:"number,min=1,omitempty"`
 	EligibleFuturePayor bool    `validate:"-"`
@@ -197,12 +196,12 @@ type RAPeopleFlowData struct {
 	// Emergency contact information
 	EmergencyContactName      string `validate:"string,min=1,max=100"`
 	EmergencyContactAddress   string `validate:"string,min=1,max=100"`
-	EmergencyContactTelephone string `validate:"number,min=1,max=100"`
+	EmergencyContactTelephone string `validate:"string,min=1,max=100"`
 	EmergencyContactEmail     string `validate:"email"`
 	AlternateAddress          string `validate:"string,min=1,max=100,omitempty"`
 	EligibleFutureUser        bool   `validate:"number,min=1"`
 	Industry                  string `validate:"string,min=1,max=100,omitempty"`
-	SourceSLSID               int64  `validate:"number,min=1"` // TODO(Akshay): It is compulsory when role is set to renter or user. It'll be check via bizlogic.
+	SourceSLSID               int64  `validate:"number,min=1"` // It is compulsory when role is set to renter or user. It'll be check via bizlogic.
 }
 
 // RAPetsFlowData contains data in the pets part of RA flow
@@ -391,7 +390,13 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 					meta.LastTMPTCID++
 					a[i].TMPTCID = meta.LastTMPTCID
 				}
+
+				// if Special needs are none, then it should indicate none
+				if a[i].SpecialNeeds == "" {
+					a[i].SpecialNeeds = "None"
+				}
 			}
+
 		}
 
 		// MODIFIED PART DATA
