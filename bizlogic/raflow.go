@@ -393,7 +393,7 @@ func ValidateRAFlowBasic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 }
 
 // ValidateRAFlowBizLogic is to check RAFlow's business logic
-func ValidateRAFlowBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) {
+func ValidateRAFlowBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse, RAID int64) {
 	const funcname = "ValidateRAFlowBizLogic"
 	fmt.Printf("Entered %s\n", funcname)
 
@@ -405,7 +405,7 @@ func ValidateRAFlowBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Vali
 	// -----------------------------------------------
 	// ------ Bizlogic check on people section -------
 	// -----------------------------------------------
-	validatePeopleBizLogic(ctx, a, g)
+	validatePeopleBizLogic(ctx, a, g, RAID)
 
 	// -----------------------------------------------
 	// ------- Bizlogic check on pet section ---------
@@ -516,8 +516,15 @@ func validateDatesBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Valid
 // 1. If isCompany flag is true then CompanyName is required
 // 2. If isCompany flag is false than FirstName and LastName are required
 // 3. If only one person exist in the list, then it should have isRenter role marked as true.
+// 4. If role is set to Renter or guarantor than it must have mentioned GrossIncome
+// 5. Either Workphone or CellPhone is compulsory
+// 6. EmergencyContactName, EmergencyContactAddress, EmergencyContactTelephone, EmergencyEmail are required when IsCompany flag is false.
+// 7. SourceSLSID must be greater than 0 when role is set to Renter, User
+// 8. When role is set to User/Occupant than EligibleFutureUser flag must be true.
+// 9.When it is brand new RA Application(RAID==0) it require "current" address related information
+// 10.TaxpayorID is only require when role is set to Renter or Guarantor
 // ----------------------------------------------------------------------
-func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) {
+func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse, RAID int64) {
 	const funcname = "validatePeopleBizLogic"
 	fmt.Printf("Entered %s\n", funcname)
 
@@ -533,7 +540,6 @@ func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Vali
 	// init peopleFieldsErrors
 	peopleFieldsErrors = make([]PeopleFieldsError, 0)
 
-	err = fmt.Errorf("should not be blank")
 	for _, p := range people {
 
 		// Init PeopleFieldsError
@@ -542,6 +548,8 @@ func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Vali
 			Total:   0,
 			Errors:  make(map[string][]string, 0),
 		}
+
+		err = fmt.Errorf("should not be blank")
 
 		// ----------- Check rule no. 1  ----------------
 		// If isCompany flag is true then CompanyName is required
@@ -559,6 +567,97 @@ func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Vali
 
 		if !p.IsCompany && len(p.LastName) == 0 {
 			peopleFieldsError.Errors["LastName"] = append(peopleFieldsError.Errors["LastName"], err.Error())
+			peopleFieldsError.Total++
+		}
+
+		// ----------- Check rule no. 4  ----------------
+		// If role is set to Renter or guarantor than it must have mentioned GrossIncome
+		err = fmt.Errorf("gross income should be greater than 0.00")
+		if (p.IsRenter || p.IsGuarantor) && !(p.GrossIncome > 0.00) {
+			peopleFieldsError.Errors["GrossIncome"] = append(peopleFieldsError.Errors["GrossIncome"], err.Error())
+			peopleFieldsError.Total++
+		}
+
+		// ----------- Check rule no. 5  ----------------
+		// Either Workphone or CellPhone is compulsory
+		err = fmt.Errorf("provide workphone or cellphone number")
+		if p.WorkPhone == "" && p.CellPhone == "" {
+			peopleFieldsError.Errors["WorkPhone"] = append(peopleFieldsError.Errors["WorkPhone"], err.Error())
+			peopleFieldsError.Total++
+		}
+
+		// ----------- Check rule no. 6  ----------------
+		// EmergencyContactName, EmergencyContactAddress, EmergencyContactTelephone, EmergencyEmail are required when IsCompany flag is false.
+		if !p.IsCompany && p.EmergencyContactName == "" {
+			peopleFieldsError.Errors["EmergencyContactName"] = append(peopleFieldsError.Errors["EmergencyContactName"], err.Error())
+			peopleFieldsError.Total++
+		}
+
+		if !p.IsCompany && p.EmergencyContactAddress == "" {
+			peopleFieldsError.Errors["EmergencyContactAddress"] = append(peopleFieldsError.Errors["EmergencyContactAddress"], err.Error())
+			peopleFieldsError.Total++
+		}
+
+		if !p.IsCompany && p.EmergencyContactTelephone == "" {
+			peopleFieldsError.Errors["EmergencyContactTelephone"] = append(peopleFieldsError.Errors["EmergencyContactTelephone"], err.Error())
+			peopleFieldsError.Total++
+		}
+
+		if !p.IsCompany && p.EmergencyContactEmail == "" {
+			peopleFieldsError.Errors["EmergencyContactEmail"] = append(peopleFieldsError.Errors["EmergencyContactEmail"], err.Error())
+			peopleFieldsError.Total++
+		}
+
+		// ----------- Check rule no. 7  ----------------
+		// SourceSLSID must be greater than 0 when role is set to Renter, User
+		err = fmt.Errorf("provide SourceSLSID")
+		if (p.IsRenter || p.IsOccupant) && !(p.SourceSLSID > 0) {
+			peopleFieldsError.Errors["SourceSLSID"] = append(peopleFieldsError.Errors["SourceSLSID"], err.Error())
+			peopleFieldsError.Total++
+		}
+
+		// ----------- Check rule no. 8  ----------------
+		// When role is set to User/Occupant than EligibleFutureUser flag must be true.
+		err = fmt.Errorf("should be true")
+		if (p.IsOccupant) && !(p.EligibleFutureUser) {
+			peopleFieldsError.Errors["EligibleFutureUser"] = append(peopleFieldsError.Errors["EligibleFutureUser"], err.Error())
+			peopleFieldsError.Total++
+		}
+
+		// ----------- Check rule no. 9  ----------------
+		// When it is brand new RA Application(RAID==0) it require "current" address related information
+		err = fmt.Errorf("should not be blank")
+		if p.CurrentAddress == "" && RAID == 0 {
+			peopleFieldsError.Errors["CurrentAddress"] = append(peopleFieldsError.Errors["CurrentAddress"], err.Error())
+			peopleFieldsError.Total++
+		}
+
+		if p.CurrentLandLordName == "" && RAID == 0 {
+			peopleFieldsError.Errors["CurrentLandLordName"] = append(peopleFieldsError.Errors["CurrentLandLordName"], err.Error())
+			peopleFieldsError.Total++
+		}
+
+		if p.CurrentLandLordPhoneNo == "" && RAID == 0 {
+			peopleFieldsError.Errors["CurrentLandLordPhoneNo"] = append(peopleFieldsError.Errors["CurrentLandLordPhoneNo"], err.Error())
+			peopleFieldsError.Total++
+		}
+
+		if p.CurrentLengthOfResidency == "" && RAID == 0 {
+			peopleFieldsError.Errors["CurrentLengthOfResidency"] = append(peopleFieldsError.Errors["CurrentLengthOfResidency"], err.Error())
+			peopleFieldsError.Total++
+		}
+
+		err = fmt.Errorf("should provide reason")
+		if p.CurrentReasonForMoving == 0 && RAID == 0 {
+			peopleFieldsError.Errors["CurrentReasonForMoving"] = append(peopleFieldsError.Errors["CurrentReasonForMoving"], err.Error())
+			peopleFieldsError.Total++
+		}
+
+		// ----------- Check rule no. 10  ----------------
+		// 11.TaxpayorID is only require when role is set to Renter or Guarantor
+		err = fmt.Errorf("no taxpayer ID available")
+		if (p.IsRenter || p.IsGuarantor) && p.TaxpayorID == "" {
+			peopleFieldsError.Errors["TaxpayorID"] = append(peopleFieldsError.Errors["TaxpayorID"], err.Error())
 			peopleFieldsError.Total++
 		}
 
