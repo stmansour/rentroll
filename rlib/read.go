@@ -960,7 +960,6 @@ func ReadPayor(row *sql.Row, a *Payor) error {
 // ReadPayors reads a full Payor structure from the database based on the supplied rows object
 func ReadPayors(rows *sql.Rows, a *Payor) error {
 	var d1 string
-	// &a.DriversLicense
 	err := rows.Scan(&a.TCID, &a.BID, &a.CreditLimit, &a.TaxpayorID, &a.ThirdPartySource, &a.EligibleFuturePayor,
 		&a.FLAGS, &d1, &a.GrossIncome, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	if err != nil {
