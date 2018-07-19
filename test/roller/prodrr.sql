@@ -1,8 +1,8 @@
 -- MySQL dump 10.13  Distrib 5.7.22, for Linux (x86_64)
 --
--- Host: localhost    Database: rentroll
+-- Host: 127.0.0.1    Database: rentroll
 -- ------------------------------------------------------
--- Server version	5.7.22-0ubuntu18.04.1-log
+-- Server version	5.7.22
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -1278,7 +1278,6 @@ CREATE TABLE `Payor` (
   `ThirdPartySource` bigint(20) NOT NULL DEFAULT '0',
   `EligibleFuturePayor` tinyint(1) NOT NULL DEFAULT '1',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
-  `SSN` char(128) NOT NULL DEFAULT '',
   `DriversLicense` char(128) NOT NULL DEFAULT '',
   `GrossIncome` decimal(19,4) NOT NULL DEFAULT '0.0000',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -1295,7 +1294,7 @@ CREATE TABLE `Payor` (
 
 LOCK TABLES `Payor` WRITE;
 /*!40000 ALTER TABLE `Payor` DISABLE KEYS */;
-INSERT INTO `Payor` VALUES (1,1,'',0.0000,0,1,0,'','',0.0000,'2017-11-30 18:15:20',0,'2017-11-30 18:15:20',0),(2,1,'',0.0000,0,1,0,'','',0.0000,'2017-11-30 18:15:28',0,'2017-11-30 18:15:28',0),(3,1,'',0.0000,0,1,0,'','',0.0000,'2017-11-30 18:16:10',0,'2017-11-30 18:16:10',0),(4,1,'',0.0000,0,1,0,'','',0.0000,'2017-11-30 18:16:17',0,'2017-11-30 18:16:17',0),(5,1,'',0.0000,0,1,0,'','',0.0000,'2017-11-30 18:16:28',0,'2017-11-30 18:16:28',0),(6,1,'',0.0000,0,1,0,'','',0.0000,'2017-11-30 18:24:52',0,'2017-11-30 18:24:52',0);
+INSERT INTO `Payor` VALUES (1,1,'',0.0000,0,1,0,'',0.0000,'2017-11-30 18:15:20',0,'2017-11-30 18:15:20',0),(2,1,'',0.0000,0,1,0,'',0.0000,'2017-11-30 18:15:28',0,'2017-11-30 18:15:28',0),(3,1,'',0.0000,0,1,0,'',0.0000,'2017-11-30 18:16:10',0,'2017-11-30 18:16:10',0),(4,1,'',0.0000,0,1,0,'',0.0000,'2017-11-30 18:16:17',0,'2017-11-30 18:16:17',0),(5,1,'',0.0000,0,1,0,'',0.0000,'2017-11-30 18:16:28',0,'2017-11-30 18:16:28',0),(6,1,'',0.0000,0,1,0,'',0.0000,'2017-11-30 18:24:52',0,'2017-11-30 18:24:52',0);
 /*!40000 ALTER TABLE `Payor` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2583,4 +2582,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-07-18 18:18:18
+-- Dump completed on 2018-07-19 14:30:36

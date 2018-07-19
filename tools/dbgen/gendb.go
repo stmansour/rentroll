@@ -261,7 +261,6 @@ func createTransactants(ctx context.Context, dbConf *GenDBConf) error {
 			TaxpayorID:          fmt.Sprintf("%08d", IG.Rand.Intn(10000000)),
 			ThirdPartySource:    int64(IG.Rand.Intn(250)),
 			EligibleFuturePayor: true,
-			SSN:                 GenerateRandomSSN(),
 			DriversLicense:      GenerateRandomDriversLicense(),
 			GrossIncome:         float64(10000 + IG.Rand.Intn(140000)),
 		}

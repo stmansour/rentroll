@@ -58,7 +58,6 @@ type RPersonForm struct {
 	CreditLimit         float64
 	TaxpayorID          string
 	GrossIncome         float64
-	SSN                 string
 	DriversLicense      string
 	ThirdPartySource    int64
 	EligibleFuturePayor bool
