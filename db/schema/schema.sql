@@ -1128,6 +1128,8 @@ CREATE TABLE AR (
                                                             -- 1<<7 = PETID required
                                                             -- 1<<8 = VID required
     DefaultAmount DECIMAL(19,4) NOT NULL DEFAULT 0.0,       -- amount to initialize interface with
+    DefaultRentCycle SMALLINT NOT NULL DEFAULT 0,           -- default for this account rule
+    DefaultProrationCycle SMALLINT NOT NULL DEFAULT 0,      -- default for this account rule
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,  -- when was this record created

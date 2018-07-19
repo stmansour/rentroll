@@ -159,3 +159,73 @@ func GetEpochsFromGeneralBizProps(ctx context.Context, BID int64) (epochs BizPro
 
 	return
 }
+
+// GetEpochForCycleInDateRange returns the epoch date based on cycle,
+// start date, end date, and pre-configured base date
+//
+// The required unit(s) should be extracted from pre-configured base date
+// to calculate proper Epoch date based on cycle, start/end dates
+// For ex.,
+//     1. If cycle is SECONDLY then the unit(s) to consider from pre-configured
+//        base date are Second, NenoSecond
+//     2. If cycle if MONTHLY then unit(s) to consider from pre-configured base date
+//        are Month, Day, Hour, Minute, Second, NenoSecond
+//
+// It always keeps time location from start date(d1)
+//
+// INPUTS
+//               b  = preconfigured base date
+//              d1  = start date
+//              d2  = stop date
+//           cycle  = integer presentable number
+//
+// RETURNS
+//     epoch - proper epoch for given date range
+//     any error encountered
+//-----------------------------------------------------------------------------
+func GetEpochForCycleInDateRange(b, d1, d2 time.Time, cycle int64) (epoch time.Time, err error) {
+	if d2.Before(d1) {
+		err = fmt.Errorf("end date: %q should not be prior to Start date: %q", d2, d1)
+		return
+	}
+
+	// TODO(Sudip): What if base date and d1 falls at same unit value
+
+	// KEEP ASSIGN START DATE TIME LOCATION IN "EPOCH"
+	loc := d1.Location()
+
+	// DECIDE BASED ON CYCLE
+	switch cycle {
+	case RECURNONE:
+		epoch = d1
+	case RECURSECONDLY:
+		epoch = time.Date(d1.Year(), d1.Month(), d1.Day(), d1.Hour(), d1.Minute(), b.Second(), b.Nanosecond(), loc)
+	case RECURMINUTELY:
+		epoch = time.Date(d1.Year(), d1.Month(), d1.Day(), d1.Hour(), b.Minute(), b.Second(), b.Nanosecond(), loc)
+	case RECURHOURLY:
+		epoch = time.Date(d1.Year(), d1.Month(), d1.Day(), b.Hour(), b.Minute(), b.Second(), b.Nanosecond(), loc)
+	case RECURDAILY:
+		epoch = time.Date(d1.Year(), d1.Month(), b.Day(), b.Hour(), b.Minute(), b.Second(), b.Nanosecond(), loc)
+	case RECURWEEKLY:
+		epoch = time.Date(d1.Year(), d1.Month(), b.Day(), b.Hour(), b.Minute(), b.Second(), b.Nanosecond(), loc)
+		epoch = epoch.AddDate(0, 0, 7) // ADD MORE 7 DAYS
+	case RECURMONTHLY:
+		epoch = time.Date(d1.Year(), b.Month(), b.Day(), b.Hour(), b.Minute(), b.Second(), b.Nanosecond(), loc)
+	case RECURQUARTERLY:
+		epoch = time.Date(d1.Year(), b.Month(), b.Day(), b.Hour(), b.Minute(), b.Second(), b.Nanosecond(), loc)
+		epoch = epoch.AddDate(0, 3, 0) // ADD MORE 3 MONTHS
+	case RECURYEARLY:
+		epoch = time.Date(b.Year(), b.Month(), b.Day(), b.Hour(), b.Minute(), b.Second(), b.Nanosecond(), loc)
+	default:
+		err = fmt.Errorf("cycle:%d, is out of range", cycle)
+		return
+	}
+
+	// IF "EPOCH" FALLS AFTER END DATE
+	if epoch.After(d2) {
+		err = fmt.Errorf("epoch:%q falls after end date: %q", epoch, d2)
+		return
+	}
+
+	return
+}

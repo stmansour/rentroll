@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"rentroll/bizlogic"
 	"rentroll/rlib"
+	"time"
 )
 
 // WriteHandlerContext contains context information for RA Write Handlers
@@ -69,7 +70,8 @@ func Flow2RA(ctx context.Context, flowid int64) (int64, error) {
 		//------------------------------
 		changes := true
 		if changes {
-			return FlowSaveRA(ctx, &x)
+			nraid, err = FlowSaveRA(ctx, &x)
+			return nraid, err
 		}
 
 		//----------------------------------------------------
@@ -105,12 +107,59 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 	}
 
 	if x.raf.Meta.RAID > 0 {
+		//------------------------------------------------------------
+		// Get the rental agreement that will be superceded by the
+		// one we're creating here. Update its stop dates accordingly
+		//------------------------------------------------------------
 		x.raOrig, err = rlib.GetRentalAgreement(ctx, x.raf.Meta.RAID)
 		if err != nil {
 			return nraid, err
 		}
-		x.ra = x.raOrig // initialize to the same as the original
-		nraid = x.raf.Meta.RAID
+		chgs := 0
+		AStart := time.Time(x.raf.Dates.AgreementStart)
+		RStart := time.Time(x.raOrig.RentStart)
+		PStart := time.Time(x.raOrig.PossessionStart)
+		if x.raOrig.AgreementStop.After(AStart) {
+			x.raOrig.AgreementStop = AStart
+			chgs++
+		}
+		if x.raOrig.RentStop.After(RStart) {
+			x.raOrig.RentStop = RStart
+			chgs++
+		}
+		if x.raOrig.PossessionStop.After(PStart) {
+			x.raOrig.PossessionStop = PStart
+			chgs++
+		}
+		if chgs > 0 {
+			err = rlib.UpdateRentalAgreement(ctx, &x.raOrig)
+			if err != nil {
+				return nraid, err
+			}
+		}
+
+		//------------------------------------------------------------
+		// Now start the new RAID.  Link it to x.raOrig
+		//------------------------------------------------------------
+		x.ra.AgreementStart = time.Time(x.raf.Dates.AgreementStart)
+		x.ra.AgreementStop = time.Time(x.raf.Dates.AgreementStop)
+		x.ra.RentStart = time.Time(x.raf.Dates.RentStart)
+		x.ra.RentStop = time.Time(x.raf.Dates.RentStop)
+		x.ra.PossessionStart = time.Time(x.raf.Dates.PossessionStart)
+		x.ra.PossessionStop = time.Time(x.raf.Dates.PossessionStop)
+		x.ra.PRAID = x.raOrig.RAID
+		x.ra.ORIGIN = x.raOrig.ORIGIN
+		if x.raOrig.ORIGIN == 0 {
+			x.ra.ORIGIN = x.raOrig.RAID
+		}
+		x.ra.RATID = x.raOrig.RATID
+		// x.ra.RentCycleEpoch = // bizprop epoch default
+
+		nraid, err = rlib.InsertRentalAgreement(ctx, &x.ra)
+		if err != nil {
+			return nraid, err
+		}
+
 		//---------------------------------------------------------------
 		// Now spin through the series of handlers that move the data
 		// into the permanent tables...
@@ -119,7 +168,7 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 		for i := 0; i < len(ehandlers); i++ {
 			rlib.Console("FlowSaveRA: running handler %s\n", ehandlers[i].Name)
 			if err = ehandlers[i].Handler(ctx, x); err != nil {
-				return x.ra.RAID, err
+				return nraid, err
 			}
 		}
 	} else {
@@ -129,6 +178,62 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 	}
 
 	return nraid, nil
+}
+
+// FlowSaveRentables adds/updates rentables from the flow data.  This means
+// that we update or add the RentalAgreementRentables list.  Update means
+// that we set the stop date for the existing RentalAgreementRentables RAID.
+// Then we add the Rentables in x.raf.Rentables[] into a
+// RentalAgreementRentables for the new RAID
+//
+// INPUTS
+//     ctx - db context for transactions
+//     x - all the contextual info we need for performing this operation
+//         Note: this routine adds ra and raOrig to x
+//
+// RETURNS
+//     RAID of newly created Rental Agreement
+//     Any errors encountered
+//-----------------------------------------------------------------------------
+func FlowSaveRentables(ctx context.Context, x *WriteHandlerContext) error {
+	rlib.Console("Entered FlowSaveRentables\n")
+	//----------------------------------------------------------------
+	// Update the stop date on any existing RentalAgreementRentables
+	//----------------------------------------------------------------
+	if x.raf.Meta.RAID > 0 {
+		rarl, err := rlib.GetAllRentalAgreementRentables(ctx, x.raf.Meta.RAID)
+		if err != nil {
+			return err
+		}
+		for _, v := range rarl {
+			v.RARDtStop = time.Time(x.raf.Dates.AgreementStart)
+			if err = rlib.UpdateRentalAgreementRentable(ctx, &v); err != nil {
+				return err
+			}
+		}
+	}
+
+	//----------------------------------------------------------------
+	// Add a RentalAgreementRentable entry for each Rentable
+	//----------------------------------------------------------------
+	for _, v := range x.raf.Rentables {
+		var rar = rlib.RentalAgreementRentable{
+			RAID:         x.ra.RAID,
+			BID:          0,
+			RID:          v.RID,
+			CLID:         0,
+			ContractRent: 0,
+			RARDtStart:   time.Time(x.raf.Dates.PossessionStart),
+			RARDtStop:    time.Time(x.raf.Dates.PossessionStop),
+		}
+		_, err := rlib.InsertRentalAgreementRentable(ctx, &rar)
+		if err != nil {
+			return err
+		}
+
+	}
+
+	return nil
 }
 
 // F2RAUpdatePets updates all pets. If the pet already exists then

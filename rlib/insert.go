@@ -56,7 +56,7 @@ func InsertAR(ctx context.Context, a *AR) (int64, error) {
 	}
 
 	// transaction... context
-	fields := []interface{}{a.BID, a.Name, a.ARType, a.DebitLID, a.CreditLID, a.Description, a.RARequired, a.DtStart, a.DtStop, a.FLAGS, a.DefaultAmount, a.CreateBy, a.LastModBy}
+	fields := []interface{}{a.BID, a.Name, a.ARType, a.DebitLID, a.CreditLID, a.Description, a.RARequired, a.DtStart, a.DtStop, a.FLAGS, a.DefaultAmount, a.DefaultRentCycle, a.DefaultProrationCycle, a.CreateBy, a.LastModBy}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertAR)
 		defer stmt.Close()

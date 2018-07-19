@@ -501,6 +501,10 @@ DBNAME="rentroll"
 # ALTER TABLE Assessments ADD AssocElemID BIGINT NOT NULL DEFAULT 0 AFTER AssocElemType;
 # ALTER TABLE RentalAgreement ADD ORIGIN BIGINT NOT NULL DEFAULT 0 AFTER PRAID;
 
+# July 18, 2018
+# ALTER TABLE AR ADD DefaultRentCycle SMALLINT NOT NULL DEFAULT 0;
+# ALTER TABLE AR ADD DefaultProrationCycle SMALLINT NOT NULL DEFAULT 0;
+
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================

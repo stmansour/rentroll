@@ -15,36 +15,38 @@ import (
 // ARSendForm is a structure specifically for the UI. It will be
 // automatically populated from an rlib.AR struct
 type ARSendForm struct {
-	Recid               int64 `json:"recid"` // this is to support the w2ui form
-	ARID                int64
-	BUD                 rlib.XJSONBud
-	BID                 int64
-	Name                string
-	ARType              int64
-	DebitLID            int64
-	DebitLedgerName     string
-	CreditLID           int64
-	CreditLedgerName    string
-	Description         string
-	DtStart             rlib.JSONDate
-	DtStop              rlib.JSONDate
-	FLAGS               uint64
-	AutoPopulateToNewRA bool
-	raRequired          int
-	PriorToRAStart      bool    // is it ok to charge prior to RA start
-	PriorToRAStop       bool    // is it ok to charge after RA stop
-	ApplyRcvAccts       bool    // if true, mark the receipt as fully paid based on RcvAccts
-	RAIDrqd             bool    // if true, it will require receipts to supply a RAID
-	IsRentASM           bool    // if true, then it represents Rent Assessment
-	IsSecDepASM         bool    // if true, then it represents Security Deposit Assessment
-	IsNonRecurCharge    bool    // if true, then it represents Non recur charge
-	PETIDReq            bool    // if true, then it represents Pet charges
-	VIDReq              bool    // it true, then it represents Vehicle charges
-	DefaultAmount       float64 // default amount for this account rule
-	LastModTime         rlib.JSONDateTime
-	LastModBy           int64
-	CreateTS            rlib.JSONDateTime
-	CreateBy            int64
+	Recid                 int64 `json:"recid"` // this is to support the w2ui form
+	ARID                  int64
+	BUD                   rlib.XJSONBud
+	BID                   int64
+	Name                  string
+	ARType                int64
+	DebitLID              int64
+	DebitLedgerName       string
+	CreditLID             int64
+	CreditLedgerName      string
+	Description           string
+	DtStart               rlib.JSONDate
+	DtStop                rlib.JSONDate
+	FLAGS                 uint64
+	AutoPopulateToNewRA   bool
+	raRequired            int
+	PriorToRAStart        bool    // is it ok to charge prior to RA start
+	PriorToRAStop         bool    // is it ok to charge after RA stop
+	ApplyRcvAccts         bool    // if true, mark the receipt as fully paid based on RcvAccts
+	RAIDrqd               bool    // if true, it will require receipts to supply a RAID
+	IsRentASM             bool    // if true, then it represents Rent Assessment
+	IsSecDepASM           bool    // if true, then it represents Security Deposit Assessment
+	IsNonRecurCharge      bool    // if true, then it represents Non recur charge
+	PETIDReq              bool    // if true, then it represents Pet charges
+	VIDReq                bool    // it true, then it represents Vehicle charges
+	DefaultAmount         float64 // default amount for this account rule
+	DefaultRentCycle      int64   // Default Rent Cycle for this account rule
+	DefaultProrationCycle int64   // Default Proration Cycle for this account rule
+	LastModTime           rlib.JSONDateTime
+	LastModBy             int64
+	CreateTS              rlib.JSONDateTime
+	CreateBy              int64
 }
 
 // ARSaveForm is a structure specifically for the return value from w2ui.
@@ -55,28 +57,30 @@ type ARSendForm struct {
 // the data that has changed, which is in the xxxSaveOther struct.  All this data
 // is merged into the appropriate database structure using MigrateStructData.
 type ARSaveForm struct {
-	Recid               int64 `json:"recid"` // this is to support the w2ui form
-	ARID                int64
-	BID                 int64
-	BUD                 rlib.XJSONBud
-	CreditLID           int64
-	DebitLID            int64
-	ARType              int64
-	Name                string
-	Description         string
-	DtStart             rlib.JSONDate
-	DtStop              rlib.JSONDate
-	PriorToRAStart      bool // is it ok to charge prior to RA start
-	PriorToRAStop       bool // is it ok to charge after RA stop
-	ApplyRcvAccts       bool
-	RAIDrqd             bool
-	DefaultAmount       float64
-	AutoPopulateToNewRA bool
-	IsRentASM           bool
-	IsSecDepASM         bool
-	IsNonRecurCharge    bool
-	PETIDReq            bool
-	VIDReq              bool
+	Recid                 int64 `json:"recid"` // this is to support the w2ui form
+	ARID                  int64
+	BID                   int64
+	BUD                   rlib.XJSONBud
+	CreditLID             int64
+	DebitLID              int64
+	ARType                int64
+	Name                  string
+	Description           string
+	DtStart               rlib.JSONDate
+	DtStop                rlib.JSONDate
+	PriorToRAStart        bool // is it ok to charge prior to RA start
+	PriorToRAStop         bool // is it ok to charge after RA stop
+	ApplyRcvAccts         bool
+	RAIDrqd               bool
+	DefaultAmount         float64
+	DefaultRentCycle      int64 // Default Rent Cycle for this account rule
+	DefaultProrationCycle int64 // Default Proration Cycle for this account rule
+	AutoPopulateToNewRA   bool
+	IsRentASM             bool
+	IsSecDepASM           bool
+	IsNonRecurCharge      bool
+	PETIDReq              bool
+	VIDReq                bool
 }
 
 // PrARGrid is a structure specifically for the UI Grid.
@@ -452,6 +456,8 @@ var getARQuerySelectFields = rlib.SelectQueryFields{
 	"AR.DtStop",
 	"AR.RARequired",
 	"AR.DefaultAmount",
+	"AR.DefaultRentCycle",
+	"AR.DefaultProrationCycle",
 	"AR.FLAGS",
 	"AR.LastModTime",
 	"AR.LastModBy",
@@ -519,7 +525,8 @@ func getARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 		err = rows.Scan(&gg.ARID, &gg.Name, &gg.ARType, &gg.DebitLID, &gg.DebitLedgerName,
 			&gg.CreditLID, &gg.CreditLedgerName, &gg.Description, &gg.DtStart, &gg.DtStop,
-			&gg.raRequired, &gg.DefaultAmount, &gg.FLAGS, &gg.LastModTime, &gg.LastModBy, &gg.CreateTS, &gg.CreateBy)
+			&gg.raRequired, &gg.DefaultAmount, &gg.DefaultRentCycle, &gg.DefaultProrationCycle,
+			&gg.FLAGS, &gg.LastModTime, &gg.LastModBy, &gg.CreateTS, &gg.CreateBy)
 		if err != nil {
 			SvcErrorReturn(w, err, funcname)
 			return
@@ -605,11 +612,13 @@ func deleteARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 // ListedAR is struct to list down individual account rule record
 type ListedAR struct {
-	BID           int64
-	ARID          int64  // Account Rule ID
-	Name          string // Account rule name
-	DefaultAmount float64
-	FLAGS         uint64
+	BID                   int64
+	ARID                  int64  // Account Rule ID
+	Name                  string // Account rule name
+	DefaultAmount         float64
+	DefaultRentCycle      int64 // Default Rent Cycle for this account rule
+	DefaultProrationCycle int64 // Default Proration Cycle for this account rule
+	FLAGS                 uint64
 }
 
 // ARsListResponse is the response to list down all account rules
@@ -675,11 +684,13 @@ func SvcARsList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		var arList []ListedAR
 		for _, ar := range m {
 			arList = append(arList, ListedAR{
-				BID:           ar.BID,
-				ARID:          ar.ARID,
-				Name:          ar.Name,
-				FLAGS:         ar.FLAGS,
-				DefaultAmount: ar.DefaultAmount,
+				BID:                   ar.BID,
+				ARID:                  ar.ARID,
+				Name:                  ar.Name,
+				FLAGS:                 ar.FLAGS,
+				DefaultAmount:         ar.DefaultAmount,
+				DefaultRentCycle:      ar.DefaultRentCycle,
+				DefaultProrationCycle: ar.DefaultProrationCycle,
 			})
 		}
 
@@ -719,11 +730,13 @@ func SvcARsList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		var arList []ListedAR
 		for _, ar := range m {
 			arList = append(arList, ListedAR{
-				BID:           ar.BID,
-				ARID:          ar.ARID,
-				Name:          ar.Name,
-				FLAGS:         ar.FLAGS,
-				DefaultAmount: ar.DefaultAmount,
+				BID:                   ar.BID,
+				ARID:                  ar.ARID,
+				Name:                  ar.Name,
+				FLAGS:                 ar.FLAGS,
+				DefaultAmount:         ar.DefaultAmount,
+				DefaultRentCycle:      ar.DefaultRentCycle,
+				DefaultProrationCycle: ar.DefaultProrationCycle,
 			})
 		}
 

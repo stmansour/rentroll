@@ -13,7 +13,7 @@ var RAStates = []string{
 	"Notice To Move",
 }
 
-// RAAction is an array that maps the Rental Agreement Action number to a
+// RAActions is an array that maps the Rental Agreement Action number to a
 // string.
 //-----------------------------------------------------------------------------
 var RAActions = []string{
