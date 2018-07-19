@@ -656,3 +656,94 @@ func GetRentCycleAndProration(ctx context.Context, r *Rentable, dt *time.Time, x
 
 // 	return asmtDur, rentDur, pf
 // }
+
+// GetEpochFromBaseDate returns the epoch date based on cycle,
+// start date and pre-configured base epochs
+//
+// The required unit(s) should be extracted from pre-configured base epochs
+// to calculate proper Epoch date based on cycle, start date
+// For ex.,
+//     1. If cycle is MINUTELY then the unit(s) to consider from pre-configured
+//        base epoch(minutely) are Second, NenoSecond
+//     2. If cycle if MONTHLY then unit(s) to consider from pre-configured
+//        base epoch(monthly) are Day, Hour, Minute, Second, NenoSecond
+//
+// Time Location: It always keeps time location from base date(b)
+//
+// INPUTS
+//               b  = preconfigured base date
+//              d1  = start date
+//              d2  = stop date
+//           cycle  = integer presentable number
+//
+// RETURNS
+//     ok    - If epoch is possible in given date range then true else false
+//             * In case of false, epoch still has calculated value, to be
+//               happened on next cycle. It helps to determine for calle routine
+//               what should it does on epoch whether it falls in range or not.
+//     epoch - proper epoch for given date range
+//-----------------------------------------------------------------------------
+func GetEpochFromBaseDate(b, d1, d2 time.Time, cycle int64) (ok bool, epoch time.Time) {
+
+	// TODO(Sudip): What if base date and d1 falls at same unit value
+
+	// DECIDE BASED ON CYCLE
+	switch cycle {
+	case RECURNONE:
+		epoch = d1
+	case RECURSECONDLY:
+		epoch = time.Date(d1.Year(), d1.Month(), d1.Day(), d1.Hour(), d1.Minute(), d1.Second(), b.Nanosecond(), b.Location())
+
+		// IF EPOCH FALLS BEFORE GIVEN START, THEN MAKE IT HAPPEN ON NEXT SECOND
+		if epoch.Before(d1) {
+			epoch = epoch.Add(time.Second)
+		}
+	case RECURMINUTELY:
+		epoch = time.Date(d1.Year(), d1.Month(), d1.Day(), d1.Hour(), d1.Minute(), b.Second(), b.Nanosecond(), b.Location())
+
+		// IF EPOCH FALLS BEFORE GIVEN START, THEN MAKE IT HAPPEN ON NEXT MINUTE
+		if epoch.Before(d1) {
+			epoch = epoch.Add(time.Minute)
+		}
+	case RECURHOURLY:
+		epoch = time.Date(d1.Year(), d1.Month(), d1.Day(), d1.Hour(), b.Minute(), b.Second(), b.Nanosecond(), b.Location())
+
+		// IF EPOCH FALLS BEFORE GIVEN START, THEN MAKE IT HAPPEN ON NEXT HOUR
+		if epoch.Before(d1) {
+			epoch = epoch.Add(time.Hour)
+		}
+	case RECURDAILY:
+		epoch = time.Date(d1.Year(), d1.Month(), d1.Day(), b.Hour(), b.Minute(), b.Second(), b.Nanosecond(), b.Location())
+
+		// IF EPOCH FALLS BEFORE GIVEN START, THEN MAKE IT HAPPEN ON NEXT DAY
+		if epoch.Before(d1) {
+			epoch = epoch.AddDate(0, 0, 1)
+		}
+	case RECURWEEKLY: // TODO(Sudip): FIX WEEKLY CYCLE
+		epoch = time.Date(d1.Year(), d1.Month(), d1.Day(), b.Hour(), b.Minute(), b.Second(), b.Nanosecond(), b.Location())
+	case RECURMONTHLY:
+		epoch = time.Date(d1.Year(), d1.Month(), b.Day(), b.Hour(), b.Minute(), b.Second(), b.Nanosecond(), b.Location())
+
+		// IF EPOCH FALLS BEFORE GIVEN START, THEN MAKE IT HAPPEN ON NEXT MONTH
+		if epoch.Before(d1) {
+			epoch = epoch.AddDate(0, 1, 0)
+		}
+	case RECURQUARTERLY: // TODO(Sudip): FIX QUARTER CYCLE
+		epoch = time.Date(d1.Year(), d1.Month(), b.Day(), b.Hour(), b.Minute(), b.Second(), b.Nanosecond(), b.Location())
+	case RECURYEARLY:
+		epoch = time.Date(d1.Year(), b.Month(), b.Day(), b.Hour(), b.Minute(), b.Second(), b.Nanosecond(), b.Location())
+
+		// IF EPOCH FALLS BEFORE GIVEN START, THEN MAKE IT HAPPEN ON NEXT YEAR
+		if epoch.Before(d1) {
+			epoch = epoch.AddDate(1, 0, 0)
+		}
+	}
+
+	// IF EPOCH FALLS BEFORE THE *END DATE* (i.e, IN GIVEN DATE RANGE)
+	// THEN MARK "OK" FLAG AS TRUE
+	if epoch.Before(d2) {
+		ok = true
+	}
+
+	return
+}

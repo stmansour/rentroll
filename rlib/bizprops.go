@@ -138,11 +138,10 @@ func GetVehicleFeesFromGeneralBizProps(ctx context.Context, BID int64) (fees []B
 	return
 }
 
-// GetEpochsFromGeneralBizProps returns epochs configured for a business
-func GetEpochsFromGeneralBizProps(ctx context.Context, BID int64) (epochs BizPropsEpochs, err error) {
-	const funcname = "GetVehicleFeesFromGeneralBizProps"
+// GetEpochListByBizPropName returns epochs configured for a business
+func GetEpochListByBizPropName(ctx context.Context, BID int64, bizPropName string) (epochs BizPropsEpochs, err error) {
+	const funcname = "GetEpochListByBizPropName"
 	var (
-		bizPropName = "general"
 		bizPropJSON BizProps
 	)
 	fmt.Printf("Entered in %s\n", funcname)
@@ -160,72 +159,64 @@ func GetEpochsFromGeneralBizProps(ctx context.Context, BID int64) (epochs BizPro
 	return
 }
 
-// GetEpochForCycleInDateRange returns the epoch date based on cycle,
-// start date, end date, and pre-configured base date
+// GetEpochByBizPropName returns epochs configured for a business
+// GetEpochFromBaseDate returns the epoch date based on cycle,
+// start date and pre-configured base epochs
 //
-// The required unit(s) should be extracted from pre-configured base date
-// to calculate proper Epoch date based on cycle, start/end dates
+// The required unit(s) should be extracted from pre-configured base epochs
+// to calculate proper Epoch date based on cycle, start date
 // For ex.,
-//     1. If cycle is SECONDLY then the unit(s) to consider from pre-configured
-//        base date are Second, NenoSecond
-//     2. If cycle if MONTHLY then unit(s) to consider from pre-configured base date
-//        are Month, Day, Hour, Minute, Second, NenoSecond
+//     1. If cycle is MINUTELY then the unit(s) to consider from pre-configured
+//        base epoch(minutely) are Second, NenoSecond
+//     2. If cycle if MONTHLY then unit(s) to consider from pre-configured
+//        base epoch(monthly) are Day, Hour, Minute, Second, NenoSecond
 //
-// It always keeps time location from start date(d1)
+// Time Location: It always keeps time location from base date(b)
 //
 // INPUTS
-//               b  = preconfigured base date
+//             ctx  = context.Context instance
+//             BID  = Business ID
+//     bizPropName  = business property name
 //              d1  = start date
 //              d2  = stop date
 //           cycle  = integer presentable number
 //
 // RETURNS
-//     epoch - proper epoch for given date range
-//     any error encountered
+//     ok    - If epoch is possible in given date range then true else false
+//             * In case of false, epoch still has calculated value, to be
+//               happened on next cycle. It helps to determine for calle routine
+//               what should it does on epoch whether it falls in range or not.
+//     epoch - absolute epoch for given date range
+//     err   - any error encounterd
 //-----------------------------------------------------------------------------
-func GetEpochForCycleInDateRange(b, d1, d2 time.Time, cycle int64) (epoch time.Time, err error) {
-	if d2.Before(d1) {
-		err = fmt.Errorf("end date: %q should not be prior to Start date: %q", d2, d1)
+func GetEpochByBizPropName(ctx context.Context, BID int64, bizPropName string, d1, d2 time.Time, cycle int64) (ok bool, epoch time.Time, err error) {
+	const funcname = "GetEpochByBizPropName"
+	fmt.Printf("Entered in %s\n", funcname)
+
+	// initialize epochs
+	var epochs BizPropsEpochs
+	epochs, err = GetEpochListByBizPropName(ctx, BID, bizPropName)
+	if err != nil {
 		return
 	}
 
-	// TODO(Sudip): What if base date and d1 falls at same unit value
-
-	// KEEP ASSIGN START DATE TIME LOCATION IN "EPOCH"
-	loc := d1.Location()
-
-	// DECIDE BASED ON CYCLE
+	// TAKE BASE DATE FROM THE BIZPROP EPOCHS
+	var baseEpoch time.Time
 	switch cycle {
-	case RECURNONE:
-		epoch = d1
-	case RECURSECONDLY:
-		epoch = time.Date(d1.Year(), d1.Month(), d1.Day(), d1.Hour(), d1.Minute(), b.Second(), b.Nanosecond(), loc)
-	case RECURMINUTELY:
-		epoch = time.Date(d1.Year(), d1.Month(), d1.Day(), d1.Hour(), b.Minute(), b.Second(), b.Nanosecond(), loc)
-	case RECURHOURLY:
-		epoch = time.Date(d1.Year(), d1.Month(), d1.Day(), b.Hour(), b.Minute(), b.Second(), b.Nanosecond(), loc)
 	case RECURDAILY:
-		epoch = time.Date(d1.Year(), d1.Month(), b.Day(), b.Hour(), b.Minute(), b.Second(), b.Nanosecond(), loc)
+		baseEpoch = epochs.Daily
 	case RECURWEEKLY:
-		epoch = time.Date(d1.Year(), d1.Month(), b.Day(), b.Hour(), b.Minute(), b.Second(), b.Nanosecond(), loc)
-		epoch = epoch.AddDate(0, 0, 7) // ADD MORE 7 DAYS
+		baseEpoch = epochs.Weekly
 	case RECURMONTHLY:
-		epoch = time.Date(d1.Year(), b.Month(), b.Day(), b.Hour(), b.Minute(), b.Second(), b.Nanosecond(), loc)
+		baseEpoch = epochs.Monthly
 	case RECURQUARTERLY:
-		epoch = time.Date(d1.Year(), b.Month(), b.Day(), b.Hour(), b.Minute(), b.Second(), b.Nanosecond(), loc)
-		epoch = epoch.AddDate(0, 3, 0) // ADD MORE 3 MONTHS
+		baseEpoch = epochs.Quarterly
 	case RECURYEARLY:
-		epoch = time.Date(b.Year(), b.Month(), b.Day(), b.Hour(), b.Minute(), b.Second(), b.Nanosecond(), loc)
-	default:
-		err = fmt.Errorf("cycle:%d, is out of range", cycle)
-		return
+		baseEpoch = epochs.Yearly
 	}
 
-	// IF "EPOCH" FALLS AFTER END DATE
-	if epoch.After(d2) {
-		err = fmt.Errorf("epoch:%q falls after end date: %q", epoch, d2)
-		return
-	}
+	// GET AN ABSOLUTE EPOCH FROM BASE DATE
+	ok, epoch = GetEpochFromBaseDate(baseEpoch, d1, d2, cycle)
 
 	return
 }
