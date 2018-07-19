@@ -163,5 +163,4 @@ func DoTest(ctx context.Context, s *rlib.Session) {
 		return
 	}
 	rlib.Console("Successfully created new Rental Agreement, RAID = %d\n", nraid)
-
 }

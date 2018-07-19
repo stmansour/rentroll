@@ -46,6 +46,10 @@ const (
 	ELEMRECEIPT         = 17
 	ELEMLAST            = 17 // keep in sync with last one added
 
+	// ROLLERSL is the name of the StringList that Roller
+	// needs to process RA state changes, etc.
+	ROLLERSL = "RollerMsgs"
+
 	// ARASSESSMENT et al, are Account Rule Types.
 	ARASSESSMENT    = 0
 	ARRECEIPT       = 1
