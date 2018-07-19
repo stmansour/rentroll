@@ -93,10 +93,10 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		modRAFlowMeta.RAFLAGS = (state | 0)
 
 	case 1: // Authorize First Approval
-		modRAFlowMeta.RAFLAGS = (state | 2)
+		modRAFlowMeta.RAFLAGS = (state | 1)
 
 	case 2: // Authorize Second Approval
-		modRAFlowMeta.RAFLAGS = (state | 3)
+		modRAFlowMeta.RAFLAGS = (state | 2)
 
 	case 3: // Complete Move In
 		modRAFlowMeta.RAFLAGS = (state | 4)
