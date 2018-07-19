@@ -2579,23 +2579,16 @@ func InsertPayor(ctx context.Context, a *Payor) (int64, error) {
 		a.CreateBy = sess.UID
 		a.LastModBy = a.CreateBy
 	}
-
-	b1, err := Encrypt(a.SSN)
-	if err != nil {
-		return rid, err
-	}
-	b := hex.EncodeToString(b1)
 	d1, err := Encrypt(a.DriversLicense)
 	if err != nil {
 		return rid, err
 	}
 	d := hex.EncodeToString(d1)
-	// Console("Encrypted SSN: %s\n", b)
 	// Console("Encrypted DriversLicense: %s\n", d)
 
 	// transaction... context
 	fields := []interface{}{a.TCID, a.BID, a.CreditLimit, a.TaxpayorID, a.ThirdPartySource, a.EligibleFuturePayor,
-		a.FLAGS, b, d, a.GrossIncome, a.CreateBy, a.LastModBy}
+		a.FLAGS, d, a.GrossIncome, a.CreateBy, a.LastModBy}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertPayor)
 		defer stmt.Close()

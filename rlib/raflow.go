@@ -183,7 +183,6 @@ type RAPeopleFlowData struct {
 	CreditLimit         float64 `validate:"number:float,min=0.10,omitempty"`
 	TaxpayorID          string  `validate:"string,min=1,max=25,omitempty"`
 	GrossIncome         float64 `validate:"number:float,min=0.10,omitempty"` // When role is set to renter or guarantor than it is compulsory. It'll be check via bizlogic.
-	SSN                 string  `validate:"string,min=1,max=128"`
 	DriversLicense      string  `validate:"string,min=1,max=128"`
 	ThirdPartySource    int64   `validate:"number,min=1,omitempty"`
 	EligibleFuturePayor bool    `validate:"-"`
