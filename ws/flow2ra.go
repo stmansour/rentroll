@@ -111,8 +111,19 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 		if err != nil {
 			return nraid, err
 		}
-		x.ra = x.raOrig // initialize to the same as the original
-		nraid = x.raf.Meta.RAID
+
+		x.ra.AgreementStart = time.Time(x.raf.Dates.AgreementStart)
+		x.ra.AgreementStop = time.Time(x.raf.Dates.AgreementStop)
+		x.ra.RentStart = time.Time(x.raf.Dates.RentStart)
+		x.ra.RentStop = time.Time(x.raf.Dates.RentStop)
+		x.ra.PossessionStart = time.Time(x.raf.Dates.PossessionStart)
+		x.ra.PossessionStop = time.Time(x.raf.Dates.PossessionStop)
+		x.ra.PRAID = x.raOrig.RAID
+		x.ra.ORIGIN = x.raOrig.ORIGIN
+		if x.raOrig.ORIGIN == 0 {
+			x.ra.ORIGIN = x.raOrig.RAID
+		}
+
 		//---------------------------------------------------------------
 		// Now spin through the series of handlers that move the data
 		// into the permanent tables...
@@ -166,9 +177,24 @@ func FlowSaveRentables(ctx context.Context, x *WriteHandlerContext) error {
 		}
 	}
 
-	// spin through the rentables found in x.raf.Rentables.  Add any new
-	// rentables, and delete any rentables that were in the old
-	for k, v := range x.raf.Rentables {
+	//----------------------------------------------------------------
+	// Add a RentalAgreementRentable entry for each Rentable
+	//----------------------------------------------------------------
+	for _, v := range x.raf.Rentables {
+		var rar = rlib.RentalAgreementRentable{
+			RAID:         x.ra.RAID,
+			BID:          0,
+			RID:          v.RID,
+			CLID:         0,
+			ContractRent: 0,
+			RARDtStart:   time.Time(x.raf.Dates.PossessionStart),
+			RARDtStop:    time.Time(x.raf.Dates.PossessionStop),
+		}
+		_, err := rlib.InsertRentalAgreementRentable(ctx, &rar)
+		if err != nil {
+			return err
+		}
+
 	}
 
 	return nil
