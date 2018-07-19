@@ -26,7 +26,7 @@ window.submitActionForm = function(FlowID, Decision, Reason, Action) {
     }).done(function(data) {
         if (data.status === "success") {
             // update the local copy of flow for the active one
-            app.raflow.data[data.record.FlowID] = data.record;
+            app.raflow.data[data.record.FlowID] = data.record.Flow;
             w2ui.actionLayout.get('main').content.destroy();
             loadRAActionTemplate();
         }

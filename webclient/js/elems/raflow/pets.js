@@ -39,7 +39,7 @@ window.RAFlowNewPetAJAX = function() {
     .done(function(data) {
         if (data.status === "success") {
             // update the local copy of flow for the active one
-            app.raflow.data[data.record.FlowID] = data.record;
+            app.raflow.data[data.record.FlowID] = data.record.Flow;
 
             // set the rentable grid records again
             AssignPetsGridRecords();

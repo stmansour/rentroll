@@ -154,7 +154,7 @@ window.saveActiveCompData = function (compData, compID) {
             if (data.status != "error") {
                 console.log("data has been saved for: ", app.raflow.activeFlowID, ", compID: ", compID);
                 // update local data with server's response data
-                app.raflow.data[data.record.FlowID] = data.record;
+                app.raflow.data[data.record.FlowID] = data.record.Flow;
             } else {
                 console.error(data.message);
             }
@@ -180,7 +180,7 @@ window.initRAFlowAjax = function () {
         data: JSON.stringify({"cmd": "init", "FlowType": app.raflow.name}),
         success: function (data) {
             if (data.status != "error") {
-                app.raflow.data[data.record.FlowID] = data.record;
+                app.raflow.data[data.record.FlowID] = data.record.Flow;
             }
         },
         error: function (data) {
@@ -206,7 +206,7 @@ window.getFlowDataAjax = function(FlowID) {
         data: JSON.stringify({"cmd": "get", "FlowID": FlowID}),
         success: function (data) {
             if (data.status != "error") {
-                app.raflow.data[data.record.FlowID] = data.record;
+                app.raflow.data[data.record.FlowID] = data.record.Flow;
             }
         },
         error: function (data) {

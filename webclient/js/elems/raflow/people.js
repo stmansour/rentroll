@@ -452,7 +452,7 @@ window.removeRAFlowPersonAJAX = function (TMPTCID) {
         success: function (data) {
             if (data.status != "error") {
                 // update the local copy of flow for the active one
-                app.raflow.data[data.record.FlowID] = data.record;
+                app.raflow.data[data.record.FlowID] = data.record.Flow;
             } else {
                 console.error(data.message);
             }
@@ -483,7 +483,7 @@ window.saveRAFlowPersonAJAX = function (TCID) {
         success: function (data) {
             if (data.status != "error") {
                 // update the local copy of flow for the active one
-                app.raflow.data[data.record.FlowID] = data.record;
+                app.raflow.data[data.record.FlowID] = data.record.Flow;
             } else {
                 console.error(data.message);
             }

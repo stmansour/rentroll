@@ -17,11 +17,6 @@ type FlowResponse struct {
 	Status string      `json:"status"`
 }
 
-type RAFlowResponse struct {
-	Flow       rlib.Flow
-	BasicCheck bizlogic.ValidateRAFlowResponse
-}
-
 // SvcHandlerFlow handles operations on a whole flow which affects on its
 // all flow parts associated with given flowID
 // For this call, we expect the URI to contain the BID and the FlowID as follows:
@@ -144,7 +139,9 @@ func GetFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		f   struct {
 			FlowID int64
 		}
-		g FlowResponse
+		g              FlowResponse
+		raFlowResponse RAFlowResponse
+		raFlowData     rlib.RAFlowJSONData
 	)
 
 	rlib.Console("Entered %s\n", funcname)
@@ -161,7 +158,13 @@ func GetFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	g.Record = flow
+	// Perform basic validation on flow data
+	bizlogic.ValidateRAFlowBasic(r.Context(), &raFlowData, &raFlowResponse.BasicCheck)
+
+	// Set the response
+	raFlowResponse.Flow = flow
+
+	g.Record = raFlowResponse
 	g.Status = "success"
 	SvcWriteResponse(d.BID, &g, w)
 }
@@ -264,11 +267,12 @@ type SaveFlowRequest struct {
 func SaveFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "SaveFlow"
 	var (
-		err     error
-		flowReq SaveFlowRequest
-		g       FlowResponse
-		tx      *sql.Tx
-		ctx     context.Context
+		err        error
+		flowReq    SaveFlowRequest
+		g          FlowResponse
+		tx         *sql.Tx
+		ctx        context.Context
+		raFlowData rlib.RAFlowJSONData
 	)
 	rlib.Console("Entered %s\n", funcname)
 	rlib.Console("record data = %s\n", d.data)
@@ -323,8 +327,8 @@ func SaveFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// ----------------------------------------------
 
 	// get flow data in return it back
-	var updatedFlow rlib.Flow
-	updatedFlow, err = rlib.GetFlow(ctx, flow.FlowID)
+	var updatedFlow RAFlowResponse
+	updatedFlow.Flow, err = rlib.GetFlow(ctx, flow.FlowID)
 	if err != nil {
 		return
 	}
@@ -335,6 +339,16 @@ func SaveFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if err = tx.Commit(); err != nil {
 		return
 	}
+
+	// get unmarshalled raflow data into struct
+	err = json.Unmarshal(updatedFlow.Flow.Data, &raFlowData)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// Perform basic validation on flow data
+	bizlogic.ValidateRAFlowBasic(r.Context(), &raFlowData, &updatedFlow.BasicCheck)
 
 	g.Record = updatedFlow
 	g.Status = "success"
