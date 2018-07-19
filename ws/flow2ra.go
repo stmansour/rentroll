@@ -107,11 +107,40 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 	}
 
 	if x.raf.Meta.RAID > 0 {
+		//------------------------------------------------------------
+		// Get the rental agreement that will be superceded by the
+		// one we're creating here. Update its stop dates accordingly
+		//------------------------------------------------------------
 		x.raOrig, err = rlib.GetRentalAgreement(ctx, x.raf.Meta.RAID)
 		if err != nil {
 			return nraid, err
 		}
+		chgs := 0
+		AStart := time.Time(x.raf.Dates.AgreementStart)
+		RStart := time.Time(x.raOrig.RentStart)
+		PStart := time.Time(x.raOrig.PossessionStart)
+		if x.raOrig.AgreementStop.After(AStart) {
+			x.raOrig.AgreementStop = AStart
+			chgs++
+		}
+		if x.raOrig.RentStop.After(RStart) {
+			x.raOrig.RentStop = RStart
+			chgs++
+		}
+		if x.raOrig.PossessionStop.After(PStart) {
+			x.raOrig.PossessionStop = PStart
+			chgs++
+		}
+		if chgs > 0 {
+			err = rlib.UpdateRentalAgreement(ctx, &x.raOrig)
+			if err != nil {
+				return nraid, err
+			}
+		}
 
+		//------------------------------------------------------------
+		// Now start the new RAID.  Link it to x.raOrig
+		//------------------------------------------------------------
 		x.ra.AgreementStart = time.Time(x.raf.Dates.AgreementStart)
 		x.ra.AgreementStop = time.Time(x.raf.Dates.AgreementStop)
 		x.ra.RentStart = time.Time(x.raf.Dates.RentStart)
@@ -123,6 +152,13 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 		if x.raOrig.ORIGIN == 0 {
 			x.ra.ORIGIN = x.raOrig.RAID
 		}
+		x.ra.RATID = x.raOrig.RATID
+		// x.ra.RentCycleEpoch = // bizprop epoch default
+
+		nraid, err = rlib.InsertRentalAgreement(ctx, &x.ra)
+		if err != nil {
+			return nraid, err
+		}
 
 		//---------------------------------------------------------------
 		// Now spin through the series of handlers that move the data
@@ -132,7 +168,7 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 		for i := 0; i < len(ehandlers); i++ {
 			rlib.Console("FlowSaveRA: running handler %s\n", ehandlers[i].Name)
 			if err = ehandlers[i].Handler(ctx, x); err != nil {
-				return x.ra.RAID, err
+				return nraid, err
 			}
 		}
 	} else {
