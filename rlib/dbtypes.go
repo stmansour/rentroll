@@ -810,7 +810,6 @@ type Payor struct {
 	ThirdPartySource    int64
 	EligibleFuturePayor bool
 	FLAGS               uint64
-	SSN                 string // encrypted in database, decrypted here
 	DriversLicense      string // encrypted in database, decrypted here
 	GrossIncome         float64
 	LastModTime         time.Time
