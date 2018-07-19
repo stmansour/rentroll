@@ -679,7 +679,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// PAYOR
 	//==========================================
-	flds = "TCID,BID,CreditLimit,TaxpayorID,ThirdPartySource,EligibleFuturePayor,FLAGS,SSN,DriversLicense,GrossIncome,CreateTS,CreateBy,LastModTime,LastModBy"
+	flds = "TCID,BID,CreditLimit,TaxpayorID,ThirdPartySource,EligibleFuturePayor,FLAGS,DriversLicense,GrossIncome,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["Payor"] = flds
 	RRdb.Prepstmt.GetPayor, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Payor where TCID=?")
 	Errcheck(err)

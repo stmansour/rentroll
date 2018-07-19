@@ -505,6 +505,9 @@ DBNAME="rentroll"
 # ALTER TABLE AR ADD DefaultRentCycle SMALLINT NOT NULL DEFAULT 0;
 # ALTER TABLE AR ADD DefaultProrationCycle SMALLINT NOT NULL DEFAULT 0;
 
+# July 19, 2018
+# ALTER TABLE Payor DROP COLUMN SSN;
+
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================
