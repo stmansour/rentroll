@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"rentroll/bizlogic"
 	"rentroll/rlib"
 	"strconv"
 	"strings"
@@ -285,10 +286,15 @@ func saveRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 // wsdoc }
 func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "getRA2Flow"
-	var flow rlib.Flow
+	var (
+		flow           rlib.Flow
+		g              FlowResponse
+		raFlowResponse RAFlowResponse
+		raFlowData     rlib.RAFlowJSONData
+	)
 
 	if d.ID < 1 {
-		SvcErrorReturn(w, fmt.Errorf("Invalid RAID: %d", d.ID), funcname)
+		SvcErrorReturn(w, fmt.Errorf("invalid RAID: %d", d.ID), funcname)
 		return
 	}
 	ra, err := rlib.GetRentalAgreement(r.Context(), d.ID)
@@ -324,9 +330,19 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
+	// get unmarshalled raflow data into struct
+	err = json.Unmarshal(flow.Data, &raFlowData)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// Perform basic validation on flow data
+	bizlogic.ValidateRAFlowBasic(r.Context(), &raFlowData, &raFlowResponse.BasicCheck)
+
+	raFlowResponse.Flow = flow
 	// set the response
-	var g FlowResponse
-	g.Record = flow
+	g.Record = raFlowResponse
 	g.Status = "success"
 	SvcWriteResponse(d.BID, &g, w)
 }
