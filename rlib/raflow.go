@@ -91,17 +91,17 @@ type RAFlowMetaInfo struct {
 	HaveVehicles           bool
 	RAFLAGS                int64
 	Approver1              int64
-	DecisionDate1          JSONDateTime
+	DecisionDate1          JSONDate
 	DeclineReason1         int64
 	Approver2              int64
-	DecisionDate2          JSONDateTime
+	DecisionDate2          JSONDate
 	DeclineReason2         int64
 	TerminatorUID          int64
-	TerminationDate        JSONDateTime
+	TerminationDate        JSONDate
 	LeaseTerminationReason int64
-	DocumentDate           JSONDateTime
-	NoticeToMoveDate       JSONDateTime
-	NoticeToMoveReported   JSONDateTime
+	DocumentDate           JSONDate
+	NoticeToMoveDate       JSONDate
+	NoticeToMoveReported   JSONDate
 }
 
 // RADatesFlowData contains data in the dates part of RA flow
@@ -183,9 +183,9 @@ type RAPeopleFlowData struct {
 	// It'll be none. If there is no special needs
 
 	// ---------- Payor -----------
-	CreditLimit         float64 `validate:"number:float,min=0.10,omitempty"`
+	CreditLimit         float64 `validate:"number:float,min=0.00,omitempty"`
 	TaxpayorID          string  `validate:"string,min=1,max=25,omitempty"`
-	GrossIncome         float64 `validate:"number:float,min=0.10,omitempty"` // When role is set to renter or guarantor than it is compulsory. It'll be check via bizlogic.
+	GrossIncome         float64 `validate:"number:float,min=0.00,omitempty"` // When role is set to renter or guarantor than it is compulsory. It'll be check via bizlogic.
 	DriversLicense      string  `validate:"string,min=1,max=128"`
 	ThirdPartySource    int64   `validate:"number,min=1,omitempty"`
 	EligibleFuturePayor bool    `validate:"-"`

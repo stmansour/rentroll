@@ -1,17 +1,9 @@
 /*global
-    loadRAActionInProgress,
-    loadRAActionFirstApproval,
-    loadRAActionSecondApproval,
-    loadRAActionMoveIn,
-    loadRAActionActive,
-    loadRAActionTerminated,
-    loadRAActionNoticeToMove,
     loadRAActionTemplate,
-    loadActionFormByState,
-    submitActionForm,
-    getSLStringList,
     loadRAActionForm,
-    reloadActionForm
+    reloadActionForm,
+    submitActionForm,
+    getSLStringList
 */
 "use strict";
 
@@ -19,8 +11,29 @@
 // submitActionForm - submits the data of action form
 // @params - FlowID, Decision, Reason, Action
 // -------------------------------------------------------------------------------
-window.submitActionForm = function(FlowID, Decision, Reason, Action) {
-    var data = {"FlowID": FlowID, "Decision": Decision, "Reason":Reason, "Action":Action};
+window.submitActionForm = function(
+                        FlowID, Action,
+                        Decision1, DeclineReason1,
+                        Decision2, DeclineReason2,
+                        TerminationReason,
+                        DocumentDate,
+                        NoticeToMoveDate,
+                        NoticeToMoveReported,
+                        Mode
+                        ) {
+    var data = {
+        "FlowID": FlowID,
+        "Action": Action,
+        "Decision1": Decision1,
+        "DeclineReason1": DeclineReason1,
+        "Decision2": Decision2,
+        "DeclineReason2": DeclineReason2,
+        "TerminationReason": TerminationReason,
+        "DocumentDate": DocumentDate,
+        "NoticeToMoveDate": NoticeToMoveDate,
+        "NoticeToMoveReported": NoticeToMoveReported,
+        "Mode": Mode
+    };
     return $.ajax({
         url: "/v1/actions/",
         method: "POST",
@@ -33,7 +46,9 @@ window.submitActionForm = function(FlowID, Decision, Reason, Action) {
             w2ui.actionLayout.get('main').content.destroy();
 
             loadRAActionTemplate();
-            reloadActionForm();
+            setTimeout(function() {
+                reloadActionForm();
+            },200);
         } else {
             //Display Error
         }
@@ -67,12 +82,14 @@ window.reloadActionForm = function() {
         case 1:
             w2ui.RAActionForm.get('RAApprovalDecision1').hidden = false;
             $('button[name=save]').show();
+            $('button[name=save]').attr('disabled',true);
             break;
 
         // "Pending Second Approval"
         case 2:
             w2ui.RAActionForm.get('RAApprovalDecision2').hidden = false;
             $('button[name=save]').show();
+            $('button[name=save]').attr('disabled',true);
             break;
 
         // "Move-In / Execute Modification"
@@ -104,61 +121,6 @@ window.reloadActionForm = function() {
     w2ui.RAActionForm.refresh();
 };
 
-//------------------------------------------------------------------------
-// loadActionFormByState - It loads the Action Form on basis of the state
-//                         value provided.
-//
-// @params
-//      raState = State value according to RAFLAGS.
-//------------------------------------------------------------------------
-window.loadActionFormByState = function(raState) {
-    switch (raState) {
-        // "Application Being Completed"
-        case 0:
-            console.log('Inside Application Being Completed switch case');
-            loadRAActionInProgress();
-            break;
-
-        // "Pending First Approval"
-        case 1:
-            console.log('Inside Pending First Approval switch case');
-            loadRAActionFirstApproval();
-            break;
-
-        // "Pending Second Approval"
-        case 2:
-            console.log('Inside Pending Second Approval switch case');
-            loadRAActionSecondApproval();
-            break;
-
-        // "Move-In / Execute Modification"
-        case 3:
-            console.log('Inside Move-In / Execute Modification switch case');
-            loadRAActionMoveIn();
-            break;
-
-        // "Active"
-        case 4:
-            console.log('Inside Active switch case');
-            loadRAActionActive();
-            break;
-
-        // "Terminated"
-        case 5:
-            console.log('Inside Terminated switch case');
-            loadRAActionTerminated();
-            break;
-
-        // "Notice To Move"
-        case 6:
-            console.log('Inside Notice To Move switch case');
-            loadRAActionNoticeToMove();
-            break;
-
-        default:
-    }
-};
-
 
 //------------------------------------------------------------------------
 // loadRAActionTemplate - It creates a layout for action forms and places
@@ -185,7 +147,6 @@ window.loadRAActionTemplate = function() {
                             case 'btnClose':
                                 var no_callBack = function() { return false; },
                                     yes_callBack = function() {
-
                                         w2ui.newraLayout.content('right','');
                                         w2ui.newraLayout.hide('right',true);
                                         w2ui.actionLayout.get('main').content.destroy();
@@ -203,8 +164,7 @@ window.loadRAActionTemplate = function() {
                 { type: 'bottom', style: app.pstyle2, size: 40,content:'bottom' },
                 { type: 'right', style: app.pstyle2, hidden: true}
             ],
-            onRefresh: function(event) {
-
+            onRefresh: function(event) {                
                 event.onComplete = function() {
                     var activeFlowID = app.raflow.activeFlowID;
                     var data = app.raflow.data[activeFlowID];
@@ -300,7 +260,11 @@ window.loadRAActionForm = function() {
                         ]
                     }
                 },
-                { field: 'RADeclineReason1', type: 'list', width: 120, required: true, hidden: true, options: {} },
+                { field: 'RADeclineReason1', type: 'list', width: 120, required: true, hidden: true,
+                    options: {
+                        items: getSLStringList(getCurrentBID(), "ApplDeny")
+                    }
+                },
                 { field: 'RAApprovalDecision2', type: 'list', width: 120, required: true, hidden: true, 
                     options: {
                         items: [
@@ -309,64 +273,107 @@ window.loadRAActionForm = function() {
                         ]
                     }
                 },
-                { field: 'RADeclineReason2', type: 'list', width: 120, required: true, hidden: true, options: {} },
+                { field: 'RADeclineReason2', type: 'list', width: 120, required: true, hidden: true,
+                    options: {
+                        items: getSLStringList(getCurrentBID(), "ApplDeny")
+                    }
+                },
                 { field: 'RADocumentDate', type: 'date', hidden: true, options: { start: '01/01/2000' } },
                 { field: 'RANoticeToMoveDate', type: 'date', hidden: true, options: { start: '01/01/2000' } },
                 { field: 'RANoticeToMoveReported', type: 'date', hidden: true, options: { start: '01/01/2000' } },
-                { field: 'RATerminationReason', type: 'list', width: 120, required: true, hidden: true, options: {} },
+                { field: 'RATerminationReason', type: 'list', width: 120, required: true, hidden: true,
+                    options: {
+                        items: getSLStringList(getCurrentBID(), "WhyLeaving")
+                    }
+                },
                 { field: 'RAActions', type: 'list', width: 120, required: true, options: {items: app.w2ui.listItems.RAActions}}
             ],
             onChange: function (event) {
                 event.done(function(){
-                    w2ui.RAActionForm.refresh();
+                    this.refresh();
+                    // reloadActionForm();
                 });
 
-                if(event.target === 'RAActions') {
-                    switch (event.value_new.text) {
-                        case 'Terminate':
-                            w2ui.RAActionForm.get('RATerminationReason').hidden = false;
+                switch(event.target) {
+                    case 'RAActions':
+                        switch (event.value_new.id) {
+                            case 5: // Terminate
+                                w2ui.RAActionForm.get('RATerminationReason').hidden = false;
+                                $('button[name=updateAction]').attr('disabled',true);
 
-                            w2ui.RAActionForm.get('RANoticeToMoveDate').hidden = true;
-                            w2ui.RAActionForm.get('RANoticeToMoveReported').hidden = true;
-                            break;
+                                w2ui.RAActionForm.get('RANoticeToMoveDate').hidden = true;
+                                w2ui.RAActionForm.get('RANoticeToMoveReported').hidden = true;
+                                break;
 
-                        case 'Received Notice To Move':
-                            w2ui.RAActionForm.get('RANoticeToMoveDate').hidden = false;
-                            w2ui.RAActionForm.get('RANoticeToMoveReported').hidden = false;
+                            case 6: // Received Notice-To-Move
+                                w2ui.RAActionForm.get('RANoticeToMoveDate').hidden = false;
+                                w2ui.RAActionForm.get('RANoticeToMoveReported').hidden = false;
 
-                            w2ui.RAActionForm.get('RATerminationReason').hidden = true;
-                            delete this.record.RATerminationReason;
-                            break;
+                                w2ui.RAActionForm.get('RATerminationReason').hidden = true;
+                                delete this.record.RATerminationReason;
+                                $('button[name=updateAction]').attr('disabled',false);
+                                break;
 
-                        default:
-                            w2ui.RAActionForm.get('RATerminationReason').hidden = true;
-                            delete this.record.RATerminationReason;
+                            default:
+                                w2ui.RAActionForm.get('RATerminationReason').hidden = true;
+                                delete this.record.RATerminationReason;
+                                $('button[name=updateAction]').attr('disabled',false);
+                                
 
-                            w2ui.RAActionForm.get('RANoticeToMoveDate').hidden = true;
-                            w2ui.RAActionForm.get('RANoticeToMoveReported').hidden = true;
+                                w2ui.RAActionForm.get('RANoticeToMoveDate').hidden = true;
+                                w2ui.RAActionForm.get('RANoticeToMoveReported').hidden = true;
+                        }
+                        break;
 
-                            this.clear();
-                    }
-                }
+                    case 'RAApprovalDecision1':
+                        if(event.value_new.text === 'Decline') {
+                            $('button[name=save]').attr('disabled',true);
+                            w2ui.RAActionForm.get('RADeclineReason1').hidden = false;
+                        } else {
+                            $('button[name=save]').attr('disabled',false);
+                            w2ui.RAActionForm.get('RADeclineReason1').hidden = true;
+                            delete this.record.RADeclineReason1;
+                        }
+                        break;
 
-                if(event.target === 'RAApprovalDecision1') {
-                    if(event.value_new.text === 'Decline') {
-                        w2ui.RAActionForm.get('RADeclineReason1').hidden = false;
-                    } else {
-                        w2ui.RAActionForm.get('RADeclineReason1').hidden = true;
-                        delete this.record.RADeclineReason1;
-                    }
-                    w2ui.RAActionForm.refresh();
-                }
+                    case 'RAApprovalDecision2':
+                        if(event.value_new.text === 'Decline') {
+                            $('button[name=save]').attr('disabled',true);
+                            w2ui.RAActionForm.get('RADeclineReason2').hidden = false;
+                        } else {
+                            $('button[name=save]').attr('disabled',false);
+                            w2ui.RAActionForm.get('RADeclineReason2').hidden = true;
+                            delete this.record.RADeclineReason2;
+                        }
+                        break;
 
-                if(event.target === 'RAApprovalDecision2') {
-                    if(event.value_new.text === 'Decline') {
-                        w2ui.RAActionForm.get('RADeclineReason2').hidden = false;
-                    } else {
-                        w2ui.RAActionForm.get('RADeclineReason2').hidden = true;
-                        delete this.record.RADeclineReason2;
-                    }
-                    w2ui.RAActionForm.refresh();
+                    case 'RADeclineReason1':
+                        if(event.value_new.id === 0) {
+                            $('button[name=save]').attr('disabled',true);
+                        } else {
+                            $('button[name=save]').attr('disabled',false);
+                        }
+                        break;
+
+                    case 'RADeclineReason2':
+                        if(event.value_new.id === 0) {
+                            $('button[name=save]').attr('disabled',true);
+                        } else {
+                            $('button[name=save]').attr('disabled',false);
+                        }
+                        break;
+
+                    case 'RATerminationReason':
+                        if(event.value_new.id === 0) {
+                            $('button[name=updateAction]').attr('disabled',true);
+                        } else {
+                            $('button[name=updateAction]').attr('disabled',false);
+                        }
+                        break;
+
+                    default:
+                        $('button[name=updateAction]').attr('disabled',false);
+                        $('button[name=save]').attr('disabled',false);
                 }
             },
             onRefresh: function (event) {
@@ -386,13 +393,6 @@ window.loadRAActionForm = function() {
             onRender: function (event) {
                 console.log('onRender of RAActionForm');
 
-                event.done(function(){
-                    var BID = getCurrentBID();
-                    this.get('RADeclineReason1').options.items = getSLStringList(BID, "ApplDeny");
-                    this.get('RADeclineReason2').options.items = getSLStringList(BID, "ApplDeny");
-                    this.get('RATerminationReason').options.items = getSLStringList(BID, "WhyLeaving");
-                });
-
                 w2ui.RAActionForm.record = {
                     RAActions: {id: -1, text: "--Select an Action--"},
                 };
@@ -400,17 +400,68 @@ window.loadRAActionForm = function() {
             actions: {
                 save: function() {
                     var FlowID = app.raflow.activeFlowID;
-                    var Decision = 0;
-                    var Reason = 0;
                     var Action = this.record.RAActions.id;
-                    submitActionForm(FlowID, Decision, Reason, Action);
+                    var Decision1 = 0;
+                    var DeclineReason1 = 0;
+                    var Decision2 = 0;
+                    var DeclineReason2 = 0;
+                    var TerminationReason = 0;
+                    var DocumentDate = "1/1/1900";
+                    var NoticeToMoveDate = "1/1/1900";
+                    var NoticeToMoveReported = "1/1/1900";
+                    var Mode = "State";
+
+                    submitActionForm(
+                        FlowID, Action,
+                        Decision1, DeclineReason1,
+                        Decision2, DeclineReason2,
+                        TerminationReason,
+                        DocumentDate,
+                        NoticeToMoveDate,
+                        NoticeToMoveReported,
+                        Mode
+                    );
                 },
                 updateAction: function() {
                     var FlowID = app.raflow.activeFlowID;
-                    var Decision = 0;
-                    var Reason = 0;
                     var Action = this.record.RAActions.id;
-                    submitActionForm(FlowID, Decision, Reason, Action);
+                    var Decision1 = 0;
+                    var DeclineReason1 = 0;
+                    var Decision2 = 0;
+                    var DeclineReason2 = 0;
+                    var TerminationReason = 0;
+                    var DocumentDate = "1/1/1900";
+                    var NoticeToMoveDate = "1/1/1900";
+                    var NoticeToMoveReported = "1/1/1900";
+                    var Mode = "Action";
+
+                    if( Action === -1 ) {
+                        return;
+                    }
+
+                    if( Action === 5 ) {
+                        TerminationReason = this.record.RATerminationReason.id;
+                    }
+
+                    if( Action === 5 && this.record.RATerminationReason.id === 0) {
+                        return;
+                    }
+
+                    var currentState = parseInt(app.raflow.data[FlowID].Data.meta.RAFLAGS & (0xf));
+                    if (Action === currentState) {
+                        return;
+                    }
+
+                    submitActionForm(
+                        FlowID, Action,
+                        Decision1, DeclineReason1,
+                        Decision2, DeclineReason2,
+                        TerminationReason,
+                        DocumentDate,
+                        NoticeToMoveDate,
+                        NoticeToMoveReported,
+                        Mode
+                    );
                 }
             }
         });
@@ -420,933 +471,4 @@ window.loadRAActionForm = function() {
     setTimeout(function() {
         reloadActionForm();
     }, 100);
-};
-
-
-// -------------------------------------------------------------------------------
-// Rental Agreement Action - In Progress form
-// -------------------------------------------------------------------------------
-window.loadRAActionInProgress = function () {
-
-    if (! w2ui.RAActionInProgress) {
-        // InProgress form
-        $().w2form({
-            name: 'RAActionInProgress',
-            style: 'background-color: white; display: block;',
-            focus: -1,
-            url: 'v1/actionss/',
-            formURL: '/webclient/html/raflow/formra-actioninprogress.html',
-            fields: [
-                { field: 'RAActions', type: 'list', width: 120, required: true, options: {items: app.w2ui.listItems.RAActions}},
-                { field: 'RATerminationReason', type: 'list', width: 120, required: true, hidden: true, 
-                    options: {}
-                }
-            ],
-            onChange: function (event) {
-                event.done(function(){
-                    w2ui.RAActionInProgress.refresh();
-                });
-
-                if(event.target === 'RAActions') {
-                    switch (event.value_new.text) {
-                        case 'Terminate':
-                            w2ui.RAActionInProgress.get('RATerminationReason').hidden = false;
-                            break;
-                        default:
-                            w2ui.RAActionInProgress.get('RATerminationReason').hidden = true;
-                            delete this.record.RATerminationReason;
-
-                            this.clear();
-                    }
-                }
-            },
-            onRefresh: function (event) {
-                console.log('onRefresh of RAActionInProgress');
-                var activeFlowID = app.raflow.activeFlowID;
-                var data = app.raflow.data[activeFlowID].Data;
-                var raFlags = data.meta.RAFLAGS;
-                var raStateString = app.RAStates[parseInt(raFlags & 0xf)];
-                $('#RAActionStateLable').text(raStateString);
-
-            },
-            onRender: function (event) {
-                event.done(function(){
-                    var BID = getCurrentBID();
-                    this.get('RATerminationReason').options.items = getSLStringList(BID, "WhyLeaving");
-                });
-                console.log('onRender of RAActionInProgress');
-                w2ui.RAActionInProgress.record = {
-                    RAActions: {id: -1, text: "--Select an Action--"},
-                };
-            },
-            actions: {
-                save: function () {
-                    if( this.record.RAActions.id === -1 ) {
-                        return;
-                    }
-
-                    if( this.record.RATerminationReason != undefined && this.record.RATerminationReason.id === 0) {
-                        return;
-                    }
-
-                    var FlowID = app.raflow.activeFlowID;
-                    var Decision = 0;
-                    var Reason = 0;
-                    var Action = this.record.RAActions.id;
-                    submitActionForm(FlowID, Decision, Reason, Action);
-
-                    // var actionn = w2ui.RAActionInProgress.record.RAActions.text;
-                    // var raFlags = app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS;
-                    // raFlags = raFlags & ~(0xf);
-
-                    // switch (actionn) {
-                    //     case "Edit Rental Agreement Information" :
-                    //         raFlags = raFlags | 0;
-                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         break;
-                    //     case "Authorize First Approval" :
-                    //         raFlags = raFlags | 1;
-                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         break;
-                    //     case "Authorize Second Approval" :
-                    //         raFlags = raFlags | 2;
-                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         break;
-                    //     case "Complete Move In" :
-                    //         raFlags = raFlags | 3;
-                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         break;
-                    //     case "Terminate" :
-                    //         if(this.record.RATerminationReason != undefined) {
-                    //             raFlags = raFlags | 5;
-                    //             app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         }else {
-                    //             return;
-                    //         }
-                    //         break;
-                    //     case "Received Notice To Move" :
-                    //         raFlags = raFlags | 6;
-                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         break;
-                    //     default:
-                    // }
-
-                    // loadRAActionTemplate();
-                }
-            }
-        });
-    }
-    // now render the form in specifiec targeted panel
-    w2ui.actionLayout.content('main', w2ui.RAActionInProgress);
-};
-
-// -------------------------------------------------------------------------------
-// Rental Agreement Action - First Approval form
-// -------------------------------------------------------------------------------
-window.loadRAActionFirstApproval = function () {
-    if (! w2ui.RAActionFirstApproval) {
-        // FirstApproval form
-        $().w2form({
-            name: 'RAActionFirstApproval',
-            style: 'background-color: white; display: block;',
-            focus: -1,
-            formURL: '/webclient/html/raflow/formra-actionfirstapproval.html',
-            fields: [
-                { field: 'RAActions', type: 'list', width: 120, required: true,
-                    options: {
-                        items: app.w2ui.listItems.RAActions
-                    }
-                },
-                { field: 'RAApprovalDecision1', type: 'list', width: 120, required: true, hidden: true,
-                    options: {
-                        items: [{id: 1, text: "Approve"}, {id: 2, text: "Decline"}]
-                    }
-                },
-                { field: 'RADeclineReason1', type: 'list', width: 120, required: true, hidden: true,
-                    options: {
-                        items: [{id: 1, text: 'Temp1'}, {id: 2, text: 'Temp2'}]
-                    }
-                },
-                { field: 'RATerminationReason', type: 'list', width: 120, required: true, hidden: true, 
-                    options: {}
-                }
-            ],
-            onChange: function (event) {
-                event.done(function(){
-                    w2ui.RAActionFirstApproval.refresh();
-                });
-
-                if(event.target === 'RAActions') {
-                    switch (event.value_new.text) {
-                        case 'Authorize First Approval':
-                            w2ui.RAActionFirstApproval.get('RAApprovalDecision1').hidden = false;
-                            w2ui.RAActionFirstApproval.get('RATerminationReason').hidden = true;
-                            delete this.record.RATerminationReason;
-                            break;
-                        case 'Terminate':
-                            w2ui.RAActionFirstApproval.get('RATerminationReason').hidden = false;
-
-                            w2ui.RAActionFirstApproval.get('RAApprovalDecision1').hidden = true;
-                            w2ui.RAActionFirstApproval.get('RADeclineReason1').hidden = true;
-                            delete this.record.RAApprovalDecision1;
-                            delete this.record.RADeclineReason1;
-                            break;
-                        default:
-                            w2ui.RAActionFirstApproval.get('RAApprovalDecision1').hidden = true;
-                            w2ui.RAActionFirstApproval.get('RADeclineReason1').hidden = true;
-                            w2ui.RAActionFirstApproval.get('RATerminationReason').hidden = true;
-                            delete this.record.RAApprovalDecision1;
-                            delete this.record.RADeclineReason1;
-                            delete this.record.RATerminationReason;
-                            this.clear();
-                    }
-                }
-                if(event.target === 'RAApprovalDecision1') {
-                    if(event.value_new.text === 'Decline') {
-                        w2ui.RAActionFirstApproval.get('RADeclineReason1').hidden = false;
-                    } else {
-                        w2ui.RAActionFirstApproval.get('RADeclineReason1').hidden = true;
-                        delete this.record.RADeclineReason1;
-                    }
-                    w2ui.RAActionFirstApproval.refresh();
-                }
-            },
-            onRefresh: function (event) {
-                console.log('onRefresh of RAActionFirstApproval');
-                var activeFlowID = app.raflow.activeFlowID;
-                var data = app.raflow.data[activeFlowID].Data;
-                var raFlags = data.meta.RAFLAGS;
-                var raStateString = app.RAStates[parseInt(raFlags & 0xf)];
-                var RAID = data.meta.RAID;
-                if(RAID > 0) {
-                    raStateString = 'Modification ' + raStateString;
-                }
-                $('#RAActionStateLable').text(raStateString);
-            },
-            onRender: function (event) {
-                event.done(function(){
-                    var BID = getCurrentBID();
-                    this.get('RADeclineReason1').options.items = getSLStringList(BID, "ApplDeny");
-                    this.get('RATerminationReason').options.items = getSLStringList(BID, "WhyLeaving");
-                });
-                console.log('onRender of RAActionFirstApproval');
-                w2ui.RAActionFirstApproval.record = {
-                    RAActions: {id: -1, text: "--Select an Action--"}
-                };
-            },
-            actions: {
-                save: function () {
-                    if( this.record.RAActions.id === -1) {
-                        return;
-                    }
-
-                    if( this.record.RADeclineReason1 != undefined && this.record.RADeclineReason1.id === 0) {
-                        return;
-                    }
-
-                    if( !(this.record.RATerminationReason && this.record.RATerminationReason.id > 0)) {
-                        return;
-                    }
-
-                    var FlowID = app.raflow.activeFlowID;
-                    var Decision = (this.record.RAApprovalDecision1 != undefined) ? this.record.RAApprovalDecision1 : 0;
-                    var Reason = (this.record.RADeclineReason1 != undefined) ? this.record.RADeclineReason1 : 0;
-                    var Action = this.record.RAActions.id;
-                    submitActionForm(FlowID, Decision, Reason, Action);
-
-                    // var actionn = w2ui.RAActionFirstApproval.record.RAActions.text;
-                    // var raFlags = app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS;
-                    // raFlags = raFlags & ~(0xf);
-
-                    // switch (actionn) {
-                    //     case "Edit Rental Agreement Information" :
-                    //         raFlags = raFlags | 0;
-                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         break;
-                    //     case "Authorize First Approval" :
-                    //         if(this.record.RAApprovalDecision1 != undefined) {
-                    //             if (this.record.RAApprovalDecision1.text === 'Decline' && this.record.RADeclineReason1 === undefined) {
-                    //                 return;
-                    //             }
-                    //             raFlags = raFlags | 2;
-                    //             app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         }else {
-                    //             return;
-                    //         }
-                    //         break;
-                    //     case "Authorize Second Approval" :
-                    //         raFlags = raFlags | 2;
-                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         break;
-                    //     case "Complete Move In" :
-                    //         raFlags = raFlags | 3;
-                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         break;
-                    //     case "Terminate" :
-                    //         if(this.record.RATerminationReason != undefined) {
-                    //             raFlags = raFlags | 5;
-                    //             app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         }else {
-                    //             return;
-                    //         }
-                    //         break;
-                    //     case "Received Notice To Move" :
-                    //         raFlags = raFlags | 6;
-                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         break;
-                    // }
-                    // w2ui.actionLayout.get('main').content.destroy();
-                    // loadRAActionTemplate();
-                }
-            }
-        });
-    }
-    // now render the form in specifiec targeted panel
-    w2ui.actionLayout.content('main', w2ui.RAActionFirstApproval);
-};
-
-// -------------------------------------------------------------------------------
-// Rental Agreement Action - Second Approval form
-// -------------------------------------------------------------------------------
-window.loadRAActionSecondApproval = function () {
-    if (! w2ui.RAActionSecondApproval) {
-        // SecondApproval form
-        $().w2form({
-            name: 'RAActionSecondApproval',
-            style: 'background-color: white; display: block;',
-            focus: -1,
-            formURL: '/webclient/html/raflow/formra-actionsecondapproval.html',
-            fields: [
-                { field: 'RAActions', type: 'list', width: 120, required: true,
-                    options: {
-                        items: app.w2ui.listItems.RAActions
-                    }
-                },
-                { field: 'RAApprovalDecision2', type: 'list', width: 120, required: true, hidden: true,
-                    options: {
-                        items: [{id: 1, text: "Approve"}, {id: 2, text: "Decline"}]
-                    }
-                },
-                { field: 'RADeclineReason2', type: 'list', width: 120, required: true, hidden: true,
-                    options: {
-                        items: [{id: 1, text: 'Temp1'}, {id: 2, text: 'Temp2'}]
-                    }
-                },
-                { field: 'RATerminationReason', type: 'list', width: 120, required: true, hidden: true, 
-                    options: {}
-                }
-            ],
-            onChange: function (event) {
-                event.done(function(){
-                    w2ui.RAActionSecondApproval.refresh();
-                });
-
-                if(event.target === 'RAActions') {
-                    switch (event.value_new.text) {
-                        case 'Authorize Second Approval':
-                            w2ui.RAActionSecondApproval.get('RAApprovalDecision2').hidden = false;
-                            w2ui.RAActionSecondApproval.get('RATerminationReason').hidden = true;
-                            delete this.record.RATerminationReason;
-                            break;
-                        case 'Terminate':
-                            w2ui.RAActionSecondApproval.get('RATerminationReason').hidden = false;
-
-                            w2ui.RAActionSecondApproval.get('RAApprovalDecision2').hidden = true;
-                            w2ui.RAActionSecondApproval.get('RADeclineReason2').hidden = true;
-                            delete this.record.RAApprovalDecision2;
-                            delete this.record.RADeclineReason2;
-                            break;
-                        default:
-                            w2ui.RAActionSecondApproval.get('RAApprovalDecision2').hidden = true;
-                            w2ui.RAActionSecondApproval.get('RADeclineReason2').hidden = true;
-                            w2ui.RAActionSecondApproval.get('RATerminationReason').hidden = true;
-                            delete this.record.RAApprovalDecision2;
-                            delete this.record.RADeclineReason2;
-                            delete this.record.RATerminationReason;
-                            this.clear();
-                    }
-                }
-                if(event.target === 'RAApprovalDecision2') {
-                    if(event.value_new.text === 'Decline') {
-                        w2ui.RAActionSecondApproval.get('RADeclineReason2').hidden = false;
-                    } else {
-                        w2ui.RAActionSecondApproval.get('RADeclineReason2').hidden = true;
-                        delete this.record.RADeclineReason2;
-                    }
-                }
-            },
-            onRefresh: function (event) {
-                console.log('onRefresh of RAActionSecondApproval');
-                var activeFlowID = app.raflow.activeFlowID;
-                var data = app.raflow.data[activeFlowID].Data;
-                var raFlags = data.meta.RAFLAGS;
-                var raStateString = app.RAStates[parseInt(raFlags & 0xf)];
-                var RAID = data.meta.RAID;
-                if(RAID > 0) {
-                    raStateString = 'Modification ' + raStateString;
-                }
-                $('#RAActionStateLable').text(raStateString);
-            },
-            onRender: function (event) {
-                event.done(function(){
-                    var BID = getCurrentBID();
-                    this.get('RADeclineReason2').options.items = getSLStringList(BID, "ApplDeny");
-                    this.get('RATerminationReason').options.items = getSLStringList(BID, "WhyLeaving");
-                });
-                console.log('onRender of RAActionSecondApproval');
-                w2ui.RAActionSecondApproval.record = {
-                    RAActions: {id: -1, text: "--Select an Action--"}
-                };
-            },
-            actions: {
-                save: function () {
-                    if( this.record.RAActions.id === -1 ) {
-                        return;
-                    }
-
-                    if( this.record.RADeclineReason2 != undefined && this.record.RADeclineReason2.id === 0) {
-                        return;
-                    }
-
-                    if( this.record.RATerminationReason != undefined && this.record.RATerminationReason.id === 0) {
-                        return;
-                    }
-
-                    var FlowID = app.raflow.activeFlowID;
-                    var Decision = (this.record.RAApprovalDecision2 != undefined) ? this.record.RAApprovalDecision2 : 0;
-                    var Reason = (this.record.RADeclineReason2 != undefined) ? this.record.RADeclineReason2 : 0;
-                    var Action = this.record.RAActions.id;
-                    submitActionForm(FlowID, Decision, Reason, Action);
-
-                    // var actionn = w2ui.RAActionSecondApproval.record.RAActions.text;
-                    // var raFlags = app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS;
-                    // raFlags = raFlags & ~(0xf);
-
-                    // switch (actionn) {
-                    //     case "Edit Rental Agreement Information" :
-                    //         raFlags = raFlags | 0;
-                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         break;
-                    //     case "Authorize First Approval" :
-                    //         raFlags = raFlags | 1;
-                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         break;
-                    //     case "Authorize Second Approval" :
-                    //         if(this.record.RAApprovalDecision2 != undefined) {
-                    //             if (this.record.RAApprovalDecision2.text === 'Decline' && this.record.RADeclineReason2 === undefined) {
-                    //                 return;
-                    //             }
-                    //             raFlags = raFlags | 3;
-                    //             app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         }else {
-                    //             return;
-                    //         }
-                    //         break;
-                    //     case "Complete Move In" :
-                    //         raFlags = raFlags | 3;
-                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         break;
-                    //     case "Terminate" :
-                    //         if(this.record.RATerminationReason != undefined) {
-                    //             raFlags = raFlags | 5;
-                    //             app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         }else {
-                    //             return;
-                    //         }
-                    //         break;
-                    //     case "Received Notice To Move" :
-                    //         raFlags = raFlags | 6;
-                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         break;
-                    // }
-                    // w2ui.actionLayout.get('main').content.destroy();
-                    // loadRAActionTemplate();
-                }
-            }
-        });
-    }
-    // now render the form in specifiec targeted panel
-    w2ui.actionLayout.content('main', w2ui.RAActionSecondApproval);
-};
-
-// -------------------------------------------------------------------------------
-// Rental Agreement Action - Move-In form
-// -------------------------------------------------------------------------------
-window.loadRAActionMoveIn = function () {
-    if (! w2ui.RAActionMoveIn) {
-        // Move-In form
-        $().w2form({
-            name: 'RAActionMoveIn',
-            style: 'background-color: white; display: block;',
-            focus: -1,
-            formURL: '/webclient/html/raflow/formra-actionmovein.html',
-            fields: [
-                { field: 'RAActions', type: 'list', width: 120, required: true,
-                    options: {
-                        items: app.w2ui.listItems.RAActions
-                    }
-                },
-                { field: 'RADocumentDate', type: 'date', hidden: true,
-                    options: { start: '01/01/2000' }
-                },
-                { field: 'RATerminationReason', type: 'list', width: 120, required: true, hidden: true, 
-                    options: {}
-                }
-            ],
-            onChange: function (event) {
-                event.done(function(){
-                    w2ui.RAActionMoveIn.refresh();
-                });
-
-                if(event.target === 'RAActions') {
-                    switch (event.value_new.text) {
-                        case 'Complete Move In':
-                            w2ui.RAActionMoveIn.get('RADocumentDate').hidden = false;
-                            $('[name="RAGenerateRAForm"]').show();
-                            $('[name="RAGenerateMoveInInspectionForm"]').show();
-
-                            w2ui.RAActionMoveIn.get('RATerminationReason').hidden = true;
-                            delete this.record.RATerminationReason;
-                            break;
-                        case 'Terminate':
-                            w2ui.RAActionMoveIn.get('RATerminationReason').hidden = false;
-
-                            w2ui.RAActionMoveIn.get('RADocumentDate').hidden = true;
-                            $('[name="RAGenerateRAForm"]').hide();
-                            $('[name="RAGenerateMoveInInspectionForm"]').hide();
-                            break;
-                        default:
-                            w2ui.RAActionMoveIn.get('RADocumentDate').hidden = true;
-                            $('[name="RAGenerateRAForm"]').hide();
-                            $('[name="RAGenerateMoveInInspectionForm"]').hide();
-                            w2ui.RAActionMoveIn.get('RATerminationReason').hidden = true;
-                            delete this.record.RATerminationReason;
-
-                            this.clear();
-                    }
-                }
-            },
-            onRefresh: function (event) {
-                console.log('onRefresh of RAActionMoveIn');
-                var activeFlowID = app.raflow.activeFlowID;
-                var data = app.raflow.data[activeFlowID].Data;
-                var raFlags = data.meta.RAFLAGS;
-                var raStateString = app.RAStates[parseInt(raFlags & 0xf)];
-                $('#RAActionStateLable').text(raStateString);
-            },
-            onRender: function (event) {
-                event.done(function(){
-                    var BID = getCurrentBID();
-                    this.get('RATerminationReason').options.items = getSLStringList(BID, "WhyLeaving");
-                    $('[name="RAGenerateRAForm"]').hide();
-                    $('[name="RAGenerateMoveInInspectionForm"]').hide();
-                });
-
-                console.log('onRender of RAActionMoveIn');
-                w2ui.RAActionMoveIn.record = {
-                    RAActions: {id: -1, text: "--Select an Action--"}
-                };
-            },
-            actions: {
-                save: function () {
-                    if( this.record.RAActions.id === -1 ) {
-                        return;
-                    }
-
-                    if( this.record.RATerminationReason != undefined && this.record.RATerminationReason.id === 0) {
-                        return;
-                    }
-
-                    var FlowID = app.raflow.activeFlowID;
-                    var Decision = 0;
-                    var Reason = 0;
-                    var Action = this.record.RAActions.id;
-                    submitActionForm(FlowID, Decision, Reason, Action);
-
-                    // var actionn = w2ui.RAActionMoveIn.record.RAActions.text;
-                    // var raFlags = app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS;
-                    // raFlags = raFlags & ~(0xf);
-
-                    // switch (actionn) {
-                    //     case "Edit Rental Agreement Information" :
-                    //         raFlags = raFlags | 0;
-                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         break;
-                    //     case "Authorize First Approval" :
-                    //         raFlags = raFlags | 1;
-                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         break;
-                    //     case "Authorize Second Approval" :
-                    //         raFlags = raFlags | 2;
-                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         break;
-                    //     case "Complete Move In" :
-                    //         raFlags = raFlags | 4;
-                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         break;
-                    //     case "Terminate" :
-                    //         if(this.record.RATerminationReason != undefined) {
-                    //             raFlags = raFlags | 5;
-                    //             app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         }else {
-                    //             return;
-                    //         }
-                    //         break;
-                    //     case "Received Notice To Move" :
-                    //         raFlags = raFlags | 6;
-                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         break;
-                    // }
-                    // w2ui.actionLayout.get('main').content.destroy();
-                    // loadRAActionTemplate();
-                },
-                RAGenerateRAForm: function() {
-                },
-                RAGenerateMoveInInspectionForm: function() {
-                }
-            }
-        });
-    }
-    // now render the form in specifiec targeted panel
-    w2ui.actionLayout.content('main', w2ui.RAActionMoveIn);
-};
-
-// -------------------------------------------------------------------------------
-// Rental Agreement Action - Active form
-// -------------------------------------------------------------------------------
-window.loadRAActionActive = function () {
-    if (! w2ui.RAActionActive) {
-        // Move-In form
-        $().w2form({
-            name: 'RAActionActive',
-            style: 'background-color: white; display: block;',
-            focus: -1,
-            formURL: '/webclient/html/raflow/formra-actionactive.html',
-            fields: [
-                { field: 'RAActions', type: 'list', width: 120, required: true,
-                    options: {
-                        items: app.w2ui.listItems.RAActions
-                    }
-                },
-                { field: 'RATerminationReason', type: 'list', width: 120, required: true, hidden: true, 
-                    options: {}
-                }
-            ],
-            onChange: function (event) {
-                event.done(function(){
-                    w2ui.RAActionActive.refresh();
-                });
-
-                if(event.target === 'RAActions') {
-                    switch (event.value_new.text) {
-                        case 'Terminate':
-                            w2ui.RAActionActive.get('RATerminationReason').hidden = false;
-                            break;
-                        default:
-                            w2ui.RAActionActive.get('RATerminationReason').hidden = true;
-                            delete this.record.RATerminationReason;
-
-                            this.clear();
-                    }
-                }
-            },
-            onRefresh: function (event) {
-                console.log('onRefresh of RAActionActive');
-                var activeFlowID = app.raflow.activeFlowID;
-                var data = app.raflow.data[activeFlowID].Data;
-                var raFlags = data.meta.RAFLAGS;
-                var raStateString = app.RAStates[parseInt(raFlags & 0xf)];
-                $('#RAActionStateLable').text(raStateString);
-            },
-            onRender: function (event) {
-                event.done(function(){
-                    var BID = getCurrentBID();
-                    this.get('RATerminationReason').options.items = getSLStringList(BID, "WhyLeaving");
-                });
-                console.log('onRender of RAActionActive');
-                w2ui.RAActionActive.record = {
-                    RAActions: {id: -1, text: "--Select an Action--"}
-                };
-            },
-            actions: {
-                save: function () {
-                    if( this.record.RAActions.id === -1 ) {
-                        return;
-                    }
-
-                    if( this.record.RATerminationReason != undefined && this.record.RATerminationReason.id === 0) {
-                        return;
-                    }
-
-                    var FlowID = app.raflow.activeFlowID;
-                    var Decision = 0;
-                    var Reason = 0;
-                    var Action = this.record.RAActions.id;
-                    submitActionForm(FlowID, Decision, Reason, Action);
-
-                    // var actionn = w2ui.RAActionActive.record.RAActions.text;
-                    // var raFlags = app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS;
-                    // raFlags = raFlags & ~(0xf);
-
-                    // switch (actionn) {
-                    //     case "Edit Rental Agreement Information" :
-                    //         raFlags = raFlags | 0;
-                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         break;
-                    //     case "Authorize First Approval" :
-                    //         raFlags = raFlags | 1;
-                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         break;
-                    //     case "Authorize Second Approval" :
-                    //         raFlags = raFlags | 2;
-                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         break;
-                    //     case "Complete Move In" :
-                    //         raFlags = raFlags | 3;
-                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         break;
-                    //     case "Terminate" :
-                    //         if(this.record.RATerminationReason != undefined) {
-                    //             raFlags = raFlags | 5;
-                    //             app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         }else {
-                    //             return;
-                    //         }
-                    //         break;
-                    //     case "Received Notice To Move" :
-                    //         raFlags = raFlags | 6;
-                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         break;
-                    // }
-                    // w2ui.actionLayout.get('main').content.destroy();
-                    // loadRAActionTemplate();
-                }
-            }
-        });
-    }
-    // now render the form in specifiec targeted panel
-    w2ui.actionLayout.content('main', w2ui.RAActionActive);
-};
-
-// -------------------------------------------------------------------------------
-// Rental Agreement Action - Terminated form
-// -------------------------------------------------------------------------------
-window.loadRAActionTerminated = function () {
-    if (! w2ui.RAActionTerminated) {
-        // Terminated form
-        $().w2form({
-            name: 'RAActionTerminated',
-            style: 'background-color: white; display: block;',
-            focus: -1,
-            formURL: '/webclient/html/raflow/formra-actionterminated.html',
-            fields: [
-                { field: 'RAActions', type: 'list', width: 120, required: true,
-                    options: {
-                        items: app.w2ui.listItems.RAActions
-                    }
-                }
-            ],
-            onRefresh: function (event) {
-                console.log('onRefresh of RAActionTerminated');
-                var activeFlowID = app.raflow.activeFlowID;
-                var data = app.raflow.data[activeFlowID].Data;
-                var raFlags = data.meta.RAFLAGS;
-                var raStateString = app.RAStates[parseInt(raFlags & 0xf)];
-                $('#RAActionStateLable').text(raStateString);
-            },
-            onRender: function (event) {
-                console.log('onRender of RAActionTerminated');
-                w2ui.RAActionTerminated.record = {
-                    RAActions: {id: -1, text: "--Select an Action--"}
-                };
-            },
-            actions: {
-                save: function () {
-                    if( this.record.RAActions.id === -1 ) {
-                        return;
-                    }
-
-                    if( this.record.RATerminationReason != undefined && this.record.RATerminationReason.id === 0) {
-                        return;
-                    }
-
-                    var FlowID = app.raflow.activeFlowID;
-                    var Decision = 0;
-                    var Reason = 0;
-                    var Action = this.record.RAActions.id;
-                    submitActionForm(FlowID, Decision, Reason, Action);
-
-                    // var actionn = w2ui.RAActionTerminated.record.RAActions.text;
-                    // var raFlags = app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS;
-                    // raFlags = raFlags & ~(0xf);
-
-                    // switch (actionn) {
-                    //     case "Edit Rental Agreement Information" :
-                    //         raFlags = raFlags | 0;
-                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         break;
-                    //     case "Authorize First Approval" :
-                    //         raFlags = raFlags | 1;
-                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         break;
-                    //     case "Authorize Second Approval" :
-                    //         raFlags = raFlags | 2;
-                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         break;
-                    //     case "Complete Move In" :
-                    //         raFlags = raFlags | 3;
-                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         break;
-                    //     case "Terminate" :
-                    //         return;
-                    //     case "Received Notice To Move" :
-                    //         raFlags = raFlags | 6;
-                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         break;
-                    // }
-                    // w2ui.actionLayout.get('main').content.destroy();
-                    // loadRAActionTemplate();
-                },
-                RAGenerateMoveOutForm: function () {
-
-                }
-            }
-        });
-    }
-    // now render the form in specifiec targeted panel
-    w2ui.actionLayout.content('main', w2ui.RAActionTerminated);
-};
-
-// -------------------------------------------------------------------------------
-// Rental Agreement Action - Notice To Move form
-// -------------------------------------------------------------------------------
-window.loadRAActionNoticeToMove = function () {
-    if (! w2ui.RAActionNoticeToMove) {
-        // Notice To Move form
-        $().w2form({
-            name: 'RAActionNoticeToMove',
-            style: 'background-color: white; display: block;',
-            focus: -1,
-            formURL: '/webclient/html/raflow/formra-actionnoticetomove.html',
-            fields: [
-                { field: 'RAActions', type: 'list', width: 120, required: true,
-                    options: {
-                        items: app.w2ui.listItems.RAActions
-                    }
-                },
-                { field: 'RANoticeToMoveDate', type: 'date', hidden: true,
-                    options: { start: '01/01/2000' }
-                },
-                { field: 'RANoticeToMoveReported', type: 'date', hidden: true,
-                    options: { start: '01/01/2000' }
-                },
-                { field: 'RATerminationReason', type: 'list', width: 120, required: true, hidden: true, 
-                    options: {}
-                }
-            ],
-            onChange: function (event) {
-                event.done(function(){
-                    w2ui.RAActionNoticeToMove.refresh();
-                });
-
-                if(event.target === 'RAActions') {
-                    switch (event.value_new.text) {
-                        case 'Received Notice To Move':
-                            w2ui.RAActionNoticeToMove.get('RANoticeToMoveDate').hidden = false;
-                            w2ui.RAActionNoticeToMove.get('RANoticeToMoveReported').hidden = false;
-
-                            w2ui.RAActionNoticeToMove.get('RATerminationReason').hidden = true;
-                            delete this.record.RATerminationReason;
-                            break;
-                        case 'Terminate':
-                            w2ui.RAActionNoticeToMove.get('RATerminationReason').hidden = false;
-                            w2ui.RAActionNoticeToMove.get('RANoticeToMoveDate').hidden = true;
-                            w2ui.RAActionNoticeToMove.get('RANoticeToMoveReported').hidden = true;
-                            break;
-                        default:
-                            w2ui.RAActionNoticeToMove.get('RANoticeToMoveDate').hidden = true;
-                            w2ui.RAActionNoticeToMove.get('RANoticeToMoveReported').hidden = true;
-
-                            w2ui.RAActionNoticeToMove.get('RATerminationReason').hidden = true;
-                            delete this.record.RATerminationReason;
-
-                            this.clear();
-                    }
-                }
-            },
-            onRefresh: function (event) {
-                console.log('onRefresh of RAActionNoticeToMove');
-                var activeFlowID = app.raflow.activeFlowID;
-                var data = app.raflow.data[activeFlowID].Data;
-                var raFlags = data.meta.RAFLAGS;
-                var raStateString = app.RAStates[parseInt(raFlags & 0xf)];
-                $('#RAActionStateLable').text(raStateString);
-            },
-            onRender: function (event) {
-                event.done(function(){
-                    var BID = getCurrentBID();
-                    this.get('RATerminationReason').options.items = getSLStringList(BID, "WhyLeaving");
-                });
-                console.log('onRender of RAActionTerminated');
-                w2ui.RAActionNoticeToMove.record = {
-                    RAActions: {id: -1, text: "--Select an Action--"}
-                };
-            },
-            actions: {
-                save: function () {
-                    if( this.record.RAActions.id === -1 ) {
-                        return;
-                    }
-
-                    if( this.record.RATerminationReason != undefined && this.record.RATerminationReason.id === 0) {
-                        return;
-                    }
-
-                    var FlowID = app.raflow.activeFlowID;
-                    var Decision = 0;
-                    var Reason = 0;
-                    var Action = this.record.RAActions.id;
-                    submitActionForm(FlowID, Decision, Reason, Action);
-                    
-                    // var actionn = w2ui.RAActionNoticeToMove.record.RAActions.text;
-                    // var raFlags = app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS;
-                    // raFlags = raFlags & ~(0xf);
-
-                    // switch (actionn) {
-                    //     case "Edit Rental Agreement Information" :
-                    //         raFlags = raFlags | 0;
-                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         break;
-                    //     case "Authorize First Approval" :
-                    //         raFlags = raFlags | 1;
-                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         break;
-                    //     case "Authorize Second Approval" :
-                    //         raFlags = raFlags | 2;
-                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         break;
-                    //     case "Complete Move In" :
-                    //         raFlags = raFlags | 3;
-                    //         app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         break;
-                    //     case "Terminate" :
-                    //         if(this.record.RATerminationReason != undefined) {
-                    //             raFlags = raFlags | 5;
-                    //             app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS = raFlags;
-                    //         }else {
-                    //             return;
-                    //         }
-                    //         break;
-                    //     case "Received Notice To Move" :
-                    //         break;
-                    // }
-                    // w2ui.actionLayout.get('main').content.destroy();
-                    // loadRAActionTemplate();
-                }
-            }
-
-        });
-    }
-    // now render the form in specifiec targeted panel
-    w2ui.actionLayout.content('main', w2ui.RAActionNoticeToMove);
 };

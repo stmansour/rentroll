@@ -7,15 +7,22 @@ import (
 	"fmt"
 	"net/http"
 	"rentroll/rlib"
+	"time"
 )
 
 // RAActionDataRequest is a struct to hold info about actions taken on Rental Agreement
 type RAActionDataRequest struct {
-	FlowID   int64 // Flow ID of Rental Agreement
-	Decision int64 // 0 - NoApprovalField, 1 - RA Approved, 2 - RA Declined
-	Reason   int64 // 0 - NoReasonField, great than 0 - Reason for Decline or Terminate
-	Action   int64 // If '-1' then Do nothing
-
+	FlowID               int64         // Flow ID of Rental Agreement
+	Action               int64         // If '-1' then Do nothing
+	Decision1            int64         // 0 - NoApprovalDecision1Field, 1 - RA Approved, 2 - RA Declined
+	DeclineReason1       int64         // 0 - NoDeclineReason1Field, great than 0 - Reason for Decline
+	Decision2            int64         // 0 - NoApprovalDecision2Field, 1 - RA Approved, 2 - RA Declined
+	DeclineReason2       int64         // 0 - NoDeclineReason2Field, great than 0 - Reason for Decline
+	TerminationReason    int64         // 0 - NoTerminationReasonField, great than 0 - Reason for Termination
+	DocumentDate         rlib.JSONDate // date when rental agreement was signed
+	NoticeToMoveDate     rlib.JSONDate // date RA was given Notice-To-Move
+	NoticeToMoveReported rlib.JSONDate // date RA was set to Terminated because of moving out
+	Mode                 string        // It represents that which button submitted the form
 }
 
 // SvcSetRAState sets the state of Rental Agreement and updates meta info of RA
@@ -25,10 +32,10 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		g          FlowResponse
 		raFlowData rlib.RAFlowJSONData
 		foo        RAActionDataRequest
-		// today      = time.Now()
-		err error
-		tx  *sql.Tx
-		ctx context.Context
+		today      = time.Now()
+		err        error
+		tx         *sql.Tx
+		ctx        context.Context
 	)
 	fmt.Printf("Entered %s\n", funcname)
 
@@ -86,29 +93,74 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// get meta in modRAFlowMeta, we're going to modify it
 	modRAFlowMeta := raFlowData.Meta
 
+	MODE := foo.Mode
 	state := raFlowData.Meta.RAFLAGS & ^(0xf)
 
-	switch foo.Action {
-	case 0: // Edit Rental Agreement Information
+	switch MODE {
+	case "Action":
+		switch foo.Action {
+		case 0: // Application Being Completed
+			modRAFlowMeta.RAFLAGS = (state | 0)
+
+		case 1: // Set To First Approval
+			modRAFlowMeta.RAFLAGS = (state | 1)
+
+		case 2: // Set To Second Approval
+			modRAFlowMeta.RAFLAGS = (state | 2)
+
+		case 3: // Set To Move-In
+			modRAFlowMeta.RAFLAGS = (state | 3)
+
+		case 4: // Complete Move-In
+			modRAFlowMeta.RAFLAGS = (state | 4)
+		case 5: // Terminate
+			if foo.TerminationReason > 0 {
+				modRAFlowMeta.TerminatorUID = d.sess.UID
+				modRAFlowMeta.TerminationDate = rlib.JSONDate(today)
+				modRAFlowMeta.LeaseTerminationReason = foo.TerminationReason
+
+				modRAFlowMeta.RAFLAGS = (state | 5)
+			} else {
+				// return err
+				err := fmt.Errorf("Termination Reason not present.")
+				SvcErrorReturn(w, err, funcname)
+				return
+			}
+
+		case 6: // Notice-To-Move
+			modRAFlowMeta.NoticeToMoveDate = foo.NoticeToMoveDate
+			modRAFlowMeta.NoticeToMoveReported = foo.NoticeToMoveReported
+
+			modRAFlowMeta.RAFLAGS = (state | 6)
+
+		default:
+		}
+	}
+
+	/*switch foo.Action {
+	case 0: // Application Being Completed
 		modRAFlowMeta.RAFLAGS = (state | 0)
 
-	case 1: // Authorize First Approval
+	case 1: // Set To First Approval
 		modRAFlowMeta.RAFLAGS = (state | 1)
 
-	case 2: // Authorize Second Approval
+	case 2: // Set To Second Approval
 		modRAFlowMeta.RAFLAGS = (state | 2)
 
-	case 3: // Complete Move In
+	case 3: // Set To Move-In
+		modRAFlowMeta.RAFLAGS = (state | 3)
+
+	case 4: // Complete Move-In
 		modRAFlowMeta.RAFLAGS = (state | 4)
 
-	case 4: // Terminate
+	case 5: // Terminate
 		modRAFlowMeta.RAFLAGS = (state | 5)
 
-	case 5: // Recieved Notice To Move
+	case 6: // Recieved Notice-To-Move
 		modRAFlowMeta.RAFLAGS = (state | 6)
 
 	default:
-	}
+	}*/
 
 	//-------------------------------------------------------
 	// MODIFY META DATA TOO
