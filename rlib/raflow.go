@@ -91,17 +91,17 @@ type RAFlowMetaInfo struct {
 	HaveVehicles           bool
 	RAFLAGS                int64
 	Approver1              int64
-	DecisionDate1          JSONDateTime
+	DecisionDate1          JSONDate
 	DeclineReason1         int64
 	Approver2              int64
-	DecisionDate2          JSONDateTime
+	DecisionDate2          JSONDate
 	DeclineReason2         int64
 	TerminatorUID          int64
-	TerminationDate        JSONDateTime
+	TerminationDate        JSONDate
 	LeaseTerminationReason int64
-	DocumentDate           JSONDateTime
-	NoticeToMoveDate       JSONDateTime
-	NoticeToMoveReported   JSONDateTime
+	DocumentDate           JSONDate
+	NoticeToMoveDate       JSONDate
+	NoticeToMoveReported   JSONDate
 }
 
 // RADatesFlowData contains data in the dates part of RA flow

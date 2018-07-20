@@ -282,7 +282,9 @@ window.buildRAApplicantElements = function() {
 
                             w2ui.newraLayout.lock('main');
                             // set the newralayout's right panel content
-                            loadRAActionTemplate();
+                            setTimeout(function() {
+                                loadRAActionTemplate();
+                            }, 500);
                             break;
                         }
                     },
