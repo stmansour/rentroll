@@ -311,9 +311,19 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 	}
+
 	if flow.ID == ra.RAID {
-		var g FlowResponse
-		g.Record = flow
+		// get unmarshalled raflow data into struct
+		err = json.Unmarshal(flow.Data, &raFlowData)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+		// Perform basic validation on flow data
+		bizlogic.ValidateRAFlowBasic(r.Context(), &raFlowData, &raFlowResponse.BasicCheck)
+		raFlowResponse.Flow = flow
+		// set the response
+		g.Record = raFlowResponse
 		g.Status = "success"
 		SvcWriteResponse(d.BID, &g, w)
 		return
