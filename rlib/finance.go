@@ -719,8 +719,24 @@ func GetEpochFromBaseDate(b, d1, d2 time.Time, cycle int64) (ok bool, epoch time
 		if epoch.Before(d1) {
 			epoch = epoch.AddDate(0, 0, 1)
 		}
-	case RECURWEEKLY: // TODO(Sudip): FIX WEEKLY CYCLE
+	case RECURWEEKLY:
+		d1wd := int(d1.Weekday()) // START DATE WEEKDAY
+		bwd := int(b.Weekday())   // BASE EPOCH DATE WEEKDAY
 		epoch = time.Date(d1.Year(), d1.Month(), d1.Day(), b.Hour(), b.Minute(), b.Second(), b.Nanosecond(), b.Location())
+
+		// IF IT IS SAME DAY
+		if bwd == d1wd {
+			// IF START IS BEFORE EPOCH THEN NOTHING TO DO
+			// BUT, IF START IS AFTER EPOCH ON THE SAME DAY i.e, EPOHC IS PASSED THEN
+			if d1.After(epoch) {
+				epoch = epoch.AddDate(0, 0, 7-d1wd+bwd)
+			}
+		} else if d1wd < bwd { // IF START WEEKDAY IS BEFORE
+			epoch = epoch.AddDate(0, 0, bwd-d1wd)
+		} else { // IF START WEEKDAY IS FALLS AFTER
+			epoch = epoch.AddDate(0, 0, 7-d1wd+bwd)
+		}
+
 	case RECURMONTHLY:
 		epoch = time.Date(d1.Year(), d1.Month(), b.Day(), b.Hour(), b.Minute(), b.Second(), b.Nanosecond(), b.Location())
 
