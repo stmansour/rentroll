@@ -99,6 +99,9 @@ type RAFlowMetaInfo struct {
 	TerminatorUID          int64
 	TerminationDate        JSONDateTime
 	LeaseTerminationReason int64
+	DocumentDate           JSONDateTime
+	NoticeToMoveDate       JSONDateTime
+	NoticeToMoveReported   JSONDateTime
 }
 
 // RADatesFlowData contains data in the dates part of RA flow
