@@ -12,7 +12,6 @@ import (
 
 // FlowResponse is the response of returning updated flow with status
 type FlowResponse struct {
-	//Record rlib.Flow `json:"record"`
 	Record interface{} `json:"record"`
 	Status string      `json:"status"`
 }
