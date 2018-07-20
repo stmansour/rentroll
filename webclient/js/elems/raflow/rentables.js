@@ -30,7 +30,7 @@ window.getInitialRentableFeesData = function(BID, RID, FlowID) {
     }).done(function(data) {
         if (data.status === "success") {
             // update the local copy of flow for the active one
-            app.raflow.data[data.record.FlowID] = data.record.Flow;
+            app.raflow.data[data.record.Flow.FlowID] = data.record.Flow;
 
             // set the rentable grid records again
             AssignRentableGridRecords();
