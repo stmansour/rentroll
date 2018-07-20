@@ -508,10 +508,15 @@ DBNAME="rentroll"
 # July 19, 2018
 # ALTER TABLE Payor DROP COLUMN SSN;
 
+# July 20, 2018
+# ALTER TABLE Payor MODIFY TaxpayorID CHAR(128) NOT NULL DEFAULT '';
+
+
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================
 cat >${MODFILE} <<EOF
+ALTER TABLE Payor MODIFY TaxpayorID CHAR(128) NOT NULL DEFAULT '';
 EOF
 
 #==============================================================================

@@ -1265,7 +1265,7 @@ DROP TABLE IF EXISTS `Payor`;
 CREATE TABLE `Payor` (
   `TCID` bigint(20) NOT NULL,
   `BID` bigint(20) NOT NULL DEFAULT '0',
-  `TaxpayorID` varchar(25) NOT NULL DEFAULT '',
+  `TaxpayorID` char(128) NOT NULL DEFAULT '',
   `CreditLimit` decimal(19,4) NOT NULL DEFAULT '0.0000',
   `ThirdPartySource` bigint(20) NOT NULL DEFAULT '0',
   `EligibleFuturePayor` tinyint(1) NOT NULL DEFAULT '1',
@@ -2566,4 +2566,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-07-19 14:30:44
+-- Dump completed on 2018-07-20 18:46:53
