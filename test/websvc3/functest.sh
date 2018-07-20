@@ -195,7 +195,7 @@ dojsonPOST "http://localhost:8270/v1/closeperiod/1" "request" "g0"  "WebService-
 #  Scenario:
 #		Save a Transactant with lots of information in Prospect, User,
 #       and Payor parts. Read back info. Make sure the encrypted / decrypted
-#       values (DriversLicense) work correctly.
+#       values (TaxPayorId, DriversLicense) work correctly.
 #
 #  Expected Results:
 #	x0 - Save the user

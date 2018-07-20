@@ -520,13 +520,19 @@ func UpdatePayor(ctx context.Context, a *Payor) error {
 		// user from session, CreateBy, LastModBy
 		a.LastModBy = sess.UID
 	}
+	t1, err := Encrypt(a.TaxpayorID)
+	if err != nil {
+		return err
+	}
+	t := hex.EncodeToString(t1)
+
 	d1, err := Encrypt(a.DriversLicense)
 	if err != nil {
 		return err
 	}
 	d := hex.EncodeToString(d1)
 
-	fields := []interface{}{a.BID, a.CreditLimit, a.TaxpayorID, a.ThirdPartySource, a.EligibleFuturePayor,
+	fields := []interface{}{a.BID, a.CreditLimit, a.TaxpayorID, t, a.EligibleFuturePayor,
 		a.FLAGS, d, a.GrossIncome, a.LastModBy, a.TCID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdatePayor)

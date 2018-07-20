@@ -942,13 +942,23 @@ func ReadTransactantTypeDowns(rows *sql.Rows, a *TransactantTypeDown) error {
 
 // ReadPayor reads a full Payor structure from the database based on the supplied row object
 func ReadPayor(row *sql.Row, a *Payor) error {
-	var d1 string
-	err := row.Scan(&a.TCID, &a.BID, &a.CreditLimit, &a.TaxpayorID, &a.ThirdPartySource, &a.EligibleFuturePayor,
+	var t1, d1 string
+	err := row.Scan(&a.TCID, &a.BID, &a.CreditLimit, &a.TaxpayorID, &t1, &a.EligibleFuturePayor,
 		&a.FLAGS, &d1, &a.GrossIncome, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	SkipSQLNoRowsError(&err)
 	if err != nil {
 		return err
 	}
+	t, err := hex.DecodeString(t1)
+	if err != nil {
+		return err
+	}
+
+	a.TaxpayorID, err = DecryptOrEmpty(t)
+	if err != nil {
+		return err
+	}
+
 	d, err := hex.DecodeString(d1)
 	a.DriversLicense, err = DecryptOrEmpty(d)
 	if err != nil {
@@ -959,12 +969,23 @@ func ReadPayor(row *sql.Row, a *Payor) error {
 
 // ReadPayors reads a full Payor structure from the database based on the supplied rows object
 func ReadPayors(rows *sql.Rows, a *Payor) error {
-	var d1 string
+	var t1, d1 string
 	err := rows.Scan(&a.TCID, &a.BID, &a.CreditLimit, &a.TaxpayorID, &a.ThirdPartySource, &a.EligibleFuturePayor,
 		&a.FLAGS, &d1, &a.GrossIncome, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	if err != nil {
 		return err
 	}
+
+	t, err := hex.DecodeString(t1)
+	if err != nil {
+		return err
+	}
+
+	a.TaxpayorID, err = DecryptOrEmpty(t)
+	if err != nil {
+		return err
+	}
+
 	d, err := hex.DecodeString(d1)
 	a.DriversLicense, err = DecryptOrEmpty(d)
 	if err != nil {
