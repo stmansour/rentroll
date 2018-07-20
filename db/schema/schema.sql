@@ -253,10 +253,10 @@ CREATE TABLE RentalAgreement (
     */
     Approver1 BIGINT NOT NULL DEFAULT 0,                               -- approver 1
     DecisionDate1 DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',     -- datetime when first approver made the decision
-    DeclineReason1 BIGINT NOT NULL DEFAULT 0,                          -- Only valid if FLAGS & (1<<7) == 0, this is the SLSID to string in list of choices, why Approver1 declined the application
+    DeclineReason1 BIGINT NOT NULL DEFAULT 0,                          -- Only valid if FLAGS & (1<<4) == 0 and State >= 2, this is the SLSID to string in list of choices, why Approver1 declined the application
     Approver2 BIGINT NOT NULL DEFAULT 0,                               -- approver 2
     DecisionDate2 DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',     -- datetime when first approver made the decision
-    DeclineReason2 BIGINT NOT NULL DEFAULT 0,                          -- Only valid if FLAGS & (1<<8) == 0, this is the SLSID to string in list of choices, why Approver2 declined the application
+    DeclineReason2 BIGINT NOT NULL DEFAULT 0,                          -- Only valid if FLAGS & (1<<5) == 0, this is the SLSID to string in list of choices, why Approver2 declined the application
     Outcome BIGINT NOT NULL DEFAULT 0,                                 -- Only valid if state == Appl Elect(6), this is the SLSID of string from a list of WhyLeaving
     NoticeToMoveUID BIGINT NOT NULL DEFAULT 0,                         -- if > 0 it is the UID of the person who set this RA to state Notice To Move
     NoticeToMoveDate DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- datetime RA was given Notice-To-Move, valid only if NoticeToMoveUID >0
@@ -988,10 +988,11 @@ CREATE TABLE Payor (
     BID BIGINT NOT NULL DEFAULT 0,                               -- which business
     TaxpayorID VARCHAR(25) NOT NULL DEFAULT '',
     CreditLimit DECIMAL(19,4) NOT NULL DEFAULT 0.0,
-    ThirdPartySource BIGINT NOT NULL DEFAULT 0,                        -- Accord (renting company) Phonebook UID of account rep
+    ThirdPartySource BIGINT NOT NULL DEFAULT 0,                  -- Accord (renting company) Phonebook UID of account rep
     EligibleFuturePayor TINYINT(1) NOT NULL DEFAULT 1,           -- yes/no
     FLAGS BIGINT NOT NULL DEFAULT 0,                             /*
                                                                   */
+    SSN CHAR(128) NOT NULL DEFAULT '',                           -- ssn - encrypted
     DriversLicense CHAR(128) NOT NULL DEFAULT '',                -- drivers license number - encrypted
     GrossIncome DECIMAL(19,4) NOT NULL DEFAULT 0.0,              -- gross wages
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
@@ -1127,8 +1128,6 @@ CREATE TABLE AR (
                                                             -- 1<<7 = PETID required
                                                             -- 1<<8 = VID required
     DefaultAmount DECIMAL(19,4) NOT NULL DEFAULT 0.0,       -- amount to initialize interface with
-    DefaultRentCycle SMALLINT NOT NULL DEFAULT 0,           -- default for this account rule
-    DefaultProrationCycle SMALLINT NOT NULL DEFAULT 0,      -- default for this account rule
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,  -- when was this record created

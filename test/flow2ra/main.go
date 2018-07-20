@@ -4,6 +4,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"extres"
 	"flag"
 	"fmt"
@@ -112,7 +113,6 @@ func main() {
 // DoTest does all the useful and interesting work
 func DoTest(ctx context.Context, s *rlib.Session) {
 	var flowID = int64(App.FlowID)
-	var err error
 
 	if flowID == 0 {
 		rlib.Console("Retrieving Rental Agreement\n")
@@ -134,6 +134,17 @@ func DoTest(ctx context.Context, s *rlib.Session) {
 		if err != nil {
 			rlib.Console("DoTest - CB.err\n")
 			fmt.Printf("Could not get Flow for RAID = %d: %s\n", ra.RAID, err.Error())
+			return
+		}
+
+		//-------------------------------------------------------------------
+		// Here we select a random date on whih to apply these changes.
+		// In this case we'll use 2 months after the Agreement Start date.
+		//-------------------------------------------------------------------
+		dtUpdate := ra.AgreementStart.AddDate(0, 2, 0) // the date on which we want to start the updated RA
+		err = setUpdatedRAStartDate(ctx, flowID, &dtUpdate)
+		if err != nil {
+			fmt.Printf("Could not update start date of flow: %s\n", err.Error())
 			return
 		}
 
@@ -163,4 +174,24 @@ func DoTest(ctx context.Context, s *rlib.Session) {
 		return
 	}
 	rlib.Console("Successfully created new Rental Agreement, RAID = %d\n", nraid)
+}
+
+func setUpdatedRAStartDate(ctx context.Context, flowid int64, dt *time.Time) error {
+	var raf rlib.RAFlowJSONData
+	//-------------------------------------------
+	// Read the flow data into a data structure
+	//-------------------------------------------
+	flow, err := rlib.GetFlow(ctx, flowid)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(flow.Data, &raf)
+	if err != nil {
+		return err
+	}
+	raf.Dates.AgreementStart = rlib.JSONDate(*dt)
+	raf.Dates.RentStart = rlib.JSONDate(*dt)
+	raf.Dates.PossessionStart = rlib.JSONDate(*dt)
+	// pet fees update
+	return nil
 }

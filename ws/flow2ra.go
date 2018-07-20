@@ -131,7 +131,21 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 			x.raOrig.PossessionStop = PStart
 			chgs++
 		}
+		//------------------------------------------------------------------
+		// If there are changes, then we stop the old Rental Agreement and
+		// create a new one linked to x.raOrig
+		//------------------------------------------------------------------
 		if chgs > 0 {
+			x.raOrig.FLAGS &= ^uint64(0x7) // clear the status
+			x.raOrig.FLAGS |= 5            // set the state to Terminated
+			x.raOrig.LeaseTerminationReason = rlib.RRdb.BizTypes[x.raOrig.BID].Msgs.S[rlib.MSGRAUPDATED].SLSID
+			sess, ok := rlib.SessionFromContext(ctx)
+			if !ok {
+				return nraid, rlib.ErrSessionRequired
+			}
+			x.raOrig.TerminatorUID = sess.UID
+			x.raOrig.TerminationDate = time.Now()
+
 			err = rlib.UpdateRentalAgreement(ctx, &x.raOrig)
 			if err != nil {
 				return nraid, err
@@ -149,11 +163,12 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 		x.ra.PossessionStop = time.Time(x.raf.Dates.PossessionStop)
 		x.ra.PRAID = x.raOrig.RAID
 		x.ra.ORIGIN = x.raOrig.ORIGIN
+		x.ra.BID = x.raOrig.BID
 		if x.raOrig.ORIGIN == 0 {
 			x.ra.ORIGIN = x.raOrig.RAID
 		}
 		x.ra.RATID = x.raOrig.RATID
-		// x.ra.RentCycleEpoch = // bizprop epoch default
+		x.ra.RentCycleEpoch = x.raOrig.RentCycleEpoch
 
 		nraid, err = rlib.InsertRentalAgreement(ctx, &x.ra)
 		if err != nil {
