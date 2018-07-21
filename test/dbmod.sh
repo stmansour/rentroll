@@ -516,7 +516,6 @@ DBNAME="rentroll"
 #  Put modifications to schema in the lines below
 #=====================================================
 cat >${MODFILE} <<EOF
-ALTER TABLE Payor MODIFY TaxpayorID CHAR(128) NOT NULL DEFAULT '';
 EOF
 
 #==============================================================================
