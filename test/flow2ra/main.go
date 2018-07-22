@@ -97,6 +97,7 @@ func main() {
 	rlib.RpnInit()
 	rlib.InitDBHelpers(App.dbrr, App.dbdir)
 	rlib.SetAuthFlag(App.NoAuth)
+	rlib.SessionInit(10) // must be called before calling InitBizInternals
 
 	//--------------------------------------
 	// create background context
@@ -192,6 +193,77 @@ func setUpdatedRAStartDate(ctx context.Context, flowid int64, dt *time.Time) err
 	raf.Dates.AgreementStart = rlib.JSONDate(*dt)
 	raf.Dates.RentStart = rlib.JSONDate(*dt)
 	raf.Dates.PossessionStart = rlib.JSONDate(*dt)
+	// rentable fees
+	for i := 0; i < len(raf.Rentables); i++ {
+		for j := 0; j < len(raf.Rentables[i].Fees); j++ {
+			raf.Rentables[i].Fees[j].Start = rlib.JSONDate(*dt)
+		}
+	}
 	// pet fees update
+	for i := 0; i < len(raf.Pets); i++ {
+		for j := 0; j < len(raf.Pets[i].Fees); j++ {
+			raf.Pets[i].Fees[j].Start = rlib.JSONDate(*dt)
+		}
+	}
+	// vehicle fees
+	for i := 0; i < len(raf.Vehicles); i++ {
+		for j := 0; j < len(raf.Vehicles[i].Fees); j++ {
+			raf.Vehicles[i].Fees[j].Start = rlib.JSONDate(*dt)
+		}
+	}
+
+	var d []byte
+	rlib.Console("len Pets = %d\n", len(raf.Pets))
+	rlib.Console("len Vehicles = %d\n", len(raf.Vehicles))
+	rlib.Console("len Rentab:les = %d\n", len(raf.Rentables))
+	//--------------------------------------------
+	// update pets
+	//--------------------------------------------
+	if len(raf.Pets) > 0 {
+		d, err = json.Marshal(&raf.Pets)
+		if err != nil {
+			return err
+		}
+		err = rlib.UpdateFlowData(ctx, "pets", d, &flow)
+		if err != nil {
+			return err
+		}
+	}
+	//--------------------------------------------
+	// update Vehicles
+	//--------------------------------------------
+	if len(raf.Vehicles) > 0 {
+		d, err = json.Marshal(&raf.Vehicles)
+		if err != nil {
+			return err
+		}
+		err = rlib.UpdateFlowData(ctx, "vehicles", d, &flow)
+		if err != nil {
+			return err
+		}
+	}
+	//--------------------------------------------
+	// update Rentables
+	//--------------------------------------------
+	if len(raf.Rentables) > 0 {
+		d, err = json.Marshal(&raf.Rentables)
+		if err != nil {
+			return err
+		}
+		err = rlib.UpdateFlowData(ctx, "rentables", d, &flow)
+		if err != nil {
+			return err
+		}
+	}
+	//--------------------------------------------
+	// update Dates
+	//--------------------------------------------
+	if d, err = json.Marshal(&raf.Dates); err != nil {
+		return err
+	}
+	if err = rlib.UpdateFlowData(ctx, "dates", d, &flow); err != nil {
+		return err
+	}
+
 	return nil
 }

@@ -1,6 +1,6 @@
--- MySQL dump 10.13  Distrib 5.7.22, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.22, for osx10.12 (x86_64)
 --
--- Host: 127.0.0.1    Database: rentroll
+-- Host: localhost    Database: rentroll
 -- ------------------------------------------------------
 -- Server version	5.7.22
 
@@ -2582,4 +2582,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-07-19 14:30:46
+-- Dump completed on 2018-07-20 11:08:51

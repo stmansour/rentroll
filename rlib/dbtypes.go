@@ -1835,6 +1835,7 @@ type RRprepSQL struct {
 	UpdateUser                              *sql.Stmt
 	UpdateVehicle                           *sql.Stmt
 	UpdateFlowData                          *sql.Stmt // flow table
+	UpdateFlow                              *sql.Stmt // flow table
 	GetAssessmentInstancesByParent          *sql.Stmt
 	GetJournalAllocationsByASMID            *sql.Stmt
 	GetRentableTypeRefs                     *sql.Stmt
@@ -1909,6 +1910,7 @@ type RRprepSQL struct {
 	UpdateBusinessPropertiesData            *sql.Stmt
 	DeleteBusinessProperties                *sql.Stmt
 	GetAssessmentsByRAIDRID                 *sql.Stmt
+	GetRentalAgreementPayorsByRAID          *sql.Stmt
 }
 
 // DeleteBusinessFromDB deletes information from all tables if it is part of the supplied BID.
