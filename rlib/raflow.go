@@ -113,6 +113,7 @@ type RADatesFlowData struct {
 	RentStop        JSONDate `validate:"date"`
 	PossessionStart JSONDate `validate:"date"`
 	PossessionStop  JSONDate `validate:"date"`
+	CSAgent         int64    `validate:"number,min=0"` // TODO(Steve/Sudip/Akshay): Bind webservice call
 }
 
 // RAPeopleFlowData contains data in the background-info part of RA flow
