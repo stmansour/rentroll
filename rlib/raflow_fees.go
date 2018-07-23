@@ -18,14 +18,13 @@ import (
 //            ARID  = account rule ID
 //             RID  = Rentable ID
 //       rentStart  = Rent Start Date
-//         rentStop = Rent Stop Date
 //
 // RETURNS
 //     RentCycle numeric value
 //     ProrationCycle numeric value
 //     any error encountered
 //-----------------------------------------------------------------------------
-func GetRAFlowFeeCycles(ctx context.Context, ARID, RID int64, rentStart, rentStop time.Time) (RentCycle, ProrationCycle int64, err error) {
+func GetRAFlowFeeCycles(ctx context.Context, ARID, RID int64, rentStart time.Time) (RentCycle, ProrationCycle int64, err error) {
 
 	// GET ACCOUNT RULE FIRST
 	var ar AR
@@ -44,31 +43,36 @@ func GetRAFlowFeeCycles(ctx context.Context, ARID, RID int64, rentStart, rentSto
 	}
 
 	// IF RENTABLE IS AVAILABLE THEN
-	var refs []RentableTypeRef
-	refs, err = GetRentableTypeRefsByRange(ctx, RID, &rentStart, &rentStop)
+	var rrt RentableTypeRef
+	rrt, err = GetRentableTypeRefForDate(ctx, RID, &rentStart)
 	if err != nil {
 		return
 	}
 
 	// IF NO RENTABLE TYPE REF THEN JUST RETURN
-	if len(refs) == 0 {
+	if rrt.RID == 0 {
 		return
 	}
 
-	// GET THE FIRST ITEM FROM THE LIST
-	rtid := refs[0].RTID
-
 	// GET RENTABLE TYPE
 	var rt RentableType
-	err = GetRentableType(ctx, rtid, &rt)
+	err = GetRentableType(ctx, rrt.RTID, &rt)
 	if err != nil {
 		return
 	}
 
 	// TAKE CYCLES FROM RENTABLE TYPE, IF RTID > 0
 	if rt.RTID > 0 {
-		RentCycle = rt.RentCycle
-		ProrationCycle = rt.Proration
+		if rrt.OverrideRentCycle > RECURNONE { // if there's an override for RentCycle...
+			RentCycle = rrt.OverrideRentCycle // ...set it
+		} else {
+			RentCycle = rt.RentCycle
+		}
+		if rrt.OverrideProrationCycle > RECURNONE { // if there's an override for Propration...
+			ProrationCycle = rrt.OverrideProrationCycle // ...set it
+		} else {
+			ProrationCycle = rt.Proration
+		}
 	}
 
 	return

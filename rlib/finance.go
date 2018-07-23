@@ -691,6 +691,7 @@ func GetEpochFromBaseDate(b, d1, d2 time.Time, cycle int64) (ok bool, epoch time
 	switch cycle {
 	case RECURNONE:
 		epoch = d1
+
 	case RECURSECONDLY:
 		epoch = time.Date(d1.Year(), d1.Month(), d1.Day(), d1.Hour(), d1.Minute(), d1.Second(), b.Nanosecond(), b.Location())
 
@@ -698,6 +699,7 @@ func GetEpochFromBaseDate(b, d1, d2 time.Time, cycle int64) (ok bool, epoch time
 		if epoch.Before(d1) {
 			epoch = epoch.Add(time.Second)
 		}
+
 	case RECURMINUTELY:
 		epoch = time.Date(d1.Year(), d1.Month(), d1.Day(), d1.Hour(), d1.Minute(), b.Second(), b.Nanosecond(), b.Location())
 
@@ -705,6 +707,7 @@ func GetEpochFromBaseDate(b, d1, d2 time.Time, cycle int64) (ok bool, epoch time
 		if epoch.Before(d1) {
 			epoch = epoch.Add(time.Minute)
 		}
+
 	case RECURHOURLY:
 		epoch = time.Date(d1.Year(), d1.Month(), d1.Day(), d1.Hour(), b.Minute(), b.Second(), b.Nanosecond(), b.Location())
 
@@ -712,6 +715,7 @@ func GetEpochFromBaseDate(b, d1, d2 time.Time, cycle int64) (ok bool, epoch time
 		if epoch.Before(d1) {
 			epoch = epoch.Add(time.Hour)
 		}
+
 	case RECURDAILY:
 		epoch = time.Date(d1.Year(), d1.Month(), d1.Day(), b.Hour(), b.Minute(), b.Second(), b.Nanosecond(), b.Location())
 
@@ -719,6 +723,7 @@ func GetEpochFromBaseDate(b, d1, d2 time.Time, cycle int64) (ok bool, epoch time
 		if epoch.Before(d1) {
 			epoch = epoch.AddDate(0, 0, 1)
 		}
+
 	case RECURWEEKLY:
 		epoch = GetWeeklyEpochDate(b, d1)
 
@@ -727,6 +732,7 @@ func GetEpochFromBaseDate(b, d1, d2 time.Time, cycle int64) (ok bool, epoch time
 
 	case RECURQUARTERLY: // TODO(Sudip): FIX QUARTER CYCLE
 		epoch = time.Date(d1.Year(), d1.Month(), b.Day(), b.Hour(), b.Minute(), b.Second(), b.Nanosecond(), b.Location())
+
 	case RECURYEARLY:
 		epoch = time.Date(d1.Year(), b.Month(), b.Day(), b.Hour(), b.Minute(), b.Second(), b.Nanosecond(), b.Location())
 
