@@ -8,27 +8,33 @@ import (
 // RollerStrings is a slice of strings needed by Roller for
 // processing the states of a Rental Agreement, etc.
 var RollerStrings = []string{
-	"Application was declined",
+	"Application was declined",     // 0: automatic - when RA is terminated due to applicaion being declined
+	"Rental Agreement was updated", // 1: automatic - when RA is updated with a changed version
 }
 
-// CreateRollerStringList creates a stringlist that Roller must have in order
+// MSGAPPDECLINED et al are indeces into the the stringlist for ROLLERSL.
+const (
+	MSGAPPDECLINED = 0
+	MSGRAUPDATED   = 1
+)
+
+// GetRollerStringList creates a stringlist that Roller must have in order
 // to process RentalAgreement state changes, etc.
 //
 //
-func CreateRollerStringList(bid int64) error {
-	// funcname := "CreateRollerStringList"
+func GetRollerStringList(ctx context.Context, bid int64) (StringList, error) {
+	// funcname := "GetRollerStringList"
 
-	ctx := context.Background()
 	//-------------------------------------------------------------------
 	// If we already have it, then don't create...
 	//-------------------------------------------------------------------
 	var t StringList
 	err := GetStringListByName(ctx, bid, ROLLERSL, &t) // do we already have a stringlist by this name?
 	if err != nil {
-		return err
+		return t, err
 	}
 	if t.SLID > 0 {
-		return nil
+		return t, nil
 	}
 
 	//-------------------------------------------------------------------
@@ -50,7 +56,7 @@ func CreateRollerStringList(bid int64) error {
 
 	_, err = InsertStringList(ctx, &sl)
 	if err != nil {
-		return err
+		return sl, err
 	}
-	return nil
+	return sl, nil
 }

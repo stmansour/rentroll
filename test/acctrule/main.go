@@ -86,6 +86,7 @@ func main() {
 	rlib.RpnInit()
 	rlib.InitDBHelpers(App.dbrr, App.dbdir)
 	rlib.SetAuthFlag(App.NoAuth)
+	rlib.SessionInit(10) // must be called before calling InitBizInternals
 
 	// Create background context
 	ctx := context.Background()

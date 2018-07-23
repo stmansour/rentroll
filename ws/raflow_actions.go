@@ -122,7 +122,7 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				modRAFlowMeta.RAFLAGS = (state | 5)
 			} else {
 				// return err
-				err := fmt.Errorf("Termination Reason not present.")
+				err := fmt.Errorf("Termination Reason not present")
 				SvcErrorReturn(w, err, funcname)
 				return
 			}
