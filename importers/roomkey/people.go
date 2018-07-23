@@ -172,7 +172,7 @@ func GetPeopleCSVRow(
 			if peopleField.Name == "Country" {
 				dataMap[i] = guestData.Country
 			}
-			if peopleField.Name == "AlternateAddress" {
+			if peopleField.Name == "AlternateEmailAddress" {
 				dataMap[i] = guestData.Address2
 			}
 		}

@@ -1388,7 +1388,7 @@ func UpdateUser(ctx context.Context, a *User) error {
 	}
 
 	fields := []interface{}{a.BID, a.Points, a.DateofBirth, a.EmergencyContactName, a.EmergencyContactAddress,
-		a.EmergencyContactTelephone, a.EmergencyContactEmail, a.AlternateAddress, a.EligibleFutureUser, a.FLAGS,
+		a.EmergencyContactTelephone, a.EmergencyContactEmail, a.AlternateEmailAddress, a.EligibleFutureUser, a.FLAGS,
 		a.Industry, a.SourceSLSID, a.LastModBy, a.TCID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateUser)

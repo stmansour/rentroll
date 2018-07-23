@@ -40,7 +40,7 @@ window.getTransactantInitRecord = function (BID, BUD) {
         EmergencyContactAddress: "",
         EmergencyContactTelephone: "",
         EmergencyContactEmail: "",
-        AlternateAddress: "",
+        AlternateEmailAddress: "",
         EligibleFutureUser: true,
         Industry: "",
         SourceSLSID: 0,
@@ -157,7 +157,7 @@ window.buildTransactElements = function() {
         {field: 'EmergencyContactAddress',   type: 'text',      required: false, html: {page: 3, column: 0}},
         {field: 'EmergencyContactTelephone', type: 'text',      required: false, html: {page: 3, column: 0}},
         {field: 'EmergencyContactEmail',     type: 'text',      required: false, html: {page: 3, column: 0}},
-        {field: 'AlternateAddress',          type: 'text',      required: false, html: {page: 3, column: 0}},
+        {field: 'AlternateEmailAddress',          type: 'text',      required: false, html: {page: 3, column: 0}},
         {field: 'EligibleFutureUser',        type: 'checkbox',  required: false, html: {page: 3, column: 0}},
         {field: 'Industry',                  type: 'text',      required: false, html: {page: 3, column: 0}},
         {field: 'SourceSLSID',               type: 'list',      required: false, html: {page: 3, column: 0}}, // "HowFound" string list

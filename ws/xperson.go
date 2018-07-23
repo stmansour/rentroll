@@ -49,7 +49,7 @@ type RPersonForm struct {
 	EmergencyContactAddress   string
 	EmergencyContactTelephone string
 	EmergencyContactEmail     string
-	AlternateAddress          string
+	AlternateEmailAddress     string
 	EligibleFutureUser        bool
 	Industry                  string
 	SourceSLSID               int64

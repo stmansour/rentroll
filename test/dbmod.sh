@@ -514,6 +514,7 @@ DBNAME="rentroll"
 # July 23, 2018
 # ALTER TABLE Payor DROP COLUMN ThirdPartySource;
 # ALTER TABLE Prospect ADD ThirdPartySource BIGINT NOT NULL DEFAULT 0 AFTER CommissionableThirdParty;
+# ALTER TABLE User CHANGE AlternateAddress AlternateEmailAddress VARCHAR(100) NOT NULL DEFAULT '';
 
 #=====================================================
 #  Put modifications to schema in the lines below

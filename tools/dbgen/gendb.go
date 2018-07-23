@@ -240,7 +240,7 @@ func createTransactants(ctx context.Context, dbConf *GenDBConf) error {
 			EmergencyContactAddress:   GenerateRandomAddress() + "," + GenerateRandomCity() + "," + GenerateRandomState() + " " + fmt.Sprintf("%05d", rand.Intn(100000)),
 			EmergencyContactTelephone: GenerateRandomPhoneNumber(),
 			EmergencyContactEmail:     GenerateRandomEmail(eclast, ecfirst),
-			AlternateAddress:          GenerateRandomAddress() + "," + GenerateRandomCity() + "," + GenerateRandomState() + " " + fmt.Sprintf("%05d", rand.Intn(100000)),
+			AlternateEmailAddress:     GenerateRandomAddress() + "," + GenerateRandomCity() + "," + GenerateRandomState() + " " + fmt.Sprintf("%05d", rand.Intn(100000)),
 			EligibleFutureUser:        IG.Rand.Intn(2) > 0,
 			Industry:                  GenerateRandomIndustry(),
 			SourceSLSID:               int64(IG.Rand.Intn(len(IG.HowFound.S))),

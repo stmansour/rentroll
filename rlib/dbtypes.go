@@ -792,7 +792,7 @@ type User struct {
 	EmergencyContactAddress   string
 	EmergencyContactTelephone string
 	EmergencyContactEmail     string
-	AlternateAddress          string
+	AlternateEmailAddress     string
 	EligibleFutureUser        bool
 	FLAGS                     uint64
 	Industry                  string

@@ -968,7 +968,7 @@ CREATE TABLE User (
     EmergencyContactAddress VARCHAR(100) NOT NULL DEFAULT '',
     EmergencyContactTelephone VARCHAR(100) NOT NULL DEFAULT '',
     EmergencyContactEmail VARCHAR(100) NOT NULL DEFAULT '',
-    AlternateAddress VARCHAR(100) NOT NULL DEFAULT '',
+    AlternateEmailAddress VARCHAR(100) NOT NULL DEFAULT '',
     EligibleFutureUser TINYINT(1) NOT NULL DEFAULT 1,            -- yes/no
     FLAGS BIGINT NOT NULL DEFAULT 0,                             /*
                                                                   */

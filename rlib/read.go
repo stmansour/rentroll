@@ -1004,7 +1004,7 @@ func ReadPayors(rows *sql.Rows, a *Payor) error {
 // ReadUser reads a full User structure from the database based on the supplied row object
 func ReadUser(row *sql.Row, a *User) error {
 	err := row.Scan(&a.TCID, &a.BID, &a.Points, &a.DateofBirth, &a.EmergencyContactName, &a.EmergencyContactAddress,
-		&a.EmergencyContactTelephone, &a.EmergencyContactEmail, &a.AlternateAddress, &a.EligibleFutureUser, &a.FLAGS, &a.Industry, &a.SourceSLSID,
+		&a.EmergencyContactTelephone, &a.EmergencyContactEmail, &a.AlternateEmailAddress, &a.EligibleFutureUser, &a.FLAGS, &a.Industry, &a.SourceSLSID,
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	SkipSQLNoRowsError(&err)
 	return err
@@ -1013,7 +1013,7 @@ func ReadUser(row *sql.Row, a *User) error {
 // ReadUsers reads a full User structure from the database based on the supplied rows object
 func ReadUsers(rows *sql.Rows, a *User) error {
 	return rows.Scan(&a.TCID, &a.BID, &a.Points, &a.DateofBirth, &a.EmergencyContactName, &a.EmergencyContactAddress,
-		&a.EmergencyContactTelephone, &a.EmergencyContactEmail, &a.AlternateAddress, &a.EligibleFutureUser, &a.FLAGS, &a.Industry, &a.SourceSLSID,
+		&a.EmergencyContactTelephone, &a.EmergencyContactEmail, &a.AlternateEmailAddress, &a.EligibleFutureUser, &a.FLAGS, &a.Industry, &a.SourceSLSID,
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 
