@@ -49,7 +49,7 @@ window.loadRADatesForm = function () {
     }
 
     // now render the form in specifiec targeted division
-    $('#ra-form #dates').w2render(w2ui.RADatesForm);
+    $('#ra-form #dates .form-container').w2render(w2ui.RADatesForm);
 
     // load the existing data in dates component
     setTimeout(function () {
