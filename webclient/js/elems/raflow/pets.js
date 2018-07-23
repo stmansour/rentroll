@@ -213,7 +213,7 @@ window.loadRAPetsGrid = function () {
                 },
                 {
                     field: 'Weight',
-                    caption: 'Weight',
+                    caption: 'Weight<br>(pounds)',
                     size: '80px'
                 },
                 {
