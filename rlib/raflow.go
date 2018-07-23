@@ -1209,6 +1209,9 @@ func addFlowPersonVehicles(ctx context.Context, tcid, tmptcid int64, raf *RAFlow
 func NewRAFlowPet(ctx context.Context, BID int64, pStart, pStop JSONDate, meta *RAFlowMetaInfo) (pet RAPetsFlowData, err error) {
 	const funcname = "NewRAFlowPet"
 	fmt.Printf("Entered in %s\n", funcname)
+	var (
+		bizPropName = "general"
+	)
 
 	// initialize
 	// assign new TMPPETID & mark in meta info
@@ -1222,7 +1225,7 @@ func NewRAFlowPet(ctx context.Context, BID int64, pStart, pStop JSONDate, meta *
 
 	// get pet fees data and feed into fees
 	var petFees []BizPropsPetFee
-	petFees, err = GetPetFeesFromGeneralBizProps(ctx, BID)
+	petFees, err = GetBizPropPetFees(ctx, BID, bizPropName)
 	if err != nil {
 		return
 	}
@@ -1261,6 +1264,9 @@ func NewRAFlowPet(ctx context.Context, BID int64, pStart, pStop JSONDate, meta *
 func NewRAFlowVehicle(ctx context.Context, BID int64, pStart, pStop JSONDate, meta *RAFlowMetaInfo) (vehicle RAVehiclesFlowData, err error) {
 	const funcname = "NewRAFlowVehicle"
 	fmt.Printf("Entered in %s\n", funcname)
+	var (
+		bizPropName = "general"
+	)
 
 	// initialize
 	// assign new TMPVID & mark in meta info
@@ -1274,7 +1280,7 @@ func NewRAFlowVehicle(ctx context.Context, BID int64, pStart, pStop JSONDate, me
 
 	// get vehicle fees data and feed into fees
 	var vehicleFees []BizPropsVehicleFee
-	vehicleFees, err = GetVehicleFeesFromGeneralBizProps(ctx, BID)
+	vehicleFees, err = GetBizPropVehicleFees(ctx, BID, bizPropName)
 	if err != nil {
 		return
 	}

@@ -2,6 +2,7 @@ package rlib
 
 import (
 	"context"
+	"fmt"
 	"time"
 )
 
@@ -78,13 +79,13 @@ func GetRAFlowFeeCycles(ctx context.Context, ARID, RID int64, rentStart time.Tim
 	return
 }
 
-/*
 // GetRAFlowInitialPetFees returns the list of initial fees based on
 // RentStart/Stop been set in raflow data for a pet
 //
 // INPUTS
 //             ctx  = db transaction context
 //             BID  = Business ID
+//             RID  = Rentable ID
 //          rStart  = rent start date
 //           rStop  = rent stop date
 //            meta  = RAFlowMetaInfo data
@@ -93,26 +94,61 @@ func GetRAFlowFeeCycles(ctx context.Context, ARID, RID int64, rentStart time.Tim
 //     RAVehiclesFlowData structure
 //     any error encountered
 //-----------------------------------------------------------------------------
-func GetRAFlowInitialPetFees(ctx context.Context, BID int64, rStart, rStop JSONDate, meta *RAFlowMetaInfo) (fees []RAFeesData, err error) {
+func GetRAFlowInitialPetFees(ctx context.Context, BID, RID int64, rStart, rStop JSONDate, meta *RAFlowMetaInfo) (fees []RAFeesData, err error) {
 	const funcname = "GetRAFlowInitialPetFees"
+	var (
+		bizPropName = "general"
+		d1          = (time.Time)(rStart)
+		d2          = (time.Time)(rStop)
+	)
 	fmt.Printf("Entered in %s\n", funcname)
 
 	// INITIALIZE FEES
 	fees = []RAFeesData{}
 
-	// GET BUSINESS EPOCHS FOR "GENERAL" BUSINESS PROPERTIES
-	var epochs BizPropsEpochs
-	epochs, err = GetEpochsFromGeneralBizProps(ctx, BID)
+	// GET PET FEES FROM BUSINESS PROPERTIES
+	var petFees []BizPropsPetFee
+	petFees, err = GetBizPropPetFees(ctx, BID, bizPropName)
 	if err != nil {
 		return
 	}
 
-	// CONVERT JSON DATE TO TIME
-	d1, d2 := (time.Time)(rStart), (time.Time)(rStop)
+	// FOR EACH FEE CONFIGURED IN BIZPROP
+	for _, petFee := range petFees {
 
-	// GET MONTHLY EPOCH
-	epochMonthly := time.Date(d1.Year(), d1.Month(), epochs.Monthly.Day(),
-		d1.Hour(), d1.Minute(), d1.Second(), d1.Nanosecond(), d1.Location())
+		// GET RENT, PRORATION CYCLE
+		var RentCycle, ProrationCycle int64
+		RentCycle, ProrationCycle, err = GetRAFlowFeeCycles(ctx, petFee.ARID, RID, d1)
+		if err != nil {
+			return
+		}
+
+		// GET EPOCH
+		var epoch time.Time
+		_, epoch, err = GetEpochByBizPropName(ctx, BID, bizPropName, d1, d2, RentCycle)
+		if err != nil {
+			tot, np, tp := SimpleProrateAmount(petFee.Amount, RentCycle, ProrationCycle, &d1, &d2, &epoch)
+
+			meta.LastTMPASMID++
+
+			// ADD FEE IN LIST
+			raFee := RAFeesData{
+				TMPASMID:        meta.LastTMPASMID,
+				ASMID:           0,
+				ARID:            petFee.ARID,
+				ARName:          petFee.ARName,
+				ContractAmount:  tot,
+				RentCycle:       RentCycle,
+				Start:           rStart,
+				Stop:            rStop,
+				AtSigningPreTax: 0.00,
+				SalesTax:        0.00,
+				TransOccTax:     0.00,
+				Comment:         fmt.Sprintf("prorated for %d of %d %s", np, tp, ProrationUnits(ProrationCycle)),
+			}
+			fees = append(fees, raFee)
+		}
+	}
 
 	return
-}*/
+}

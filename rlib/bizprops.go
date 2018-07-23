@@ -54,12 +54,11 @@ func GetDataFromBusinessPropertyName(ctx context.Context, name string, BID int64
 	return
 }
 
-// GetPetFeesFromGeneralBizProps returns pet fees with detailed data
+// GetBizPropPetFees returns pet fees with detailed data
 // defined in BizPropsPetFee
-func GetPetFeesFromGeneralBizProps(ctx context.Context, BID int64) (fees []BizPropsPetFee, err error) {
-	const funcname = "GetPetFeesFromGeneralBizProps"
+func GetBizPropPetFees(ctx context.Context, BID int64, bizPropName string) (fees []BizPropsPetFee, err error) {
+	const funcname = "GetBizPropPetFees"
 	var (
-		bizPropName = "general"
 		bizPropJSON BizProps
 	)
 	fmt.Printf("Entered in %s\n", funcname)
@@ -96,12 +95,11 @@ func GetPetFeesFromGeneralBizProps(ctx context.Context, BID int64) (fees []BizPr
 	return
 }
 
-// GetVehicleFeesFromGeneralBizProps returns vehicle fees with detailed data
+// GetBizPropVehicleFees returns vehicle fees with detailed data
 // defined in BizPropsVehicleFee
-func GetVehicleFeesFromGeneralBizProps(ctx context.Context, BID int64) (fees []BizPropsVehicleFee, err error) {
-	const funcname = "GetVehicleFeesFromGeneralBizProps"
+func GetBizPropVehicleFees(ctx context.Context, BID int64, bizPropName string) (fees []BizPropsVehicleFee, err error) {
+	const funcname = "GetBizPropVehicleFees"
 	var (
-		bizPropName = "general"
 		bizPropJSON BizProps
 	)
 	fmt.Printf("Entered in %s\n", funcname)
