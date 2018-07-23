@@ -115,6 +115,8 @@ func main() {
 		os.Exit(1)
 	}
 
+	rlib.SessionInit(10) // must be called before calling InitBizInternals
+
 	err = rlib.InitBizInternals(biz.BID, &App.Xbiz)
 	if err != nil {
 		fmt.Printf("Error in InitBizInternals: %s\n", err.Error())
@@ -142,10 +144,6 @@ func main() {
 		os.Exit(1)
 	}
 	IGInit(dbConf.RRand)
-	if err = rlib.CreateRollerStringList(biz.BID); err != nil {
-		fmt.Printf("Error saving Roller string list: %s\n", err.Error())
-		os.Exit(1)
-	}
 
 	//----------------------------
 	// Build the database

@@ -512,6 +512,9 @@ DBNAME="rentroll"
 #  Put modifications to schema in the lines below
 #=====================================================
 cat >${MODFILE} <<EOF
+ALTER TABLE AR ADD DefaultRentCycle SMALLINT NOT NULL DEFAULT 0;
+ALTER TABLE AR ADD DefaultProrationCycle SMALLINT NOT NULL DEFAULT 0;
+ALTER TABLE Payor DROP COLUMN SSN;
 EOF
 
 #==============================================================================

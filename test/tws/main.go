@@ -91,6 +91,8 @@ func main() {
 	}
 
 	rlib.InitDBHelpers(App.dbrr, App.dbdir)
+	rlib.SessionInit(10) // must be called before calling InitBizInternals
+
 	rlib.RpnInit()
 	bizlogic.InitBizLogic()
 	ws.InitReports()
