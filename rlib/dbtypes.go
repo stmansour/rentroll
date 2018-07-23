@@ -775,6 +775,7 @@ type Prospect struct {
 	PriorReasonForMoving     int64
 	PriorLengthOfResidency   string
 	CommissionableThirdParty string
+	ThirdPartySource         int64
 	LastModTime              time.Time
 	LastModBy                int64
 	CreateTS                 time.Time // when was this record created
@@ -791,7 +792,7 @@ type User struct {
 	EmergencyContactAddress   string
 	EmergencyContactTelephone string
 	EmergencyContactEmail     string
-	AlternateAddress          string
+	AlternateEmailAddress     string
 	EligibleFutureUser        bool
 	FLAGS                     uint64
 	Industry                  string
@@ -811,7 +812,6 @@ type Payor struct {
 	BID                 int64
 	CreditLimit         float64
 	TaxpayorID          string
-	ThirdPartySource    int64
 	EligibleFuturePayor bool
 	FLAGS               uint64
 	DriversLicense      string // encrypted in database, decrypted here

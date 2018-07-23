@@ -113,6 +113,7 @@ type RADatesFlowData struct {
 	RentStop        JSONDate `validate:"date"`
 	PossessionStart JSONDate `validate:"date"`
 	PossessionStop  JSONDate `validate:"date"`
+	CSAgent         int64    `validate:"number,min=0"` // TODO(Steve/Sudip/Akshay): Bind webservice call
 }
 
 // RAPeopleFlowData contains data in the background-info part of RA flow
@@ -181,13 +182,13 @@ type RAPeopleFlowData struct {
 	//CommissionableThirdParty string
 	SpecialNeeds string `validate:"string,min=1,max=1024,omitempty"` // In an effort to accommodate you, please advise us of any special needs
 	// It'll be none. If there is no special needs
+	ThirdPartySource int64 `validate:"number,min=1,omitempty"`
 
 	// ---------- Payor -----------
 	CreditLimit         float64 `validate:"number:float,min=0.00,omitempty"`
 	TaxpayorID          string  `validate:"string,min=1,max=25,omitempty"`
 	GrossIncome         float64 `validate:"number:float,min=0.00,omitempty"` // When role is set to renter or guarantor than it is compulsory. It'll be check via bizlogic.
 	DriversLicense      string  `validate:"string,min=1,max=128"`
-	ThirdPartySource    int64   `validate:"number,min=1,omitempty"`
 	EligibleFuturePayor bool    `validate:"-"`
 
 	// ---------- User -----------
@@ -198,7 +199,7 @@ type RAPeopleFlowData struct {
 	EmergencyContactAddress   string `validate:"string,min=1,max=100"`
 	EmergencyContactTelephone string `validate:"string,min=1,max=100"`
 	EmergencyContactEmail     string `validate:"email"`
-	AlternateAddress          string `validate:"string,min=1,max=100,omitempty"`
+	AlternateEmailAddress     string `validate:"string,min=1,max=100,omitempty"`
 	EligibleFutureUser        bool   `validate:"number,min=1"`
 	Industry                  string `validate:"string,min=1,max=100,omitempty"`
 	SourceSLSID               int64  `validate:"number,min=1"` // It is compulsory when role is set to renter or user. It'll be check via bizlogic.
@@ -231,7 +232,7 @@ type RAVehiclesFlowData struct {
 	VehicleMake         string       `validate:"string,min=1,max=80"`
 	VehicleModel        string       `validate:"string,min=1,max=80"`
 	VehicleColor        string       `validate:"string,min=1,max=80"`
-	VehicleYear         int64        `validate:"number,min=1"`
+	VehicleYear         string       `validate:"string,min=1,max=4"` // TODO(Akshay): Make string validator for alphanumeric, numeric, alpha
 	LicensePlateState   string       `validate:"string,min=1,max=80"`
 	LicensePlateNumber  string       `validate:"string,min=1,max=80"`
 	ParkingPermitNumber string       `validate:"string,min=1,max=80,omitempty"`
