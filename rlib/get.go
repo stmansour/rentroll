@@ -30,12 +30,8 @@ func sessionCheck(ctx context.Context) bool {
 // that belong to business bid
 //------------------------------------------------------------------
 func GetCountByTableName(ctx context.Context, t string, bid int64) (int, error) {
-
-	var (
-		err   error
-		count int
-	)
-
+	var err error
+	var count int
 	if sessionCheck(ctx) {
 		return count, ErrSessionRequired
 	}
@@ -55,18 +51,11 @@ func GetCountByTableName(ctx context.Context, t string, bid int64) (int, error) 
 
 // GetAR reads a AR the structure for the supplied id
 func GetAR(ctx context.Context, id int64) (AR, error) {
-
-	var (
-		// err error
-		a AR
-	)
+	var a AR
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return a, ErrSessionRequired
-		}
+	if sessionCheck(ctx) {
+		return a, ErrSessionRequired
 	}
 
 	var row *sql.Row
@@ -6400,21 +6389,38 @@ func GetRentalAgreementPayorsInRange(ctx context.Context, raid int64, d1, d2 *ti
 	return getRentalAgreementPayorsByRows(ctx, rows)
 }
 
+// GetRentalAgreementPayorsByRAID returns an array of payors (in the form of
+// payors) associated with the supplied RentalAgreement ID
+func GetRentalAgreementPayorsByRAID(ctx context.Context, raid int64) ([]RentalAgreementPayor, error) {
+	var t []RentalAgreementPayor
+	var err error
+	if sessionCheck(ctx) {
+		return t, ErrSessionRequired
+	}
+
+	var rows *sql.Rows
+	fields := []interface{}{raid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentalAgreementPayorsByRAID)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetRentalAgreementPayorsByRAID.Query(fields...)
+	}
+
+	if err != nil {
+		return t, err
+	}
+	return getRentalAgreementPayorsByRows(ctx, rows)
+}
+
 // GetRentalAgreementsByPayor returns an array of RentalAgreementPayor where the supplied
 // TCID is a payor on the specified date
 func GetRentalAgreementsByPayor(ctx context.Context, bid, tcid int64, dt *time.Time) ([]RentalAgreementPayor, error) {
-
-	var (
-		err error
-		t   []RentalAgreementPayor
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return t, ErrSessionRequired
-		}
+	var t []RentalAgreementPayor
+	var err error
+	if sessionCheck(ctx) {
+		return t, ErrSessionRequired
 	}
 
 	var rows *sql.Rows
@@ -6436,18 +6442,10 @@ func GetRentalAgreementsByPayor(ctx context.Context, bid, tcid int64, dt *time.T
 // GetRentalAgreementsByPayorRange returns an array of RentalAgreementPayor where the supplied
 // TCID is a payor within the supplied range
 func GetRentalAgreementsByPayorRange(ctx context.Context, bid, tcid int64, d1, d2 *time.Time) ([]RentalAgreementPayor, error) {
-
-	var (
-		err error
-		t   []RentalAgreementPayor
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return t, ErrSessionRequired
-		}
+	var t []RentalAgreementPayor
+	var err error
+	if sessionCheck(ctx) {
+		return t, ErrSessionRequired
 	}
 
 	var rows *sql.Rows
@@ -7758,20 +7756,9 @@ func GetCountBusinessRentalAgreements(ctx context.Context, bid int64) (int, erro
 
 // GetFlow reads a Flow structure based on the supplied flowId
 func GetFlow(ctx context.Context, flowID int64) (Flow, error) {
-	const funcname = "GetFlow"
-	fmt.Printf("Entered %s\n", funcname)
-
-	var (
-		// err error
-		a Flow
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return a, ErrSessionRequired
-		}
+	var a Flow
+	if sessionCheck(ctx) {
+		return a, ErrSessionRequired
 	}
 
 	var row *sql.Row
