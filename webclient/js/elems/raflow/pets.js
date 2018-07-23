@@ -349,9 +349,9 @@ window.loadRAPetsGrid = function () {
                 { field: 'Breed',                   type: 'text',   required: true  },
                 { field: 'Type',                    type: 'text',   required: true  },
                 { field: 'Color',                   type: 'text',   required: true  },
-                { field: 'Weight',                  type: 'int',    required: true  },
+                { field: 'Weight',                  type: 'float',  required: true  },
                 { field: 'DtStart',                 type: 'date',   required: true,     html: { caption: 'DtStart', page: 0, column: 0 } },
-                { field: 'DtStop',                  type: 'date',   required: true,     html: { caption: 'DtStop', page: 0, column: 0 } },
+                { field: 'DtStop',                  type: 'date',   required: true,     html: { caption: 'DtStop', page: 0, column: 0 } }
             ],
             actions: {
                 reset: function() {
