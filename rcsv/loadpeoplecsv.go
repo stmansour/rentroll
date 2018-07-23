@@ -233,7 +233,7 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 				if err != nil {
 					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - ThirdPartySource value is invalid: %s", funcname, lineno, s)
 				}
-				p.ThirdPartySource = int64(i)
+				pr.ThirdPartySource = int64(i)
 			}
 		case DateofBirth:
 			if len(s) > 0 {

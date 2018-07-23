@@ -259,7 +259,6 @@ func createTransactants(ctx context.Context, dbConf *GenDBConf) error {
 			BID:                 t.BID,
 			CreditLimit:         float64(IG.Rand.Intn(30000)),
 			TaxpayorID:          fmt.Sprintf("%08d", IG.Rand.Intn(10000000)),
-			ThirdPartySource:    int64(IG.Rand.Intn(250)),
 			EligibleFuturePayor: true,
 			DriversLicense:      GenerateRandomDriversLicense(),
 			GrossIncome:         float64(10000 + IG.Rand.Intn(140000)),
@@ -295,6 +294,7 @@ func createTransactants(ctx context.Context, dbConf *GenDBConf) error {
 			PriorLandLordPhoneNo:     GenerateRandomPhoneNumber(),
 			PriorReasonForMoving:     IG.WhyLeaving.S[IG.Rand.Intn(len(IG.WhyLeaving.S))].SLSID,
 			PriorLengthOfResidency:   GenerateRandomDurationString(),
+			ThirdPartySource:         int64(IG.Rand.Intn(250)),
 		}
 		_, err = rlib.InsertProspect(ctx, &pr)
 		if err != nil {

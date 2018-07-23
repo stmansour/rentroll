@@ -2596,7 +2596,7 @@ func InsertPayor(ctx context.Context, a *Payor) (int64, error) {
 	// Console("Encrypted DriversLicense: %s\n", d)
 
 	// transaction... context
-	fields := []interface{}{a.TCID, a.BID, a.CreditLimit, t, a.ThirdPartySource, a.EligibleFuturePayor,
+	fields := []interface{}{a.TCID, a.BID, a.CreditLimit, t, a.EligibleFuturePayor,
 		a.FLAGS, d, a.GrossIncome, a.CreateBy, a.LastModBy}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertPayor)
@@ -2672,6 +2672,7 @@ func InsertProspect(ctx context.Context, a *Prospect) (int64, error) {
 		a.PriorReasonForMoving,
 		a.PriorLengthOfResidency,
 		a.CommissionableThirdParty,
+		a.ThirdPartySource,
 		a.CreateBy,
 		a.LastModBy,
 	}

@@ -511,6 +511,9 @@ DBNAME="rentroll"
 # July 20, 2018
 # ALTER TABLE Payor MODIFY TaxpayorID CHAR(128) NOT NULL DEFAULT '';
 
+# July 23, 2018
+# ALTER TABLE Payor DROP COLUMN ThirdPartySource;
+# ALTER TABLE Prospect ADD ThirdPartySource BIGINT NOT NULL DEFAULT 0 AFTER CommissionableThirdParty;
 
 #=====================================================
 #  Put modifications to schema in the lines below

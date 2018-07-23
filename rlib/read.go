@@ -454,6 +454,7 @@ func ReadProspect(row *sql.Row, a *Prospect) error {
 		&a.PriorReasonForMoving,
 		&a.PriorLengthOfResidency,
 		&a.CommissionableThirdParty,
+		&a.ThirdPartySource,
 		&a.CreateTS,
 		&a.CreateBy,
 		&a.LastModTime,
@@ -492,6 +493,7 @@ func ReadProspects(rows *sql.Rows, a *Prospect) error {
 		&a.PriorReasonForMoving,
 		&a.PriorLengthOfResidency,
 		&a.CommissionableThirdParty,
+		&a.ThirdPartySource,
 		&a.CreateTS,
 		&a.CreateBy,
 		&a.LastModTime,
@@ -943,7 +945,7 @@ func ReadTransactantTypeDowns(rows *sql.Rows, a *TransactantTypeDown) error {
 // ReadPayor reads a full Payor structure from the database based on the supplied row object
 func ReadPayor(row *sql.Row, a *Payor) error {
 	var t1, d1 string
-	err := row.Scan(&a.TCID, &a.BID, &a.CreditLimit, &t1, &a.ThirdPartySource, &a.EligibleFuturePayor,
+	err := row.Scan(&a.TCID, &a.BID, &a.CreditLimit, &t1, &a.EligibleFuturePayor,
 		&a.FLAGS, &d1, &a.GrossIncome, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	SkipSQLNoRowsError(&err)
 	if err != nil {
@@ -973,7 +975,7 @@ func ReadPayor(row *sql.Row, a *Payor) error {
 // ReadPayors reads a full Payor structure from the database based on the supplied rows object
 func ReadPayors(rows *sql.Rows, a *Payor) error {
 	var t1, d1 string
-	err := rows.Scan(&a.TCID, &a.BID, &a.CreditLimit, &t1, &a.ThirdPartySource, &a.EligibleFuturePayor,
+	err := rows.Scan(&a.TCID, &a.BID, &a.CreditLimit, &t1, &a.EligibleFuturePayor,
 		&a.FLAGS, &d1, &a.GrossIncome, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	if err != nil {
 		return err

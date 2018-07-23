@@ -532,7 +532,7 @@ func UpdatePayor(ctx context.Context, a *Payor) error {
 	}
 	d := hex.EncodeToString(d1)
 
-	fields := []interface{}{a.TCID, a.BID, a.CreditLimit, t, a.ThirdPartySource, a.EligibleFuturePayor,
+	fields := []interface{}{a.TCID, a.BID, a.CreditLimit, t, a.EligibleFuturePayor,
 		a.FLAGS, d, a.GrossIncome, a.LastModBy}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdatePayor)
@@ -585,6 +585,7 @@ func UpdateProspect(ctx context.Context, a *Prospect) error {
 		a.PriorReasonForMoving,
 		a.PriorLengthOfResidency,
 		a.CommissionableThirdParty,
+		a.ThirdPartySource,
 		a.LastModBy,
 		a.TCID,
 	}
