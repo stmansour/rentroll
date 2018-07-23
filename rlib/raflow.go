@@ -89,19 +89,19 @@ type RAFlowMetaInfo struct {
 	LastTMPASMID           int64
 	HavePets               bool
 	HaveVehicles           bool
-	RAFLAGS                int64
+	RAFLAGS                uint64
 	Approver1              int64
-	DecisionDate1          JSONDate
+	DecisionDate1          JSONDateTime
 	DeclineReason1         int64
 	Approver2              int64
-	DecisionDate2          JSONDate
+	DecisionDate2          JSONDateTime
 	DeclineReason2         int64
 	TerminatorUID          int64
-	TerminationDate        JSONDate
+	TerminationDate        JSONDateTime
 	LeaseTerminationReason int64
-	DocumentDate           JSONDate
-	NoticeToMoveDate       JSONDate
-	NoticeToMoveReported   JSONDate
+	DocumentDate           JSONDateTime
+	NoticeToMoveDate       JSONDateTime
+	NoticeToMoveReported   JSONDateTime
 }
 
 // RADatesFlowData contains data in the dates part of RA flow
@@ -232,7 +232,7 @@ type RAVehiclesFlowData struct {
 	VehicleMake         string       `validate:"string,min=1,max=80"`
 	VehicleModel        string       `validate:"string,min=1,max=80"`
 	VehicleColor        string       `validate:"string,min=1,max=80"`
-	VehicleYear         string       `validate:"string,min=1,max=4"` // TODO(Akshay): Make string validator for alphanumeric, numeric, alpha
+	VehicleYear         int64        `validate:"number,min=1900,max=2150"` // Akshay -- why would you make this a string?? It is an int64.-sman  TODO(Akshay): Make string validator for alphanumeric, numeric, alpha
 	LicensePlateState   string       `validate:"string,min=1,max=80"`
 	LicensePlateNumber  string       `validate:"string,min=1,max=80"`
 	ParkingPermitNumber string       `validate:"string,min=1,max=80,omitempty"`
