@@ -827,6 +827,10 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement) (RAFlowJSONData, e
 	//-------------------------------------------------------------
 	// This is the datastructure we need to fill out and save...
 	//-------------------------------------------------------------
+	Approver1Name, _ := GetDirectoryPerson(ctx, ra.Approver1)
+	Approver2Name, _ := GetDirectoryPerson(ctx, ra.Approver2)
+	TerminatorName, _ := GetDirectoryPerson(ctx, ra.TerminatorUID)
+
 	var raf = RAFlowJSONData{
 		Dates: RADatesFlowData{
 			BID:             ra.BID,
@@ -849,12 +853,15 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement) (RAFlowJSONData, e
 			RAID:                   ra.RAID,
 			RAFLAGS:                ra.FLAGS,
 			Approver1:              ra.Approver1,
+			Approver1Name:          Approver1Name.DisplayName(),
 			DecisionDate1:          JSONDateTime(ra.DecisionDate1),
 			DeclineReason1:         ra.DeclineReason1,
 			Approver2:              ra.Approver2,
+			Approver2Name:          Approver2Name.DisplayName(),
 			DecisionDate2:          JSONDateTime(ra.DecisionDate2),
 			DeclineReason2:         ra.DeclineReason2,
 			TerminatorUID:          ra.TerminatorUID,
+			TerminatorName:         TerminatorName.DisplayName(),
 			TerminationDate:        JSONDateTime(ra.TerminationDate),
 			LeaseTerminationReason: ra.LeaseTerminationReason,
 			DocumentDate:           JSONDateTime(ra.DocumentDate),
