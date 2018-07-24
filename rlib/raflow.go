@@ -842,7 +842,22 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement) (RAFlowJSONData, e
 		Tie: RATieFlowData{
 			People: []RATiePeopleData{},
 		},
-		Meta: RAFlowMetaInfo{RAID: ra.RAID},
+		Meta: RAFlowMetaInfo{
+			RAID:                   ra.RAID,
+			RAFLAGS:                ra.FLAGS,
+			Approver1:              ra.Approver1,
+			DecisionDate1:          JSONDateTime(ra.DecisionDate1),
+			DeclineReason1:         ra.DeclineReason1,
+			Approver2:              ra.Approver2,
+			DecisionDate2:          JSONDateTime(ra.DecisionDate2),
+			DeclineReason2:         ra.DeclineReason2,
+			TerminatorUID:          ra.TerminatorUID,
+			TerminationDate:        JSONDateTime(ra.TerminationDate),
+			LeaseTerminationReason: ra.LeaseTerminationReason,
+			DocumentDate:           JSONDateTime(ra.DocumentDate),
+			NoticeToMoveDate:       JSONDateTime(ra.NoticeToMoveDate),
+			NoticeToMoveReported:   JSONDateTime(ra.NoticeToMoveReported),
+		},
 	}
 
 	//-------------------------------------------------------------------------
