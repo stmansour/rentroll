@@ -1244,12 +1244,9 @@ func NewRAFlowPet(ctx context.Context, BID int64, rStart, rStop, pStart, pStop J
 //     RAVehiclesFlowData structure
 //     any error encountered
 //-----------------------------------------------------------------------------
-func NewRAFlowVehicle(ctx context.Context, BID int64, pStart, pStop JSONDate, meta *RAFlowMetaInfo) (vehicle RAVehiclesFlowData, err error) {
+func NewRAFlowVehicle(ctx context.Context, BID int64, rStart, rStop, pStart, pStop JSONDate, meta *RAFlowMetaInfo) (vehicle RAVehiclesFlowData, err error) {
 	const funcname = "NewRAFlowVehicle"
 	fmt.Printf("Entered in %s\n", funcname)
-	var (
-		bizPropName = "general"
-	)
 
 	// initialize
 	// assign new TMPVID & mark in meta info
@@ -1261,26 +1258,11 @@ func NewRAFlowVehicle(ctx context.Context, BID int64, pStart, pStop JSONDate, me
 		Fees:    []RAFeesData{},
 	}
 
-	// get vehicle fees data and feed into fees
-	var vehicleFees []BizPropsFee
-	vehicleFees, err = GetBizPropVehicleFees(ctx, BID, bizPropName)
-	if err != nil {
-		return
-	}
-
-	// loop over fees
-	for _, fee := range vehicleFees {
-		meta.LastTMPASMID++ // new asm id temp
-		vf := RAFeesData{
-			TMPASMID:       meta.LastTMPASMID,
-			ARID:           fee.ARID,
-			ARName:         fee.ARName,
-			ContractAmount: fee.Amount,
-		}
-
-		// append fee for this vehicle
-		vehicle.Fees = append(vehicle.Fees, vf)
-	}
+	// GET VEHICLE INITIAL FEES
+	// TODO(Sudip): IF CONTACT PERSON IS TIED UP WITH ANY RENTABLE THEN
+	//              CONSIDER THAT RID
+	RID := int64(0)
+	vehicle.Fees, err = GetRAFlowInitialVehicleFees(ctx, BID, RID, rStart, rStop, meta)
 
 	return
 }
