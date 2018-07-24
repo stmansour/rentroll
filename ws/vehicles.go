@@ -91,9 +91,9 @@ func SvcUserVehicles(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 // VehicleFeesResp is the response struct containing all vehicle fees
 type VehicleFeesResp struct {
-	Status  string                    `json:"status"`
-	Total   int64                     `json:"total"`
-	Records []rlib.BizPropsVehicleFee `json:"records"`
+	Status  string             `json:"status"`
+	Total   int64              `json:"total"`
+	Records []rlib.BizPropsFee `json:"records"`
 }
 
 // SvcVehicleFeesHandler is used to get the vehicle fees associated with the BID
@@ -114,12 +114,13 @@ type VehicleFeesResp struct {
 func SvcVehicleFeesHandler(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "SvcVehicleFeesHandler"
 	var (
-		err error
-		g   VehicleFeesResp
+		err         error
+		g           VehicleFeesResp
+		bizPropName = "general"
 	)
 	fmt.Printf("Entered in %s\n", funcname)
 
-	g.Records, err = rlib.GetVehicleFeesFromGeneralBizProps(r.Context(), d.BID)
+	g.Records, err = rlib.GetBizPropVehicleFees(r.Context(), d.BID, bizPropName)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
