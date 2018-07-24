@@ -25,33 +25,40 @@ func Fees2RA(ctx context.Context, x *WriteHandlerContext) error {
 	//--------------------------------------------------
 	// Handle Rentables first...
 	//--------------------------------------------------
+	rlib.Console("A\n")
 	for i := 0; i < len(x.raf.Rentables); i++ {
 		for j := 0; j < len(x.raf.Rentables[i].Fees); j++ {
 			if x.raf.Rentables[i].Fees[j].ASMID > 0 {
-				err = F2RAUpdateExistingAssessment(ctx, x, &x.raf.Rentables[i].Fees[j], rlib.ELEMRENTABLE, 0, 0)
-				return err
+				rlib.Console("i = %d, j = %d, ASMID = %d\n", i, j, x.raf.Rentables[i].Fees[j].ASMID)
+				if err = F2RAUpdateExistingAssessment(ctx, x, &x.raf.Rentables[i].Fees[j], rlib.ELEMRENTABLE, x.raf.Rentables[i].RID, 0); err != nil {
+					return err
+				}
 			}
 		}
 	}
+	rlib.Console("B\n")
 	//--------------------------------------------------
 	// Handle pet fees...
 	//--------------------------------------------------
 	for i := 0; i < len(x.raf.Pets); i++ {
 		for j := 0; j < len(x.raf.Pets[i].Fees); j++ {
 			if 0 < x.raf.Pets[i].Fees[j].ASMID {
-				err = F2RAUpdateExistingAssessment(ctx, x, &x.raf.Rentables[i].Fees[j], rlib.ELEMPET, x.raf.Pets[i].PETID, x.raf.Pets[i].TMPTCID)
-				return err
+				if err = F2RAUpdateExistingAssessment(ctx, x, &x.raf.Pets[i].Fees[j], rlib.ELEMPET, x.raf.Pets[i].PETID, x.raf.Pets[i].TMPTCID); err != nil {
+					return err
+				}
 			}
 		}
 	}
 	//--------------------------------------------------
 	// Handle vehicle fees...
 	//--------------------------------------------------
+	rlib.Console("C\n")
 	for i := 0; i < len(x.raf.Vehicles); i++ {
 		for j := 0; j < len(x.raf.Vehicles[i].Fees); j++ {
 			if 0 < x.raf.Vehicles[i].Fees[j].ASMID {
-				err = F2RAUpdateExistingAssessment(ctx, x, &x.raf.Rentables[i].Fees[j], rlib.ELEMVEHICLE, x.raf.Vehicles[i].VID, x.raf.Vehicles[i].TMPTCID)
-				return err
+				if err = F2RAUpdateExistingAssessment(ctx, x, &x.raf.Vehicles[i].Fees[j], rlib.ELEMVEHICLE, x.raf.Vehicles[i].VID, x.raf.Vehicles[i].TMPTCID); err != nil {
+					return err
+				}
 			}
 		}
 	}
@@ -65,7 +72,8 @@ func Fees2RA(ctx context.Context, x *WriteHandlerContext) error {
 //     ctx  - db context for transactions
 //     x    - all the contextual info we need for performing this operation
 //     elt  - element type if is this is bound to a pet or vehicle
-//     id   - tmpid of the element (TMPPETID, TMPVID), valid if elt > 0
+//     id   - RID if elt == rlib.ELEMRENTABLE, or tmpid of the element
+//            (TMPPETID, TMPVID), valid if elt > 0
 //     tcid - tmptcid of the transactant responsible, valid if elt > 0
 //
 // RETURNS
@@ -115,6 +123,7 @@ func F2RAUpdateExistingAssessment(ctx context.Context, x *WriteHandlerContext, f
 		Start = dt // whichever is later
 	}
 	b.Stop = time.Time(fee.Stop)
+	b.BID = a.BID
 
 	//-------------------------------------------------------------------
 	// Set the Element Type and ID if necessary
@@ -125,12 +134,36 @@ func F2RAUpdateExistingAssessment(ctx context.Context, x *WriteHandlerContext, f
 	//-------------------------------------------------------------------
 	// find the RID associated with this pet
 	//-------------------------------------------------------------------
-	if b.RID = GetRIDForTMPTCID(ctx, x, tmptcid); b.RID <= 0 {
-		return fmt.Errorf("No RID associated with TMPTCID = %d", tmptcid)
+	switch eltype {
+	case rlib.ELEMRENTABLE:
+		b.RID = id
+	case rlib.ELEMPET:
+		if b.RID = GetRIDForTMPTCID(ctx, x, tmptcid); b.RID <= 0 {
+			return fmt.Errorf("No RID associated with TMPTCID = %d", tmptcid)
+		}
+	case rlib.ELEMVEHICLE:
+		if b.RID = GetRIDForTMPTCID(ctx, x, tmptcid); b.RID <= 0 {
+			return fmt.Errorf("No RID associated with TMPTCID = %d", tmptcid)
+		}
 	}
 	b.Amount = fee.ContractAmount
-	b.AcctRule = rlib.RRdb.BizTypes[b.BID].AR[fee.ARID].Name
+	rlib.Console("bid = %d, fee ARID = %d\n", b.BID, fee.ARID)
+	b.AcctRule = ""
 	b.RentCycle = fee.RentCycle
+	b.RAID = x.ra.RAID
+	b.Start = time.Time(fee.Start)
+	b.Stop = time.Time(fee.Stop)
+	b.RentCycle = fee.RentCycle
+	b.ProrationCycle = rlib.RRdb.BizTypes[b.BID].AR[fee.ARID].DefaultProrationCycle
+	b.InvoiceNo = 0
+	b.ARID = fee.ARID
+	b.FLAGS = a.FLAGS & (1<<3 | 1<<4) // 1<<3 = PEDID required, 1<<4 = VID required
+	b.Comment = fmt.Sprintf("Updated from ASMID=%d", a.ASMID)
+
+	_, err = rlib.InsertAssessment(ctx, &b)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

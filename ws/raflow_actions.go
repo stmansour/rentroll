@@ -94,7 +94,7 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	modRAFlowMeta := raFlowData.Meta
 
 	MODE := foo.Mode
-	state := raFlowData.Meta.RAFLAGS & ^(0xf)
+	state := raFlowData.Meta.RAFLAGS & ^uint64(0xf)
 
 	switch MODE {
 	case "Action":
@@ -116,7 +116,7 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		case 5: // Terminate
 			if foo.TerminationReason > 0 {
 				modRAFlowMeta.TerminatorUID = d.sess.UID
-				modRAFlowMeta.TerminationDate = rlib.JSONDate(today)
+				modRAFlowMeta.TerminationDate = rlib.JSONDateTime(today)
 				modRAFlowMeta.LeaseTerminationReason = foo.TerminationReason
 
 				modRAFlowMeta.RAFLAGS = (state | 5)
@@ -128,8 +128,8 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			}
 
 		case 6: // Notice-To-Move
-			modRAFlowMeta.NoticeToMoveDate = foo.NoticeToMoveDate
-			modRAFlowMeta.NoticeToMoveReported = foo.NoticeToMoveReported
+			modRAFlowMeta.NoticeToMoveDate = rlib.JSONDateTime(foo.NoticeToMoveDate)
+			modRAFlowMeta.NoticeToMoveReported = rlib.JSONDateTime(foo.NoticeToMoveReported)
 
 			modRAFlowMeta.RAFLAGS = (state | 6)
 

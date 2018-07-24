@@ -520,14 +520,20 @@ func UpdatePayor(ctx context.Context, a *Payor) error {
 		// user from session, CreateBy, LastModBy
 		a.LastModBy = sess.UID
 	}
+	t1, err := Encrypt(a.TaxpayorID)
+	if err != nil {
+		return err
+	}
+	t := hex.EncodeToString(t1)
+
 	d1, err := Encrypt(a.DriversLicense)
 	if err != nil {
 		return err
 	}
 	d := hex.EncodeToString(d1)
 
-	fields := []interface{}{a.BID, a.CreditLimit, a.TaxpayorID, a.ThirdPartySource, a.EligibleFuturePayor,
-		a.FLAGS, d, a.GrossIncome, a.LastModBy, a.TCID}
+	fields := []interface{}{a.TCID, a.BID, a.CreditLimit, t, a.EligibleFuturePayor,
+		a.FLAGS, d, a.GrossIncome, a.LastModBy}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdatePayor)
 		defer stmt.Close()
@@ -579,6 +585,7 @@ func UpdateProspect(ctx context.Context, a *Prospect) error {
 		a.PriorReasonForMoving,
 		a.PriorLengthOfResidency,
 		a.CommissionableThirdParty,
+		a.ThirdPartySource,
 		a.LastModBy,
 		a.TCID,
 	}
@@ -1381,7 +1388,7 @@ func UpdateUser(ctx context.Context, a *User) error {
 	}
 
 	fields := []interface{}{a.BID, a.Points, a.DateofBirth, a.EmergencyContactName, a.EmergencyContactAddress,
-		a.EmergencyContactTelephone, a.EmergencyContactEmail, a.AlternateAddress, a.EligibleFutureUser, a.FLAGS,
+		a.EmergencyContactTelephone, a.EmergencyContactEmail, a.AlternateEmailAddress, a.EligibleFutureUser, a.FLAGS,
 		a.Industry, a.SourceSLSID, a.LastModBy, a.TCID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateUser)

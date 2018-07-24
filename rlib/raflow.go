@@ -89,19 +89,19 @@ type RAFlowMetaInfo struct {
 	LastTMPASMID           int64
 	HavePets               bool
 	HaveVehicles           bool
-	RAFLAGS                int64
+	RAFLAGS                uint64
 	Approver1              int64
-	DecisionDate1          JSONDate
+	DecisionDate1          JSONDateTime
 	DeclineReason1         int64
 	Approver2              int64
-	DecisionDate2          JSONDate
+	DecisionDate2          JSONDateTime
 	DeclineReason2         int64
 	TerminatorUID          int64
-	TerminationDate        JSONDate
+	TerminationDate        JSONDateTime
 	LeaseTerminationReason int64
-	DocumentDate           JSONDate
-	NoticeToMoveDate       JSONDate
-	NoticeToMoveReported   JSONDate
+	DocumentDate           JSONDateTime
+	NoticeToMoveDate       JSONDateTime
+	NoticeToMoveReported   JSONDateTime
 }
 
 // RADatesFlowData contains data in the dates part of RA flow
@@ -113,6 +113,7 @@ type RADatesFlowData struct {
 	RentStop        JSONDate `validate:"date"`
 	PossessionStart JSONDate `validate:"date"`
 	PossessionStop  JSONDate `validate:"date"`
+	CSAgent         int64    `validate:"number,min=0"` // TODO(Steve/Sudip/Akshay): Bind webservice call
 }
 
 // RAPeopleFlowData contains data in the background-info part of RA flow
@@ -181,13 +182,13 @@ type RAPeopleFlowData struct {
 	//CommissionableThirdParty string
 	SpecialNeeds string `validate:"string,min=1,max=1024,omitempty"` // In an effort to accommodate you, please advise us of any special needs
 	// It'll be none. If there is no special needs
+	ThirdPartySource int64 `validate:"number,min=1,omitempty"`
 
 	// ---------- Payor -----------
 	CreditLimit         float64 `validate:"number:float,min=0.00,omitempty"`
 	TaxpayorID          string  `validate:"string,min=1,max=25,omitempty"`
 	GrossIncome         float64 `validate:"number:float,min=0.00,omitempty"` // When role is set to renter or guarantor than it is compulsory. It'll be check via bizlogic.
 	DriversLicense      string  `validate:"string,min=1,max=128"`
-	ThirdPartySource    int64   `validate:"number,min=1,omitempty"`
 	EligibleFuturePayor bool    `validate:"-"`
 
 	// ---------- User -----------
@@ -198,7 +199,7 @@ type RAPeopleFlowData struct {
 	EmergencyContactAddress   string `validate:"string,min=1,max=100"`
 	EmergencyContactTelephone string `validate:"string,min=1,max=100"`
 	EmergencyContactEmail     string `validate:"email"`
-	AlternateAddress          string `validate:"string,min=1,max=100,omitempty"`
+	AlternateEmailAddress     string `validate:"string,min=1,max=100,omitempty"`
 	EligibleFutureUser        bool   `validate:"number,min=1"`
 	Industry                  string `validate:"string,min=1,max=100,omitempty"`
 	SourceSLSID               int64  `validate:"number,min=1"` // It is compulsory when role is set to renter or user. It'll be check via bizlogic.
@@ -231,7 +232,7 @@ type RAVehiclesFlowData struct {
 	VehicleMake         string       `validate:"string,min=1,max=80"`
 	VehicleModel        string       `validate:"string,min=1,max=80"`
 	VehicleColor        string       `validate:"string,min=1,max=80"`
-	VehicleYear         int64        `validate:"number,min=1"`
+	VehicleYear         int64        `validate:"number,min=1900,max=2150"` // Akshay -- why would you make this a string?? It is an int64.-sman  TODO(Akshay): Make string validator for alphanumeric, numeric, alpha
 	LicensePlateState   string       `validate:"string,min=1,max=80"`
 	LicensePlateNumber  string       `validate:"string,min=1,max=80"`
 	ParkingPermitNumber string       `validate:"string,min=1,max=80,omitempty"`

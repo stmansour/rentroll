@@ -40,7 +40,7 @@ window.getTransactantInitRecord = function (BID, BUD) {
         EmergencyContactAddress: "",
         EmergencyContactTelephone: "",
         EmergencyContactEmail: "",
-        AlternateAddress: "",
+        AlternateEmailAddress: "",
         EligibleFutureUser: true,
         Industry: "",
         SourceSLSID: 0,
@@ -141,13 +141,14 @@ window.buildTransactElements = function() {
         {field: 'OtherPreferences',          type: 'text',      required: false, html: {page: 1, column: 0}},
         // {field: 'FollowUpDate',              type: 'date',      required: false, html: {page: 1, column: 0}},
         // {field: 'CommissionableThirdParty',  type: 'text',      required: false, html: {page: 1, column: 0}},
+        {field: 'ThirdPartySource',          type: 'int',       required: false, html: {page: 1, column: 0}},
         {field: 'SpecialNeeds',              type: 'text',      required: false, html: {page: 1, column: 0}},  // In an effort to accommodate you, please advise us of any special needs,
+
         // ----------- Payor ----------
         {field: 'CreditLimit',               type: 'money',     required: false, html: {page: 2, column: 0}},
         {field: 'TaxpayorID',                type: 'text',      required: false, html: {page: 2, column: 0}},
         {field: 'GrossIncome',               type: 'money',     required: false, html: {page: 2, column: 0}},
         {field: 'DriversLicense',            type: 'text',      required: false, html: {page: 2, column: 0}},  // Driving licence number of applicants
-        {field: 'ThirdPartySource',          type: 'text',      required: false, html: {page: 2, column: 0}},
         {field: 'EligibleFuturePayor',       type: 'checkbox',  required: false, html: {page: 2, column: 0}},
         // ----------- User ----------
         {field: 'Points',                    type: 'int',       required: false, html: {page: 3, column: 0}},
@@ -156,7 +157,7 @@ window.buildTransactElements = function() {
         {field: 'EmergencyContactAddress',   type: 'text',      required: false, html: {page: 3, column: 0}},
         {field: 'EmergencyContactTelephone', type: 'text',      required: false, html: {page: 3, column: 0}},
         {field: 'EmergencyContactEmail',     type: 'text',      required: false, html: {page: 3, column: 0}},
-        {field: 'AlternateAddress',          type: 'text',      required: false, html: {page: 3, column: 0}},
+        {field: 'AlternateEmailAddress',          type: 'text',      required: false, html: {page: 3, column: 0}},
         {field: 'EligibleFutureUser',        type: 'checkbox',  required: false, html: {page: 3, column: 0}},
         {field: 'Industry',                  type: 'text',      required: false, html: {page: 3, column: 0}},
         {field: 'SourceSLSID',               type: 'list',      required: false, html: {page: 3, column: 0}}, // "HowFound" string list

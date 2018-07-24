@@ -26,7 +26,8 @@ window.loadRADatesForm = function () {
                 {name: 'RentStart',         type: 'date',   required: true, html: {caption: "Rent Start"}},
                 {name: 'RentStop',          type: 'date',   required: true, html: {caption: "Rent Stop"}},
                 {name: 'PossessionStart',   type: 'date',   required: true, html: {caption: "Possession Start"}},
-                {name: 'PossessionStop',    type: 'date',   required: true, html: {caption: "Possession Stop"}}
+                {name: 'PossessionStop',    type: 'date',   required: true, html: {caption: "Possession Stop"}},
+                {name: 'CSAgent',           type: 'int',    required: true, html: {caption: "CS Agent"}}
             ],
             actions: {
                 reset: function () {
