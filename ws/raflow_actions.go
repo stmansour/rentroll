@@ -52,11 +52,20 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		g          FlowResponse
 		raFlowData rlib.RAFlowJSONData
 		foo        RAActionDataRequest
-		today      = time.Now()
 		err        error
 		tx         *sql.Tx
 		ctx        context.Context
 	)
+	// set location for time as UTC
+	location, err := time.LoadLocation("UTC")
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// get current time in UTC
+	today := time.Now().In(location)
+
 	fmt.Printf("Entered %s\n", funcname)
 
 	// ===============================================
