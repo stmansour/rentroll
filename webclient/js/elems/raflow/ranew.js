@@ -213,7 +213,7 @@ window.buildRAApplicantElements = function() {
                                 recid:  newRecid,
                                 BID:    bid,
                                 BUD:    bud,
-                                FlowID: data.record.FlowID,
+                                FlowID: data.record.Flow.FlowID
                             });
 
                             grid.refresh();
