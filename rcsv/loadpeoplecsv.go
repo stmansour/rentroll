@@ -149,7 +149,7 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 		{EmergencyContactEmail, rcsvCopyString, &t.EmergencyContactEmail},
 		{AlternateEmailAddress, rcsvCopyString, &t.AlternateEmailAddress},
 		{EligibleFutureUser, nil, nil},
-		{Industry, rcsvCopyString, &t.Industry},
+		{Industry, nil, nil},
 		{SourceSLSID, nil, nil},
 		{CreditLimit, nil, nil},
 		{TaxpayorID, rcsvCopyString, &p.TaxpayorID},

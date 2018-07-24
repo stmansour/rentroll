@@ -353,6 +353,7 @@ window.loadRAPeopleForm = function () {
                     form.get('SourceSLSID').options.items = getSLStringList(BID, "HowFound");
                     form.get('CurrentReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
                     form.get('PriorReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
+                    form.get('Industry').options.items = getSLStringList(BID, "Industries");
 
                     // hide delete button if it is NewRecord
                     var isNewRecord = (w2ui.RAPeopleGrid.get(form.record.recid, true) === null);
@@ -595,7 +596,7 @@ window.acceptTransactant = function () {
             }
         })
         .fail(function (data) {
-            console.error("failure" + data);
+            console.error(data);
         });
     } else {
         var recid = compData[tcidIndex].recid;

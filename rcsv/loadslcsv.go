@@ -116,7 +116,7 @@ func LoadStringTablesCSV(ctx context.Context, fname string) []error {
 	if len(a.S) > 0 && len(m) == 0 {
 		err := writeStringList(ctx)
 		if err != nil {
-			err := fmt.Errorf("Error writing string list: %s", err.Error())
+			err := fmt.Errorf("error writing string list: %s", err.Error())
 			m = append(m, err)
 		}
 	}

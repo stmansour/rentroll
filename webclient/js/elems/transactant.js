@@ -42,7 +42,7 @@ window.getTransactantInitRecord = function (BID, BUD) {
         EmergencyContactEmail: "",
         AlternateEmailAddress: "",
         EligibleFutureUser: true,
-        Industry: "",
+        Industry: 0,
         SourceSLSID: 0,
         CreditLimit: 0.00,
         TaxpayorID: "",
@@ -159,7 +159,7 @@ window.buildTransactElements = function() {
         {field: 'EmergencyContactEmail',     type: 'text',      required: false, html: {page: 3, column: 0}},
         {field: 'AlternateEmailAddress',          type: 'text',      required: false, html: {page: 3, column: 0}},
         {field: 'EligibleFutureUser',        type: 'checkbox',  required: false, html: {page: 3, column: 0}},
-        {field: 'Industry',                  type: 'text',      required: false, html: {page: 3, column: 0}},
+        {field: 'Industry',                  type: 'list',      required: false, html: {page: 3, column: 0}},
         {field: 'SourceSLSID',               type: 'list',      required: false, html: {page: 3, column: 0}}, // "HowFound" string list
         {field: 'CreateBy',                  type: 'int',       required: false, html: {page: 0, column: 0}},
         {field: 'CreateTS',                  type: 'time',      required: false, html: {page: 0, column: 0}},
@@ -459,6 +459,7 @@ window.buildTransactElements = function() {
                 f.get('SourceSLSID').options.items = getSLStringList(BID, "HowFound");
                 f.get('CurrentReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
                 f.get('PriorReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
+                f.get('Industry').options.items = getSLStringList(BID, "Industries");
 
                 // Enable/Disable checkbox description text area
                 onCheckboxesChange(this);
@@ -538,6 +539,9 @@ window.getSLStringList = function(BID, SLName){
                     break;
                 case "ApplDeny":
                     defaultItem = {id: 0, text: " -- Select Decline Reason -- "};
+                    break;
+                case "Industries":
+                    defaultItem = {id: 0, text: " -- Select Industry -- "};
                     break;
                 default:
                     console.log("SLName doesn't exists");

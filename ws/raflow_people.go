@@ -92,11 +92,13 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 	// http method check
 	if r.Method != "POST" {
 		err = fmt.Errorf("only POST method is allowed")
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
 	// unmarshal data into request data struct
 	if err = json.Unmarshal([]byte(d.data), &foo); err != nil {
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -105,6 +107,7 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 	//-------------------------------------------------------
 	tx, ctx, err = rlib.NewTransactionWithContext(r.Context())
 	if err != nil {
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -112,12 +115,14 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 	var flow rlib.Flow
 	flow, err = rlib.GetFlow(ctx, foo.FlowID)
 	if err != nil {
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
 	// get unmarshalled raflow data into struct
 	err = json.Unmarshal(flow.Data, &raFlowData)
 	if err != nil {
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -144,6 +149,7 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 		var xp rlib.XPerson
 		err = rlib.GetXPerson(ctx, foo.TCID, &xp)
 		if err != nil {
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 
@@ -185,12 +191,14 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 		var modPeopleData []byte
 		modPeopleData, err = json.Marshal(&raFlowData.People)
 		if err != nil {
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 
 		// update flow with this modified people part
 		err = rlib.UpdateFlowData(ctx, "people", modPeopleData, &flow)
 		if err != nil {
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 	}
@@ -523,6 +531,7 @@ func DeleteRAFlowPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 	// get the modified flow
 	flow, err = rlib.GetFlow(ctx, flow.FlowID)
 	if err != nil {
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 

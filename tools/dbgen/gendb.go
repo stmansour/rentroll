@@ -115,7 +115,7 @@ func GenerateDB(ctx context.Context, dbConf *GenDBConf) error {
 		err = rlib.GetPaymentTypeByName(ctx, BID, dbConf.PTypeCheckName, &pt)
 		rlib.Errcheck(err)
 		if pt.PMTID == 0 {
-			return fmt.Errorf("Could not find Payment Type with name %q", dbConf.PTypeCheckName)
+			return fmt.Errorf("could not find Payment Type with name %q", dbConf.PTypeCheckName)
 		}
 		dbConf.PTypeCheck = pt.PMTID
 	}
@@ -242,7 +242,7 @@ func createTransactants(ctx context.Context, dbConf *GenDBConf) error {
 			EmergencyContactEmail:     GenerateRandomEmail(eclast, ecfirst),
 			AlternateEmailAddress:     GenerateRandomAddress() + "," + GenerateRandomCity() + "," + GenerateRandomState() + " " + fmt.Sprintf("%05d", rand.Intn(100000)),
 			EligibleFutureUser:        IG.Rand.Intn(2) > 0,
-			Industry:                  GenerateRandomIndustry(),
+			Industry:                  int64(IG.Rand.Intn(len(IG.Industries.S))),
 			SourceSLSID:               int64(IG.Rand.Intn(len(IG.HowFound.S))),
 		}
 
