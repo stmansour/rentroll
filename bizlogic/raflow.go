@@ -1101,3 +1101,24 @@ func isAssociatedWithPerson(TMPTCID int64, people []rlib.RAPeopleFlowData) bool 
 	}
 	return false
 }
+
+// DataFulfilledRAFlow Check flow data is fulfilled or not.
+func DataFulfilledRAFlow(ctx context.Context, a *rlib.RAFlowJSONData, d *rlib.RADataFulfilled) {
+	d = &rlib.RADataFulfilled{
+		Dates:       false,
+		People:      false,
+		Pets:        false,
+		Vehicles:    false,
+		Rentables:   false,
+		ParentChild: false,
+		Tie:         false,
+	}
+
+	// Check for date section
+
+	// Check for rentables section
+	if len(a.Rentables) > 0 {
+		d.Rentables = true
+	}
+
+}

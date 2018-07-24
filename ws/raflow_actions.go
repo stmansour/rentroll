@@ -206,6 +206,9 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// Perform basic validation on flow data
 	bizlogic.ValidateRAFlowBasic(r.Context(), &raFlowData, &raFlowResponse.BasicCheck)
 
+	// Check DataFulfilled
+	bizlogic.DataFulfilledRAFlow(r.Context(), &raFlowData, &raFlowResponse.DataFulfilled)
+
 	raFlowResponse.Flow = flow
 	// set the response
 	g.Record = raFlowResponse

@@ -1497,6 +1497,17 @@ type Flow struct {
 	CreateBy    int64           // created by whom
 }
 
+// RADataFulfilled is a structure to store section's required information fulfilled to show green mark
+type RADataFulfilled struct {
+	Dates       bool
+	People      bool
+	Pets        bool
+	Vehicles    bool
+	Rentables   bool
+	ParentChild bool
+	Tie         bool
+}
+
 // RRprepSQL is a collection of prepared sql statements for the RentRoll db
 type RRprepSQL struct {
 	CountBusinessCustomAttributes           *sql.Stmt

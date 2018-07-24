@@ -16,8 +16,9 @@ type GridRAFlowResponse struct {
 
 // RAFlowResponse is a struct to hold info for flow information and relative basic validation check
 type RAFlowResponse struct {
-	Flow       rlib.Flow
-	BasicCheck bizlogic.ValidateRAFlowResponse
+	Flow          rlib.Flow
+	BasicCheck    bizlogic.ValidateRAFlowResponse
+	DataFulfilled rlib.RADataFulfilled
 }
 
 /*// RAFlowDiffRequest struct

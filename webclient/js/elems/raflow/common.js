@@ -292,11 +292,12 @@ window.requiredFieldsFulFilled = function (compID) {
             }
             break;
 
-        case "rentables":
-            if (compData.length > 0) {
-                done = true;
-            }
-            break;
+        // case "rentables":
+        // Green checked by server side
+        //     if (compData.length > 0) {
+        //         done = true;
+        //     }
+        //     break;
 
         case "parentchild":
             // ==============================================================//

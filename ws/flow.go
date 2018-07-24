@@ -122,6 +122,9 @@ func InitiateFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// Perform basic validation on flow data
 	bizlogic.ValidateRAFlowBasic(r.Context(), &raFlowData, &raFlowResponse.BasicCheck)
 
+	// Check DataFulfilled
+	bizlogic.DataFulfilledRAFlow(r.Context(), &raFlowData, &raFlowResponse.DataFulfilled)
+
 	// Set the response
 	raFlowResponse.Flow = flow
 
@@ -159,6 +162,9 @@ func GetFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	// Perform basic validation on flow data
 	bizlogic.ValidateRAFlowBasic(r.Context(), &raFlowData, &raFlowResponse.BasicCheck)
+
+	// Check DataFulfilled
+	bizlogic.DataFulfilledRAFlow(r.Context(), &raFlowData, &raFlowResponse.DataFulfilled)
 
 	// Set the response
 	raFlowResponse.Flow = flow
@@ -348,6 +354,9 @@ func SaveFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	// Perform basic validation on flow data
 	bizlogic.ValidateRAFlowBasic(r.Context(), &raFlowData, &updatedFlow.BasicCheck)
+
+	// Check DataFulfilled
+	bizlogic.DataFulfilledRAFlow(r.Context(), &raFlowData, &updatedFlow.DataFulfilled)
 
 	g.Record = updatedFlow
 	g.Status = "success"
