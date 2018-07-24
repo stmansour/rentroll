@@ -13,17 +13,37 @@ import (
 
 // RAActionDataRequest is a struct to hold info about actions taken on Rental Agreement
 type RAActionDataRequest struct {
-	FlowID               int64         // Flow ID of Rental Agreement
-	Action               int64         // If '-1' then Do nothing
-	Decision1            int64         // 0 - NoApprovalDecision1Field, 1 - RA Approved, 2 - RA Declined
-	DeclineReason1       int64         // 0 - NoDeclineReason1Field, great than 0 - Reason for Decline
-	Decision2            int64         // 0 - NoApprovalDecision2Field, 1 - RA Approved, 2 - RA Declined
-	DeclineReason2       int64         // 0 - NoDeclineReason2Field, great than 0 - Reason for Decline
-	TerminationReason    int64         // 0 - NoTerminationReasonField, great than 0 - Reason for Termination
-	DocumentDate         rlib.JSONDate // date when rental agreement was signed
-	NoticeToMoveDate     rlib.JSONDate // date RA was given Notice-To-Move
-	NoticeToMoveReported rlib.JSONDate // date RA was set to Terminated because of moving out
-	Mode                 string        // It represents that which button submitted the form
+	FlowID int64  // Flow ID of Rental Agreement
+	Action int64  // If '-1' then Do nothing
+	Mode   string // It represents that which button submitted the form
+}
+
+// RAApprover1Data is a struct to hold data about actions of Approver1
+type RAApprover1Data struct {
+	Decision1      int64 // 0 - NoApprovalDecision1Field, 1 - RA Approved, 2 - RA Declined
+	DeclineReason1 int64 // 0 - NoDeclineReason1Field, great than 0 - Reason for Decline
+}
+
+// RAApprover2Data is a struct to hold data about actions of Approver2
+type RAApprover2Data struct {
+	Decision2      int64 // 0 - NoApprovalDecision2Field, 1 - RA Approved, 2 - RA Declined
+	DeclineReason2 int64 // 0 - NoDeclineReason2Field, great than 0 - Reason for Decline
+}
+
+// RAMoveInData is a struct to hold data about Move In
+type RAMoveInData struct {
+	DocumentDate rlib.JSONDateTime // date when rental agreement was signed
+}
+
+// RATerminationData is a struct to hold data about termination of RentalAgreement
+type RATerminationData struct {
+	TerminationReason int64 // 0 - NoTerminationReasonField, great than 0 - Reason for Termination
+}
+
+// RANoticeToMoveData is a struct to hold data about Notice to Move
+type RANoticeToMoveData struct {
+	NoticeToMoveDate     rlib.JSONDateTime // date RA was given Notice-To-Move
+	NoticeToMoveReported rlib.JSONDateTime // date RA was set to Terminated because of moving out
 }
 
 // SvcSetRAState sets the state of Rental Agreement and updates meta info of RA
@@ -34,11 +54,20 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		raFlowResponse RAFlowResponse
 		raFlowData     rlib.RAFlowJSONData
 		foo            RAActionDataRequest
-		today          = time.Now()
 		err            error
 		tx             *sql.Tx
 		ctx            context.Context
 	)
+	// set location for time as UTC
+	location, err := time.LoadLocation("UTC")
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// get current time in UTC
+	today := time.Now().In(location)
+
 	fmt.Printf("Entered %s\n", funcname)
 
 	// ===============================================
@@ -96,73 +125,195 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	modRAFlowMeta := raFlowData.Meta
 
 	MODE := foo.Mode
-	state := raFlowData.Meta.RAFLAGS & ^uint64(0xf)
+	state := raFlowData.Meta.RAFLAGS & uint64(0xf)
+
+	clearedState := raFlowData.Meta.RAFLAGS & ^uint64(0xf)
 
 	switch MODE {
 	case "Action":
+		if foo.Action < int64(state) {
+			for i := foo.Action; i <= int64(state); i++ {
+				switch i {
+				case 0: // Application Being Completed
+				case 1: // Pending First Approval
+					modRAFlowMeta.Approver1 = 0
+					modRAFlowMeta.Approver1Name = ""
+					modRAFlowMeta.DeclineReason1 = 0
+					modRAFlowMeta.DecisionDate1 = rlib.JSONDateTime(time.Time{})
+
+				case 2: // Pending Second Approval
+					modRAFlowMeta.Approver2 = 0
+					modRAFlowMeta.Approver2Name = ""
+					modRAFlowMeta.DeclineReason2 = 0
+					modRAFlowMeta.DecisionDate2 = rlib.JSONDateTime(time.Time{})
+
+				case 3: // Move-In / Execute Modification
+					modRAFlowMeta.DocumentDate = rlib.JSONDateTime(time.Time{})
+				case 4: // Active
+				case 5: // Terminated
+					modRAFlowMeta.TerminatorUID = 0
+					modRAFlowMeta.TerminatorName = ""
+					modRAFlowMeta.LeaseTerminationReason = 0
+					modRAFlowMeta.TerminationDate = rlib.JSONDateTime(time.Time{})
+
+				case 6: //Notice To Move
+					modRAFlowMeta.NoticeToMoveDate = rlib.JSONDateTime(time.Time{})
+					modRAFlowMeta.NoticeToMoveReported = rlib.JSONDateTime(time.Time{})
+				}
+			}
+		}
 		switch foo.Action {
 		case 0: // Application Being Completed
-			modRAFlowMeta.RAFLAGS = (state | 0)
+			modRAFlowMeta.RAFLAGS = (clearedState | 0)
 
 		case 1: // Set To First Approval
-			modRAFlowMeta.RAFLAGS = (state | 1)
+			modRAFlowMeta.RAFLAGS = (clearedState | 1)
 
 		case 2: // Set To Second Approval
-			modRAFlowMeta.RAFLAGS = (state | 2)
+			modRAFlowMeta.RAFLAGS = (clearedState | 2)
 
 		case 3: // Set To Move-In
-			modRAFlowMeta.RAFLAGS = (state | 3)
+			modRAFlowMeta.RAFLAGS = (clearedState | 3)
 
 		case 4: // Complete Move-In
-			modRAFlowMeta.RAFLAGS = (state | 4)
+			modRAFlowMeta.RAFLAGS = (clearedState | 4)
 		case 5: // Terminate
-			if foo.TerminationReason > 0 {
-				modRAFlowMeta.TerminatorUID = d.sess.UID
-				modRAFlowMeta.TerminationDate = rlib.JSONDateTime(today)
-				modRAFlowMeta.LeaseTerminationReason = foo.TerminationReason
+			var data RATerminationData
+			if err = json.Unmarshal([]byte(d.data), &data); err != nil {
+				SvcErrorReturn(w, err, funcname)
+				return
+			}
 
-				modRAFlowMeta.RAFLAGS = (state | 5)
+			if data.TerminationReason > 0 {
+				fullName, err := getUserFullName(ctx, d.sess.UID, d)
+				if err != nil {
+					SvcErrorReturn(w, err, funcname)
+					return
+				}
+
+				modRAFlowMeta.TerminatorUID = d.sess.UID
+				modRAFlowMeta.TerminatorName = fullName
+				modRAFlowMeta.TerminationDate = rlib.JSONDateTime(today)
+				modRAFlowMeta.LeaseTerminationReason = data.TerminationReason
+
+				modRAFlowMeta.RAFLAGS = (clearedState | 5)
 			} else {
 				// return err
-				err := fmt.Errorf("Termination Reason not present")
+				err := fmt.Errorf("termination reason not present")
 				SvcErrorReturn(w, err, funcname)
 				return
 			}
 
 		case 6: // Notice-To-Move
-			modRAFlowMeta.NoticeToMoveDate = rlib.JSONDateTime(foo.NoticeToMoveDate)
-			modRAFlowMeta.NoticeToMoveReported = rlib.JSONDateTime(foo.NoticeToMoveReported)
+			var data RANoticeToMoveData
+			if err = json.Unmarshal([]byte(d.data), &data); err != nil {
+				SvcErrorReturn(w, err, funcname)
+				return
+			}
+			modRAFlowMeta.NoticeToMoveDate = rlib.JSONDateTime(data.NoticeToMoveDate)
+			modRAFlowMeta.NoticeToMoveReported = rlib.JSONDateTime(data.NoticeToMoveReported)
 
-			modRAFlowMeta.RAFLAGS = (state | 6)
+			modRAFlowMeta.RAFLAGS = (clearedState | 6)
+
+		default:
+		}
+	case "State":
+		switch state {
+		case 1: // Pending First Approval
+			var data RAApprover1Data
+			if err = json.Unmarshal([]byte(d.data), &data); err != nil {
+				SvcErrorReturn(w, err, funcname)
+				return
+			}
+
+			fullName, err := getUserFullName(ctx, d.sess.UID, d)
+			if err != nil {
+				SvcErrorReturn(w, err, funcname)
+				return
+			}
+
+			if data.Decision1 == 1 { // Approved
+				// set 4th bit of Flag as 1
+				modRAFlowMeta.RAFLAGS = modRAFlowMeta.RAFLAGS | uint64(1<<4)
+
+				clearedState = modRAFlowMeta.RAFLAGS & ^uint64(0xf)
+				modRAFlowMeta.RAFLAGS = (clearedState | 2)
+			} else if data.Decision1 == 2 && data.DeclineReason1 > 0 { // Declined
+				// set 4th bit of Flag as 0
+				modRAFlowMeta.RAFLAGS = modRAFlowMeta.RAFLAGS & ^uint64(1<<4)
+				modRAFlowMeta.DeclineReason1 = data.DeclineReason1
+
+				modRAFlowMeta.TerminatorUID = d.sess.UID
+				modRAFlowMeta.TerminatorName = fullName
+				modRAFlowMeta.TerminationDate = rlib.JSONDateTime(today)
+				modRAFlowMeta.LeaseTerminationReason = 119 //Change it with SLSID for "Application Declined"
+
+				clearedState = modRAFlowMeta.RAFLAGS & ^uint64(0xf)
+				modRAFlowMeta.RAFLAGS = (clearedState | 5)
+			} else {
+				// return err
+				err := fmt.Errorf("approver1 data invalid")
+				SvcErrorReturn(w, err, funcname)
+				return
+			}
+
+			modRAFlowMeta.Approver1 = d.sess.UID
+			modRAFlowMeta.Approver1Name = fullName
+			modRAFlowMeta.DecisionDate1 = rlib.JSONDateTime(today)
+
+		case 2: // Pending Second Approval
+			var data RAApprover2Data
+			if err = json.Unmarshal([]byte(d.data), &data); err != nil {
+				SvcErrorReturn(w, err, funcname)
+				return
+			}
+
+			fullName, err := getUserFullName(ctx, d.sess.UID, d)
+			if err != nil {
+				SvcErrorReturn(w, err, funcname)
+				return
+			}
+
+			if data.Decision2 == 1 { // Approved
+				// set 5th bit of Flag as 1
+				modRAFlowMeta.RAFLAGS = modRAFlowMeta.RAFLAGS | uint64(1<<5)
+
+				clearedState = modRAFlowMeta.RAFLAGS & ^uint64(0xf)
+				modRAFlowMeta.RAFLAGS = (clearedState | 3)
+			} else if data.Decision2 == 2 && data.DeclineReason2 > 0 { // Declined
+				// set 5th bit of Flag as 0
+				modRAFlowMeta.RAFLAGS = modRAFlowMeta.RAFLAGS & ^uint64(1<<5)
+				modRAFlowMeta.DeclineReason2 = data.DeclineReason2
+
+				modRAFlowMeta.TerminatorUID = d.sess.UID
+				modRAFlowMeta.TerminatorName = fullName
+				modRAFlowMeta.TerminationDate = rlib.JSONDateTime(today)
+				modRAFlowMeta.LeaseTerminationReason = 119 //Change it with SLSID for "Application Declined"
+
+				clearedState = modRAFlowMeta.RAFLAGS & ^uint64(0xf)
+				modRAFlowMeta.RAFLAGS = (clearedState | 5)
+			} else {
+				// return err
+				err := fmt.Errorf("approver2 data invalid")
+				SvcErrorReturn(w, err, funcname)
+				return
+			}
+
+			modRAFlowMeta.Approver2 = d.sess.UID
+			modRAFlowMeta.Approver2Name = fullName
+			modRAFlowMeta.DecisionDate2 = rlib.JSONDateTime(today)
+
+		case 3: // Move-In / Execute Modification
+			var data RAMoveInData
+			if err = json.Unmarshal([]byte(d.data), &data); err != nil {
+				SvcErrorReturn(w, err, funcname)
+				return
+			}
+			modRAFlowMeta.DocumentDate = rlib.JSONDateTime(data.DocumentDate)
 
 		default:
 		}
 	}
-
-	/*switch foo.Action {
-	case 0: // Application Being Completed
-		modRAFlowMeta.RAFLAGS = (state | 0)
-
-	case 1: // Set To First Approval
-		modRAFlowMeta.RAFLAGS = (state | 1)
-
-	case 2: // Set To Second Approval
-		modRAFlowMeta.RAFLAGS = (state | 2)
-
-	case 3: // Set To Move-In
-		modRAFlowMeta.RAFLAGS = (state | 3)
-
-	case 4: // Complete Move-In
-		modRAFlowMeta.RAFLAGS = (state | 4)
-
-	case 5: // Terminate
-		modRAFlowMeta.RAFLAGS = (state | 5)
-
-	case 6: // Recieved Notice-To-Move
-		modRAFlowMeta.RAFLAGS = (state | 6)
-
-	default:
-	}*/
 
 	//-------------------------------------------------------
 	// MODIFY META DATA TOO
@@ -214,4 +365,12 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	g.Record = raFlowResponse
 	g.Status = "success"
 	SvcWriteResponse(d.BID, &g, w)
+}
+
+func getUserFullName(ctx context.Context, UID int64, d *ServiceData) (string, error) {
+	person, err := rlib.GetDirectoryPerson(ctx, d.sess.UID)
+	if err != nil {
+		return "", err
+	}
+	return person.DisplayName(), nil
 }

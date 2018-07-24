@@ -3,7 +3,9 @@
     loadRAActionForm,
     reloadActionForm,
     submitActionForm,
-    getSLStringList
+    getSLStringList,
+    refreshLabels,
+    GetVehicleIdentity
 */
 "use strict";
 
@@ -11,29 +13,7 @@
 // submitActionForm - submits the data of action form
 // @params - FlowID, Decision, Reason, Action
 // -------------------------------------------------------------------------------
-window.submitActionForm = function(
-                        FlowID, Action,
-                        Decision1, DeclineReason1,
-                        Decision2, DeclineReason2,
-                        TerminationReason,
-                        DocumentDate,
-                        NoticeToMoveDate,
-                        NoticeToMoveReported,
-                        Mode
-                        ) {
-    var data = {
-        "FlowID": FlowID,
-        "Action": Action,
-        "Decision1": Decision1,
-        "DeclineReason1": DeclineReason1,
-        "Decision2": Decision2,
-        "DeclineReason2": DeclineReason2,
-        "TerminationReason": TerminationReason,
-        "DocumentDate": DocumentDate,
-        "NoticeToMoveDate": NoticeToMoveDate,
-        "NoticeToMoveReported": NoticeToMoveReported,
-        "Mode": Mode
-    };
+window.submitActionForm = function(data) {
     return $.ajax({
         url: "/v1/actions/",
         method: "POST",
@@ -121,6 +101,197 @@ window.reloadActionForm = function() {
     w2ui.RAActionForm.refresh();
 };
 
+window.refreshLabels = function () {
+    var activeFlowID = app.raflow.activeFlowID;
+    var data = app.raflow.data[activeFlowID];
+    var meta = data.Data.meta;
+
+    // Header Part
+    var x = document.getElementById("bannerRAID");
+    if (x !== null) {
+        if (meta.RAID == 0) {
+            x.innerHTML = 'New Rental Agreement';
+        } else {
+            x.innerHTML = '' + meta.RAID;
+        }
+    }
+
+    x = document.getElementById("bannerTermDates");
+    if (x !== null) {
+        x.innerHTML = '' + data.Data.dates.AgreementStart + ' - ' + data.Data.dates.AgreementStop;
+    }
+
+    x = document.getElementById("bannerPossessionDates");
+    if (x !== null) {
+        x.innerHTML = '' + data.Data.dates.PossessionStart + ' - ' + data.Data.dates.PossessionStop;
+    }
+
+    x = document.getElementById("bannerRentDates");
+    if (x !== null) {
+        x.innerHTML = '' + data.Data.dates.RentStart + ' - ' + data.Data.dates.RentStop;
+    }
+
+    // Footer Part
+    x = document.getElementById("bannerApprover1");
+    if (x !== null) {
+        if (meta.Approver1 == 0) {
+            x.innerHTML = 'Pending';
+        } else {
+            if ((meta.RAFLAGS & (1<<4)) > 0) {
+                x.innerHTML = 'Approved by ' + meta.Approver1Name + ' on ' + meta.DecisionDate1;
+            } else{
+                var reason1 = app.ApplDeny.find(function(t){if(t.id == meta.DeclineReason1){return t;}});
+                x.innerHTML = 'Declined by ' + meta.Approver1Name + ' on ' + meta.DecisionDate1 + ' Reason: ' + reason1.text;
+            }
+        }
+    }
+
+    x = document.getElementById("bannerApprover2");
+    if (x !== null) {
+        if (meta.Approver2 == 0) {
+            x.innerHTML = 'Pending';
+        } else {
+            if ((meta.RAFLAGS & (1<<5)) > 0) {
+                x.innerHTML = 'Approved by ' + meta.Approver2Name + ' on ' + meta.DecisionDate2;
+            } else{
+                var reason2 = app.ApplDeny.find(function(t){if(t.id == meta.DeclineReason2){return t;}});
+                x.innerHTML = 'Declined by ' + meta.Approver2Name + ' on ' + meta.DecisionDate2 + ' Reason: ' + reason2.text;
+            }
+        }
+    }
+
+    // State Terminated Display Info
+    x = document.getElementById("bannerTerminatedBy");
+    if (x !== null) {
+        if (meta.TerminatorUID > 0) {
+            x.innerHTML = meta.TerminationDate + ' by ' + meta.TerminatorName;
+        } else {
+            x.innerHTML = '';
+        }
+    }
+
+    x = document.getElementById("bannerTerminationReason");
+    if (x !== null) {
+        if (meta.TerminatorUID > 0) {
+            x.innerHTML = app.WhyLeaving.find(function(t){if(t.id == meta.LeaseTerminationReason){return t;}}).text;
+        } else {
+            x.innerHTML = '';
+        }
+    }
+
+    // State Notice To Move Display Info
+    x = document.getElementById("bannerMoveDate");
+    if (x !== null) {
+        if (meta.NoticeToMoveDate != "1/1/1900") {
+            x.innerHTML = meta.NoticeToMoveDate;
+        } else {
+            x.innerHTML = '';
+        }
+    }
+
+    x = document.getElementById("bannerRecievedNoticeDate");
+    if (x !== null) {
+        if (meta.NoticeToMoveReported != "1/1/1900") {
+            x.innerHTML = meta.NoticeToMoveReported;
+        } else {
+            x.innerHTML = '';
+        }
+    }
+
+    // State Active Display Info
+    x = document.getElementById("bannerDocumentDate");
+    if (x !== null) {
+        if (meta.DocumentDate != "1900-01-01 00:00:00 UTC") {
+            x.innerHTML = meta.NoticeToMoveReported;
+        } else {
+            x.innerHTML = '';
+        }
+    }
+
+    x = document.getElementById("bannerPayors");
+    if (x !== null) {
+        if (data.Data.people.length >0) {
+            var payorList = [];
+            data.Data.people.forEach(function(item) {
+                if(item.IsRenter) {
+                    payorList.push(item.FirstName + ' ' +item.MiddleName+ ' ' +item.LastName);
+                }
+            });
+            x.innerHTML = payorList;
+        } else {
+            x.innerHTML = '';
+        }
+    }
+
+    x = document.getElementById("bannerUsers");
+    if (x !== null) {
+        if (data.Data.people.length >0) {
+            var userList = [];
+            data.Data.people.forEach(function(item) {
+                if(item.IsOccupant) {
+                    userList.push(item.FirstName + ' ' +item.MiddleName+ ' ' +item.LastName);
+                }
+            });
+            x.innerHTML = userList;
+        } else {
+            x.innerHTML = '';
+        }
+    }
+
+    x = document.getElementById("bannerGuarantors");
+    if (x !== null) {
+        if (data.Data.people.length >0) {
+            var guarantorList = [];
+            data.Data.people.forEach(function(item) {
+                if(item.IsGuarantor) {
+                    guarantorList.push(item.FirstName + ' ' +item.MiddleName+ ' ' +item.LastName);
+                }
+            });
+            x.innerHTML = guarantorList;
+        } else {
+            x.innerHTML = '';
+        }
+    }
+
+    x = document.getElementById("bannerRentables");
+    if (x !== null) {
+        if (data.Data.rentables.length >0) {
+            var rentableList = [];
+            data.Data.rentables.forEach(function(item) {
+                rentableList.push(item.RentableName);
+            });
+            x.innerHTML = rentableList;
+        } else {
+            x.innerHTML = '';
+        }
+    }
+
+    x = document.getElementById("bannerPets");
+    if (x !== null) {
+            var petList = [];
+        if (data.Data.pets.length >0) {
+            data.Data.pets.forEach(function(item) {
+                petList.push(item.Name);
+            });
+            x.innerHTML = petList;
+        } else {
+            x.innerHTML = '';
+        }
+    }
+
+    x = document.getElementById("bannerVehicles");
+    if (x !== null) {
+            var vehicleList = [];
+        if (data.Data.vehicles.length >0) {
+            data.Data.vehicles.forEach(function(item) {
+                vehicleList.push(GetVehicleIdentity(item));
+            });
+            x.innerHTML = vehicleList;
+        } else {
+            x.innerHTML = '';
+        }
+    }
+};
 
 //------------------------------------------------------------------------
 // loadRAActionTemplate - It creates a layout for action forms and places
@@ -166,61 +337,7 @@ window.loadRAActionTemplate = function() {
             ],
             onRefresh: function(event) {                
                 event.onComplete = function() {
-                    var activeFlowID = app.raflow.activeFlowID;
-                    var data = app.raflow.data[activeFlowID];
-                    var meta = data.Data.meta;
-
-                    // Header Part
-                    var x = document.getElementById("bannerRAID");
-                    if (x !== null) {
-                        if (meta.RAID == 0) {
-                            x.innerHTML = 'New Rental Agreement';
-                        } else {
-                            x.innerHTML = '' + meta.RAID;
-                        }
-                    }
-
-                    x = document.getElementById("bannerTermDates");
-                    if (x !== null) {
-                        x.innerHTML = '' + data.Data.dates.AgreementStart + ' - ' + data.Data.dates.AgreementStop;
-                    }
-
-                    x = document.getElementById("bannerPossessionDates");
-                    if (x !== null) {
-                        x.innerHTML = '' + data.Data.dates.PossessionStart + ' - ' + data.Data.dates.PossessionStop;
-                    }
-
-                    x = document.getElementById("bannerRentDates");
-                    if (x !== null) {
-                        x.innerHTML = '' + data.Data.dates.RentStart + ' - ' + data.Data.dates.RentStop;
-                    }
-
-                    // Footer Part
-                    x = document.getElementById("bannerApprover1");
-                    if (x !== null) {
-                        if (meta.Approver1 == 0) {
-                            x.innerHTML = 'Pending';
-                        } else {
-                            if (meta.DeclineReason1 == 0) {
-                                x.innerHTML = 'Approved by ' + meta.Approver1 + 'on ' + meta.DecisionDate1;
-                            } else{
-                                x.innerHTML = 'Declined by ' + meta.Approver1 + 'on ' + meta.DecisionDate1 + 'Reason: ' + meta.DeclineReason1;
-                            }
-                        }
-                    }
-
-                    x = document.getElementById("bannerApprover2");
-                    if (x !== null) {
-                        if (meta.Approver2 == 0) {
-                            x.innerHTML = 'Pending';
-                        } else {
-                            if (meta.DeclineReason2 == 0) {
-                                x.innerHTML = 'Approved by ' + meta.Approver2 + 'on ' + meta.DecisionDate2;
-                            } else{
-                                x.innerHTML = 'Declined by ' + meta.Approver2 + 'on ' + meta.DecisionDate2 + 'Reason: ' + meta.DeclineReason2;
-                            }
-                        }
-                    }
+                    refreshLabels();
                 };
             },
         });
@@ -389,6 +506,8 @@ window.loadRAActionForm = function() {
                 // }
 
                 $('#RAActionStateLable').text(raStateString);
+
+                refreshLabels();
             },
             onRender: function (event) {
                 console.log('onRender of RAActionForm');
@@ -400,68 +519,113 @@ window.loadRAActionForm = function() {
             actions: {
                 save: function() {
                     var FlowID = app.raflow.activeFlowID;
-                    var Action = this.record.RAActions.id;
+                    var data = app.raflow.data[FlowID].Data;
+                    var raFlags = data.meta.RAFLAGS;
+                    var raState =parseInt(raFlags & 0xf);
+
                     var Decision1 = 0;
                     var DeclineReason1 = 0;
                     var Decision2 = 0;
                     var DeclineReason2 = 0;
-                    var TerminationReason = 0;
                     var DocumentDate = "1/1/1900";
-                    var NoticeToMoveDate = "1/1/1900";
-                    var NoticeToMoveReported = "1/1/1900";
                     var Mode = "State";
+                    var reqData = {};
+                    switch(raState) {
+                        case 1:
+                            Decision1 =  w2ui.RAActionForm.record.RAApprovalDecision1.id;
+                            DeclineReason1 = w2ui.RAActionForm.record.RADeclineReason1.id;
 
-                    submitActionForm(
-                        FlowID, Action,
-                        Decision1, DeclineReason1,
-                        Decision2, DeclineReason2,
-                        TerminationReason,
-                        DocumentDate,
-                        NoticeToMoveDate,
-                        NoticeToMoveReported,
-                        Mode
-                    );
+                            reqData = {
+                                "FlowID": FlowID,
+                                "Decision1": Decision1,
+                                "DeclineReason1": DeclineReason1,
+                                "Mode": Mode
+                            };
+                            submitActionForm(reqData);
+                            break;
+                        case 2:
+                            Decision2 =  w2ui.RAActionForm.record.RAApprovalDecision2.id;
+                            DeclineReason2 = w2ui.RAActionForm.record.RADeclineReason2.id;
+
+                            reqData = {
+                                "FlowID": FlowID,
+                                "Decision2": Decision2,
+                                "DeclineReason2": DeclineReason2,
+                                "Mode": Mode
+                            };
+                            submitActionForm(reqData);
+                            break;
+                        case 3:
+                            if(w2ui.RAActionForm.record.RADocumentDate) {
+                                DocumentDate = w2ui.RAActionForm.record.RADocumentDate;
+                            }
+                            reqData = {
+                                "FlowID": FlowID,
+                                "DocumentDate": DocumentDate,
+                                "Mode": Mode
+                            };
+                            submitActionForm(reqData);
+                            break;
+                    }
                 },
                 updateAction: function() {
                     var FlowID = app.raflow.activeFlowID;
                     var Action = this.record.RAActions.id;
-                    var Decision1 = 0;
-                    var DeclineReason1 = 0;
-                    var Decision2 = 0;
-                    var DeclineReason2 = 0;
                     var TerminationReason = 0;
-                    var DocumentDate = "1/1/1900";
                     var NoticeToMoveDate = "1/1/1900";
                     var NoticeToMoveReported = "1/1/1900";
                     var Mode = "Action";
-
-                    if( Action === -1 ) {
-                        return;
-                    }
-
-                    if( Action === 5 ) {
-                        TerminationReason = this.record.RATerminationReason.id;
-                    }
-
-                    if( Action === 5 && this.record.RATerminationReason.id === 0) {
-                        return;
-                    }
 
                     var currentState = parseInt(app.raflow.data[FlowID].Data.meta.RAFLAGS & (0xf));
                     if (Action === currentState) {
                         return;
                     }
+                    var reqData = {};
+                    switch(Action) {
+                        case -1:
+                            break;
+                        case 0:
+                        case 1:
+                        case 2:
+                        case 3:
+                        case 4:
+                            reqData = {
+                                "FlowID": FlowID,
+                                "Action": Action,
+                                "Mode": Mode
+                            };
+                            submitActionForm(reqData);
+                            break;
+                        case 5:
+                            if(w2ui.RAActionForm.record.RATerminationReason.id >0) {
+                                TerminationReason = w2ui.RAActionForm.record.RATerminationReason.id;
+                            }
+                            reqData = {
+                                "FlowID": FlowID,
+                                "Action": Action,
+                                "TerminationReason": TerminationReason,
+                                "Mode": Mode
+                            };
+                            submitActionForm(reqData);
+                            break;
+                        case 6:
+                            if(w2ui.RAActionForm.record.RANoticeToMoveDate) {
+                                NoticeToMoveDate = w2ui.RAActionForm.record.RANoticeToMoveDate;
+                            }
 
-                    submitActionForm(
-                        FlowID, Action,
-                        Decision1, DeclineReason1,
-                        Decision2, DeclineReason2,
-                        TerminationReason,
-                        DocumentDate,
-                        NoticeToMoveDate,
-                        NoticeToMoveReported,
-                        Mode
-                    );
+                            if(w2ui.RAActionForm.record.RANoticeToMoveReported) {
+                                NoticeToMoveReported = w2ui.RAActionForm.record.RANoticeToMoveReported;
+                            }
+                            reqData = {
+                                "FlowID": FlowID,
+                                "Action": Action,
+                                "NoticeToMoveDate": NoticeToMoveDate,
+                                "NoticeToMoveReported":NoticeToMoveReported,
+                                "Mode": Mode
+                            };
+                            submitActionForm(reqData);
+                            break;
+                    }
                 }
             }
         });
