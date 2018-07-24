@@ -91,12 +91,15 @@ type RAFlowMetaInfo struct {
 	HaveVehicles           bool
 	RAFLAGS                uint64
 	Approver1              int64
+	Approver1Name          string
 	DecisionDate1          JSONDateTime
 	DeclineReason1         int64
 	Approver2              int64
+	Approver2Name          string
 	DecisionDate2          JSONDateTime
 	DeclineReason2         int64
 	TerminatorUID          int64
+	TerminatorName         string
 	TerminationDate        JSONDateTime
 	LeaseTerminationReason int64
 	DocumentDate           JSONDateTime
