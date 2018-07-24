@@ -7,7 +7,7 @@ import (
 )
 
 // GetRAFlowFeeCycles returns rent and proration cycle
-// for a given ARID, RID.
+// for a given RID (if rentable available).
 //
 // It will look for accoun rules default cycles first.
 // If RID, rentStart, rentStop are provided then
@@ -16,7 +16,6 @@ import (
 // INPUTS
 //             ctx  = db transaction context
 //             BID  = Business ID
-//            ARID  = account rule ID
 //             RID  = Rentable ID
 //       rentStart  = Rent Start Date
 //
@@ -25,18 +24,7 @@ import (
 //     ProrationCycle numeric value
 //     any error encountered
 //-----------------------------------------------------------------------------
-func GetRAFlowFeeCycles(ctx context.Context, ARID, RID int64, rentStart time.Time) (RentCycle, ProrationCycle int64, err error) {
-
-	// GET ACCOUNT RULE FIRST
-	var ar AR
-	ar, err = GetAR(ctx, ARID)
-	if err != nil {
-		return
-	}
-
-	// TAKE THOSE FROM AR BY DEFAULT
-	RentCycle = ar.DefaultRentCycle
-	ProrationCycle = ar.DefaultProrationCycle
+func GetRAFlowFeeCycles(ctx context.Context, RID int64, rentStart time.Time, RentCycle, ProrationCycle *int64) (err error) {
 
 	// IF NO RID THEN JUST RETURN
 	if RID == 0 {
@@ -65,14 +53,14 @@ func GetRAFlowFeeCycles(ctx context.Context, ARID, RID int64, rentStart time.Tim
 	// TAKE CYCLES FROM RENTABLE TYPE, IF RTID > 0
 	if rt.RTID > 0 {
 		if rrt.OverrideRentCycle > RECURNONE { // if there's an override for RentCycle...
-			RentCycle = rrt.OverrideRentCycle // ...set it
+			*RentCycle = rrt.OverrideRentCycle // ...set it
 		} else {
-			RentCycle = rt.RentCycle
+			*RentCycle = rt.RentCycle
 		}
 		if rrt.OverrideProrationCycle > RECURNONE { // if there's an override for Propration...
-			ProrationCycle = rrt.OverrideProrationCycle // ...set it
+			*ProrationCycle = rrt.OverrideProrationCycle // ...set it
 		} else {
-			ProrationCycle = rt.Proration
+			*ProrationCycle = rt.Proration
 		}
 	}
 
@@ -94,7 +82,13 @@ func GetRAFlowFeeCycles(ctx context.Context, ARID, RID int64, rentStart time.Tim
 //     RAVehiclesFlowData structure
 //     any error encountered
 //-----------------------------------------------------------------------------
-func GetRAFlowInitialPetFees(ctx context.Context, BID, RID int64, rStart, rStop JSONDate, meta *RAFlowMetaInfo) (fees []RAFeesData, err error) {
+func GetRAFlowInitialPetFees(
+	ctx context.Context,
+	BID, RID int64,
+	rStart, rStop JSONDate,
+	meta *RAFlowMetaInfo,
+) (fees []RAFeesData, err error) {
+
 	const funcname = "GetRAFlowInitialPetFees"
 	var (
 		bizPropName = "general"
@@ -107,7 +101,7 @@ func GetRAFlowInitialPetFees(ctx context.Context, BID, RID int64, rStart, rStop 
 	fees = []RAFeesData{}
 
 	// GET PET FEES FROM BUSINESS PROPERTIES
-	var petFees []BizPropsPetFee
+	var petFees []BizPropsFee
 	petFees, err = GetBizPropPetFees(ctx, BID, bizPropName)
 	if err != nil {
 		return
@@ -117,34 +111,105 @@ func GetRAFlowInitialPetFees(ctx context.Context, BID, RID int64, rStart, rStop 
 	for _, petFee := range petFees {
 
 		// GET RENT, PRORATION CYCLE
-		var RentCycle, ProrationCycle int64
-		RentCycle, ProrationCycle, err = GetRAFlowFeeCycles(ctx, petFee.ARID, RID, d1)
+		RentCycle := petFee.ARRentCycle
+		ProrationCycle := petFee.ARProrationCycle
+		err = GetRAFlowFeeCycles(ctx, RID, d1, &RentCycle, &ProrationCycle)
 		if err != nil {
 			return
 		}
 
-		// GET EPOCH
+		// ========================================================================
+		// GET EPOCH BASED ON RENTCYCLE FOR THIS PET FEE
+		// ========================================================================
+		// TODO(Sudip & Steve): WHEN WE INTEGRATE EPOCHS IN RENTABLE TYPES       //
+		//                      WE SHOULD TAKE EPOCHS FIRST FROM IT THEN         //
+		//                      FROM BIZPROPS IN CASE NOT FOUND IN RENTALBE TYPE //
+		// ========================================================================
 		var epoch time.Time
 		_, epoch, err = GetEpochByBizPropName(ctx, BID, bizPropName, d1, d2, RentCycle)
 		if err != nil {
-			tot, np, tp := SimpleProrateAmount(petFee.Amount, RentCycle, ProrationCycle, &d1, &d2, &epoch)
+			return
+		}
 
-			meta.LastTMPASMID++
-
+		//--------------------------------------------------------------
+		// Here are the AR.FLAGS bits:
+		//
+		//     1<<4 -  Is Rent Assessment
+		//     1<<6 -  Is non-recur charge
+		//     1<<7 -  PETID required
+		//--------------------------------------------------------------
+		// IF IT IS NON-RECUR CHARGE THEN
+		oneTimeCharge := (petFee.ARFLAGS & (1 << 6)) != 0
+		if oneTimeCharge {
 			// ADD FEE IN LIST
+			meta.LastTMPASMID++
 			raFee := RAFeesData{
 				TMPASMID:        meta.LastTMPASMID,
 				ASMID:           0,
 				ARID:            petFee.ARID,
 				ARName:          petFee.ARName,
-				ContractAmount:  tot,
-				RentCycle:       RentCycle,
+				ContractAmount:  petFee.Amount,
+				RentCycle:       RECURNONE,
 				Start:           rStart,
+				Stop:            rStart,
+				AtSigningPreTax: 0.00,
+				SalesTax:        0.00,
+				TransOccTax:     0.00,
+				Comment:         "",
+			}
+			fees = append(fees, raFee)
+
+		} else if petFee.ARFLAGS&(1<<4) != 0 { // IT MUST BE RENT ASM ONE
+
+			// CHECK FOR PRORATED AMOUNT REQUIRED
+			needProratedRent := d1.Day() != epoch.Day()
+
+			// START DAY IS NOT SAME AS EPOCH THEN CALCULATE PRORATED AMOUNT
+			if needProratedRent {
+				td2 := time.Date(d1.Year(), d1.Month(), epoch.Day(), d1.Hour(), d1.Minute(), d1.Second(), d1.Nanosecond(), d1.Location())
+				td2 = NextPeriod(&td2, RentCycle)
+
+				tot, np, tp := SimpleProrateAmount(petFee.Amount, RentCycle, ProrationCycle, &d1, &td2, &epoch)
+				cmt := ""
+				if tot < petFee.Amount {
+					cmt = fmt.Sprintf("prorated for %d of %d %s", np, tp, ProrationUnits(ProrationCycle))
+				}
+
+				// ADD FEE IN LIST
+				meta.LastTMPASMID++
+				raFee := RAFeesData{
+					TMPASMID:        meta.LastTMPASMID,
+					ASMID:           0,
+					ARID:            petFee.ARID,
+					ARName:          petFee.ARName,
+					ContractAmount:  tot,
+					RentCycle:       RentCycle,
+					Start:           rStart,
+					Stop:            rStart,
+					AtSigningPreTax: 0.00,
+					SalesTax:        0.00,
+					TransOccTax:     0.00,
+					Comment:         cmt,
+				}
+				fees = append(fees, raFee)
+			}
+
+			// CALCULATE RECURRING ONE FROM EPOCH DATE
+			// ADD FEE IN LIST
+			meta.LastTMPASMID++
+			raFee := RAFeesData{
+				TMPASMID:        meta.LastTMPASMID,
+				ASMID:           0,
+				ARID:            petFee.ARID,
+				ARName:          petFee.ARName,
+				ContractAmount:  petFee.Amount,
+				RentCycle:       RentCycle,
+				Start:           JSONDate(epoch),
 				Stop:            rStop,
 				AtSigningPreTax: 0.00,
 				SalesTax:        0.00,
 				TransOccTax:     0.00,
-				Comment:         fmt.Sprintf("prorated for %d of %d %s", np, tp, ProrationUnits(ProrationCycle)),
+				Comment:         "",
 			}
 			fees = append(fees, raFee)
 		}

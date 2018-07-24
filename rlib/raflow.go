@@ -1207,12 +1207,9 @@ func addFlowPersonVehicles(ctx context.Context, tcid, tmptcid int64, raf *RAFlow
 //     RAPetsFlowData structure
 //     any error encountered
 //-----------------------------------------------------------------------------
-func NewRAFlowPet(ctx context.Context, BID int64, pStart, pStop JSONDate, meta *RAFlowMetaInfo) (pet RAPetsFlowData, err error) {
+func NewRAFlowPet(ctx context.Context, BID int64, rStart, rStop, pStart, pStop JSONDate, meta *RAFlowMetaInfo) (pet RAPetsFlowData, err error) {
 	const funcname = "NewRAFlowPet"
 	fmt.Printf("Entered in %s\n", funcname)
-	var (
-		bizPropName = "general"
-	)
 
 	// initialize
 	// assign new TMPPETID & mark in meta info
@@ -1224,26 +1221,11 @@ func NewRAFlowPet(ctx context.Context, BID int64, pStart, pStop JSONDate, meta *
 		Fees:     []RAFeesData{},
 	}
 
-	// get pet fees data and feed into fees
-	var petFees []BizPropsPetFee
-	petFees, err = GetBizPropPetFees(ctx, BID, bizPropName)
-	if err != nil {
-		return
-	}
-
-	// loop over fees
-	for _, fee := range petFees {
-		meta.LastTMPASMID++ // new asm id temp
-		pf := RAFeesData{
-			TMPASMID:       meta.LastTMPASMID,
-			ARID:           fee.ARID,
-			ARName:         fee.ARName,
-			ContractAmount: fee.Amount,
-		}
-
-		// append fee for this pet
-		pet.Fees = append(pet.Fees, pf)
-	}
+	// GET PET INITIAL FEES
+	// TODO(Sudip): IF CONTACT PERSON IS TIED UP WITH ANY RENTABLE THEN
+	//              CONSIDER THAT RID
+	RID := int64(0)
+	pet.Fees, err = GetRAFlowInitialPetFees(ctx, BID, RID, rStart, rStop, meta)
 
 	return
 }
@@ -1280,7 +1262,7 @@ func NewRAFlowVehicle(ctx context.Context, BID int64, pStart, pStop JSONDate, me
 	}
 
 	// get vehicle fees data and feed into fees
-	var vehicleFees []BizPropsVehicleFee
+	var vehicleFees []BizPropsFee
 	vehicleFees, err = GetBizPropVehicleFees(ctx, BID, bizPropName)
 	if err != nil {
 		return

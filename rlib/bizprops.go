@@ -7,22 +7,16 @@ import (
 	"time"
 )
 
-// BizPropsVehicleFee struct holds detailed info about vehicle fee
+// BizPropsFee struct holds detailed info about any fee
 // configured in business properties
-type BizPropsVehicleFee struct {
-	BID    int64
-	ARID   int64
-	ARName string
-	Amount float64
-}
-
-// BizPropsPetFee struct holds detailed info about pet fee
-// configured in business properties
-type BizPropsPetFee struct {
-	BID    int64
-	ARID   int64
-	ARName string
-	Amount float64
+type BizPropsFee struct {
+	BID              int64
+	ARID             int64
+	ARName           string
+	Amount           float64
+	ARFLAGS          uint64
+	ARRentCycle      int64
+	ARProrationCycle int64
 }
 
 // BizPropsEpochs defines the default trigger due times for recurring
@@ -55,8 +49,8 @@ func GetDataFromBusinessPropertyName(ctx context.Context, name string, BID int64
 }
 
 // GetBizPropPetFees returns pet fees with detailed data
-// defined in BizPropsPetFee
-func GetBizPropPetFees(ctx context.Context, BID int64, bizPropName string) (fees []BizPropsPetFee, err error) {
+// defined in BizPropsFee
+func GetBizPropPetFees(ctx context.Context, BID int64, bizPropName string) (fees []BizPropsFee, err error) {
 	const funcname = "GetBizPropPetFees"
 	var (
 		bizPropJSON BizProps
@@ -64,7 +58,7 @@ func GetBizPropPetFees(ctx context.Context, BID int64, bizPropName string) (fees
 	fmt.Printf("Entered in %s\n", funcname)
 
 	// initialize pet fees
-	fees = []BizPropsPetFee{}
+	fees = []BizPropsFee{}
 
 	// get business properties data
 	bizPropJSON, err = GetDataFromBusinessPropertyName(ctx, bizPropName, BID)
@@ -74,7 +68,7 @@ func GetBizPropPetFees(ctx context.Context, BID int64, bizPropName string) (fees
 
 	// get pet Fees
 	for _, n := range bizPropJSON.PetFees {
-		var pf BizPropsPetFee
+		var pf BizPropsFee
 		var ar AR
 		ar, err = GetARByName(ctx, BID, n)
 		if err != nil {
@@ -86,6 +80,9 @@ func GetBizPropPetFees(ctx context.Context, BID int64, bizPropName string) (fees
 		pf.ARID = ar.ARID
 		pf.ARName = ar.Name
 		pf.Amount = ar.DefaultAmount
+		pf.ARFLAGS = ar.FLAGS
+		pf.ARRentCycle = ar.DefaultRentCycle
+		pf.ARProrationCycle = ar.DefaultProrationCycle
 
 		// append in the list
 		fees = append(fees, pf)
@@ -96,8 +93,8 @@ func GetBizPropPetFees(ctx context.Context, BID int64, bizPropName string) (fees
 }
 
 // GetBizPropVehicleFees returns vehicle fees with detailed data
-// defined in BizPropsVehicleFee
-func GetBizPropVehicleFees(ctx context.Context, BID int64, bizPropName string) (fees []BizPropsVehicleFee, err error) {
+// defined in BizPropsFee
+func GetBizPropVehicleFees(ctx context.Context, BID int64, bizPropName string) (fees []BizPropsFee, err error) {
 	const funcname = "GetBizPropVehicleFees"
 	var (
 		bizPropJSON BizProps
@@ -105,7 +102,7 @@ func GetBizPropVehicleFees(ctx context.Context, BID int64, bizPropName string) (
 	fmt.Printf("Entered in %s\n", funcname)
 
 	// initialize vehicle fees
-	fees = []BizPropsVehicleFee{}
+	fees = []BizPropsFee{}
 
 	// get business properties data
 	bizPropJSON, err = GetDataFromBusinessPropertyName(ctx, bizPropName, BID)
@@ -115,7 +112,7 @@ func GetBizPropVehicleFees(ctx context.Context, BID int64, bizPropName string) (
 
 	// get pet Fees
 	for _, n := range bizPropJSON.VehicleFees {
-		var vf BizPropsVehicleFee
+		var vf BizPropsFee
 		var ar AR
 		ar, err = GetARByName(ctx, BID, n)
 		if err != nil {
@@ -127,6 +124,9 @@ func GetBizPropVehicleFees(ctx context.Context, BID int64, bizPropName string) (
 		vf.ARID = ar.ARID
 		vf.ARName = ar.Name
 		vf.Amount = ar.DefaultAmount
+		vf.ARFLAGS = ar.FLAGS
+		vf.ARRentCycle = ar.DefaultRentCycle
+		vf.ARProrationCycle = ar.DefaultProrationCycle
 
 		// append in the list
 		fees = append(fees, vf)
