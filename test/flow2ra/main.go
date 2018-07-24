@@ -190,32 +190,32 @@ func setUpdatedRAStartDate(ctx context.Context, flowid int64, dt *time.Time) err
 	if err != nil {
 		return err
 	}
-	raf.Dates.AgreementStart = rlib.JSONDate(*dt)
-	raf.Dates.RentStart = rlib.JSONDate(*dt)
-	raf.Dates.PossessionStart = rlib.JSONDate(*dt)
+	rdt := rlib.JSONDate(*dt)
+	raf.Dates.AgreementStart = rdt
+	raf.Dates.RentStart = rdt
+	raf.Dates.PossessionStart = rdt
 	// rentable fees
 	for i := 0; i < len(raf.Rentables); i++ {
 		for j := 0; j < len(raf.Rentables[i].Fees); j++ {
-			raf.Rentables[i].Fees[j].Start = rlib.JSONDate(*dt)
+			raf.Rentables[i].Fees[j].Start = rdt
 		}
 	}
 	// pet fees update
 	for i := 0; i < len(raf.Pets); i++ {
+		raf.Pets[i].DtStart = rdt
 		for j := 0; j < len(raf.Pets[i].Fees); j++ {
-			raf.Pets[i].Fees[j].Start = rlib.JSONDate(*dt)
+			raf.Pets[i].Fees[j].Start = rdt
 		}
 	}
 	// vehicle fees
 	for i := 0; i < len(raf.Vehicles); i++ {
+		raf.Vehicles[i].DtStart = rdt
 		for j := 0; j < len(raf.Vehicles[i].Fees); j++ {
-			raf.Vehicles[i].Fees[j].Start = rlib.JSONDate(*dt)
+			raf.Vehicles[i].Fees[j].Start = rdt
 		}
 	}
 
 	var d []byte
-	rlib.Console("len Pets = %d\n", len(raf.Pets))
-	rlib.Console("len Vehicles = %d\n", len(raf.Vehicles))
-	rlib.Console("len Rentab:les = %d\n", len(raf.Rentables))
 	//--------------------------------------------
 	// update pets
 	//--------------------------------------------

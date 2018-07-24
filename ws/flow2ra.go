@@ -32,7 +32,7 @@ var ehandlers = []RAWriteHandler{
 	{"Pets", F2RAUpdatePets},
 	{"Vehicles", F2RAUpdateVehicles},
 	{"Rentables", FlowSaveRentables},
-	// {"Fees", Fees2RA},
+	{"Fees", Fees2RA},
 }
 
 // Flow2RA moves data from the Flow tabl into the permanent tables.
