@@ -32,6 +32,7 @@ var ehandlers = []RAWriteHandler{
 	{"Pets", F2RAUpdatePets},
 	{"Vehicles", F2RAUpdateVehicles},
 	{"Rentables", FlowSaveRentables},
+	// {"Fees", Fees2RA},
 }
 
 // Flow2RA moves data from the Flow tabl into the permanent tables.
@@ -230,9 +231,27 @@ func FlowSaveRentables(ctx context.Context, x *WriteHandlerContext) error {
 			if err = rlib.UpdateRentalAgreementRentable(ctx, &v); err != nil {
 				return err
 			}
+			//----------------------------------------------------------------
+			// Fix up the users
+			//----------------------------------------------------------------
+			rul, err := rlib.GetRentableUsersInRange(ctx, v.RID, &x.raOrig.PossessionStart, &x.ra.PossessionStop)
+			if err != nil {
+				return err
+			}
+			for _, ru := range rul {
+				ru.DtStop = x.raOrig.PossessionStop
+				if err = rlib.UpdateRentableUser(ctx, &ru); err != nil {
+					return err
+				}
+			}
 		}
-		// Get the payors
+		//----------------------------------------------------------------
+		// Fix up the payors
+		//----------------------------------------------------------------
 		t, err := rlib.GetRentalAgreementPayorsByRAID(ctx, x.raf.Meta.RAID)
+		if err != nil {
+			return err
+		}
 		for _, v := range t {
 			if v.DtStop.After(x.ra.RentStart) {
 				v.DtStop = x.ra.RentStart
@@ -249,10 +268,10 @@ func FlowSaveRentables(ctx context.Context, x *WriteHandlerContext) error {
 	for _, v := range x.raf.Rentables {
 		var rar = rlib.RentalAgreementRentable{
 			RAID:         x.ra.RAID,
-			BID:          0,
+			BID:          x.ra.BID,
 			RID:          v.RID,
-			CLID:         0,
-			ContractRent: 0,
+			CLID:         0, // TODO:
+			ContractRent: 0, // TODO:
 			RARDtStart:   time.Time(x.raf.Dates.PossessionStart),
 			RARDtStop:    time.Time(x.raf.Dates.PossessionStop),
 		}
@@ -261,6 +280,21 @@ func FlowSaveRentables(ctx context.Context, x *WriteHandlerContext) error {
 			return err
 		}
 
+		//----------------------------------------------------------------
+		// Add the users
+		//----------------------------------------------------------------
+		for _, v1 := range x.raf.People {
+			var a = rlib.RentableUser{
+				RID:     v.RID,
+				BID:     x.ra.BID,
+				TCID:    v1.TCID,
+				DtStart: x.ra.PossessionStart,
+				DtStop:  x.ra.PossessionStop,
+			}
+			if _, err := rlib.InsertRentableUser(ctx, &a); err != nil {
+				return err
+			}
+		}
 	}
 	//----------------------------------------------------------------
 	// Add the payers

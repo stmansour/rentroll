@@ -2407,7 +2407,7 @@ CREATE TABLE `User` (
   `EmergencyContactAddress` varchar(100) NOT NULL DEFAULT '',
   `EmergencyContactTelephone` varchar(100) NOT NULL DEFAULT '',
   `EmergencyEmail` varchar(100) NOT NULL DEFAULT '',
-  `AlternateAddress` varchar(100) NOT NULL DEFAULT '',
+  `AlternateEmailAddress` varchar(100) NOT NULL DEFAULT '',
   `EligibleFutureUser` smallint(6) NOT NULL DEFAULT '1',
   `Industry` varchar(100) NOT NULL DEFAULT '',
   `SourceSLSID` bigint(20) NOT NULL DEFAULT '0',

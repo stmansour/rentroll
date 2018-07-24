@@ -31,7 +31,7 @@ type RAApprover2Data struct {
 
 // RAMoveInData is a struct to hold data about Move In
 type RAMoveInData struct {
-	DocumentDate rlib.JSONDate // date when rental agreement was signed
+	DocumentDate rlib.JSONDateTime // date when rental agreement was signed
 }
 
 // RATerminationData is a struct to hold data about termination of RentalAgreement
@@ -41,8 +41,8 @@ type RATerminationData struct {
 
 // RANoticeToMoveData is a struct to hold data about Notice to Move
 type RANoticeToMoveData struct {
-	NoticeToMoveDate     rlib.JSONDate // date RA was given Notice-To-Move
-	NoticeToMoveReported rlib.JSONDate // date RA was set to Terminated because of moving out
+	NoticeToMoveDate     rlib.JSONDateTime // date RA was given Notice-To-Move
+	NoticeToMoveReported rlib.JSONDateTime // date RA was set to Terminated because of moving out
 }
 
 // SvcSetRAState sets the state of Rental Agreement and updates meta info of RA
@@ -114,14 +114,14 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	modRAFlowMeta := raFlowData.Meta
 
 	MODE := foo.Mode
-	state := raFlowData.Meta.RAFLAGS & (0xf)
+	state := raFlowData.Meta.RAFLAGS & uint64(0xf)
 
-	clearedState := raFlowData.Meta.RAFLAGS & ^(0xf)
+	clearedState := raFlowData.Meta.RAFLAGS & ^uint64(0xf)
 
 	switch MODE {
 	case "Action":
-		if foo.Action < state {
-			for i := foo.Action; i <= state; i++ {
+		if foo.Action < int64(state) {
+			for i := foo.Action; i <= int64(state); i++ {
 				switch i {
 				case 0: // Application Being Completed
 				case 1: // Pending First Approval
@@ -147,8 +147,8 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 					modRAFlowMeta.DecisionDate2 = temp
 
 				case 3: // Move-In / Execute Modification
-					var temp rlib.JSONDate
-					err := temp.UnmarshalJSON([]byte("1/1/1900"))
+					var temp rlib.JSONDateTime
+					err := temp.UnmarshalJSON([]byte("1900-01-01 00:00:00 UTC"))
 					if err != nil {
 						fmt.Println("Errrrorrrrrrr:------:", err)
 					}
@@ -166,8 +166,8 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 					modRAFlowMeta.TerminationDate = temp
 
 				case 6: //Notice To Move
-					var temp rlib.JSONDate
-					err := temp.UnmarshalJSON([]byte("1/1/1900"))
+					var temp rlib.JSONDateTime
+					err := temp.UnmarshalJSON([]byte("1900-01-01 00:00:00 UTC"))
 					if err != nil {
 						fmt.Println("Errrrorrrrrrr:------:", err)
 					}
@@ -224,9 +224,8 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				SvcErrorReturn(w, err, funcname)
 				return
 			}
-
-			modRAFlowMeta.NoticeToMoveDate = rlib.JSONDate(data.NoticeToMoveDate)
-			modRAFlowMeta.NoticeToMoveReported = rlib.JSONDate(data.NoticeToMoveReported)
+			modRAFlowMeta.NoticeToMoveDate = rlib.JSONDateTime(data.NoticeToMoveDate)
+			modRAFlowMeta.NoticeToMoveReported = rlib.JSONDateTime(data.NoticeToMoveReported)
 
 			modRAFlowMeta.RAFLAGS = (clearedState | 6)
 
@@ -249,13 +248,13 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 			if data.Decision1 == 1 { // Approved
 				// set 4th bit of Flag as 1
-				modRAFlowMeta.RAFLAGS = modRAFlowMeta.RAFLAGS | (1 << 4)
+				modRAFlowMeta.RAFLAGS = modRAFlowMeta.RAFLAGS | uint64(1<<4)
 
-				clearedState = modRAFlowMeta.RAFLAGS & ^(0xf)
+				clearedState = modRAFlowMeta.RAFLAGS & ^uint64(0xf)
 				modRAFlowMeta.RAFLAGS = (clearedState | 2)
 			} else if data.Decision1 == 2 && data.DeclineReason1 > 0 { // Declined
 				// set 4th bit of Flag as 0
-				modRAFlowMeta.RAFLAGS = modRAFlowMeta.RAFLAGS & ^(1 << 4)
+				modRAFlowMeta.RAFLAGS = modRAFlowMeta.RAFLAGS & ^uint64(1<<4)
 				modRAFlowMeta.DeclineReason1 = data.DeclineReason1
 
 				modRAFlowMeta.TerminatorUID = d.sess.UID
@@ -263,7 +262,7 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				modRAFlowMeta.TerminationDate = rlib.JSONDateTime(today)
 				modRAFlowMeta.LeaseTerminationReason = 119 //Change it with SLSID for "Application Declined"
 
-				clearedState = modRAFlowMeta.RAFLAGS & ^(0xf)
+				clearedState = modRAFlowMeta.RAFLAGS & ^uint64(0xf)
 				modRAFlowMeta.RAFLAGS = (clearedState | 5)
 			} else {
 				// return err
@@ -291,13 +290,13 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 			if data.Decision2 == 1 { // Approved
 				// set 5th bit of Flag as 1
-				modRAFlowMeta.RAFLAGS = modRAFlowMeta.RAFLAGS | (1 << 5)
+				modRAFlowMeta.RAFLAGS = modRAFlowMeta.RAFLAGS | uint64(1<<5)
 
-				clearedState = modRAFlowMeta.RAFLAGS & ^(0xf)
+				clearedState = modRAFlowMeta.RAFLAGS & ^uint64(0xf)
 				modRAFlowMeta.RAFLAGS = (clearedState | 3)
 			} else if data.Decision2 == 2 && data.DeclineReason2 > 0 { // Declined
 				// set 5th bit of Flag as 0
-				modRAFlowMeta.RAFLAGS = modRAFlowMeta.RAFLAGS & ^(1 << 5)
+				modRAFlowMeta.RAFLAGS = modRAFlowMeta.RAFLAGS & ^uint64(1<<5)
 				modRAFlowMeta.DeclineReason2 = data.DeclineReason2
 
 				modRAFlowMeta.TerminatorUID = d.sess.UID
@@ -305,7 +304,7 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				modRAFlowMeta.TerminationDate = rlib.JSONDateTime(today)
 				modRAFlowMeta.LeaseTerminationReason = 119 //Change it with SLSID for "Application Declined"
 
-				clearedState = modRAFlowMeta.RAFLAGS & ^(0xf)
+				clearedState = modRAFlowMeta.RAFLAGS & ^uint64(0xf)
 				modRAFlowMeta.RAFLAGS = (clearedState | 5)
 			} else {
 				// return err
@@ -324,7 +323,7 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				SvcErrorReturn(w, err, funcname)
 				return
 			}
-			modRAFlowMeta.DocumentDate = rlib.JSONDate(data.DocumentDate)
+			modRAFlowMeta.DocumentDate = rlib.JSONDateTime(data.DocumentDate)
 
 		default:
 		}

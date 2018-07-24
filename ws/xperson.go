@@ -49,7 +49,7 @@ type RPersonForm struct {
 	EmergencyContactAddress   string
 	EmergencyContactTelephone string
 	EmergencyContactEmail     string
-	AlternateAddress          string
+	AlternateEmailAddress     string
 	EligibleFutureUser        bool
 	Industry                  string
 	SourceSLSID               int64
@@ -59,7 +59,6 @@ type RPersonForm struct {
 	TaxpayorID          string
 	GrossIncome         float64
 	DriversLicense      string
-	ThirdPartySource    int64
 	EligibleFuturePayor bool
 
 	// -------------- Prospect ----------------
@@ -86,15 +85,16 @@ type RPersonForm struct {
 	OtherPreferences         string // arbitrary text
 	// FollowUpDate             rlib.JSONDate // automatically fill out this date to sysdate + 24hrs
 	// CommissionableThirdParty string
-	SpecialNeeds string // special needs for potential renters who are disabled
-	Evicted      bool
-	Convicted    bool
-	Bankruptcy   bool
-	FLAGS        uint64 // 0 = Approved/NotApproved,
-	CreateTS     rlib.JSONDateTime
-	CreateBy     int64
-	LastModTime  rlib.JSONDateTime
-	LastModBy    int64
+	SpecialNeeds     string // special needs for potential renters who are disabled
+	Evicted          bool
+	Convicted        bool
+	Bankruptcy       bool
+	FLAGS            uint64 // 0 = Approved/NotApproved,
+	ThirdPartySource int64
+	CreateTS         rlib.JSONDateTime
+	CreateBy         int64
+	LastModTime      rlib.JSONDateTime
+	LastModBy        int64
 }
 
 // RPersonOther contains the data from selections boxes in the UI. These come back

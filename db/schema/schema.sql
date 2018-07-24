@@ -941,6 +941,7 @@ CREATE TABLE Prospect (
     PriorReasonForMoving BIGINT NOT NULL DEFAULT 0,                 -- string list id
     PriorLengthOfResidency VARCHAR(100) NOT NULL DEFAULT '',        -- length of stay is just a string
     CommissionableThirdParty TEXT NOT NULL,                         -- Sometimes bookings come into Isola Bella from 3rd parties and they get a commission
+    ThirdPartySource BIGINT NOT NULL DEFAULT 0,                     -- Accord (renting company) Phonebook UID of account rep
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                            -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,          -- when was this record created
@@ -967,7 +968,7 @@ CREATE TABLE User (
     EmergencyContactAddress VARCHAR(100) NOT NULL DEFAULT '',
     EmergencyContactTelephone VARCHAR(100) NOT NULL DEFAULT '',
     EmergencyContactEmail VARCHAR(100) NOT NULL DEFAULT '',
-    AlternateAddress VARCHAR(100) NOT NULL DEFAULT '',
+    AlternateEmailAddress VARCHAR(100) NOT NULL DEFAULT '',
     EligibleFutureUser TINYINT(1) NOT NULL DEFAULT 1,            -- yes/no
     FLAGS BIGINT NOT NULL DEFAULT 0,                             /*
                                                                   */
@@ -986,9 +987,8 @@ CREATE TABLE User (
 CREATE TABLE Payor (
     TCID BIGINT NOT NULL,                                        -- associated Transactant
     BID BIGINT NOT NULL DEFAULT 0,                               -- which business
-    TaxpayorID VARCHAR(25) NOT NULL DEFAULT '',
+    TaxpayorID CHAR(128) NOT NULL DEFAULT '',                    -- taxpayor id - encrypted
     CreditLimit DECIMAL(19,4) NOT NULL DEFAULT 0.0,
-    ThirdPartySource BIGINT NOT NULL DEFAULT 0,                        -- Accord (renting company) Phonebook UID of account rep
     EligibleFuturePayor TINYINT(1) NOT NULL DEFAULT 1,           -- yes/no
     FLAGS BIGINT NOT NULL DEFAULT 0,                             /*
                                                                   */
