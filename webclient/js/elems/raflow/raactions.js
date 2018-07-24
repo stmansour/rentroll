@@ -4,7 +4,8 @@
     reloadActionForm,
     submitActionForm,
     getSLStringList,
-    refreshLabels
+    refreshLabels,
+    GetVehicleIdentity
 */
 "use strict";
 
@@ -159,6 +160,7 @@ window.refreshLabels = function () {
         }
     }
 
+    // State Terminated Display Info
     x = document.getElementById("bannerTerminatedBy");
     if (x !== null) {
         if (meta.TerminatorUID > 0) {
@@ -177,6 +179,7 @@ window.refreshLabels = function () {
         }
     }
 
+    // State Notice To Move Display Info
     x = document.getElementById("bannerMoveDate");
     if (x !== null) {
         if (meta.NoticeToMoveDate != "1/1/1900") {
@@ -195,10 +198,95 @@ window.refreshLabels = function () {
         }
     }
 
+    // State Active Display Info
     x = document.getElementById("bannerDocumentDate");
     if (x !== null) {
-        if (meta.DocumentDate != "1/1/1900") {
+        if (meta.DocumentDate != "1900-01-01 00:00:00 UTC") {
             x.innerHTML = meta.NoticeToMoveReported;
+        } else {
+            x.innerHTML = '';
+        }
+    }
+
+    x = document.getElementById("bannerPayors");
+    if (x !== null) {
+        if (data.Data.people.length >0) {
+            var payorList = [];
+            data.Data.people.forEach(function(item) {
+                if(item.IsRenter) {
+                    payorList.push(item.FirstName + ' ' +item.MiddleName+ ' ' +item.LastName);
+                }
+            });
+            x.innerHTML = payorList;
+        } else {
+            x.innerHTML = '';
+        }
+    }
+
+    x = document.getElementById("bannerUsers");
+    if (x !== null) {
+        if (data.Data.people.length >0) {
+            var userList = [];
+            data.Data.people.forEach(function(item) {
+                if(item.IsOccupant) {
+                    userList.push(item.FirstName + ' ' +item.MiddleName+ ' ' +item.LastName);
+                }
+            });
+            x.innerHTML = userList;
+        } else {
+            x.innerHTML = '';
+        }
+    }
+
+    x = document.getElementById("bannerGuarantors");
+    if (x !== null) {
+        if (data.Data.people.length >0) {
+            var guarantorList = [];
+            data.Data.people.forEach(function(item) {
+                if(item.IsGuarantor) {
+                    guarantorList.push(item.FirstName + ' ' +item.MiddleName+ ' ' +item.LastName);
+                }
+            });
+            x.innerHTML = guarantorList;
+        } else {
+            x.innerHTML = '';
+        }
+    }
+
+    x = document.getElementById("bannerRentables");
+    if (x !== null) {
+        if (data.Data.rentables.length >0) {
+            var rentableList = [];
+            data.Data.rentables.forEach(function(item) {
+                rentableList.push(item.RentableName);
+            });
+            x.innerHTML = rentableList;
+        } else {
+            x.innerHTML = '';
+        }
+    }
+
+    x = document.getElementById("bannerPets");
+    if (x !== null) {
+            var petList = [];
+        if (data.Data.pets.length >0) {
+            data.Data.pets.forEach(function(item) {
+                petList.push(item.Name);
+            });
+            x.innerHTML = petList;
+        } else {
+            x.innerHTML = '';
+        }
+    }
+
+    x = document.getElementById("bannerVehicles");
+    if (x !== null) {
+            var vehicleList = [];
+        if (data.Data.vehicles.length >0) {
+            data.Data.vehicles.forEach(function(item) {
+                vehicleList.push(GetVehicleIdentity(item));
+            });
+            x.innerHTML = vehicleList;
         } else {
             x.innerHTML = '';
         }
@@ -468,8 +556,7 @@ window.loadRAActionForm = function() {
                             submitActionForm(reqData);
                             break;
                         case 3:
-                            if(w2ui.RAActionForm.record.RADocumentDate != null &&
-                                typeof w2ui.RAActionForm.record.RADocumentDate != 'undefined') {
+                            if(w2ui.RAActionForm.record.RADocumentDate) {
                                 DocumentDate = w2ui.RAActionForm.record.RADocumentDate;
                             }
                             reqData = {
@@ -522,13 +609,11 @@ window.loadRAActionForm = function() {
                             submitActionForm(reqData);
                             break;
                         case 6:
-                            if(w2ui.RAActionForm.record.RANoticeToMoveDate != null &&
-                                typeof w2ui.RAActionForm.record.RANoticeToMoveDate != 'undefined') {
+                            if(w2ui.RAActionForm.record.RANoticeToMoveDate) {
                                 NoticeToMoveDate = w2ui.RAActionForm.record.RANoticeToMoveDate;
                             }
 
-                            if(w2ui.RAActionForm.record.RANoticeToMoveReported != null &&
-                                typeof w2ui.RAActionForm.record.RANoticeToMoveReported != 'undefined') {
+                            if(w2ui.RAActionForm.record.RANoticeToMoveReported) {
                                 NoticeToMoveReported = w2ui.RAActionForm.record.RANoticeToMoveReported;
                             }
                             reqData = {

@@ -137,51 +137,26 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 					modRAFlowMeta.Approver1 = 0
 					modRAFlowMeta.Approver1Name = ""
 					modRAFlowMeta.DeclineReason1 = 0
-					var temp rlib.JSONDateTime
-					err := temp.UnmarshalJSON([]byte("1900-01-01 00:00:00 UTC"))
-					if err != nil {
-						fmt.Println("Errrrorrrrrrr:------:", err)
-					}
-					modRAFlowMeta.DecisionDate1 = temp
+					modRAFlowMeta.DecisionDate1 = rlib.JSONDateTime(time.Time{})
 
 				case 2: // Pending Second Approval
 					modRAFlowMeta.Approver2 = 0
 					modRAFlowMeta.Approver2Name = ""
 					modRAFlowMeta.DeclineReason2 = 0
-					var temp rlib.JSONDateTime
-					err := temp.UnmarshalJSON([]byte("1900-01-01 00:00:00 UTC"))
-					if err != nil {
-						fmt.Println("Errrrorrrrrrr:------:", err)
-					}
-					modRAFlowMeta.DecisionDate2 = temp
+					modRAFlowMeta.DecisionDate2 = rlib.JSONDateTime(time.Time{})
 
 				case 3: // Move-In / Execute Modification
-					var temp rlib.JSONDateTime
-					err := temp.UnmarshalJSON([]byte("1900-01-01 00:00:00 UTC"))
-					if err != nil {
-						fmt.Println("Errrrorrrrrrr:------:", err)
-					}
-					modRAFlowMeta.DocumentDate = temp
+					modRAFlowMeta.DocumentDate = rlib.JSONDateTime(time.Time{})
 				case 4: // Active
 				case 5: // Terminated
 					modRAFlowMeta.TerminatorUID = 0
 					modRAFlowMeta.TerminatorName = ""
 					modRAFlowMeta.LeaseTerminationReason = 0
-					var temp rlib.JSONDateTime
-					err := temp.UnmarshalJSON([]byte("1900-01-01 00:00:00 UTC"))
-					if err != nil {
-						fmt.Println("Errrrorrrrrrr:------:", err)
-					}
-					modRAFlowMeta.TerminationDate = temp
+					modRAFlowMeta.TerminationDate = rlib.JSONDateTime(time.Time{})
 
 				case 6: //Notice To Move
-					var temp rlib.JSONDateTime
-					err := temp.UnmarshalJSON([]byte("1900-01-01 00:00:00 UTC"))
-					if err != nil {
-						fmt.Println("Errrrorrrrrrr:------:", err)
-					}
-					modRAFlowMeta.NoticeToMoveDate = temp
-					modRAFlowMeta.NoticeToMoveReported = temp
+					modRAFlowMeta.NoticeToMoveDate = rlib.JSONDateTime(time.Time{})
+					modRAFlowMeta.NoticeToMoveReported = rlib.JSONDateTime(time.Time{})
 				}
 			}
 		}
@@ -381,14 +356,5 @@ func getUserFullName(ctx context.Context, UID int64, d *ServiceData) (string, er
 	if err != nil {
 		return "", err
 	}
-
-	fullName := person.FirstName
-	if len(person.MiddleName) > 0 {
-		fullName += " " + person.MiddleName
-	}
-	if len(person.LastName) > 0 {
-		fullName += " " + person.LastName
-	}
-
-	return fullName, nil
+	return person.DisplayName(), nil
 }
