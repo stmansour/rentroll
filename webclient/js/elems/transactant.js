@@ -157,9 +157,9 @@ window.buildTransactElements = function() {
         {field: 'EmergencyContactAddress',   type: 'text',      required: false, html: {page: 3, column: 0}},
         {field: 'EmergencyContactTelephone', type: 'text',      required: false, html: {page: 3, column: 0}},
         {field: 'EmergencyContactEmail',     type: 'text',      required: false, html: {page: 3, column: 0}},
-        {field: 'AlternateEmailAddress',          type: 'text',      required: false, html: {page: 3, column: 0}},
+        {field: 'AlternateEmailAddress',     type: 'text',      required: false, html: {page: 3, column: 0}},
         {field: 'EligibleFutureUser',        type: 'checkbox',  required: false, html: {page: 3, column: 0}},
-        {field: 'Industry',                  type: 'list',      required: false, html: {page: 3, column: 0}},
+        {field: 'Industry',                  type: 'list',      required: false, html: {page: 3, column: 0}}, // "Industries" string list
         {field: 'SourceSLSID',               type: 'list',      required: false, html: {page: 3, column: 0}}, // "HowFound" string list
         {field: 'CreateBy',                  type: 'int',       required: false, html: {page: 0, column: 0}},
         {field: 'CreateTS',                  type: 'time',      required: false, html: {page: 0, column: 0}},
