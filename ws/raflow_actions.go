@@ -34,10 +34,10 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		raFlowResponse RAFlowResponse
 		raFlowData     rlib.RAFlowJSONData
 		foo            RAActionDataRequest
-		today      = time.Now()
-		err error
-		tx  *sql.Tx
-		ctx context.Context
+		today          = time.Now()
+		err            error
+		tx             *sql.Tx
+		ctx            context.Context
 	)
 	fmt.Printf("Entered %s\n", funcname)
 
