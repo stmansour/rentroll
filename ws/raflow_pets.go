@@ -114,7 +114,9 @@ func CreateNewRAFlowPet(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 	// --------------------------------------------------------
 	var newRAFlowPet rlib.RAPetsFlowData
 	newRAFlowPet, err = rlib.NewRAFlowPet(ctx, d.BID,
-		raFlowData.Dates.PossessionStart, raFlowData.Dates.PossessionStop, &modRAFlowMeta)
+		raFlowData.Dates.RentStart, raFlowData.Dates.RentStop,
+		raFlowData.Dates.PossessionStart, raFlowData.Dates.PossessionStop,
+		&modRAFlowMeta)
 	if err != nil {
 		return
 	}

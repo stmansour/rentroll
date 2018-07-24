@@ -166,9 +166,9 @@ func SvcUserPets(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 // PetFeesResp is the response struct containing all pet fees
 type PetFeesResp struct {
-	Status  string                `json:"status"`
-	Total   int64                 `json:"total"`
-	Records []rlib.BizPropsPetFee `json:"records"`
+	Status  string             `json:"status"`
+	Total   int64              `json:"total"`
+	Records []rlib.BizPropsFee `json:"records"`
 }
 
 // SvcPetFeesHandler is used to get the pet fees associated with the BID
@@ -189,12 +189,13 @@ type PetFeesResp struct {
 func SvcPetFeesHandler(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "SvcPetFeesHandler"
 	var (
-		err error
-		g   PetFeesResp
+		err         error
+		g           PetFeesResp
+		bizPropName = "general"
 	)
 	fmt.Printf("Entered in %s\n", funcname)
 
-	g.Records, err = rlib.GetPetFeesFromGeneralBizProps(r.Context(), d.BID)
+	g.Records, err = rlib.GetBizPropPetFees(r.Context(), d.BID, bizPropName)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
