@@ -31,6 +31,8 @@ var ehandlers = []RAWriteHandler{
 	{"Transactants", F2RAUpdatePeople},
 	{"Pets", F2RAUpdatePets},
 	{"Vehicles", F2RAUpdateVehicles},
+	{"Rentables", FlowSaveRentables},
+	{"Fees", Fees2RA},
 }
 
 // Flow2RA moves data from the Flow tabl into the permanent tables.
@@ -53,10 +55,12 @@ func Flow2RA(ctx context.Context, flowid int64) (int64, error) {
 	//-------------------------------------------
 	flow, err := rlib.GetFlow(ctx, flowid)
 	if err != nil {
+		rlib.Console("\n\nERROR IN GetFlow: %s\n\n\n", err.Error())
 		return nraid, err
 	}
 	err = json.Unmarshal(flow.Data, &x.raf)
 	if err != nil {
+		rlib.Console("\n\nERROR IN Unmarshal: %s\n\n\n", err.Error())
 		return nraid, err
 	}
 
@@ -117,8 +121,8 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 		}
 		chgs := 0
 		AStart := time.Time(x.raf.Dates.AgreementStart)
-		RStart := time.Time(x.raOrig.RentStart)
-		PStart := time.Time(x.raOrig.PossessionStart)
+		RStart := time.Time(x.raf.Dates.RentStart)
+		PStart := time.Time(x.raf.Dates.PossessionStart)
 		if x.raOrig.AgreementStop.After(AStart) {
 			x.raOrig.AgreementStop = AStart
 			chgs++
@@ -131,7 +135,22 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 			x.raOrig.PossessionStop = PStart
 			chgs++
 		}
+		//------------------------------------------------------------------
+		// If there are changes, then we stop the old Rental Agreement and
+		// create a new one linked to x.raOrig
+		//------------------------------------------------------------------
 		if chgs > 0 {
+			x.raOrig.FLAGS &= ^uint64(0x7) // clear the status
+			x.raOrig.FLAGS |= 5            // set the state to Terminated
+			x.raOrig.LeaseTerminationReason =
+				rlib.RRdb.BizTypes[x.raOrig.BID].Msgs.S[rlib.MSGRAUPDATED].SLSID // "Rental Agreement was updated"
+			sess, ok := rlib.SessionFromContext(ctx)
+			if !ok {
+				return nraid, rlib.ErrSessionRequired
+			}
+			x.raOrig.TerminatorUID = sess.UID
+			x.raOrig.TerminationDate = time.Now()
+
 			err = rlib.UpdateRentalAgreement(ctx, &x.raOrig)
 			if err != nil {
 				return nraid, err
@@ -149,11 +168,13 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 		x.ra.PossessionStop = time.Time(x.raf.Dates.PossessionStop)
 		x.ra.PRAID = x.raOrig.RAID
 		x.ra.ORIGIN = x.raOrig.ORIGIN
+		x.ra.BID = x.raOrig.BID
+		x.ra.CSAgent = x.raOrig.CSAgent
 		if x.raOrig.ORIGIN == 0 {
 			x.ra.ORIGIN = x.raOrig.RAID
 		}
 		x.ra.RATID = x.raOrig.RATID
-		// x.ra.RentCycleEpoch = // bizprop epoch default
+		x.ra.RentCycleEpoch = x.raOrig.RentCycleEpoch
 
 		nraid, err = rlib.InsertRentalAgreement(ctx, &x.ra)
 		if err != nil {
@@ -210,6 +231,34 @@ func FlowSaveRentables(ctx context.Context, x *WriteHandlerContext) error {
 			if err = rlib.UpdateRentalAgreementRentable(ctx, &v); err != nil {
 				return err
 			}
+			//----------------------------------------------------------------
+			// Fix up the users
+			//----------------------------------------------------------------
+			rul, err := rlib.GetRentableUsersInRange(ctx, v.RID, &x.raOrig.PossessionStart, &x.ra.PossessionStop)
+			if err != nil {
+				return err
+			}
+			for _, ru := range rul {
+				ru.DtStop = x.raOrig.PossessionStop
+				if err = rlib.UpdateRentableUser(ctx, &ru); err != nil {
+					return err
+				}
+			}
+		}
+		//----------------------------------------------------------------
+		// Fix up the payors
+		//----------------------------------------------------------------
+		t, err := rlib.GetRentalAgreementPayorsByRAID(ctx, x.raf.Meta.RAID)
+		if err != nil {
+			return err
+		}
+		for _, v := range t {
+			if v.DtStop.After(x.ra.RentStart) {
+				v.DtStop = x.ra.RentStart
+				if err = rlib.UpdateRentalAgreementPayor(ctx, &v); err != nil {
+					return err
+				}
+			}
 		}
 	}
 
@@ -219,10 +268,10 @@ func FlowSaveRentables(ctx context.Context, x *WriteHandlerContext) error {
 	for _, v := range x.raf.Rentables {
 		var rar = rlib.RentalAgreementRentable{
 			RAID:         x.ra.RAID,
-			BID:          0,
+			BID:          x.ra.BID,
 			RID:          v.RID,
-			CLID:         0,
-			ContractRent: 0,
+			CLID:         0, // TODO:
+			ContractRent: 0, // TODO:
 			RARDtStart:   time.Time(x.raf.Dates.PossessionStart),
 			RARDtStop:    time.Time(x.raf.Dates.PossessionStop),
 		}
@@ -231,6 +280,37 @@ func FlowSaveRentables(ctx context.Context, x *WriteHandlerContext) error {
 			return err
 		}
 
+		//----------------------------------------------------------------
+		// Add the users
+		//----------------------------------------------------------------
+		for _, v1 := range x.raf.People {
+			var a = rlib.RentableUser{
+				RID:     v.RID,
+				BID:     x.ra.BID,
+				TCID:    v1.TCID,
+				DtStart: x.ra.PossessionStart,
+				DtStop:  x.ra.PossessionStop,
+			}
+			if _, err := rlib.InsertRentableUser(ctx, &a); err != nil {
+				return err
+			}
+		}
+	}
+	//----------------------------------------------------------------
+	// Add the payers
+	//----------------------------------------------------------------
+	for _, v := range x.raf.People {
+		var a = rlib.RentalAgreementPayor{
+			RAID:    x.ra.RAID,
+			BID:     x.ra.BID,
+			TCID:    v.TCID,
+			DtStart: x.ra.PossessionStart,
+			DtStop:  x.ra.PossessionStop,
+			FLAGS:   0,
+		}
+		if _, err := rlib.InsertRentalAgreementPayor(ctx, &a); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -299,7 +379,7 @@ func F2RAUpdateVehicles(ctx context.Context, x *WriteHandlerContext) error {
 			for j := 0; j < len(vehicles); j++ {
 				rlib.MigrateStructVals(&x.raf.Vehicles[i], &vehicles[j])
 				vehicles[j].TCID = tcid
-				rlib.Console("Just befor UpdateVehicle: vehicles[j] = %#v\n", vehicles[j])
+				// rlib.Console("Just before UpdateVehicle: vehicles[j] = %#v\n", vehicles[j])
 				if err = rlib.UpdateVehicle(ctx, &vehicles[j]); err != nil {
 					return err
 				}

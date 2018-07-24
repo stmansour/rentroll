@@ -17,12 +17,13 @@ var RAStates = []string{
 // string.
 //-----------------------------------------------------------------------------
 var RAActions = []string{
-	"Edit Rental Agreement Information",
-	"Authorize First Approval",
-	"Authorize Second Approval",
-	"Complete Move In",
+	"Application Being Completed",
+	"Set To First Approval",
+	"Set To Second Approval",
+	"Set To Move-In",
+	"Complete Move-In",
 	"Terminate",
-	"Received Notice To Move",
+	"Received Notice-To-Move",
 }
 
 // GetStatusString returns a string representation of the Rental Agreement

@@ -96,6 +96,7 @@ func main() {
 	rlib.InitDBHelpers(App.dbrr, App.dbdir)
 	rlib.RpnInit()
 	bizlogic.InitBizLogic()
+	rlib.SessionInit(10) // must be called before calling InitBizInternals
 	ws.InitReports()
 	rlib.SetAuthFlag(App.NoAuth)
 	ws.SvcInit(App.NoAuth) // currently needed for testing

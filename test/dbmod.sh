@@ -508,10 +508,21 @@ DBNAME="rentroll"
 # July 19, 2018
 # ALTER TABLE Payor DROP COLUMN SSN;
 
+# July 20, 2018
+# ALTER TABLE Payor MODIFY TaxpayorID CHAR(128) NOT NULL DEFAULT '';
+
+# July 23, 2018
+# ALTER TABLE Payor DROP COLUMN ThirdPartySource;
+# ALTER TABLE Prospect ADD ThirdPartySource BIGINT NOT NULL DEFAULT 0 AFTER CommissionableThirdParty;
+# ALTER TABLE User CHANGE AlternateAddress AlternateEmailAddress VARCHAR(100) NOT NULL DEFAULT '';
+
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================
 cat >${MODFILE} <<EOF
+ALTER TABLE AR ADD DefaultRentCycle SMALLINT NOT NULL DEFAULT 0;
+ALTER TABLE AR ADD DefaultProrationCycle SMALLINT NOT NULL DEFAULT 0;
+ALTER TABLE Payor DROP COLUMN SSN;
 EOF
 
 #==============================================================================

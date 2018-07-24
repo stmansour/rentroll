@@ -454,6 +454,7 @@ func ReadProspect(row *sql.Row, a *Prospect) error {
 		&a.PriorReasonForMoving,
 		&a.PriorLengthOfResidency,
 		&a.CommissionableThirdParty,
+		&a.ThirdPartySource,
 		&a.CreateTS,
 		&a.CreateBy,
 		&a.LastModTime,
@@ -492,6 +493,7 @@ func ReadProspects(rows *sql.Rows, a *Prospect) error {
 		&a.PriorReasonForMoving,
 		&a.PriorLengthOfResidency,
 		&a.CommissionableThirdParty,
+		&a.ThirdPartySource,
 		&a.CreateTS,
 		&a.CreateBy,
 		&a.LastModTime,
@@ -942,13 +944,26 @@ func ReadTransactantTypeDowns(rows *sql.Rows, a *TransactantTypeDown) error {
 
 // ReadPayor reads a full Payor structure from the database based on the supplied row object
 func ReadPayor(row *sql.Row, a *Payor) error {
-	var d1 string
-	err := row.Scan(&a.TCID, &a.BID, &a.CreditLimit, &a.TaxpayorID, &a.ThirdPartySource, &a.EligibleFuturePayor,
+	var t1, d1 string
+	err := row.Scan(&a.TCID, &a.BID, &a.CreditLimit, &t1, &a.EligibleFuturePayor,
 		&a.FLAGS, &d1, &a.GrossIncome, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	SkipSQLNoRowsError(&err)
 	if err != nil {
 		return err
 	}
+
+	// For TaxPayorID
+	t, err := hex.DecodeString(t1)
+	if err != nil {
+		return err
+	}
+
+	a.TaxpayorID, err = DecryptOrEmpty(t)
+	if err != nil {
+		return err
+	}
+
+	// For DriversLicense
 	d, err := hex.DecodeString(d1)
 	a.DriversLicense, err = DecryptOrEmpty(d)
 	if err != nil {
@@ -959,12 +974,25 @@ func ReadPayor(row *sql.Row, a *Payor) error {
 
 // ReadPayors reads a full Payor structure from the database based on the supplied rows object
 func ReadPayors(rows *sql.Rows, a *Payor) error {
-	var d1 string
-	err := rows.Scan(&a.TCID, &a.BID, &a.CreditLimit, &a.TaxpayorID, &a.ThirdPartySource, &a.EligibleFuturePayor,
+	var t1, d1 string
+	err := rows.Scan(&a.TCID, &a.BID, &a.CreditLimit, &t1, &a.EligibleFuturePayor,
 		&a.FLAGS, &d1, &a.GrossIncome, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	if err != nil {
 		return err
 	}
+
+	// For TaxPayorID
+	t, err := hex.DecodeString(t1)
+	if err != nil {
+		return err
+	}
+
+	a.TaxpayorID, err = DecryptOrEmpty(t)
+	if err != nil {
+		return err
+	}
+
+	// For DriversLicense
 	d, err := hex.DecodeString(d1)
 	a.DriversLicense, err = DecryptOrEmpty(d)
 	if err != nil {
@@ -976,7 +1004,7 @@ func ReadPayors(rows *sql.Rows, a *Payor) error {
 // ReadUser reads a full User structure from the database based on the supplied row object
 func ReadUser(row *sql.Row, a *User) error {
 	err := row.Scan(&a.TCID, &a.BID, &a.Points, &a.DateofBirth, &a.EmergencyContactName, &a.EmergencyContactAddress,
-		&a.EmergencyContactTelephone, &a.EmergencyContactEmail, &a.AlternateAddress, &a.EligibleFutureUser, &a.FLAGS, &a.Industry, &a.SourceSLSID,
+		&a.EmergencyContactTelephone, &a.EmergencyContactEmail, &a.AlternateEmailAddress, &a.EligibleFutureUser, &a.FLAGS, &a.Industry, &a.SourceSLSID,
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	SkipSQLNoRowsError(&err)
 	return err
@@ -985,7 +1013,7 @@ func ReadUser(row *sql.Row, a *User) error {
 // ReadUsers reads a full User structure from the database based on the supplied rows object
 func ReadUsers(rows *sql.Rows, a *User) error {
 	return rows.Scan(&a.TCID, &a.BID, &a.Points, &a.DateofBirth, &a.EmergencyContactName, &a.EmergencyContactAddress,
-		&a.EmergencyContactTelephone, &a.EmergencyContactEmail, &a.AlternateAddress, &a.EligibleFutureUser, &a.FLAGS, &a.Industry, &a.SourceSLSID,
+		&a.EmergencyContactTelephone, &a.EmergencyContactEmail, &a.AlternateEmailAddress, &a.EligibleFutureUser, &a.FLAGS, &a.Industry, &a.SourceSLSID,
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 

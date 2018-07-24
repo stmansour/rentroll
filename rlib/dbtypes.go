@@ -775,6 +775,7 @@ type Prospect struct {
 	PriorReasonForMoving     int64
 	PriorLengthOfResidency   string
 	CommissionableThirdParty string
+	ThirdPartySource         int64
 	LastModTime              time.Time
 	LastModBy                int64
 	CreateTS                 time.Time // when was this record created
@@ -791,7 +792,7 @@ type User struct {
 	EmergencyContactAddress   string
 	EmergencyContactTelephone string
 	EmergencyContactEmail     string
-	AlternateAddress          string
+	AlternateEmailAddress     string
 	EligibleFutureUser        bool
 	FLAGS                     uint64
 	Industry                  string
@@ -811,7 +812,6 @@ type Payor struct {
 	BID                 int64
 	CreditLimit         float64
 	TaxpayorID          string
-	ThirdPartySource    int64
 	EligibleFuturePayor bool
 	FLAGS               uint64
 	DriversLicense      string // encrypted in database, decrypted here
@@ -1835,6 +1835,7 @@ type RRprepSQL struct {
 	UpdateUser                              *sql.Stmt
 	UpdateVehicle                           *sql.Stmt
 	UpdateFlowData                          *sql.Stmt // flow table
+	UpdateFlow                              *sql.Stmt // flow table
 	GetAssessmentInstancesByParent          *sql.Stmt
 	GetJournalAllocationsByASMID            *sql.Stmt
 	GetRentableTypeRefs                     *sql.Stmt
@@ -1909,6 +1910,7 @@ type RRprepSQL struct {
 	UpdateBusinessPropertiesData            *sql.Stmt
 	DeleteBusinessProperties                *sql.Stmt
 	GetAssessmentsByRAIDRID                 *sql.Stmt
+	GetRentalAgreementPayorsByRAID          *sql.Stmt
 }
 
 // DeleteBusinessFromDB deletes information from all tables if it is part of the supplied BID.
@@ -1938,6 +1940,7 @@ type BusinessTypeLists struct {
 	DefaultAccts map[int64]*GLAccount   // index by the predifined contants DFAC*, value = GL No of that account
 	GLAccounts   map[int64]GLAccount    // all the accounts for this business
 	AR           map[int64]AR           // Account Rules
+	Msgs         StringList             // Roller Stringlist of messages
 	NoteTypes    []NoteType             // all defined note types for this business
 }
 
@@ -2072,7 +2075,18 @@ func InitBizInternals(bid int64, xbiz *XBusiness) error {
 		return err
 	}
 
-	// TODO(Steve): why we're ignoring note types here? shouldnt we store somewhere?
+	now := time.Now()
+	expire := now.Add(10 * time.Second)
+	ssn := SessionNew("RollerServer", "RollerServer", "RollerServer", -99998, "", 0, &expire)
+	ctx := context.Background()
+	ctx = SetSessionContextKey(ctx, ssn)
+
+	RRdb.BizTypes[bid].Msgs, err = GetRollerStringList(ctx, bid)
+	if err != nil {
+		return err
+	}
+
+	// (Steve): why we're ignoring note types here? shouldnt we store somewhere?
 	// SM: yes we should store them, but we have not implemented Notes yet. We
 	//     will add this when we have a Notes service.
 	_, err = getBusinessAllNoteTypes(bid)

@@ -253,10 +253,10 @@ CREATE TABLE RentalAgreement (
     */
     Approver1 BIGINT NOT NULL DEFAULT 0,                               -- approver 1
     DecisionDate1 DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',     -- datetime when first approver made the decision
-    DeclineReason1 BIGINT NOT NULL DEFAULT 0,                          -- Only valid if FLAGS & (1<<7) == 0, this is the SLSID to string in list of choices, why Approver1 declined the application
+    DeclineReason1 BIGINT NOT NULL DEFAULT 0,                          -- Only valid if FLAGS & (1<<4) == 0 and State >= 2, this is the SLSID to string in list of choices, why Approver1 declined the application
     Approver2 BIGINT NOT NULL DEFAULT 0,                               -- approver 2
     DecisionDate2 DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',     -- datetime when first approver made the decision
-    DeclineReason2 BIGINT NOT NULL DEFAULT 0,                          -- Only valid if FLAGS & (1<<8) == 0, this is the SLSID to string in list of choices, why Approver2 declined the application
+    DeclineReason2 BIGINT NOT NULL DEFAULT 0,                          -- Only valid if FLAGS & (1<<5) == 0, this is the SLSID to string in list of choices, why Approver2 declined the application
     Outcome BIGINT NOT NULL DEFAULT 0,                                 -- Only valid if state == Appl Elect(6), this is the SLSID of string from a list of WhyLeaving
     NoticeToMoveUID BIGINT NOT NULL DEFAULT 0,                         -- if > 0 it is the UID of the person who set this RA to state Notice To Move
     NoticeToMoveDate DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- datetime RA was given Notice-To-Move, valid only if NoticeToMoveUID >0
@@ -941,6 +941,7 @@ CREATE TABLE Prospect (
     PriorReasonForMoving BIGINT NOT NULL DEFAULT 0,                 -- string list id
     PriorLengthOfResidency VARCHAR(100) NOT NULL DEFAULT '',        -- length of stay is just a string
     CommissionableThirdParty TEXT NOT NULL,                         -- Sometimes bookings come into Isola Bella from 3rd parties and they get a commission
+    ThirdPartySource BIGINT NOT NULL DEFAULT 0,                     -- Accord (renting company) Phonebook UID of account rep
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                            -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,          -- when was this record created
@@ -967,7 +968,7 @@ CREATE TABLE User (
     EmergencyContactAddress VARCHAR(100) NOT NULL DEFAULT '',
     EmergencyContactTelephone VARCHAR(100) NOT NULL DEFAULT '',
     EmergencyContactEmail VARCHAR(100) NOT NULL DEFAULT '',
-    AlternateAddress VARCHAR(100) NOT NULL DEFAULT '',
+    AlternateEmailAddress VARCHAR(100) NOT NULL DEFAULT '',
     EligibleFutureUser TINYINT(1) NOT NULL DEFAULT 1,            -- yes/no
     FLAGS BIGINT NOT NULL DEFAULT 0,                             /*
                                                                   */
@@ -986,9 +987,8 @@ CREATE TABLE User (
 CREATE TABLE Payor (
     TCID BIGINT NOT NULL,                                        -- associated Transactant
     BID BIGINT NOT NULL DEFAULT 0,                               -- which business
-    TaxpayorID VARCHAR(25) NOT NULL DEFAULT '',
+    TaxpayorID CHAR(128) NOT NULL DEFAULT '',                    -- taxpayor id - encrypted
     CreditLimit DECIMAL(19,4) NOT NULL DEFAULT 0.0,
-    ThirdPartySource BIGINT NOT NULL DEFAULT 0,                        -- Accord (renting company) Phonebook UID of account rep
     EligibleFuturePayor TINYINT(1) NOT NULL DEFAULT 1,           -- yes/no
     FLAGS BIGINT NOT NULL DEFAULT 0,                             /*
                                                                   */

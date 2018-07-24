@@ -35,7 +35,7 @@ const (
 	EmergencyContactAddress   = iota
 	EmergencyContactTelephone = iota
 	EmergencyContactEmail     = iota
-	AlternateAddress          = iota
+	AlternateEmailAddress     = iota
 	EligibleFutureUser        = iota
 	Industry                  = iota
 	SourceSLSID               = iota
@@ -78,7 +78,7 @@ var csvCols = []CSVColumn{
 	{"EmergencyContactAddress", EmergencyContactAddress},
 	{"EmergencyContactTelephone", EmergencyContactTelephone},
 	{"EmergencyContactEmail", EmergencyContactEmail},
-	{"AlternateAddress", AlternateAddress},
+	{"AlternateEmailAddress", AlternateEmailAddress},
 	{"EligibleFutureUser", EligibleFutureUser},
 	{"Industry", Industry},
 	{"SourceSLSID", SourceSLSID},
@@ -147,7 +147,7 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 		{EmergencyContactAddress, rcsvCopyString, &t.EmergencyContactAddress},
 		{EmergencyContactTelephone, rcsvCopyString, &t.EmergencyContactTelephone},
 		{EmergencyContactEmail, rcsvCopyString, &t.EmergencyContactEmail},
-		{AlternateAddress, rcsvCopyString, &t.AlternateAddress},
+		{AlternateEmailAddress, rcsvCopyString, &t.AlternateEmailAddress},
 		{EligibleFutureUser, nil, nil},
 		{Industry, rcsvCopyString, &t.Industry},
 		{SourceSLSID, nil, nil},
@@ -233,7 +233,7 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 				if err != nil {
 					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - ThirdPartySource value is invalid: %s", funcname, lineno, s)
 				}
-				p.ThirdPartySource = int64(i)
+				pr.ThirdPartySource = int64(i)
 			}
 		case DateofBirth:
 			if len(s) > 0 {

@@ -381,6 +381,8 @@ func buildPreparedStatements() {
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.InsertFlow, err = RRdb.Dbrr.Prepare("INSERT INTO Flow (" + s1 + ") VALUES(" + s2 + ")")
 	Errcheck(err)
+	RRdb.Prepstmt.UpdateFlow, err = RRdb.Dbrr.Prepare("UPDATE Flow SET " + s3 + " WHERE FlowID=?")
+	Errcheck(err)
 	RRdb.Prepstmt.UpdateFlowData, err = RRdb.Dbrr.Prepare("UPDATE Flow SET Data = JSON_REPLACE(Data, CONCAT('$.', ?), CAST(? AS JSON)) where FlowID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.DeleteFlow, err = RRdb.Dbrr.Prepare("DELETE from Flow WHERE FlowID=?")
@@ -679,7 +681,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// PAYOR
 	//==========================================
-	flds = "TCID,BID,CreditLimit,TaxpayorID,ThirdPartySource,EligibleFuturePayor,FLAGS,DriversLicense,GrossIncome,CreateTS,CreateBy,LastModTime,LastModBy"
+	flds = "TCID,BID,CreditLimit,TaxpayorID,EligibleFuturePayor,FLAGS,DriversLicense,GrossIncome,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["Payor"] = flds
 	RRdb.Prepstmt.GetPayor, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Payor where TCID=?")
 	Errcheck(err)
@@ -694,7 +696,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// PROSPECT
 	//==========================================
-	flds = "TCID,BID,CompanyAddress,CompanyCity,CompanyState,CompanyPostalCode,CompanyEmail,CompanyPhone,Occupation,EvictedDes,ConvictedDes,BankruptcyDes,FollowUpDate,FLAGS,OtherPreferences,SpecialNeeds,CurrentAddress,CurrentLandLordName,CurrentLandLordPhoneNo,CurrentReasonForMoving,CurrentLengthOfResidency,PriorAddress,PriorLandLordName,PriorLandLordPhoneNo,PriorReasonForMoving,PriorLengthOfResidency,CommissionableThirdParty,CreateTS,CreateBy,LastModTime,LastModBy"
+	flds = "TCID,BID,CompanyAddress,CompanyCity,CompanyState,CompanyPostalCode,CompanyEmail,CompanyPhone,Occupation,EvictedDes,ConvictedDes,BankruptcyDes,FollowUpDate,FLAGS,OtherPreferences,SpecialNeeds,CurrentAddress,CurrentLandLordName,CurrentLandLordPhoneNo,CurrentReasonForMoving,CurrentLengthOfResidency,PriorAddress,PriorLandLordName,PriorLandLordPhoneNo,PriorReasonForMoving,PriorLengthOfResidency,CommissionableThirdParty,ThirdPartySource,CreateTS,CreateBy,LastModTime,LastModBy"
 
 	RRdb.DBFields["Prospect"] = flds
 	RRdb.Prepstmt.GetProspect, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Prospect where TCID=?")
@@ -710,7 +712,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// User
 	//==========================================
-	flds = "TCID,BID,Points,DateofBirth,EmergencyContactName,EmergencyContactAddress,EmergencyContactTelephone,EmergencyContactEmail,AlternateAddress,EligibleFutureUser,FLAGS,Industry,SourceSLSID,CreateTS,CreateBy,LastModTime,LastModBy"
+	flds = "TCID,BID,Points,DateofBirth,EmergencyContactName,EmergencyContactAddress,EmergencyContactTelephone,EmergencyContactEmail,AlternateEmailAddress,EligibleFutureUser,FLAGS,Industry,SourceSLSID,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["User"] = flds
 	RRdb.Prepstmt.GetUser, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM User where TCID=?")
 	Errcheck(err)
@@ -967,6 +969,8 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.GetRentalAgreementPayor, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentalAgreementPayors WHERE RAPID=?")
 	Errcheck(err)
 	// RRdb.Prepstmt.GetRentalAgreementPayorsInRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentalAgreementPayors WHERE RAID=? AND ((?<DtStop AND ?>DtStart) OR (DtStop=DtStart AND (?=DtStart || ?=DtStop)))")
+	RRdb.Prepstmt.GetRentalAgreementPayorsByRAID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentalAgreementPayors WHERE RAID=?")
+	Errcheck(err)
 	RRdb.Prepstmt.GetRentalAgreementPayorsInRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentalAgreementPayors WHERE RAID=? AND ?<DtStop AND ?>DtStart")
 	Errcheck(err)
 	RRdb.Prepstmt.GetRentalAgreementPayorByRBT, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentalAgreementPayors WHERE RAID=? AND BID=? AND TCID=?")
