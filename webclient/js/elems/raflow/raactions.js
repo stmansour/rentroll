@@ -5,7 +5,9 @@
     submitActionForm,
     getSLStringList,
     refreshLabels,
-    GetVehicleIdentity
+    GetVehicleIdentity,
+    dtFormatISOToW2ui,
+    localtimeToUTC
 */
 "use strict";
 
@@ -109,10 +111,10 @@ window.refreshLabels = function () {
     // Header Part
     var x = document.getElementById("bannerRAID");
     if (x !== null) {
-        if (meta.RAID == 0) {
+        if (data.ID == 0) {
             x.innerHTML = 'New Rental Agreement';
         } else {
-            x.innerHTML = '' + meta.RAID;
+            x.innerHTML = '' + data.ID;
         }
     }
 
@@ -138,10 +140,10 @@ window.refreshLabels = function () {
             x.innerHTML = 'Pending';
         } else {
             if ((meta.RAFLAGS & (1<<4)) > 0) {
-                x.innerHTML = 'Approved by ' + meta.Approver1Name + ' on ' + meta.DecisionDate1;
+                x.innerHTML = 'Approved by ' + meta.Approver1Name + ' on ' + dtFormatISOToW2ui(meta.DecisionDate1);
             } else{
                 var reason1 = app.ApplDeny.find(function(t){if(t.id == meta.DeclineReason1){return t;}});
-                x.innerHTML = 'Declined by ' + meta.Approver1Name + ' on ' + meta.DecisionDate1 + ' Reason: ' + reason1.text;
+                x.innerHTML = 'Declined by ' + meta.Approver1Name + ' on ' + dtFormatISOToW2ui(meta.DecisionDate1) + ' Reason: ' + reason1.text;
             }
         }
     }
@@ -152,10 +154,10 @@ window.refreshLabels = function () {
             x.innerHTML = 'Pending';
         } else {
             if ((meta.RAFLAGS & (1<<5)) > 0) {
-                x.innerHTML = 'Approved by ' + meta.Approver2Name + ' on ' + meta.DecisionDate2;
+                x.innerHTML = 'Approved by ' + meta.Approver2Name + ' on ' + dtFormatISOToW2ui(meta.DecisionDate2);
             } else{
                 var reason2 = app.ApplDeny.find(function(t){if(t.id == meta.DeclineReason2){return t;}});
-                x.innerHTML = 'Declined by ' + meta.Approver2Name + ' on ' + meta.DecisionDate2 + ' Reason: ' + reason2.text;
+                x.innerHTML = 'Declined by ' + meta.Approver2Name + ' on ' + dtFormatISOToW2ui(meta.DecisionDate2) + ' Reason: ' + reason2.text;
             }
         }
     }
@@ -164,7 +166,7 @@ window.refreshLabels = function () {
     x = document.getElementById("bannerTerminatedBy");
     if (x !== null) {
         if (meta.TerminatorUID > 0) {
-            x.innerHTML = meta.TerminationDate + ' by ' + meta.TerminatorName;
+            x.innerHTML = dtFormatISOToW2ui(meta.TerminationDate) + ' by ' + meta.TerminatorName;
         } else {
             x.innerHTML = '';
         }
@@ -182,8 +184,8 @@ window.refreshLabels = function () {
     // State Notice To Move Display Info
     x = document.getElementById("bannerMoveDate");
     if (x !== null) {
-        if (meta.NoticeToMoveDate != "1/1/1900") {
-            x.innerHTML = meta.NoticeToMoveDate;
+        if (meta.NoticeToMoveDate != "1900-01-01 00:00:00 UTC") {
+            x.innerHTML = dtFormatISOToW2ui(meta.NoticeToMoveDate);
         } else {
             x.innerHTML = '';
         }
@@ -191,8 +193,8 @@ window.refreshLabels = function () {
 
     x = document.getElementById("bannerRecievedNoticeDate");
     if (x !== null) {
-        if (meta.NoticeToMoveReported != "1/1/1900") {
-            x.innerHTML = meta.NoticeToMoveReported;
+        if (meta.NoticeToMoveReported != "1900-01-01 00:00:00 UTC") {
+            x.innerHTML = dtFormatISOToW2ui(meta.NoticeToMoveReported);
         } else {
             x.innerHTML = '';
         }
@@ -202,7 +204,7 @@ window.refreshLabels = function () {
     x = document.getElementById("bannerDocumentDate");
     if (x !== null) {
         if (meta.DocumentDate != "1900-01-01 00:00:00 UTC") {
-            x.innerHTML = meta.NoticeToMoveReported;
+            x.innerHTML = dtFormatISOToW2ui(meta.NoticeToMoveReported);
         } else {
             x.innerHTML = '';
         }
@@ -309,13 +311,13 @@ window.loadRAActionTemplate = function() {
                 { type: 'top', style: app.pstyle2, content:'top', size:110,
                     toolbar: {
                         items: [
-                            { id: 'btnNotes', type: 'button', icon: 'far fa-sticky-note' },
+                            { id:'btnBackToRA', type: 'button', text: 'Back', icon: 'fas fa-angle-left' },
                             { id: 'bt3', type: 'spacer' },
                             { id: 'btnClose', type: 'button', icon: 'fas fa-times' }
                         ],
                         onClick: function (event) {
                             switch(event.target) {
-                            case 'btnClose':
+                            case 'btnBackToRA':
                                 var no_callBack = function() { return false; },
                                     yes_callBack = function() {
                                         w2ui.newraLayout.content('right','');
@@ -324,6 +326,18 @@ window.loadRAActionTemplate = function() {
                                         w2ui.newraLayout.unlock('main');
                                         w2ui.newraLayout.get('main').toolbar.refresh();
                                     };
+                                form_dirty_alert(yes_callBack, no_callBack);
+                                break;
+                            case 'btnClose':
+                                yes_callBack = function() {
+                                    w2ui.newraLayout.content('right','');
+                                    w2ui.newraLayout.hide('right',true);
+                                    w2ui.actionLayout.get('main').content.destroy();
+                                    w2ui.newraLayout.unlock('main');
+                                    w2ui.applicantsGrid.render();
+                                    app.raflow.activeFlowID = "";
+                                    w2ui.toplayout.hide('right',true);
+                                };
                                 form_dirty_alert(yes_callBack, no_callBack);
                                 break;
                             }
@@ -350,7 +364,6 @@ window.loadRAActionTemplate = function() {
     var raFlags = app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS;
     var raState = parseInt(raFlags & 0xf);
 
-    // loadActionFormByState(raState);
     loadRAActionForm();
 
     w2ui.newraLayout.show('right', true);
@@ -396,8 +409,7 @@ window.loadRAActionForm = function() {
                     }
                 },
                 { field: 'RADocumentDate', type: 'date', hidden: true, options: { start: '01/01/2000' } },
-                { field: 'RANoticeToMoveDate', type: 'date', hidden: true, options: { start: '01/01/2000' } },
-                { field: 'RANoticeToMoveReported', type: 'date', hidden: true, options: { start: '01/01/2000' } },
+                { field: 'RANoticeToMoveDate', type: 'date', hidden: true, options: { start: w2uiDateControlString(new Date()) } },
                 { field: 'RATerminationReason', type: 'list', width: 120, required: true, hidden: true,
                     options: {
                         items: getSLStringList(getCurrentBID(), "WhyLeaving")
@@ -408,7 +420,6 @@ window.loadRAActionForm = function() {
             onChange: function (event) {
                 event.done(function(){
                     this.refresh();
-                    // reloadActionForm();
                 });
 
                 switch(event.target) {
@@ -419,12 +430,10 @@ window.loadRAActionForm = function() {
                                 $('button[name=updateAction]').attr('disabled',true);
 
                                 w2ui.RAActionForm.get('RANoticeToMoveDate').hidden = true;
-                                w2ui.RAActionForm.get('RANoticeToMoveReported').hidden = true;
                                 break;
 
                             case 6: // Received Notice-To-Move
                                 w2ui.RAActionForm.get('RANoticeToMoveDate').hidden = false;
-                                w2ui.RAActionForm.get('RANoticeToMoveReported').hidden = false;
 
                                 w2ui.RAActionForm.get('RATerminationReason').hidden = true;
                                 delete this.record.RATerminationReason;
@@ -438,7 +447,6 @@ window.loadRAActionForm = function() {
                                 
 
                                 w2ui.RAActionForm.get('RANoticeToMoveDate').hidden = true;
-                                w2ui.RAActionForm.get('RANoticeToMoveReported').hidden = true;
                         }
                         break;
 
@@ -500,7 +508,7 @@ window.loadRAActionForm = function() {
                 var raFlags = data.meta.RAFLAGS;
                 var raStateString = app.RAStates[parseInt(raFlags & 0xf)];
 
-                // var RAID = data.meta.RAID;
+                // var RAID = app.raflow.data[activeFlowID].ID;
                 // if(RAID > 0 &&  (raStateString === "Pending First Approval" || raStateString === "Pending Second Approval")) {
                 //     raStateString = 'Modification ' + raStateString;
                 // }
@@ -561,7 +569,7 @@ window.loadRAActionForm = function() {
                             }
                             reqData = {
                                 "FlowID": FlowID,
-                                "DocumentDate": DocumentDate,
+                                "DocumentDate": localtimeToUTC(DocumentDate),
                                 "Mode": Mode
                             };
                             submitActionForm(reqData);
@@ -573,7 +581,6 @@ window.loadRAActionForm = function() {
                     var Action = this.record.RAActions.id;
                     var TerminationReason = 0;
                     var NoticeToMoveDate = "1/1/1900";
-                    var NoticeToMoveReported = "1/1/1900";
                     var Mode = "Action";
 
                     var currentState = parseInt(app.raflow.data[FlowID].Data.meta.RAFLAGS & (0xf));
@@ -613,14 +620,10 @@ window.loadRAActionForm = function() {
                                 NoticeToMoveDate = w2ui.RAActionForm.record.RANoticeToMoveDate;
                             }
 
-                            if(w2ui.RAActionForm.record.RANoticeToMoveReported) {
-                                NoticeToMoveReported = w2ui.RAActionForm.record.RANoticeToMoveReported;
-                            }
                             reqData = {
                                 "FlowID": FlowID,
                                 "Action": Action,
-                                "NoticeToMoveDate": NoticeToMoveDate,
-                                "NoticeToMoveReported":NoticeToMoveReported,
+                                "NoticeToMoveDate": localtimeToUTC(NoticeToMoveDate),
                                 "Mode": Mode
                             };
                             submitActionForm(reqData);
