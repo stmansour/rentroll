@@ -309,13 +309,13 @@ window.loadRAActionTemplate = function() {
                 { type: 'top', style: app.pstyle2, content:'top', size:110,
                     toolbar: {
                         items: [
-                            { id: 'btnNotes', type: 'button', icon: 'far fa-sticky-note' },
+                            { id:'btnBackToRA', type: 'button', text: 'Back', icon: 'fas fa-angle-left' },
                             { id: 'bt3', type: 'spacer' },
                             { id: 'btnClose', type: 'button', icon: 'fas fa-times' }
                         ],
                         onClick: function (event) {
                             switch(event.target) {
-                            case 'btnClose':
+                            case 'btnBackToRA':
                                 var no_callBack = function() { return false; },
                                     yes_callBack = function() {
                                         w2ui.newraLayout.content('right','');
@@ -324,6 +324,18 @@ window.loadRAActionTemplate = function() {
                                         w2ui.newraLayout.unlock('main');
                                         w2ui.newraLayout.get('main').toolbar.refresh();
                                     };
+                                form_dirty_alert(yes_callBack, no_callBack);
+                                break;
+                            case 'btnClose':
+                                yes_callBack = function() {
+                                    w2ui.newraLayout.content('right','');
+                                    w2ui.newraLayout.hide('right',true);
+                                    w2ui.actionLayout.get('main').content.destroy();
+                                    w2ui.newraLayout.unlock('main');
+                                    w2ui.applicantsGrid.render();
+                                    app.raflow.activeFlowID = "";
+                                    w2ui.toplayout.hide('right',true);
+                                };
                                 form_dirty_alert(yes_callBack, no_callBack);
                                 break;
                             }
