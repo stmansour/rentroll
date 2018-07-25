@@ -172,7 +172,6 @@ var Svcs = []ServiceHandler{
 	{Cmd: "raflow-person", Handler: SvcRAFlowPersonHandler, NeedBiz: true, NeedSession: true},
 	{Cmd: "raflow-pets", Handler: SvcRAFlowPetsHandler, NeedBiz: true, NeedSession: true},
 	{Cmd: "raflow-vehicles", Handler: SvcRAFlowVehiclesHandler, NeedBiz: true, NeedSession: true},
-	// {Cmd: "raflow-diff", Handler: SvcRAFlowDiffHandler, NeedBiz: true, NeedSession: true},
 	{Cmd: "ledger", Handler: SvcLedgerHandler, NeedBiz: true, NeedSession: true},
 	{Cmd: "ledgers", Handler: SvcLedgerHandler, NeedBiz: true, NeedSession: true},
 	{Cmd: "logoff", Handler: SvcLogoff, NeedBiz: false, NeedSession: true},
