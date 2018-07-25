@@ -41,7 +41,7 @@
         "FLAGS": 0,
         "FirstName": "Grazyna",
         "GrossIncome": 532.64,
-        "Industry": "",
+        "Industry": 2,
         "IsCompany": false,
         "LastModBy": 0,
         "LastModTime": "2018-07-21 11:49:00 UTC",

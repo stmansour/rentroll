@@ -206,7 +206,7 @@ type RAPeopleFlowData struct {
 	EmergencyContactEmail     string `validate:"email"`
 	AlternateEmailAddress     string `validate:"string,min=1,max=100,omitempty"`
 	EligibleFutureUser        bool   `validate:"number,min=1"`
-	Industry                  string `validate:"string,min=1,max=100,omitempty"`
+	Industry                  int64  `validate:"number,min=0,omitempty"`
 	SourceSLSID               int64  `validate:"number,min=1"` // It is compulsory when role is set to renter or user. It'll be check via bizlogic.
 }
 
