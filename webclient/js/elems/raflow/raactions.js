@@ -5,8 +5,7 @@
     submitActionForm,
     getSLStringList,
     refreshLabels,
-    GetVehicleIdentity,
-    getCurrentDate
+    GetVehicleIdentity
 */
 "use strict";
 
@@ -408,7 +407,7 @@ window.loadRAActionForm = function() {
                     }
                 },
                 { field: 'RADocumentDate', type: 'date', hidden: true, options: { start: '01/01/2000' } },
-                { field: 'RANoticeToMoveDate', type: 'date', hidden: true, options: { start: getCurrentDate() } },
+                { field: 'RANoticeToMoveDate', type: 'date', hidden: true, options: { start: w2uiDateControlString(new Date()) } },
                 { field: 'RATerminationReason', type: 'list', width: 120, required: true, hidden: true,
                     options: {
                         items: getSLStringList(getCurrentBID(), "WhyLeaving")
@@ -637,14 +636,4 @@ window.loadRAActionForm = function() {
     setTimeout(function() {
         reloadActionForm();
     }, 100);
-};
-
-window.getCurrentDate = function() {
-    var today = new Date();
-
-    var day = today.getDate();
-    var month = today.getMonth() + 1;
-    var year = today.getFullYear();
-
-    return month + '/' + day + '/' + year;
 };
