@@ -180,20 +180,10 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		case 4: // Complete Move-In
 
 			// migrate data to real table via hook
-			var newRAID int64
-			newRAID, err = Flow2RA(ctx, foo.FlowID)
+			_, err = Flow2RA(ctx, foo.FlowID)
 			if err != nil {
 				SvcErrorReturn(w, err, funcname)
 				return
-			}
-
-			// if sucessfull, remove from flow
-			if newRAID > 0 {
-				err = rlib.DeleteFlow(ctx, foo.FlowID)
-				if err != nil {
-					SvcErrorReturn(w, err, funcname)
-					return
-				}
 			}
 			modRAFlowMeta.RAFLAGS = (clearedState | 4)
 		case 5: // Terminate
@@ -211,7 +201,7 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 					return
 				}
 
-				RAID := flow.ID
+				/*RAID := flow.ID
 				if RAID > 0 {
 					// get the Rental Agreement from database
 					var ra rlib.RentalAgreement
@@ -232,7 +222,7 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 						SvcErrorReturn(w, err, funcname)
 						return
 					}
-				}
+				}*/
 
 				modRAFlowMeta.TerminatorUID = d.sess.UID
 				modRAFlowMeta.TerminatorName = fullName
@@ -261,7 +251,7 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				return
 			}
 
-			RAID := flow.ID
+			/*RAID := flow.ID
 			if RAID > 0 {
 				// get the Rental Agreement from database
 				var ra rlib.RentalAgreement
@@ -282,7 +272,7 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 					SvcErrorReturn(w, err, funcname)
 					return
 				}
-			}
+			}*/
 
 			modRAFlowMeta.NoticeToMoveUID = d.sess.UID
 			modRAFlowMeta.NoticeToMoveName = fullName

@@ -69,9 +69,6 @@ func Flow2RA(ctx context.Context, flowid int64) (int64, error) {
 	// were made. Otherwise treat it as a new RAID
 	//----------------------------------------------------------------------------
 	if x.raf.Meta.RAID > 0 {
-		//------------------------------
-		// TODO: check for any changes
-		//------------------------------
 		changes, err := rlib.RAFlowDataDiff(ctx, x.raf.Meta.RAID)
 		if err != nil {
 			rlib.Console("\n\nERROR IN FlowDataDIFF: %s\n\n\n", err.Error())
@@ -80,13 +77,21 @@ func Flow2RA(ctx context.Context, flowid int64) (int64, error) {
 
 		if changes {
 			nraid, err = FlowSaveRA(ctx, &x)
-			return nraid, err
+			if err != nil {
+				rlib.Console("\n\nERROR IN FlowSaveRA: %s\n\n\n", err.Error())
+				return nraid, err
+			}
 		}
+	} else {
+		//-----------------------------------
+		// TODO: handle migration for new RA
+		//-----------------------------------
+	}
 
-		//----------------------------------------------------
-		// if there were no changes, just delete the flow...
-		//----------------------------------------------------
-		//return nraid, DeleteFlow(ctx, flowid)
+	// REMOVE FLOW IF MIGRATION DONE SUCCESSFULLY
+	err = rlib.DeleteFlow(ctx, flowid)
+	if err != nil {
+		return nraid, err
 	}
 
 	return nraid, nil
