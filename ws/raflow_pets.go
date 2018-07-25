@@ -113,7 +113,12 @@ func CreateNewRAFlowPet(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 	// APPEND FEES FOR PETS
 	// --------------------------------------------------------
 	var newRAFlowPet rlib.RAPetsFlowData
-	newRAFlowPet, err = rlib.NewRAFlowPet(ctx, d.BID,
+
+	// There is no associated contact person for the brand new entry of this pet
+	RID := int64(0)
+
+	// get new entry for pet with some initial data
+	newRAFlowPet, err = rlib.NewRAFlowPet(ctx, d.BID, RID,
 		raFlowData.Dates.RentStart, raFlowData.Dates.RentStop,
 		raFlowData.Dates.PossessionStart, raFlowData.Dates.PossessionStop,
 		&modRAFlowMeta)

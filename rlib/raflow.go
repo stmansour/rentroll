@@ -1225,6 +1225,7 @@ func addFlowPersonVehicles(ctx context.Context, tcid, tmptcid int64, raf *RAFlow
 // INPUTS
 //             ctx  = db transaction context
 //             BID  = Business ID
+//             RID  = Rentable ID
 //          pStart  = possession start date
 //           pStop  = possession stop date
 //            meta  = RAFlowMetaInfo data
@@ -1233,7 +1234,7 @@ func addFlowPersonVehicles(ctx context.Context, tcid, tmptcid int64, raf *RAFlow
 //     RAPetsFlowData structure
 //     any error encountered
 //-----------------------------------------------------------------------------
-func NewRAFlowPet(ctx context.Context, BID int64, rStart, rStop, pStart, pStop JSONDate, meta *RAFlowMetaInfo) (pet RAPetsFlowData, err error) {
+func NewRAFlowPet(ctx context.Context, BID, RID int64, rStart, rStop, pStart, pStop JSONDate, meta *RAFlowMetaInfo) (pet RAPetsFlowData, err error) {
 	const funcname = "NewRAFlowPet"
 	fmt.Printf("Entered in %s\n", funcname)
 
@@ -1248,9 +1249,6 @@ func NewRAFlowPet(ctx context.Context, BID int64, rStart, rStop, pStart, pStop J
 	}
 
 	// GET PET INITIAL FEES
-	// TODO(Sudip): IF CONTACT PERSON IS TIED UP WITH ANY RENTABLE THEN
-	//              CONSIDER THAT RID
-	RID := int64(0)
 	pet.Fees, err = GetRAFlowInitialPetFees(ctx, BID, RID, rStart, rStop, meta)
 
 	return
@@ -1262,6 +1260,7 @@ func NewRAFlowPet(ctx context.Context, BID int64, rStart, rStop, pStart, pStop J
 // INPUTS
 //             ctx  = db transaction context
 //             BID  = Business ID
+//             RID  = Rentable ID
 //          pStart  = possession start date
 //           pStop  = possession stop date
 //            meta  = RAFlowMetaInfo data
@@ -1270,7 +1269,7 @@ func NewRAFlowPet(ctx context.Context, BID int64, rStart, rStop, pStart, pStop J
 //     RAVehiclesFlowData structure
 //     any error encountered
 //-----------------------------------------------------------------------------
-func NewRAFlowVehicle(ctx context.Context, BID int64, rStart, rStop, pStart, pStop JSONDate, meta *RAFlowMetaInfo) (vehicle RAVehiclesFlowData, err error) {
+func NewRAFlowVehicle(ctx context.Context, BID, RID int64, rStart, rStop, pStart, pStop JSONDate, meta *RAFlowMetaInfo) (vehicle RAVehiclesFlowData, err error) {
 	const funcname = "NewRAFlowVehicle"
 	fmt.Printf("Entered in %s\n", funcname)
 
@@ -1285,9 +1284,6 @@ func NewRAFlowVehicle(ctx context.Context, BID int64, rStart, rStop, pStart, pSt
 	}
 
 	// GET VEHICLE INITIAL FEES
-	// TODO(Sudip): IF CONTACT PERSON IS TIED UP WITH ANY RENTABLE THEN
-	//              CONSIDER THAT RID
-	RID := int64(0)
 	vehicle.Fees, err = GetRAFlowInitialVehicleFees(ctx, BID, RID, rStart, rStop, meta)
 
 	return

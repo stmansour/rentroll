@@ -113,7 +113,12 @@ func CreateNewRAFlowVehicle(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	// APPEND FEES FOR VEHICLES
 	// --------------------------------------------------------
 	var newRAFlowVehicle rlib.RAVehiclesFlowData
-	newRAFlowVehicle, err = rlib.NewRAFlowVehicle(ctx, d.BID,
+
+	// There is no associated contact person for the brand new entry of this pet
+	RID := int64(0)
+
+	// get new vehicle with some initial data
+	newRAFlowVehicle, err = rlib.NewRAFlowVehicle(ctx, d.BID, RID,
 		raFlowData.Dates.RentStart, raFlowData.Dates.RentStop,
 		raFlowData.Dates.PossessionStart, raFlowData.Dates.PossessionStop,
 		&modRAFlowMeta)
