@@ -53,7 +53,6 @@ type RAFlowNewPetRequest struct {
 func CreateNewRAFlowPet(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "CreateNewRAFlowPet"
 	var (
-		g             FlowResponse
 		foo           RAFlowNewPetRequest
 		raFlowData    rlib.RAFlowJSONData
 		err           error
@@ -178,8 +177,9 @@ func CreateNewRAFlowPet(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 		return
 	}
 
-	// set the response
-	g.Record = flow
-	g.Status = "success"
-	SvcWriteResponse(d.BID, &g, w)
+	// -------------------
+	// WRITE FLOW RESPONSE
+	// -------------------
+	SvcWriteFlowResponse(ctx, d.BID, flow, w)
+	return
 }

@@ -53,7 +53,6 @@ type RAFlowNewVehicleRequest struct {
 func CreateNewRAFlowVehicle(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "CreateNewRAFlowVehicle"
 	var (
-		g             FlowResponse
 		foo           RAFlowNewVehicleRequest
 		raFlowData    = rlib.RAFlowJSONData{}
 		err           error
@@ -78,7 +77,7 @@ func CreateNewRAFlowVehicle(w http.ResponseWriter, r *http.Request, d *ServiceDa
 
 	// http method check
 	if r.Method != "POST" {
-		err = fmt.Errorf("Only POST method is allowed")
+		err = fmt.Errorf("only POST method is allowed")
 		return
 	}
 
@@ -178,8 +177,9 @@ func CreateNewRAFlowVehicle(w http.ResponseWriter, r *http.Request, d *ServiceDa
 		return
 	}
 
-	// set the response
-	g.Record = flow
-	g.Status = "success"
-	SvcWriteResponse(d.BID, &g, w)
+	// -------------------
+	// WRITE FLOW RESPONSE
+	// -------------------
+	SvcWriteFlowResponse(ctx, d.BID, flow, w)
+	return
 }

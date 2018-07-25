@@ -41,30 +41,19 @@ type RATerminationData struct {
 
 // RANoticeToMoveData is a struct to hold data about Notice to Move
 type RANoticeToMoveData struct {
-	NoticeToMoveDate     rlib.JSONDateTime // date RA was given Notice-To-Move
-	NoticeToMoveReported rlib.JSONDateTime // date RA was set to Terminated because of moving out
+	NoticeToMoveDate rlib.JSONDateTime // date RA was given Notice-To-Move
 }
 
 // SvcSetRAState sets the state of Rental Agreement and updates meta info of RA
 func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "SvcSetRAState"
 	var (
-		g          FlowResponse
 		raFlowData rlib.RAFlowJSONData
 		foo        RAActionDataRequest
 		err        error
 		tx         *sql.Tx
 		ctx        context.Context
 	)
-	// set location for time as UTC
-	location, err := time.LoadLocation("UTC")
-	if err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
-	}
-
-	// get current time in UTC
-	today := time.Now().In(location)
 
 	fmt.Printf("Entered %s\n", funcname)
 
@@ -82,9 +71,21 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 	}()
 
+	// set location for time as UTC
+	var location *time.Location
+	location, err = time.LoadLocation("UTC")
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// get current time in UTC
+	var today time.Time
+	today = time.Now().In(location)
+
 	// HTTP METHOD CHECK
 	if r.Method != "POST" {
-		err := fmt.Errorf("Only POST method is allowed")
+		err = fmt.Errorf("Only POST method is allowed")
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
@@ -155,6 +156,8 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 					modRAFlowMeta.TerminationDate = rlib.JSONDateTime(time.Time{})
 
 				case 6: //Notice To Move
+					modRAFlowMeta.NoticeToMoveUID = 0
+					modRAFlowMeta.NoticeToMoveName = ""
 					modRAFlowMeta.NoticeToMoveDate = rlib.JSONDateTime(time.Time{})
 					modRAFlowMeta.NoticeToMoveReported = rlib.JSONDateTime(time.Time{})
 				}
@@ -174,6 +177,13 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			modRAFlowMeta.RAFLAGS = (clearedState | 3)
 
 		case 4: // Complete Move-In
+
+			// migrate data to real table via hook
+			_, err = Flow2RA(ctx, foo.FlowID)
+			if err != nil {
+				SvcErrorReturn(w, err, funcname)
+				return
+			}
 			modRAFlowMeta.RAFLAGS = (clearedState | 4)
 		case 5: // Terminate
 			var data RATerminationData
@@ -183,11 +193,35 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			}
 
 			if data.TerminationReason > 0 {
-				fullName, err := getUserFullName(ctx, d.sess.UID, d)
+				var fullName string
+				fullName, err = getUserFullName(ctx, d.sess.UID)
 				if err != nil {
 					SvcErrorReturn(w, err, funcname)
 					return
 				}
+
+				/*RAID := flow.ID
+				if RAID > 0 {
+					// get the Rental Agreement from database
+					var ra rlib.RentalAgreement
+					ra, err = rlib.GetRentalAgreement(ctx, RAID)
+					if err != nil {
+						SvcErrorReturn(w, err, funcname)
+						return
+					}
+
+					// modify the data
+					ra.TerminatorUID = d.sess.UID
+					ra.TerminationDate = time.Time(today)
+					ra.LeaseTerminationReason = data.TerminationReason
+
+					// update modified data in database
+					err = rlib.UpdateRentalAgreement(ctx, &ra)
+					if err != nil {
+						SvcErrorReturn(w, err, funcname)
+						return
+					}
+				}*/
 
 				modRAFlowMeta.TerminatorUID = d.sess.UID
 				modRAFlowMeta.TerminatorName = fullName
@@ -197,7 +231,7 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				modRAFlowMeta.RAFLAGS = (clearedState | 5)
 			} else {
 				// return err
-				err := fmt.Errorf("termination reason not present")
+				err = fmt.Errorf("termination reason not present")
 				SvcErrorReturn(w, err, funcname)
 				return
 			}
@@ -208,8 +242,41 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				SvcErrorReturn(w, err, funcname)
 				return
 			}
+
+			var fullName string
+			fullName, err = getUserFullName(ctx, d.sess.UID)
+			if err != nil {
+				SvcErrorReturn(w, err, funcname)
+				return
+			}
+
+			/*RAID := flow.ID
+			if RAID > 0 {
+				// get the Rental Agreement from database
+				var ra rlib.RentalAgreement
+				ra, err = rlib.GetRentalAgreement(ctx, RAID)
+				if err != nil {
+					SvcErrorReturn(w, err, funcname)
+					return
+				}
+
+				// modify the data
+				ra.NoticeToMoveUID = d.sess.UID
+				ra.NoticeToMoveDate = time.Time(data.NoticeToMoveDate)
+				ra.NoticeToMoveReported = time.Time(today)
+
+				// update modified data in database
+				err = rlib.UpdateRentalAgreement(ctx, &ra)
+				if err != nil {
+					SvcErrorReturn(w, err, funcname)
+					return
+				}
+			}*/
+
+			modRAFlowMeta.NoticeToMoveUID = d.sess.UID
+			modRAFlowMeta.NoticeToMoveName = fullName
 			modRAFlowMeta.NoticeToMoveDate = rlib.JSONDateTime(data.NoticeToMoveDate)
-			modRAFlowMeta.NoticeToMoveReported = rlib.JSONDateTime(data.NoticeToMoveReported)
+			modRAFlowMeta.NoticeToMoveReported = rlib.JSONDateTime(today)
 
 			modRAFlowMeta.RAFLAGS = (clearedState | 6)
 
@@ -224,7 +291,8 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				return
 			}
 
-			fullName, err := getUserFullName(ctx, d.sess.UID, d)
+			var fullName string
+			fullName, err = getUserFullName(ctx, d.sess.UID)
 			if err != nil {
 				SvcErrorReturn(w, err, funcname)
 				return
@@ -244,13 +312,15 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				modRAFlowMeta.TerminatorUID = d.sess.UID
 				modRAFlowMeta.TerminatorName = fullName
 				modRAFlowMeta.TerminationDate = rlib.JSONDateTime(today)
-				modRAFlowMeta.LeaseTerminationReason = 119 //Change it with SLSID for "Application Declined"
+
+				//TODO(Jay): Change it with SLSID for "Application Declined"
+				modRAFlowMeta.LeaseTerminationReason = 119
 
 				clearedState = modRAFlowMeta.RAFLAGS & ^uint64(0xf)
 				modRAFlowMeta.RAFLAGS = (clearedState | 5)
 			} else {
 				// return err
-				err := fmt.Errorf("approver1 data invalid")
+				err = fmt.Errorf("approver1 data invalid")
 				SvcErrorReturn(w, err, funcname)
 				return
 			}
@@ -266,7 +336,8 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				return
 			}
 
-			fullName, err := getUserFullName(ctx, d.sess.UID, d)
+			var fullName string
+			fullName, err = getUserFullName(ctx, d.sess.UID)
 			if err != nil {
 				SvcErrorReturn(w, err, funcname)
 				return
@@ -286,13 +357,15 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				modRAFlowMeta.TerminatorUID = d.sess.UID
 				modRAFlowMeta.TerminatorName = fullName
 				modRAFlowMeta.TerminationDate = rlib.JSONDateTime(today)
-				modRAFlowMeta.LeaseTerminationReason = 119 //Change it with SLSID for "Application Declined"
+
+				//TODO(Jay): Change it with SLSID for "Application Declined"
+				modRAFlowMeta.LeaseTerminationReason = 119
 
 				clearedState = modRAFlowMeta.RAFLAGS & ^uint64(0xf)
 				modRAFlowMeta.RAFLAGS = (clearedState | 5)
 			} else {
 				// return err
-				err := fmt.Errorf("approver2 data invalid")
+				err = fmt.Errorf("approver2 data invalid")
 				SvcErrorReturn(w, err, funcname)
 				return
 			}
@@ -345,14 +418,15 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	// set the response
-	g.Record = flow
-	g.Status = "success"
-	SvcWriteResponse(d.BID, &g, w)
+	// -------------------
+	// WRITE FLOW RESPONSE
+	// -------------------
+	SvcWriteFlowResponse(ctx, d.BID, flow, w)
+	return
 }
 
-func getUserFullName(ctx context.Context, UID int64, d *ServiceData) (string, error) {
-	person, err := rlib.GetDirectoryPerson(ctx, d.sess.UID)
+func getUserFullName(ctx context.Context, UID int64) (string, error) {
+	person, err := rlib.GetDirectoryPerson(ctx, UID)
 	if err != nil {
 		return "", err
 	}

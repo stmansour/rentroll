@@ -32,7 +32,6 @@ type RARentableFeesDataRequest struct {
 func SvcGetRAFlowRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "SvcGetRAFlowRentableFeesData"
 	var (
-		g           FlowResponse
 		rfd         rlib.RARentablesFlowData
 		raFlowData  rlib.RAFlowJSONData
 		foo         RARentableFeesDataRequest
@@ -279,8 +278,9 @@ func SvcGetRAFlowRentableFeesData(w http.ResponseWriter, r *http.Request, d *Ser
 		return
 	}
 
-	// set the response
-	g.Record = flow
-	g.Status = "success"
-	SvcWriteResponse(d.BID, &g, w)
+	// -------------------
+	// WRITE FLOW RESPONSE
+	// -------------------
+	SvcWriteFlowResponse(ctx, d.BID, flow, w)
+	return
 }

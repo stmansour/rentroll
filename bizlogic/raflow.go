@@ -1101,3 +1101,88 @@ func isAssociatedWithPerson(TMPTCID int64, people []rlib.RAPeopleFlowData) bool 
 	}
 	return false
 }
+
+// DataFulfilledRAFlow Check flow data is fulfilled or not.
+func DataFulfilledRAFlow(ctx context.Context, a *rlib.RAFlowJSONData, d *rlib.RADataFulfilled) {
+
+	// --------------------------
+	// Check for date section
+	// --------------------------
+	dates := a.Dates
+	if !(time.Time(dates.RentStart).IsZero() || time.Time(dates.RentStop).IsZero() || time.Time(dates.AgreementStart).IsZero() || time.Time(dates.AgreementStop).IsZero() || time.Time(dates.PossessionStart).IsZero() || time.Time(dates.PossessionStop).IsZero()) {
+		d.Dates = true
+	}
+
+	// --------------------------
+	// Check for people section
+	// --------------------------
+	renterCount := 0
+	for _, people := range a.People {
+		if people.IsRenter {
+			renterCount++
+		}
+	}
+	if renterCount > 0 {
+		d.People = true
+	}
+
+	// --------------------------
+	// Check for pet section
+	// --------------------------
+	if !a.Meta.HavePets {
+		d.Pets = true
+	} else {
+		if len(a.Pets) > 0 {
+			d.Pets = true
+		} else {
+			d.Pets = false
+		}
+	}
+
+	// --------------------------
+	// Check for vehicle section
+	// --------------------------
+	if !a.Meta.HaveVehicles {
+		d.Vehicles = true
+	} else {
+		if len(a.Vehicles) > 0 {
+			d.Vehicles = true
+		} else {
+			d.Vehicles = false
+		}
+	}
+
+	// ---------------------------
+	// Check for rentables section
+	// ---------------------------
+	if len(a.Rentables) > 0 {
+		d.Rentables = true
+	}
+
+	// -----------------------------
+	// Check for parentchild section
+	// -----------------------------
+	// ==============================================================//
+	//  ****************** VALIDATION SCENARIOS *********************//
+	// ==============================================================//
+	// 1.   If there are no child rentables then it is fine
+	// Ex:  People only want to stay at apartment. They might
+	//      no require child rentables like washing machine,
+	//      car parking space etc...
+	//
+	// 2.   There must be at least one parent rentables in rentables
+	//      section. People come to stay at rooms/apartments, so it
+	//      doesn't make sense of not having any parent rentables.
+	//
+	// 3.   If any child rentables listed in rentables section then
+	//      it must be associated with parent rentables.
+	// Ex:  Washing machine (a child rentable) must be associated to
+	//      an apartment(a parent rentable) where the people are
+	//      living.
+	// ==============================================================//
+
+	// 1.   There must be at least one parent rentable and id of any
+	//      item in this list must be > 0. If any item does not id > 0
+	//      then don't mark green check.
+
+}
