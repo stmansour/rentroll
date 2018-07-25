@@ -60,10 +60,11 @@ window.buildRA2FlowElements = function() {
                     }
 
                     // set the record in app raflow
-                    app.raflow.data[data.record.FlowID]= data.record;
+                    var flowID = data.record.Flow.FlowID;
+                    app.raflow.data[flowID]= data.record.Flow;
 
                     // load ra flow template
-                    LoadRAFlowTemplate(bid, data.record.FlowID);
+                    LoadRAFlowTemplate(bid, flowID);
                 })
                 .fail(function(/*data*/){
                     w2ui.ra2flowGrid.error("Get Rental Agreement Flow failed.");
