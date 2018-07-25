@@ -72,7 +72,12 @@ func Flow2RA(ctx context.Context, flowid int64) (int64, error) {
 		//------------------------------
 		// TODO: check for any changes
 		//------------------------------
-		changes := true
+		changes, err := rlib.RAFlowDataDiff(ctx, RAID)
+		if err != nil {
+			rlib.Console("\n\nERROR IN FlowDataDIFF: %s\n\n\n", err.Error())
+			return nraid, err
+		}
+
 		if changes {
 			nraid, err = FlowSaveRA(ctx, &x)
 			return nraid, err
