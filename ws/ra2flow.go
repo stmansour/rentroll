@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"rentroll/bizlogic"
 	"rentroll/rlib"
 	"strconv"
 	"strings"
@@ -286,10 +285,7 @@ func saveRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "getRA2Flow"
 	var (
-		flow           rlib.Flow
-		g              FlowResponse
-		raFlowResponse RAFlowResponse
-		raFlowData     rlib.RAFlowJSONData
+		flow rlib.Flow
 	)
 
 	if d.ID < 1 {
@@ -312,21 +308,10 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	if flow.ID == ra.RAID {
-		// get unmarshalled raflow data into struct
-		err = json.Unmarshal(flow.Data, &raFlowData)
-		if err != nil {
-			SvcErrorReturn(w, err, funcname)
-			return
-		}
-		// Perform basic validation on flow data
-		bizlogic.ValidateRAFlowBasic(r.Context(), &raFlowData, &raFlowResponse.BasicCheck)
-		// Check DataFulfilled
-		bizlogic.DataFulfilledRAFlow(r.Context(), &raFlowData, &raFlowResponse.DataFulfilled)
-		raFlowResponse.Flow = flow
-		// set the response
-		g.Record = raFlowResponse
-		g.Status = "success"
-		SvcWriteResponse(d.BID, &g, w)
+		// -------------------
+		// WRITE FLOW RESPONSE
+		// -------------------
+		SvcWriteFlowResponse(ctx, d.BID, flow, w)
 		return
 	}
 
@@ -341,24 +326,11 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	// get unmarshalled raflow data into struct
-	err = json.Unmarshal(flow.Data, &raFlowData)
-	if err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
-	}
-
-	// Perform basic validation on flow data
-	bizlogic.ValidateRAFlowBasic(r.Context(), &raFlowData, &raFlowResponse.BasicCheck)
-
-	// Check DataFulfilled
-	bizlogic.DataFulfilledRAFlow(r.Context(), &raFlowData, &raFlowResponse.DataFulfilled)
-
-	raFlowResponse.Flow = flow
-	// set the response
-	g.Record = raFlowResponse
-	g.Status = "success"
-	SvcWriteResponse(d.BID, &g, w)
+	// -------------------
+	// WRITE FLOW RESPONSE
+	// -------------------
+	SvcWriteFlowResponse(ctx, d.BID, flow, w)
+	return
 }
 
 // GetRA2FlowCore does all the heavy lifting to create a Flow from a
