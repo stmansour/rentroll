@@ -175,6 +175,12 @@ func DoTest(ctx context.Context, s *rlib.Session) {
 		return
 	}
 	rlib.Console("Successfully created new Rental Agreement, RAID = %d\n", nraid)
+	rlib.Console("Removing flow: %d\n", flowID)
+	if err = rlib.DeleteFlow(ctx, flowID); err != nil {
+		fmt.Printf("Error deleting flow: %s\n", err.Error())
+		return
+	}
+	rlib.Console("Completed without errors\n")
 }
 
 func setUpdatedRAStartDate(ctx context.Context, flowid int64, dt *time.Time) error {
