@@ -795,7 +795,7 @@ type User struct {
 	AlternateEmailAddress     string
 	EligibleFutureUser        bool
 	FLAGS                     uint64
-	Industry                  string
+	Industry                  int64
 	SourceSLSID               int64
 	LastModTime               time.Time
 	LastModBy                 int64
@@ -1495,6 +1495,17 @@ type Flow struct {
 	LastModBy   int64           // last modified by whom
 	CreateTS    time.Time       // created time
 	CreateBy    int64           // created by whom
+}
+
+// RADataFulfilled is a structure to store section's required information fulfilled to show green mark
+type RADataFulfilled struct {
+	Dates       bool `json:"dates"`
+	People      bool `json:"people"`
+	Pets        bool `json:"pets"`
+	Vehicles    bool `json:"vehicles"`
+	Rentables   bool `json:"rentables"`
+	ParentChild bool `json:"parentchild"`
+	Tie         bool `json:"tie"`
 }
 
 // RRprepSQL is a collection of prepared sql statements for the RentRoll db

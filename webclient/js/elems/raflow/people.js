@@ -196,25 +196,25 @@ window.loadRAPeopleForm = function () {
                             var raBGInfoGridRecord = grid.get(event.recid); // record from the w2ui grid
 
                             // get stringListData for list fields
-                            getStringListData(BID, BUD).fail(function (data) {
+                            getStringListData(BID, BUD).done(function (data) {
+                                // show slider content in w2ui comp
+                                ShowSliderContentW2UIComp(form, RACompConfig.people.sliderWidth);
+
+                                // show/hide list of fields based on role
+                                manageBGInfoFormFields(raBGInfoGridRecord);
+
+                                form.record = getPeopleLocalData(raBGInfoGridRecord.TMPTCID);
+                                form.record.recid = raBGInfoGridRecord.recid;
+                                form.record.BID = BID;
+                                form.record.BUD = BUD;
+
+                                // Set the form title
+                                setRATransactantFormHeader(form.record);
+
+                                form.refresh(); // need to refresh for form changes
+                            }).fail(function (data) {
                                 form.message(data.message);
                             });
-
-                            // show slider content in w2ui comp
-                            ShowSliderContentW2UIComp(form, RACompConfig.people.sliderWidth);
-
-                            // show/hide list of fields based on role
-                            manageBGInfoFormFields(raBGInfoGridRecord);
-
-                            form.record = getPeopleLocalData(raBGInfoGridRecord.TMPTCID);
-                            form.record.recid = raBGInfoGridRecord.recid;
-                            form.record.BID = BID;
-                            form.record.BUD = BUD;
-
-                            // Set the form title
-                            setRATransactantFormHeader(form.record);
-
-                            form.refresh(); // need to refresh for form changes
                         };
 
                     // warn user if form content has been changed
@@ -353,6 +353,7 @@ window.loadRAPeopleForm = function () {
                     form.get('SourceSLSID').options.items = getSLStringList(BID, "HowFound");
                     form.get('CurrentReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
                     form.get('PriorReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
+                    form.get('Industry').options.items = getSLStringList(BID, "Industries");
 
                     // hide delete button if it is NewRecord
                     var isNewRecord = (w2ui.RAPeopleGrid.get(form.record.recid, true) === null);
@@ -452,7 +453,7 @@ window.removeRAFlowPersonAJAX = function (TMPTCID) {
         success: function (data) {
             if (data.status != "error") {
                 // update the local copy of flow for the active one
-                app.raflow.data[data.record.FlowID] = data.record;
+                app.raflow.data[data.record.Flow.FlowID] = data.record.Flow;
             } else {
                 console.error(data.message);
             }
@@ -483,7 +484,7 @@ window.saveRAFlowPersonAJAX = function (TCID) {
         success: function (data) {
             if (data.status != "error") {
                 // update the local copy of flow for the active one
-                app.raflow.data[data.record.FlowID] = data.record;
+                app.raflow.data[data.record.Flow.FlowID] = data.record.Flow;
             } else {
                 console.error(data.message);
             }
@@ -595,7 +596,7 @@ window.acceptTransactant = function () {
             }
         })
         .fail(function (data) {
-            console.error("failure" + data);
+            console.error(data);
         });
     } else {
         var recid = compData[tcidIndex].recid;

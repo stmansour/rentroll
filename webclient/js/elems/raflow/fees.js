@@ -38,7 +38,7 @@ window.GetFeeFormInitRecord = function () {
         // SalesTaxAmt:        0.0, // FUTURE RELEASE
         TransOccTax:        0.0,
         // TransOccAmt:        0.0, // FUTURE RELEASE,
-        Comment:            "",
+        Comment:            ""
     };
 };
 

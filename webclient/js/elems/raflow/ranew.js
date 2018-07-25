@@ -83,7 +83,7 @@ window.LoadRAFlowTemplate = function(bid, FlowID) {
             renderRAStateInToolbar(raFlags);
 
             // show "done" mark on each li of navigation bar
-            validateRAFlowComponents();
+            // validateRAFlowComponents(); TODO(Akshay): Remove this green check from here
 
             // clear grid, form if previously loaded in DOM
             for (var comp in app.raFlowPartTypes) {
@@ -209,7 +209,7 @@ window.buildRAApplicantElements = function() {
                                 recid:  newRecid,
                                 BID:    bid,
                                 BUD:    bud,
-                                FlowID: data.record.FlowID,
+                                FlowID: data.record.Flow.FlowID
                             });
 
                             grid.refresh();

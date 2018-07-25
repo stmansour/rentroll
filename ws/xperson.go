@@ -51,7 +51,7 @@ type RPersonForm struct {
 	EmergencyContactEmail     string
 	AlternateEmailAddress     string
 	EligibleFutureUser        bool
-	Industry                  string
+	Industry                  int64
 	SourceSLSID               int64
 
 	// --------------- Payor -------------------

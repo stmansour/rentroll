@@ -103,6 +103,8 @@ type RAFlowMetaInfo struct {
 	TerminationDate        JSONDateTime
 	LeaseTerminationReason int64
 	DocumentDate           JSONDateTime
+	NoticeToMoveUID        int64
+	NoticeToMoveName       string
 	NoticeToMoveDate       JSONDateTime
 	NoticeToMoveReported   JSONDateTime
 }
@@ -204,7 +206,7 @@ type RAPeopleFlowData struct {
 	EmergencyContactEmail     string `validate:"email"`
 	AlternateEmailAddress     string `validate:"string,min=1,max=100,omitempty"`
 	EligibleFutureUser        bool   `validate:"number,min=1"`
-	Industry                  string `validate:"string,min=1,max=100,omitempty"`
+	Industry                  int64  `validate:"number,min=0,omitempty"`
 	SourceSLSID               int64  `validate:"number,min=1"` // It is compulsory when role is set to renter or user. It'll be check via bizlogic.
 }
 
@@ -830,6 +832,7 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement) (RAFlowJSONData, e
 	Approver1Name, _ := GetDirectoryPerson(ctx, ra.Approver1)
 	Approver2Name, _ := GetDirectoryPerson(ctx, ra.Approver2)
 	TerminatorName, _ := GetDirectoryPerson(ctx, ra.TerminatorUID)
+	NoticeToMoveName, _ := GetDirectoryPerson(ctx, ra.NoticeToMoveUID)
 
 	var raf = RAFlowJSONData{
 		Dates: RADatesFlowData{
@@ -865,6 +868,8 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement) (RAFlowJSONData, e
 			TerminationDate:        JSONDateTime(ra.TerminationDate),
 			LeaseTerminationReason: ra.LeaseTerminationReason,
 			DocumentDate:           JSONDateTime(ra.DocumentDate),
+			NoticeToMoveUID:        ra.NoticeToMoveUID,
+			NoticeToMoveName:       NoticeToMoveName.DisplayName(),
 			NoticeToMoveDate:       JSONDateTime(ra.NoticeToMoveDate),
 			NoticeToMoveReported:   JSONDateTime(ra.NoticeToMoveReported),
 		},

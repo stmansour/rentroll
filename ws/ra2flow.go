@@ -284,10 +284,12 @@ func saveRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 // wsdoc }
 func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "getRA2Flow"
-	var flow rlib.Flow
+	var (
+		flow rlib.Flow
+	)
 
 	if d.ID < 1 {
-		SvcErrorReturn(w, fmt.Errorf("Invalid RAID: %d", d.ID), funcname)
+		SvcErrorReturn(w, fmt.Errorf("invalid RAID: %d", d.ID), funcname)
 		return
 	}
 	ra, err := rlib.GetRentalAgreement(r.Context(), d.ID)
@@ -304,11 +306,12 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 	}
+
 	if flow.ID == ra.RAID {
-		var g FlowResponse
-		g.Record = flow
-		g.Status = "success"
-		SvcWriteResponse(d.BID, &g, w)
+		// -------------------
+		// WRITE FLOW RESPONSE
+		// -------------------
+		SvcWriteFlowResponse(ctx, d.BID, flow, w)
 		return
 	}
 
@@ -323,11 +326,11 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	// set the response
-	var g FlowResponse
-	g.Record = flow
-	g.Status = "success"
-	SvcWriteResponse(d.BID, &g, w)
+	// -------------------
+	// WRITE FLOW RESPONSE
+	// -------------------
+	SvcWriteFlowResponse(ctx, d.BID, flow, w)
+	return
 }
 
 // GetRA2FlowCore does all the heavy lifting to create a Flow from a
