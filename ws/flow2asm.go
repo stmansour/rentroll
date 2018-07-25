@@ -20,23 +20,19 @@ import (
 //-----------------------------------------------------------------------------
 func Fees2RA(ctx context.Context, x *WriteHandlerContext) error {
 	var err error
-	rlib.Console("Entered Fees2RA\n")
 
 	//--------------------------------------------------
 	// Handle Rentables first...
 	//--------------------------------------------------
-	rlib.Console("A\n")
 	for i := 0; i < len(x.raf.Rentables); i++ {
 		for j := 0; j < len(x.raf.Rentables[i].Fees); j++ {
 			if x.raf.Rentables[i].Fees[j].ASMID > 0 {
-				rlib.Console("i = %d, j = %d, ASMID = %d\n", i, j, x.raf.Rentables[i].Fees[j].ASMID)
 				if err = F2RAUpdateExistingAssessment(ctx, x, &x.raf.Rentables[i].Fees[j], rlib.ELEMRENTABLE, x.raf.Rentables[i].RID, 0); err != nil {
 					return err
 				}
 			}
 		}
 	}
-	rlib.Console("B\n")
 	//--------------------------------------------------
 	// Handle pet fees...
 	//--------------------------------------------------
@@ -52,7 +48,6 @@ func Fees2RA(ctx context.Context, x *WriteHandlerContext) error {
 	//--------------------------------------------------
 	// Handle vehicle fees...
 	//--------------------------------------------------
-	rlib.Console("C\n")
 	for i := 0; i < len(x.raf.Vehicles); i++ {
 		for j := 0; j < len(x.raf.Vehicles[i].Fees); j++ {
 			if 0 < x.raf.Vehicles[i].Fees[j].ASMID {
