@@ -1042,6 +1042,7 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement) (RAFlowJSONData, e
 		raf.Rentables = append(raf.Rentables, rfd)
 	}
 
+	Console("\n\n******\nExiting ConvertRA2Flow, RAFLAGS = %d\n******\n\n", raf.Meta.RAFLAGS)
 	return raf, nil
 }
 
