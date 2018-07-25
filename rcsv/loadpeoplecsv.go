@@ -250,6 +250,14 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - %s", funcname, lineno, err.Error())
 				}
 			}
+		case Industry:
+			if len(s) > 0 {
+				var y int64
+				if y, err = strconv.ParseInt(strings.TrimSpace(s), 10, 64); err != nil {
+					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid Industry value: %s", funcname, lineno, s)
+				}
+				t.SourceSLSID = y
+			}
 		case SourceSLSID:
 			if len(s) > 0 {
 				var y int64
