@@ -251,11 +251,11 @@ window.buildTransactElements = function() {
                         var rec = grid.get(recid);
 
                         // get stringListData for list fields
-                        getStringListData(BID, BUD).fail(function (data) {
+                        getStringListData(BID, BUD).done(function (data) {
+                            setToForm('transactantForm', '/v1/person/' + rec.BID + '/' + rec.TCID, 700, true);
+                        }).fail(function (data) {
                             this.message(data.message);
                         });
-
-                        setToForm('transactantForm', '/v1/person/' + rec.BID + '/' + rec.TCID, 700, true);
                     };
 
                 // warn user if form content has been changed

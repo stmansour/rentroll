@@ -196,25 +196,25 @@ window.loadRAPeopleForm = function () {
                             var raBGInfoGridRecord = grid.get(event.recid); // record from the w2ui grid
 
                             // get stringListData for list fields
-                            getStringListData(BID, BUD).fail(function (data) {
+                            getStringListData(BID, BUD).done(function (data) {
+                                // show slider content in w2ui comp
+                                ShowSliderContentW2UIComp(form, RACompConfig.people.sliderWidth);
+
+                                // show/hide list of fields based on role
+                                manageBGInfoFormFields(raBGInfoGridRecord);
+
+                                form.record = getPeopleLocalData(raBGInfoGridRecord.TMPTCID);
+                                form.record.recid = raBGInfoGridRecord.recid;
+                                form.record.BID = BID;
+                                form.record.BUD = BUD;
+
+                                // Set the form title
+                                setRATransactantFormHeader(form.record);
+
+                                form.refresh(); // need to refresh for form changes
+                            }).fail(function (data) {
                                 form.message(data.message);
                             });
-
-                            // show slider content in w2ui comp
-                            ShowSliderContentW2UIComp(form, RACompConfig.people.sliderWidth);
-
-                            // show/hide list of fields based on role
-                            manageBGInfoFormFields(raBGInfoGridRecord);
-
-                            form.record = getPeopleLocalData(raBGInfoGridRecord.TMPTCID);
-                            form.record.recid = raBGInfoGridRecord.recid;
-                            form.record.BID = BID;
-                            form.record.BUD = BUD;
-
-                            // Set the form title
-                            setRATransactantFormHeader(form.record);
-
-                            form.refresh(); // need to refresh for form changes
                         };
 
                     // warn user if form content has been changed

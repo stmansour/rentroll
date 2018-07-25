@@ -242,8 +242,8 @@ func createTransactants(ctx context.Context, dbConf *GenDBConf) error {
 			EmergencyContactEmail:     GenerateRandomEmail(eclast, ecfirst),
 			AlternateEmailAddress:     GenerateRandomAddress() + "," + GenerateRandomCity() + "," + GenerateRandomState() + " " + fmt.Sprintf("%05d", rand.Intn(100000)),
 			EligibleFutureUser:        IG.Rand.Intn(2) > 0,
-			Industry:                  int64(IG.Rand.Intn(len(IG.Industries.S))),
-			SourceSLSID:               int64(IG.Rand.Intn(len(IG.HowFound.S))),
+			Industry:                  IG.Industries.S[IG.Rand.Intn(len(IG.Industries.S))].SLSID,
+			SourceSLSID:               IG.HowFound.S[IG.Rand.Intn(len(IG.HowFound.S))].SLSID,
 		}
 
 		_, err = rlib.InsertUser(ctx, &u)
