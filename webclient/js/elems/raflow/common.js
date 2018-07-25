@@ -2,7 +2,7 @@
     RACompConfig, HideSliderContent, appendNewSlider, ShowSliderContentW2UIComp,
     loadTargetSection, requiredFieldsFulFilled, initRAFlowAjax,
     saveActiveCompData, getRAFlowCompData,
-    lockOnGrid, validateRAFlowComponents
+    lockOnGrid, validateRAFlowComponents, dataFulFilled
 */
 
 "use strict";
@@ -155,6 +155,9 @@ window.saveActiveCompData = function (compData, compID) {
                 console.log("data has been saved for: ", app.raflow.activeFlowID, ", compID: ", compID);
                 // update local data with server's response data
                 app.raflow.data[data.record.Flow.FlowID] = data.record.Flow;
+
+                // Enable/Disable green check
+                dataFulFilled(data.record.DataFulfilled);
             } else {
                 console.error(data.message);
             }
@@ -181,6 +184,8 @@ window.initRAFlowAjax = function () {
         success: function (data) {
             if (data.status != "error") {
                 app.raflow.data[data.record.Flow.FlowID] = data.record.Flow;
+                // Enable/Disable green check
+                dataFulFilled(data.record.DataFulfilled);
             }
         },
         error: function (data) {
@@ -207,6 +212,8 @@ window.getFlowDataAjax = function(FlowID) {
         success: function (data) {
             if (data.status != "error") {
                 app.raflow.data[data.record.Flow.FlowID] = data.record.Flow;
+                // Enable/Disable green check
+                dataFulFilled(data.record.DataFulfilled);
             }
         },
         error: function (data) {
@@ -222,6 +229,7 @@ window.getFlowDataAjax = function(FlowID) {
 // @params
 //   compID = ID of the component in the raflow
 //-----------------------------------------------------------------------------
+// TODO(Akshay): Remove this method.
 window.requiredFieldsFulFilled = function (compID) {
     var done = false;
 
@@ -241,170 +249,163 @@ window.requiredFieldsFulFilled = function (compID) {
     var validData = true;
 
     switch (compID) {
-        case "dates":
-            var fields = ["AgreementStart", "AgreementStop", "RentStart",
-                "RentStop", "PossessionStart", "PossessionStop"];
+        // case "dates":
+        //     var fields = ["AgreementStart", "AgreementStop", "RentStart",
+        //         "RentStop", "PossessionStart", "PossessionStop"];
+        //
+        //     // each field should not be black for green mark
+        //     fields.forEach(function(field) {
+        //         if (compData[field] === "") {
+        //             validData = false;
+        //             return false;
+        //         }
+        //     });
+        //
+        //     // if loop passed successfully then mark it as successfully
+        //     done = validData;
+        //     break;
 
-            // each field should not be black for green mark
-            fields.forEach(function(field) {
-                if (compData[field] === "") {
-                    validData = false;
-                    return false;
-                }
-            });
+        // case "people":
+        //     compData.forEach(function(item) {
+        //         if (item.IsRenter) {
+        //             done = true;
+        //             return false;
+        //         }
+        //     });
+        //     break;
 
-            // if loop passed successfully then mark it as successfully
-            done = validData;
-            break;
-
-        case "people":
-            compData.forEach(function(item) {
-                if (item.IsRenter) {
-                    done = true;
-                    return false;
-                }
-            });
-            break;
-
-        case "pets":
-            var havePetsChecked = $('#RAPetsGrid_checkbox')[0].checked;
-            if(!havePetsChecked){
-                done = true;
-            } else {
-                if (compData.length > 0) {
-                    done = true;
-                }else{
-                    done = false;
-                }
-            }
-            break;
-
-        case "vehicles":
-            var haveVehiclesChecked = $('#RAVehiclesGrid_checkbox')[0].checked;
-            if(!haveVehiclesChecked){
-                done = true;
-            }else{
-                if (compData.length > 0) {
-                    done = true;
-                }else{
-                    done = false;
-                }
-            }
-            break;
-
-        // case "rentables":
-        // Green checked by server side
-        //     if (compData.length > 0) {
+        // case "pets":
+        //     var havePetsChecked = $('#RAPetsGrid_checkbox')[0].checked;
+        //     if(!havePetsChecked){
         //         done = true;
+        //     } else {
+        //         if (compData.length > 0) {
+        //             done = true;
+        //         }else{
+        //             done = false;
+        //         }
         //     }
         //     break;
 
-        case "parentchild":
-            // ==============================================================//
-            //  ****************** VALIDATION SCENARIOS *********************//
-            // ==============================================================//
-            // 1.   If there are no child rentables then it is fine
-            // Ex:  People only want to stay at apartment. They might
-            //      no require child rentables like washing machine,
-            //      car parking space etc...
-            //
-            // 2.   There must be at least one parent rentables in rentables
-            //      section. People come to stay at rooms/apartments, so it
-            //      doesn't make sense of not having any parent rentables.
-            //
-            // 3.   If any child rentables listed in rentables section then
-            //      it must be associated with parent rentables.
-            // Ex:  Washing machine (a child rentable) must be associated to
-            //      an apartment(a parent rentable) where the people are
-            //      living.
-            // ==============================================================//
+        // case "vehicles":
+        //     var haveVehiclesChecked = $('#RAVehiclesGrid_checkbox')[0].checked;
+        //     if(!haveVehiclesChecked){
+        //         done = true;
+        //     }else{
+        //         if (compData.length > 0) {
+        //             done = true;
+        //         }else{
+        //             done = false;
+        //         }
+        //     }
+        //     break;
 
-            // 1.   There must be at least one parent rentable and id of any
-            //      item in this list must be > 0. If any item does not id > 0
-            //      then don't mark green check.
-            var pRExistForPC = false;
-            app.raflow.parentRentableW2UIItems.forEach(function(item) {
-                if (item.id > 0) {
-                    pRExistForPC = true;
-                }
-            });
-            if (!pRExistForPC) {
-                done = false;
-                break;
-            }
-
-            // If any child rentables listed then it should be associated
-            // with any parent rentables.
-            // If there are no child rentables then it is ok, so mark
-            // validData as true.
-            validData = true;
-            compData.forEach(function(item) {
-                if (item.PRID === 0 || item.CRID === 0) {
-                    validData = false;
-                    return false; // break the loop
-                }
-            });
-
-            // done
-            done = validData;
-            break;
-
-        case "tie":
-            // ==============================================================//
-            //  ****************** VALIDATION SCENARIOS *********************//
-            // ==============================================================//
-            // 1.   There must be at least one parent rentables in rentables
-            //      section. People come to stay at rooms/apartments, so it
-            //      doesn't make sense of not having any parent rentables.
-            //
-            // 2.   There must be at least one person with role of user.
-            //      It doesn't make sense of not having any people at rooms/
-            //      aprtments. At least one user must exists.
-            //
-            // 3.   If any user(occupant) listed in people section then
-            //      it must be associated with parent rentables.
-            // ==============================================================//
-
-            // 1.   There must be at least one parent rentable and id of any
-            //      item in this list must be > 0. If any item does not id > 0
-            //      then don't mark green check.
-            var pRExistForTie = false;
-            app.raflow.parentRentableW2UIItems.forEach(function(item) {
-                if (item.id > 0) {
-                    pRExistForTie = true;
-                }
-            });
-            if (!pRExistForTie) {
-                done = false;
-                break;
-            }
-
-            // 2. at least one occupant must exists
-            var occupantExist = false;
-            var peopleCompData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
-            peopleCompData.forEach(function(peopleItem) {
-                if (peopleItem.IsOccupant) {
-                    occupantExist = true;
-                    return false; // break the loop
-                }
-            });
-            if (!occupantExist) {
-                done = false;
-                break;
-            }
-
-            // 3. Listed person must be associated with any parent rentables
-            validData = true;
-            compData.people.forEach(function(item) {
-                if (item.PRID === 0 || item.TMPTCID === 0) {
-                    validData = false;
-                    return false; // break the loop
-                }
-            });
-
-            // done
-            done = validData;
-            break;
+        // case "parentchild":
+        //     // ==============================================================//
+        //     //  ****************** VALIDATION SCENARIOS *********************//
+        //     // ==============================================================//
+        //     // 1.   If there are no child rentables then it is fine
+        //     // Ex:  People only want to stay at apartment. They might
+        //     //      no require child rentables like washing machine,
+        //     //      car parking space etc...
+        //     //
+        //     // 2.   There must be at least one parent rentables in rentables
+        //     //      section. People come to stay at rooms/apartments, so it
+        //     //      doesn't make sense of not having any parent rentables.
+        //     //
+        //     // 3.   If any child rentables listed in rentables section then
+        //     //      it must be associated with parent rentables.
+        //     // Ex:  Washing machine (a child rentable) must be associated to
+        //     //      an apartment(a parent rentable) where the people are
+        //     //      living.
+        //     // ==============================================================//
+        //
+        //     // 1.   There must be at least one parent rentable and id of any
+        //     //      item in this list must be > 0. If any item does not id > 0
+        //     //      then don't mark green check.
+        //     var pRExistForPC = false;
+        //     app.raflow.parentRentableW2UIItems.forEach(function(item) {
+        //         if (item.id > 0) {
+        //             pRExistForPC = true;
+        //         }
+        //     });
+        //     if (!pRExistForPC) {
+        //         done = false;
+        //         break;
+        //     }
+        //
+        //     // If any child rentables listed then it should be associated
+        //     // with any parent rentables.
+        //     // If there are no child rentables then it is ok, so mark
+        //     // validData as true.
+        //     validData = true;
+        //     compData.forEach(function(item) {
+        //         if (item.PRID === 0 || item.CRID === 0) {
+        //             validData = false;
+        //             return false; // break the loop
+        //         }
+        //     });
+        //
+        //     // done
+        //     done = validData;
+        //     break;
+        //
+        // case "tie":
+        //     // ==============================================================//
+        //     //  ****************** VALIDATION SCENARIOS *********************//
+        //     // ==============================================================//
+        //     // 1.   There must be at least one parent rentables in rentables
+        //     //      section. People come to stay at rooms/apartments, so it
+        //     //      doesn't make sense of not having any parent rentables.
+        //     //
+        //     // 2.   There must be at least one person with role of user.
+        //     //      It doesn't make sense of not having any people at rooms/
+        //     //      aprtments. At least one user must exists.
+        //     //
+        //     // 3.   If any user(occupant) listed in people section then
+        //     //      it must be associated with parent rentables.
+        //     // ==============================================================//
+        //
+        //     // 1.   There must be at least one parent rentable and id of any
+        //     //      item in this list must be > 0. If any item does not id > 0
+        //     //      then don't mark green check.
+        //     var pRExistForTie = false;
+        //     app.raflow.parentRentableW2UIItems.forEach(function(item) {
+        //         if (item.id > 0) {
+        //             pRExistForTie = true;
+        //         }
+        //     });
+        //     if (!pRExistForTie) {
+        //         done = false;
+        //         break;
+        //     }
+        //
+        //     // 2. at least one occupant must exists
+        //     var occupantExist = false;
+        //     var peopleCompData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
+        //     peopleCompData.forEach(function(peopleItem) {
+        //         if (peopleItem.IsOccupant) {
+        //             occupantExist = true;
+        //             return false; // break the loop
+        //         }
+        //     });
+        //     if (!occupantExist) {
+        //         done = false;
+        //         break;
+        //     }
+        //
+        //     // 3. Listed person must be associated with any parent rentables
+        //     validData = true;
+        //     compData.people.forEach(function(item) {
+        //         if (item.PRID === 0 || item.TMPTCID === 0) {
+        //             validData = false;
+        //             return false; // break the loop
+        //         }
+        //     });
+        //
+        //     // done
+        //     done = validData;
+        //     break;
 
         case "final":
             // TODO(Sudip): Validation rules for this slide
@@ -430,6 +431,28 @@ window.validateRAFlowComponents = function() {
     }
 };
 
+// -----------------------------------------------------
+// dataFulFilled:
+// Enable/Disable green checks
+// raflow parts
+// -----------------------------------------------------
+window.dataFulFilled = function(data) {
+
+    var active_comp = $(".ra-form-component:visible");
+    var active_comp_id = active_comp.attr("id");
+
+    for (var comp in app.raFlowPartTypes) {
+        // if required fields are fulfilled then mark this slide as done
+
+        // Apply green mark when comp is not active and when it fulfilled the requirements
+        if (data[comp] && active_comp_id !== comp) {
+            $("#progressbar #steps-list li[data-target='#" + comp + "']").addClass("done");
+        } else {
+            $("#progressbar #steps-list li[data-target='#" + comp + "']").removeClass("done");
+        }
+    }
+};
+
 // load form according to target
 window.loadTargetSection = function (target, previousActiveCompID) {
 
@@ -438,7 +461,7 @@ window.loadTargetSection = function (target, previousActiveCompID) {
     } else {}*/
 
     // check validation for each slide in raflow parts
-    validateRAFlowComponents();
+    // validateRAFlowComponents(); TODO(Akshay): Remove it from here.
 
     // get component data based on ID from locally
     var compData = getRAFlowCompData(previousActiveCompID, app.raflow.activeFlowID);
@@ -487,7 +510,7 @@ window.loadTargetSection = function (target, previousActiveCompID) {
             w2ui.RAFinalVehiclesFeesGrid.clear();
             break;
         default:
-            alert("invalid active comp: ", previousActiveCompID);
+            alert("invalid active comp: " + previousActiveCompID);
             return;
     }
 

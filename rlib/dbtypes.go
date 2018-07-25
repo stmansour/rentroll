@@ -1499,13 +1499,13 @@ type Flow struct {
 
 // RADataFulfilled is a structure to store section's required information fulfilled to show green mark
 type RADataFulfilled struct {
-	Dates       bool
-	People      bool
-	Pets        bool
-	Vehicles    bool
-	Rentables   bool
-	ParentChild bool
-	Tie         bool
+	Dates       bool `json:"dates"`
+	People      bool `json:"people"`
+	Pets        bool `json:"pets"`
+	Vehicles    bool `json:"vehicles"`
+	Rentables   bool `json:"rentables"`
+	ParentChild bool `json:"parentchild"`
+	Tie         bool `json:"tie"`
 }
 
 // RRprepSQL is a collection of prepared sql statements for the RentRoll db

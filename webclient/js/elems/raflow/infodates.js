@@ -32,7 +32,7 @@ window.loadRADatesForm = function () {
             actions: {
                 reset: function () {
                     w2ui.RADatesForm.clear();
-                },
+                }
             },
             onRefresh: function (event) {
                 var t = new Date(),

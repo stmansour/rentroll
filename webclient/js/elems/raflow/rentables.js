@@ -11,7 +11,7 @@
     RenderRentablesGridSummary, GetFeeFormFields, GetFeeGridColumns,
     SetFeeDataFromFeeFormRecord, SetFeeFormRecordFromFeeData,
     FeeFormOnChangeHandler, GetFeeFormToolbar, FeeFormOnRefreshHandler,
-    GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary
+    GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary, dataFulFilled
 */
 
 "use strict";
@@ -34,6 +34,9 @@ window.getInitialRentableFeesData = function(BID, RID, FlowID) {
 
             // set the rentable grid records again
             AssignRentableGridRecords();
+
+            // Enable/Disable green check
+            dataFulFilled(data.record.DataFulfilled);
         }
     });
 };
