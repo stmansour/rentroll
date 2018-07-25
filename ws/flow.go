@@ -272,12 +272,10 @@ type SaveFlowRequest struct {
 func SaveFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "SaveFlow"
 	var (
-		err        error
-		flowReq    SaveFlowRequest
-		g          FlowResponse
-		tx         *sql.Tx
-		ctx        context.Context
-		raFlowData rlib.RAFlowJSONData
+		err     error
+		flowReq SaveFlowRequest
+		tx      *sql.Tx
+		ctx     context.Context
 	)
 	rlib.Console("Entered %s\n", funcname)
 	rlib.Console("record data = %s\n", d.data)
@@ -332,8 +330,7 @@ func SaveFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// ----------------------------------------------
 
 	// get flow data in return it back
-	var updatedFlow RAFlowResponse
-	updatedFlow.Flow, err = rlib.GetFlow(ctx, flow.FlowID)
+	flow, err = rlib.GetFlow(ctx, flow.FlowID)
 	if err != nil {
 		return
 	}
@@ -345,20 +342,38 @@ func SaveFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	// get unmarshalled raflow data into struct
-	err = json.Unmarshal(updatedFlow.Flow.Data, &raFlowData)
+	// -------------------
+	// WRITE FLOW RESPONSE
+	// -------------------
+	SvcWriteFlowResponse(ctx, d.BID, flow, w)
+	return
+}
+
+// SvcWriteFlowResponse writes response in w http.ResponseWrite especially for flow data
+func SvcWriteFlowResponse(ctx context.Context, BID int64, flow rlib.Flow, w http.ResponseWriter) {
+	const funcname = "SvcWriteFlowResponse"
+	var (
+		err            error
+		raFlowData     rlib.RAFlowJSONData
+		resp           FlowResponse
+		raflowRespData = RAFlowResponse{Flow: flow}
+	)
+	fmt.Printf("Entered in %s\n", funcname)
+
+	// GET UNMARSHALLED RAFLOW DATA INTO STRUCT
+	err = json.Unmarshal(raflowRespData.Flow.Data, &raFlowData)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
-	// Perform basic validation on flow data
-	bizlogic.ValidateRAFlowBasic(r.Context(), &raFlowData, &updatedFlow.BasicCheck)
+	// PERFORM BASIC VALIDATION ON FLOW DATA
+	bizlogic.ValidateRAFlowBasic(ctx, &raFlowData, &raflowRespData.BasicCheck)
 
-	// Check DataFulfilled
-	bizlogic.DataFulfilledRAFlow(r.Context(), &raFlowData, &updatedFlow.DataFulfilled)
+	// CHECK DATA FULFILLED
+	bizlogic.DataFulfilledRAFlow(ctx, &raFlowData, &raflowRespData.DataFulfilled)
 
-	g.Record = updatedFlow
-	g.Status = "success"
-	SvcWriteResponse(d.BID, &g, w)
+	resp.Record = raflowRespData
+	resp.Status = "success"
+	SvcWriteResponse(BID, &resp, w)
 }
