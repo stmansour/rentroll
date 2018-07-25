@@ -149,7 +149,7 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 		{EmergencyContactEmail, rcsvCopyString, &t.EmergencyContactEmail},
 		{AlternateEmailAddress, rcsvCopyString, &t.AlternateEmailAddress},
 		{EligibleFutureUser, nil, nil},
-		{Industry, rcsvCopyString, &t.Industry},
+		{Industry, nil, nil},
 		{SourceSLSID, nil, nil},
 		{CreditLimit, nil, nil},
 		{TaxpayorID, rcsvCopyString, &p.TaxpayorID},
@@ -249,6 +249,14 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 				if err != nil {
 					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - %s", funcname, lineno, err.Error())
 				}
+			}
+		case Industry:
+			if len(s) > 0 {
+				var y int64
+				if y, err = strconv.ParseInt(strings.TrimSpace(s), 10, 64); err != nil {
+					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid Industry value: %s", funcname, lineno, s)
+				}
+				t.SourceSLSID = y
 			}
 		case SourceSLSID:
 			if len(s) > 0 {

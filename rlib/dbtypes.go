@@ -795,7 +795,7 @@ type User struct {
 	AlternateEmailAddress     string
 	EligibleFutureUser        bool
 	FLAGS                     uint64
-	Industry                  string
+	Industry                  int64
 	SourceSLSID               int64
 	LastModTime               time.Time
 	LastModBy                 int64

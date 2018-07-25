@@ -516,13 +516,18 @@ DBNAME="rentroll"
 # ALTER TABLE Prospect ADD ThirdPartySource BIGINT NOT NULL DEFAULT 0 AFTER CommissionableThirdParty;
 # ALTER TABLE User CHANGE AlternateAddress AlternateEmailAddress VARCHAR(100) NOT NULL DEFAULT '';
 
+# July 24, 2018
+# ALTER TABLE User CHANGE Industry Industry BIGINT NOT NULL DEFAULT 0;
+
+# Sql query by Steve
+# ALTER TABLE AR ADD DefaultRentCycle SMALLINT NOT NULL DEFAULT 0;
+# ALTER TABLE AR ADD DefaultProrationCycle SMALLINT NOT NULL DEFAULT 0;
+# ALTER TABLE Payor DROP COLUMN SSN;
+
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================
 cat >${MODFILE} <<EOF
-ALTER TABLE AR ADD DefaultRentCycle SMALLINT NOT NULL DEFAULT 0;
-ALTER TABLE AR ADD DefaultProrationCycle SMALLINT NOT NULL DEFAULT 0;
-ALTER TABLE Payor DROP COLUMN SSN;
 EOF
 
 #==============================================================================

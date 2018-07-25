@@ -1,6 +1,6 @@
--- MySQL dump 10.13  Distrib 5.7.22, for osx10.12 (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.22, for Linux (x86_64)
 --
--- Host: localhost    Database: rentroll
+-- Host: 127.0.0.1    Database: rentroll
 -- ------------------------------------------------------
 -- Server version	5.7.22
 
@@ -2517,7 +2517,7 @@ CREATE TABLE `User` (
   `AlternateEmailAddress` varchar(100) NOT NULL DEFAULT '',
   `EligibleFutureUser` tinyint(1) NOT NULL DEFAULT '1',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
-  `Industry` varchar(100) NOT NULL DEFAULT '',
+  `Industry` bigint(20) NOT NULL DEFAULT '0',
   `SourceSLSID` bigint(20) NOT NULL DEFAULT '0',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
@@ -2584,4 +2584,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-07-23 12:09:04
+-- Dump completed on 2018-07-24 11:43:21

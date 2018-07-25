@@ -1,6 +1,6 @@
--- MySQL dump 10.13  Distrib 5.7.22, for osx10.12 (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.22, for Linux (x86_64)
 --
--- Host: localhost    Database: rentroll
+-- Host: 127.0.0.1    Database: rentroll
 -- ------------------------------------------------------
 -- Server version	5.7.22
 
@@ -2509,7 +2509,7 @@ CREATE TABLE `User` (
   `AlternateEmailAddress` varchar(100) NOT NULL DEFAULT '',
   `EligibleFutureUser` tinyint(1) NOT NULL DEFAULT '1',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
-  `Industry` varchar(100) NOT NULL DEFAULT '',
+  `Industry` bigint(20) NOT NULL DEFAULT '0',
   `SourceSLSID` bigint(20) NOT NULL DEFAULT '0',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
@@ -2526,7 +2526,7 @@ CREATE TABLE `User` (
 
 LOCK TABLES `User` WRITE;
 /*!40000 ALTER TABLE `User` DISABLE KEYS */;
-INSERT INTO `User` VALUES (1,0,'1900-01-01','','','','','',1,0,'',0,'2017-06-13 19:39:18',0,'2017-06-14 18:26:55',0,1),(1,0,'1900-01-01','','','','','',1,0,'',0,'2017-06-13 19:40:59',0,'2017-06-14 18:26:55',0,2),(1,0,'1900-01-01','','','','','',1,0,'',0,'2017-06-15 16:35:44',0,'2017-06-15 16:35:44',0,3),(1,0,'1900-01-01','','','','','',1,0,'',0,'2017-06-15 16:36:27',0,'2017-06-15 16:36:27',0,4),(1,0,'1900-01-01','','','','','',1,0,'',0,'2017-06-15 16:38:32',0,'2017-06-15 16:38:32',0,5),(1,0,'1900-01-01','','','','','',1,0,'',0,'2017-06-15 16:50:13',0,'2017-06-15 16:50:13',0,6);
+INSERT INTO `User` VALUES (1,0,'1900-01-01','','','','','',1,0,0,0,'2017-06-13 19:39:18',0,'2017-06-14 18:26:55',0,1),(1,0,'1900-01-01','','','','','',1,0,0,0,'2017-06-13 19:40:59',0,'2017-06-14 18:26:55',0,2),(1,0,'1900-01-01','','','','','',1,0,0,0,'2017-06-15 16:35:44',0,'2017-06-15 16:35:44',0,3),(1,0,'1900-01-01','','','','','',1,0,0,0,'2017-06-15 16:36:27',0,'2017-06-15 16:36:27',0,4),(1,0,'1900-01-01','','','','','',1,0,0,0,'2017-06-15 16:38:32',0,'2017-06-15 16:38:32',0,5),(1,0,'1900-01-01','','','','','',1,0,0,0,'2017-06-15 16:50:13',0,'2017-06-15 16:50:13',0,6);
 /*!40000 ALTER TABLE `User` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2578,4 +2578,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-07-23 12:08:52
+-- Dump completed on 2018-07-24 11:43:09

@@ -972,7 +972,7 @@ CREATE TABLE User (
     EligibleFutureUser TINYINT(1) NOT NULL DEFAULT 1,            -- yes/no
     FLAGS BIGINT NOT NULL DEFAULT 0,                             /*
                                                                   */
-    Industry VARCHAR(100) NOT NULL DEFAULT '',                   -- (e.g., construction, retail, banking etc.)
+    Industry BIGINT NOT NULL DEFAULT 0,                          -- (e.g., construction, retail, banking etc.)
     SourceSLSID BIGINT NOT NULL DEFAULT 0,                       -- (e.g., resident referral, newspaper, radio, post card, expedia, travelocity, etc.)
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that modified it
