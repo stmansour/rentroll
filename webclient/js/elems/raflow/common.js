@@ -590,28 +590,6 @@ window.appendNewSlider = function(sliderID) {
 };
 
 //-----------------------------------------------------------------------------
-// getPetFees - will list down pet fees for a business
-//-----------------------------------------------------------------------------
-window.getPetFees = function () {
-    var bid = getCurrentBID();
-
-    return $.ajax({
-        url: "/v1/petfees/" + bid.toString() + "/0",
-        method: "GET",
-        contentType: "application/json",
-        dataType: "json",
-        success: function (data) {
-            if (data.status != "error") {
-                app.petFees[bid] = data.records;
-            }
-        },
-        error: function (data) {
-            console.log(data);
-        }
-    });
-};
-
-//-----------------------------------------------------------------------------
 // getVehicleFees - will list down vehicle fees for a business
 //-----------------------------------------------------------------------------
 window.getVehicleFees = function () {

@@ -175,7 +175,7 @@ type PetFeesResp struct {
 //
 // wsdoc {
 //  @Title  Pet Fees
-//  @URL /v1/petfees/:BID
+//  @URL /v1/petfees/:BID/:FlowID
 //  @Method  GET
 //  @Synopsis Get the pet fees associated with a BID
 //  @Description  Returns all the pet fees for a BID
@@ -184,7 +184,7 @@ type PetFeesResp struct {
 // wsdoc }
 // URL:
 //       0    1       2   3
-//      /v1/userpets/BID/TCID
+//      /v1/petfees/BID/TCID
 //-----------------------------------------------------------------------------
 func SvcPetFeesHandler(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "SvcPetFeesHandler"
@@ -195,16 +195,38 @@ func SvcPetFeesHandler(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	)
 	fmt.Printf("Entered in %s\n", funcname)
 
-	g.Records, err = rlib.GetBizPropPetFees(r.Context(), d.BID, bizPropName)
-	if err != nil {
+	switch d.wsSearchReq.Cmd {
+	case "recalculate":
+		RecalculatePetFees(w, r, d)
+		break
+	default:
+		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
+}
 
-	// success mark
-	g.Status = "success"
-	g.Total = int64(len(g.Records))
+// RecalculatePetFeeRequest struct to handle
+type RecalculatePetFeeRequest struct {
+	FlowID int64
+	RID    int64
+}
 
-	// success response
-	SvcWriteResponse(d.BID, &g, w)
+// RecalculatePetFees re-calculate pet fees and make changes in flow json if required
+// wsdoc {
+//  @Title  Recalculate Pet Fees
+//  @URL /v1/petfees/:BID/:FlowID
+//  @Method  POST
+//  @Synopsis recalculate pet fees
+//  @Description returns flow doc with modification in pet fees
+//  @Input
+//  @Response FlowResponse
+// wsdoc }
+func RecalculatePetFees(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "RecalculatePetFees"
+	var (
+		req RecalculatePetFeeRequest
+		g   FlowResponse
+	)
+	fmt.Printf("Entered in %s\n", funcname)
 }

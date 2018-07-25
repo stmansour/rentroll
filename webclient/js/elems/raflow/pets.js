@@ -1041,3 +1041,42 @@ window.AssignPetFeesGridRecords = function(TMPPETID) {
     // render pet fees grid summary
     RenderPetFeesGridSummary(TMPPETID);
 };
+
+//-----------------------------------------------------------------------------
+// RecalculatePetFees - will determine if recalcuation needed for pet fees
+//                      If needed, it will hit the server to get the latest
+//                      new collection of fees for that.
+//-----------------------------------------------------------------------------
+window.RecalculatePetFees = function (TMPTCID) {
+    var BID = getCurrentBID();
+    var tiePerson = GetTiePeopleLocalData(TMPTCID);
+
+    // if no tied rentable then return
+    var RID = tiePerson.PRID;
+    if (!(RID > 0)) {
+        return;
+    }
+
+    var data = {
+        "RID": RID,
+        "FlowID": app.raflow.activeFlowID,
+        "cmd": "recalculate",
+    };
+
+    return $.ajax({
+        url: "/v1/petfees/" + BID.toString() + "/" + app.raflow.activeFlowID.toString(),
+        method: "POST",
+        contentType: "application/json",
+        dataType: "json",
+        data: JSON.stringify(data),
+        success: function (data) {
+            if (data.status != "error") {
+                // update local data with server's response data
+                app.raflow.data[data.record.FlowID] = data.record;
+            }
+        },
+        error: function (data) {
+            console.log(data);
+        }
+    });
+};

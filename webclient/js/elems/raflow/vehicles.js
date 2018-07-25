@@ -435,6 +435,11 @@ window.loadRAVehiclesGrid = function () {
             },
             onChange: function(event) {
                 event.onComplete = function() {
+                    if (event.target === "TMPTCID") {
+                        var TMPTCID = parseInt(event.value_new.id);
+                        alert(TMPTCID);
+                    }
+
                     // formRecDiffer: 1=current record, 2=original record, 3=diff object
                     var diff = formRecDiffer(this.record, app.active_form_original, {});
                     // if diff == {} then make dirty flag as false, else true

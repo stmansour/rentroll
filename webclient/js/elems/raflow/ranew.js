@@ -99,10 +99,6 @@ window.LoadRAFlowTemplate = function(bid, FlowID) {
             $("#progressbar #steps-list li[data-target='#dates']").removeClass("done").addClass("active");
             loadRADatesForm();
         }, 0);
-
-        // get pet and vehicle fees on loading rental agreement form
-        getPetFees();
-        getVehicleFees();
     });
 };
 
@@ -289,7 +285,6 @@ window.buildRAApplicantElements = function() {
                         }
                     },
                     onRefresh: function(event) {
-                        console.log("Main Panel of newralayout Refreshed");
                         if(app.raflow.activeFlowID) {
                             var raflags = app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS;
                             renderRAStateInToolbar(raflags);
