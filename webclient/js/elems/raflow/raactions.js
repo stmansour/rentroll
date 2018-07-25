@@ -5,7 +5,9 @@
     submitActionForm,
     getSLStringList,
     refreshLabels,
-    GetVehicleIdentity
+    GetVehicleIdentity,
+    dtFormatISOToW2ui,
+    localtimeToUTC
 */
 "use strict";
 
@@ -138,10 +140,10 @@ window.refreshLabels = function () {
             x.innerHTML = 'Pending';
         } else {
             if ((meta.RAFLAGS & (1<<4)) > 0) {
-                x.innerHTML = 'Approved by ' + meta.Approver1Name + ' on ' + meta.DecisionDate1;
+                x.innerHTML = 'Approved by ' + meta.Approver1Name + ' on ' + dtFormatISOToW2ui(meta.DecisionDate1);
             } else{
                 var reason1 = app.ApplDeny.find(function(t){if(t.id == meta.DeclineReason1){return t;}});
-                x.innerHTML = 'Declined by ' + meta.Approver1Name + ' on ' + meta.DecisionDate1 + ' Reason: ' + reason1.text;
+                x.innerHTML = 'Declined by ' + meta.Approver1Name + ' on ' + dtFormatISOToW2ui(meta.DecisionDate1) + ' Reason: ' + reason1.text;
             }
         }
     }
@@ -152,10 +154,10 @@ window.refreshLabels = function () {
             x.innerHTML = 'Pending';
         } else {
             if ((meta.RAFLAGS & (1<<5)) > 0) {
-                x.innerHTML = 'Approved by ' + meta.Approver2Name + ' on ' + meta.DecisionDate2;
+                x.innerHTML = 'Approved by ' + meta.Approver2Name + ' on ' + dtFormatISOToW2ui(meta.DecisionDate2);
             } else{
                 var reason2 = app.ApplDeny.find(function(t){if(t.id == meta.DeclineReason2){return t;}});
-                x.innerHTML = 'Declined by ' + meta.Approver2Name + ' on ' + meta.DecisionDate2 + ' Reason: ' + reason2.text;
+                x.innerHTML = 'Declined by ' + meta.Approver2Name + ' on ' + dtFormatISOToW2ui(meta.DecisionDate2) + ' Reason: ' + reason2.text;
             }
         }
     }
@@ -164,7 +166,7 @@ window.refreshLabels = function () {
     x = document.getElementById("bannerTerminatedBy");
     if (x !== null) {
         if (meta.TerminatorUID > 0) {
-            x.innerHTML = meta.TerminationDate + ' by ' + meta.TerminatorName;
+            x.innerHTML = dtFormatISOToW2ui(meta.TerminationDate) + ' by ' + meta.TerminatorName;
         } else {
             x.innerHTML = '';
         }
@@ -183,7 +185,7 @@ window.refreshLabels = function () {
     x = document.getElementById("bannerMoveDate");
     if (x !== null) {
         if (meta.NoticeToMoveDate != "1900-01-01 00:00:00 UTC") {
-            x.innerHTML = meta.NoticeToMoveDate;
+            x.innerHTML = dtFormatISOToW2ui(meta.NoticeToMoveDate);
         } else {
             x.innerHTML = '';
         }
@@ -192,7 +194,7 @@ window.refreshLabels = function () {
     x = document.getElementById("bannerRecievedNoticeDate");
     if (x !== null) {
         if (meta.NoticeToMoveReported != "1900-01-01 00:00:00 UTC") {
-            x.innerHTML = meta.NoticeToMoveReported;
+            x.innerHTML = dtFormatISOToW2ui(meta.NoticeToMoveReported);
         } else {
             x.innerHTML = '';
         }
@@ -202,7 +204,7 @@ window.refreshLabels = function () {
     x = document.getElementById("bannerDocumentDate");
     if (x !== null) {
         if (meta.DocumentDate != "1900-01-01 00:00:00 UTC") {
-            x.innerHTML = meta.NoticeToMoveReported;
+            x.innerHTML = dtFormatISOToW2ui(meta.NoticeToMoveReported);
         } else {
             x.innerHTML = '';
         }
@@ -567,7 +569,7 @@ window.loadRAActionForm = function() {
                             }
                             reqData = {
                                 "FlowID": FlowID,
-                                "DocumentDate": DocumentDate,
+                                "DocumentDate": localtimeToUTC(DocumentDate),
                                 "Mode": Mode
                             };
                             submitActionForm(reqData);
@@ -621,7 +623,7 @@ window.loadRAActionForm = function() {
                             reqData = {
                                 "FlowID": FlowID,
                                 "Action": Action,
-                                "NoticeToMoveDate": NoticeToMoveDate,
+                                "NoticeToMoveDate": localtimeToUTC(NoticeToMoveDate),
                                 "Mode": Mode
                             };
                             submitActionForm(reqData);
