@@ -32,16 +32,14 @@ type RARentableFeesDataRequest struct {
 func SvcGetRAFlowRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "SvcGetRAFlowRentableFeesData"
 	var (
-		g              FlowResponse
-		raFlowResponse RAFlowResponse
-		rfd            rlib.RARentablesFlowData
-		raFlowData     rlib.RAFlowJSONData
-		foo            RARentableFeesDataRequest
-		feesRecords    = []rlib.RAFeesData{}
-		today          = time.Now()
-		err            error
-		tx             *sql.Tx
-		ctx            context.Context
+		rfd         rlib.RARentablesFlowData
+		raFlowData  rlib.RAFlowJSONData
+		foo         RARentableFeesDataRequest
+		feesRecords = []rlib.RAFeesData{}
+		today       = time.Now()
+		err         error
+		tx          *sql.Tx
+		ctx         context.Context
 	)
 	fmt.Printf("Entered %s\n", funcname)
 
@@ -280,22 +278,9 @@ func SvcGetRAFlowRentableFeesData(w http.ResponseWriter, r *http.Request, d *Ser
 		return
 	}
 
-	// get unmarshalled raflow data into struct
-	err = json.Unmarshal(flow.Data, &raFlowData)
-	if err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
-	}
-
-	// Perform basic validation on flow data
-	bizlogic.ValidateRAFlowBasic(r.Context(), &raFlowData, &raFlowResponse.BasicCheck)
-
-	// Check DataFulfilled
-	bizlogic.DataFulfilledRAFlow(r.Context(), &raFlowData, &raFlowResponse.DataFulfilled)
-
-	raFlowResponse.Flow = flow
-	// set the response
-	g.Record = raFlowResponse
-	g.Status = "success"
-	SvcWriteResponse(d.BID, &g, w)
+	// -------------------
+	// WRITE FLOW RESPONSE
+	// -------------------
+	SvcWriteFlowResponse(ctx, d.BID, flow, w)
+	return
 }
