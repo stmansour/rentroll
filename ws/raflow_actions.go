@@ -41,8 +41,7 @@ type RATerminationData struct {
 
 // RANoticeToMoveData is a struct to hold data about Notice to Move
 type RANoticeToMoveData struct {
-	NoticeToMoveDate     rlib.JSONDateTime // date RA was given Notice-To-Move
-	NoticeToMoveReported rlib.JSONDateTime // date RA was set to Terminated because of moving out
+	NoticeToMoveDate rlib.JSONDateTime // date RA was given Notice-To-Move
 }
 
 // SvcSetRAState sets the state of Rental Agreement and updates meta info of RA
@@ -155,6 +154,8 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 					modRAFlowMeta.TerminationDate = rlib.JSONDateTime(time.Time{})
 
 				case 6: //Notice To Move
+					modRAFlowMeta.NoticeToMoveUID = 0
+					modRAFlowMeta.NoticeToMoveName = ""
 					modRAFlowMeta.NoticeToMoveDate = rlib.JSONDateTime(time.Time{})
 					modRAFlowMeta.NoticeToMoveReported = rlib.JSONDateTime(time.Time{})
 				}
@@ -174,6 +175,9 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			modRAFlowMeta.RAFLAGS = (clearedState | 3)
 
 		case 4: // Complete Move-In
+
+			// migrate data to real table via hook
+			// if sucessfull, remove from flow
 			modRAFlowMeta.RAFLAGS = (clearedState | 4)
 		case 5: // Terminate
 			var data RATerminationData
@@ -183,7 +187,7 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			}
 
 			if data.TerminationReason > 0 {
-				fullName, err := getUserFullName(ctx, d.sess.UID, d)
+				fullName, err := getUserFullName(ctx, d.sess.UID)
 				if err != nil {
 					SvcErrorReturn(w, err, funcname)
 					return
@@ -208,8 +212,17 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				SvcErrorReturn(w, err, funcname)
 				return
 			}
+
+			fullName, err := getUserFullName(ctx, d.sess.UID)
+			if err != nil {
+				SvcErrorReturn(w, err, funcname)
+				return
+			}
+
+			modRAFlowMeta.NoticeToMoveUID = d.sess.UID
+			modRAFlowMeta.NoticeToMoveName = fullName
 			modRAFlowMeta.NoticeToMoveDate = rlib.JSONDateTime(data.NoticeToMoveDate)
-			modRAFlowMeta.NoticeToMoveReported = rlib.JSONDateTime(data.NoticeToMoveReported)
+			modRAFlowMeta.NoticeToMoveReported = rlib.JSONDateTime(today)
 
 			modRAFlowMeta.RAFLAGS = (clearedState | 6)
 
@@ -224,7 +237,7 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				return
 			}
 
-			fullName, err := getUserFullName(ctx, d.sess.UID, d)
+			fullName, err := getUserFullName(ctx, d.sess.UID)
 			if err != nil {
 				SvcErrorReturn(w, err, funcname)
 				return
@@ -244,7 +257,9 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				modRAFlowMeta.TerminatorUID = d.sess.UID
 				modRAFlowMeta.TerminatorName = fullName
 				modRAFlowMeta.TerminationDate = rlib.JSONDateTime(today)
-				modRAFlowMeta.LeaseTerminationReason = 119 //Change it with SLSID for "Application Declined"
+
+				//TODO(Jay): Change it with SLSID for "Application Declined"
+				modRAFlowMeta.LeaseTerminationReason = 119
 
 				clearedState = modRAFlowMeta.RAFLAGS & ^uint64(0xf)
 				modRAFlowMeta.RAFLAGS = (clearedState | 5)
@@ -266,7 +281,7 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				return
 			}
 
-			fullName, err := getUserFullName(ctx, d.sess.UID, d)
+			fullName, err := getUserFullName(ctx, d.sess.UID)
 			if err != nil {
 				SvcErrorReturn(w, err, funcname)
 				return
@@ -286,7 +301,9 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				modRAFlowMeta.TerminatorUID = d.sess.UID
 				modRAFlowMeta.TerminatorName = fullName
 				modRAFlowMeta.TerminationDate = rlib.JSONDateTime(today)
-				modRAFlowMeta.LeaseTerminationReason = 119 //Change it with SLSID for "Application Declined"
+
+				//TODO(Jay): Change it with SLSID for "Application Declined"
+				modRAFlowMeta.LeaseTerminationReason = 119
 
 				clearedState = modRAFlowMeta.RAFLAGS & ^uint64(0xf)
 				modRAFlowMeta.RAFLAGS = (clearedState | 5)
@@ -351,8 +368,8 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	SvcWriteResponse(d.BID, &g, w)
 }
 
-func getUserFullName(ctx context.Context, UID int64, d *ServiceData) (string, error) {
-	person, err := rlib.GetDirectoryPerson(ctx, d.sess.UID)
+func getUserFullName(ctx context.Context, UID int64) (string, error) {
+	person, err := rlib.GetDirectoryPerson(ctx, UID)
 	if err != nil {
 		return "", err
 	}

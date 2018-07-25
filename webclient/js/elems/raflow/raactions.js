@@ -5,7 +5,8 @@
     submitActionForm,
     getSLStringList,
     refreshLabels,
-    GetVehicleIdentity
+    GetVehicleIdentity,
+    getCurrentDate
 */
 "use strict";
 
@@ -182,7 +183,7 @@ window.refreshLabels = function () {
     // State Notice To Move Display Info
     x = document.getElementById("bannerMoveDate");
     if (x !== null) {
-        if (meta.NoticeToMoveDate != "1/1/1900") {
+        if (meta.NoticeToMoveDate != "1900-01-01 00:00:00 UTC") {
             x.innerHTML = meta.NoticeToMoveDate;
         } else {
             x.innerHTML = '';
@@ -191,7 +192,7 @@ window.refreshLabels = function () {
 
     x = document.getElementById("bannerRecievedNoticeDate");
     if (x !== null) {
-        if (meta.NoticeToMoveReported != "1/1/1900") {
+        if (meta.NoticeToMoveReported != "1900-01-01 00:00:00 UTC") {
             x.innerHTML = meta.NoticeToMoveReported;
         } else {
             x.innerHTML = '';
@@ -362,7 +363,6 @@ window.loadRAActionTemplate = function() {
     var raFlags = app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS;
     var raState = parseInt(raFlags & 0xf);
 
-    // loadActionFormByState(raState);
     loadRAActionForm();
 
     w2ui.newraLayout.show('right', true);
@@ -408,8 +408,7 @@ window.loadRAActionForm = function() {
                     }
                 },
                 { field: 'RADocumentDate', type: 'date', hidden: true, options: { start: '01/01/2000' } },
-                { field: 'RANoticeToMoveDate', type: 'date', hidden: true, options: { start: '01/01/2000' } },
-                { field: 'RANoticeToMoveReported', type: 'date', hidden: true, options: { start: '01/01/2000' } },
+                { field: 'RANoticeToMoveDate', type: 'date', hidden: true, options: { start: getCurrentDate() } },
                 { field: 'RATerminationReason', type: 'list', width: 120, required: true, hidden: true,
                     options: {
                         items: getSLStringList(getCurrentBID(), "WhyLeaving")
@@ -420,7 +419,6 @@ window.loadRAActionForm = function() {
             onChange: function (event) {
                 event.done(function(){
                     this.refresh();
-                    // reloadActionForm();
                 });
 
                 switch(event.target) {
@@ -431,12 +429,10 @@ window.loadRAActionForm = function() {
                                 $('button[name=updateAction]').attr('disabled',true);
 
                                 w2ui.RAActionForm.get('RANoticeToMoveDate').hidden = true;
-                                w2ui.RAActionForm.get('RANoticeToMoveReported').hidden = true;
                                 break;
 
                             case 6: // Received Notice-To-Move
                                 w2ui.RAActionForm.get('RANoticeToMoveDate').hidden = false;
-                                w2ui.RAActionForm.get('RANoticeToMoveReported').hidden = false;
 
                                 w2ui.RAActionForm.get('RATerminationReason').hidden = true;
                                 delete this.record.RATerminationReason;
@@ -450,7 +446,6 @@ window.loadRAActionForm = function() {
                                 
 
                                 w2ui.RAActionForm.get('RANoticeToMoveDate').hidden = true;
-                                w2ui.RAActionForm.get('RANoticeToMoveReported').hidden = true;
                         }
                         break;
 
@@ -585,7 +580,6 @@ window.loadRAActionForm = function() {
                     var Action = this.record.RAActions.id;
                     var TerminationReason = 0;
                     var NoticeToMoveDate = "1/1/1900";
-                    var NoticeToMoveReported = "1/1/1900";
                     var Mode = "Action";
 
                     var currentState = parseInt(app.raflow.data[FlowID].Data.meta.RAFLAGS & (0xf));
@@ -625,14 +619,10 @@ window.loadRAActionForm = function() {
                                 NoticeToMoveDate = w2ui.RAActionForm.record.RANoticeToMoveDate;
                             }
 
-                            if(w2ui.RAActionForm.record.RANoticeToMoveReported) {
-                                NoticeToMoveReported = w2ui.RAActionForm.record.RANoticeToMoveReported;
-                            }
                             reqData = {
                                 "FlowID": FlowID,
                                 "Action": Action,
                                 "NoticeToMoveDate": NoticeToMoveDate,
-                                "NoticeToMoveReported":NoticeToMoveReported,
                                 "Mode": Mode
                             };
                             submitActionForm(reqData);
@@ -647,4 +637,14 @@ window.loadRAActionForm = function() {
     setTimeout(function() {
         reloadActionForm();
     }, 100);
+};
+
+window.getCurrentDate = function() {
+    var today = new Date();
+
+    var day = today.getDate();
+    var month = today.getMonth() + 1;
+    var year = today.getFullYear();
+
+    return month + '/' + day + '/' + year;
 };
