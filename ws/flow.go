@@ -73,30 +73,28 @@ func InitiateFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	var (
 		err error
-		f   struct {
+		req struct {
 			FlowType string
 		}
-		g              FlowResponse
-		raFlowResponse RAFlowResponse
-		raFlowData     rlib.RAFlowJSONData
+		flow rlib.Flow
 	)
 
 	rlib.Console("Entered %s\n", funcname)
 	rlib.Console("record data = %s\n", d.data)
 
-	if err := json.Unmarshal([]byte(d.data), &f); err != nil {
+	if err := json.Unmarshal([]byte(d.data), &req); err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
 	// initiate flow for given string
 	var flowID int64
-	switch f.FlowType {
+	switch req.FlowType {
 	case rlib.RAFlow:
 		flowID, err = rlib.InsertInitialRAFlow(r.Context(), d.BID, d.sess.UID)
 		break
 	default:
-		err = fmt.Errorf("unrecognized flowType: %s", f.FlowType)
+		err = fmt.Errorf("unrecognized flowType: %s", req.FlowType)
 	}
 
 	// if error then return from here
@@ -106,31 +104,17 @@ func InitiateFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	// get flow data in return it back
-	flow, err := rlib.GetFlow(r.Context(), flowID)
+	flow, err = rlib.GetFlow(r.Context(), flowID)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
-	// get unmarshalled raflow data into struct
-	err = json.Unmarshal(flow.Data, &raFlowData)
-	if err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
-	}
-
-	// Perform basic validation on flow data
-	bizlogic.ValidateRAFlowBasic(r.Context(), &raFlowData, &raFlowResponse.BasicCheck)
-
-	// Check DataFulfilled
-	bizlogic.DataFulfilledRAFlow(r.Context(), &raFlowData, &raFlowResponse.DataFulfilled)
-
-	// Set the response
-	raFlowResponse.Flow = flow
-
-	g.Record = raFlowResponse
-	g.Status = "success"
-	SvcWriteResponse(d.BID, &g, w)
+	// -------------------
+	// WRITE FLOW RESPONSE
+	// -------------------
+	SvcWriteFlowResponse(r.Context(), d.BID, flow, w)
+	return
 }
 
 // GetFlow returns flow associated with given flowID
@@ -138,40 +122,31 @@ func GetFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "GetFlow"
 	var (
 		err error
-		f   struct {
+		req struct {
 			FlowID int64
 		}
-		g              FlowResponse
-		raFlowResponse RAFlowResponse
-		raFlowData     rlib.RAFlowJSONData
+		flow rlib.Flow
 	)
 
 	rlib.Console("Entered %s\n", funcname)
 	rlib.Console("record data = %s\n", d.data)
 
-	if err := json.Unmarshal([]byte(d.data), &f); err != nil {
+	if err := json.Unmarshal([]byte(d.data), &req); err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
-	flow, err := rlib.GetFlow(r.Context(), f.FlowID)
+	flow, err = rlib.GetFlow(r.Context(), req.FlowID)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
-	// Perform basic validation on flow data
-	bizlogic.ValidateRAFlowBasic(r.Context(), &raFlowData, &raFlowResponse.BasicCheck)
-
-	// Check DataFulfilled
-	bizlogic.DataFulfilledRAFlow(r.Context(), &raFlowData, &raFlowResponse.DataFulfilled)
-
-	// Set the response
-	raFlowResponse.Flow = flow
-
-	g.Record = raFlowResponse
-	g.Status = "success"
-	SvcWriteResponse(d.BID, &g, w)
+	// -------------------
+	// WRITE FLOW RESPONSE
+	// -------------------
+	SvcWriteFlowResponse(r.Context(), d.BID, flow, w)
+	return
 }
 
 // GetAllFlowsByUser returns all flows for the current user and given flow
