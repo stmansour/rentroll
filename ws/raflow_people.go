@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"rentroll/bizlogic"
 	"rentroll/rlib"
 )
 
@@ -64,14 +65,15 @@ func SvcRAFlowPersonHandler(w http.ResponseWriter, r *http.Request, d *ServiceDa
 func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "SaveRAFlowPersonDetails"
 	var (
-		raFlowData    rlib.RAFlowJSONData
-		foo           RAPersonDetailsRequest
-		modRAFlowMeta rlib.RAFlowMetaInfo // we might need to update meta info
-		g             FlowResponse
-		err           error
-		tx            *sql.Tx
-		ctx           context.Context
-		prospectFlag  uint64
+		raFlowData     rlib.RAFlowJSONData
+		foo            RAPersonDetailsRequest
+		modRAFlowMeta  rlib.RAFlowMetaInfo // we might need to update meta info
+		g              FlowResponse
+		raFlowResponse RAFlowResponse
+		err            error
+		tx             *sql.Tx
+		ctx            context.Context
+		prospectFlag   uint64
 	)
 	fmt.Printf("Entered %s\n", funcname)
 
@@ -360,8 +362,23 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 		return
 	}
 
+	// get unmarshalled raflow data into struct
+	err = json.Unmarshal(flow.Data, &raFlowData)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// Perform basic validation on flow data
+	bizlogic.ValidateRAFlowBasic(r.Context(), &raFlowData, &raFlowResponse.BasicCheck)
+
+	// Check DataFulfilled
+	bizlogic.DataFulfilledRAFlow(r.Context(), &raFlowData, &raFlowResponse.DataFulfilled)
+
+	raFlowResponse.Flow = flow
+
 	// set the response
-	g.Record = flow
+	g.Record = raFlowResponse
 	g.Status = "success"
 	SvcWriteResponse(d.BID, &g, w)
 }
@@ -380,12 +397,13 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 func DeleteRAFlowPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "DeleteRAFlowPerson"
 	var (
-		raFlowData rlib.RAFlowJSONData
-		foo        RAFlowRemovePersonRequest
-		g          FlowResponse
-		err        error
-		tx         *sql.Tx
-		ctx        context.Context
+		raFlowData     rlib.RAFlowJSONData
+		foo            RAFlowRemovePersonRequest
+		g              FlowResponse
+		raFlowResponse RAFlowResponse
+		err            error
+		tx             *sql.Tx
+		ctx            context.Context
 	)
 	fmt.Printf("Entered %s\n", funcname)
 
@@ -536,9 +554,22 @@ func DeleteRAFlowPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 	if err = tx.Commit(); err != nil {
 		return
 	}
+	// get unmarshalled raflow data into struct
+	err = json.Unmarshal(flow.Data, &raFlowData)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
 
+	// Perform basic validation on flow data
+	bizlogic.ValidateRAFlowBasic(r.Context(), &raFlowData, &raFlowResponse.BasicCheck)
+
+	// Check DataFulfilled
+	bizlogic.DataFulfilledRAFlow(r.Context(), &raFlowData, &raFlowResponse.DataFulfilled)
+
+	raFlowResponse.Flow = flow
 	// set the response
-	g.Record = flow
+	g.Record = raFlowResponse
 	g.Status = "success"
 	SvcWriteResponse(d.BID, &g, w)
 }

@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"rentroll/bizlogic"
 	"rentroll/rlib"
 	"time"
 )
@@ -48,12 +49,13 @@ type RANoticeToMoveData struct {
 func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "SvcSetRAState"
 	var (
-		g          FlowResponse
-		raFlowData rlib.RAFlowJSONData
-		foo        RAActionDataRequest
-		err        error
-		tx         *sql.Tx
-		ctx        context.Context
+		g              FlowResponse
+		raFlowResponse RAFlowResponse
+		raFlowData     rlib.RAFlowJSONData
+		foo            RAActionDataRequest
+		err            error
+		tx             *sql.Tx
+		ctx            context.Context
 	)
 	// set location for time as UTC
 	location, err := time.LoadLocation("UTC")
@@ -406,8 +408,22 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
+	// get unmarshalled raflow data into struct
+	err = json.Unmarshal(flow.Data, &raFlowData)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// Perform basic validation on flow data
+	bizlogic.ValidateRAFlowBasic(r.Context(), &raFlowData, &raFlowResponse.BasicCheck)
+
+	// Check DataFulfilled
+	bizlogic.DataFulfilledRAFlow(r.Context(), &raFlowData, &raFlowResponse.DataFulfilled)
+
+	raFlowResponse.Flow = flow
 	// set the response
-	g.Record = flow
+	g.Record = raFlowResponse
 	g.Status = "success"
 	SvcWriteResponse(d.BID, &g, w)
 }

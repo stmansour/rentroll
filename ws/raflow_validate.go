@@ -15,7 +15,15 @@ type RAFlowDetailRequest struct {
 }
 
 // SvcValidateRAFlow is used to check/validate RAFlow's struct
-//------------------------------------------------------------------------------
+// wsdoc {
+//  @Title Validate RAFlow's basic and biz logic check
+//  @URL /v1/validate-raflow/:BUI
+//  @Method  POST
+//  @Synopsis Validate RAFlow
+//  @Description Perform basic validation and businness logic check validation on RAFlow
+//  @Input RAFlowDetailRequest
+//  @Response bizlogic.ValidateRAFlowResponse
+// wsdoc }
 func SvcValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "SvcValidateRAFlow"
 	var (

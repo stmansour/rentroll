@@ -6,13 +6,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"rentroll/bizlogic"
 	"rentroll/rlib"
 )
 
 // FlowResponse is the response of returning updated flow with status
 type FlowResponse struct {
-	Record rlib.Flow `json:"record"`
-	Status string    `json:"status"`
+	Record interface{} `json:"record"`
+	Status string      `json:"status"`
 }
 
 // SvcHandlerFlow handles operations on a whole flow which affects on its
@@ -75,7 +76,9 @@ func InitiateFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		f   struct {
 			FlowType string
 		}
-		g FlowResponse
+		g              FlowResponse
+		raFlowResponse RAFlowResponse
+		raFlowData     rlib.RAFlowJSONData
 	)
 
 	rlib.Console("Entered %s\n", funcname)
@@ -109,7 +112,23 @@ func InitiateFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	g.Record = flow
+	// get unmarshalled raflow data into struct
+	err = json.Unmarshal(flow.Data, &raFlowData)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// Perform basic validation on flow data
+	bizlogic.ValidateRAFlowBasic(r.Context(), &raFlowData, &raFlowResponse.BasicCheck)
+
+	// Check DataFulfilled
+	bizlogic.DataFulfilledRAFlow(r.Context(), &raFlowData, &raFlowResponse.DataFulfilled)
+
+	// Set the response
+	raFlowResponse.Flow = flow
+
+	g.Record = raFlowResponse
 	g.Status = "success"
 	SvcWriteResponse(d.BID, &g, w)
 }
@@ -122,7 +141,9 @@ func GetFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		f   struct {
 			FlowID int64
 		}
-		g FlowResponse
+		g              FlowResponse
+		raFlowResponse RAFlowResponse
+		raFlowData     rlib.RAFlowJSONData
 	)
 
 	rlib.Console("Entered %s\n", funcname)
@@ -139,7 +160,16 @@ func GetFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	g.Record = flow
+	// Perform basic validation on flow data
+	bizlogic.ValidateRAFlowBasic(r.Context(), &raFlowData, &raFlowResponse.BasicCheck)
+
+	// Check DataFulfilled
+	bizlogic.DataFulfilledRAFlow(r.Context(), &raFlowData, &raFlowResponse.DataFulfilled)
+
+	// Set the response
+	raFlowResponse.Flow = flow
+
+	g.Record = raFlowResponse
 	g.Status = "success"
 	SvcWriteResponse(d.BID, &g, w)
 }
@@ -242,11 +272,12 @@ type SaveFlowRequest struct {
 func SaveFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "SaveFlow"
 	var (
-		err     error
-		flowReq SaveFlowRequest
-		g       FlowResponse
-		tx      *sql.Tx
-		ctx     context.Context
+		err        error
+		flowReq    SaveFlowRequest
+		g          FlowResponse
+		tx         *sql.Tx
+		ctx        context.Context
+		raFlowData rlib.RAFlowJSONData
 	)
 	rlib.Console("Entered %s\n", funcname)
 	rlib.Console("record data = %s\n", d.data)
@@ -301,8 +332,8 @@ func SaveFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// ----------------------------------------------
 
 	// get flow data in return it back
-	var updatedFlow rlib.Flow
-	updatedFlow, err = rlib.GetFlow(ctx, flow.FlowID)
+	var updatedFlow RAFlowResponse
+	updatedFlow.Flow, err = rlib.GetFlow(ctx, flow.FlowID)
 	if err != nil {
 		return
 	}
@@ -313,6 +344,19 @@ func SaveFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if err = tx.Commit(); err != nil {
 		return
 	}
+
+	// get unmarshalled raflow data into struct
+	err = json.Unmarshal(updatedFlow.Flow.Data, &raFlowData)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// Perform basic validation on flow data
+	bizlogic.ValidateRAFlowBasic(r.Context(), &raFlowData, &updatedFlow.BasicCheck)
+
+	// Check DataFulfilled
+	bizlogic.DataFulfilledRAFlow(r.Context(), &raFlowData, &updatedFlow.DataFulfilled)
 
 	g.Record = updatedFlow
 	g.Status = "success"

@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"rentroll/bizlogic"
 	"rentroll/rlib"
 )
 
@@ -53,13 +54,14 @@ type RAFlowNewVehicleRequest struct {
 func CreateNewRAFlowVehicle(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "CreateNewRAFlowVehicle"
 	var (
-		g             FlowResponse
-		foo           RAFlowNewVehicleRequest
-		raFlowData    = rlib.RAFlowJSONData{}
-		err           error
-		tx            *sql.Tx
-		ctx           context.Context
-		modRAFlowMeta rlib.RAFlowMetaInfo
+		g              FlowResponse
+		raFlowResponse RAFlowResponse
+		foo            RAFlowNewVehicleRequest
+		raFlowData     = rlib.RAFlowJSONData{}
+		err            error
+		tx             *sql.Tx
+		ctx            context.Context
+		modRAFlowMeta  rlib.RAFlowMetaInfo
 	)
 	fmt.Printf("Entered in %s\n", funcname)
 
@@ -78,7 +80,7 @@ func CreateNewRAFlowVehicle(w http.ResponseWriter, r *http.Request, d *ServiceDa
 
 	// http method check
 	if r.Method != "POST" {
-		err = fmt.Errorf("Only POST method is allowed")
+		err = fmt.Errorf("only POST method is allowed")
 		return
 	}
 
@@ -178,8 +180,22 @@ func CreateNewRAFlowVehicle(w http.ResponseWriter, r *http.Request, d *ServiceDa
 		return
 	}
 
+	// get unmarshalled raflow data into struct
+	err = json.Unmarshal(flow.Data, &raFlowData)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// Perform basic validation on flow data
+	bizlogic.ValidateRAFlowBasic(r.Context(), &raFlowData, &raFlowResponse.BasicCheck)
+
+	// Check DataFulfilled
+	bizlogic.DataFulfilledRAFlow(r.Context(), &raFlowData, &raFlowResponse.DataFulfilled)
+
+	raFlowResponse.Flow = flow
 	// set the response
-	g.Record = flow
+	g.Record = raFlowResponse
 	g.Status = "success"
 	SvcWriteResponse(d.BID, &g, w)
 }
