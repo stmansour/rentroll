@@ -110,10 +110,10 @@ window.refreshLabels = function () {
     // Header Part
     var x = document.getElementById("bannerRAID");
     if (x !== null) {
-        if (meta.RAID == 0) {
+        if (data.ID == 0) {
             x.innerHTML = 'New Rental Agreement';
         } else {
-            x.innerHTML = '' + meta.RAID;
+            x.innerHTML = '' + data.ID;
         }
     }
 
@@ -507,7 +507,7 @@ window.loadRAActionForm = function() {
                 var raFlags = data.meta.RAFLAGS;
                 var raStateString = app.RAStates[parseInt(raFlags & 0xf)];
 
-                // var RAID = data.meta.RAID;
+                // var RAID = app.raflow.data[activeFlowID].ID;
                 // if(RAID > 0 &&  (raStateString === "Pending First Approval" || raStateString === "Pending Second Approval")) {
                 //     raStateString = 'Modification ' + raStateString;
                 // }
