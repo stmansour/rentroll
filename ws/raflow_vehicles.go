@@ -116,7 +116,9 @@ func CreateNewRAFlowVehicle(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	// --------------------------------------------------------
 	var newRAFlowVehicle rlib.RAVehiclesFlowData
 	newRAFlowVehicle, err = rlib.NewRAFlowVehicle(ctx, d.BID,
-		raFlowData.Dates.PossessionStart, raFlowData.Dates.PossessionStop, &modRAFlowMeta)
+		raFlowData.Dates.RentStart, raFlowData.Dates.RentStop,
+		raFlowData.Dates.PossessionStart, raFlowData.Dates.PossessionStop,
+		&modRAFlowMeta)
 	if err != nil {
 		return
 	}

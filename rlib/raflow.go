@@ -827,6 +827,10 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement) (RAFlowJSONData, e
 	//-------------------------------------------------------------
 	// This is the datastructure we need to fill out and save...
 	//-------------------------------------------------------------
+	Approver1Name, _ := GetDirectoryPerson(ctx, ra.Approver1)
+	Approver2Name, _ := GetDirectoryPerson(ctx, ra.Approver2)
+	TerminatorName, _ := GetDirectoryPerson(ctx, ra.TerminatorUID)
+
 	var raf = RAFlowJSONData{
 		Dates: RADatesFlowData{
 			BID:             ra.BID,
@@ -849,12 +853,15 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement) (RAFlowJSONData, e
 			RAID:                   ra.RAID,
 			RAFLAGS:                ra.FLAGS,
 			Approver1:              ra.Approver1,
+			Approver1Name:          Approver1Name.DisplayName(),
 			DecisionDate1:          JSONDateTime(ra.DecisionDate1),
 			DeclineReason1:         ra.DeclineReason1,
 			Approver2:              ra.Approver2,
+			Approver2Name:          Approver2Name.DisplayName(),
 			DecisionDate2:          JSONDateTime(ra.DecisionDate2),
 			DeclineReason2:         ra.DeclineReason2,
 			TerminatorUID:          ra.TerminatorUID,
+			TerminatorName:         TerminatorName.DisplayName(),
 			TerminationDate:        JSONDateTime(ra.TerminationDate),
 			LeaseTerminationReason: ra.LeaseTerminationReason,
 			DocumentDate:           JSONDateTime(ra.DocumentDate),
@@ -1035,6 +1042,7 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement) (RAFlowJSONData, e
 		raf.Rentables = append(raf.Rentables, rfd)
 	}
 
+	Console("\n\n******\nExiting ConvertRA2Flow, RAFLAGS = %d\n******\n\n", raf.Meta.RAFLAGS)
 	return raf, nil
 }
 
@@ -1225,7 +1233,7 @@ func addFlowPersonVehicles(ctx context.Context, tcid, tmptcid int64, raf *RAFlow
 //     RAPetsFlowData structure
 //     any error encountered
 //-----------------------------------------------------------------------------
-func NewRAFlowPet(ctx context.Context, BID int64, pStart, pStop JSONDate, meta *RAFlowMetaInfo) (pet RAPetsFlowData, err error) {
+func NewRAFlowPet(ctx context.Context, BID int64, rStart, rStop, pStart, pStop JSONDate, meta *RAFlowMetaInfo) (pet RAPetsFlowData, err error) {
 	const funcname = "NewRAFlowPet"
 	fmt.Printf("Entered in %s\n", funcname)
 
@@ -1239,26 +1247,11 @@ func NewRAFlowPet(ctx context.Context, BID int64, pStart, pStop JSONDate, meta *
 		Fees:     []RAFeesData{},
 	}
 
-	// get pet fees data and feed into fees
-	var petFees []BizPropsPetFee
-	petFees, err = GetPetFeesFromGeneralBizProps(ctx, BID)
-	if err != nil {
-		return
-	}
-
-	// loop over fees
-	for _, fee := range petFees {
-		meta.LastTMPASMID++ // new asm id temp
-		pf := RAFeesData{
-			TMPASMID:       meta.LastTMPASMID,
-			ARID:           fee.ARID,
-			ARName:         fee.ARName,
-			ContractAmount: fee.Amount,
-		}
-
-		// append fee for this pet
-		pet.Fees = append(pet.Fees, pf)
-	}
+	// GET PET INITIAL FEES
+	// TODO(Sudip): IF CONTACT PERSON IS TIED UP WITH ANY RENTABLE THEN
+	//              CONSIDER THAT RID
+	RID := int64(0)
+	pet.Fees, err = GetRAFlowInitialPetFees(ctx, BID, RID, rStart, rStop, meta)
 
 	return
 }
@@ -1277,7 +1270,7 @@ func NewRAFlowPet(ctx context.Context, BID int64, pStart, pStop JSONDate, meta *
 //     RAVehiclesFlowData structure
 //     any error encountered
 //-----------------------------------------------------------------------------
-func NewRAFlowVehicle(ctx context.Context, BID int64, pStart, pStop JSONDate, meta *RAFlowMetaInfo) (vehicle RAVehiclesFlowData, err error) {
+func NewRAFlowVehicle(ctx context.Context, BID int64, rStart, rStop, pStart, pStop JSONDate, meta *RAFlowMetaInfo) (vehicle RAVehiclesFlowData, err error) {
 	const funcname = "NewRAFlowVehicle"
 	fmt.Printf("Entered in %s\n", funcname)
 
@@ -1291,26 +1284,11 @@ func NewRAFlowVehicle(ctx context.Context, BID int64, pStart, pStop JSONDate, me
 		Fees:    []RAFeesData{},
 	}
 
-	// get vehicle fees data and feed into fees
-	var vehicleFees []BizPropsVehicleFee
-	vehicleFees, err = GetVehicleFeesFromGeneralBizProps(ctx, BID)
-	if err != nil {
-		return
-	}
-
-	// loop over fees
-	for _, fee := range vehicleFees {
-		meta.LastTMPASMID++ // new asm id temp
-		vf := RAFeesData{
-			TMPASMID:       meta.LastTMPASMID,
-			ARID:           fee.ARID,
-			ARName:         fee.ARName,
-			ContractAmount: fee.Amount,
-		}
-
-		// append fee for this vehicle
-		vehicle.Fees = append(vehicle.Fees, vf)
-	}
+	// GET VEHICLE INITIAL FEES
+	// TODO(Sudip): IF CONTACT PERSON IS TIED UP WITH ANY RENTABLE THEN
+	//              CONSIDER THAT RID
+	RID := int64(0)
+	vehicle.Fees, err = GetRAFlowInitialVehicleFees(ctx, BID, RID, rStart, rStop, meta)
 
 	return
 }

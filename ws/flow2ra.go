@@ -119,6 +119,7 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 		if err != nil {
 			return nraid, err
 		}
+		// saveFlags := x.raOrig.FLAGS
 		chgs := 0
 		AStart := time.Time(x.raf.Dates.AgreementStart)
 		RStart := time.Time(x.raf.Dates.RentStart)
@@ -175,6 +176,23 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 		}
 		x.ra.RATID = x.raOrig.RATID
 		x.ra.RentCycleEpoch = x.raOrig.RentCycleEpoch
+		x.ra.FLAGS = x.raf.Meta.RAFLAGS
+
+		x.ra.Approver1 = x.raf.Meta.Approver1
+		x.ra.DeclineReason1 = x.raf.Meta.DeclineReason1
+		x.ra.DecisionDate1 = time.Time(x.raf.Meta.DecisionDate1)
+		x.ra.Approver2 = x.raf.Meta.Approver2
+		x.ra.DeclineReason2 = x.raf.Meta.DeclineReason2
+		x.ra.DecisionDate2 = time.Time(x.raf.Meta.DecisionDate2)
+		// x.ra.FollowUpDate = time.Time(x.raf.Meta.FollowUpDate)
+		x.ra.CSAgent = x.raf.Dates.CSAgent
+		// x.ra.Outcome = x.raf.Meta.Outcome
+		// x.ra.NoticeToMoveUID = x.raf.Meta.NoticeToMoveUID
+		x.ra.NoticeToMoveDate = time.Time(x.raf.Meta.NoticeToMoveDate)
+		x.ra.NoticeToMoveReported = time.Time(x.raf.Meta.NoticeToMoveReported)
+		x.ra.TerminatorUID = x.raf.Meta.TerminatorUID
+		x.ra.TerminationDate = time.Time(x.raf.Meta.TerminationDate)
+		// x.ra.OtherPreferences = x.raf.Meta.OtherPreferences
 
 		nraid, err = rlib.InsertRentalAgreement(ctx, &x.ra)
 		if err != nil {

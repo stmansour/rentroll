@@ -224,7 +224,9 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 			// create new pet info
 			var newRAFlowPet rlib.RAPetsFlowData
 			newRAFlowPet, err = rlib.NewRAFlowPet(ctx, d.BID,
-				raFlowData.Dates.PossessionStart, raFlowData.Dates.PossessionStop, &modRAFlowMeta)
+				raFlowData.Dates.RentStart, raFlowData.Dates.RentStop,
+				raFlowData.Dates.PossessionStart, raFlowData.Dates.PossessionStop,
+				&modRAFlowMeta)
 			if err != nil {
 				return
 			}
@@ -284,7 +286,9 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 			// create new pet info
 			var newRAFlowVehicle rlib.RAVehiclesFlowData
 			newRAFlowVehicle, err = rlib.NewRAFlowVehicle(ctx, d.BID,
-				raFlowData.Dates.PossessionStart, raFlowData.Dates.PossessionStop, &modRAFlowMeta)
+				raFlowData.Dates.RentStart, raFlowData.Dates.RentStop,
+				raFlowData.Dates.PossessionStart, raFlowData.Dates.PossessionStop,
+				&modRAFlowMeta)
 			if err != nil {
 				return
 			}

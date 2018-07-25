@@ -1088,7 +1088,7 @@ window.GetVehicleIdentity = function(record) {
         model   = record.VehicleModel;
 
     if (year || make || model) {
-        return "{0} - {1} - {2}".format(year, make, model);
+        return "{0} {1} {2}".format(year, make, model);
     }
 
     return "";
