@@ -311,7 +311,7 @@ window.loadRAActionTemplate = function() {
                 { type: 'top', style: app.pstyle2, content:'top', size:110,
                     toolbar: {
                         items: [
-                            { id:'btnBackToRA', type: 'button', text: 'Back', icon: 'fas fa-angle-left' },
+                            { id:'btnBackToRA', type: 'button', text: 'Back to Rental Agreement', icon: 'fas fa-angle-left' },
                             { id: 'bt3', type: 'spacer' },
                             { id: 'btnClose', type: 'button', icon: 'fas fa-times' }
                         ],
