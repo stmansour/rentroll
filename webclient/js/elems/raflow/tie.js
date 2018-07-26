@@ -1,6 +1,6 @@
 /* global
     getRAFlowCompData, reassignGridRecids,
-    getTiePeopleLocalData, setTiePeopleLocalData, AssignTiePeopleGridRecords, saveTiePeopleData,
+    GetTiePeopleLocalData, SetTiePeopleLocalData, AssignTiePeopleGridRecords, SaveTiePeopleData,
     getFullName
 */
 
@@ -106,14 +106,14 @@ window.loadRATieSection = function () {
                     var PRNCI = grid.getColumn("ParentRentableName", true);
                     if (PRNCI === event.column) {
                         var record = grid.get(event.recid);
-                        var localTiePeopleData = getTiePeopleLocalData(record.TMPTCID);
+                        var localTiePeopleData = GetTiePeopleLocalData(record.TMPTCID);
 
                         localTiePeopleData.PRID = record.PRID = parseInt(event.value_new);
                         record.ParentRentableName = parseInt(event.value_new);
 
                         // set data
                         grid.set(event.recid, record);
-                        setTiePeopleLocalData(record.TMPTCID, localTiePeopleData);
+                        SetTiePeopleLocalData(record.TMPTCID, localTiePeopleData);
                     }
 
                     // save grid changes
@@ -132,10 +132,10 @@ window.loadRATieSection = function () {
 };
 
 //-----------------------------------------------------------------------------
-// getTiePeopleLocalData - returns the clone of people data for requested TMPTCID
+// GetTiePeopleLocalData - returns the clone of people data for requested TMPTCID
 //                      from tie comp data
 //-----------------------------------------------------------------------------
-window.getTiePeopleLocalData = function(TMPTCID, returnIndex) {
+window.GetTiePeopleLocalData = function(TMPTCID, returnIndex) {
     var cloneData = {};
     var foundIndex = -1;
 
@@ -159,10 +159,10 @@ window.getTiePeopleLocalData = function(TMPTCID, returnIndex) {
 };
 
 //-----------------------------------------------------------------------------
-// setTiePeopleLocalData - set the modified tie people data locally
+// SetTiePeopleLocalData - set the modified tie people data locally
 //                      for requested TMPTCID by matching TMPTCID
 //-----------------------------------------------------------------------------
-window.setTiePeopleLocalData = function(TMPTCID, data) {
+window.SetTiePeopleLocalData = function(TMPTCID, data) {
     var compData = getRAFlowCompData("tie", app.raflow.activeFlowID);
     var tiePeopleData = compData.people || [];
 
@@ -201,7 +201,7 @@ window.AssignTiePeopleGridRecords = function() {
         }
 
         var PRID = 0;
-        var tiePeople = getTiePeopleLocalData(peopleData.TMPTCID);
+        var tiePeople = GetTiePeopleLocalData(peopleData.TMPTCID);
 
         // parent Rentable ID found then for initial load in grid
         if (tiePeople.PRID) {
@@ -264,15 +264,15 @@ window.AssignTiePeopleGridRecords = function() {
     }
 
     // save the data if it's been modified
-    saveTiePeopleData();
+    SaveTiePeopleData();
 };
 
 //-----------------------------------------------------------------------------
-// saveTiePeopleData -   if there are any difference between server data
+// SaveTiePeopleData -   if there are any difference between server data
 //                       and local data at this step then save the
 //                       modified data on the server via API
 //-----------------------------------------------------------------------------
-window.saveTiePeopleData = function() {
+window.SaveTiePeopleData = function() {
     var compData = getRAFlowCompData("tie", app.raflow.activeFlowID),
         tiePeopleData = compData.people || [],
         dataToSaveFlag = false,

@@ -1180,9 +1180,51 @@ func DataFulfilledRAFlow(ctx context.Context, a *rlib.RAFlowJSONData, d *rlib.RA
 	//      an apartment(a parent rentable) where the people are
 	//      living.
 	// ==============================================================//
+	for _, pc := range a.ParentChild {
+		if !(pc.CRID > 0 && pc.PRID > 0) {
+			d.ParentChild = false
+			break
+		} else {
+			d.ParentChild = true
+		}
+	}
 
-	// 1.   There must be at least one parent rentable and id of any
-	//      item in this list must be > 0. If any item does not id > 0
-	//      then don't mark green check.
+	// If there are no child rentables
+	if len(a.ParentChild) == 0 {
+		d.ParentChild = true
+	}
+
+	// -----------------------------
+	// Check for tie section
+	// -----------------------------
+	//    ==============================================================//
+	//     ****************** VALIDATION SCENARIOS *********************//
+	//    ==============================================================//
+	//    1.   There must be at least one parent rentables in rentables
+	//         section. People come to stay at rooms/apartments, so it
+	//         doesn't make sense of not having any parent rentables.
+	//
+	//    2.   There must be at least one person with role of user.
+	//         It doesn't make sense of not having any people at rooms/
+	//         aprtments. At least one user must exists.
+	//
+	//    3.   If any user(occupant) listed in people section then
+	//         it must be associated with parent rentables.
+	//    ==============================================================//
+	//
+
+	// There should be at least one person
+	if len(a.Tie.People) > 1 {
+		d.Tie = true
+	}
+
+	for _, p := range a.Tie.People {
+		if !(p.PRID > 0) {
+			d.Tie = false
+			break
+		} else {
+			d.Tie = true
+		}
+	}
 
 }

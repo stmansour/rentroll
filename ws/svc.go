@@ -180,8 +180,6 @@ var Svcs = []ServiceHandler{
 	{Cmd: "payorstmt", Handler: SvcPayorStmtDispatch, NeedBiz: true, NeedSession: true},
 	{Cmd: "payorstmtinfo", Handler: SvcGetPayorStmInfo, NeedBiz: true, NeedSession: true},
 	{Cmd: "person", Handler: SvcFormHandlerXPerson, NeedBiz: true, NeedSession: true},
-	{Cmd: "userpets", Handler: SvcUserPets, NeedBiz: true, NeedSession: true},
-	{Cmd: "uservehicles", Handler: SvcUserVehicles, NeedBiz: true, NeedSession: true},
 	{Cmd: "ping", Handler: SvcHandlerPing, NeedBiz: false, NeedSession: false},
 	{Cmd: "pmts", Handler: SvcHandlerPaymentType, NeedBiz: true, NeedSession: true},
 	{Cmd: "postaccounts", Handler: SvcPostAccountsList, NeedBiz: true, NeedSession: true},

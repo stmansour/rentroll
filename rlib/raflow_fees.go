@@ -82,18 +82,15 @@ func GetRAFlowFeeCycles(ctx context.Context, RID int64, rentStart time.Time, Ren
 //     list of pet fees
 //     any error encountered
 //-----------------------------------------------------------------------------
-func GetRAFlowInitialPetFees(
-	ctx context.Context,
+func GetRAFlowInitialPetFees(ctx context.Context,
 	BID, RID int64,
-	rStart, rStop JSONDate,
+	rStart, rStop time.Time,
 	meta *RAFlowMetaInfo,
 ) (fees []RAFeesData, err error) {
 
 	const funcname = "GetRAFlowInitialPetFees"
 	var (
 		bizPropName = "general"
-		d1          = (time.Time)(rStart)
-		d2          = (time.Time)(rStop)
 	)
 	fmt.Printf("Entered in %s\n", funcname)
 
@@ -113,7 +110,7 @@ func GetRAFlowInitialPetFees(
 		// GET RENT, PRORATION CYCLE
 		RentCycle := petFee.ARRentCycle
 		ProrationCycle := petFee.ARProrationCycle
-		err = GetRAFlowFeeCycles(ctx, RID, d1, &RentCycle, &ProrationCycle)
+		err = GetRAFlowFeeCycles(ctx, RID, rStart, &RentCycle, &ProrationCycle)
 		if err != nil {
 			return
 		}
@@ -126,7 +123,7 @@ func GetRAFlowInitialPetFees(
 		//                      FROM BIZPROPS IN CASE NOT FOUND IN RENTALBE TYPE //
 		// ========================================================================
 		var epoch time.Time
-		_, epoch, err = GetEpochByBizPropName(ctx, BID, bizPropName, d1, d2, RentCycle)
+		_, epoch, err = GetEpochByBizPropName(ctx, BID, bizPropName, rStart, rStop, RentCycle)
 		if err != nil {
 			return
 		}
@@ -150,8 +147,8 @@ func GetRAFlowInitialPetFees(
 				ARName:          petFee.ARName,
 				ContractAmount:  petFee.Amount,
 				RentCycle:       RECURNONE,
-				Start:           rStart,
-				Stop:            rStart,
+				Start:           JSONDate(rStart),
+				Stop:            JSONDate(rStart),
 				AtSigningPreTax: 0.00,
 				SalesTax:        0.00,
 				TransOccTax:     0.00,
@@ -162,14 +159,14 @@ func GetRAFlowInitialPetFees(
 		} else if petFee.ARFLAGS&(1<<4) != 0 { // IT MUST BE RENT ASM ONE
 
 			// CHECK FOR PRORATED AMOUNT REQUIRED
-			needProratedRent := d1.Day() != epoch.Day()
+			needProratedRent := rStart.Day() != epoch.Day()
 
 			// START DAY IS NOT SAME AS EPOCH THEN CALCULATE PRORATED AMOUNT
 			if needProratedRent {
-				td2 := time.Date(d1.Year(), d1.Month(), epoch.Day(), d1.Hour(), d1.Minute(), d1.Second(), d1.Nanosecond(), d1.Location())
+				td2 := time.Date(rStart.Year(), rStart.Month(), epoch.Day(), rStart.Hour(), rStart.Minute(), rStart.Second(), rStart.Nanosecond(), rStart.Location())
 				td2 = NextPeriod(&td2, RentCycle)
 
-				tot, np, tp := SimpleProrateAmount(petFee.Amount, RentCycle, ProrationCycle, &d1, &td2, &epoch)
+				tot, np, tp := SimpleProrateAmount(petFee.Amount, RentCycle, ProrationCycle, &rStart, &td2, &epoch)
 				cmt := ""
 				if tot < petFee.Amount {
 					cmt = fmt.Sprintf("prorated for %d of %d %s", np, tp, ProrationUnits(ProrationCycle))
@@ -184,8 +181,8 @@ func GetRAFlowInitialPetFees(
 					ARName:          petFee.ARName,
 					ContractAmount:  tot,
 					RentCycle:       RentCycle,
-					Start:           rStart,
-					Stop:            rStart,
+					Start:           JSONDate(rStart),
+					Stop:            JSONDate(rStart),
 					AtSigningPreTax: 0.00,
 					SalesTax:        0.00,
 					TransOccTax:     0.00,
@@ -205,7 +202,7 @@ func GetRAFlowInitialPetFees(
 				ContractAmount:  petFee.Amount,
 				RentCycle:       RentCycle,
 				Start:           JSONDate(epoch),
-				Stop:            rStop,
+				Stop:            JSONDate(rStop),
 				AtSigningPreTax: 0.00,
 				SalesTax:        0.00,
 				TransOccTax:     0.00,
@@ -233,18 +230,15 @@ func GetRAFlowInitialPetFees(
 //     list of vehicle fees
 //     any error encountered
 //-----------------------------------------------------------------------------
-func GetRAFlowInitialVehicleFees(
-	ctx context.Context,
+func GetRAFlowInitialVehicleFees(ctx context.Context,
 	BID, RID int64,
-	rStart, rStop JSONDate,
+	rStart, rStop time.Time,
 	meta *RAFlowMetaInfo,
 ) (fees []RAFeesData, err error) {
 
 	const funcname = "GetRAFlowInitialVehicleFees"
 	var (
 		bizPropName = "general"
-		d1          = (time.Time)(rStart)
-		d2          = (time.Time)(rStop)
 	)
 	fmt.Printf("Entered in %s\n", funcname)
 
@@ -264,7 +258,7 @@ func GetRAFlowInitialVehicleFees(
 		// GET RENT, PRORATION CYCLE
 		RentCycle := vehicleFee.ARRentCycle
 		ProrationCycle := vehicleFee.ARProrationCycle
-		err = GetRAFlowFeeCycles(ctx, RID, d1, &RentCycle, &ProrationCycle)
+		err = GetRAFlowFeeCycles(ctx, RID, rStart, &RentCycle, &ProrationCycle)
 		if err != nil {
 			return
 		}
@@ -277,7 +271,7 @@ func GetRAFlowInitialVehicleFees(
 		//                      FROM BIZPROPS IN CASE NOT FOUND IN RENTALBE TYPE //
 		// ========================================================================
 		var epoch time.Time
-		_, epoch, err = GetEpochByBizPropName(ctx, BID, bizPropName, d1, d2, RentCycle)
+		_, epoch, err = GetEpochByBizPropName(ctx, BID, bizPropName, rStart, rStop, RentCycle)
 		if err != nil {
 			return
 		}
@@ -301,8 +295,8 @@ func GetRAFlowInitialVehicleFees(
 				ARName:          vehicleFee.ARName,
 				ContractAmount:  vehicleFee.Amount,
 				RentCycle:       RECURNONE,
-				Start:           rStart,
-				Stop:            rStart,
+				Start:           JSONDate(rStart),
+				Stop:            JSONDate(rStart),
 				AtSigningPreTax: 0.00,
 				SalesTax:        0.00,
 				TransOccTax:     0.00,
@@ -313,14 +307,14 @@ func GetRAFlowInitialVehicleFees(
 		} else if vehicleFee.ARFLAGS&(1<<4) != 0 { // IT MUST BE RENT ASM ONE
 
 			// CHECK FOR PRORATED AMOUNT REQUIRED
-			needProratedRent := d1.Day() != epoch.Day()
+			needProratedRent := rStart.Day() != epoch.Day()
 
 			// START DAY IS NOT SAME AS EPOCH THEN CALCULATE PRORATED AMOUNT
 			if needProratedRent {
-				td2 := time.Date(d1.Year(), d1.Month(), epoch.Day(), d1.Hour(), d1.Minute(), d1.Second(), d1.Nanosecond(), d1.Location())
+				td2 := time.Date(rStart.Year(), rStart.Month(), epoch.Day(), rStart.Hour(), rStart.Minute(), rStart.Second(), rStart.Nanosecond(), rStart.Location())
 				td2 = NextPeriod(&td2, RentCycle)
 
-				tot, np, tp := SimpleProrateAmount(vehicleFee.Amount, RentCycle, ProrationCycle, &d1, &td2, &epoch)
+				tot, np, tp := SimpleProrateAmount(vehicleFee.Amount, RentCycle, ProrationCycle, &rStart, &td2, &epoch)
 				cmt := ""
 				if tot < vehicleFee.Amount {
 					cmt = fmt.Sprintf("prorated for %d of %d %s", np, tp, ProrationUnits(ProrationCycle))
@@ -335,8 +329,8 @@ func GetRAFlowInitialVehicleFees(
 					ARName:          vehicleFee.ARName,
 					ContractAmount:  tot,
 					RentCycle:       RentCycle,
-					Start:           rStart,
-					Stop:            rStart,
+					Start:           JSONDate(rStart),
+					Stop:            JSONDate(rStart),
 					AtSigningPreTax: 0.00,
 					SalesTax:        0.00,
 					TransOccTax:     0.00,
@@ -356,7 +350,7 @@ func GetRAFlowInitialVehicleFees(
 				ContractAmount:  vehicleFee.Amount,
 				RentCycle:       RentCycle,
 				Start:           JSONDate(epoch),
-				Stop:            rStop,
+				Stop:            JSONDate(rStop),
 				AtSigningPreTax: 0.00,
 				SalesTax:        0.00,
 				TransOccTax:     0.00,

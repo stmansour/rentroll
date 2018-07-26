@@ -8,7 +8,7 @@
     setNotRequiredFields, getRAPeopleGridRecord, ReassignPeopleGridRecords,
     manageBGInfoFormFields, addDummyBackgroundInfo, savePeopleCompData, getPeopleLocalData, setPeopleLocalData,
     getPeopleLocalDataByTCID, setTransactantDefaultRole,
-    getStringListData, getSLStringList, updateRATransactantFormCheckboxes,
+    getStringListData, getSLStringList, updateRATransactantFormCheckboxes, updateFlowData,
     managePeopleW2UIItems, removeRAFlowPersonAJAX, saveRAFlowPersonAJAX, onCheckboxesChange
 */
 
@@ -452,8 +452,8 @@ window.removeRAFlowPersonAJAX = function (TMPTCID) {
         data: JSON.stringify(data),
         success: function (data) {
             if (data.status != "error") {
-                // update the local copy of flow for the active one
-                app.raflow.data[data.record.Flow.FlowID] = data.record.Flow;
+                // Update flow local copy and green checks
+                updateFlowData(data);
             } else {
                 console.error(data.message);
             }
@@ -482,9 +482,9 @@ window.saveRAFlowPersonAJAX = function (TCID) {
         dataType: "json",
         data: JSON.stringify(data),
         success: function (data) {
-            if (data.status != "error") {
-                // update the local copy of flow for the active one
-                app.raflow.data[data.record.Flow.FlowID] = data.record.Flow;
+            if (data.status !== "error") {
+                // Update flow local copy and green checks
+                updateFlowData(data);
             } else {
                 console.error(data.message);
             }
