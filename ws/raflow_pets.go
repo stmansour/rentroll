@@ -188,3 +188,54 @@ func CreateNewRAFlowPet(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 	SvcWriteFlowResponse(ctx, d.BID, flow, w)
 	return
 }
+
+// SvcPetFeesHandler is used to get the pet fees based on provided command
+//
+// URL:
+//       0    1       2   3
+//      /v1/petfees/BID/TCID
+// The server command can be:
+//      recalculate
+//-----------------------------------------------------------------------------
+func SvcPetFeesHandler(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcPetFeesHandler"
+	var (
+		err error
+	)
+	fmt.Printf("Entered in %s\n", funcname)
+
+	switch d.wsSearchReq.Cmd {
+	case "recalculate":
+		RecalculatePetFees(w, r, d)
+		break
+	default:
+		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+}
+
+// RecalculatePetFeeRequest struct to handle
+type RecalculatePetFeeRequest struct {
+	FlowID int64
+	RID    int64
+}
+
+// RecalculatePetFees re-calculate pet fees and make changes in flow json if required
+// wsdoc {
+//  @Title  Recalculate Pet Fees
+//  @URL /v1/petfees/:BID/:FlowID
+//  @Method  POST
+//  @Synopsis recalculate pet fees
+//  @Description returns flow doc with modification in pet fees
+//  @Input
+//  @Response FlowResponse
+// wsdoc }
+func RecalculatePetFees(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "RecalculatePetFees"
+	/*var (
+		req RecalculatePetFeeRequest
+		g   FlowResponse
+	)*/
+	fmt.Printf("Entered in %s\n", funcname)
+}

@@ -188,3 +188,53 @@ func CreateNewRAFlowVehicle(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	SvcWriteFlowResponse(ctx, d.BID, flow, w)
 	return
 }
+
+// SvcVehicleFeesHandler is used to get the vehicle fees based on provided command
+// URL:
+//       0    1       2   3
+//      /v1/uservehicles/BID/TCID
+// The server command can be:
+//      recalculate
+//-----------------------------------------------------------------------------
+func SvcVehicleFeesHandler(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcVehicleFeesHandler"
+	var (
+		err error
+	)
+	fmt.Printf("Entered in %s\n", funcname)
+
+	switch d.wsSearchReq.Cmd {
+	case "recalculate":
+		RecalculateVehicleFees(w, r, d)
+		break
+	default:
+		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+}
+
+// RecalculateVehicleFeeRequest struct to handle
+type RecalculateVehicleFeeRequest struct {
+	FlowID int64
+	RID    int64
+}
+
+// RecalculateVehicleFees re-calculate vehicle fees and make changes in flow json if required
+// wsdoc {
+//  @Title  Recalculate Vehicle Fees
+//  @URL /v1/vehiclefees/:BID/:FlowID
+//  @Method  POST
+//  @Synopsis recalculate vehicle fees
+//  @Description returns flow doc with modification in vehicle fees
+//  @Input
+//  @Response FlowResponse
+// wsdoc }
+func RecalculateVehicleFees(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "RecalculateVehicleFees"
+	/*var (
+		req RecalculateVehicleFeeRequest
+		g   FlowResponse
+	)*/
+	fmt.Printf("Entered in %s\n", funcname)
+}
