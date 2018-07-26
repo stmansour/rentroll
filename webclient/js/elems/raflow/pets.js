@@ -17,7 +17,8 @@
     FeeFormOnChangeHandler, FeeFormOnRefreshHandler,
     SliderContentDivLength, SetFeeFormRecordFromFeeData,
     RenderPetFeesGridSummary, RAFlowNewPetAJAX,
-    GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary
+    GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary,
+    GetTiePeopleLocalData
 */
 
 "use strict";
@@ -1053,7 +1054,7 @@ window.RecalculatePetFees = function (TMPTCID) {
 
     // if no tied rentable then return
     var RID = tiePerson.PRID;
-    if (!(RID > 0)) {
+    if (!RID) {
         return;
     }
 
