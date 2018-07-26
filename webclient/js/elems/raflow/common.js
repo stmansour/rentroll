@@ -250,8 +250,10 @@ window.getFlowDataAjax = function(FlowID) {
 // updateFlowData
 window.updateFlowData = function(data){
     updateFlowCopy(data.record.Flow);
-    // Enable/Disable green check
-    dataFulFilled(data.record);
+    setTimeout(function() {
+        // Enable/Disable green check
+        dataFulFilled(data.record);
+    }, 500);
 };
 
 // updateFlowCopy
