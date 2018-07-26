@@ -36,7 +36,7 @@ window.getInitialRentableFeesData = function(BID, RID, FlowID) {
             AssignRentableGridRecords();
 
             // Enable/Disable green check
-            dataFulFilled(data.record.DataFulfilled);
+            dataFulFilled(data.record);
         }
     });
 };

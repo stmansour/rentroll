@@ -17,7 +17,7 @@
     FeeFormOnChangeHandler, FeeFormOnRefreshHandler,
     SliderContentDivLength, SetFeeFormRecordFromFeeData,
     RenderPetFeesGridSummary, RAFlowNewPetAJAX,
-    GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary
+    GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary, dataFulFilled
 */
 
 "use strict";
@@ -46,6 +46,9 @@ window.RAFlowNewPetAJAX = function() {
 
             // mark new TMPPETID from meta
             app.raflow.last.TMPPETID = data.record.Data.meta.LastTMPPETID;
+
+            // Enable/Disable green check
+            dataFulFilled(data.record);
         }
     });
 };

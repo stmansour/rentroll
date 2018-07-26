@@ -9,7 +9,7 @@
     manageBGInfoFormFields, addDummyBackgroundInfo, savePeopleCompData, getPeopleLocalData, setPeopleLocalData,
     getPeopleLocalDataByTCID, setTransactantDefaultRole,
     getStringListData, getSLStringList, updateRATransactantFormCheckboxes,
-    managePeopleW2UIItems, removeRAFlowPersonAJAX, saveRAFlowPersonAJAX, onCheckboxesChange
+    managePeopleW2UIItems, removeRAFlowPersonAJAX, saveRAFlowPersonAJAX, onCheckboxesChange, dataFulFilled
 */
 
 "use strict";
@@ -454,6 +454,9 @@ window.removeRAFlowPersonAJAX = function (TMPTCID) {
             if (data.status != "error") {
                 // update the local copy of flow for the active one
                 app.raflow.data[data.record.Flow.FlowID] = data.record.Flow;
+
+                // Enable/Disable green check
+                dataFulFilled(data.record);
             } else {
                 console.error(data.message);
             }
@@ -485,6 +488,9 @@ window.saveRAFlowPersonAJAX = function (TCID) {
             if (data.status != "error") {
                 // update the local copy of flow for the active one
                 app.raflow.data[data.record.Flow.FlowID] = data.record.Flow;
+
+                // Enable/Disable green check
+                dataFulFilled(data.record);
             } else {
                 console.error(data.message);
             }

@@ -18,7 +18,7 @@
     SliderContentDivLength, SetFeeFormRecordFromFeeData,
     RenderVehicleFeesGridSummary, RAFlowNewVehicleAJAX,
     GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary,
-    GetVehicleIdentity
+    GetVehicleIdentity, dataFulFilled
 */
 
 "use strict";
@@ -47,6 +47,9 @@ window.RAFlowNewVehicleAJAX = function() {
 
             // mark new TMPVID from meta
             app.raflow.last.TMPVID = data.record.Data.meta.LastTMPVID;
+
+            // Enable/Disable green check
+            dataFulFilled(data.record);
         }
     });
 };

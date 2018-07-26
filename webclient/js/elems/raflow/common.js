@@ -157,7 +157,7 @@ window.saveActiveCompData = function (compData, compID) {
                 app.raflow.data[data.record.Flow.FlowID] = data.record.Flow;
 
                 // Enable/Disable green check
-                dataFulFilled(data.record.DataFulfilled);
+                dataFulFilled(data.record);
             } else {
                 console.error(data.message);
             }
@@ -185,7 +185,7 @@ window.initRAFlowAjax = function () {
             if (data.status != "error") {
                 app.raflow.data[data.record.Flow.FlowID] = data.record.Flow;
                 // Enable/Disable green check
-                dataFulFilled(data.record.DataFulfilled);
+                dataFulFilled(data.record);
             }
         },
         error: function (data) {
@@ -213,7 +213,7 @@ window.getFlowDataAjax = function(FlowID) {
             if (data.status != "error") {
                 app.raflow.data[data.record.Flow.FlowID] = data.record.Flow;
                 // Enable/Disable green check
-                dataFulFilled(data.record.DataFulfilled);
+                dataFulFilled(data.record);
             }
         },
         error: function (data) {
@@ -434,10 +434,12 @@ window.validateRAFlowComponents = function() {
 // -----------------------------------------------------
 // dataFulFilled:
 // Enable/Disable green checks
+// Enable/Disable get approvals button
 // raflow parts
 // -----------------------------------------------------
 window.dataFulFilled = function(data) {
 
+    // Enable/Disable green check for the each section
     var active_comp = $(".ra-form-component:visible");
     var active_comp_id = active_comp.attr("id");
 
@@ -445,12 +447,21 @@ window.dataFulFilled = function(data) {
         // if required fields are fulfilled then mark this slide as done
 
         // Apply green mark when comp is not active and when it fulfilled the requirements
-        if (data[comp] && active_comp_id !== comp) {
+        if (data.DataFulfilled[comp] && active_comp_id !== comp) {
             $("#progressbar #steps-list li[data-target='#" + comp + "']").addClass("done");
         } else {
             $("#progressbar #steps-list li[data-target='#" + comp + "']").removeClass("done");
         }
     }
+
+    // Enable/Disable get approvals button
+    // TODO(Akshay): Enable only when all section's data fulfilled is true and there are no basic error
+    if (data.BasicCheck.total === 0){
+        $("#ra-form footer button#save-ra-flow-btn").prop("disabled", false);
+    }else{
+        $("#ra-form footer button#save-ra-flow-btn").prop("disabled", true);
+    }
+
 };
 
 // load form according to target
