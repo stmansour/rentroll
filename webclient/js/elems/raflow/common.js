@@ -2,7 +2,7 @@
     RACompConfig, HideSliderContent, appendNewSlider, ShowSliderContentW2UIComp,
     loadTargetSection, requiredFieldsFulFilled, initRAFlowAjax,
     saveActiveCompData, getRAFlowCompData,
-    lockOnGrid, validateRAFlowComponents, dataFulFilled
+    lockOnGrid, validateRAFlowComponents, dataFulFilled, getApprovals
 */
 
 "use strict";
@@ -44,6 +44,37 @@ $(document).on('click', '#ra-form #previous', function () {
     // load target section
     loadTargetSection(target_comp.attr("id"), active_comp.attr("id"));
 });
+
+//-----------------------------------------------------------------------------
+// Get Approvals BUTTON CLICK EVENT HANDLER
+//-----------------------------------------------------------------------------
+$(document).on('click', '#ra-form #save-ra-flow-btn', function () {
+    getApprovals();
+});
+
+window.getApprovals = function(){
+
+    var bid = getCurrentBID();
+    var FlowID = app.raflow.activeFlowID;
+    var data = {
+        "cmd": "get",
+        "FlowID": FlowID
+    };
+
+    return $.ajax({
+        url: "/v1/validate-raflow/" + bid.toString(),
+        method: "POST",
+        contentType: "application/json",
+        dataType: "json",
+        data: JSON.stringify(data),
+        success: function (data) {
+            console.info(data);
+        },
+        error: function (data) {
+            console.error(data);
+        }
+    });
+};
 
 //-----------------------------------------------------------------------------
 // FORM WIZARD STEP LINK CLICK EVENT HANDLER
@@ -163,7 +194,7 @@ window.saveActiveCompData = function (compData, compID) {
             }
         },
         error: function (data) {
-            console.log(data);
+            console.error(data);
         }
     });
 };
