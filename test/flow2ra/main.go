@@ -29,6 +29,7 @@ var App struct {
 	NoAuth  bool           //
 	Verbose bool           //
 	FlowID  int64          // the flow to migrate to permanent tables
+	NewRA   bool           // if true then generate a new RA from the internal json
 }
 
 func readCommandLineArgs() {
@@ -40,6 +41,7 @@ func readCommandLineArgs() {
 	idPtr := flag.Int("flowid", 0, "FlowID to migrate. If not specified then RAID 1 is migrated.")
 	noauth := flag.Bool("noauth", false, "if specified, inhibit authentication")
 	verb := flag.Bool("v", false, "verbose output - shows the ciphertext")
+	newra := flag.Bool("new", false, "generate a new ORIGIN rental agreement from internal data")
 
 	flag.Parse()
 
@@ -51,6 +53,7 @@ func readCommandLineArgs() {
 	App.NoAuth = *noauth
 	App.Verbose = *verb
 	App.FlowID = int64(*idPtr)
+	App.NewRA = *newra
 }
 
 func main() {
@@ -108,7 +111,11 @@ func main() {
 	ssn := rlib.SessionNew("Flow2RATester", "Flow2RATester", "Flow2RATester", -99999, "", 0, &expire)
 	ctx := context.Background()
 	ctx = rlib.SetSessionContextKey(ctx, ssn)
-	DoTest(ctx, ssn)
+	if App.NewRA {
+		DoNewRA(ctx, ssn)
+	} else {
+		DoTest(ctx, ssn)
+	}
 }
 
 // DoTest does all the useful and interesting work
@@ -170,6 +177,13 @@ func DoTest(ctx context.Context, s *rlib.Session) {
 		fmt.Printf("Could not write Flow back to db: %s\n", err.Error())
 		return
 	}
+	// REMOVE FLOW IF MIGRATION DONE SUCCESSFULLY
+	err = rlib.DeleteFlow(tctx, flowID)
+	if err != nil {
+		fmt.Printf("Error deleting flow: %s\n", err.Error())
+		return
+	}
+
 	if err = tx.Commit(); err != nil {
 		fmt.Printf("Error committing transaction: %s\n", err.Error())
 		return

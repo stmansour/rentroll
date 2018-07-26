@@ -11,10 +11,11 @@ import (
 
 // WriteHandlerContext contains context information for RA Write Handlers
 type WriteHandlerContext struct {
-	ra     rlib.RentalAgreement
-	raOrig rlib.RentalAgreement
-	raf    rlib.RAFlowJSONData
-	xbiz   rlib.XBusiness
+	isNewRaid bool // true only if this is a new Rental Agreement, false otherwise
+	ra        rlib.RentalAgreement
+	raOrig    rlib.RentalAgreement
+	raf       rlib.RAFlowJSONData
+	xbiz      rlib.XBusiness
 }
 
 // RAWriteHandler a handler function for part of the work of migrating
@@ -27,7 +28,7 @@ type RAWriteHandler struct {
 // UpdateHandlers is the collection of routines to call to write a flow
 // for an existing Rental Agreement back to the database as a RentalAgreement.
 var ehandlers = []RAWriteHandler{
-	{"RentalAgreement", F2RAUpdateExistingRA},
+	{"RentalAgreement", F2RAUpdateRA},
 	{"Transactants", F2RAUpdatePeople},
 	{"Pets", F2RAUpdatePets},
 	{"Vehicles", F2RAUpdateVehicles},
@@ -68,7 +69,8 @@ func Flow2RA(ctx context.Context, flowid int64) (int64, error) {
 	// If this is an update of an existing RAID, check to see if any changes
 	// were made. Otherwise treat it as a new RAID
 	//----------------------------------------------------------------------------
-	if x.raf.Meta.RAID > 0 {
+	x.isNewRaid = x.raf.Meta.RAID > 0
+	if x.isNewRaid {
 		changes, err := rlib.RAFlowDataDiff(ctx, x.raf.Meta.RAID)
 		if err != nil {
 			rlib.Console("\n\nERROR IN FlowDataDIFF: %s\n\n\n", err.Error())
@@ -83,9 +85,11 @@ func Flow2RA(ctx context.Context, flowid int64) (int64, error) {
 			}
 		}
 	} else {
-		//-----------------------------------
-		// TODO: handle migration for new RA
-		//-----------------------------------
+		nraid, err = FlowSaveRA(ctx, &x)
+		if err != nil {
+			rlib.Console("\n\nERROR IN FlowSaveRA: %s\n\n\n", err.Error())
+			return nraid, err
+		}
 	}
 
 	// REMOVE FLOW IF MIGRATION DONE SUCCESSFULLY
@@ -171,62 +175,82 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 		//------------------------------------------------------------
 		// Now start the new RAID.  Link it to x.raOrig
 		//------------------------------------------------------------
-		x.ra.AgreementStart = time.Time(x.raf.Dates.AgreementStart)
-		x.ra.AgreementStop = time.Time(x.raf.Dates.AgreementStop)
-		x.ra.RentStart = time.Time(x.raf.Dates.RentStart)
-		x.ra.RentStop = time.Time(x.raf.Dates.RentStop)
-		x.ra.PossessionStart = time.Time(x.raf.Dates.PossessionStart)
-		x.ra.PossessionStop = time.Time(x.raf.Dates.PossessionStop)
+		initRA(ctx, x)
 		x.ra.PRAID = x.raOrig.RAID
 		x.ra.ORIGIN = x.raOrig.ORIGIN
 		x.ra.BID = x.raOrig.BID
-		x.ra.CSAgent = x.raOrig.CSAgent
 		if x.raOrig.ORIGIN == 0 {
 			x.ra.ORIGIN = x.raOrig.RAID
 		}
 		x.ra.RATID = x.raOrig.RATID
 		x.ra.RentCycleEpoch = x.raOrig.RentCycleEpoch
-		x.ra.FLAGS = x.raf.Meta.RAFLAGS
 
-		x.ra.Approver1 = x.raf.Meta.Approver1
-		x.ra.DeclineReason1 = x.raf.Meta.DeclineReason1
-		x.ra.DecisionDate1 = time.Time(x.raf.Meta.DecisionDate1)
-		x.ra.Approver2 = x.raf.Meta.Approver2
-		x.ra.DeclineReason2 = x.raf.Meta.DeclineReason2
-		x.ra.DecisionDate2 = time.Time(x.raf.Meta.DecisionDate2)
-		// x.ra.FollowUpDate = time.Time(x.raf.Meta.FollowUpDate)
-		x.ra.CSAgent = x.raf.Dates.CSAgent
-		// x.ra.Outcome = x.raf.Meta.Outcome
-		// x.ra.NoticeToMoveUID = x.raf.Meta.NoticeToMoveUID
-		x.ra.NoticeToMoveDate = time.Time(x.raf.Meta.NoticeToMoveDate)
-		x.ra.NoticeToMoveReported = time.Time(x.raf.Meta.NoticeToMoveReported)
-		x.ra.TerminatorUID = x.raf.Meta.TerminatorUID
-		x.ra.TerminationDate = time.Time(x.raf.Meta.TerminationDate)
-		// x.ra.OtherPreferences = x.raf.Meta.OtherPreferences
-
-		nraid, err = rlib.InsertRentalAgreement(ctx, &x.ra)
-		if err != nil {
-			return nraid, err
-		}
-
-		//---------------------------------------------------------------
-		// Now spin through the series of handlers that move the data
-		// into the permanent tables...
-		//---------------------------------------------------------------
-		rlib.Console("len(ehandlers) = %d\n", len(ehandlers))
-		for i := 0; i < len(ehandlers); i++ {
-			rlib.Console("FlowSaveRA: running handler %s\n", ehandlers[i].Name)
-			if err = ehandlers[i].Handler(ctx, x); err != nil {
-				return nraid, err
-			}
-		}
 	} else {
 		//-------------------------------------
 		// This is a new Rental Agreement...
 		//-------------------------------------
+		initRA(ctx, x)
+	}
+
+	nraid, err = rlib.InsertRentalAgreement(ctx, &x.ra)
+	if err != nil {
+		return nraid, err
+	}
+	//---------------------------------------------------------------
+	// Now spin through the series of handlers that move the data
+	// into the permanent tables...
+	//---------------------------------------------------------------
+	rlib.Console("len(ehandlers) = %d\n", len(ehandlers))
+	for i := 0; i < len(ehandlers); i++ {
+		rlib.Console("FlowSaveRA: running handler %s\n", ehandlers[i].Name)
+		if err = ehandlers[i].Handler(ctx, x); err != nil {
+			fmt.Printf("error returned from handler %s: %s\n", ehandlers[i].Name, err.Error())
+			return nraid, err
+		}
 	}
 
 	return nraid, nil
+}
+
+// initRA initializes a rental agreement structure with information from flow
+// data. upon completion, x.ra will be filled out with basic information that
+// can be pulled from x.raf
+//
+// INPUTS
+//     ctx - db context for transactions
+//     x - all the contextual info we need for performing this operation
+//         Note: this routine adds ra and raOrig to x
+//
+// RETURNS
+//     nothing at this time
+//-----------------------------------------------------------------------------
+func initRA(ctx context.Context, x *WriteHandlerContext) {
+	x.ra.PRAID = int64(0)
+	x.ra.ORIGIN = int64(0)
+	x.ra.BID = x.raf.Dates.BID
+	x.ra.AgreementStart = time.Time(x.raf.Dates.AgreementStart)
+	x.ra.AgreementStop = time.Time(x.raf.Dates.AgreementStop)
+	x.ra.RentStart = time.Time(x.raf.Dates.RentStart)
+	x.ra.RentStop = time.Time(x.raf.Dates.RentStop)
+	x.ra.PossessionStart = time.Time(x.raf.Dates.PossessionStart)
+	x.ra.PossessionStop = time.Time(x.raf.Dates.PossessionStop)
+	x.ra.CSAgent = x.raf.Dates.CSAgent
+	x.ra.FLAGS = x.raf.Meta.RAFLAGS
+	x.ra.Approver1 = x.raf.Meta.Approver1
+	x.ra.DeclineReason1 = x.raf.Meta.DeclineReason1
+	x.ra.DecisionDate1 = time.Time(x.raf.Meta.DecisionDate1)
+	x.ra.Approver2 = x.raf.Meta.Approver2
+	x.ra.DeclineReason2 = x.raf.Meta.DeclineReason2
+	x.ra.DecisionDate2 = time.Time(x.raf.Meta.DecisionDate2)
+	x.ra.CSAgent = x.raf.Dates.CSAgent
+	x.ra.NoticeToMoveDate = time.Time(x.raf.Meta.NoticeToMoveDate)
+	x.ra.NoticeToMoveReported = time.Time(x.raf.Meta.NoticeToMoveReported)
+	x.ra.TerminatorUID = x.raf.Meta.TerminatorUID
+	x.ra.TerminationDate = time.Time(x.raf.Meta.TerminationDate)
+	// x.ra.FollowUpDate = time.Time(x.raf.Meta.FollowUpDate)
+	// x.ra.Outcome = x.raf.Meta.Outcome
+	// x.ra.NoticeToMoveUID = x.raf.Meta.NoticeToMoveUID
+	// x.ra.OtherPreferences = x.raf.Meta.OtherPreferences
 }
 
 // FlowSaveRentables adds/updates rentables from the flow data.  This means
@@ -359,20 +383,33 @@ func F2RAUpdatePets(ctx context.Context, x *WriteHandlerContext) error {
 	var err error
 	for i := 0; i < len(x.raf.Pets); i++ {
 		var pet rlib.RentalAgreementPet
-		if x.raf.Pets[i].PETID > 0 {
-			pet, err = rlib.GetRentalAgreementPet(ctx, x.raf.Pets[i].PETID)
-			if err != nil {
-				return err
+		if x.isNewRaid {
+			if x.raf.Pets[i].PETID > 0 {
+				pet, err = rlib.GetRentalAgreementPet(ctx, x.raf.Pets[i].PETID)
+				if err != nil {
+					return err
+				}
+				rlib.MigrateStructVals(&x.raf.Pets[i], &pet)
+				if err = rlib.UpdateRentalAgreementPet(ctx, &pet); err != nil {
+					return err
+				}
+				continue // all done, move on to the next pet
 			}
 			rlib.MigrateStructVals(&x.raf.Pets[i], &pet)
-			if err = rlib.UpdateRentalAgreementPet(ctx, &pet); err != nil {
-				return err
-			}
-			continue // all done, move on to the next pet
+		} else {
+			pet.BID = x.raf.Dates.BID
+			pet.RAID = x.ra.RAID
+			pet.TCID = GetTCIDForTMPTCID(x, x.raf.Pets[i].TMPTCID)
+			pet.Type = x.raf.Pets[i].Type
+			pet.Breed = x.raf.Pets[i].Breed
+			pet.Color = x.raf.Pets[i].Color
+			pet.Weight = x.raf.Pets[i].Weight
+			pet.Name = x.raf.Pets[i].Name
+			pet.DtStart = time.Time(x.raf.Pets[i].DtStart)
+			pet.DtStop = time.Time(x.raf.Pets[i].DtStop)
 		}
-		rlib.MigrateStructVals(&x.raf.Pets[i], &pet)
-		pet.RAID = x.raf.Meta.RAID
-		_, err = rlib.InsertRentalAgreementPet(ctx, &pet)
+		pet.RAID = x.ra.RAID
+		x.raf.Pets[i].PETID, err = rlib.InsertRentalAgreementPet(ctx, &pet)
 		if err != nil {
 			return err
 		}
@@ -399,7 +436,7 @@ func F2RAUpdateVehicles(ctx context.Context, x *WriteHandlerContext) error {
 		//-------------------------------
 		// handle existing vehicles...
 		//-------------------------------
-		if x.raf.Vehicles[i].VID > 0 {
+		if x.isNewRaid && x.raf.Vehicles[i].VID > 0 {
 			vehicles, err := rlib.GetVehiclesByTransactant(ctx, tcid)
 			if err != nil {
 				return err
@@ -414,13 +451,14 @@ func F2RAUpdateVehicles(ctx context.Context, x *WriteHandlerContext) error {
 			}
 			continue // all done, move on to the next vehicle
 		}
+
 		//-------------------------------
 		// handle new vehicles...
 		//-------------------------------
 		var vehicle rlib.Vehicle
 		rlib.MigrateStructVals(&x.raf.Vehicles[i], &vehicle)
 		vehicle.TCID = tcid
-		_, err = rlib.InsertVehicle(ctx, &vehicle)
+		x.raf.Vehicles[i].VID, err = rlib.InsertVehicle(ctx, &vehicle)
 		if err != nil {
 			return err
 		}
@@ -533,7 +571,7 @@ func F2RAUpdatePeople(ctx context.Context, x *WriteHandlerContext) error {
 	return nil
 }
 
-// F2RAUpdateExistingRA creates a new rental agreement and links it to its
+// F2RAUpdateRA creates a new rental agreement and links it to its
 // parent
 //
 // INPUTS
@@ -543,8 +581,8 @@ func F2RAUpdatePeople(ctx context.Context, x *WriteHandlerContext) error {
 // RETURNS
 //     Any errors encountered
 //-----------------------------------------------------------------------------
-func F2RAUpdateExistingRA(ctx context.Context, x *WriteHandlerContext) error {
+func F2RAUpdateRA(ctx context.Context, x *WriteHandlerContext) error {
 	// var err error
-	rlib.Console("Entered F2RAUpdateExistingRA\n")
+	rlib.Console("Entered F2RAUpdateRA\n")
 	return nil
 }
