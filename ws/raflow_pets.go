@@ -318,15 +318,28 @@ func RecalculatePetFees(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 	cyclesChanges := true
 	if len(raFlowData.Pets[petIndex].Fees) > 0 {
 		// AS ONLY RENTCYCLE IS AVAILABLE IN FLOW FEES DATA
-		if raFlowData.Pets[petIndex].Fees[0].RentCycle == RC {
-			cyclesChanges = false
+		for i := range raFlowData.Pets[petIndex].Fees {
+			// LOOK FOR ONLY RECURRING ONE
+			if raFlowData.Pets[petIndex].Fees[i].RentCycle > 0 {
+				if raFlowData.Pets[petIndex].Fees[i].RentCycle == RC {
+					cyclesChanges = false
+					break
+				}
+			}
 		}
 	}
+	// fmt.Println("cyclesChanges: ", cyclesChanges)
+	// fmt.Println("RC: ", RC)
+	// fmt.Println("RetnCycle Fee: ", raFlowData.Pets[petIndex].Fees[0].RentCycle)
 
 	// IF CYCLES ARE CHANGED THEN GET FEES AND RE-ASSIGN
+	var changedFees = []rlib.RAFeesData{}
 	if cyclesChanges {
-		raFlowData.Pets[petIndex].Fees, err = rlib.GetRAFlowInitialPetFees(
+		changedFees, err = rlib.GetRAFlowInitialPetFees(
 			ctx, d.BID, req.RID, rStart, rStop, &modRAFlowMeta)
+
+		// ASSIGN CHANGED FEES
+		raFlowData.Pets[petIndex].Fees = changedFees
 
 		var modPetsData []byte
 		modPetsData, err = json.Marshal(&raFlowData.Pets)

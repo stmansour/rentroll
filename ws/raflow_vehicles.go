@@ -317,15 +317,25 @@ func RecalculateVehicleFees(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	cyclesChanges := true
 	if len(raFlowData.Vehicles[vehicleIndex].Fees) > 0 {
 		// AS ONLY RENTCYCLE IS AVAILABLE IN FLOW FEES DATA
-		if raFlowData.Vehicles[vehicleIndex].Fees[0].RentCycle == RC {
-			cyclesChanges = false
+		for i := range raFlowData.Vehicles[vehicleIndex].Fees {
+			// LOOK FOR ONLY RECURRING ONE
+			if raFlowData.Vehicles[vehicleIndex].Fees[i].RentCycle > 0 {
+				if raFlowData.Vehicles[vehicleIndex].Fees[i].RentCycle == RC {
+					cyclesChanges = false
+					break
+				}
+			}
 		}
 	}
 
 	// IF CYCLES ARE CHANGED THEN GET FEES AND RE-ASSIGN
+	var changedFees = []rlib.RAFeesData{}
 	if cyclesChanges {
-		raFlowData.Vehicles[vehicleIndex].Fees, err = rlib.GetRAFlowInitialVehicleFees(
+		changedFees, err = rlib.GetRAFlowInitialVehicleFees(
 			ctx, d.BID, req.RID, rStart, rStop, &modRAFlowMeta)
+
+		// ASSIGN CHANGED FEES
+		raFlowData.Vehicles[vehicleIndex].Fees = changedFees
 
 		var modVehiclesData []byte
 		modVehiclesData, err = json.Marshal(&raFlowData.Vehicles)

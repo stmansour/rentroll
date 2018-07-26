@@ -18,7 +18,8 @@
     SliderContentDivLength, SetFeeFormRecordFromFeeData,
     RenderVehicleFeesGridSummary, RAFlowNewVehicleAJAX,
     GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary,
-    GetVehicleIdentity, updateFlowData
+    GetVehicleIdentity, updateFlowData, GetTiePeopleLocalData,
+    RecalculateVehicleFees,
 */
 
 "use strict";
@@ -46,7 +47,7 @@ window.RAFlowNewVehicleAJAX = function() {
             AssignVehiclesGridRecords();
 
             // mark new TMPVID from meta
-            app.raflow.last.TMPVID = data.record.Data.meta.LastTMPVID;
+            app.raflow.last.TMPVID = data.record.Flow.Data.meta.LastTMPVID;
         }
     });
 };
@@ -435,9 +436,13 @@ window.loadRAVehiclesGrid = function () {
             },
             onChange: function(event) {
                 event.onComplete = function() {
+                    // if contact person is changed then hit the server to re-calculate fees
                     if (event.target === "TMPTCID") {
-                        var TMPTCID = parseInt(event.value_new.id);
-                        alert(TMPTCID);
+                        var TMPTCID = parseInt(event.value_new.id),
+                            TMPVID = this.record.TMPVID;
+
+                        // re calculate fees if person is changed
+                        RecalculateVehicleFees(TMPVID, TMPTCID);
                     }
 
                     // formRecDiffer: 1=current record, 2=original record, 3=diff object
@@ -1097,4 +1102,52 @@ window.GetVehicleIdentity = function(record) {
     }
 
     return "";
+};
+
+//-----------------------------------------------------------------------------
+// RecalculateVehicleFees - will determine if recalcuation needed for vehicle
+//                          fees. If needed, it will hit the server to get the
+//                          latest new collection of fees for that.
+//-----------------------------------------------------------------------------
+window.RecalculateVehicleFees = function (TMPVID, TMPTCID) {
+    var BID = getCurrentBID();
+    var tiePerson = GetTiePeopleLocalData(TMPTCID);
+
+    // if no tied rentable then return
+    var RID = tiePerson.PRID;
+    if (!RID) {
+        return;
+    }
+
+    var data = {
+        "cmd":          "recalculate",
+        "FlowID":       app.raflow.activeFlowID,
+        "TMPVID":       TMPVID,
+        "RID":          RID,
+    };
+
+    return $.ajax({
+        url: "/v1/vehiclefees/" + BID.toString() + "/" + app.raflow.activeFlowID.toString(),
+        method: "POST",
+        contentType: "application/json",
+        dataType: "json",
+        data: JSON.stringify(data),
+        success: function (data) {
+            if (data.status !== "error") {
+                // get the last tmpasmid of fees
+                var oldLastTMPASMID = app.raflow.data[app.raflow.activeFlowID].Data.meta.LastTMPASMID;
+
+                // Update flow local copy and green checks
+                updateFlowData(data);
+
+                // re-assign fees grid records if modifiec
+                if (oldLastTMPASMID !== data.record.Flow.Data.meta.LastTMPASMID) {
+                    AssignVehicleFeesGridRecords(TMPVID);
+                }
+            }
+        },
+        error: function (data) {
+            console.error(data);
+        }
+    });
 };
