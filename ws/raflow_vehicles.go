@@ -192,7 +192,7 @@ func CreateNewRAFlowVehicle(w http.ResponseWriter, r *http.Request, d *ServiceDa
 // SvcVehicleFeesHandler is used to get the vehicle fees based on provided command
 // URL:
 //       0    1       2   3
-//      /v1/uservehicles/BID/TCID
+//      /v1/vehiclefees/BID/TCID
 // The server command can be:
 //      recalculate
 //-----------------------------------------------------------------------------
@@ -217,6 +217,7 @@ func SvcVehicleFeesHandler(w http.ResponseWriter, r *http.Request, d *ServiceDat
 // RecalculateVehicleFeeRequest struct to handle
 type RecalculateVehicleFeeRequest struct {
 	FlowID int64
+	TMPVID int64
 	RID    int64
 }
 

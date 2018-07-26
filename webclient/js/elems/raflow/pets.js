@@ -1048,7 +1048,7 @@ window.AssignPetFeesGridRecords = function(TMPPETID) {
 //                      If needed, it will hit the server to get the latest
 //                      new collection of fees for that.
 //-----------------------------------------------------------------------------
-window.RecalculatePetFees = function (TMPTCID) {
+window.RecalculatePetFees = function (TMPPETID, TMPTCID) {
     var BID = getCurrentBID();
     var tiePerson = GetTiePeopleLocalData(TMPTCID);
 
@@ -1059,9 +1059,10 @@ window.RecalculatePetFees = function (TMPTCID) {
     }
 
     var data = {
-        "RID": RID,
-        "FlowID": app.raflow.activeFlowID,
-        "cmd": "recalculate",
+        "cmd":          "recalculate",
+        "FlowID":       app.raflow.activeFlowID,
+        "TMPPETID":     TMPPETID,
+        "RID":          RID,
     };
 
     return $.ajax({
@@ -1073,7 +1074,7 @@ window.RecalculatePetFees = function (TMPTCID) {
         success: function (data) {
             if (data.status != "error") {
                 // update local data with server's response data
-                app.raflow.data[data.record.FlowID] = data.record;
+                app.raflow.data[data.record.Flow.FlowID] = data.record.Flow;
             }
         },
         error: function (data) {

@@ -1253,8 +1253,8 @@ func NewRAFlowPet(ctx context.Context, BID, RID int64, rStart, rStop, pStart, pS
 		Fees:     []RAFeesData{},
 	}
 
-	// GET PET INITIAL FEES
-	pet.Fees, err = GetRAFlowInitialPetFees(ctx, BID, RID, rStart, rStop, meta)
+	// GET PET INITIAL FEES, META SHOULD BE UPDATED IN CALLER FUNCTION
+	pet.Fees, err = GetRAFlowInitialPetFees(ctx, BID, RID, (time.Time)(rStart), (time.Time)(rStop), meta)
 
 	return
 }
@@ -1288,8 +1288,8 @@ func NewRAFlowVehicle(ctx context.Context, BID, RID int64, rStart, rStop, pStart
 		Fees:    []RAFeesData{},
 	}
 
-	// GET VEHICLE INITIAL FEES
-	vehicle.Fees, err = GetRAFlowInitialVehicleFees(ctx, BID, RID, rStart, rStop, meta)
+	// GET VEHICLE INITIAL FEES, META SHOULD BE UPDATED IN CALLER FUNCTION
+	vehicle.Fees, err = GetRAFlowInitialVehicleFees(ctx, BID, RID, (time.Time)(rStart), (time.Time)(rStop), meta)
 
 	return
 }
