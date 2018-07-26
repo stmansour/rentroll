@@ -3,26 +3,8 @@
     "DtStop": "3/1/2020",
     "RT": [
         {
-            "Count": 2,
+            "Count": 8,
             "MarketRate": 1000,
-            "RentCycle": 6,
-            "ProrateCycle": 4
-        },
-        {
-            "Count": 2,
-            "MarketRate": 1500,
-            "RentCycle": 6,
-            "ProrateCycle": 4
-        },
-        {
-            "Count": 2,
-            "MarketRate": 1750,
-            "RentCycle": 6,
-            "ProrateCycle": 4
-        },
-        {
-            "Count": 2,
-            "MarketRate": 2500,
             "RentCycle": 6,
             "ProrateCycle": 4
         }
@@ -31,8 +13,8 @@
     "SecDepDepositoryName": "Bank Of America",
     "PTypeCheckName": "Check",
     "PeopleCount": 4,
-    "RACount": 4,
-    "Carports": 8,
+    "RACount": 1,
+    "Carports": 0,
     "CPMarketRate": 35,
     "CPRentCycle": 6,
     "CPProrateCycle": 4,

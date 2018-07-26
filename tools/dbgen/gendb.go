@@ -511,7 +511,7 @@ func createChildRentableTypes(ctx context.Context, dbConf *GenDBConf) error {
 		// RENTABLE
 		//-----------------------------
 		r.BID = rt.BID
-		r.RentableName = fmt.Sprintf("CP%03d", i)
+		r.RentableName = fmt.Sprintf("CP%03d", i+1)
 		errlist := bizlogic.InsertRentable(ctx, &r)
 		if errlist != nil {
 			return bizlogic.BizErrorListToError(errlist)

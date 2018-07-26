@@ -11,10 +11,11 @@ import (
 
 // WriteHandlerContext contains context information for RA Write Handlers
 type WriteHandlerContext struct {
-	ra     rlib.RentalAgreement
-	raOrig rlib.RentalAgreement
-	raf    rlib.RAFlowJSONData
-	xbiz   rlib.XBusiness
+	isNewRaid bool // true only if this is a new Rental Agreement, false otherwise
+	ra        rlib.RentalAgreement
+	raOrig    rlib.RentalAgreement
+	raf       rlib.RAFlowJSONData
+	xbiz      rlib.XBusiness
 }
 
 // RAWriteHandler a handler function for part of the work of migrating
@@ -68,7 +69,8 @@ func Flow2RA(ctx context.Context, flowid int64) (int64, error) {
 	// If this is an update of an existing RAID, check to see if any changes
 	// were made. Otherwise treat it as a new RAID
 	//----------------------------------------------------------------------------
-	if x.raf.Meta.RAID > 0 {
+	x.isNewRaid = x.raf.Meta.RAID > 0
+	if x.isNewRaid {
 		changes, err := rlib.RAFlowDataDiff(ctx, x.raf.Meta.RAID)
 		if err != nil {
 			rlib.Console("\n\nERROR IN FlowDataDIFF: %s\n\n\n", err.Error())
@@ -202,6 +204,7 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 	for i := 0; i < len(ehandlers); i++ {
 		rlib.Console("FlowSaveRA: running handler %s\n", ehandlers[i].Name)
 		if err = ehandlers[i].Handler(ctx, x); err != nil {
+			fmt.Printf("error returned from handler %s: %s\n", ehandlers[i].Name, err.Error())
 			return nraid, err
 		}
 	}
@@ -380,20 +383,33 @@ func F2RAUpdatePets(ctx context.Context, x *WriteHandlerContext) error {
 	var err error
 	for i := 0; i < len(x.raf.Pets); i++ {
 		var pet rlib.RentalAgreementPet
-		if x.raf.Pets[i].PETID > 0 {
-			pet, err = rlib.GetRentalAgreementPet(ctx, x.raf.Pets[i].PETID)
-			if err != nil {
-				return err
+		if x.isNewRaid {
+			if x.raf.Pets[i].PETID > 0 {
+				pet, err = rlib.GetRentalAgreementPet(ctx, x.raf.Pets[i].PETID)
+				if err != nil {
+					return err
+				}
+				rlib.MigrateStructVals(&x.raf.Pets[i], &pet)
+				if err = rlib.UpdateRentalAgreementPet(ctx, &pet); err != nil {
+					return err
+				}
+				continue // all done, move on to the next pet
 			}
 			rlib.MigrateStructVals(&x.raf.Pets[i], &pet)
-			if err = rlib.UpdateRentalAgreementPet(ctx, &pet); err != nil {
-				return err
-			}
-			continue // all done, move on to the next pet
+		} else {
+			pet.BID = x.raf.Dates.BID
+			pet.RAID = x.ra.RAID
+			pet.TCID = GetTCIDForTMPTCID(x, x.raf.Pets[i].TMPTCID)
+			pet.Type = x.raf.Pets[i].Type
+			pet.Breed = x.raf.Pets[i].Breed
+			pet.Color = x.raf.Pets[i].Color
+			pet.Weight = x.raf.Pets[i].Weight
+			pet.Name = x.raf.Pets[i].Name
+			pet.DtStart = time.Time(x.raf.Pets[i].DtStart)
+			pet.DtStop = time.Time(x.raf.Pets[i].DtStop)
 		}
-		rlib.MigrateStructVals(&x.raf.Pets[i], &pet)
-		pet.RAID = x.raf.Meta.RAID
-		_, err = rlib.InsertRentalAgreementPet(ctx, &pet)
+		pet.RAID = x.ra.RAID
+		x.raf.Pets[i].PETID, err = rlib.InsertRentalAgreementPet(ctx, &pet)
 		if err != nil {
 			return err
 		}
@@ -420,7 +436,7 @@ func F2RAUpdateVehicles(ctx context.Context, x *WriteHandlerContext) error {
 		//-------------------------------
 		// handle existing vehicles...
 		//-------------------------------
-		if x.raf.Vehicles[i].VID > 0 {
+		if x.isNewRaid && x.raf.Vehicles[i].VID > 0 {
 			vehicles, err := rlib.GetVehiclesByTransactant(ctx, tcid)
 			if err != nil {
 				return err
@@ -435,13 +451,14 @@ func F2RAUpdateVehicles(ctx context.Context, x *WriteHandlerContext) error {
 			}
 			continue // all done, move on to the next vehicle
 		}
+
 		//-------------------------------
 		// handle new vehicles...
 		//-------------------------------
 		var vehicle rlib.Vehicle
 		rlib.MigrateStructVals(&x.raf.Vehicles[i], &vehicle)
 		vehicle.TCID = tcid
-		_, err = rlib.InsertVehicle(ctx, &vehicle)
+		x.raf.Vehicles[i].VID, err = rlib.InsertVehicle(ctx, &vehicle)
 		if err != nil {
 			return err
 		}
