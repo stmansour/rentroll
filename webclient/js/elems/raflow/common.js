@@ -267,6 +267,10 @@ window.updateFlowCopy = function(flow){
 // -----------------------------------------------------
 window.dataFulFilled = function(data) {
 
+    // Update local copy of basicCheck and dataFulfilled
+    app.raflow.basicCheck[data.Flow.FlowID] = data.BasicCheck;
+    app.raflow.dataFulfilled[data.Flow.FlowID] = data.DataFulfilled;
+
     // Enable/Disable green check for the each section
     var active_comp = $(".ra-form-component:visible");
     var active_comp_id = active_comp.attr("id");
