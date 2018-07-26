@@ -4,7 +4,6 @@
     getFlowDataAjax,
     manageParentRentableW2UIItems, managePeopleW2UIItems,
     LoadRAFlowTemplate,
-    validateRAFlowComponents,
     getVehicleFees, getPetFees,
     renderRAStateInToolbar,
     loadRAActionTemplate,
@@ -81,9 +80,6 @@ window.LoadRAFlowTemplate = function(bid, FlowID) {
 
             // renders the Rental Agreement State in Toolbar
             renderRAStateInToolbar(raFlags);
-
-            // show "done" mark on each li of navigation bar
-            // validateRAFlowComponents(); TODO(Akshay): Remove this green check from here
 
             // clear grid, form if previously loaded in DOM
             for (var comp in app.raFlowPartTypes) {
@@ -237,7 +233,7 @@ window.buildRAApplicantElements = function() {
 
             // warn user if form content has been changed
             form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);
-        },
+        }
     });
 
     // add date navigation toolbar for new rental agreement form

@@ -16,8 +16,8 @@
     GetFeeFormInitRecord,
     FeeFormOnChangeHandler, FeeFormOnRefreshHandler,
     SliderContentDivLength, SetFeeFormRecordFromFeeData,
-    RenderPetFeesGridSummary, RAFlowNewPetAJAX,
-    GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary, dataFulFilled
+    RenderPetFeesGridSummary, RAFlowNewPetAJAX, updateFlowData,
+    GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary
 */
 
 "use strict";
@@ -38,17 +38,10 @@ window.RAFlowNewPetAJAX = function() {
     })
     .done(function(data) {
         if (data.status === "success") {
-            // update the local copy of flow for the active one
-            app.raflow.data[data.record.Flow.FlowID] = data.record.Flow;
-
-            // set the rentable grid records again
-            AssignPetsGridRecords();
-
+            // Update flow local copy and green checks
+            updateFlowData(data);
             // mark new TMPPETID from meta
             app.raflow.last.TMPPETID = data.record.Data.meta.LastTMPPETID;
-
-            // Enable/Disable green check
-            dataFulFilled(data.record);
         }
     });
 };

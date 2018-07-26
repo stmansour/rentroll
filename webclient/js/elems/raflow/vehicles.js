@@ -18,7 +18,7 @@
     SliderContentDivLength, SetFeeFormRecordFromFeeData,
     RenderVehicleFeesGridSummary, RAFlowNewVehicleAJAX,
     GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary,
-    GetVehicleIdentity, dataFulFilled
+    GetVehicleIdentity, updateFlowData
 */
 
 "use strict";
@@ -39,17 +39,14 @@ window.RAFlowNewVehicleAJAX = function() {
     })
     .done(function(data) {
         if (data.status === "success") {
-            // update the local copy of flow for the active one
-            app.raflow.data[data.record.Flow.FlowID] = data.record.Flow;
+            // Update flow local copy and green checks
+            updateFlowData(data);
 
             // set the rentable grid records again
             AssignVehiclesGridRecords();
 
             // mark new TMPVID from meta
             app.raflow.last.TMPVID = data.record.Data.meta.LastTMPVID;
-
-            // Enable/Disable green check
-            dataFulFilled(data.record);
         }
     });
 };

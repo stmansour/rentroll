@@ -7,7 +7,8 @@
     refreshLabels,
     GetVehicleIdentity,
     dtFormatISOToW2ui,
-    localtimeToUTC
+    localtimeToUTC,
+    updateFlowData
 */
 "use strict";
 
@@ -23,8 +24,10 @@ window.submitActionForm = function(data) {
         data: JSON.stringify(data)
     }).done(function(data) {
         if (data.status === "success") {
-            // update the local copy of flow for the active one
-            app.raflow.data[data.record.Flow.FlowID] = data.record.Flow;
+
+            // Update flow local copy and green checks
+            updateFlowData(data);
+
             w2ui.actionLayout.get('main').content.destroy();
 
             loadRAActionTemplate();
