@@ -11,7 +11,7 @@
     RenderRentablesGridSummary, GetFeeFormFields, GetFeeGridColumns,
     SetFeeDataFromFeeFormRecord, SetFeeFormRecordFromFeeData,
     FeeFormOnChangeHandler, GetFeeFormToolbar, FeeFormOnRefreshHandler,
-    GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary, dataFulFilled
+    GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary, updateFlowData
 */
 
 "use strict";
@@ -29,14 +29,11 @@ window.getInitialRentableFeesData = function(BID, RID, FlowID) {
         data: JSON.stringify(data)
     }).done(function(data) {
         if (data.status === "success") {
-            // update the local copy of flow for the active one
-            app.raflow.data[data.record.Flow.FlowID] = data.record.Flow;
+            // Update flow local copy and green checks
+            updateFlowData(data);
 
             // set the rentable grid records again
             AssignRentableGridRecords();
-
-            // Enable/Disable green check
-            dataFulFilled(data.record.DataFulfilled);
         }
     });
 };

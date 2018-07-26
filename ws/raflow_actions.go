@@ -200,29 +200,6 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 					return
 				}
 
-				/*RAID := flow.ID
-				if RAID > 0 {
-					// get the Rental Agreement from database
-					var ra rlib.RentalAgreement
-					ra, err = rlib.GetRentalAgreement(ctx, RAID)
-					if err != nil {
-						SvcErrorReturn(w, err, funcname)
-						return
-					}
-
-					// modify the data
-					ra.TerminatorUID = d.sess.UID
-					ra.TerminationDate = time.Time(today)
-					ra.LeaseTerminationReason = data.TerminationReason
-
-					// update modified data in database
-					err = rlib.UpdateRentalAgreement(ctx, &ra)
-					if err != nil {
-						SvcErrorReturn(w, err, funcname)
-						return
-					}
-				}*/
-
 				modRAFlowMeta.TerminatorUID = d.sess.UID
 				modRAFlowMeta.TerminatorName = fullName
 				modRAFlowMeta.TerminationDate = rlib.JSONDateTime(today)
@@ -249,29 +226,6 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				SvcErrorReturn(w, err, funcname)
 				return
 			}
-
-			/*RAID := flow.ID
-			if RAID > 0 {
-				// get the Rental Agreement from database
-				var ra rlib.RentalAgreement
-				ra, err = rlib.GetRentalAgreement(ctx, RAID)
-				if err != nil {
-					SvcErrorReturn(w, err, funcname)
-					return
-				}
-
-				// modify the data
-				ra.NoticeToMoveUID = d.sess.UID
-				ra.NoticeToMoveDate = time.Time(data.NoticeToMoveDate)
-				ra.NoticeToMoveReported = time.Time(today)
-
-				// update modified data in database
-				err = rlib.UpdateRentalAgreement(ctx, &ra)
-				if err != nil {
-					SvcErrorReturn(w, err, funcname)
-					return
-				}
-			}*/
 
 			modRAFlowMeta.NoticeToMoveUID = d.sess.UID
 			modRAFlowMeta.NoticeToMoveName = fullName

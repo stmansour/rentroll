@@ -92,12 +92,6 @@ func Flow2RA(ctx context.Context, flowid int64) (int64, error) {
 		}
 	}
 
-	// REMOVE FLOW IF MIGRATION DONE SUCCESSFULLY
-	err = rlib.DeleteFlow(ctx, flowid)
-	if err != nil {
-		return nraid, err
-	}
-
 	return nraid, nil
 }
 

@@ -16,8 +16,9 @@
     GetFeeFormInitRecord,
     FeeFormOnChangeHandler, FeeFormOnRefreshHandler,
     SliderContentDivLength, SetFeeFormRecordFromFeeData,
-    RenderPetFeesGridSummary, RAFlowNewPetAJAX,
-    GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary
+    RenderPetFeesGridSummary, RAFlowNewPetAJAX, updateFlowData,
+    GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary,
+    GetTiePeopleLocalData, RecalculatePetFees,
 */
 
 "use strict";
@@ -38,14 +39,10 @@ window.RAFlowNewPetAJAX = function() {
     })
     .done(function(data) {
         if (data.status === "success") {
-            // update the local copy of flow for the active one
-            app.raflow.data[data.record.Flow.FlowID] = data.record.Flow;
-
-            // set the rentable grid records again
-            AssignPetsGridRecords();
-
+            // Update flow local copy and green checks
+            updateFlowData(data);
             // mark new TMPPETID from meta
-            app.raflow.last.TMPPETID = data.record.Data.meta.LastTMPPETID;
+            app.raflow.last.TMPPETID = data.record.Flow.Data.meta.LastTMPPETID;
         }
     });
 };
@@ -396,8 +393,16 @@ window.loadRAPetsGrid = function () {
                 };
             },
             onChange: function(event) {
-
                 event.onComplete = function() {
+                    // if contact person is changed then hit the server to re-calculate fees
+                    if (event.target === "TMPTCID") {
+                        var TMPTCID = parseInt(event.value_new.id),
+                            TMPPETID = this.record.TMPPETID;
+
+                        // re calculate fees if person is changed
+                        RecalculatePetFees(TMPPETID, TMPTCID);
+                    }
+
                     // formRecDiffer: 1=current record, 2=original record, 3=diff object
                     var diff = formRecDiffer(this.record, app.active_form_original, {});
                     // if diff == {} then make dirty flag as false, else true
@@ -1040,4 +1045,52 @@ window.AssignPetFeesGridRecords = function(TMPPETID) {
 
     // render pet fees grid summary
     RenderPetFeesGridSummary(TMPPETID);
+};
+
+//-----------------------------------------------------------------------------
+// RecalculatePetFees - will determine if recalcuation needed for pet fees
+//                      If needed, it will hit the server to get the latest
+//                      new collection of fees for that.
+//-----------------------------------------------------------------------------
+window.RecalculatePetFees = function (TMPPETID, TMPTCID) {
+    var BID = getCurrentBID();
+    var tiePerson = GetTiePeopleLocalData(TMPTCID);
+
+    // if no tied rentable then return
+    var RID = tiePerson.PRID;
+    if (!RID) {
+        return;
+    }
+
+    var data = {
+        "cmd":          "recalculate",
+        "FlowID":       app.raflow.activeFlowID,
+        "TMPPETID":     TMPPETID,
+        "RID":          RID,
+    };
+
+    return $.ajax({
+        url: "/v1/petfees/" + BID.toString() + "/" + app.raflow.activeFlowID.toString(),
+        method: "POST",
+        contentType: "application/json",
+        dataType: "json",
+        data: JSON.stringify(data),
+        success: function (data) {
+            if (data.status !== "error") {
+                // get the last tmpasmid of fees
+                var oldLastTMPASMID = app.raflow.data[app.raflow.activeFlowID].Data.meta.LastTMPASMID;
+
+                // Update flow local copy and green checks
+                updateFlowData(data);
+
+                // re-assign fees grid records if modifiec
+                if (oldLastTMPASMID !== data.record.Flow.Data.meta.LastTMPASMID) {
+                    AssignPetFeesGridRecords(TMPPETID);
+                }
+            }
+        },
+        error: function (data) {
+            console.error(data);
+        }
+    });
 };
