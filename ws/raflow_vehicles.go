@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"rentroll/rlib"
+	"time"
 )
 
 // SvcRAFlowVehiclesHandler handles operation on vehicles of raflow json data
@@ -113,7 +114,7 @@ func CreateNewRAFlowVehicle(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	// --------------------------------------------------------
 	var newRAFlowVehicle rlib.RAVehiclesFlowData
 
-	// There is no associated contact person for the brand new entry of this pet
+	// There is no associated contact person for the brand new entry of this vehicle
 	RID := int64(0)
 
 	// get new vehicle with some initial data
@@ -233,9 +234,151 @@ type RecalculateVehicleFeeRequest struct {
 // wsdoc }
 func RecalculateVehicleFees(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "RecalculateVehicleFees"
-	/*var (
-		req RecalculateVehicleFeeRequest
-		g   FlowResponse
-	)*/
+	var (
+		req        RecalculateVehicleFeeRequest
+		raFlowData rlib.RAFlowJSONData
+		err        error
+		tx         *sql.Tx
+		ctx        context.Context
+	)
 	fmt.Printf("Entered in %s\n", funcname)
+
+	// ===============================================
+	// defer function to handle transactaion rollback
+	// ===============================================
+	defer func() {
+		if err != nil {
+			if tx != nil {
+				tx.Rollback()
+			}
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+	}()
+
+	// http method check
+	if r.Method != "POST" {
+		err = fmt.Errorf("Only POST method is allowed")
+		return
+	}
+
+	// unmarshal data into request data struct
+	if err = json.Unmarshal([]byte(d.data), &req); err != nil {
+		return
+	}
+
+	//-------------------------------------------------------
+	// GET THE NEW `tx`, UPDATED CTX FROM THE REQUEST CONTEXT
+	//-------------------------------------------------------
+	tx, ctx, err = rlib.NewTransactionWithContext(r.Context())
+	if err != nil {
+		return
+	}
+
+	//-------------------------------------------------------
+	// GET THE FLOW FROM FlowID AND UNMARSHALL CONTENT
+	//-------------------------------------------------------
+	var flow rlib.Flow
+	flow, err = rlib.GetFlow(ctx, req.FlowID)
+	if err != nil {
+		return
+	}
+
+	// get unmarshalled raflow data into struct
+	err = json.Unmarshal(flow.Data, &raFlowData)
+	if err != nil {
+		return
+	}
+
+	// START AND STOP IN time.Time
+	rStart := (time.Time)(raFlowData.Dates.RentStart)
+	rStop := (time.Time)(raFlowData.Dates.RentStop)
+	modRAFlowMeta := raFlowData.Meta
+
+	//----------------------------
+	// GET THE CYCLES BASED ON RID
+	//----------------------------
+	var RC, PC int64 // RC = Rent Cycle, PC = Proration Cycle
+	err = rlib.GetRAFlowFeeCycles(ctx, req.RID, rStart, &RC, &PC)
+	if err != nil {
+		return
+	}
+
+	// CHECK IF ABOVE RC AND PC ARE SAME OR NOT, IF NOT THEN GET INITIAL FEES AGAIN
+	vehicleIndex := -1
+	for i := range raFlowData.Vehicles {
+		if req.TMPVID == raFlowData.Vehicles[i].TMPVID {
+			vehicleIndex = i
+			break
+		}
+	}
+
+	// LOOK AT THE FIRST FEE INSTANCE IN FEE
+	cyclesChanges := true
+	if len(raFlowData.Vehicles[vehicleIndex].Fees) > 0 {
+		// AS ONLY RENTCYCLE IS AVAILABLE IN FLOW FEES DATA
+		if raFlowData.Vehicles[vehicleIndex].Fees[0].RentCycle == RC {
+			cyclesChanges = false
+		}
+	}
+
+	// IF CYCLES ARE CHANGED THEN GET FEES AND RE-ASSIGN
+	if cyclesChanges {
+		raFlowData.Vehicles[vehicleIndex].Fees, err = rlib.GetRAFlowInitialVehicleFees(
+			ctx, d.BID, req.RID, rStart, rStop, &modRAFlowMeta)
+
+		var modVehiclesData []byte
+		modVehiclesData, err = json.Marshal(&raFlowData.Vehicles)
+		if err != nil {
+			return
+		}
+
+		// update flow with this modified vehicles part
+		err = rlib.UpdateFlowData(ctx, "vehicles", modVehiclesData, &flow)
+		if err != nil {
+			return
+		}
+	}
+
+	// --------------------------------------------------------
+	// UPDATE JSON DOC WITH NEW META DATA IF APPLICABLE
+	// --------------------------------------------------------
+	if raFlowData.Meta.LastTMPASMID < modRAFlowMeta.LastTMPASMID {
+
+		// get marshalled data
+		var modMetaData []byte
+		modMetaData, err = json.Marshal(&modRAFlowMeta)
+		if err != nil {
+			return
+		}
+
+		// update flow with this modified meta part
+		err = rlib.UpdateFlowData(ctx, "meta", modMetaData, &flow)
+		if err != nil {
+			return
+		}
+	}
+
+	// ----------------------------------------------
+	// RETURN RESPONSE
+	// ----------------------------------------------
+
+	// get the modified flow
+	flow, err = rlib.GetFlow(ctx, req.FlowID)
+	if err != nil {
+		return
+	}
+
+	// ------------------
+	// COMMIT TRANSACTION
+	// ------------------
+	if err = tx.Commit(); err != nil {
+		return
+	}
+
+	// -------------------
+	// WRITE FLOW RESPONSE
+	// -------------------
+	SvcWriteFlowResponse(ctx, d.BID, flow, w)
+	return
 }
