@@ -54,7 +54,6 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		tx         *sql.Tx
 		ctx        context.Context
 	)
-
 	fmt.Printf("Entered %s\n", funcname)
 
 	// ===============================================
@@ -71,13 +70,13 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 	}()
 
+	// FLAG: SHOULD WE MIGRATE DATA TO RA
 	migrateData := false
 
 	// set location for time as UTC
 	var location *time.Location
 	location, err = time.LoadLocation("UTC")
 	if err != nil {
-		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -88,13 +87,11 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// HTTP METHOD CHECK
 	if r.Method != "POST" {
 		err = fmt.Errorf("Only POST method is allowed")
-		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
 	// SEE IF WE CAN UNMARSHAL THE DATA
 	if err = json.Unmarshal([]byte(d.data), &foo); err != nil {
-		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -122,13 +119,17 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
+	// MODE OF OPERATION, IS IT ACTION BASED OR STATE BASED UPDATE
+	MODE := foo.Mode
+
+	// GET THE CURRENT STATE FROM THE LAST 4 BITS
+	state := raFlowData.Meta.RAFLAGS & uint64(0xF)
+
+	// WE DON'T WANT TO LOSE ALL BITS EXCEPT LAST 4 BITS (WHICH REPRESENTS THE RA STATE)
+	clearedState := raFlowData.Meta.RAFLAGS & ^uint64(0xF)
+
 	// get meta in modRAFlowMeta, we're going to modify it
 	modRAFlowMeta := raFlowData.Meta
-
-	MODE := foo.Mode
-	state := raFlowData.Meta.RAFLAGS & uint64(0xf)
-
-	clearedState := modRAFlowMeta.RAFLAGS & ^uint64(0xf)
 
 	switch MODE {
 	case "Action":
@@ -136,7 +137,6 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			for i := foo.Action; i <= int64(state); i++ {
 				switch i {
 				case 0: // Application Being Completed
-
 				case 1: // Pending First Approval
 					modRAFlowMeta.Approver1 = 0
 					modRAFlowMeta.Approver1Name = ""
@@ -157,6 +157,7 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 				case 3: // Move-In / Execute Modification
 					modRAFlowMeta.DocumentDate = rlib.JSONDateTime(time.Time{})
+
 				case 4: // Active
 				case 5: // Terminated
 					modRAFlowMeta.TerminatorUID = 0
@@ -173,8 +174,8 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			}
 		}
 
-		// take latest RAFLAG value at this point(in case flag bits are reset)
-		clearedState = modRAFlowMeta.RAFLAGS & ^uint64(0xf)
+		// take latest RAFLAGS value at this point(in case flag bits are reset)
+		clearedState = modRAFlowMeta.RAFLAGS & ^uint64(0xF)
 		switch foo.Action {
 		case 0: // Application Being Completed
 			modRAFlowMeta.RAFLAGS = (clearedState | 0)
@@ -220,24 +221,20 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 					migrateData = true
 				}
 
-			} else {
-				// return err
-				err = fmt.Errorf("termination reason not present")
-				SvcErrorReturn(w, err, funcname)
+			} else { // NO TERMINATION REASON
+				err = fmt.Errorf("termination reason is not provided")
 				return
 			}
 
 		case 6: // Notice-To-Move
 			var data RANoticeToMoveData
 			if err = json.Unmarshal([]byte(d.data), &data); err != nil {
-				SvcErrorReturn(w, err, funcname)
 				return
 			}
 
 			var fullName string
 			fullName, err = getUserFullName(ctx, d.sess.UID)
 			if err != nil {
-				SvcErrorReturn(w, err, funcname)
 				return
 			}
 
@@ -252,22 +249,19 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			if modRAFlowMeta.RAID > 0 {
 				migrateData = true
 			}
-
-		default:
 		}
+
 	case "State":
 		switch state {
 		case 1: // Pending First Approval
 			var data RAApprover1Data
 			if err = json.Unmarshal([]byte(d.data), &data); err != nil {
-				SvcErrorReturn(w, err, funcname)
 				return
 			}
 
 			var fullName string
 			fullName, err = getUserFullName(ctx, d.sess.UID)
 			if err != nil {
-				SvcErrorReturn(w, err, funcname)
 				return
 			}
 
@@ -275,6 +269,7 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				// set 4th bit of Flag as 1
 				modRAFlowMeta.RAFLAGS = modRAFlowMeta.RAFLAGS | uint64(1<<4)
 
+				// FLAGS
 				clearedState = modRAFlowMeta.RAFLAGS & ^uint64(0xf)
 				modRAFlowMeta.RAFLAGS = (clearedState | 2)
 			} else if data.Decision1 == 2 && data.DeclineReason1 > 0 { // Declined
@@ -286,15 +281,22 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				modRAFlowMeta.TerminatorName = fullName
 				modRAFlowMeta.TerminationDate = rlib.JSONDateTime(today)
 
-				//TODO(Jay): Change it with SLSID for "Application Declined"
-				modRAFlowMeta.LeaseTerminationReason = 119
+				// IF BIZCACHE NOT INITIALIZED THEN
+				if rlib.RRdb.BizTypes[d.BID] == nil {
+					var xbiz rlib.XBusiness
+					err = rlib.InitBizInternals(d.BID, &xbiz)
+					if err != nil {
+						return
+					}
+				}
+				// APPLICATION DECLINED SLSID IN LEASE TERMINATION REASON
+				modRAFlowMeta.LeaseTerminationReason = rlib.RRdb.BizTypes[d.BID].Msgs.S[rlib.MSGAPPDECLINED].SLSID
 
+				// FLAGS
 				clearedState = modRAFlowMeta.RAFLAGS & ^uint64(0xf)
 				modRAFlowMeta.RAFLAGS = (clearedState | 5)
 			} else {
-				// return err
-				err = fmt.Errorf("approver1 data invalid")
-				SvcErrorReturn(w, err, funcname)
+				err = fmt.Errorf("approver1 data is not valid")
 				return
 			}
 
@@ -305,14 +307,12 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		case 2: // Pending Second Approval
 			var data RAApprover2Data
 			if err = json.Unmarshal([]byte(d.data), &data); err != nil {
-				SvcErrorReturn(w, err, funcname)
 				return
 			}
 
 			var fullName string
 			fullName, err = getUserFullName(ctx, d.sess.UID)
 			if err != nil {
-				SvcErrorReturn(w, err, funcname)
 				return
 			}
 
@@ -320,6 +320,7 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				// set 5th bit of Flag as 1
 				modRAFlowMeta.RAFLAGS = modRAFlowMeta.RAFLAGS | uint64(1<<5)
 
+				// FLAGS
 				clearedState = modRAFlowMeta.RAFLAGS & ^uint64(0xf)
 				modRAFlowMeta.RAFLAGS = (clearedState | 3)
 			} else if data.Decision2 == 2 && data.DeclineReason2 > 0 { // Declined
@@ -331,15 +332,22 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				modRAFlowMeta.TerminatorName = fullName
 				modRAFlowMeta.TerminationDate = rlib.JSONDateTime(today)
 
-				//TODO(Jay): Change it with SLSID for "Application Declined"
-				modRAFlowMeta.LeaseTerminationReason = 119
+				// IF BIZCACHE NOT INITIALIZED THEN
+				if rlib.RRdb.BizTypes[d.BID] == nil {
+					var xbiz rlib.XBusiness
+					err = rlib.InitBizInternals(d.BID, &xbiz)
+					if err != nil {
+						return
+					}
+				}
+				// APPLICATION DECLINED SLSID IN LEASE TERMINATION REASON
+				modRAFlowMeta.LeaseTerminationReason = rlib.RRdb.BizTypes[d.BID].Msgs.S[rlib.MSGAPPDECLINED].SLSID
 
+				// FLAGS
 				clearedState = modRAFlowMeta.RAFLAGS & ^uint64(0xf)
 				modRAFlowMeta.RAFLAGS = (clearedState | 5)
 			} else {
-				// return err
-				err = fmt.Errorf("approver2 data invalid")
-				SvcErrorReturn(w, err, funcname)
+				err = fmt.Errorf("approver2 data is not valid")
 				return
 			}
 
@@ -350,12 +358,9 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		case 3: // Move-In / Execute Modification
 			var data RAMoveInData
 			if err = json.Unmarshal([]byte(d.data), &data); err != nil {
-				SvcErrorReturn(w, err, funcname)
 				return
 			}
 			modRAFlowMeta.DocumentDate = rlib.JSONDateTime(data.DocumentDate)
-
-		default:
 		}
 	}
 
@@ -370,7 +375,6 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	err = rlib.UpdateFlowData(ctx, "meta", modMetaData, &flow)
 	if err != nil {
-		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -388,7 +392,6 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// migrate data to real table via hook
 		_, err = Flow2RA(ctx, flow.FlowID)
 		if err != nil {
-			SvcErrorReturn(w, err, funcname)
 			return
 		}
 	}

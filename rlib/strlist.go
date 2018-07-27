@@ -48,7 +48,6 @@ func GetRollerStringList(ctx context.Context, bid int64) (StringList, error) {
 	for i := 0; i < len(RollerStrings); i++ {
 		var sls = SLString{
 			BID:   bid,
-			SLID:  sl.SLID,
 			Value: strings.TrimSpace(RollerStrings[i]),
 		}
 		sl.S = append(sl.S, sls)

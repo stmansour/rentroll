@@ -546,7 +546,13 @@ window.getSLStringList = function(BID, SLName){
                 default:
                     console.log("SLName doesn't exists");
             }
-            app[SLName].push(defaultItem);
+
+            // if default item is defined then
+            if (defaultItem) {
+                app[SLName].push(defaultItem);
+            }
+
+            // push all the items in app."StringListName" from StringList
             for(var index = 0 ; index < SLObject.S.length ; index++){
                 app[SLName].push({id: SLObject.S[index].SLSID, text: SLObject.S[index].Value});
             }
