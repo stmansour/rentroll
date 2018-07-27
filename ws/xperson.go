@@ -90,7 +90,7 @@ type RPersonForm struct {
 	Convicted        bool
 	Bankruptcy       bool
 	FLAGS            uint64 // 0 = Approved/NotApproved,
-	ThirdPartySource int64
+	ThirdPartySource string
 	CreateTS         rlib.JSONDateTime
 	CreateBy         int64
 	LastModTime      rlib.JSONDateTime

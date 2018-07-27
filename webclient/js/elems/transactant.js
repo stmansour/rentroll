@@ -48,7 +48,7 @@ window.getTransactantInitRecord = function (BID, BUD) {
         TaxpayorID: "",
         GrossIncome: 0,
         DriversLicense: "",
-        ThirdPartySource: 0,
+        ThirdPartySource: "",
         EligibleFuturePayor: true,
         CompanyAddress: "",
         CompanyCity: "",
@@ -141,7 +141,7 @@ window.buildTransactElements = function() {
         {field: 'OtherPreferences',          type: 'text',      required: false, html: {page: 1, column: 0}},
         // {field: 'FollowUpDate',              type: 'date',      required: false, html: {page: 1, column: 0}},
         // {field: 'CommissionableThirdParty',  type: 'text',      required: false, html: {page: 1, column: 0}},
-        {field: 'ThirdPartySource',          type: 'int',       required: false, html: {page: 1, column: 0}},
+        {field: 'ThirdPartySource',          type: 'text',      required: false, html: {page: 1, column: 0}},
         {field: 'SpecialNeeds',              type: 'text',      required: false, html: {page: 1, column: 0}},  // In an effort to accommodate you, please advise us of any special needs,
 
         // ----------- Payor ----------

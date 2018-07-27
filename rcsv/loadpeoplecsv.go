@@ -141,7 +141,7 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 		{PostalCode, rcsvCopyString, &tr.PostalCode},
 		{Country, rcsvCopyString, &tr.Country},
 		{Points, nil, nil},
-		{ThirdPartySource, nil, nil},
+		{ThirdPartySource, rcsvCopyString, &pr.ThirdPartySource},
 		{DateofBirth, nil, nil},
 		{EmergencyContactName, rcsvCopyString, &t.EmergencyContactName},
 		{EmergencyContactAddress, rcsvCopyString, &t.EmergencyContactAddress},
@@ -226,14 +226,6 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Points value is invalid: %s", funcname, lineno, s)
 				}
 				t.Points = int64(i)
-			}
-		case ThirdPartySource:
-			if len(s) > 0 {
-				i, err := strconv.Atoi(strings.TrimSpace(s))
-				if err != nil {
-					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - ThirdPartySource value is invalid: %s", funcname, lineno, s)
-				}
-				pr.ThirdPartySource = int64(i)
 			}
 		case DateofBirth:
 			if len(s) > 0 {
