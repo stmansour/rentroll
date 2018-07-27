@@ -17,8 +17,10 @@
 // @params - FlowID, Decision, Reason, Action
 // -------------------------------------------------------------------------------
 window.submitActionForm = function(data) {
+    var BID = getCurrentBID();
+
     return $.ajax({
-        url: "/v1/actions/",
+        url: "/v1/actions/" + BID.toString() + "/",
         method: "POST",
         contentType: "application/json",
         data: JSON.stringify(data)
@@ -146,7 +148,8 @@ window.refreshLabels = function () {
                 x.innerHTML = 'Approved by ' + meta.Approver1Name + ' on ' + dtFormatISOToW2ui(meta.DecisionDate1);
             } else{
                 var reason1 = app.ApplDeny.find(function(t){if(t.id == meta.DeclineReason1){return t;}});
-                x.innerHTML = 'Declined by ' + meta.Approver1Name + ' on ' + dtFormatISOToW2ui(meta.DecisionDate1) + ' Reason: ' + reason1.text;
+                var reason1Text = reason1 ? reason1.text : "";
+                x.innerHTML = 'Declined by ' + meta.Approver1Name + ' on ' + dtFormatISOToW2ui(meta.DecisionDate1) + ' Reason: ' + reason1Text;
             }
         }
     }
@@ -160,7 +163,8 @@ window.refreshLabels = function () {
                 x.innerHTML = 'Approved by ' + meta.Approver2Name + ' on ' + dtFormatISOToW2ui(meta.DecisionDate2);
             } else{
                 var reason2 = app.ApplDeny.find(function(t){if(t.id == meta.DeclineReason2){return t;}});
-                x.innerHTML = 'Declined by ' + meta.Approver2Name + ' on ' + dtFormatISOToW2ui(meta.DecisionDate2) + ' Reason: ' + reason2.text;
+                var reason2Text = reason2 ? reason2.text : "";
+                x.innerHTML = 'Declined by ' + meta.Approver2Name + ' on ' + dtFormatISOToW2ui(meta.DecisionDate2) + ' Reason: ' + reason2Text;
             }
         }
     }
@@ -178,7 +182,35 @@ window.refreshLabels = function () {
     x = document.getElementById("bannerTerminationReason");
     if (x !== null) {
         if (meta.TerminatorUID > 0) {
-            x.innerHTML = app.WhyLeaving.find(function(t){if(t.id == meta.LeaseTerminationReason){return t;}}).text;
+            var termination;
+            var terminationReason;
+            if (meta.DeclineReason1 > 0) {
+                termination = app.RollerMsgs.find(function(t){if(t.id == meta.LeaseTerminationReason){return t;}});
+                terminationReason = termination ? termination.text : "";
+
+                // APPEND DECLINE REASON 1 IN BRACKETS
+                var dreason1 = app.ApplDeny.find(function(t){if(t.id == meta.DeclineReason1){return t;}});
+                var dreason1Text = dreason1 ? dreason1.text : "";
+
+                // IN NEW LINE
+                terminationReason += " ( "+ dreason1Text +" )";
+
+            } else if (meta.DeclineReason2 > 0) {
+                termination = app.RollerMsgs.find(function(t){if(t.id == meta.LeaseTerminationReason){return t;}});
+                terminationReason = termination ? termination.text : "";
+
+                // APPEND DECLINE REASON 1 IN BRACKETS
+                var dreason2 = app.ApplDeny.find(function(t){if(t.id == meta.DeclineReason2){return t;}});
+                var dreason2Text = dreason2 ? dreason2.text : "";
+
+                // IN NEW LINE
+                terminationReason += " ( "+ dreason2Text +" )";
+
+            } else {
+                termination = app.WhyLeaving.find(function(t){if(t.id == meta.LeaseTerminationReason){return t;}});
+                terminationReason = termination ? termination.text : "";
+            }
+            x.innerHTML = terminationReason;
         } else {
             x.innerHTML = '';
         }
@@ -352,7 +384,7 @@ window.loadRAActionTemplate = function() {
                 { type: 'bottom', style: app.pstyle2, size: 40,content:'bottom' },
                 { type: 'right', style: app.pstyle2, hidden: true}
             ],
-            onRefresh: function(event) {                
+            onRefresh: function(event) {
                 event.onComplete = function() {
                     refreshLabels();
                 };
@@ -382,7 +414,6 @@ window.loadRAActionForm = function() {
             name: 'RAActionForm',
             style: 'background-color: white; display: block;',
             focus: -1,
-            url: 'v1/actions/',
             formURL: '/webclient/html/raflow/formra-actionmain.html',
             fields: [
                 { field: 'RAApprovalDecision1', type: 'list', width: 120, required: true, hidden: true,
@@ -398,7 +429,7 @@ window.loadRAActionForm = function() {
                         items: getSLStringList(getCurrentBID(), "ApplDeny")
                     }
                 },
-                { field: 'RAApprovalDecision2', type: 'list', width: 120, required: true, hidden: true, 
+                { field: 'RAApprovalDecision2', type: 'list', width: 120, required: true, hidden: true,
                     options: {
                         items: [
                             {id: 1, text: "Approve"},
@@ -447,7 +478,7 @@ window.loadRAActionForm = function() {
                                 w2ui.RAActionForm.get('RATerminationReason').hidden = true;
                                 delete this.record.RATerminationReason;
                                 $('button[name=updateAction]').attr('disabled',false);
-                                
+
 
                                 w2ui.RAActionForm.get('RANoticeToMoveDate').hidden = true;
                         }
@@ -526,6 +557,9 @@ window.loadRAActionForm = function() {
                 w2ui.RAActionForm.record = {
                     RAActions: {id: -1, text: "--Select an Action--"},
                 };
+
+                // load sl stringlist in app
+                getSLStringList(getCurrentBID(), "RollerMsgs");
             },
             actions: {
                 save: function() {
@@ -572,7 +606,7 @@ window.loadRAActionForm = function() {
                             }
                             reqData = {
                                 "FlowID": FlowID,
-                                "DocumentDate": localtimeToUTC(DocumentDate),
+                                "DocumentDate": DocumentDate,
                                 "Mode": Mode
                             };
                             submitActionForm(reqData);
@@ -626,7 +660,7 @@ window.loadRAActionForm = function() {
                             reqData = {
                                 "FlowID": FlowID,
                                 "Action": Action,
-                                "NoticeToMoveDate": localtimeToUTC(NoticeToMoveDate),
+                                "NoticeToMoveDate": NoticeToMoveDate,
                                 "Mode": Mode
                             };
                             submitActionForm(reqData);
