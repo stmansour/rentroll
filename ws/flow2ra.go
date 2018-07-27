@@ -85,15 +85,6 @@ func Flow2RA(ctx context.Context, flowid int64) (int64, error) {
 				rlib.Console("\n\nERROR IN FlowSaveRA: %s\n\n\n", err.Error())
 				return nraid, err
 			}
-		} else {
-			//------------------------------------------------------------
-			// if there are meta data changes, then updated existing RAID
-			//------------------------------------------------------------
-			nraid, err = FlowSaveMetaDataChanges(ctx, &x)
-			if err != nil {
-				rlib.Console("\n\nERROR IN FlowSaveMetaDataChanges: %s\n\n\n", err.Error())
-				return nraid, err
-			}
 		}
 	} else { // this is a new origin RA
 		nraid, err = FlowSaveRA(ctx, &x)
@@ -101,6 +92,14 @@ func Flow2RA(ctx context.Context, flowid int64) (int64, error) {
 			rlib.Console("\n\nERROR IN FlowSaveRA: %s\n\n\n", err.Error())
 			return nraid, err
 		}
+	}
+	//------------------------------------------------------------
+	// if there are meta data changes, then updated existing RAID
+	//------------------------------------------------------------
+	nraid, err = FlowSaveMetaDataChanges(ctx, &x)
+	if err != nil {
+		rlib.Console("\n\nERROR IN FlowSaveMetaDataChanges: %s\n\n\n", err.Error())
+		return nraid, err
 	}
 	return nraid, nil
 }
