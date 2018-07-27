@@ -71,6 +71,8 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 	}()
 
+	migrateData := false
+
 	// set location for time as UTC
 	var location *time.Location
 	location, err = time.LoadLocation("UTC")
@@ -134,6 +136,7 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			for i := foo.Action; i <= int64(state); i++ {
 				switch i {
 				case 0: // Application Being Completed
+
 				case 1: // Pending First Approval
 					modRAFlowMeta.Approver1 = 0
 					modRAFlowMeta.Approver1Name = ""
@@ -186,14 +189,10 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			modRAFlowMeta.RAFLAGS = (clearedState | 3)
 
 		case 4: // Complete Move-In
-
-			// migrate data to real table via hook
-			_, err = Flow2RA(ctx, foo.FlowID)
-			if err != nil {
-				SvcErrorReturn(w, err, funcname)
-				return
-			}
 			modRAFlowMeta.RAFLAGS = (clearedState | 4)
+
+			// migrate data to real table
+			migrateData = true
 		case 5: // Terminate
 			var data RATerminationData
 			if err = json.Unmarshal([]byte(d.data), &data); err != nil {
@@ -215,6 +214,11 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				modRAFlowMeta.LeaseTerminationReason = data.TerminationReason
 
 				modRAFlowMeta.RAFLAGS = (clearedState | 5)
+
+				// if existing RA then migrate data to real table
+				if modRAFlowMeta.RAID > 0 {
+					migrateData = true
+				}
 
 			} else {
 				// return err
@@ -243,6 +247,11 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			modRAFlowMeta.NoticeToMoveReported = rlib.JSONDateTime(today)
 
 			modRAFlowMeta.RAFLAGS = (clearedState | 6)
+
+			// if existing RA then migrate data to real table
+			if modRAFlowMeta.RAID > 0 {
+				migrateData = true
+			}
 
 		default:
 		}
@@ -373,6 +382,15 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	flow, err = rlib.GetFlow(ctx, flow.FlowID)
 	if err != nil {
 		return
+	}
+
+	if migrateData {
+		// migrate data to real table via hook
+		_, err = Flow2RA(ctx, flow.FlowID)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
 	}
 
 	// ------------------
