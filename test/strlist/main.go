@@ -117,6 +117,9 @@ func DoTest(ctx context.Context, s *rlib.Session) {
 		return
 	}
 
+	//-------------------------------------------------
+	// Access the Rental Agreement Updated messages
+	//-------------------------------------------------
 	fmt.Printf("StringList RollerMsgs MSGRAUPDATED:\n")
 	fmt.Printf("    Value = %s\n", rlib.RRdb.BizTypes[bid].Msgs.S[rlib.MSGRAUPDATED].Value)
 	fmt.Printf("    SLSID = %d\n", rlib.RRdb.BizTypes[bid].Msgs.S[rlib.MSGRAUPDATED].SLSID)
