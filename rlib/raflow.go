@@ -237,7 +237,7 @@ type RAVehiclesFlowData struct {
 	VehicleMake         string       `validate:"string,min=1,max=80"`
 	VehicleModel        string       `validate:"string,min=1,max=80"`
 	VehicleColor        string       `validate:"string,min=1,max=80"`
-	VehicleYear         int64        `validate:"number,min=1900,max=2150"` // Akshay -- why would you make this a string?? It is an int64.-sman  TODO(Akshay): Make string validator for alphanumeric, numeric, alpha
+	VehicleYear         int64        `validate:"number,min=1900,max=2150"`
 	LicensePlateState   string       `validate:"string,min=1,max=80"`
 	LicensePlateNumber  string       `validate:"string,min=1,max=80"`
 	ParkingPermitNumber string       `validate:"string,min=1,max=80,omitempty"`
