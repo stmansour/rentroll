@@ -1,0 +1,4 @@
+StringList RollerMsgs MSGRAUPDATED:
+    Value = Rental Agreement was updated
+    SLSID = 389
+    SLID  = 8
