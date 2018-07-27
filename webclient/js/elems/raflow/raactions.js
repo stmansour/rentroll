@@ -20,7 +20,7 @@ window.submitActionForm = function(data) {
     var BID = getCurrentBID();
 
     return $.ajax({
-        url: "/v1/actions/" + BID.toString() + "/",
+        url: "/v1/raactions/" + BID.toString() + "/",
         method: "POST",
         contentType: "application/json",
         data: JSON.stringify(data)
