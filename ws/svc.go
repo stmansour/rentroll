@@ -336,7 +336,7 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 			SvcErrorReturn(w, e, funcname)
 			return
 		}
-		if d.BID < 0 {
+		if d.BID <= 0 {
 			e := fmt.Errorf("Invalid business id: %s", d.pathElements[2])
 			SvcErrorReturn(w, e, funcname)
 			return
