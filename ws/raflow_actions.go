@@ -126,7 +126,7 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	MODE := foo.Mode
 	state := raFlowData.Meta.RAFLAGS & uint64(0xf)
 
-	clearedState := raFlowData.Meta.RAFLAGS & ^uint64(0xf)
+	clearedState := modRAFlowMeta.RAFLAGS & ^uint64(0xf)
 
 	switch MODE {
 	case "Action":
@@ -140,11 +140,17 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 					modRAFlowMeta.DeclineReason1 = 0
 					modRAFlowMeta.DecisionDate1 = rlib.JSONDateTime(time.Time{})
 
+					// reset 4th bit of RAFLAG to 0
+					modRAFlowMeta.RAFLAGS = modRAFlowMeta.RAFLAGS & ^uint64(1<<4)
+
 				case 2: // Pending Second Approval
 					modRAFlowMeta.Approver2 = 0
 					modRAFlowMeta.Approver2Name = ""
 					modRAFlowMeta.DeclineReason2 = 0
 					modRAFlowMeta.DecisionDate2 = rlib.JSONDateTime(time.Time{})
+
+					// reset 5th bit of RAFLAG to 0
+					modRAFlowMeta.RAFLAGS = modRAFlowMeta.RAFLAGS & ^uint64(1<<5)
 
 				case 3: // Move-In / Execute Modification
 					modRAFlowMeta.DocumentDate = rlib.JSONDateTime(time.Time{})
@@ -163,6 +169,9 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				}
 			}
 		}
+
+		// take latest RAFLAG value at this point(in case flag bits are reset)
+		clearedState = modRAFlowMeta.RAFLAGS & ^uint64(0xf)
 		switch foo.Action {
 		case 0: // Application Being Completed
 			modRAFlowMeta.RAFLAGS = (clearedState | 0)
@@ -206,6 +215,7 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				modRAFlowMeta.LeaseTerminationReason = data.TerminationReason
 
 				modRAFlowMeta.RAFLAGS = (clearedState | 5)
+
 			} else {
 				// return err
 				err = fmt.Errorf("termination reason not present")
