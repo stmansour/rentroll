@@ -118,7 +118,7 @@ type RADatesFlowData struct {
 	RentStop        JSONDate `validate:"date"`
 	PossessionStart JSONDate `validate:"date"`
 	PossessionStop  JSONDate `validate:"date"`
-	CSAgent         int64    `validate:"number,min=0"` // TODO(Steve/Sudip/Akshay): Bind webservice call
+	CSAgent         int64    `validate:"number,min=0"` // TODO(Steve/Sudip/Akshay): Bind webservice call. TODO(Akshay): Move it to the Meta structure
 }
 
 // RAPeopleFlowData contains data in the background-info part of RA flow
@@ -137,7 +137,7 @@ type RAPeopleFlowData struct {
 	MiddleName     string `validate:"string,min=1,max=100"`
 	LastName       string `validate:"string,min=1,max=100"`
 	PreferredName  string `validate:"string,min=1,max=100"`
-	IsCompany      bool   `validate:"number,min=1,max=1"`
+	IsCompany      bool   `validate:"-"`
 	CompanyName    string `validate:"string,min=1,max=100,omitempty"` // It is required when IsCompany flag is true. It'll be checked in bizlogic validation.
 	PrimaryEmail   string `validate:"email"`
 	SecondaryEmail string `validate:"email,omitempty"`
@@ -182,12 +182,12 @@ type RAPeopleFlowData struct {
 	ConvictedDes     string `validate:"string,min=1,max=2048,omitempty"`
 	Bankruptcy       bool   `validate:"-"` // Declared Bankruptcy
 	BankruptcyDes    string `validate:"string,min=1,max=2048,omitempty"`
-	OtherPreferences string `validate:"string,min=1,max=1024"`
+	OtherPreferences string `validate:"string,min=1,max=1024,omitempty"`
 	//FollowUpDate             JSONDate
 	//CommissionableThirdParty string
 	SpecialNeeds string `validate:"string,min=1,max=1024,omitempty"` // In an effort to accommodate you, please advise us of any special needs
 	// It'll be none. If there is no special needs
-	ThirdPartySource int64 `validate:"number,min=1,omitempty"`
+	ThirdPartySource string `validate:"string,min=1,max=100,omitempty"`
 
 	// ---------- Payor -----------
 	CreditLimit         float64 `validate:"number:float,min=0.00,omitempty"`
@@ -205,7 +205,7 @@ type RAPeopleFlowData struct {
 	EmergencyContactTelephone string `validate:"string,min=1,max=100"`
 	EmergencyContactEmail     string `validate:"email"`
 	AlternateEmailAddress     string `validate:"string,min=1,max=100,omitempty"`
-	EligibleFutureUser        bool   `validate:"number,min=1"`
+	EligibleFutureUser        bool   `validate:"-"`
 	Industry                  int64  `validate:"number,min=0,omitempty"`
 	SourceSLSID               int64  `validate:"number,min=1"` // It is compulsory when role is set to renter or user. It'll be check via bizlogic.
 }
@@ -253,7 +253,7 @@ type RARentablesFlowData struct {
 	RTID            int64 `validate:"number,min=1"`
 	RTFLAGS         uint64
 	RentableName    string  `validate:"string,min=1,max=100"`
-	RentCycle       int64   `validate:"number,min=1"`
+	RentCycle       int64   `validate:"number,min=0"`
 	AtSigningPreTax float64 `validate:"number:float,min=0.00"`
 	SalesTax        float64 `validate:"number:float,min=0.00"`
 	// SalesTaxAmt    float64 // FUTURE RELEASE
@@ -269,7 +269,7 @@ type RAFeesData struct {
 	ARID            int64    `validate:"number,min=1"`
 	ARName          string   `validate:"string,min=1,max=100"`
 	ContractAmount  float64  `validate:"number:float,min=0.00"`
-	RentCycle       int64    `validate:"number,min=1"`
+	RentCycle       int64    `validate:"number,min=0"`
 	Start           JSONDate `validate:"date"`
 	Stop            JSONDate `validate:"date"`
 	AtSigningPreTax float64  `validate:"number:float,min=0.00"`

@@ -294,7 +294,7 @@ func createTransactants(ctx context.Context, dbConf *GenDBConf) error {
 			PriorLandLordPhoneNo:     GenerateRandomPhoneNumber(),
 			PriorReasonForMoving:     IG.WhyLeaving.S[IG.Rand.Intn(len(IG.WhyLeaving.S))].SLSID,
 			PriorLengthOfResidency:   GenerateRandomDurationString(),
-			ThirdPartySource:         int64(IG.Rand.Intn(250)),
+			ThirdPartySource:         GenerateRandomName(),
 		}
 		_, err = rlib.InsertProspect(ctx, &pr)
 		if err != nil {
