@@ -108,7 +108,7 @@
 #progressbar #steps-list li a div.error {
     /*    display: none; */
     position: absolute;
-    background: red;
+    background: #f44336;
     border-radius: 50%;
     height: 12px;
     width: 12px;
@@ -118,10 +118,19 @@
     top: 50%;
     left: 120%;
     margin: -16px 0px 0px -16px;
+    display: none;
     /*
      Offset the position correctly with
      minus half of the width and minus half of the height
     */
+}
+
+#progressbar #steps-list li a div.error-true {
+    display: initial;
+}
+
+#progressbar #steps-list li a div.error-false {
+    display: none;
 }
 
 #progressbar #steps-list li a div.title {
@@ -152,11 +161,11 @@
 }
 
 #progressbar #steps-list li.done a div.step {
-    background-color: #00AF00;
+    background-color: #4CAF50;
 }
 
 #progressbar #steps-list li.done a div.title {
-    color: #00af00;
+    color: #4CAF50;
 }
 
 #progressbar #steps-list li.done.active a div.step {

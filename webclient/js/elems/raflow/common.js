@@ -49,7 +49,49 @@ $(document).on('click', '#ra-form #previous', function () {
 // Get Approvals BUTTON CLICK EVENT HANDLER
 //-----------------------------------------------------------------------------
 $(document).on('click', '#ra-form #save-ra-flow-btn', function () {
-    getApprovals();
+    getApprovals().done(function (data) {
+        // Display error dot on each section if it have error
+        // For business logic error only for now
+        if(!(data.total > 0 && data.errortype === "biz")){
+            return;
+        }
+
+        if(data.errors.people.length > 0 || data.nonFieldsErrors.people.length > 0){
+            $("#progressbar #steps-list li[data-target='#" + "people" + "'] .error").addClass("error-true");
+        }else{
+            $("#progressbar #steps-list li[data-target='#" + "people" + "'] .error").removeClass("error-true");
+        }
+
+        if(data.errors.pets.length > 0 || data.nonFieldsErrors.pets.length > 0){
+            $("#progressbar #steps-list li[data-target='#" + "people" + "'] .error").addClass("error-true");
+        }else{
+            $("#progressbar #steps-list li[data-target='#" + "people" + "'] .error").removeClass("error-true");
+        }
+
+        if(data.errors.vehicle.length > 0 || data.nonFieldsErrors.vehicle.length > 0){
+            $("#progressbar #steps-list li[data-target='#" + "people" + "'] .error").addClass("error-true");
+        }else{
+            $("#progressbar #steps-list li[data-target='#" + "people" + "'] .error").removeClass("error-true");
+        }
+
+        if(data.errors.rentables.length > 0 || data.nonFieldsErrors.rentables.length > 0){
+            $("#progressbar #steps-list li[data-target='#" + "people" + "'] .error").addClass("error-true");
+        }else{
+            $("#progressbar #steps-list li[data-target='#" + "people" + "'] .error").removeClass("error-true");
+        }
+
+        if(data.errors.tie.people.length > 0 || data.nonFieldsErrors.tie.length > 0){
+            $("#progressbar #steps-list li[data-target='#" + "people" + "'] .error").addClass("error-true");
+        }else{
+            $("#progressbar #steps-list li[data-target='#" + "people" + "'] .error").removeClass("error-true");
+        }
+        if(data.errors.tie.people.length > 0 || data.nonFieldsErrors.tie.length > 0){
+            $("#progressbar #steps-list li[data-target='#" + "people" + "'] .error").addClass("error-true");
+        }else{
+            $("#progressbar #steps-list li[data-target='#" + "people" + "'] .error").removeClass("error-true");
+        }
+
+    });
 });
 
 window.getApprovals = function(){
