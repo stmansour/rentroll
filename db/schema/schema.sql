@@ -251,12 +251,18 @@ CREATE TABLE RentalAgreement (
              15        unused                          reserved for future expansion
         ------------------------------------------------------------------------
     */
+    ApplicationFilledBy BIGINT NOT NULL DEFAULT 0,                     -- UID of person who fills application
+    ApplicationFilledDate DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- datetime when RA was filled completely
     Approver1 BIGINT NOT NULL DEFAULT 0,                               -- approver 1
     DecisionDate1 DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',     -- datetime when first approver made the decision
     DeclineReason1 BIGINT NOT NULL DEFAULT 0,                          -- Only valid if FLAGS & (1<<4) == 0 and State >= 2, this is the SLSID to string in list of choices, why Approver1 declined the application
     Approver2 BIGINT NOT NULL DEFAULT 0,                               -- approver 2
     DecisionDate2 DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',     -- datetime when first approver made the decision
     DeclineReason2 BIGINT NOT NULL DEFAULT 0,                          -- Only valid if FLAGS & (1<<5) == 0, this is the SLSID to string in list of choices, why Approver2 declined the application
+    MoveInUID BIGINT NOT NULL DEFAULT 0,                               -- UID of person who sets RA to Move In state
+    MoveInDecisionDate DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- datetime when RA was set to Move In state
+    ActiveUID BIGINT NOT NULL DEFAULT 0,                               -- UID of person who sets RA to Active state
+    ActiveDecisionDate DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- datetime when RA was set to Active state    
     Outcome BIGINT NOT NULL DEFAULT 0,                                 -- Only valid if state == Appl Elect(6), this is the SLSID of string from a list of WhyLeaving
     NoticeToMoveUID BIGINT NOT NULL DEFAULT 0,                         -- if > 0 it is the UID of the person who set this RA to state Notice To Move
     NoticeToMoveDate DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- datetime RA was set to Terminated, valid only if TerminatorUID >0
