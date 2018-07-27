@@ -187,7 +187,7 @@ type RAPeopleFlowData struct {
 	//CommissionableThirdParty string
 	SpecialNeeds string `validate:"string,min=1,max=1024,omitempty"` // In an effort to accommodate you, please advise us of any special needs
 	// It'll be none. If there is no special needs
-	ThirdPartySource int64 `validate:"number,min=1,omitempty"`
+	ThirdPartySource string `validate:"string,min=1,max=100,omitempty"`
 
 	// ---------- Payor -----------
 	CreditLimit         float64 `validate:"number:float,min=0.00,omitempty"`

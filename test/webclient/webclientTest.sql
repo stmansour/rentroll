@@ -1332,7 +1332,7 @@ CREATE TABLE `Prospect` (
   `PriorReasonForMoving` bigint(20) NOT NULL DEFAULT '0',
   `PriorLengthOfResidency` varchar(100) NOT NULL DEFAULT '',
   `CommissionableThirdParty` text NOT NULL,
-  `ThirdPartySource` bigint(20) NOT NULL DEFAULT '0',
+  `ThirdPartySource` varchar(100) NOT NULL DEFAULT '',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -2584,4 +2584,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-07-24 11:43:21
+-- Dump completed on 2018-07-27 11:43:37
