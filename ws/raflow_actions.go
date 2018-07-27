@@ -71,6 +71,8 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 	}()
 
+	migrateData := false
+
 	// set location for time as UTC
 	var location *time.Location
 	location, err = time.LoadLocation("UTC")
@@ -126,7 +128,7 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	MODE := foo.Mode
 	state := raFlowData.Meta.RAFLAGS & uint64(0xf)
 
-	clearedState := raFlowData.Meta.RAFLAGS & ^uint64(0xf)
+	clearedState := modRAFlowMeta.RAFLAGS & ^uint64(0xf)
 
 	switch MODE {
 	case "Action":
@@ -134,17 +136,24 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			for i := foo.Action; i <= int64(state); i++ {
 				switch i {
 				case 0: // Application Being Completed
+
 				case 1: // Pending First Approval
 					modRAFlowMeta.Approver1 = 0
 					modRAFlowMeta.Approver1Name = ""
 					modRAFlowMeta.DeclineReason1 = 0
 					modRAFlowMeta.DecisionDate1 = rlib.JSONDateTime(time.Time{})
 
+					// reset 4th bit of RAFLAG to 0
+					modRAFlowMeta.RAFLAGS = modRAFlowMeta.RAFLAGS & ^uint64(1<<4)
+
 				case 2: // Pending Second Approval
 					modRAFlowMeta.Approver2 = 0
 					modRAFlowMeta.Approver2Name = ""
 					modRAFlowMeta.DeclineReason2 = 0
 					modRAFlowMeta.DecisionDate2 = rlib.JSONDateTime(time.Time{})
+
+					// reset 5th bit of RAFLAG to 0
+					modRAFlowMeta.RAFLAGS = modRAFlowMeta.RAFLAGS & ^uint64(1<<5)
 
 				case 3: // Move-In / Execute Modification
 					modRAFlowMeta.DocumentDate = rlib.JSONDateTime(time.Time{})
@@ -163,6 +172,9 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				}
 			}
 		}
+
+		// take latest RAFLAG value at this point(in case flag bits are reset)
+		clearedState = modRAFlowMeta.RAFLAGS & ^uint64(0xf)
 		switch foo.Action {
 		case 0: // Application Being Completed
 			modRAFlowMeta.RAFLAGS = (clearedState | 0)
@@ -177,14 +189,10 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			modRAFlowMeta.RAFLAGS = (clearedState | 3)
 
 		case 4: // Complete Move-In
-
-			// migrate data to real table via hook
-			_, err = Flow2RA(ctx, foo.FlowID)
-			if err != nil {
-				SvcErrorReturn(w, err, funcname)
-				return
-			}
 			modRAFlowMeta.RAFLAGS = (clearedState | 4)
+
+			// migrate data to real table
+			migrateData = true
 		case 5: // Terminate
 			var data RATerminationData
 			if err = json.Unmarshal([]byte(d.data), &data); err != nil {
@@ -206,6 +214,12 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				modRAFlowMeta.LeaseTerminationReason = data.TerminationReason
 
 				modRAFlowMeta.RAFLAGS = (clearedState | 5)
+
+				// if existing RA then migrate data to real table
+				if modRAFlowMeta.RAID > 0 {
+					migrateData = true
+				}
+
 			} else {
 				// return err
 				err = fmt.Errorf("termination reason not present")
@@ -233,6 +247,11 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			modRAFlowMeta.NoticeToMoveReported = rlib.JSONDateTime(today)
 
 			modRAFlowMeta.RAFLAGS = (clearedState | 6)
+
+			// if existing RA then migrate data to real table
+			if modRAFlowMeta.RAID > 0 {
+				migrateData = true
+			}
 
 		default:
 		}
@@ -363,6 +382,15 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	flow, err = rlib.GetFlow(ctx, flow.FlowID)
 	if err != nil {
 		return
+	}
+
+	if migrateData {
+		// migrate data to real table via hook
+		_, err = Flow2RA(ctx, flow.FlowID)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
 	}
 
 	// ------------------

@@ -572,7 +572,7 @@ window.loadRAActionForm = function() {
                             }
                             reqData = {
                                 "FlowID": FlowID,
-                                "DocumentDate": localtimeToUTC(DocumentDate),
+                                "DocumentDate": DocumentDate,
                                 "Mode": Mode
                             };
                             submitActionForm(reqData);
@@ -626,7 +626,7 @@ window.loadRAActionForm = function() {
                             reqData = {
                                 "FlowID": FlowID,
                                 "Action": Action,
-                                "NoticeToMoveDate": localtimeToUTC(NoticeToMoveDate),
+                                "NoticeToMoveDate": NoticeToMoveDate,
                                 "Mode": Mode
                             };
                             submitActionForm(reqData);
