@@ -27,7 +27,6 @@ func Fees2RA(ctx context.Context, x *WriteHandlerContext) error {
 	rlib.Console("Rentables fees\n")
 	for i := 0; i < len(x.raf.Rentables); i++ {
 		for j := 0; j < len(x.raf.Rentables[i].Fees); j++ {
-			rlib.Console("Calling F2RASaveFee with Rentable RID = %d\n", x.raf.Rentables[i].RID)
 			if err = F2RASaveFee(ctx, x, &x.raf.Rentables[i].Fees[j], rlib.ELEMRENTABLE, x.raf.Rentables[i].RID, 0); err != nil {
 				return err
 			}
@@ -39,7 +38,6 @@ func Fees2RA(ctx context.Context, x *WriteHandlerContext) error {
 	rlib.Console("Pet fees\n")
 	for i := 0; i < len(x.raf.Pets); i++ {
 		for j := 0; j < len(x.raf.Pets[i].Fees); j++ {
-			rlib.Console("Calling F2RASaveFee for Pet TMPTCID = %d\n", x.raf.Pets[i].TMPTCID)
 			if err = F2RASaveFee(ctx, x, &x.raf.Pets[i].Fees[j], rlib.ELEMPET, x.raf.Pets[i].PETID, x.raf.Pets[i].TMPTCID); err != nil {
 				return err
 			}
@@ -51,7 +49,6 @@ func Fees2RA(ctx context.Context, x *WriteHandlerContext) error {
 	rlib.Console("Vehicle fees\n")
 	for i := 0; i < len(x.raf.Vehicles); i++ {
 		for j := 0; j < len(x.raf.Vehicles[i].Fees); j++ {
-			rlib.Console("Calling F2RASaveFee for Vehicle Vehicles = %d\n", x.raf.Pets[i].TMPTCID)
 			if err = F2RASaveFee(ctx, x, &x.raf.Vehicles[i].Fees[j], rlib.ELEMVEHICLE, x.raf.Vehicles[i].VID, x.raf.Vehicles[i].TMPTCID); err != nil {
 				return err
 			}
@@ -97,7 +94,7 @@ func F2RASaveFee(ctx context.Context, x *WriteHandlerContext, fee *rlib.RAFeesDa
 //     Any errors encountered
 //-----------------------------------------------------------------------------
 func F2RASaveNewFee(ctx context.Context, x *WriteHandlerContext, fee *rlib.RAFeesData, eltype, id, tmptcid int64) error {
-	rlib.Console("Entered F2RASaveNewFee\n")
+	// rlib.Console("Entered F2RASaveNewFee\n")
 	//-------------------------------------------------------------------
 	// Create a new assessment from this day forward...
 	//-------------------------------------------------------------------
@@ -129,17 +126,18 @@ func F2RASaveNewFee(ctx context.Context, x *WriteHandlerContext, fee *rlib.RAFee
 		if b.RID = GetRIDForTMPTCID(ctx, x, tmptcid); b.RID <= 0 {
 			return fmt.Errorf("No RID associated with TMPTCID = %d", tmptcid)
 		}
-		rlib.Console("GetRIDForTMPTCID( TMPTCID=%d) ===> %d\n", tmptcid, b.RID)
-		rlib.Console("    ID for this pet is %d\n", b.AssocElemID)
+		// rlib.Console("GetRIDForTMPTCID( TMPTCID=%d) ===> %d\n", tmptcid, b.RID)
+		// rlib.Console("    ID for this pet is %d\n", b.AssocElemID)
 	case rlib.ELEMVEHICLE:
 		if b.RID = GetRIDForTMPTCID(ctx, x, tmptcid); b.RID <= 0 {
 			return fmt.Errorf("No RID associated with TMPTCID = %d", tmptcid)
 		}
-		rlib.Console("GetRIDForTMPTCID( TMPTCID=%d) ===> %d\n", tmptcid, b.RID)
-		rlib.Console("    ID for this vehicle is %d\n", b.AssocElemID)
+		// rlib.Console("GetRIDForTMPTCID( TMPTCID=%d) ===> %d\n", tmptcid, b.RID)
+		// rlib.Console("    ID for this vehicle is %d\n", b.AssocElemID)
 	}
+
+	// rlib.Console("bid = %d, fee ARID = %d\n", b.BID, fee.ARID)
 	b.Amount = fee.ContractAmount
-	rlib.Console("bid = %d, fee ARID = %d\n", b.BID, fee.ARID)
 	b.AcctRule = ""
 	b.RentCycle = fee.RentCycle
 	b.RAID = x.ra.RAID
@@ -184,7 +182,7 @@ func F2RASaveNewFee(ctx context.Context, x *WriteHandlerContext, fee *rlib.RAFee
 //     Any errors encountered
 //-----------------------------------------------------------------------------
 func F2RAUpdateExistingAssessment(ctx context.Context, x *WriteHandlerContext, fee *rlib.RAFeesData, eltype, id, tmptcid int64) error {
-	rlib.Console("Entered F2RAUpdateExistingAssessment\n")
+	// rlib.Console("Entered F2RAUpdateExistingAssessment\n")
 	if fee.ASMID == int64(0) {
 		return fmt.Errorf("fee.ASMID must be > 0")
 	}

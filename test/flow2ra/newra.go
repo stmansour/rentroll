@@ -306,10 +306,19 @@ func DoNewRA(ctx context.Context, s *rlib.Session) {
 		fmt.Printf("Could not write Flow back to db: %s\n", err.Error())
 		return
 	}
+
+	// REMOVE FLOW IF MIGRATION DONE SUCCESSFULLY
+	err = rlib.DeleteFlow(tctx, flowID)
+	if err != nil {
+		fmt.Printf("Error deleting flow: %s\n", err.Error())
+		return
+	}
+
 	if err = tx.Commit(); err != nil {
 		fmt.Printf("Error committing transaction: %s\n", err.Error())
 		return
 	}
+
 	rlib.Console("Successfully created new Rental Agreement, RAID = %d\n", nraid)
 	rlib.Console("Removing flow: %d\n", flowID)
 	if err = rlib.DeleteFlow(ctx, flowID); err != nil {

@@ -46,6 +46,14 @@ const (
 	ELEMRECEIPT         = 17
 	ELEMLAST            = 17 // keep in sync with last one added
 
+	RASTATEAppEdit          = 0
+	RASTATEPendingApproval1 = 1
+	RASTATEPendingApproval2 = 2
+	RASTATEMoveIn           = 3
+	RASTATEActive           = 4
+	RASTATETerminated       = 5
+	RASTATENoticeToMove     = 6
+
 	// ROLLERSL is the name of the StringList that Roller
 	// needs to process RA state changes, etc.
 	ROLLERSL = "RollerMsgs"

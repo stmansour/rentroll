@@ -58,5 +58,6 @@ func GetRollerStringList(ctx context.Context, bid int64) (StringList, error) {
 	if err != nil {
 		return sl, err
 	}
+
 	return sl, nil
 }
