@@ -824,7 +824,6 @@ func RAFlowDataDiff(ctx context.Context, RAID int64) (isDiff bool, err error) {
 //-------------------------------------------------------------------------
 func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement) (RAFlowJSONData, error) {
 	const funcname = "ConvertRA2Flow"
-	fmt.Printf("Entered in %s\n", funcname)
 
 	//-------------------------------------------------------------
 	// This is the datastructure we need to fill out and save...

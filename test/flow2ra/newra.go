@@ -110,7 +110,7 @@ var nra = string(`{
             "TCID": 0,
             "TMPTCID": 1,
             "TaxpayorID": "123456789",
-            "ThirdPartySource": 0,
+            "ThirdPartySource": "",
             "Website": "",
             "WorkPhone": "123-456-7890"
         }
@@ -275,7 +275,9 @@ var nra = string(`{
 //--------------------------------------------------------------------------
 func DoNewRA(ctx context.Context, s *rlib.Session) {
 	var bid = int64(1)
+	rlib.Console("\n---------------------------------------------\n")
 	rlib.Console("New Flow\n")
+	rlib.Console("---------------------------------------------\n")
 	b := []byte(nra)
 	a := rlib.Flow{
 		BID:       bid,
