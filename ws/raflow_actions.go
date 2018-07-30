@@ -137,6 +137,10 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			for i := foo.Action; i <= int64(state); i++ {
 				switch i {
 				case 0: // Application Being Completed
+					modRAFlowMeta.ApplicationReadyUID = 0
+					modRAFlowMeta.ApplicationReadyName = ""
+					modRAFlowMeta.ApplicationReadyDate = rlib.JSONDateTime(time.Time{})
+
 				case 1: // Pending First Approval
 					modRAFlowMeta.Approver1 = 0
 					modRAFlowMeta.Approver1Name = ""
@@ -181,15 +185,47 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			modRAFlowMeta.RAFLAGS = (clearedState | 0)
 
 		case 1: // Set To First Approval
+			var fullName string
+			fullName, err = getUserFullName(ctx, d.sess.UID)
+			if err != nil {
+				SvcErrorReturn(w, err, funcname)
+				return
+			}
+
+			modRAFlowMeta.ApplicationReadyUID = d.sess.UID
+			modRAFlowMeta.ApplicationReadyName = fullName
+			modRAFlowMeta.ApplicationReadyDate = rlib.JSONDateTime(today)
+
 			modRAFlowMeta.RAFLAGS = (clearedState | 1)
 
 		case 2: // Set To Second Approval
 			modRAFlowMeta.RAFLAGS = (clearedState | 2)
 
 		case 3: // Set To Move-In
+			var fullName string
+			fullName, err = getUserFullName(ctx, d.sess.UID)
+			if err != nil {
+				SvcErrorReturn(w, err, funcname)
+				return
+			}
+
+			modRAFlowMeta.MoveInUID = d.sess.UID
+			modRAFlowMeta.MoveInName = fullName
+			modRAFlowMeta.MoveInDate = rlib.JSONDateTime(today)
+
 			modRAFlowMeta.RAFLAGS = (clearedState | 3)
 
 		case 4: // Complete Move-In
+			var fullName string
+			fullName, err = getUserFullName(ctx, d.sess.UID)
+			if err != nil {
+				SvcErrorReturn(w, err, funcname)
+				return
+			}
+
+			modRAFlowMeta.ActiveUID = d.sess.UID
+			modRAFlowMeta.ActiveName = fullName
+			modRAFlowMeta.ActiveDate = rlib.JSONDateTime(today)
 			modRAFlowMeta.RAFLAGS = (clearedState | 4)
 
 			// migrate data to real table
@@ -317,6 +353,10 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			}
 
 			if data.Decision2 == 1 { // Approved
+				modRAFlowMeta.MoveInUID = d.sess.UID
+				modRAFlowMeta.MoveInName = fullName
+				modRAFlowMeta.MoveInDate = rlib.JSONDateTime(today)
+
 				// set 5th bit of Flag as 1
 				modRAFlowMeta.RAFLAGS = modRAFlowMeta.RAFLAGS | uint64(1<<5)
 
