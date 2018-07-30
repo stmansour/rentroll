@@ -783,7 +783,7 @@ type Prospect struct {
 	PriorReasonForMoving     int64
 	PriorLengthOfResidency   string
 	CommissionableThirdParty string
-	ThirdPartySource         int64
+	ThirdPartySource         string
 	LastModTime              time.Time
 	LastModBy                int64
 	CreateTS                 time.Time // when was this record created

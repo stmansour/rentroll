@@ -1,6 +1,6 @@
 /*global
    $,addDateNavToToolbar,getCurrentBID,w2ui,w2utils,
-   manageParentRentableW2UIItems,RACompConfig, LoadRAFlowTemplate
+   manageParentRentableW2UIItems,RACompConfig, LoadRAFlowTemplate, updateFlowData
 */
 
 "use strict";
@@ -61,7 +61,9 @@ window.buildRA2FlowElements = function() {
 
                     // set the record in app raflow
                     var flowID = data.record.Flow.FlowID;
-                    app.raflow.data[flowID]= data.record.Flow;
+
+                    // Update flow information locally and made UI changes
+                    updateFlowData(data);
 
                     // load ra flow template
                     LoadRAFlowTemplate(bid, flowID);
