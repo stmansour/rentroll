@@ -519,6 +519,9 @@ DBNAME="rentroll"
 # July 24, 2018
 # ALTER TABLE User CHANGE Industry Industry BIGINT NOT NULL DEFAULT 0;
 
+# July 27, 2018
+# ALTER TABLE Prospect MODIFY ThirdPartySource VARCHAR(100) NOT NULL DEFAULT '';
+
 # Sql query by Steve
 # ALTER TABLE AR ADD DefaultRentCycle SMALLINT NOT NULL DEFAULT 0;
 # ALTER TABLE AR ADD DefaultProrationCycle SMALLINT NOT NULL DEFAULT 0;

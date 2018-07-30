@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"rentroll/rlib"
+	"rentroll/ws"
 	"time"
 )
 
@@ -17,12 +19,33 @@ import (
 // RETURNS
 //     Any errors encountered
 //-----------------------------------------------------------------------------
-func setToNoticeToMove(ctx context.Context, flowid int64) error {
+func setToNoticeToMove(ctx context.Context, s *rlib.Session, raid int64) error {
 	var raf rlib.RAFlowJSONData
+
+	rlib.Console("\tsetToNoticeToMove on RAID = %d\n", raid)
+	//--------------------------------------
+	// Make a Flow out of one of the RAs
+	//--------------------------------------
+	ra, err := rlib.GetRentalAgreement(ctx, raid)
+	if err != nil {
+		fmt.Printf("Could not read RentalAgreement: %s\n", err.Error())
+		return err
+	}
+
+	//--------------------------------------
+	// Insert new flow
+	//--------------------------------------
+	flowID, err := ws.GetRA2FlowCore(ctx, &ra, s.UID)
+	if err != nil {
+		rlib.Console("DoExistingRA - CB.err\n")
+		fmt.Printf("Could not get Flow for RAID = %d: %s\n", ra.RAID, err.Error())
+		return err
+	}
+
 	//-------------------------------------------
 	// Read the flow data into a data structure
 	//-------------------------------------------
-	flow, err := rlib.GetFlow(ctx, flowid)
+	flow, err := rlib.GetFlow(ctx, flowID)
 	if err != nil {
 		return err
 	}
@@ -40,6 +63,8 @@ func setToNoticeToMove(ctx context.Context, flowid int64) error {
 	raf.Meta.NoticeToMoveDate = rlib.JSONDateTime(dt)
 	raf.Meta.NoticeToMoveReported = rlib.JSONDateTime(dtr)
 
+	rlib.Console("raf.Meta:  RAFLAGS=%d\n", raf.Meta.RAFLAGS)
+
 	//--------------------------------------------
 	// update meta info
 	//--------------------------------------------
@@ -47,7 +72,39 @@ func setToNoticeToMove(ctx context.Context, flowid int64) error {
 	if d, err = json.Marshal(&raf.Meta); err != nil {
 		return err
 	}
+
+	//----------------------------------------------------------------------
+	// now call Flow2RA and make sure that it is updated to Notice-To-Move
+	//----------------------------------------------------------------------
+	tx, tctx, err := rlib.NewTransactionWithContext(ctx)
+	if err != nil {
+		fmt.Printf("Could not create transaction context: %s\n", err.Error())
+		return err
+	}
+
+	// flow data with the updates to the meta fields
 	if err = rlib.UpdateFlowData(ctx, "meta", d, &flow); err != nil {
+		return err
+	}
+
+	var f2raid int64
+	f2raid, err = ws.Flow2RA(tctx, flow.FlowID)
+	if err != nil {
+		tx.Rollback()
+		rlib.Console("Flow2RA error\n")
+		fmt.Printf("Could not write Flow back to db: %s\n", err.Error())
+		return err
+	}
+
+	rlib.Console("Flow2RA update raid = %d\n", f2raid)
+
+	if err = rlib.DeleteFlow(ctx, flowID); err != nil {
+		fmt.Printf("Error deleting flow: %s\n", err.Error())
+		return err
+	}
+
+	if err = tx.Commit(); err != nil {
+		fmt.Printf("Error committing transaction: %s\n", err.Error())
 		return err
 	}
 

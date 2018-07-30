@@ -2278,7 +2278,7 @@ func InsertSLStrings(ctx context.Context, a *StringList) (int64, error) {
 	var (
 		rid = int64(0)
 		err error
-		// res sql.Result
+		res sql.Result
 	)
 
 	// session... context
@@ -2318,11 +2318,19 @@ func InsertSLStrings(ctx context.Context, a *StringList) (int64, error) {
 
 		// transaction... context
 		fields := []interface{}{a.BID, a.SLID, a.S[i].Value, a.CreateBy, a.S[i].LastModBy}
-		_, err = insertStmt.Exec(fields...)
+		res, err = insertStmt.Exec(fields...)
 
 		// After getting result...
-		if nil != err {
+		if nil == err {
+			x, err := res.LastInsertId()
+			if err == nil {
+				rid = int64(x)
+				a.S[i].SLSID = rid
+			}
+		} else {
+			// After getting result...
 			Ulog("Error while inserting SLString BULK-WRITE: %s\n", err.Error())
+			// err = insertError(err, "StringList", *a)
 		}
 	}
 

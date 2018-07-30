@@ -42,8 +42,8 @@
 
 #progressbar {
     width: 100%;
-    height: 100px;
-    padding-top: 13px;
+    height: 110px;
+    padding: 15px 0px 5px 0px;
     margin: 0;
 }
 
@@ -87,11 +87,11 @@
     text-decoration: none;
 }
 
-#progressbar #steps-list li a span.step {
+#progressbar #steps-list li a div.step {
     width: 34px;
     height: 34px;
     padding-top: 7px;
-    margin: 0 auto 10px auto;
+    margin: 0 auto 20px auto;
     font-weight: bold;
     font-size: 18px;
     border-radius: 50%;
@@ -105,7 +105,35 @@
     border: 1px transparent solid;
 }
 
-#progressbar #steps-list li a span.title {
+#progressbar #steps-list li a div.error {
+    /*    display: none; */
+    position: absolute;
+    background: #f44336;
+    border-radius: 50%;
+    height: 12px;
+    width: 12px;
+    /*
+     Put top edge and left edge in the center
+    */
+    top: 50%;
+    left: 120%;
+    margin: -16px 0px 0px -16px;
+    display: none;
+    /*
+     Offset the position correctly with
+     minus half of the width and minus half of the height
+    */
+}
+
+#progressbar #steps-list li a div.error-true {
+    display: initial;
+}
+
+#progressbar #steps-list li a div.error-false {
+    display: none;
+}
+
+#progressbar #steps-list li a div.title {
     display: block;
     color: #BDBDBD;
     position: relative;
@@ -114,32 +142,33 @@
     font-size: 14px;
 }
 
-#progressbar #steps-list li.active a span.step {
+#progressbar #steps-list li.active a div.step {
     border: 1px transparent solid;
     background-color: #0091d9;
-    width: 40px;
-    height: 40px;
-    padding-top: 10px;
+    width: 50px;
+    height: 50px;
+    margin: -7px auto 9px auto;
+    padding-top: 15px;
 }
 
 #progressbar #steps-list li.active a {
     text-decoration: none !important;
 }
 
-#progressbar #steps-list li.active a span.title {
+#progressbar #steps-list li.active a div.title {
     color: black;
     font-weight: bold;
 }
 
-#progressbar #steps-list li.done a span.step {
-    background-color: #00AF00;
+#progressbar #steps-list li.done a div.step {
+    background-color: #4CAF50;
 }
 
-#progressbar #steps-list li.done a span.title {
-    color: #00af00;
+#progressbar #steps-list li.done a div.title {
+    color: #4CAF50;
 }
 
-#progressbar #steps-list li.done.active a span.step {
+#progressbar #steps-list li.done.active a div.step {
     border: none;
 }
 
@@ -285,7 +314,7 @@
     cursor: pointer;
 }
 
-.people-listing li span {
+.people-listing li div {
     font-size: 12px;
 }
 

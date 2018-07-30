@@ -11,7 +11,9 @@ import (
 
 // WriteHandlerContext contains context information for RA Write Handlers
 type WriteHandlerContext struct {
-	isNewOriginRaid bool // true only if this is a new Rental Agreement, false otherwise
+	isNewOriginRaid bool  // true only if this is a new Rental Agreement, false otherwise
+	oldRAID         int64 //
+	newRAID         int64 //
 	ra              rlib.RentalAgreement
 	raOrig          rlib.RentalAgreement
 	raf             rlib.RAFlowJSONData
@@ -69,6 +71,7 @@ func Flow2RA(ctx context.Context, flowid int64) (int64, error) {
 	// were made. Otherwise treat it as a new RAID
 	//----------------------------------------------------------------------------
 	x.isNewOriginRaid = x.raf.Meta.RAID == 0
+	rlib.Console("isNewOriginRaid = %t\n", x.isNewOriginRaid)
 	if !x.isNewOriginRaid { // update existing
 		changes, err := rlib.RAFlowDataDiff(ctx, x.raf.Meta.RAID)
 		if err != nil {
@@ -76,33 +79,44 @@ func Flow2RA(ctx context.Context, flowid int64) (int64, error) {
 			return nraid, err
 		}
 
+		rlib.Console("\tData changes found = %d\n", changes)
 		//-----------------------------------------------------------------------
 		// If there were changes to the data, create an amended Rental Agreement
 		//-----------------------------------------------------------------------
 		if changes {
-			nraid, err = FlowSaveRA(ctx, &x)
+			x.newRAID, err = FlowSaveRA(ctx, &x) // this will update x.newRAID with the new raid
 			if err != nil {
 				rlib.Console("\n\nERROR IN FlowSaveRA: %s\n\n\n", err.Error())
-				return nraid, err
-			}
-		} else {
-			//------------------------------------------------------------
-			// if there are meta data changes, then updated existing RAID
-			//------------------------------------------------------------
-			nraid, err = FlowSaveMetaDataChanges(ctx, &x)
-			if err != nil {
-				rlib.Console("\n\nERROR IN FlowSaveMetaDataChanges: %s\n\n\n", err.Error())
-				return nraid, err
+				return x.newRAID, err
 			}
 		}
+		//------------------------------------------------------------
+		// if there are meta data changes, then updated existing RAID
+		//------------------------------------------------------------
+		rlib.Console("Just before call to FlowSaveMetaDataChanges: nraid = %d, x.newRAID = %d\n", nraid, x.newRAID)
+		nraid, err = FlowSaveMetaDataChanges(ctx, &x)
+		if err != nil {
+			rlib.Console("\n\nERROR IN FlowSaveMetaDataChanges: %s\n\n\n", err.Error())
+			return nraid, err
+		}
+		rlib.Console("\tMetaData data updated on RAID=%d\n", nraid)
 	} else { // this is a new origin RA
 		nraid, err = FlowSaveRA(ctx, &x)
 		if err != nil {
 			rlib.Console("\n\nERROR IN FlowSaveRA: %s\n\n\n", err.Error())
 			return nraid, err
 		}
+		rlib.Console("New ORIGIN = %d\n", nraid)
+		x.newRAID = nraid
+		nraid, err = FlowSaveMetaDataChanges(ctx, &x)
+		if err != nil {
+			rlib.Console("\n\nERROR IN FlowSaveMetaDataChanges: %s\n\n\n", err.Error())
+			return nraid, err
+		}
+		rlib.Console("\tMetaData data updated on RAID=%d\n", nraid)
 	}
-	return nraid, nil
+	rlib.Console("\tx.oldRAID = %d, x.newRAID = %d\n", x.oldRAID, x.newRAID)
+	return x.newRAID, nil
 }
 
 // FlowSaveMetaDataChanges saves any change to the meta data in the flow with
@@ -119,11 +133,16 @@ func Flow2RA(ctx context.Context, flowid int64) (int64, error) {
 //-----------------------------------------------------------------------------
 func FlowSaveMetaDataChanges(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 	var err error
-	x.ra, err = rlib.GetRentalAgreement(ctx, x.raf.Meta.RAID)
-	if err != nil {
-		rlib.Ulog("Could not read rental agreement %d, err: %s\n", x.raf.Meta.RAID, err.Error())
-		return x.raf.Meta.RAID, err
+	raid := x.newRAID // update this one if changes were found and a new amendment was written.
+	if raid == 0 {
+		raid = x.raf.Meta.RAID // update this one if no changes were found
 	}
+	x.ra, err = rlib.GetRentalAgreement(ctx, raid)
+	if err != nil {
+		rlib.Ulog("Could not read rental agreement %d, err: %s\n", raid, err.Error())
+		return raid, err
+	}
+	x.newRAID = raid // we'll update this one
 
 	//----------------------------------------------------
 	// compare the meta data and update if necessary
@@ -189,14 +208,16 @@ func FlowSaveMetaDataChanges(ctx context.Context, x *WriteHandlerContext) (int64
 	//---------------------------------------------------------
 	// If there were any changes, update the Rental Agreement
 	//---------------------------------------------------------
+	rlib.Console("Metadata change count = %d\n", changes)
 	if changes > 0 {
+		rlib.Console("Updating RAID = %d\n", x.ra.RAID)
 		err = rlib.UpdateRentalAgreement(ctx, &x.ra)
 		if err != nil {
 			return x.raf.Meta.RAID, err
 		}
 	}
 
-	return x.raf.Meta.RAID, err
+	return x.newRAID, err
 }
 
 // FlowSaveRA saves a new Rental Agreement from the supplied flow. This
@@ -228,7 +249,8 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 		// Get the rental agreement that will be superceded by the
 		// one we're creating here. Update its stop dates accordingly
 		//------------------------------------------------------------
-		x.raOrig, err = rlib.GetRentalAgreement(ctx, x.raf.Meta.RAID)
+		x.oldRAID = x.raf.Meta.RAID
+		x.raOrig, err = rlib.GetRentalAgreement(ctx, x.oldRAID)
 		if err != nil {
 			return nraid, err
 		}
@@ -295,12 +317,14 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 	if err != nil {
 		return nraid, err
 	}
+	x.newRAID = nraid
+
 	//---------------------------------------------------------------
 	// Now spin through the series of handlers that move the data
 	// into the permanent tables...
 	//---------------------------------------------------------------
 	for i := 0; i < len(ehandlers); i++ {
-		rlib.Console("FlowSaveRA: running handler %s\n", ehandlers[i].Name)
+		// rlib.Console("FlowSaveRA: running handler %s\n", ehandlers[i].Name)
 		if err = ehandlers[i].Handler(ctx, x); err != nil {
 			fmt.Printf("error returned from handler %s: %s\n", ehandlers[i].Name, err.Error())
 			return nraid, err
