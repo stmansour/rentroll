@@ -1,6 +1,6 @@
 /*global
    $,addDateNavToToolbar,getCurrentBID,w2ui,w2utils,
-   manageParentRentableW2UIItems,RACompConfig, LoadRAFlowTemplate, updateFlowData
+   manageParentRentableW2UIItems,RACompConfig, LoadRAFlowTemplate, updateFlowData, initBizErrors, displayErrorDot
 */
 
 "use strict";
@@ -27,7 +27,7 @@ window.buildRA2FlowElements = function() {
             toolbarInput: true,
             searchAll: true,
             toolbarReload: true,
-            toolbarColumns: false,
+            toolbarColumns: false
         },
         multiSearch: true,
         searches: [
@@ -67,13 +67,22 @@ window.buildRA2FlowElements = function() {
 
                     // load ra flow template
                     LoadRAFlowTemplate(bid, flowID);
+
+                    setTimeout(function () {
+                        // Init biz error
+                        if(app.raflow.bizErrors[flowID] === {} || typeof(app.raflow.bizErrors[flowID]) == "undefined"){
+                            initBizErrors();
+                        }else{
+                            displayErrorDot();
+                        }
+                    }, 500);
                 })
                 .fail(function(/*data*/){
                     w2ui.ra2flowGrid.error("Get Rental Agreement Flow failed.");
                     return;
                 });
             };
-        },
+        }
     });
     addDateNavToToolbar('ra2flow');
 };

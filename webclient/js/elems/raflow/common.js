@@ -2,7 +2,7 @@
     RACompConfig, HideSliderContent, appendNewSlider, ShowSliderContentW2UIComp,
     loadTargetSection, requiredFieldsFulFilled, initRAFlowAjax,
     saveActiveCompData, getRAFlowCompData,
-    lockOnGrid, dataFulFilled, getApprovals, updateFlowData, updateFlowCopy
+    lockOnGrid, dataFulFilled, getApprovals, updateFlowData, updateFlowCopy, displayErrorDot, initBizErrors
 */
 
 "use strict";
@@ -56,43 +56,51 @@ $(document).on('click', '#ra-form #save-ra-flow-btn', function () {
             return;
         }
 
-        if(data.errors.people.length > 0 || data.nonFieldsErrors.people.length > 0){
-            $("#progressbar #steps-list li[data-target='#" + "people" + "'] .error").addClass("error-true");
-        }else{
-            $("#progressbar #steps-list li[data-target='#" + "people" + "'] .error").removeClass("error-true");
-        }
+        var FlowID = app.raflow.activeFlowID;
 
-        if(data.errors.pets.length > 0 || data.nonFieldsErrors.pets.length > 0){
-            $("#progressbar #steps-list li[data-target='#" + "people" + "'] .error").addClass("error-true");
-        }else{
-            $("#progressbar #steps-list li[data-target='#" + "people" + "'] .error").removeClass("error-true");
-        }
+        app.raflow.bizErrors[FlowID] = {
+            dates: data.errors.dates.total > 0 || data.nonFieldsErrors.dates.length > 0,
+            people: data.errors.people.length > 0 || data.nonFieldsErrors.people.length > 0,
+            pets: data.errors.pets.length > 0 || data.nonFieldsErrors.pets.length > 0,
+            vehicles: data.errors.vehicle.length > 0 || data.nonFieldsErrors.vehicle.length > 0,
+            rentables: data.errors.rentables.length > 0 || data.nonFieldsErrors.rentables.length > 0,
+            parentchild: data.errors.parentchild.length > 0 || data.nonFieldsErrors.parentchild.length > 0,
+            tie: data.errors.tie.people.length > 0 || data.nonFieldsErrors.tie.length > 0
+        };
 
-        if(data.errors.vehicle.length > 0 || data.nonFieldsErrors.vehicle.length > 0){
-            $("#progressbar #steps-list li[data-target='#" + "people" + "'] .error").addClass("error-true");
-        }else{
-            $("#progressbar #steps-list li[data-target='#" + "people" + "'] .error").removeClass("error-true");
-        }
-
-        if(data.errors.rentables.length > 0 || data.nonFieldsErrors.rentables.length > 0){
-            $("#progressbar #steps-list li[data-target='#" + "people" + "'] .error").addClass("error-true");
-        }else{
-            $("#progressbar #steps-list li[data-target='#" + "people" + "'] .error").removeClass("error-true");
-        }
-
-        if(data.errors.tie.people.length > 0 || data.nonFieldsErrors.tie.length > 0){
-            $("#progressbar #steps-list li[data-target='#" + "people" + "'] .error").addClass("error-true");
-        }else{
-            $("#progressbar #steps-list li[data-target='#" + "people" + "'] .error").removeClass("error-true");
-        }
-        if(data.errors.tie.people.length > 0 || data.nonFieldsErrors.tie.length > 0){
-            $("#progressbar #steps-list li[data-target='#" + "people" + "'] .error").addClass("error-true");
-        }else{
-            $("#progressbar #steps-list li[data-target='#" + "people" + "'] .error").removeClass("error-true");
-        }
+        displayErrorDot();
 
     });
 });
+
+// initBizErrors To initialize bizError local copy for active flow
+window.initBizErrors = function(){
+
+    var FlowID = app.raflow.activeFlowID;
+
+    app.raflow.bizErrors[FlowID] = {
+        dates: false,
+        people: false,
+        pets: false,
+        vehicles: false,
+        rentables: false,
+        parentchild: false,
+        tie: false
+    };
+};
+
+// displayErrorDot it show red dot on each section of section contain biz logic error
+window.displayErrorDot = function(){
+    var FlowID = app.raflow.activeFlowID;
+
+    for (var comp in app.raFlowPartTypes) {
+        if (app.raflow.bizErrors[FlowID][comp]) {
+            $("#progressbar #steps-list li[data-target='#" + comp + "'] .error").addClass("error-true");
+        } else {
+            $("#progressbar #steps-list li[data-target='#" + comp + "'] .error").removeClass("error-true");
+        }
+    }
+};
 
 window.getApprovals = function(){
 
@@ -111,6 +119,9 @@ window.getApprovals = function(){
         data: JSON.stringify(data),
         success: function (data) {
             console.info(data);
+
+            // Update bizcheck error local copy
+            app.raflow.bizCheck[FlowID] = data;
         },
         error: function (data) {
             console.error(data);
