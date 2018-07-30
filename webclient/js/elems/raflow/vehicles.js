@@ -373,7 +373,7 @@ window.loadRAVehiclesGrid = function () {
                 { field: 'VehicleMake',         type: 'text',   required: true  },
                 { field: 'VehicleModel',        type: 'text',   required: true  },
                 { field: 'VehicleColor',        type: 'text',   required: true  },
-                { field: 'VehicleYear',         type: 'number', required: true  },
+                { field: 'VehicleYear',         type: 'int', required: true  },
                 { field: 'LicensePlateState',   type: 'text',   required: true  },
                 { field: 'LicensePlateNumber',  type: 'text',   required: true  },
                 { field: 'VIN',                 type: 'text',   required: false },

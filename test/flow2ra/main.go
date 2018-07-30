@@ -176,7 +176,7 @@ func DoExistingRA(ctx context.Context, s *rlib.Session) {
 		fmt.Printf("Could not write Flow back to db: %s\n", err.Error())
 		return
 	}
-	rlib.Console("\tFlow2RA returned nraid = %d\n", nraid)
+	rlib.Console("\tFlow2RA returns nraid = %d\n", nraid)
 	rlib.Console("\tRemoving flow: %d\n", flowID)
 	if err = rlib.DeleteFlow(ctx, flowID); err != nil {
 		fmt.Printf("Error deleting flow: %s\n", err.Error())
