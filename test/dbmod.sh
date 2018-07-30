@@ -522,10 +522,13 @@ DBNAME="rentroll"
 # July 27, 2018
 # ALTER TABLE Prospect MODIFY ThirdPartySource VARCHAR(100) NOT NULL DEFAULT '';
 
-# Sql query by Steve
-# ALTER TABLE AR ADD DefaultRentCycle SMALLINT NOT NULL DEFAULT 0;
-# ALTER TABLE AR ADD DefaultProrationCycle SMALLINT NOT NULL DEFAULT 0;
-# ALTER TABLE Payor DROP COLUMN SSN;
+# July 30, 2018
+# ALTER TABLE RentalAgreement ADD ApplicationReadyUID BIGINT NOT NULL DEFAULT 0 AFTER FLAGS;
+# ALTER TABLE RentalAgreement ADD ApplicationReadyDate DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00' AFTER ApplicationReadyUID;
+# ALTER TABLE RentalAgreement ADD MoveInUID BIGINT NOT NULL DEFAULT 0 AFTER DeclineReason2;
+# ALTER TABLE RentalAgreement ADD MoveInDate DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00' AFTER MoveInUID;
+# ALTER TABLE RentalAgreement ADD ActiveUID BIGINT NOT NULL DEFAULT 0 AFTER MoveInDate;
+# ALTER TABLE RentalAgreement ADD ActiveDate DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00' AFTER ActiveUID;
 
 #=====================================================
 #  Put modifications to schema in the lines below
