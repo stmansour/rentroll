@@ -2,7 +2,7 @@
 --
 -- Host: 127.0.0.1    Database: rentroll
 -- ------------------------------------------------------
--- Server version	5.7.22
+-- Server version	5.7.22-0ubuntu0.16.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -1906,12 +1906,18 @@ CREATE TABLE `RentalAgreement` (
   `DesiredUsageStartDate` date NOT NULL DEFAULT '1970-01-01',
   `RentableTypePreference` bigint(20) NOT NULL DEFAULT '0',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
+  `ApplicationReadyUID` bigint(20) NOT NULL DEFAULT '0',
+  `ApplicationReadyDate` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `Approver1` bigint(20) NOT NULL DEFAULT '0',
   `DecisionDate1` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `DeclineReason1` bigint(20) NOT NULL DEFAULT '0',
   `Approver2` bigint(20) NOT NULL DEFAULT '0',
   `DecisionDate2` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `DeclineReason2` bigint(20) NOT NULL DEFAULT '0',
+  `MoveInUID` bigint(20) NOT NULL DEFAULT '0',
+  `MoveInDate` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
+  `ActiveUID` bigint(20) NOT NULL DEFAULT '0',
+  `ActiveDate` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `Outcome` bigint(20) NOT NULL DEFAULT '0',
   `NoticeToMoveUID` bigint(20) NOT NULL DEFAULT '0',
   `NoticeToMoveDate` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
@@ -2566,4 +2572,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-07-27 13:08:42
+-- Dump completed on 2018-07-30 13:26:41
