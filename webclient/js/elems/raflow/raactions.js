@@ -30,7 +30,7 @@ window.submitActionForm = function(data) {
             // Update flow local copy and green checks
             updateFlowData(data);
 
-            w2ui.actionLayout.get('main').content.destroy();
+            w2ui.raActionLayout.get('main').content.destroy();
 
             loadRAActionTemplate();
             setTimeout(function() {
@@ -46,7 +46,6 @@ window.submitActionForm = function(data) {
 // reloadActionForm - reloads the data of action form according to state
 // -------------------------------------------------------------------------------
 window.reloadActionForm = function() {
-    console.log('Custom Reload Function...');
     $('#RAActionRAInfo').hide();
     $('#RAActionTerminatedRAInfo').hide();
     $('#RAActionNoticeToMoveInfo').hide();
@@ -337,9 +336,9 @@ window.refreshLabels = function () {
 //                        header & footer of action form respectively.
 // -----------------------------------------------------------------------
 window.loadRAActionTemplate = function() {
-    if(! w2ui.actionLayout) {
+    if(! w2ui.raActionLayout) {
         $().w2layout({
-            name: 'actionLayout',
+            name: 'raActionLayout',
             padding: 0,
             panels: [
                 { type: 'left', style: app.pstyle2, hidden: true },
@@ -357,7 +356,7 @@ window.loadRAActionTemplate = function() {
                                     yes_callBack = function() {
                                         w2ui.newraLayout.content('right','');
                                         w2ui.newraLayout.hide('right',true);
-                                        w2ui.actionLayout.get('main').content.destroy();
+                                        w2ui.raActionLayout.get('main').content.destroy();
                                         w2ui.newraLayout.unlock('main');
                                         w2ui.newraLayout.get('main').toolbar.refresh();
                                     };
@@ -367,7 +366,7 @@ window.loadRAActionTemplate = function() {
                                 yes_callBack = function() {
                                     w2ui.newraLayout.content('right','');
                                     w2ui.newraLayout.hide('right',true);
-                                    w2ui.actionLayout.get('main').content.destroy();
+                                    w2ui.raActionLayout.get('main').content.destroy();
                                     w2ui.newraLayout.unlock('main');
                                     w2ui.applicantsGrid.render();
                                     app.raflow.activeFlowID = "";
@@ -391,10 +390,10 @@ window.loadRAActionTemplate = function() {
             },
         });
     }
-    w2ui.newraLayout.content('right', w2ui.actionLayout);
+    w2ui.newraLayout.content('right', w2ui.raActionLayout);
 
-    w2ui.actionLayout.load('top', '/webclient/html/raflow/formra-actionheader.html');
-    w2ui.actionLayout.load('bottom', '/webclient/html/raflow/formra-actionfooter.html');
+    w2ui.raActionLayout.load('top', '/webclient/html/raflow/formra-actionheader.html');
+    w2ui.raActionLayout.load('bottom', '/webclient/html/raflow/formra-actionfooter.html');
 
     var raFlags = app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS;
     var raState = parseInt(raFlags & 0xf);
@@ -536,7 +535,6 @@ window.loadRAActionForm = function() {
                 }
             },
             onRefresh: function (event) {
-                console.log('onRefresh of RAActionForm');
                 var activeFlowID = app.raflow.activeFlowID;
                 var data = app.raflow.data[activeFlowID].Data;
                 var raFlags = data.meta.RAFLAGS;
@@ -552,8 +550,6 @@ window.loadRAActionForm = function() {
                 refreshLabels();
             },
             onRender: function (event) {
-                console.log('onRender of RAActionForm');
-
                 w2ui.RAActionForm.record = {
                     RAActions: {id: -1, text: "--Select an Action--"},
                 };
@@ -671,7 +667,7 @@ window.loadRAActionForm = function() {
         });
     }
     // now render the form in specifiec targeted panel
-    w2ui.actionLayout.content('main', w2ui.RAActionForm);
+    w2ui.raActionLayout.content('main', w2ui.RAActionForm);
     setTimeout(function() {
         reloadActionForm();
     }, 100);
