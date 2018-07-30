@@ -712,6 +712,9 @@ func validatePetBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 		errCount           int
 	)
 
+	// Init
+	petFieldsErrors = make([]PetFieldsError, 0)
+
 	// ------------- Check for rule no 1 ---------------
 	for _, pet := range a.Pets {
 
@@ -783,6 +786,9 @@ func validateVehicleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Val
 		err                    error
 		errCount               int
 	)
+
+	// Init
+	vehicleFieldsErrors = make([]VehicleFieldsError, 0)
 
 	for _, vehicle := range a.Vehicles {
 
@@ -858,6 +864,7 @@ func validateRentableBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Va
 
 	rentables := a.Rentables
 
+	// Init
 	rentablesFieldsErrors = make([]RentablesFieldsError, 0)
 
 	parentRentableCount := 0
@@ -971,6 +978,9 @@ func validateParentChildBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g 
 		parentChildNonFieldsErrors = []string{}
 		errCount                   int
 	)
+
+	// Init Slice
+	parentChildFieldsErrors = make([]ParentChildFieldsError, 0)
 
 	pcData := a.ParentChild
 

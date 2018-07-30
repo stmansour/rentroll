@@ -30,7 +30,7 @@ window.submitActionForm = function(data) {
             // Update flow local copy and green checks
             updateFlowData(data);
 
-            w2ui.actionLayout.get('main').content.destroy();
+            w2ui.raActionLayout.get('main').content.destroy();
 
             loadRAActionTemplate();
             setTimeout(function() {
@@ -46,7 +46,6 @@ window.submitActionForm = function(data) {
 // reloadActionForm - reloads the data of action form according to state
 // -------------------------------------------------------------------------------
 window.reloadActionForm = function() {
-    console.log('Custom Reload Function...');
     $('#RAActionRAInfo').hide();
     $('#RAActionTerminatedRAInfo').hide();
     $('#RAActionNoticeToMoveInfo').hide();
@@ -63,10 +62,25 @@ window.reloadActionForm = function() {
     switch (parseInt(raFlags & 0xf)) {
         // "Application Being Completed"
         case 0:
+            $('#ApplicationFilledByRow')[0].style.display = 'none';
+            $('#Approver1Row')[0].style.display = 'none';
+            $('#Approver2Row')[0].style.display = 'none';
+            $('#MoveInRow')[0].style.display = 'none';
+            $('#ActiveRow')[0].style.display = 'none';
+            $('#NoticeToMoveRow')[0].style.display = 'none';
+            $('#TerminateRow')[0].style.display = 'none';
             break;
 
         // "Pending First Approval"
         case 1:
+            $('#ApplicationFilledByRow')[0].style.display = '';
+            $('#Approver1Row')[0].style.display = 'none';
+            $('#Approver2Row')[0].style.display = 'none';
+            $('#MoveInRow')[0].style.display = 'none';
+            $('#ActiveRow')[0].style.display = 'none';
+            $('#NoticeToMoveRow')[0].style.display = 'none';
+            $('#TerminateRow')[0].style.display = 'none';
+
             w2ui.RAActionForm.get('RAApprovalDecision1').hidden = false;
             $('button[name=save]').show();
             $('button[name=save]').attr('disabled',true);
@@ -74,6 +88,14 @@ window.reloadActionForm = function() {
 
         // "Pending Second Approval"
         case 2:
+            $('#ApplicationFilledByRow')[0].style.display = '';
+            $('#Approver1Row')[0].style.display = '';
+            $('#Approver2Row')[0].style.display = 'none';
+            $('#MoveInRow')[0].style.display = 'none';
+            $('#ActiveRow')[0].style.display = 'none';
+            $('#NoticeToMoveRow')[0].style.display = 'none';
+            $('#TerminateRow')[0].style.display = 'none';
+
             w2ui.RAActionForm.get('RAApprovalDecision2').hidden = false;
             $('button[name=save]').show();
             $('button[name=save]').attr('disabled',true);
@@ -81,6 +103,14 @@ window.reloadActionForm = function() {
 
         // "Move-In / Execute Modification"
         case 3:
+            $('#ApplicationFilledByRow')[0].style.display = '';
+            $('#Approver1Row')[0].style.display = '';
+            $('#Approver2Row')[0].style.display = '';
+            $('#MoveInRow')[0].style.display = '';
+            $('#ActiveRow')[0].style.display = 'none';
+            $('#NoticeToMoveRow')[0].style.display = 'none';
+            $('#TerminateRow')[0].style.display = 'none';
+
             w2ui.RAActionForm.get('RADocumentDate').hidden = false;
             $('button[name=RAGenerateRAForm]').show();
             $('button[name=RAGenerateMoveInInspectionForm]').show();
@@ -89,17 +119,41 @@ window.reloadActionForm = function() {
 
         // "Active"
         case 4:
+            $('#ApplicationFilledByRow')[0].style.display = '';
+            $('#Approver1Row')[0].style.display = '';
+            $('#Approver2Row')[0].style.display = '';
+            $('#MoveInRow')[0].style.display = '';
+            $('#ActiveRow')[0].style.display = '';
+            $('#NoticeToMoveRow')[0].style.display = 'none';
+            $('#TerminateRow')[0].style.display = 'none';
+
             $('#RAActionRAInfo').show();
             break;
 
         // "Terminated"
         case 5:
+            $('#ApplicationFilledByRow')[0].style.display = '';
+            $('#Approver1Row')[0].style.display = '';
+            $('#Approver2Row')[0].style.display = '';
+            $('#MoveInRow')[0].style.display = '';
+            $('#ActiveRow')[0].style.display = '';
+            $('#NoticeToMoveRow')[0].style.display = '';
+            $('#TerminateRow')[0].style.display = '';
+
             $('#RAActionTerminatedRAInfo').show();
             $('button[name=RAGenerateRAForm]').show();
             break;
 
         // "Notice To Move"
         case 6:
+            $('#ApplicationFilledByRow')[0].style.display = '';
+            $('#Approver1Row')[0].style.display = '';
+            $('#Approver2Row')[0].style.display = '';
+            $('#MoveInRow')[0].style.display = '';
+            $('#ActiveRow')[0].style.display = '';
+            $('#NoticeToMoveRow')[0].style.display = '';
+            $('#TerminateRow')[0].style.display = 'none';
+
             $('#RAActionNoticeToMoveInfo').show();
             break;
 
@@ -139,10 +193,19 @@ window.refreshLabels = function () {
     }
 
     // Footer Part
-    x = document.getElementById("bannerApprover1");
+    x = document.getElementById("footerApplicationFilledBy");
+    if (x !== null) {
+        if (meta.ApplicationReadyUID == 0) {
+            x.innerHTML = '';
+        } else {
+            x.innerHTML = meta.ApplicationReadyName + ' on ' + dtFormatISOToW2ui(meta.ApplicationReadyDate);
+        }
+    }
+
+    x = document.getElementById("footerApprover1");
     if (x !== null) {
         if (meta.Approver1 == 0) {
-            x.innerHTML = 'Pending';
+            x.innerHTML = '';
         } else {
             if ((meta.RAFLAGS & (1<<4)) > 0) {
                 x.innerHTML = 'Approved by ' + meta.Approver1Name + ' on ' + dtFormatISOToW2ui(meta.DecisionDate1);
@@ -154,10 +217,10 @@ window.refreshLabels = function () {
         }
     }
 
-    x = document.getElementById("bannerApprover2");
+    x = document.getElementById("footerApprover2");
     if (x !== null) {
         if (meta.Approver2 == 0) {
-            x.innerHTML = 'Pending';
+            x.innerHTML = '';
         } else {
             if ((meta.RAFLAGS & (1<<5)) > 0) {
                 x.innerHTML = 'Approved by ' + meta.Approver2Name + ' on ' + dtFormatISOToW2ui(meta.DecisionDate2);
@@ -168,6 +231,43 @@ window.refreshLabels = function () {
             }
         }
     }
+
+    x = document.getElementById("footerMoveInBy");
+    if (x !== null) {
+        if (meta.MoveInUID == 0) {
+            x.innerHTML = '';
+        } else {
+            x.innerHTML = meta.MoveInName + ' on ' + dtFormatISOToW2ui(meta.MoveInDate);
+        }
+    }
+
+    x = document.getElementById("footerActiveBy");
+    if (x !== null) {
+        if (meta.ActiveUID == 0) {
+            x.innerHTML = '';
+        } else {
+            x.innerHTML = meta.ActiveName + ' on ' + dtFormatISOToW2ui(meta.ActiveDate);
+        }
+    }
+
+    x = document.getElementById("footerRecievedNoticeToMoveBy");
+    if (x !== null) {
+        if (meta.NoticeToMoveUID == 0) {
+            x.innerHTML = '';
+        } else {
+            x.innerHTML = meta.NoticeToMoveName + ' on ' + dtFormatISOToW2ui(meta.NoticeToMoveReported);
+        }
+    }
+
+    x = document.getElementById("footerTerminatedBy");
+    if (x !== null) {
+        if (meta.TerminatorUID == 0) {
+            x.innerHTML = '';
+        } else {
+            x.innerHTML = meta.TerminatorName + ' on ' + dtFormatISOToW2ui(meta.TerminationDate);
+        }
+    }
+
 
     // State Terminated Display Info
     x = document.getElementById("bannerTerminatedBy");
@@ -337,9 +437,9 @@ window.refreshLabels = function () {
 //                        header & footer of action form respectively.
 // -----------------------------------------------------------------------
 window.loadRAActionTemplate = function() {
-    if(! w2ui.actionLayout) {
+    if(! w2ui.raActionLayout) {
         $().w2layout({
-            name: 'actionLayout',
+            name: 'raActionLayout',
             padding: 0,
             panels: [
                 { type: 'left', style: app.pstyle2, hidden: true },
@@ -357,7 +457,7 @@ window.loadRAActionTemplate = function() {
                                     yes_callBack = function() {
                                         w2ui.newraLayout.content('right','');
                                         w2ui.newraLayout.hide('right',true);
-                                        w2ui.actionLayout.get('main').content.destroy();
+                                        w2ui.raActionLayout.get('main').content.destroy();
                                         w2ui.newraLayout.unlock('main');
                                         w2ui.newraLayout.get('main').toolbar.refresh();
                                     };
@@ -367,7 +467,7 @@ window.loadRAActionTemplate = function() {
                                 yes_callBack = function() {
                                     w2ui.newraLayout.content('right','');
                                     w2ui.newraLayout.hide('right',true);
-                                    w2ui.actionLayout.get('main').content.destroy();
+                                    w2ui.raActionLayout.get('main').content.destroy();
                                     w2ui.newraLayout.unlock('main');
                                     w2ui.applicantsGrid.render();
                                     app.raflow.activeFlowID = "";
@@ -381,7 +481,7 @@ window.loadRAActionTemplate = function() {
                 },
                 { type: 'main', style: app.pstyle2, content: 'main'},
                 { type: 'preview', style: app.pstyle2, hidden: true },
-                { type: 'bottom', style: app.pstyle2, size: 40,content:'bottom' },
+                { type: 'bottom', style: app.pstyle2, size: 130,content:'bottom' },
                 { type: 'right', style: app.pstyle2, hidden: true}
             ],
             onRefresh: function(event) {
@@ -391,10 +491,10 @@ window.loadRAActionTemplate = function() {
             },
         });
     }
-    w2ui.newraLayout.content('right', w2ui.actionLayout);
+    w2ui.newraLayout.content('right', w2ui.raActionLayout);
 
-    w2ui.actionLayout.load('top', '/webclient/html/raflow/formra-actionheader.html');
-    w2ui.actionLayout.load('bottom', '/webclient/html/raflow/formra-actionfooter.html');
+    w2ui.raActionLayout.load('top', '/webclient/html/raflow/formra-actionheader.html');
+    w2ui.raActionLayout.load('bottom', '/webclient/html/raflow/formra-actionfooter.html');
 
     var raFlags = app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS;
     var raState = parseInt(raFlags & 0xf);
@@ -536,7 +636,6 @@ window.loadRAActionForm = function() {
                 }
             },
             onRefresh: function (event) {
-                console.log('onRefresh of RAActionForm');
                 var activeFlowID = app.raflow.activeFlowID;
                 var data = app.raflow.data[activeFlowID].Data;
                 var raFlags = data.meta.RAFLAGS;
@@ -552,8 +651,6 @@ window.loadRAActionForm = function() {
                 refreshLabels();
             },
             onRender: function (event) {
-                console.log('onRender of RAActionForm');
-
                 w2ui.RAActionForm.record = {
                     RAActions: {id: -1, text: "--Select an Action--"},
                 };
@@ -671,7 +768,7 @@ window.loadRAActionForm = function() {
         });
     }
     // now render the form in specifiec targeted panel
-    w2ui.actionLayout.content('main', w2ui.RAActionForm);
+    w2ui.raActionLayout.content('main', w2ui.RAActionForm);
     setTimeout(function() {
         reloadActionForm();
     }, 100);
