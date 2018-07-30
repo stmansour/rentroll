@@ -579,18 +579,12 @@ type RentalAgreement struct {
 	RentStop               time.Time   // stop date for Rent
 	RentCycleEpoch         time.Time   // Date on which rent cycle recurs. Start date for the recurring rent assessment
 	FLAGS                  uint64      // See definition in rentroll/db/schema/schema.sql
-	ApplicationReadyUID    int64       // UID of the person who filled the application
-	ApplicationReadyDate   time.Time   // datetime when application was filled completely
 	Approver1              int64       // UID of approver1, from Directory
 	DeclineReason1         int64       // SLSid of reason if declined
 	DecisionDate1          time.Time   // when did approver1 make the decision
 	Approver2              int64       // UID of approver2, from Directory
 	DeclineReason2         int64       // SLSid of reason if declined
 	DecisionDate2          time.Time   // when did approver2 make the decision
-	MoveInUID              int64       // UID of the person who sets RA to move in state
-	MoveInDate             time.Time   // datetime when RA was set to move in state
-	ActiveUID              int64       // UID of the person who sets the RA to active state
-	ActiveDate             time.Time   // date time when RA was set to active state
 	FollowUpDate           time.Time   // automatically fill out this date to sysdate + 24hrs
 	CSAgent                int64       // Accord Directory UserID - for the CSAgent
 	Outcome                int64       // Only valid if state == Terminated, this is the SLSID of string from a list of WhyLeaving

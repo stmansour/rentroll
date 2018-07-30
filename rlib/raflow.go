@@ -90,9 +90,6 @@ type RAFlowMetaInfo struct {
 	HavePets               bool
 	HaveVehicles           bool
 	RAFLAGS                uint64
-	ApplicationReadyUID    int64
-	ApplicationReadyName   string
-	ApplicationReadyDate   JSONDateTime
 	Approver1              int64
 	Approver1Name          string
 	DecisionDate1          JSONDateTime
@@ -101,12 +98,6 @@ type RAFlowMetaInfo struct {
 	Approver2Name          string
 	DecisionDate2          JSONDateTime
 	DeclineReason2         int64
-	MoveInUID              int64
-	MoveInName             string
-	MoveInDate             JSONDateTime
-	ActiveUID              int64
-	ActiveName             string
-	ActiveDate             JSONDateTime
 	TerminatorUID          int64
 	TerminatorName         string
 	TerminationDate        JSONDateTime
@@ -837,9 +828,6 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement) (RAFlowJSONData, e
 	//-------------------------------------------------------------
 	// This is the datastructure we need to fill out and save...
 	//-------------------------------------------------------------
-	ApplicationReadyName, _ := GetDirectoryPerson(ctx, ra.ApplicationReadyUID)
-	MoveInName, _ := GetDirectoryPerson(ctx, ra.MoveInUID)
-	ActiveName, _ := GetDirectoryPerson(ctx, ra.ActiveUID)
 	Approver1Name, _ := GetDirectoryPerson(ctx, ra.Approver1)
 	Approver2Name, _ := GetDirectoryPerson(ctx, ra.Approver2)
 	TerminatorName, _ := GetDirectoryPerson(ctx, ra.TerminatorUID)
@@ -866,9 +854,6 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement) (RAFlowJSONData, e
 		Meta: RAFlowMetaInfo{
 			RAID:                   ra.RAID,
 			RAFLAGS:                ra.FLAGS,
-			ApplicationReadyUID:    ra.ApplicationReadyUID,
-			ApplicationReadyName:   ApplicationReadyName.DisplayName(),
-			ApplicationReadyDate:   JSONDateTime(ra.ApplicationReadyDate),
 			Approver1:              ra.Approver1,
 			Approver1Name:          Approver1Name.DisplayName(),
 			DecisionDate1:          JSONDateTime(ra.DecisionDate1),
@@ -877,12 +862,6 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement) (RAFlowJSONData, e
 			Approver2Name:          Approver2Name.DisplayName(),
 			DecisionDate2:          JSONDateTime(ra.DecisionDate2),
 			DeclineReason2:         ra.DeclineReason2,
-			MoveInUID:              ra.MoveInUID,
-			MoveInName:             MoveInName.DisplayName(),
-			MoveInDate:             JSONDateTime(ra.MoveInDate),
-			ActiveUID:              ra.ActiveUID,
-			ActiveName:             ActiveName.DisplayName(),
-			ActiveDate:             JSONDateTime(ra.ActiveDate),
 			TerminatorUID:          ra.TerminatorUID,
 			TerminatorName:         TerminatorName.DisplayName(),
 			TerminationDate:        JSONDateTime(ra.TerminationDate),
