@@ -125,13 +125,15 @@ var app = {
     shiftTabKeyPressed : false, // flag to maintain default tab+shift key behaviour
     dateFormatRegex : /^(0?[1-9]|1[0-2])\/(0?[1-9]|1\d|2\d|3[01])\/(19|20)\d{2}$/,
     w2ui: {
-        listItems: {}, // stores all list items{id, text} here
+        listItems: {} // stores all list items{id, text} here
     },
     raflow: {
         name:                       "RA",
         data:                       {},
         basicCheck:                 {},
         dataFulfilled:              {},
+        bizCheck:                   {},
+        bizErrors:                  {},
         activeFlowID:               "",
         arList:                     {},
         last:                       {},
