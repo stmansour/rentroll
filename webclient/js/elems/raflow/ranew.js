@@ -7,7 +7,7 @@
     getVehicleFees, getPetFees,
     renderRAStateInToolbar,
     loadRAActionTemplate,
-    getStringListData
+    getStringListData, initBizErrors, displayErrorDot
 */
 
 "use strict";
@@ -173,6 +173,14 @@ window.buildRAApplicantElements = function() {
                                 grid.message(data.message);
                             } else {
                                 setToNewRAForm(rec.BID, rec.FlowID);
+                                setTimeout(function () {
+                                    // Init biz error
+                                    if(app.raflow.bizErrors[rec.FlowID] === {} || typeof(app.raflow.bizErrors[rec.FlowID]) == "undefined"){
+                                        initBizErrors();
+                                    }else{
+                                        displayErrorDot();
+                                    }
+                                }, 500);
                             }
                         })
                         .fail(function() {
@@ -217,6 +225,16 @@ window.buildRAApplicantElements = function() {
 
                             var rec = grid.get(newRecid);
                             setToNewRAForm(rec.BID, rec.FlowID);
+
+                            setTimeout(function () {
+                                // Init biz error
+                                if(app.raflow.bizErrors[rec.FlowID] === {} || typeof(app.raflow.bizErrors[rec.FlowID]) == "undefined"){
+                                    initBizErrors();
+                                }else{
+                                    displayErrorDot();
+                                }
+                            }, 500);
+
                         } else {
                             grid.message(data.message);
                         }

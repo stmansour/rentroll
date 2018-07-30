@@ -226,7 +226,7 @@ var Svcs = []ServiceHandler{
 	{Cmd: "userprofile", Handler: SvcUserProfile, NeedBiz: false, NeedSession: true},
 	{Cmd: "version", Handler: SvcHandlerVersion, NeedBiz: false, NeedSession: false},
 	{Cmd: "validate-raflow", Handler: SvcValidateRAFlow, NeedBiz: true, NeedSession: true},
-	{Cmd: "actions", Handler: SvcSetRAState, NeedBiz: false, NeedSession: true},
+	{Cmd: "raactions", Handler: SvcSetRAState, NeedBiz: true, NeedSession: true},
 }
 
 // SvcCtx contains information global to the Svc handlers
@@ -379,7 +379,7 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 				}
 				e := fmt.Errorf("Could not identify business: %s", sbid)
 				rlib.Console("***ERROR IN URL***  %s\n", e.Error())
-				SvcErrorReturn(w, err, funcname)
+				SvcErrorReturn(w, e, funcname)
 				return
 			}
 			// if !SvcCtx.NoAuth && Svcs[i].NeedSession && d.sess == nil || (d.sess != nil && d.sess.UID == 0) {

@@ -114,20 +114,19 @@ func main() {
 	if App.NewRA {
 		DoNewRA(ctx, ssn)
 	} else {
-		DoTest(ctx, ssn)
+		DoExistingRA(ctx, ssn)
 	}
 }
 
-// DoTest does all the useful and interesting work
-func DoTest(ctx context.Context, s *rlib.Session) {
+// DoExistingRA does all the useful and interesting work
+func DoExistingRA(ctx context.Context, s *rlib.Session) {
 	var flowID = int64(App.FlowID)
 
 	if flowID == 0 {
-		rlib.Console("Retrieving Rental Agreement\n")
+		raid := int64(1)
 		//--------------------------------------
 		// Make a Flow out of one of the RAs
 		//--------------------------------------
-		raid := int64(1)
 		ra, err := rlib.GetRentalAgreement(ctx, raid)
 		if err != nil {
 			fmt.Printf("Could not read RentalAgreement: %s\n", err.Error())
@@ -140,13 +139,13 @@ func DoTest(ctx context.Context, s *rlib.Session) {
 		rlib.Console("Creating a Flow for RAID %d\n", ra.RAID)
 		flowID, err = ws.GetRA2FlowCore(ctx, &ra, s.UID)
 		if err != nil {
-			rlib.Console("DoTest - CB.err\n")
+			rlib.Console("DoExistingRA - CB.err\n")
 			fmt.Printf("Could not get Flow for RAID = %d: %s\n", ra.RAID, err.Error())
 			return
 		}
 
 		//-------------------------------------------------------------------
-		// Here we select a random date on whih to apply these changes.
+		// Here we select a random date on which to apply these changes.
 		// In this case we'll use 2 months after the Agreement Start date.
 		//-------------------------------------------------------------------
 		dtUpdate := ra.AgreementStart.AddDate(0, 2, 0) // the date on which we want to start the updated RA
@@ -155,11 +154,11 @@ func DoTest(ctx context.Context, s *rlib.Session) {
 			fmt.Printf("Could not update start date of flow: %s\n", err.Error())
 			return
 		}
-
-		fmt.Printf("Successfully created FlowID = %d\n", flowID)
-	} else {
-		fmt.Printf("FlowID set to %d\n", flowID)
 	}
+
+	rlib.Console("\n==========================================================\n")
+	rlib.Console("   Amend existing Rental Agreement base on FlowID = %d\n", flowID)
+	rlib.Console("=======================================================\n")
 
 	//------------------------------------------------------------
 	// Insert it back into the permanent db tables as an updated
@@ -177,26 +176,30 @@ func DoTest(ctx context.Context, s *rlib.Session) {
 		fmt.Printf("Could not write Flow back to db: %s\n", err.Error())
 		return
 	}
+	rlib.Console("\tFlow2RA returned nraid = %d\n", nraid)
+	rlib.Console("\tRemoving flow: %d\n", flowID)
+	if err = rlib.DeleteFlow(ctx, flowID); err != nil {
+		fmt.Printf("Error deleting flow: %s\n", err.Error())
+		return
+	}
 	if err = tx.Commit(); err != nil {
 		fmt.Printf("Error committing transaction: %s\n", err.Error())
 		return
 	}
-	rlib.Console("Successfully created new Rental Agreement, RAID = %d, set to state: Active\n", nraid)
+	rlib.Console("\tSuccess. New RAID = %d, State: Active\n", nraid)
 
 	//------------------------------------------------------------------------
 	// bump the state up to Notice To Move. This means no basic data change,
 	// we only change the meta info...
 	//------------------------------------------------------------------------
-	if err = setToNoticeToMove(ctx, flowID); err != nil {
+	rlib.Console("\n==========================================================\n")
+	rlib.Console("   Amend to Notice-To-Move for RAID = %d\n", nraid)
+	rlib.Console("==========================================================\n")
+	if err = setToNoticeToMove(ctx, s, nraid); err != nil {
 		fmt.Printf("Error in setToNoticeToMove: %s\n", err.Error())
 		return
 	}
 
-	rlib.Console("Removing flow: %d\n", flowID)
-	if err = rlib.DeleteFlow(ctx, flowID); err != nil {
-		fmt.Printf("Error deleting flow: %s\n", err.Error())
-		return
-	}
 	rlib.Console("Completed without errors\n")
 }
 
