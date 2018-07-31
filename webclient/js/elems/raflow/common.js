@@ -50,6 +50,12 @@ $(document).on('click', '#ra-form #previous', function () {
 //-----------------------------------------------------------------------------
 $(document).on('click', '#ra-form #save-ra-flow-btn', function () {
     getApprovals().done(function (data) {
+
+        if(data.total === 0 && data.errortype === "biz"){
+            alert("TODO: You'r good to go for pending first approval."); // TODO: Change its state to pending first approval. Remove this alert
+            return;
+        }
+
         // Display error dot on each section if it have error
         // For business logic error only for now
         if(!(data.total > 0 && data.errortype === "biz")){
