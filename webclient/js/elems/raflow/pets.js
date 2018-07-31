@@ -337,23 +337,23 @@ window.loadRAPetsGrid = function () {
                 }
             },
             fields  : [
-                { field: 'recid',                   type: 'int',    required: false,    html: { caption: 'recid', page: 0, column: 0 } },
-                { field: 'TMPPETID',                type: 'int',    required: true  },
-                { field: 'BID',                     type: 'int',    required: true,     html: { caption: 'BID', page: 0, column: 0 } },
-                { field: 'PETID',                   type: 'int',    required: true,     html: { caption: 'PETID', page: 0, column: 0 } },
-                { field: 'TMPTCID',                 type: 'list',   required: true,     options: {items: [], selected: {}} },
-                { field: 'Name',                    type: 'text',   required: true  },
-                { field: 'Breed',                   type: 'text',   required: true  },
-                { field: 'Type',                    type: 'text',   required: true  },
-                { field: 'Color',                   type: 'text',   required: true  },
-                { field: 'Weight',                  type: 'float',  required: true  },
-                { field: 'DtStart',                 type: 'date',   required: true,     html: { caption: 'DtStart', page: 0, column: 0 } },
-                { field: 'DtStop',                  type: 'date',   required: true,     html: { caption: 'DtStop', page: 0, column: 0 } }
+                { field: 'recid',                   type: 'int',    required: false,     html: { caption: 'recid', page: 0, column: 0 } },
+                { field: 'TMPPETID',                type: 'int',    required: false  },
+                { field: 'BID',                     type: 'int',    required: true,      html: { caption: 'BID', page: 0, column: 0 } },
+                { field: 'PETID',                   type: 'int',    required: false,     html: { caption: 'PETID', page: 0, column: 0 } },
+                { field: 'TMPTCID',                 type: 'list',   required: false,     options: {items: [], selected: {}} },
+                { field: 'Name',                    type: 'text',   required: true   },
+                { field: 'Breed',                   type: 'text',   required: false  },
+                { field: 'Type',                    type: 'text',   required: false  },
+                { field: 'Color',                   type: 'text',   required: false  },
+                { field: 'Weight',                  type: 'float',  required: false  },
+                { field: 'DtStart',                 type: 'date',   required: false,     html: { caption: 'DtStart', page: 0, column: 0 } },
+                { field: 'DtStop',                  type: 'date',   required: false,     html: { caption: 'DtStop', page: 0, column: 0 } }
             ],
             actions: {
                 reset: function() {
                     w2ui.RAPetForm.clear();
-                },
+                }
             },
             onRefresh: function(event) {
                 event.onComplete = function() {

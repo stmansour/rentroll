@@ -175,7 +175,7 @@ window.buildRAApplicantElements = function() {
                                 setToNewRAForm(rec.BID, rec.FlowID);
                                 setTimeout(function () {
                                     // Init biz error
-                                    if(app.raflow.bizErrors[rec.FlowID] === {} || typeof(app.raflow.bizErrors[rec.FlowID]) == "undefined"){
+                                    if(app.raflow.validationErrors[rec.FlowID] === {} || typeof(app.raflow.validationErrors[rec.FlowID]) == "undefined"){
                                         initBizErrors();
                                     }else{
                                         displayErrorDot();
@@ -228,7 +228,7 @@ window.buildRAApplicantElements = function() {
 
                             setTimeout(function () {
                                 // Init biz error
-                                if(app.raflow.bizErrors[rec.FlowID] === {} || typeof(app.raflow.bizErrors[rec.FlowID]) == "undefined"){
+                                if(app.raflow.validationErrors[rec.FlowID] === {} || typeof(app.raflow.validationErrors[rec.FlowID]) == "undefined"){
                                     initBizErrors();
                                 }else{
                                     displayErrorDot();

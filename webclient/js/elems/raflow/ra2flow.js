@@ -70,7 +70,7 @@ window.buildRA2FlowElements = function() {
 
                     setTimeout(function () {
                         // Init biz error
-                        if(app.raflow.bizErrors[flowID] === {} || typeof(app.raflow.bizErrors[flowID]) == "undefined"){
+                        if(app.raflow.validationErrors[flowID] === {} || typeof(app.raflow.validationErrors[flowID]) == "undefined"){
                             initBizErrors();
                         }else{
                             displayErrorDot();

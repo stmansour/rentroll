@@ -30,7 +30,7 @@ func (v DateValidator) Validate(val interface{}) error {
 
 	// Dates must be Jan 1, 2000 00:00:00 UTC or later
 	if ts.Before(earliestDate) {
-		return fmt.Errorf("Dates must be Jan 1, 2000 00:00:00 UTC or later")
+		return fmt.Errorf("dates must be Jan 1, 2000 00:00:00 UTC or later")
 	}
 
 	return nil

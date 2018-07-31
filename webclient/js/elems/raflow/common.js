@@ -50,15 +50,20 @@ $(document).on('click', '#ra-form #previous', function () {
 //-----------------------------------------------------------------------------
 $(document).on('click', '#ra-form #save-ra-flow-btn', function () {
     getApprovals().done(function (data) {
+
+        if(data.total === 0 && data.errortype === "biz"){
+            alert("TODO: You'r good to go for pending first approval."); // TODO: Change its state to pending first approval. Remove this alert
+            return;
+        }
+
         // Display error dot on each section if it have error
-        // For business logic error only for now
-        if(!(data.total > 0 && data.errortype === "biz")){
+        // For Basic error/business logic error
+        if(data.total === 0){
             return;
         }
 
         var FlowID = app.raflow.activeFlowID;
-
-        app.raflow.bizErrors[FlowID] = {
+        app.raflow.validationErrors[FlowID] = {
             dates: data.errors.dates.total > 0 || data.nonFieldsErrors.dates.length > 0,
             people: data.errors.people.length > 0 || data.nonFieldsErrors.people.length > 0,
             pets: data.errors.pets.length > 0 || data.nonFieldsErrors.pets.length > 0,
@@ -75,10 +80,8 @@ $(document).on('click', '#ra-form #save-ra-flow-btn', function () {
 
 // initBizErrors To initialize bizError local copy for active flow
 window.initBizErrors = function(){
-
     var FlowID = app.raflow.activeFlowID;
-
-    app.raflow.bizErrors[FlowID] = {
+    app.raflow.validationErrors[FlowID] = {
         dates: false,
         people: false,
         pets: false,
@@ -92,9 +95,8 @@ window.initBizErrors = function(){
 // displayErrorDot it show red dot on each section of section contain biz logic error
 window.displayErrorDot = function(){
     var FlowID = app.raflow.activeFlowID;
-
     for (var comp in app.raFlowPartTypes) {
-        if (app.raflow.bizErrors[FlowID][comp]) {
+        if (app.raflow.validationErrors[FlowID][comp]) {
             $("#progressbar #steps-list li[data-target='#" + comp + "'] .error").addClass("error-true");
         } else {
             $("#progressbar #steps-list li[data-target='#" + comp + "'] .error").removeClass("error-true");
@@ -119,9 +121,8 @@ window.getApprovals = function(){
         data: JSON.stringify(data),
         success: function (data) {
             console.info(data);
-
-            // Update bizcheck error local copy
-            app.raflow.bizCheck[FlowID] = data;
+            // Update validationCheck error local copy
+            app.raflow.validationCheck[FlowID] = data;
         },
         error: function (data) {
             console.error(data);
@@ -340,14 +341,6 @@ window.dataFulFilled = function(data) {
             $("#progressbar #steps-list li[data-target='#" + comp + "']").removeClass("done");
         }
     }
-
-    // Enable/Disable get approvals button
-    if (data.BasicCheck.total === 0 && data.DataFulfilled.dates && data.DataFulfilled.people && data.DataFulfilled.pets && data.DataFulfilled.vehicles && data.DataFulfilled.rentables && data.DataFulfilled.parentchild && data.DataFulfilled.tie){
-        $("#ra-form footer button#save-ra-flow-btn").prop("disabled", false);
-    }else{
-        $("#ra-form footer button#save-ra-flow-btn").prop("disabled", true);
-    }
-
 };
 
 // load form according to target
