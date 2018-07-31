@@ -160,6 +160,8 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 					modRAFlowMeta.RAFLAGS = modRAFlowMeta.RAFLAGS & ^uint64(1<<5)
 
 				case 3: // Move-In / Execute Modification
+					modRAFlowMeta.MoveInUID = 0
+					modRAFlowMeta.MoveInName = ""
 					modRAFlowMeta.DocumentDate = rlib.JSONDateTime(time.Time{})
 
 				case 4: // Active
@@ -168,6 +170,13 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 					modRAFlowMeta.TerminatorName = ""
 					modRAFlowMeta.LeaseTerminationReason = 0
 					modRAFlowMeta.TerminationDate = rlib.JSONDateTime(time.Time{})
+
+					// If current state is 'NoticeToMove' and action taken is 'Terminate'
+					// then we will not reset info related to 'NoticeToMove'
+					if int64(state) == 6 {
+						// increase value of i by 2 to break the loop
+						i += 2
+					}
 
 				case 6: //Notice To Move
 					modRAFlowMeta.NoticeToMoveUID = 0
