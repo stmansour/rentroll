@@ -32,6 +32,7 @@ functest:
 	@cat ${TESTREPORT}
 
 validate:
+	@cd sqlschema;make test
 	@echo "FUNCTIONAL TEST Report" > ${TESTREPORT}
 	@echo "VALIDATING LOCAL DATABASE SCHEMAS" | tee -a ${TESTREPORT}
 	@./localcmp.sh
