@@ -264,7 +264,15 @@ window.refreshLabels = function () {
         if (meta.TerminatorUID == 0) {
             x.innerHTML = '';
         } else {
-            x.innerHTML = meta.TerminatorName + ' on ' + dtFormatISOToW2ui(meta.TerminationDate);
+            var tReason;
+            var tReasonText;
+            if (meta.DeclineReason1 > 0 || meta.DeclineReason2 > 0) {
+                tReason = app.RollerMsgs.find(function(t){if(t.id == meta.LeaseTerminationReason){return t;}});
+            } else {
+                tReason = app.WhyLeaving.find(function(t){if(t.id == meta.LeaseTerminationReason){return t;}});
+            }
+            tReasonText = tReason ? tReason.text : "";
+            x.innerHTML = meta.TerminatorName + ' on ' + dtFormatISOToW2ui(meta.TerminationDate) + ' Reason: ' + tReasonText;
         }
     }
 
