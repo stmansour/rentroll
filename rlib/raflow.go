@@ -728,6 +728,7 @@ func InsertInitialRAFlow(ctx context.Context, BID, UID int64) (int64, error) {
 			AgreementStop:   JSONDate(nextYearDateTime),
 			PossessionStart: JSONDate(currentDateTime),
 			PossessionStop:  JSONDate(nextYearDateTime),
+			CSAgent:         UID, // CS Agent value to the UID of the logged in user
 		},
 		People:      []RAPeopleFlowData{},
 		Pets:        []RAPetsFlowData{},
