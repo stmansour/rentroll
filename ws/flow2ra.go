@@ -152,6 +152,14 @@ func FlowSaveMetaDataChanges(ctx context.Context, x *WriteHandlerContext) (int64
 		changes++
 		x.ra.FLAGS = x.raf.Meta.RAFLAGS
 	}
+	if x.ra.ApplicationReadyUID != x.raf.Meta.ApplicationReadyUID {
+		changes++
+		x.ra.ApplicationReadyUID = x.raf.Meta.ApplicationReadyUID
+	}
+	if !x.ra.ApplicationReadyDate.Equal(time.Time(x.raf.Meta.ApplicationReadyDate)) {
+		changes++
+		x.ra.ApplicationReadyDate = time.Time(x.raf.Meta.ApplicationReadyDate)
+	}
 	if x.ra.Approver1 != x.raf.Meta.Approver1 {
 		changes++
 		x.ra.Approver1 = x.raf.Meta.Approver1
@@ -175,6 +183,22 @@ func FlowSaveMetaDataChanges(ctx context.Context, x *WriteHandlerContext) (int64
 	if x.ra.DeclineReason2 != x.raf.Meta.DeclineReason2 {
 		changes++
 		x.ra.DeclineReason2 = x.raf.Meta.DeclineReason2
+	}
+	if x.ra.MoveInUID != x.raf.Meta.MoveInUID {
+		changes++
+		x.ra.MoveInUID = x.raf.Meta.MoveInUID
+	}
+	if !x.ra.MoveInDate.Equal(time.Time(x.raf.Meta.MoveInDate)) {
+		changes++
+		x.ra.MoveInDate = time.Time(x.raf.Meta.MoveInDate)
+	}
+	if x.ra.ActiveUID != x.raf.Meta.ActiveUID {
+		changes++
+		x.ra.ActiveUID = x.raf.Meta.ActiveUID
+	}
+	if !x.ra.ActiveDate.Equal(time.Time(x.raf.Meta.ActiveDate)) {
+		changes++
+		x.ra.ActiveDate = time.Time(x.raf.Meta.ActiveDate)
 	}
 	if x.ra.TerminatorUID != x.raf.Meta.TerminatorUID {
 		changes++
