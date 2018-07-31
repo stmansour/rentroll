@@ -9,8 +9,8 @@ var RAStates = []string{
 	"Pending Second Approval",
 	"Move-In / Execute Modification",
 	"Active",
-	"Terminated",
 	"Notice To Move",
+	"Terminated",
 }
 
 // RAActions is an array that maps the Rental Agreement Action number to a
@@ -22,8 +22,8 @@ var RAActions = []string{
 	"Set To Second Approval",
 	"Set To Move-In",
 	"Complete Move-In",
-	"Terminate",
 	"Received Notice-To-Move",
+	"Terminate",
 }
 
 // GetStatusString returns a string representation of the Rental Agreement

@@ -165,24 +165,18 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 					modRAFlowMeta.DocumentDate = rlib.JSONDateTime(time.Time{})
 
 				case 4: // Active
-				case 5: // Terminated
-					modRAFlowMeta.TerminatorUID = 0
-					modRAFlowMeta.TerminatorName = ""
-					modRAFlowMeta.LeaseTerminationReason = 0
-					modRAFlowMeta.TerminationDate = rlib.JSONDateTime(time.Time{})
 
-					// If current state is 'NoticeToMove' and action taken is 'Terminate'
-					// then we will not reset info related to 'NoticeToMove'
-					if int64(state) == 6 {
-						// increase value of i by 2 to break the loop
-						i += 2
-					}
-
-				case 6: //Notice To Move
+				case 5: //Notice To Move
 					modRAFlowMeta.NoticeToMoveUID = 0
 					modRAFlowMeta.NoticeToMoveName = ""
 					modRAFlowMeta.NoticeToMoveDate = rlib.JSONDateTime(time.Time{})
 					modRAFlowMeta.NoticeToMoveReported = rlib.JSONDateTime(time.Time{})
+
+				case 6: // Terminated
+					modRAFlowMeta.TerminatorUID = 0
+					modRAFlowMeta.TerminatorName = ""
+					modRAFlowMeta.LeaseTerminationReason = 0
+					modRAFlowMeta.TerminationDate = rlib.JSONDateTime(time.Time{})
 				}
 			}
 		}
@@ -239,7 +233,32 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 			// migrate data to real table
 			migrateData = true
-		case 5: // Terminate
+
+		case 5: // Notice-To-Move
+			var data RANoticeToMoveData
+			if err = json.Unmarshal([]byte(d.data), &data); err != nil {
+				return
+			}
+
+			var fullName string
+			fullName, err = getUserFullName(ctx, d.sess.UID)
+			if err != nil {
+				return
+			}
+
+			modRAFlowMeta.NoticeToMoveUID = d.sess.UID
+			modRAFlowMeta.NoticeToMoveName = fullName
+			modRAFlowMeta.NoticeToMoveDate = rlib.JSONDateTime(data.NoticeToMoveDate)
+			modRAFlowMeta.NoticeToMoveReported = rlib.JSONDateTime(today)
+
+			modRAFlowMeta.RAFLAGS = (clearedState | 5)
+
+			// if existing RA then migrate data to real table
+			if modRAFlowMeta.RAID > 0 {
+				migrateData = true
+			}
+
+		case 6: // Terminate
 			var data RATerminationData
 			if err = json.Unmarshal([]byte(d.data), &data); err != nil {
 				SvcErrorReturn(w, err, funcname)
@@ -259,7 +278,7 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				modRAFlowMeta.TerminationDate = rlib.JSONDateTime(today)
 				modRAFlowMeta.LeaseTerminationReason = data.TerminationReason
 
-				modRAFlowMeta.RAFLAGS = (clearedState | 5)
+				modRAFlowMeta.RAFLAGS = (clearedState | 6)
 
 				// if existing RA then migrate data to real table
 				if modRAFlowMeta.RAID > 0 {
@@ -269,30 +288,6 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			} else { // NO TERMINATION REASON
 				err = fmt.Errorf("termination reason is not provided")
 				return
-			}
-
-		case 6: // Notice-To-Move
-			var data RANoticeToMoveData
-			if err = json.Unmarshal([]byte(d.data), &data); err != nil {
-				return
-			}
-
-			var fullName string
-			fullName, err = getUserFullName(ctx, d.sess.UID)
-			if err != nil {
-				return
-			}
-
-			modRAFlowMeta.NoticeToMoveUID = d.sess.UID
-			modRAFlowMeta.NoticeToMoveName = fullName
-			modRAFlowMeta.NoticeToMoveDate = rlib.JSONDateTime(data.NoticeToMoveDate)
-			modRAFlowMeta.NoticeToMoveReported = rlib.JSONDateTime(today)
-
-			modRAFlowMeta.RAFLAGS = (clearedState | 6)
-
-			// if existing RA then migrate data to real table
-			if modRAFlowMeta.RAID > 0 {
-				migrateData = true
 			}
 		}
 
@@ -339,7 +334,7 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 				// FLAGS
 				clearedState = modRAFlowMeta.RAFLAGS & ^uint64(0xf)
-				modRAFlowMeta.RAFLAGS = (clearedState | 5)
+				modRAFlowMeta.RAFLAGS = (clearedState | 6)
 			} else {
 				err = fmt.Errorf("approver1 data is not valid")
 				return
@@ -394,7 +389,7 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 				// FLAGS
 				clearedState = modRAFlowMeta.RAFLAGS & ^uint64(0xf)
-				modRAFlowMeta.RAFLAGS = (clearedState | 5)
+				modRAFlowMeta.RAFLAGS = (clearedState | 6)
 			} else {
 				err = fmt.Errorf("approver2 data is not valid")
 				return
