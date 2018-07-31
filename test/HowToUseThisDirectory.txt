@@ -27,13 +27,13 @@ Developers: Please add notes here to anything that is missing.
    databases in sync with the updated schema. Then run dbmod.sh to
    bring all the test databases up to date. Once you have run dbmode.sh
    move your changes into the comments above along with the date that
-   you applied them.  This will serve as notes for updating the 
+   you applied them.  This will serve as notes for updating the
    production schemas.
 
 7. If you create a .sql file to use as the database for your functional
    test, you need to add the filename to dbfiles.txt.
    This will ensure that the schema is correct before any of the
-   functional tests are run during 'make test'. 
+   functional tests are run during 'make test'.
 
 8. If you want to check the schemas to see that they are in sync
    you can run localcmp.sh .  This script compares the schema of all
@@ -41,3 +41,7 @@ Developers: Please add notes here to anything that is missing.
    dbreport.txt .
 
 9. Do not push files to the repo if localcmp.sh fails, fix them.
+
+10. The files sqlschema/fixprod.sh and sqlschema/fixrcpts.sh are scripts
+    that update the production databases based on all the changes we make.
+    You will need to update them as well as dbmod.sh. 
