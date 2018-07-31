@@ -1333,7 +1333,7 @@ CREATE TABLE `Prospect` (
   `PriorReasonForMoving` bigint(20) NOT NULL DEFAULT '0',
   `PriorLengthOfResidency` varchar(100) NOT NULL DEFAULT '',
   `CommissionableThirdParty` text NOT NULL,
-  `ThirdPartySource` bigint(20) NOT NULL DEFAULT '0',
+  `ThirdPartySource` varchar(100) NOT NULL DEFAULT '',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -1348,7 +1348,7 @@ CREATE TABLE `Prospect` (
 
 LOCK TABLES `Prospect` WRITE;
 /*!40000 ALTER TABLE `Prospect` DISABLE KEYS */;
-INSERT INTO `Prospect` VALUES (1,1,'65528 Holly','Arlington','OK','84059','Temple-InlandIncArlington88@abiz.com','(548) 946-4249','assistant housekeeper (domestic help)',0,'','','','','','0000-00-00','9480 New Jersey, Brighton, VA 02081','Shea Rich','(398) 542-8102',114,'3 years 5 months','50794 Second, Santa Maria, HI 41318','Evangelina Dodson','(574) 491-8628',109,'4 years 3 months','',10,'2018-07-27 06:49:30',0,'2018-07-27 06:49:30',0),(2,1,'23699 Twelfth','Bridgeport','MD','03300','TerexCorpBridgeport239@gmail.com','(757) 891-0210','track engineer',0,'','','','','','0000-00-00','48685 7th, Wichita, IA 10694','Treasa Higgins','(306) 942-8046',109,'5 years 7 months','75076 Seventh, Palm Bay, CT 78511','Annalee Gentry','(447) 436-0093',84,'5 years 9 months','',134,'2018-07-27 06:49:30',0,'2018-07-27 06:49:30',0),(3,1,'60245 West','Reading','PA','33274','DollarGeneralCorporationReading263@hotmail.com','(245) 746-3101','pizza maker',0,'','','','','','0000-00-00','38100 Palo Verde, Elizabeth, DC 11211','Adeline Hester','(766) 985-7139',121,'8 years 6 months','20234 Pioneer, Evansville, MT 31445','Adella Mack','(795) 297-2867',92,'5 years 7 months','',220,'2018-07-27 06:49:30',0,'2018-07-27 06:49:30',0),(4,1,'20137 8th','ClarkeCounty','MI','65466','AClarkeCounty6704@gmail.com','(145) 212-8340','computer equipment operator (information technology operator)',0,'','','','','','0000-00-00','51506 Delaware, Lubbock, NE 11528','Emogene Clemons','(154) 865-7409',86,'4 years 3 months','35481 Pioneer, Thousand Oaks, NC 86258','Keitha Cash','(346) 300-0965',86,'5 years 4 months','',178,'2018-07-27 06:49:30',0,'2018-07-27 06:49:30',0);
+INSERT INTO `Prospect` VALUES (1,1,'65528 Holly','Arlington','OK','84059','Temple-InlandIncArlington88@abiz.com','(548) 946-4249','assistant housekeeper (domestic help)',0,'','','','','','0000-00-00','9480 New Jersey, Brighton, VA 02081','Shea Rich','(398) 542-8102',114,'3 years 5 months','50794 Second, Santa Maria, HI 41318','Evangelina Dodson','(574) 491-8628',109,'4 years 3 months','','10','2018-07-27 06:49:30',0,'2018-07-27 06:49:30',0),(2,1,'23699 Twelfth','Bridgeport','MD','03300','TerexCorpBridgeport239@gmail.com','(757) 891-0210','track engineer',0,'','','','','','0000-00-00','48685 7th, Wichita, IA 10694','Treasa Higgins','(306) 942-8046',109,'5 years 7 months','75076 Seventh, Palm Bay, CT 78511','Annalee Gentry','(447) 436-0093',84,'5 years 9 months','','134','2018-07-27 06:49:30',0,'2018-07-27 06:49:30',0),(3,1,'60245 West','Reading','PA','33274','DollarGeneralCorporationReading263@hotmail.com','(245) 746-3101','pizza maker',0,'','','','','','0000-00-00','38100 Palo Verde, Elizabeth, DC 11211','Adeline Hester','(766) 985-7139',121,'8 years 6 months','20234 Pioneer, Evansville, MT 31445','Adella Mack','(795) 297-2867',92,'5 years 7 months','','220','2018-07-27 06:49:30',0,'2018-07-27 06:49:30',0),(4,1,'20137 8th','ClarkeCounty','MI','65466','AClarkeCounty6704@gmail.com','(145) 212-8340','computer equipment operator (information technology operator)',0,'','','','','','0000-00-00','51506 Delaware, Lubbock, NE 11528','Emogene Clemons','(154) 865-7409',86,'4 years 3 months','35481 Pioneer, Thousand Oaks, NC 86258','Keitha Cash','(346) 300-0965',86,'5 years 4 months','','178','2018-07-27 06:49:30',0,'2018-07-27 06:49:30',0);
 /*!40000 ALTER TABLE `Prospect` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1921,12 +1921,18 @@ CREATE TABLE `RentalAgreement` (
   `DesiredUsageStartDate` date NOT NULL DEFAULT '1970-01-01',
   `RentableTypePreference` bigint(20) NOT NULL DEFAULT '0',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
+  `ApplicationReadyUID` bigint(20) NOT NULL DEFAULT '0',
+  `ApplicationReadyDate` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `Approver1` bigint(20) NOT NULL DEFAULT '0',
   `DecisionDate1` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `DeclineReason1` bigint(20) NOT NULL DEFAULT '0',
   `Approver2` bigint(20) NOT NULL DEFAULT '0',
   `DecisionDate2` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `DeclineReason2` bigint(20) NOT NULL DEFAULT '0',
+  `MoveInUID` bigint(20) NOT NULL DEFAULT '0',
+  `MoveInDate` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
+  `ActiveUID` bigint(20) NOT NULL DEFAULT '0',
+  `ActiveDate` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `Outcome` bigint(20) NOT NULL DEFAULT '0',
   `NoticeToMoveUID` bigint(20) NOT NULL DEFAULT '0',
   `NoticeToMoveDate` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
@@ -1948,7 +1954,7 @@ CREATE TABLE `RentalAgreement` (
 
 LOCK TABLES `RentalAgreement` WRITE;
 /*!40000 ALTER TABLE `RentalAgreement` DISABLE KEYS */;
-INSERT INTO `RentalAgreement` VALUES (1,0,0,1,1,0,'0000-00-00 00:00:00','2018-02-13','2020-03-01','2018-02-13','2020-03-01','2018-02-13','2020-03-01','2018-03-01',2,0,2,'',0,0,0.0000,'','0000-00-00','0000-00-00',0.0000,0.0000,192,'0000-00-00','','','','0000-00-00','','0000-00-00','','0000-00-00',0,52,37,'2018-02-13 00:00:00',0,153,'2018-02-13 00:00:00',0,0,0,'0000-00-00 00:00:00','0000-00-00 00:00:00',0,'0000-00-00 00:00:00',0,'2018-07-27 06:49:30',0,'2018-07-27 06:49:30',0),(2,0,0,1,1,0,'0000-00-00 00:00:00','2018-02-13','2020-03-01','2018-02-13','2020-03-01','2018-02-13','2020-03-01','2018-03-01',0,1,2,'',0,0,0.0000,'','0000-00-00','0000-00-00',0.0000,0.0000,126,'0000-00-00','','','','0000-00-00','','0000-00-00','','0000-00-00',0,52,147,'2018-02-13 00:00:00',0,144,'2018-02-13 00:00:00',0,0,0,'0000-00-00 00:00:00','0000-00-00 00:00:00',0,'0000-00-00 00:00:00',0,'2018-07-27 06:49:30',0,'2018-07-27 06:49:30',0),(3,0,0,1,1,0,'0000-00-00 00:00:00','2018-02-13','2020-03-01','2018-02-13','2020-03-01','2018-02-13','2020-03-01','2018-03-01',0,2,2,'',0,0,0.0000,'','0000-00-00','0000-00-00',0.0000,0.0000,268,'0000-00-00','','','','0000-00-00','','0000-00-00','','0000-00-00',0,52,256,'2018-02-13 00:00:00',0,274,'2018-02-13 00:00:00',0,0,0,'0000-00-00 00:00:00','0000-00-00 00:00:00',0,'0000-00-00 00:00:00',0,'2018-07-27 06:49:30',0,'2018-07-27 06:49:30',0),(4,0,0,1,1,0,'0000-00-00 00:00:00','2018-02-13','2020-03-01','2018-02-13','2020-03-01','2018-02-13','2020-03-01','2018-03-01',0,2,2,'',0,0,0.0000,'','0000-00-00','0000-00-00',0.0000,0.0000,164,'0000-00-00','','','','0000-00-00','','0000-00-00','','0000-00-00',0,52,108,'2018-02-13 00:00:00',0,268,'2018-02-13 00:00:00',0,0,0,'0000-00-00 00:00:00','0000-00-00 00:00:00',0,'0000-00-00 00:00:00',0,'2018-07-27 06:49:30',0,'2018-07-27 06:49:30',0);
+INSERT INTO `RentalAgreement` VALUES (1,0,0,1,1,0,'0000-00-00 00:00:00','2018-02-13','2020-03-01','2018-02-13','2020-03-01','2018-02-13','2020-03-01','2018-03-01',2,0,2,'',0,0,0.0000,'','0000-00-00','0000-00-00',0.0000,0.0000,192,'0000-00-00','','','','0000-00-00','','0000-00-00','','0000-00-00',0,52,0,'1970-01-01 00:00:00',37,'2018-02-13 00:00:00',0,153,'2018-02-13 00:00:00',0,0,'1970-01-01 00:00:00',0,'1970-01-01 00:00:00',0,0,'0000-00-00 00:00:00','0000-00-00 00:00:00',0,'0000-00-00 00:00:00',0,'2018-07-27 06:49:30',0,'2018-07-27 06:49:30',0),(2,0,0,1,1,0,'0000-00-00 00:00:00','2018-02-13','2020-03-01','2018-02-13','2020-03-01','2018-02-13','2020-03-01','2018-03-01',0,1,2,'',0,0,0.0000,'','0000-00-00','0000-00-00',0.0000,0.0000,126,'0000-00-00','','','','0000-00-00','','0000-00-00','','0000-00-00',0,52,0,'1970-01-01 00:00:00',147,'2018-02-13 00:00:00',0,144,'2018-02-13 00:00:00',0,0,'1970-01-01 00:00:00',0,'1970-01-01 00:00:00',0,0,'0000-00-00 00:00:00','0000-00-00 00:00:00',0,'0000-00-00 00:00:00',0,'2018-07-27 06:49:30',0,'2018-07-27 06:49:30',0),(3,0,0,1,1,0,'0000-00-00 00:00:00','2018-02-13','2020-03-01','2018-02-13','2020-03-01','2018-02-13','2020-03-01','2018-03-01',0,2,2,'',0,0,0.0000,'','0000-00-00','0000-00-00',0.0000,0.0000,268,'0000-00-00','','','','0000-00-00','','0000-00-00','','0000-00-00',0,52,0,'1970-01-01 00:00:00',256,'2018-02-13 00:00:00',0,274,'2018-02-13 00:00:00',0,0,'1970-01-01 00:00:00',0,'1970-01-01 00:00:00',0,0,'0000-00-00 00:00:00','0000-00-00 00:00:00',0,'0000-00-00 00:00:00',0,'2018-07-27 06:49:30',0,'2018-07-27 06:49:30',0),(4,0,0,1,1,0,'0000-00-00 00:00:00','2018-02-13','2020-03-01','2018-02-13','2020-03-01','2018-02-13','2020-03-01','2018-03-01',0,2,2,'',0,0,0.0000,'','0000-00-00','0000-00-00',0.0000,0.0000,164,'0000-00-00','','','','0000-00-00','','0000-00-00','','0000-00-00',0,52,0,'1970-01-01 00:00:00',108,'2018-02-13 00:00:00',0,268,'2018-02-13 00:00:00',0,0,'1970-01-01 00:00:00',0,'1970-01-01 00:00:00',0,0,'0000-00-00 00:00:00','0000-00-00 00:00:00',0,'0000-00-00 00:00:00',0,'2018-07-27 06:49:30',0,'2018-07-27 06:49:30',0);
 /*!40000 ALTER TABLE `RentalAgreement` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2591,4 +2597,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-07-26 23:55:11
+-- Dump completed on 2018-07-31  9:38:42

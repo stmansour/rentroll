@@ -1,3 +1,4 @@
+strlist/refdb.sql
 sqlschema/fixrr.sql
 sqlschema/fixrcpts.sql
 ../tools/dbgen/empty.sql
