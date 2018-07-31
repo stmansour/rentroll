@@ -464,7 +464,7 @@ func validateDatesBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Valid
 	agreementStartDate := time.Time(dates.AgreementStart)
 	agreementStopDate := time.Time(dates.AgreementStop)
 	// Start date must be prior to End/Stop date
-	if !agreementStartDate.Before(agreementStopDate) {
+	if agreementStartDate.After(agreementStopDate) {
 
 		// define and assign error
 		err = fmt.Errorf("agreement start date must be prior to agreement stop date")
@@ -480,7 +480,7 @@ func validateDatesBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Valid
 	rentStartDate := time.Time(dates.RentStart)
 	rentStopDate := time.Time(dates.RentStop)
 	// Start date must be prior to End/Stop date
-	if !rentStartDate.Before(rentStopDate) {
+	if rentStartDate.After(rentStopDate) {
 
 		// define and assign error
 		err = fmt.Errorf("rent start date must be prior to rent stop date")
@@ -496,7 +496,7 @@ func validateDatesBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Valid
 	possessionStartDate := time.Time(dates.PossessionStart)
 	possessionStopDate := time.Time(dates.PossessionStop)
 	// Start date must be prior to End/Stop date
-	if !possessionStartDate.Before(possessionStopDate) {
+	if possessionStartDate.After(possessionStopDate) {
 
 		// define and assign error
 		err = fmt.Errorf("possessions start date must be prior to possessions stop date")
@@ -741,7 +741,7 @@ func validatePetBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 		startDate := time.Time(pet.DtStart)
 		stopDate := time.Time(pet.DtStop)
 		// Start date must be prior to End/Stop date
-		if !startDate.Before(stopDate) {
+		if !(startDate.Equal(stopDate) || startDate.Before(stopDate)) {
 
 			// define and assign error
 			err = fmt.Errorf("start date must be prior to stop date")
@@ -818,7 +818,7 @@ func validateVehicleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Val
 		startDate := time.Time(vehicle.DtStart)
 		stopDate := time.Time(vehicle.DtStop)
 		// Start date must be prior to End/Stop date
-		if !startDate.Before(stopDate) {
+		if !(startDate.Equal(stopDate) || startDate.Before(stopDate)) {
 
 			// define and assign error
 			err = fmt.Errorf("start date must be prior to stop date")
@@ -948,7 +948,7 @@ func validateFeesBizLogic(ctx context.Context, fees []rlib.RAFeesData) ([]RAFees
 		startDate := time.Time(fee.Start)
 		stopDate := time.Time(fee.Stop)
 		// Start date must be prior to End/Stop date
-		if !startDate.Before(stopDate) {
+		if !(startDate.Equal(stopDate) || startDate.Before(stopDate)) {
 			// define and assign error
 			err = fmt.Errorf("start date must be prior to stop date")
 			raFeesError.Errors["Start"] = append(raFeesError.Errors["Start"], err.Error())
