@@ -520,9 +520,8 @@ func validateDatesBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Valid
 // 5. Either Workphone or CellPhone is compulsory
 // 6. EmergencyContactName, EmergencyContactAddress, EmergencyContactTelephone, EmergencyEmail are required when IsCompany flag is false.
 // 7. SourceSLSID must be greater than 0 when role is set to Renter, User
-// 8. When role is set to User/Occupant than EligibleFutureUser flag must be true.
-// 9.When it is brand new RA Application(RAID==0) it require "current" address related information
-// 10.TaxpayorID is only require when role is set to Renter or Guarantor
+// 8. When it is brand new RA Application(RAID==0) it require "current" address related information
+// 9. TaxpayorID is only require when role is set to Renter or Guarantor
 // ----------------------------------------------------------------------
 func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse, RAID int64) {
 	const funcname = "validatePeopleBizLogic"
@@ -617,14 +616,6 @@ func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Vali
 		}
 
 		// ----------- Check rule no. 8  ----------------
-		// When role is set to User/Occupant than EligibleFutureUser flag must be true.
-		err = fmt.Errorf("should be true")
-		if (p.IsOccupant) && !(p.EligibleFutureUser) {
-			peopleFieldsError.Errors["EligibleFutureUser"] = append(peopleFieldsError.Errors["EligibleFutureUser"], err.Error())
-			peopleFieldsError.Total++
-		}
-
-		// ----------- Check rule no. 9  ----------------
 		// When it is brand new RA Application(RAID==0) it require "current" address related information
 		err = fmt.Errorf("should not be blank")
 		if p.CurrentAddress == "" && RAID == 0 {
@@ -653,8 +644,8 @@ func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Vali
 			peopleFieldsError.Total++
 		}
 
-		// ----------- Check rule no. 10  ----------------
-		// 11.TaxpayorID is only require when role is set to Renter or Guarantor
+		// ----------- Check rule no. 9  ----------------
+		// 9.TaxpayorID is only require when role is set to Renter or Guarantor
 		err = fmt.Errorf("no taxpayer ID available")
 		if (p.IsRenter || p.IsGuarantor) && p.TaxpayorID == "" {
 			peopleFieldsError.Errors["TaxpayorID"] = append(peopleFieldsError.Errors["TaxpayorID"], err.Error())
