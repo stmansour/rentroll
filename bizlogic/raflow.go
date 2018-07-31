@@ -133,6 +133,8 @@ func ValidateRAFlowBasic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 		},
 	}
 
+	tieFieldsErrors.TiePeople = make([]TiePeopleFieldsError, 0)
+
 	// Initialize non fields errors
 	raFlowNonFieldsErrors = RAFlowNonFieldsErrors{
 		Dates:       make([]string, 0),
@@ -464,7 +466,7 @@ func validateDatesBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Valid
 	agreementStartDate := time.Time(dates.AgreementStart)
 	agreementStopDate := time.Time(dates.AgreementStop)
 	// Start date must be prior to End/Stop date
-	if !agreementStartDate.Before(agreementStopDate) {
+	if agreementStartDate.After(agreementStopDate) {
 
 		// define and assign error
 		err = fmt.Errorf("agreement start date must be prior to agreement stop date")
@@ -480,7 +482,7 @@ func validateDatesBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Valid
 	rentStartDate := time.Time(dates.RentStart)
 	rentStopDate := time.Time(dates.RentStop)
 	// Start date must be prior to End/Stop date
-	if !rentStartDate.Before(rentStopDate) {
+	if rentStartDate.After(rentStopDate) {
 
 		// define and assign error
 		err = fmt.Errorf("rent start date must be prior to rent stop date")
@@ -496,7 +498,7 @@ func validateDatesBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Valid
 	possessionStartDate := time.Time(dates.PossessionStart)
 	possessionStopDate := time.Time(dates.PossessionStop)
 	// Start date must be prior to End/Stop date
-	if !possessionStartDate.Before(possessionStopDate) {
+	if possessionStartDate.After(possessionStopDate) {
 
 		// define and assign error
 		err = fmt.Errorf("possessions start date must be prior to possessions stop date")
@@ -520,9 +522,8 @@ func validateDatesBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Valid
 // 5. Either Workphone or CellPhone is compulsory
 // 6. EmergencyContactName, EmergencyContactAddress, EmergencyContactTelephone, EmergencyEmail are required when IsCompany flag is false.
 // 7. SourceSLSID must be greater than 0 when role is set to Renter, User
-// 8. When role is set to User/Occupant than EligibleFutureUser flag must be true.
-// 9.When it is brand new RA Application(RAID==0) it require "current" address related information
-// 10.TaxpayorID is only require when role is set to Renter or Guarantor
+// 8. When it is brand new RA Application(RAID==0) it require "current" address related information
+// 9. TaxpayorID is only require when role is set to Renter or Guarantor
 // ----------------------------------------------------------------------
 func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse, RAID int64) {
 	const funcname = "validatePeopleBizLogic"
@@ -617,14 +618,6 @@ func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Vali
 		}
 
 		// ----------- Check rule no. 8  ----------------
-		// When role is set to User/Occupant than EligibleFutureUser flag must be true.
-		err = fmt.Errorf("should be true")
-		if (p.IsOccupant) && !(p.EligibleFutureUser) {
-			peopleFieldsError.Errors["EligibleFutureUser"] = append(peopleFieldsError.Errors["EligibleFutureUser"], err.Error())
-			peopleFieldsError.Total++
-		}
-
-		// ----------- Check rule no. 9  ----------------
 		// When it is brand new RA Application(RAID==0) it require "current" address related information
 		err = fmt.Errorf("should not be blank")
 		if p.CurrentAddress == "" && RAID == 0 {
@@ -653,8 +646,8 @@ func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Vali
 			peopleFieldsError.Total++
 		}
 
-		// ----------- Check rule no. 10  ----------------
-		// 11.TaxpayorID is only require when role is set to Renter or Guarantor
+		// ----------- Check rule no. 9  ----------------
+		// 9.TaxpayorID is only require when role is set to Renter or Guarantor
 		err = fmt.Errorf("no taxpayer ID available")
 		if (p.IsRenter || p.IsGuarantor) && p.TaxpayorID == "" {
 			peopleFieldsError.Errors["TaxpayorID"] = append(peopleFieldsError.Errors["TaxpayorID"], err.Error())
@@ -741,7 +734,7 @@ func validatePetBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 		startDate := time.Time(pet.DtStart)
 		stopDate := time.Time(pet.DtStop)
 		// Start date must be prior to End/Stop date
-		if !startDate.Before(stopDate) {
+		if !(startDate.Equal(stopDate) || startDate.Before(stopDate)) {
 
 			// define and assign error
 			err = fmt.Errorf("start date must be prior to stop date")
@@ -818,7 +811,7 @@ func validateVehicleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Val
 		startDate := time.Time(vehicle.DtStart)
 		stopDate := time.Time(vehicle.DtStop)
 		// Start date must be prior to End/Stop date
-		if !startDate.Before(stopDate) {
+		if !(startDate.Equal(stopDate) || startDate.Before(stopDate)) {
 
 			// define and assign error
 			err = fmt.Errorf("start date must be prior to stop date")
@@ -948,7 +941,7 @@ func validateFeesBizLogic(ctx context.Context, fees []rlib.RAFeesData) ([]RAFees
 		startDate := time.Time(fee.Start)
 		stopDate := time.Time(fee.Stop)
 		// Start date must be prior to End/Stop date
-		if !startDate.Before(stopDate) {
+		if !(startDate.Equal(stopDate) || startDate.Before(stopDate)) {
 			// define and assign error
 			err = fmt.Errorf("start date must be prior to stop date")
 			raFeesError.Errors["Start"] = append(raFeesError.Errors["Start"], err.Error())

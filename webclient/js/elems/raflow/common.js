@@ -50,9 +50,15 @@ $(document).on('click', '#ra-form #previous', function () {
 //-----------------------------------------------------------------------------
 $(document).on('click', '#ra-form #save-ra-flow-btn', function () {
     getApprovals().done(function (data) {
+
+        if(data.total === 0 && data.errortype === "biz"){
+            alert("TODO: You'r good to go for pending first approval."); // TODO: Change its state to pending first approval. Remove this alert
+            return;
+        }
+
         // Display error dot on each section if it have error
-        // For business logic error only for now
-        if(!(data.total > 0 && data.errortype === "biz")){
+        // For Basic error/business logic error
+        if(data.total === 0){
             return;
         }
 
@@ -340,14 +346,6 @@ window.dataFulFilled = function(data) {
             $("#progressbar #steps-list li[data-target='#" + comp + "']").removeClass("done");
         }
     }
-
-    // Enable/Disable get approvals button
-    if (data.BasicCheck.total === 0 && data.DataFulfilled.dates && data.DataFulfilled.people && data.DataFulfilled.pets && data.DataFulfilled.vehicles && data.DataFulfilled.rentables && data.DataFulfilled.parentchild && data.DataFulfilled.tie){
-        $("#ra-form footer button#save-ra-flow-btn").prop("disabled", false);
-    }else{
-        $("#ra-form footer button#save-ra-flow-btn").prop("disabled", true);
-    }
-
 };
 
 // load form according to target
