@@ -340,14 +340,6 @@ window.dataFulFilled = function(data) {
             $("#progressbar #steps-list li[data-target='#" + comp + "']").removeClass("done");
         }
     }
-
-    // Enable/Disable get approvals button
-    if (data.BasicCheck.total === 0 && data.DataFulfilled.dates && data.DataFulfilled.people && data.DataFulfilled.pets && data.DataFulfilled.vehicles && data.DataFulfilled.rentables && data.DataFulfilled.parentchild && data.DataFulfilled.tie){
-        $("#ra-form footer button#save-ra-flow-btn").prop("disabled", false);
-    }else{
-        $("#ra-form footer button#save-ra-flow-btn").prop("disabled", true);
-    }
-
 };
 
 // load form according to target
