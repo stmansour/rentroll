@@ -9,7 +9,7 @@
     manageBGInfoFormFields, addDummyBackgroundInfo, savePeopleCompData, getPeopleLocalData, setPeopleLocalData,
     getPeopleLocalDataByTCID, setTransactantDefaultRole,
     getStringListData, getSLStringList, updateRATransactantFormCheckboxes, updateFlowData,
-    managePeopleW2UIItems, removeRAFlowPersonAJAX, saveRAFlowPersonAJAX, onCheckboxesChange, getRecIDFromTMPTCID
+    managePeopleW2UIItems, removeRAFlowPersonAJAX, saveRAFlowPersonAJAX, onCheckboxesChange, getRecIDFromTMPTCID, dispalyRAPeopleGridError
 */
 
 "use strict";
@@ -123,6 +123,29 @@ window.loadRAPeopleForm = function () {
                     hidden: true
                 },
                 {
+                    field: 'haveError',
+                    size: '30px',
+                    hidden: false,
+                    render: function (record) {
+                        var haveError = false;
+                        var flowID = app.raflow.activeFlowID;
+                        if (app.raflow.validationErrors[flowID].people) {
+                            var people = app.raflow.validationCheck[flowID].errors.people;
+                            for (var i = 0; i < people.length; i++) {
+                                if (people[i].TMPTCID === record.TMPTCID && people[i].total > 0) {
+                                    haveError = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (haveError) {
+                            return '<i class="fas fa-exclamation-triangle" title="error"></i>';
+                        } else {
+                            return "";
+                        }
+                    }
+                },
+                {
                     field: 'FullName',
                     caption: 'Name',
                     size: '100%',
@@ -223,7 +246,7 @@ window.loadRAPeopleForm = function () {
             },
             onAdd: function () {
                 openNewTransactantForm();
-            }
+            },
         });
 
         // background info form
@@ -397,46 +420,6 @@ window.loadRAPeopleForm = function () {
     setTimeout(function () {
         // Operation on RAPeopleGrid
         ReassignPeopleGridRecords();
-
-        // load grid errors if any
-        var g = w2ui.RAPeopleGrid;
-        var record, i;
-        for (i = 0; i < g.records.length; i++) {
-            // get record from grid to apply css
-            record = g.get(g.records[i].recid);
-
-            if (!("w2ui" in record)) {
-                record.w2ui = {}; // init w2ui if not present
-            }
-            if (!("class" in record.w2ui)) {
-                record.w2ui.class = ""; // init class string
-            }
-            if (!("style" in record.w2ui)) {
-                record.w2ui.style = {}; // init style object
-            }
-
-            // redraw row
-            g.refreshRow(g.records[i].recid);
-        }
-
-        // If biz error than highlight grid row
-        var flowID = app.raflow.activeFlowID;
-        if (app.raflow.bizErrors[flowID].people) {
-            var people = app.raflow.bizCheck[flowID].errors.people;
-            for (i = 0; i < people.length; i++) {
-                if (people[i].total > 0) {
-                    console.log("*******");
-                    console.log(people);
-                    var recid = getRecIDFromTMPTCID(g, people[i].TMPTCID);
-                    console.log(recid);
-
-                    console.log("###");
-                    g.get(recid).w2ui.style = "background-color: #EEB4B4";
-                    g.refreshRow(recid);
-                }
-            }
-        }
-
     }, 500);
 };
 
@@ -449,6 +432,43 @@ window.setRATransactantFormHeader = function (record) {
         w2ui.RATransactantForm.header = 'Background Information - ' + record.FirstName + ' ' + record.MiddleName + ' ' + record.LastName;
     }
 };
+
+// dispalyRAPeopleGridError
+// It highlights grid's row if it have error
+window.dispalyRAPeopleGridError = function (){
+    // load grid errors if any
+    var g = w2ui.RAPeopleGrid;
+    var record, i;
+    for (i = 0; i < g.records.length; i++) {
+        // get record from grid to apply css
+        record = g.get(g.records[i].recid);
+
+        if (!("w2ui" in record)) {
+            record.w2ui = {}; // init w2ui if not present
+        }
+        if (!("class" in record.w2ui)) {
+            record.w2ui.class = ""; // init class string
+        }
+        if (!("style" in record.w2ui)) {
+            record.w2ui.style = {}; // init style object
+        }
+    }
+
+    // If biz error than highlight grid row
+    var flowID = app.raflow.activeFlowID;
+    if (app.raflow.validationErrors[flowID].people) {
+        var people = app.raflow.validationCheck[flowID].errors.people;
+        for (i = 0; i < people.length; i++) {
+            if (people[i].total > 0) {
+                var recid = getRecIDFromTMPTCID(g, people[i].TMPTCID);
+                g.get(recid).w2ui.style = "background-color: #EEB4B4";
+                // g.get(recid).haveError = true;
+                g.refreshRow(recid);
+            }
+        }
+    }
+};
+
 
 // showHideRATransactantFormFields
 // hide fields if transanctant is only user
@@ -572,6 +592,8 @@ window.ReassignPeopleGridRecords = function () {
         // Operation on RAPeopleGrid
         grid.clear();
     }
+
+    dispalyRAPeopleGridError();
 };
 
 //-----------------------------------------------------------------------------
@@ -852,7 +874,6 @@ window.managePeopleW2UIItems = function() {
 window.getRecIDFromTMPTCID = function(grid, TMPTCID){
     // var g = w2ui.RAPeopleGrid;
     var recid;
-    console.log(grid.records);
     for (var i = 0; i < grid.records.length; i++) {
         if (grid.records[i].TMPTCID === TMPTCID) {
             recid = grid.records[i].recid;
