@@ -130,8 +130,21 @@ window.reloadActionForm = function() {
             $('#RAActionRAInfo').show();
             break;
 
-        // "Terminated"
+        // "Notice To Move"
         case 5:
+            $('#ApplicationFilledByRow')[0].style.display = '';
+            $('#Approver1Row')[0].style.display = '';
+            $('#Approver2Row')[0].style.display = '';
+            $('#MoveInRow')[0].style.display = '';
+            $('#ActiveRow')[0].style.display = '';
+            $('#NoticeToMoveRow')[0].style.display = '';
+            $('#TerminateRow')[0].style.display = 'none';
+
+            $('#RAActionNoticeToMoveInfo').show();
+            break;
+
+        // "Terminated"
+        case 6:
             $('#ApplicationFilledByRow')[0].style.display = '';
             $('#Approver1Row')[0].style.display = '';
             $('#Approver2Row')[0].style.display = '';
@@ -142,19 +155,6 @@ window.reloadActionForm = function() {
 
             $('#RAActionTerminatedRAInfo').show();
             $('button[name=RAGenerateRAForm]').show();
-            break;
-
-        // "Notice To Move"
-        case 6:
-            $('#ApplicationFilledByRow')[0].style.display = '';
-            $('#Approver1Row')[0].style.display = '';
-            $('#Approver2Row')[0].style.display = '';
-            $('#MoveInRow')[0].style.display = '';
-            $('#ActiveRow')[0].style.display = '';
-            $('#NoticeToMoveRow')[0].style.display = '';
-            $('#TerminateRow')[0].style.display = 'none';
-
-            $('#RAActionNoticeToMoveInfo').show();
             break;
 
         default:
@@ -264,7 +264,15 @@ window.refreshLabels = function () {
         if (meta.TerminatorUID == 0) {
             x.innerHTML = '';
         } else {
-            x.innerHTML = meta.TerminatorName + ' on ' + dtFormatISOToW2ui(meta.TerminationDate);
+            var tReason;
+            var tReasonText;
+            if (meta.DeclineReason1 > 0 || meta.DeclineReason2 > 0) {
+                tReason = app.RollerMsgs.find(function(t){if(t.id == meta.LeaseTerminationReason){return t;}});
+            } else {
+                tReason = app.WhyLeaving.find(function(t){if(t.id == meta.LeaseTerminationReason){return t;}});
+            }
+            tReasonText = tReason ? tReason.text : "";
+            x.innerHTML = meta.TerminatorName + ' on ' + dtFormatISOToW2ui(meta.TerminationDate) + ' Reason: ' + tReasonText;
         }
     }
 
@@ -339,7 +347,7 @@ window.refreshLabels = function () {
     x = document.getElementById("bannerDocumentDate");
     if (x !== null) {
         if (meta.DocumentDate != "1900-01-01 00:00:00 UTC") {
-            x.innerHTML = dtFormatISOToW2ui(meta.NoticeToMoveReported);
+            x.innerHTML = dtFormatISOToW2ui(meta.DocumentDate);
         } else {
             x.innerHTML = '';
         }
@@ -496,8 +504,8 @@ window.loadRAActionTemplate = function() {
     w2ui.raActionLayout.load('top', '/webclient/html/raflow/formra-actionheader.html');
     w2ui.raActionLayout.load('bottom', '/webclient/html/raflow/formra-actionfooter.html');
 
-    var raFlags = app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS;
-    var raState = parseInt(raFlags & 0xf);
+    // var raFlags = app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS;
+    // var raState = parseInt(raFlags & 0xf);
 
     loadRAActionForm();
 
@@ -559,19 +567,19 @@ window.loadRAActionForm = function() {
                 switch(event.target) {
                     case 'RAActions':
                         switch (event.value_new.id) {
-                            case 5: // Terminate
-                                w2ui.RAActionForm.get('RATerminationReason').hidden = false;
-                                $('button[name=updateAction]').attr('disabled',true);
-
-                                w2ui.RAActionForm.get('RANoticeToMoveDate').hidden = true;
-                                break;
-
-                            case 6: // Received Notice-To-Move
+                            case 5: // Received Notice-To-Move
                                 w2ui.RAActionForm.get('RANoticeToMoveDate').hidden = false;
 
                                 w2ui.RAActionForm.get('RATerminationReason').hidden = true;
                                 delete this.record.RATerminationReason;
                                 $('button[name=updateAction]').attr('disabled',false);
+                                break;
+
+                            case 6: // Terminate
+                                w2ui.RAActionForm.get('RATerminationReason').hidden = false;
+                                $('button[name=updateAction]').attr('disabled',true);
+
+                                w2ui.RAActionForm.get('RANoticeToMoveDate').hidden = true;
                                 break;
 
                             default:
@@ -738,18 +746,6 @@ window.loadRAActionForm = function() {
                             submitActionForm(reqData);
                             break;
                         case 5:
-                            if(w2ui.RAActionForm.record.RATerminationReason.id >0) {
-                                TerminationReason = w2ui.RAActionForm.record.RATerminationReason.id;
-                            }
-                            reqData = {
-                                "FlowID": FlowID,
-                                "Action": Action,
-                                "TerminationReason": TerminationReason,
-                                "Mode": Mode
-                            };
-                            submitActionForm(reqData);
-                            break;
-                        case 6:
                             if(w2ui.RAActionForm.record.RANoticeToMoveDate) {
                                 NoticeToMoveDate = w2ui.RAActionForm.record.RANoticeToMoveDate;
                             }
@@ -758,6 +754,18 @@ window.loadRAActionForm = function() {
                                 "FlowID": FlowID,
                                 "Action": Action,
                                 "NoticeToMoveDate": NoticeToMoveDate,
+                                "Mode": Mode
+                            };
+                            submitActionForm(reqData);
+                            break;
+                        case 6:
+                            if(w2ui.RAActionForm.record.RATerminationReason.id >0) {
+                                TerminationReason = w2ui.RAActionForm.record.RATerminationReason.id;
+                            }
+                            reqData = {
+                                "FlowID": FlowID,
+                                "Action": Action,
+                                "TerminationReason": TerminationReason,
                                 "Mode": Mode
                             };
                             submitActionForm(reqData);

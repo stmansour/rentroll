@@ -238,8 +238,8 @@ CREATE TABLE RentalAgreement (
                                                        it is a new rental agreement or Updating a new linked rental agreement if modifying
                                                        *any* detail associate with the rental agreement.
               4        Active                          Tenant has moved in and the RA remains valid
-              5        Terminated                      Agreement terminated. Reason in Outcome (SLSID of string from WhyLeaving)
-              6        Notice To Move                  Resident has given notice that they will leave
+              5        Notice To Move                  Resident has given notice that they will leave
+              6        Terminated                      Agreement terminated. Reason in Outcome (SLSID of string from WhyLeaving)
               7        unused
               8        unused
               9        unused                          reserved for future expansion
