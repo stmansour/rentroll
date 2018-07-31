@@ -133,6 +133,8 @@ func ValidateRAFlowBasic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 		},
 	}
 
+	tieFieldsErrors.TiePeople = make([]TiePeopleFieldsError, 0)
+
 	// Initialize non fields errors
 	raFlowNonFieldsErrors = RAFlowNonFieldsErrors{
 		Dates:       make([]string, 0),

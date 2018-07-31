@@ -57,8 +57,8 @@ $(document).on('click', '#ra-form #save-ra-flow-btn', function () {
         }
 
         // Display error dot on each section if it have error
-        // For business logic error only for now
-        if(!(data.total > 0 && data.errortype === "biz")){
+        // For Basic error/business logic error
+        if(data.total === 0){
             return;
         }
 
