@@ -1,9 +1,7 @@
 <div class="w2ui-page page-0">
-    <div style="display: flex;">
-	    <!-- <div style="width: 400px; float: left; margin-right: 0px;"> -->
-	    <div style="">
-	    	<div style="margin: 5px 0 10px; padding: 10px 5px;">
-
+	<div style="display: flex; flex-direction: column;">
+	    <div style="display: flex; flex-grow: 1">
+		    <div style="flex-grow: 1">
 	    		<!-- Common State Label -->
 	    		<div class="w2ui-field">
 	                <label>State: </label>
@@ -61,12 +59,8 @@
 	                    <button class="w2ui-btn" name="RAGenerateMoveOutForm">Generate Move-Out Form</button>
 	                </div>
 	            </div>
-
 		    </div>
-	    </div>
-	    <!-- <div id="RADataInformation" style="width: 500px; float: left; margin-left: 0px;"> -->
-	    <div id="RADataInformation" style="margin-left: 5%;">
-	        <div style="margin: 5px 0 10px; padding: 10px 5px;">
+		    <div id="RADataInformation" style="flex-grow: 1">
 	            <div id="RAActionRAInfo" style="background-color: white; text-align: left;">
 	                <table class="bannerTable">
 	                    <tr>
@@ -147,31 +141,28 @@
 	                    </tr>
 	                </table>
 	            </div>
-	        </div>
+		    </div>
+		</div>
+
+	    <div style="flex-grow: 1">
+		    <div class="w2ui-field">
+		        <label>Action: </label>
+		        <div><input name="RAActions" type="list" size="14" tabindex="1" style="width: 200px;"></div>
+		    </div>
+		    <div class="w2ui-field">
+		        <label>Move Date: </label>
+		        <div><input name="RANoticeToMoveDate" type="us-date" size="11" tabindex="2" /></div>
+		    </div>
+		    <div class="w2ui-field">
+		        <label>Termination Reason: </label>
+		        <div><input name="RATerminationReason" type="list" size="14" tabindex="2" style="width: 300px;"></div>
+		    </div>
+
+		    <div class="w2ui-field">
+		        <div>
+		            <button class="w2ui-btn" name="updateAction">Update Action</button>
+		        </div>
+		    </div>
 	    </div>
 	</div>
-
-	<br><br><hr><br><br>
-
-    <div>
-	    <div class="w2ui-field">
-	        <label>Action: </label>
-	        <div><input name="RAActions" type="list" size="14" tabindex="1" style="width: 200px;"></div>
-	    </div>
-	    <div class="w2ui-field">
-	        <label>Move Date: </label>
-	        <div><input name="RANoticeToMoveDate" type="us-date" size="11" tabindex="2" /></div>
-	    </div>
-	    <div class="w2ui-field">
-	        <label>Termination Reason: </label>
-	        <div><input name="RATerminationReason" type="list" size="14" tabindex="2" style="width: 300px;"></div>
-	    </div>
-
-	    <div class="w2ui-field">
-	        <div>
-	            <button class="w2ui-btn" name="updateAction">Update Action</button>
-	        </div>
-	    </div>
-    </div>
-
 </div>
