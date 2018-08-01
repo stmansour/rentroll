@@ -856,6 +856,7 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement) (RAFlowJSONData, e
 			AgreementStop:   JSONDate(ra.AgreementStop),
 			PossessionStart: JSONDate(ra.PossessionStart),
 			PossessionStop:  JSONDate(ra.PossessionStop),
+			CSAgent:         ra.CSAgent,
 		},
 		People:      []RAPeopleFlowData{},
 		Pets:        []RAPetsFlowData{},
