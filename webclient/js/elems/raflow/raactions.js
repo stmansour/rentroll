@@ -281,12 +281,14 @@ window.refreshLabels = function () {
                 tReason = app.WhyLeaving.find(function(t){if(t.id == meta.LeaseTerminationReason){return t;}});
             }
             tReasonText = tReason ? tReason.text : "";
-            x.innerHTML = dtFormatISOToW2ui(meta.TerminationDate) + ' by '+ meta.TerminatorName + '(' + tReasonText + ')';
+            x.innerHTML = dtFormatISOToW2ui(meta.TerminationDate) + ' by '+ meta.TerminatorName + ' (' + tReasonText + ')';
         }
     }
 
 
+    //------------------------------------------------------------------------
     // State Terminated Display Info
+    //------------------------------------------------------------------------
     x = document.getElementById("bannerTerminatedBy");
     if (x !== null) {
         if (meta.TerminatorUID > 0) {
