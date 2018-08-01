@@ -703,7 +703,8 @@ func rentDateChangeRAFlowUpdates(ctx context.Context, flowID int64) (err error) 
 	}
 
 	// IMPLEMENTATION ERROR //
-	return fmt.Errorf("implementation error")
+	// TODO(Sudip): re-calculate fees for pets, vehicles, rentables
+	return /*fmt.Errorf("implementation error")*/
 }
 
 // InsertInitialRAFlow writes a bunch of flow's sections record for a particular RA
