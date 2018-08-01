@@ -2,6 +2,7 @@ package ws
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"rentroll/bizlogic"
@@ -85,7 +86,7 @@ FROM (
         LEFT JOIN RentalAgreementPayors ON RentalAgreementPayors.RAID=RentalAgreement.RAID
         LEFT JOIN Transactant AS Payor ON Payor.TCID=RentalAgreementPayors.TCID
         LEFT JOIN Flow ON Flow.ID=RentalAgreement.RAID
-        WHERE RentalAgreement.BID={{.BID}}
+        WHERE RentalAgreement.BID={{.BID}} AND RentalAgreement.AgreementStart <= "{{.Stop}}" AND RentalAgreement.AgreementStop > "{{.Start}}"
         GROUP BY RentalAgreement.RAID
         /*ORDER BY RentalAgreement.RAID ASC*/
     )
@@ -104,7 +105,7 @@ FROM (
             Flow.FlowID AS FlowID,
             Flow.UserRefNo AS UserRefNo
         FROM Flow
-        WHERE Flow.ID=0 AND Flow.BID={{.BID}}
+        WHERE Flow.BID={{.BID}} AND Flow.ID=0 AND "{{.Start}}" <= Flow.CreateTS AND Flow.CreateTS < "{{.Stop}}"
         /*ORDER BY Flow.FlowID ASC*/
     )
     /*- - - - - - - - - - - - - - - - -
@@ -120,6 +121,8 @@ ORDER BY {{.OrderClause}}
 // RAFlowQueryClause query clasues for raflow query
 var RAFlowQueryClause = rlib.QueryClause{
 	"BID":          "",
+	"Start":        "",
+	"Stop":         "",
 	"SelectClause": strings.Join(RAFlowQuerySelectFields, ","),
 	"WhereClause":  "",
 	"OrderClause":  "- RA_CUM_FLOW.RAID DESC, - RA_CUM_FLOW.FlowID DESC",
@@ -142,6 +145,7 @@ func GetAllRAFlows(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	// get where clause and order clause for sql query
 	whereClause, orderClause := GetSearchAndSortSQL(d, RAFlowGridFieldsMap)
+	fmt.Println(whereClause)
 	if len(whereClause) > 0 {
 		srch += " AND (" + whereClause + ")"
 	}
@@ -153,6 +157,8 @@ func GetAllRAFlows(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	qc["WhereClause"] = srch
 	qc["OrderClause"] = order
 	qc["BID"] = strconv.FormatInt(d.BID, 10)
+	qc["Start"] = d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL)
+	qc["Stop"] = d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL)
 
 	// get TOTAL COUNT First
 	countQuery := rlib.RenderSQLQuery(RAFlowListQuery, qc)
@@ -221,4 +227,149 @@ func GetAllRAFlows(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	resp.Status = "success"
 	SvcWriteResponse(d.BID, &resp, w)
+}
+
+// GetRAFlowRequest struct to get data from request
+type GetRAFlowRequest struct {
+	UserRefNo string
+	RAID      int64
+	Mode      string // view or edit
+}
+
+// GetRAFlow returns all existing Rental Agreements and all Flows
+// are being edited for rental agreement.
+func GetRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "GetRAFlow"
+	var (
+		flow rlib.Flow
+		err  error
+		req  GetRAFlowRequest
+		tx   *sql.Tx
+		ctx  = r.Context()
+	)
+	fmt.Printf("Entered in %s\n", funcname)
+
+	// ===============================================
+	// defer function to handle transactaion rollback
+	// ===============================================
+	defer func() {
+		if err != nil {
+			if tx != nil {
+				tx.Rollback()
+			}
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+	}()
+
+	// ------- unmarshal the request data  ---------------
+	if err := json.Unmarshal([]byte(d.data), &req); err != nil {
+		return
+	}
+
+	// IF REQUEST IS TO GET DATA FOR RENTAL AGREEMENT
+	if req.RAID > 0 {
+
+		// GET RENTAL AGREEMENT
+		var ra rlib.RentalAgreement
+		ra, err = rlib.GetRentalAgreement(ctx, req.RAID)
+		if err != nil {
+			return
+		}
+		if ra.RAID == 0 {
+			err = fmt.Errorf("Rental Agreement not found with given RAID: %d", req.RAID)
+			return
+		}
+
+		// BASED ON MODE DO OPERATION
+		switch req.Mode {
+		case "view":
+			// convert permanent ra to flow data and get it
+			var raf rlib.RAFlowJSONData
+			raf, err = rlib.ConvertRA2Flow(ctx, &ra)
+			if err != nil {
+				return
+			}
+
+			//-------------------------------------------------------------------------
+			// Save the flow to the db
+			//-------------------------------------------------------------------------
+			var raflowJSONData []byte
+			raflowJSONData, err = json.Marshal(&raf)
+			if err != nil {
+				return
+			}
+
+			//-------------------------------------------------------------------------
+			// Fill out the datastructure and save it to the db as a flow...
+			//-------------------------------------------------------------------------
+			flow = rlib.Flow{
+				BID:       ra.BID,
+				FlowID:    0, // we're not creating any flow, just to see RA content
+				UserRefNo: "",
+				FlowType:  rlib.RAFlow,
+				ID:        ra.RAID,
+				Data:      raflowJSONData,
+				CreateBy:  0,
+				LastModBy: 0,
+			}
+
+			// -------------------
+			// WRITE FLOW RESPONSE
+			// -------------------
+			SvcWriteFlowResponse(ctx, d.BID, flow, w)
+			return
+
+		case "edit":
+			// GET FLOW FOR THIS RA
+			flow, err = rlib.GetFlowForRAID(ctx, "RA", ra.RAID)
+			if err != nil {
+				return
+			}
+
+			if flow.ID == ra.RAID {
+				// -------------------
+				// WRITE FLOW RESPONSE
+				// -------------------
+				SvcWriteFlowResponse(ctx, d.BID, flow, w)
+				return
+			}
+
+			// GET THE NEW FLOW ID CREATED USING PERMANENT DATA
+			flowID, err := GetRA2FlowCore(ctx, &ra, d.sess.UID)
+			if err != nil {
+				return
+			}
+
+			// GET GENERATED FLOW USING NEW ID
+			flow, err = rlib.GetFlow(ctx, flowID)
+			if err != nil {
+				return
+			}
+
+			// -------------------
+			// WRITE FLOW RESPONSE
+			// -------------------
+			SvcWriteFlowResponse(ctx, d.BID, flow, w)
+			return
+
+		default:
+			err = fmt.Errorf("Invalid mode to get raflow for RAID: %d", req.RAID)
+			return
+		} // SWITCH FOR MODE ENDS HERE ///////
+
+	} else { // IT'S FOR FLOW
+
+		// GET THE FLOW BY REFERENCE NO IF RAID == 0
+		flow, err = rlib.GetFlowByUserRefNo(ctx, d.BID, req.UserRefNo)
+		if err != nil {
+			return
+		}
+
+		// -------------------
+		// WRITE FLOW RESPONSE
+		// -------------------
+		SvcWriteFlowResponse(ctx, d.BID, flow, w)
+		return
+	}
 }

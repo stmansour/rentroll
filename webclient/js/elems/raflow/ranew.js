@@ -1,7 +1,7 @@
 /*global
     initRAFlowAjax,
     RACompConfig, w2ui,
-    getFlowDataAjax,
+    GetRAFlowDataAjax,
     manageParentRentableW2UIItems, managePeopleW2UIItems,
     LoadRAFlowTemplate,
     getVehicleFees, getPetFees,
@@ -13,29 +13,13 @@
 "use strict";
 
 //-----------------------------------------------------------------------------
-// setToNewRAForm -  enable the Rental Agreement form in toplayout.  Also, set
-//                   the forms url and request data from the server
-// @params
-//   bid = business id (or the BUD)
-//-----------------------------------------------------------------------------
-window.setToNewRAForm = function (bid, FlowID) {
-
-    if (FlowID < 1) {
-        return false;
-    }
-
-    // load ra flow template
-    LoadRAFlowTemplate(bid, FlowID);
-};
-
-//-----------------------------------------------------------------------------
 // LoadRAFlowTemplate - load RA flow with data and green checkmark and
 //                      necessary settings, it loads dateForm by default
 //
 // @params
 //   FlowID = Id of the Flow
 //-----------------------------------------------------------------------------
-window.LoadRAFlowTemplate = function(bid, FlowID) {
+window.LoadRAFlowTemplate = function(bid, FlowID, RAID) {
 
     // set the toplayout content
     w2ui.toplayout.content('right', w2ui.newraLayout);
@@ -194,7 +178,7 @@ window.buildRAApplicantElements = function() {
             },
         ],
         onRequest: function(event) {
-            event.postData.cmd = "getAllFlows";
+            event.postData.cmd = "all";
             event.postData.FlowType = "RA";
         },
         onRefresh: function(event) {
@@ -232,12 +216,12 @@ window.buildRAApplicantElements = function() {
                         // get grid record
                         var rec = grid.get(recid);
 
-                        getFlowDataAjax(rec.FlowID)
+                        GetRAFlowDataAjax(rec.FlowID, rec.RAID)
                         .done(function(data) {
                             if (data.status != "success") {
                                 grid.message(data.message);
                             } else {
-                                setToNewRAForm(rec.BID, rec.FlowID);
+                                LoadRAFlowTemplate(rec.BID, rec.FlowID, rec.RAID);
                                 setTimeout(function () {
                                     // Init biz error
                                     if(app.raflow.validationErrors[rec.FlowID] === {} || typeof(app.raflow.validationErrors[rec.FlowID]) == "undefined"){
@@ -278,6 +262,7 @@ window.buildRAApplicantElements = function() {
                                 recid:  newRecid,
                                 BID:    bid,
                                 BUD:    bud,
+                                RAID:   0,
                                 FlowID: data.record.Flow.FlowID
                             });
 
@@ -289,7 +274,7 @@ window.buildRAApplicantElements = function() {
                             grid.select(app.last.grid_sel_recid);
 
                             var rec = grid.get(newRecid);
-                            setToNewRAForm(rec.BID, rec.FlowID);
+                            LoadRAFlowTemplate(rec.BID, rec.FlowID, 0);
 
                             setTimeout(function () {
                                 // Init biz error
