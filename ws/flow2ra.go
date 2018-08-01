@@ -148,9 +148,27 @@ func FlowSaveMetaDataChanges(ctx context.Context, x *WriteHandlerContext) (int64
 	// compare the meta data and update if necessary
 	//----------------------------------------------------
 	changes := 0
+	bterminated := x.ra.FLAGS&0xf == rlib.RASTATETerminated
 	if x.ra.FLAGS != x.raf.Meta.RAFLAGS {
-		changes++
-		x.ra.FLAGS = x.raf.Meta.RAFLAGS
+		//---------------------------------------------------------------------
+		// If the FLAGs have changed, check to see if state of the permanent
+		// table copy is in the Terminated state. If it is, do not change it
+		// or the reason...
+		//---------------------------------------------------------------------
+		if bterminated {
+			// DO NOTHING IF RA IS ALREADY TERMINATED
+			// flags := x.ra.FLAGS
+			// if (x.ra.FLAGS & ^uint64(0xf)) != (x.raf.Meta.RAFLAGS & ^uint64(0xf)) { // flags other than
+			// 	state := x.ra.FLAGS & 0xf
+			// 	x.ra.FLAGS = x.raf.Meta.RAFLAGS
+			// 	x.ra.FLAGS &= ^unit64(0xf)
+			// 	x.ra.FLAGS |= state
+			// 	changes++
+			// }
+		} else {
+			x.ra.FLAGS = x.raf.Meta.RAFLAGS
+			changes++
+		}
 	}
 	if x.ra.ApplicationReadyUID != x.raf.Meta.ApplicationReadyUID {
 		changes++

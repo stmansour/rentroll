@@ -753,21 +753,21 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 		ra.UnspecifiedChildren = rand.Int63n(3)
 		ra.Renewal = 2
 		ra.FLAGS = 0x4 /*status = approved*/ | (1 << 4) /* approver1 */ | (1 << 5) /*approver2*/
-		ra.ApplicationReadyUID = int64(IG.Rand.Intn(280))
+		ra.ApplicationReadyUID = GenerateValidUID()
 		ra.ApplicationReadyDate = dbConf.DtStart
-		ra.Approver1 = int64(IG.Rand.Intn(280))
+		ra.Approver1 = GenerateValidUID()
 		ra.DeclineReason1 = 0
 		ra.DecisionDate1 = dbConf.DtStart
-		ra.Approver2 = int64(IG.Rand.Intn(280))
+		ra.Approver2 = GenerateValidUID()
 		ra.DeclineReason2 = 0
 		ra.DecisionDate2 = dbConf.DtStart
-		ra.MoveInUID = int64(IG.Rand.Intn(280))
+		ra.MoveInUID = GenerateValidUID()
 		ra.MoveInDate = dbConf.DtStart
-		ra.ActiveUID = int64(IG.Rand.Intn(280))
+		ra.ActiveUID = GenerateValidUID()
 		ra.ActiveDate = dbConf.DtStart
 		ra.OtherPreferences = ""
 		ra.FollowUpDate = now.AddDate(0, 0, 2)
-		ra.CSAgent = int64(IG.Rand.Intn(280))
+		ra.CSAgent = GenerateValidUID()
 		ra.Outcome = 0
 		_, err := rlib.InsertRentalAgreement(ctx, &ra)
 		if err != nil {
