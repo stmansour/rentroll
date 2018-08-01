@@ -1253,7 +1253,6 @@ func addFlowPersonVehicles(ctx context.Context, tcid, tmptcid int64, raf *RAFlow
 // INPUTS
 //             ctx  = db transaction context
 //             BID  = Business ID
-//             RID  = Rentable ID
 //          pStart  = possession start date
 //           pStop  = possession stop date
 //            meta  = RAFlowMetaInfo data
@@ -1262,7 +1261,7 @@ func addFlowPersonVehicles(ctx context.Context, tcid, tmptcid int64, raf *RAFlow
 //     RAPetsFlowData structure
 //     any error encountered
 //-----------------------------------------------------------------------------
-func NewRAFlowPet(ctx context.Context, BID, RID int64, rStart, rStop, pStart, pStop JSONDate, meta *RAFlowMetaInfo) (pet RAPetsFlowData, err error) {
+func NewRAFlowPet(ctx context.Context, BID int64, rStart, rStop, pStart, pStop JSONDate, meta *RAFlowMetaInfo) (pet RAPetsFlowData, err error) {
 	const funcname = "NewRAFlowPet"
 	fmt.Printf("Entered in %s\n", funcname)
 
@@ -1277,7 +1276,7 @@ func NewRAFlowPet(ctx context.Context, BID, RID int64, rStart, rStop, pStart, pS
 	}
 
 	// GET PET INITIAL FEES, META SHOULD BE UPDATED IN CALLER FUNCTION
-	pet.Fees, err = GetRAFlowInitialPetFees(ctx, BID, RID, (time.Time)(rStart), (time.Time)(rStop), meta)
+	pet.Fees, err = GetRAFlowInitialPetFees(ctx, BID, (time.Time)(rStart), (time.Time)(rStop), meta)
 
 	return
 }
@@ -1288,7 +1287,6 @@ func NewRAFlowPet(ctx context.Context, BID, RID int64, rStart, rStop, pStart, pS
 // INPUTS
 //             ctx  = db transaction context
 //             BID  = Business ID
-//             RID  = Rentable ID
 //          pStart  = possession start date
 //           pStop  = possession stop date
 //            meta  = RAFlowMetaInfo data
@@ -1297,7 +1295,7 @@ func NewRAFlowPet(ctx context.Context, BID, RID int64, rStart, rStop, pStart, pS
 //     RAVehiclesFlowData structure
 //     any error encountered
 //-----------------------------------------------------------------------------
-func NewRAFlowVehicle(ctx context.Context, BID, RID int64, rStart, rStop, pStart, pStop JSONDate, meta *RAFlowMetaInfo) (vehicle RAVehiclesFlowData, err error) {
+func NewRAFlowVehicle(ctx context.Context, BID int64, rStart, rStop, pStart, pStop JSONDate, meta *RAFlowMetaInfo) (vehicle RAVehiclesFlowData, err error) {
 	const funcname = "NewRAFlowVehicle"
 	fmt.Printf("Entered in %s\n", funcname)
 
@@ -1312,7 +1310,7 @@ func NewRAFlowVehicle(ctx context.Context, BID, RID int64, rStart, rStop, pStart
 	}
 
 	// GET VEHICLE INITIAL FEES, META SHOULD BE UPDATED IN CALLER FUNCTION
-	vehicle.Fees, err = GetRAFlowInitialVehicleFees(ctx, BID, RID, (time.Time)(rStart), (time.Time)(rStop), meta)
+	vehicle.Fees, err = GetRAFlowInitialVehicleFees(ctx, BID, (time.Time)(rStart), (time.Time)(rStop), meta)
 
 	return
 }

@@ -18,7 +18,7 @@
     SliderContentDivLength, SetFeeFormRecordFromFeeData,
     RenderPetFeesGridSummary, RAFlowNewPetAJAX, updateFlowData,
     GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary,
-    GetTiePeopleLocalData, RecalculatePetFees, GetCurrentFlowID
+    GetTiePeopleLocalData, GetCurrentFlowID
 */
 
 "use strict";
@@ -395,14 +395,6 @@ window.loadRAPetsGrid = function () {
             },
             onChange: function(event) {
                 event.onComplete = function() {
-                    // if contact person is changed then hit the server to re-calculate fees
-                    if (event.target === "TMPTCID") {
-                        var TMPTCID = parseInt(event.value_new.id),
-                            TMPPETID = this.record.TMPPETID;
-
-                        // re calculate fees if person is changed
-                        RecalculatePetFees(TMPPETID, TMPTCID);
-                    }
 
                     // formRecDiffer: 1=current record, 2=original record, 3=diff object
                     var diff = formRecDiffer(this.record, app.active_form_original, {});
@@ -1048,51 +1040,3 @@ window.AssignPetFeesGridRecords = function(TMPPETID) {
     RenderPetFeesGridSummary(TMPPETID);
 };
 
-//-----------------------------------------------------------------------------
-// RecalculatePetFees - will determine if recalcuation needed for pet fees
-//                      If needed, it will hit the server to get the latest
-//                      new collection of fees for that.
-//-----------------------------------------------------------------------------
-window.RecalculatePetFees = function (TMPPETID, TMPTCID) {
-    var BID = getCurrentBID();
-    var tiePerson = GetTiePeopleLocalData(TMPTCID);
-
-    // if no tied rentable then return
-    var RID = tiePerson.PRID;
-    if (!RID) {
-        return;
-    }
-
-    var FlowID = GetCurrentFlowID();
-    var data = {
-        "cmd":          "recalculate",
-        "FlowID":       FlowID,
-        "TMPPETID":     TMPPETID,
-        "RID":          RID,
-    };
-
-    return $.ajax({
-        url: "/v1/petfees/" + BID.toString() + "/" + FlowID.toString(),
-        method: "POST",
-        contentType: "application/json",
-        dataType: "json",
-        data: JSON.stringify(data),
-        success: function (data) {
-            if (data.status !== "error") {
-                // get the last tmpasmid of fees
-                var oldLastTMPASMID = app.raflow.Flow.Data.meta.LastTMPASMID;
-
-                // Update flow local copy and green checks
-                updateFlowData(data);
-
-                // re-assign fees grid records if modifiec
-                if (oldLastTMPASMID !== data.record.Flow.Data.meta.LastTMPASMID) {
-                    AssignPetFeesGridRecords(TMPPETID);
-                }
-            }
-        },
-        error: function (data) {
-            console.error(data);
-        }
-    });
-};
