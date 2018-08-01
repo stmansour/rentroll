@@ -489,7 +489,7 @@ window.loadRAActionTemplate = function() {
                 },
                 { type: 'main', style: app.pstyle2, content: 'main'},
                 { type: 'preview', style: app.pstyle2, hidden: true },
-                { type: 'bottom', style: app.pstyle2, size: 130,content:'bottom' },
+                { type: 'bottom', style: app.pstyle2, size: 128,content:'bottom' },
                 { type: 'right', style: app.pstyle2, hidden: true}
             ],
             onRefresh: function(event) {
@@ -520,7 +520,7 @@ window.loadRAActionForm = function() {
     if(! w2ui.RAActionForm) {
         $().w2form({
             name: 'RAActionForm',
-            style: 'background-color: white; display: block;',
+            style: 'display: block;',
             focus: -1,
             formURL: '/webclient/html/raflow/formra-actionmain.html',
             fields: [
