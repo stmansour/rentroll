@@ -4,7 +4,6 @@
     GetRAFlowDataAjax,
     manageParentRentableW2UIItems, managePeopleW2UIItems,
     LoadRAFlowTemplate,
-    getVehicleFees, getPetFees,
     renderRAStateInToolbar,
     loadRAActionTemplate,
     getStringListData, initBizErrors, displayErrorDot
