@@ -434,9 +434,29 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	if migrateData {
 		// migrate data to real table via hook
-		_, err = Flow2RA(ctx, flow.FlowID)
+		var newRAID int64
+		newRAID, err = Flow2RA(ctx, flow.FlowID)
 		if err != nil {
 			return
+		}
+
+		if modRAFlowMeta.RAID == 0 {
+			modRAFlowMeta.RAID = newRAID
+			modMetaData, err = json.Marshal(&modRAFlowMeta)
+			if err != nil {
+				return
+			}
+
+			flow.ID = newRAID
+			err = rlib.UpdateFlow(ctx, &flow)
+			if err != nil {
+				return
+			}
+
+			err = rlib.UpdateFlowData(ctx, "meta", modMetaData, &flow)
+			if err != nil {
+				return
+			}
 		}
 	}
 
