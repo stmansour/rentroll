@@ -222,9 +222,9 @@ type RAPeopleFlowData struct {
 // RAPetsFlowData contains data in the pets part of RA flow
 type RAPetsFlowData struct {
 	TMPPETID int64        `validate:"number,min=1"`
-	BID      int64        `validate:"number,min=1"`
-	PETID    int64        `validate:"number,min=1"`
-	TMPTCID  int64        `validate:"number,min=1"`
+	BID      int64        `validate:"number,min=0"`
+	PETID    int64        `validate:"number,min=0"`
+	TMPTCID  int64        `validate:"number,min=0"`
 	Name     string       `validate:"string,min=1,max=100"`
 	Type     string       `validate:"string,min=1,max=100"`
 	Breed    string       `validate:"string,min=1,max=100"`
@@ -238,9 +238,9 @@ type RAPetsFlowData struct {
 // RAVehiclesFlowData contains data in the vehicles part of RA flow
 type RAVehiclesFlowData struct {
 	TMPVID              int64        `validate:"number,min=1"`
-	BID                 int64        `validate:"number,min=1"`
-	VID                 int64        `validate:"number,min=1"`
-	TMPTCID             int64        `validate:"number,min=1"`
+	BID                 int64        `validate:"number,min=0"`
+	VID                 int64        `validate:"number,min=0"`
+	TMPTCID             int64        `validate:"number,min=0"`
 	VIN                 string       `validate:"string,min=1,omitempty"`
 	VehicleType         string       `validate:"string,min=1,max=80"`
 	VehicleMake         string       `validate:"string,min=1,max=80"`
@@ -257,9 +257,9 @@ type RAVehiclesFlowData struct {
 
 // RARentablesFlowData contains data in the rentables part of RA flow
 type RARentablesFlowData struct {
-	BID             int64 `validate:"number,min=1"`
-	RID             int64 `validate:"number,min=1"`
-	RTID            int64 `validate:"number,min=1"`
+	BID             int64 `validate:"number,min=0"`
+	RID             int64 `validate:"number,min=0"`
+	RTID            int64 `validate:"number,min=0"`
 	RTFLAGS         uint64
 	RentableName    string  `validate:"string,min=1,max=100"`
 	RentCycle       int64   `validate:"number,min=0"`
@@ -291,9 +291,9 @@ type RAFeesData struct {
 
 // RAParentChildFlowData contains data in the Parent/Child part of RA flow
 type RAParentChildFlowData struct {
-	BID  int64 `validate:"number,min=1"`
-	PRID int64 `validate:"number,min=1"` // parent rentable ID
-	CRID int64 `validate:"number,min=1"` // child rentable ID
+	BID  int64 `validate:"number,min=0"`
+	PRID int64 `validate:"number,min=0"` // parent rentable ID
+	CRID int64 `validate:"number,min=0"` // child rentable ID
 }
 
 // RATieFlowData contains data in the tie part of RA flow
@@ -303,9 +303,9 @@ type RATieFlowData struct {
 
 // RATiePeopleData holds data from tie section for a payor to a rentable
 type RATiePeopleData struct {
-	BID     int64 `validate:"number,min=1"`
-	PRID    int64 `validate:"number,min=1"`
-	TMPTCID int64 `validate:"number,min=1"` // user's temp json record reference id
+	BID     int64 `validate:"number,min=0"`
+	PRID    int64 `validate:"number,min=0"`
+	TMPTCID int64 `validate:"number,min=0"` // user's temp json record reference id
 }
 
 // UpdateRAFlowJSON updates json data based on requested

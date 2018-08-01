@@ -350,6 +350,7 @@ func ValidateRAFlowBasic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 		parentChildFieldsErrors := ParentChildFieldsError{
 			Total:  len(errs),
 			PRID:   parentChild.PRID,
+			CRID:   parentChild.CRID,
 			Errors: errs,
 		}
 

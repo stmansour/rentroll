@@ -462,7 +462,6 @@ window.dispalyRAPeopleGridError = function (){
             if (people[i].total > 0) {
                 var recid = getRecIDFromTMPTCID(g, people[i].TMPTCID);
                 g.get(recid).w2ui.style = "background-color: #EEB4B4";
-                // g.get(recid).haveError = true;
                 g.refreshRow(recid);
             }
         }

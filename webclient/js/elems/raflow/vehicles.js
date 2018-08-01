@@ -19,7 +19,7 @@
     RenderVehicleFeesGridSummary, RAFlowNewVehicleAJAX,
     GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary,
     GetVehicleIdentity, updateFlowData, GetTiePeopleLocalData,
-    RecalculateVehicleFees,
+    RecalculateVehicleFees, getRecIDFromTMPVID, dispalyRAVehiclesGridError
 */
 
 "use strict";
@@ -178,6 +178,29 @@ window.loadRAVehiclesGrid = function () {
                 {
                     field: 'BID',
                     hidden: true
+                },
+                {
+                    field: 'haveError',
+                    size: '30px',
+                    hidden: false,
+                    render: function (record) {
+                        var haveError = false;
+                        var flowID = app.raflow.activeFlowID;
+                        if (app.raflow.validationErrors[flowID].vehicles) {
+                            var vehicle = app.raflow.validationCheck[flowID].errors.vehicle;
+                            for (var i = 0; i < vehicle.length; i++) {
+                                if (vehicle[i].TMPVID === record.TMPVID && vehicle[i].total > 0) {
+                                    haveError = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (haveError) {
+                            return '<i class="fas fa-exclamation-triangle" title="error"></i>';
+                        } else {
+                            return "";
+                        }
+                    }
                 },
                 {
                     field: 'TMPTCID',
@@ -966,6 +989,9 @@ window.AssignVehiclesGridRecords = function() {
     // assign record in grid
     reassignGridRecids(grid.name);
 
+    // display row error with light red background if it have
+    dispalyRAVehiclesGridError();
+
     // lock the grid until "Have vehicles?" checkbox checked.
     lockOnGrid(grid.name);
 };
@@ -1150,4 +1176,51 @@ window.RecalculateVehicleFees = function (TMPVID, TMPTCID) {
             console.error(data);
         }
     });
+};
+
+// dispalyRAPeopleGridError
+// It highlights grid's row if it have error
+window.dispalyRAVehiclesGridError = function (){
+    // load grid errors if any
+    var g = w2ui.RAVehiclesGrid;
+    var record, i;
+    for (i = 0; i < g.records.length; i++) {
+        // get record from grid to apply css
+        record = g.get(g.records[i].recid);
+
+        if (!("w2ui" in record)) {
+            record.w2ui = {}; // init w2ui if not present
+        }
+        if (!("class" in record.w2ui)) {
+            record.w2ui.class = ""; // init class string
+        }
+        if (!("style" in record.w2ui)) {
+            record.w2ui.style = {}; // init style object
+        }
+    }
+
+    // If biz error than highlight grid row
+    var flowID = app.raflow.activeFlowID;
+    if (app.raflow.validationErrors[flowID].vehicles) {
+        var vehicles = app.raflow.validationCheck[flowID].errors.vehicle;
+        for (i = 0; i < vehicles.length; i++) {
+            if (vehicles[i].total > 0) {
+                var recid = getRecIDFromTMPVID(g, vehicles[i].TMPVID);
+                g.get(recid).w2ui.style = "background-color: #EEB4B4";
+                g.refreshRow(recid);
+            }
+        }
+    }
+};
+
+// getRecIDFromTMPVID It returns recid of grid record which matches TMPTCID
+window.getRecIDFromTMPVID = function(grid, TMPVID){
+    // var g = w2ui.RAPeopleGrid;
+    var recid;
+    for (var i = 0; i < grid.records.length; i++) {
+        if (grid.records[i].TMPVID === TMPVID) {
+            recid = grid.records[i].recid;
+        }
+    }
+    return recid;
 };
