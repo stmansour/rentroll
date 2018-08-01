@@ -51,17 +51,6 @@ $(document).on('click', '#ra-form #previous', function () {
 $(document).on('click', '#ra-form #save-ra-flow-btn', function () {
     getApprovals().done(function (data) {
 
-        if(data.total === 0 && data.errortype === "biz"){
-            alert("TODO: You'r good to go for pending first approval."); // TODO: Change its state to pending first approval. Remove this alert
-            return;
-        }
-
-        // Display error dot on each section if it have error
-        // For Basic error/business logic error
-        if(data.total === 0){
-            return;
-        }
-
         var FlowID = app.raflow.activeFlowID;
         app.raflow.validationErrors[FlowID] = {
             dates: data.errors.dates.total > 0 || data.nonFieldsErrors.dates.length > 0,
@@ -74,6 +63,10 @@ $(document).on('click', '#ra-form #save-ra-flow-btn', function () {
         };
 
         displayErrorDot();
+
+        if(data.total === 0 && data.errortype === "biz"){
+            alert("TODO: You'r good to go for pending first approval."); // TODO: Change its state to pending first approval. Remove this alert
+        }
 
     });
 });
