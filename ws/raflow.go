@@ -1,17 +1,32 @@
 package ws
 
 import (
+	"database/sql"
+	"fmt"
+	"net/http"
 	"rentroll/bizlogic"
 	"rentroll/rlib"
+	"strconv"
+	"strings"
 )
 
-// GridRAFlowResponse is a struct to hold info for rental agreement for the grid response
+// GridRAFlowRecord is a struct to hold info for rental agreement for the grid response
+type GridRAFlowRecord struct {
+	Recid          int64           `json:"recid"` // this is to support the w2ui form
+	RAID           rlib.NullInt64  // internal unique id
+	BID            int64           // Business (so that we can process by Business)
+	AgreementStart rlib.NullDate   // start date for rental agreement contract
+	AgreementStop  rlib.NullDate   // stop date for rental agreement contract
+	Payors         rlib.NullString // payors list attached with this RA within same time
+	FlowID         rlib.NullInt64  // FlowID
+	UserRefNo      rlib.NullString // FlowID - reference number
+}
+
+// GridRAFlowResponse is the response data for a Rental Agreement Search
 type GridRAFlowResponse struct {
-	Recid     int64 `json:"recid"`
-	BID       int64
-	BUD       string
-	FlowID    int64
-	UserRefNo string
+	Status  string             `json:"status"`
+	Total   int64              `json:"total"`
+	Records []GridRAFlowRecord `json:"records"`
 }
 
 // RAFlowResponse is a struct to hold info for flow information and relative basic validation check
@@ -19,4 +34,191 @@ type RAFlowResponse struct {
 	Flow          rlib.Flow
 	BasicCheck    bizlogic.ValidateRAFlowResponse
 	DataFulfilled rlib.RADataFulfilled
+}
+
+// RAFlowGridFieldsMap holds the map of field (to be shown on grid)
+// to actual database fields, multiple db fields means combine those
+var RAFlowGridFieldsMap = map[string][]string{
+	"BID":            {"RA_CUM_FLOW.BID"},
+	"RAID":           {"RA_CUM_FLOW.RAID"},
+	"AgreementStart": {"RA_CUM_FLOW.AgreementStart"},
+	"AgreementStop":  {"RA_CUM_FLOW.AgreementStop"},
+	"Payors":         {"RA_CUM_FLOW.Payors"},
+	"FlowID":         {"RA_CUM_FLOW.FlowID"},
+	"UserRefNo":      {"RA_CUM_FLOW.UserRefNo"},
+}
+
+// RAFlowQuerySelectFields defines which fields needs to be fetched for SQL query for rental agreements
+var RAFlowQuerySelectFields = []string{
+	"RA_CUM_FLOW.BID",
+	"RA_CUM_FLOW.RAID",
+	"RA_CUM_FLOW.AgreementStart",
+	"RA_CUM_FLOW.AgreementStop",
+	"RA_CUM_FLOW.Payors",
+	"RA_CUM_FLOW.FlowID",
+	"RA_CUM_FLOW.UserRefNo",
+}
+
+// RAFlowListQuery to fetch all rental agreements and flow w or w/o inter-relation
+var RAFlowListQuery = `
+SELECT
+    {{.SelectClause}}
+FROM (
+    /***********************************
+    Rental Agreements (with or without flow)
+    UNION Flow (without RA) Collection
+    - - - - - - - - - - - - - - - - - */
+    (
+        /*
+            COLLECT ALL RENTAL AGREEMENTS WITH ASSOCIATED FLOW ENTRIES
+            GROUPED BY RAID AND THEN ORDER BY RAID ASC
+        */
+        SELECT
+            RentalAgreement.BID AS BID,
+            RentalAgreement.RAID AS RAID,
+            RentalAgreement.AgreementStart AS AgreementStart,
+            RentalAgreement.AgreementStop AS AgreementStop,
+            GROUP_CONCAT(DISTINCT CASE WHEN Payor.IsCompany > 0 THEN Payor.CompanyName ELSE CONCAT(Payor.FirstName, ' ', Payor.LastName) END ORDER BY Payor.TCID ASC SEPARATOR ', ') AS Payors,
+            Flow.FlowID AS FlowID,
+            Flow.UserRefNo AS UserRefNo
+        FROM RentalAgreement
+        LEFT JOIN RentalAgreementPayors ON RentalAgreementPayors.RAID=RentalAgreement.RAID
+        LEFT JOIN Transactant AS Payor ON Payor.TCID=RentalAgreementPayors.TCID
+        LEFT JOIN Flow ON Flow.ID=RentalAgreement.RAID
+        WHERE RentalAgreement.BID={{.BID}}
+        GROUP BY RentalAgreement.RAID
+        /*ORDER BY RentalAgreement.RAID ASC*/
+    )
+    UNION ALL
+    (
+        /*
+            COLLECT ALL FLOW ENTRIES WHICH ARE NOT ASSOCIATED WITH ANY RA
+            IN ORDER BY FlowID ASC
+        */
+        SELECT
+            Flow.BID AS BID,
+            NULL AS RAID,
+            NULL AS AgreementStart,
+            NULL AS AgreementStop,
+            NULL AS Payors,
+            Flow.FlowID AS FlowID,
+            Flow.UserRefNo AS UserRefNo
+        FROM Flow
+        WHERE Flow.ID=0 AND Flow.BID={{.BID}}
+        /*ORDER BY Flow.FlowID ASC*/
+    )
+    /*- - - - - - - - - - - - - - - - -
+    Rental Agreements (with or without flow)
+    UNION Flow (without RA) Collection
+    ***********************************/
+) RA_CUM_FLOW
+WHERE {{.WhereClause}}
+/* ORDER BY RAID, FlowID (if null then it would be last otherwise) */
+ORDER BY {{.OrderClause}}
+`
+
+// RAFlowQueryClause query clasues for raflow query
+var RAFlowQueryClause = rlib.QueryClause{
+	"BID":          "",
+	"SelectClause": strings.Join(RAFlowQuerySelectFields, ","),
+	"WhereClause":  "",
+	"OrderClause":  "- RA_CUM_FLOW.RAID DESC, - RA_CUM_FLOW.FlowID DESC",
+}
+
+// GetAllRAFlows returns all existing Rental Agreements and all Flows
+// are being edited for rental agreement.
+func GetAllRAFlows(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "GetAllRAFlows"
+	var (
+		qc    = rlib.GetQueryClauseCopy(RAFlowQueryClause)
+		srch  = fmt.Sprintf("RA_CUM_FLOW.BID=%d", d.BID)
+		order = qc["OrderClause"]
+		resp  = GridRAFlowResponse{
+			Records: []GridRAFlowRecord{},
+		}
+		err error
+	)
+	fmt.Printf("Entered in %s\n", funcname)
+
+	// get where clause and order clause for sql query
+	whereClause, orderClause := GetSearchAndSortSQL(d, RAFlowGridFieldsMap)
+	if len(whereClause) > 0 {
+		srch += " AND (" + whereClause + ")"
+	}
+	if len(orderClause) > 0 {
+		order = orderClause
+	}
+
+	// assign modified queryclauses
+	qc["WhereClause"] = srch
+	qc["OrderClause"] = order
+	qc["BID"] = strconv.FormatInt(d.BID, 10)
+
+	// get TOTAL COUNT First
+	countQuery := rlib.RenderSQLQuery(RAFlowListQuery, qc)
+	resp.Total, err = rlib.GetQueryCount(countQuery)
+	if err != nil {
+		rlib.Console("Error from rlib.GetQueryCount: %s\n", err.Error())
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+	rlib.Console("g.Total = %d\n", resp.Total)
+
+	//----------------------------------------------------------------------
+	// FETCH the records WITH LIMIT AND OFFSET
+	// limit the records to fetch from server, page by page
+	//----------------------------------------------------------------------
+	limitAndOffsetClause := ` LIMIT {{.LimitClause}} OFFSET {{.OffsetClause}};`
+
+	//----------------------------------------------------------------------
+	// build query with limit and offset clause
+	//----------------------------------------------------------------------
+	RAFlowQueryWithLimit := RAFlowListQuery + limitAndOffsetClause
+
+	//----------------------------------------------------------------------
+	// Add limit and offset value
+	//----------------------------------------------------------------------
+	qc["LimitClause"] = strconv.Itoa(d.wsSearchReq.Limit)
+	qc["OffsetClause"] = strconv.Itoa(d.wsSearchReq.Offset)
+
+	//----------------------------------------------------------------------
+	// get formatted query with substitution of select, where, order clause
+	//----------------------------------------------------------------------
+	qry := rlib.RenderSQLQuery(RAFlowQueryWithLimit, qc)
+	rlib.Console("db query = %s\n", qry)
+
+	//----------------------------------------------------------------------
+	// execute the query
+	//----------------------------------------------------------------------
+	var rows *sql.Rows
+	rows, err = rlib.RRdb.Dbrr.Query(qry)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+	defer rows.Close()
+
+	i := int64(d.wsSearchReq.Offset)
+	count := 0
+	for rows.Next() {
+		var q GridRAFlowRecord
+		q.Recid = i
+		if err = rows.Scan(&q.BID, &q.RAID, &q.AgreementStart, &q.AgreementStop, &q.Payors, &q.FlowID, &q.UserRefNo); err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+		resp.Records = append(resp.Records, q)
+		count++ // update the count only after adding the record
+		if count >= d.wsSearchReq.Limit {
+			break // if we've added the max number requested, then exit
+		}
+		i++
+	}
+	if err = rows.Err(); err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	resp.Status = "success"
+	SvcWriteResponse(d.BID, &resp, w)
 }
