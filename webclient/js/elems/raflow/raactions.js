@@ -8,7 +8,8 @@
     GetVehicleIdentity,
     dtFormatISOToW2ui,
     localtimeToUTC,
-    updateFlowData
+    updateFlowData,
+    GetCurrentFlowID
 */
 "use strict";
 
@@ -55,8 +56,7 @@ window.reloadActionForm = function() {
     $('button[name=RAGenerateMoveOutForm]').hide();
     $('button[name=save]').hide();
 
-    var activeFlowID = app.raflow.activeFlowID;
-    var data = app.raflow.data[activeFlowID].Data;
+    var data = app.raflow.Flow.Data;
     var raFlags = data.meta.RAFLAGS;
 
     switch (parseInt(raFlags & 0xf)) {
@@ -163,8 +163,7 @@ window.reloadActionForm = function() {
 };
 
 window.refreshLabels = function () {
-    var activeFlowID = app.raflow.activeFlowID;
-    var data = app.raflow.data[activeFlowID];
+    var data = app.raflow.Flow;
     var meta = data.Data.meta;
 
     // Header Part
@@ -478,7 +477,6 @@ window.loadRAActionTemplate = function() {
                                     w2ui.raActionLayout.get('main').content.destroy();
                                     w2ui.newraLayout.unlock('main');
                                     w2ui.applicantsGrid.render();
-                                    app.raflow.activeFlowID = "";
                                     w2ui.toplayout.hide('right',true);
                                 };
                                 form_dirty_alert(yes_callBack, no_callBack);
@@ -504,7 +502,7 @@ window.loadRAActionTemplate = function() {
     w2ui.raActionLayout.load('top', '/webclient/html/raflow/formra-actionheader.html');
     w2ui.raActionLayout.load('bottom', '/webclient/html/raflow/formra-actionfooter.html');
 
-    // var raFlags = app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS;
+    // var raFlags = app.raflow.Flow.Data.meta.RAFLAGS;
     // var raState = parseInt(raFlags & 0xf);
 
     loadRAActionForm();
@@ -644,12 +642,11 @@ window.loadRAActionForm = function() {
                 }
             },
             onRefresh: function (event) {
-                var activeFlowID = app.raflow.activeFlowID;
-                var data = app.raflow.data[activeFlowID].Data;
+                var data = app.raflow.Flow.Data;
                 var raFlags = data.meta.RAFLAGS;
                 var raStateString = app.RAStates[parseInt(raFlags & 0xf)];
 
-                // var RAID = app.raflow.data[activeFlowID].ID;
+                // var RAID = app.raflow.Flow.ID;
                 // if(RAID > 0 &&  (raStateString === "Pending First Approval" || raStateString === "Pending Second Approval")) {
                 //     raStateString = 'Modification ' + raStateString;
                 // }
@@ -668,8 +665,8 @@ window.loadRAActionForm = function() {
             },
             actions: {
                 save: function() {
-                    var FlowID = app.raflow.activeFlowID;
-                    var data = app.raflow.data[FlowID].Data;
+                    var FlowID = GetCurrentFlowID();
+                    var data = app.raflow.Flow.Data;
                     var raFlags = data.meta.RAFLAGS;
                     var raState =parseInt(raFlags & 0xf);
 
@@ -719,13 +716,13 @@ window.loadRAActionForm = function() {
                     }
                 },
                 updateAction: function() {
-                    var FlowID = app.raflow.activeFlowID;
+                    var FlowID = GetCurrentFlowID();
                     var Action = this.record.RAActions.id;
                     var TerminationReason = 0;
                     var NoticeToMoveDate = "1/1/1900";
                     var Mode = "Action";
 
-                    var currentState = parseInt(app.raflow.data[FlowID].Data.meta.RAFLAGS & (0xf));
+                    var currentState = parseInt(app.raflow.Flow.Data.meta.RAFLAGS & (0xf));
                     if (Action === currentState) {
                         return;
                     }

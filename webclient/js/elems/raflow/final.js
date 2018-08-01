@@ -179,7 +179,7 @@ window.AssignRAFinalRentablesFeesGridRecords = function() {
     grid.clear();
 
     // get rentables local data
-    var compData = getRAFlowCompData("rentables", app.raflow.activeFlowID) || [];
+    var compData = getRAFlowCompData("rentables") || [];
 
     // loop over all rentable and collect fees
     compData.forEach(function(rentable) {
@@ -213,7 +213,7 @@ window.AssignRAFinalPetsFeesGridRecords = function() {
     grid.clear();
 
     // get pets local data
-    var compData = getRAFlowCompData("pets", app.raflow.activeFlowID) || [];
+    var compData = getRAFlowCompData("pets") || [];
 
     // loop over all pets and collect fees
     compData.forEach(function(pet) {
@@ -247,7 +247,7 @@ window.AssignRAFinalVehiclesFeesGridRecords = function() {
     grid.clear();
 
     // get vehicles local data
-    var compData = getRAFlowCompData("vehicles", app.raflow.activeFlowID) || [];
+    var compData = getRAFlowCompData("vehicles") || [];
 
     // loop over all vehicles and collect fees
     compData.forEach(function(vehicle) {
