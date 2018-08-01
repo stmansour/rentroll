@@ -7,9 +7,9 @@
     SaveRentableCompData, SetRentableFeeLocalData, GetRentableFeeLocalData,
     ridRentablePickerRender, ridRentableDropRender, ridRentableCompare,
     AssignRentableGridRecords, AssignRentableFeesGridRecords,
-    SetRentableAmountsFromFees, manageParentRentableW2UIItems,
+    SetRentableAmountsFromFees, manageParentRentableW2UIItems, getRecIDFromTMPASMID,
     RenderRentablesGridSummary, GetFeeFormFields, GetFeeGridColumns,
-    SetFeeDataFromFeeFormRecord, SetFeeFormRecordFromFeeData,
+    SetFeeDataFromFeeFormRecord, SetFeeFormRecordFromFeeData, displayRARentableFeesGridError,
     FeeFormOnChangeHandler, GetFeeFormToolbar, FeeFormOnRefreshHandler, getRecIDFromRID,
     GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary, updateFlowData, dispalyRARentablesGridError
 */
@@ -791,6 +791,9 @@ window.AssignRentableFeesGridRecords = function(RID) {
         }
     });
 
+    // It highlight row with light red color if it have error
+    displayRARentableFeesGridError();
+
     if (foundRIDIndex > -1) {
         var rentableGridRec = w2ui.RARentablesGrid.get(foundRIDIndex);
         var summaryRec = grid.summary[0]; //only one summary we have
@@ -1056,6 +1059,42 @@ window.dispalyRARentablesGridError = function (){
                 var recid = getRecIDFromRID(g, rentables[i].RID);
                 g.get(recid).w2ui.style = "background-color: #EEB4B4";
                 g.refreshRow(recid);
+            }
+        }
+    }
+};
+
+// displayRARentableFeesGridError It highlight row with light red color if it have error
+window.displayRARentableFeesGridError = function () {
+    // load grid errors if any
+    var g = w2ui.RARentableFeesGrid;
+    var record, i;
+    for (i = 0; i < g.records.length; i++) {
+        // get record from grid to apply css
+        record = g.get(g.records[i].recid);
+
+        if (!("w2ui" in record)) {
+            record.w2ui = {}; // init w2ui if not present
+        }
+        if (!("class" in record.w2ui)) {
+            record.w2ui.class = ""; // init class string
+        }
+        if (!("style" in record.w2ui)) {
+            record.w2ui.style = {}; // init style object
+        }
+    }
+
+    // If biz error than highlight grid row
+    var flowID = app.raflow.activeFlowID;
+    if (app.raflow.validationErrors[flowID].rentables) {
+        var rentables = app.raflow.validationCheck[flowID].errors.rentables;
+        for (i = 0; i < rentables.length; i++) {
+            for (var j = 0; j < rentables[i].fees.length; j++) {
+                if (rentables[i].fees[j].total > 0) {
+                    var recid = getRecIDFromTMPASMID(g, rentables[i].fees[j].TMPASMID);
+                    g.get(recid).w2ui.style = "background-color: #EEB4B4";
+                    g.refreshRow(recid);
+                }
             }
         }
     }

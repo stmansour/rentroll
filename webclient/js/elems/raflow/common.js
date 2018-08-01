@@ -1,7 +1,7 @@
 /* global
     RACompConfig, HideSliderContent, appendNewSlider, ShowSliderContentW2UIComp,
-    loadTargetSection, requiredFieldsFulFilled, initRAFlowAjax,
-    saveActiveCompData, getRAFlowCompData, displayActiveComponentError, dispalyRAPetsGridError, dispalyRAPeopleGridError,
+    loadTargetSection, requiredFieldsFulFilled, initRAFlowAjax, getRecIDFromTMPASMID
+    saveActiveCompData, getRAFlowCompData, displayActiveComponentError, displayRAPetsGridError, dispalyRAPeopleGridError,
     lockOnGrid, dataFulFilled, getApprovals, updateFlowData, updateFlowCopy, displayErrorDot, initBizErrors,
     dispalyRARentablesGridError, dispalyRAVehiclesGridError, dispalyRAParentChildGridError, dispalyRATiePeopleGridError
 */
@@ -537,7 +537,7 @@ window.displayActiveComponentError = function () {
             break;
         case "pets":
             w2ui.RAPetsGrid.refresh();
-            dispalyRAPetsGridError();
+            displayRAPetsGridError();
             break;
         case "vehicles":
             w2ui.RAVehiclesGrid.refresh();
@@ -561,4 +561,15 @@ window.displayActiveComponentError = function () {
             alert("invalid active comp: " + active_comp_id);
             return;
     }
+};
+
+// getRecIDFromTMPASMID It returns recid of grid record which matches TMPASMID
+window.getRecIDFromTMPASMID = function(grid, TMPASMID){
+    var recid;
+    for (var i = 0; i < grid.records.length; i++) {
+        if (grid.records[i].TMPASMID === TMPASMID) {
+            recid = grid.records[i].recid;
+        }
+    }
+    return recid;
 };

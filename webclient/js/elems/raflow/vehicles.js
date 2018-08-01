@@ -2,7 +2,7 @@
     RACompConfig, reassignGridRecids,
     HideSliderContent, ShowSliderContentW2UIComp,
     saveActiveCompData, getRAFlowCompData,
-    lockOnGrid,
+    lockOnGrid, displayRAVehicleFeesGridError,
     GetVehicleFormInitRecord, SetVehicleLocalData, GetVehicleLocalData,
     AssignVehiclesGridRecords, SaveVehiclesCompData,
     SetRAVehicleLayoutContent,
@@ -13,7 +13,7 @@
     GetAllARForFeeForm, SetDataFromFormRecord, SetFormRecordFromData,
     GetFeeGridColumns, GetFeeFormFields, GetFeeFormToolbar,
     SetFeeDataFromFeeFormRecord,
-    GetFeeFormInitRecord,
+    GetFeeFormInitRecord, getRecIDFromTMPASMID,
     FeeFormOnChangeHandler, FeeFormOnRefreshHandler,
     SliderContentDivLength, SetFeeFormRecordFromFeeData,
     RenderVehicleFeesGridSummary, RAFlowNewVehicleAJAX,
@@ -1111,6 +1111,9 @@ window.AssignVehicleFeesGridRecords = function(TMPVID) {
         reassignGridRecids(grid.name);
     });
 
+    // highlight row with light red background if it have error
+    displayRAVehicleFeesGridError();
+
     // render vehicle fees grid summary
     RenderVehicleFeesGridSummary(TMPVID);
 };
@@ -1208,6 +1211,41 @@ window.dispalyRAVehiclesGridError = function (){
                 var recid = getRecIDFromTMPVID(g, vehicles[i].TMPVID);
                 g.get(recid).w2ui.style = "background-color: #EEB4B4";
                 g.refreshRow(recid);
+            }
+        }
+    }
+};
+
+window.displayRAVehicleFeesGridError = function () {
+    // load grid errors if any
+    var g = w2ui.RAVehicleFeesGrid;
+    var record, i;
+    for (i = 0; i < g.records.length; i++) {
+        // get record from grid to apply css
+        record = g.get(g.records[i].recid);
+
+        if (!("w2ui" in record)) {
+            record.w2ui = {}; // init w2ui if not present
+        }
+        if (!("class" in record.w2ui)) {
+            record.w2ui.class = ""; // init class string
+        }
+        if (!("style" in record.w2ui)) {
+            record.w2ui.style = {}; // init style object
+        }
+    }
+
+    // If biz error than highlight grid row
+    var flowID = app.raflow.activeFlowID;
+    if (app.raflow.validationErrors[flowID].vehicles) {
+        var vehicles = app.raflow.validationCheck[flowID].errors.vehicle;
+        for (i = 0; i < vehicles.length; i++) {
+            for (var j = 0; j < vehicles[i].fees.length; j++) {
+                if (vehicles[i].fees[j].total > 0) {
+                    var recid = getRecIDFromTMPASMID(g, vehicles[i].fees[j].TMPASMID);
+                    g.get(recid).w2ui.style = "background-color: #EEB4B4";
+                    g.refreshRow(recid);
+                }
             }
         }
     }
