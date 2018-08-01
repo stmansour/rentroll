@@ -1,8 +1,9 @@
 /* global
     RACompConfig, HideSliderContent, appendNewSlider, ShowSliderContentW2UIComp,
     loadTargetSection, requiredFieldsFulFilled, initRAFlowAjax,
-    saveActiveCompData, getRAFlowCompData,
-    lockOnGrid, dataFulFilled, getApprovals, updateFlowData, updateFlowCopy, displayErrorDot, initBizErrors
+    saveActiveCompData, getRAFlowCompData, displayActiveComponentError, dispalyRAPetsGridError, dispalyRAPeopleGridError,
+    lockOnGrid, dataFulFilled, getApprovals, updateFlowData, updateFlowCopy, displayErrorDot, initBizErrors,
+    dispalyRARentablesGridError, dispalyRAVehiclesGridError, dispalyRAParentChildGridError, dispalyRATiePeopleGridError
 */
 
 "use strict";
@@ -63,6 +64,8 @@ $(document).on('click', '#ra-form #save-ra-flow-btn', function () {
         };
 
         displayErrorDot();
+
+        displayActiveComponentError();
 
         if(data.total === 0 && data.errortype === "biz"){
             alert("TODO: You'r good to go for pending first approval."); // TODO: Change its state to pending first approval. Remove this alert
@@ -513,4 +516,49 @@ window.getVehicleFees = function () {
             console.log(data);
         }
     });
+};
+
+//-----------------------------------------------------------------------------
+// displayActiveComponentError - it displays/highlight error for active component
+//-----------------------------------------------------------------------------
+window.displayActiveComponentError = function () {
+    // get the current component (to be previous one)
+    var active_comp = $(".ra-form-component:visible");
+
+    // get active component id
+    var active_comp_id = active_comp.attr("id");
+
+    switch (active_comp_id) {
+        case "dates":
+            break;
+        case "people":
+            w2ui.RAPeopleGrid.refresh();
+            dispalyRAPeopleGridError();
+            break;
+        case "pets":
+            w2ui.RAPetsGrid.refresh();
+            dispalyRAPetsGridError();
+            break;
+        case "vehicles":
+            w2ui.RAVehiclesGrid.refresh();
+            dispalyRAVehiclesGridError();
+            break;
+        case "rentables":
+            w2ui.RARentablesGrid.refresh();
+            dispalyRARentablesGridError();
+            break;
+        case "parentchild":
+            w2ui.RAParentChildGrid.refresh();
+            dispalyRAParentChildGridError();
+            break;
+        case "tie":
+            w2ui.RATiePeopleGrid.refresh();
+            dispalyRATiePeopleGridError();
+            break;
+        case "final":
+            break;
+        default:
+            alert("invalid active comp: " + active_comp_id);
+            return;
+    }
 };

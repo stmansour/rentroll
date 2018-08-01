@@ -1147,9 +1147,12 @@ window.dispalyRAPetsGridError = function (){
     if (app.raflow.validationErrors[flowID].pets) {
         var pets = app.raflow.validationCheck[flowID].errors.pets;
         for (i = 0; i < pets.length; i++) {
+            var recid = getRecIDFromTMPPETID(g, pets[i].TMPPETID);
             if (pets[i].total > 0) {
-                var recid = getRecIDFromTMPPETID(g, pets[i].TMPPETID);
                 g.get(recid).w2ui.style = "background-color: #EEB4B4";
+                g.refreshRow(recid);
+            }else{
+                g.get(recid).w2ui.style = {};
                 g.refreshRow(recid);
             }
         }
