@@ -273,6 +273,12 @@ func randomAlphaNumeric(n int) string {
 	return string(b)
 }
 
+// GenerateValidUID returns a random UID that will be found in Accord Directory
+//-----------------------------------------------------------------------------
+func GenerateValidUID() int64 {
+	return int64(1 + IG.Rand.Intn(297))
+}
+
 // GenerateRandomOccupation returns a random career occupation
 //-----------------------------------------------------------------------------
 func GenerateRandomOccupation() string {

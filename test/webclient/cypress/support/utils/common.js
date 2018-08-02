@@ -381,6 +381,8 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                         break;
                     case "RentCycle":
                     case "ProrationCycle":
+                    case "DefaultRentCycle":
+                    case "DefaultProrationCycle":
                     case "Proration":
                     case "GSRPC":
                         fieldValue = appSettings.cycleFreq[fieldValue];

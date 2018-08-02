@@ -12,6 +12,11 @@
 */
 "use strict";
 
+var actionsUI = {
+    hdrHeight: 117,
+    ftrHeight: 150,
+};
+
 // -------------------------------------------------------------------------------
 // submitActionForm - submits the data of action form
 // @params - FlowID, Decision, Reason, Action
@@ -62,24 +67,24 @@ window.reloadActionForm = function() {
     switch (parseInt(raFlags & 0xf)) {
         // "Application Being Completed"
         case 0:
-            $('#ApplicationFilledByRow')[0].style.display = 'none';
-            $('#Approver1Row')[0].style.display = 'none';
-            $('#Approver2Row')[0].style.display = 'none';
-            $('#MoveInRow')[0].style.display = 'none';
-            $('#ActiveRow')[0].style.display = 'none';
-            $('#NoticeToMoveRow')[0].style.display = 'none';
-            $('#TerminateRow')[0].style.display = 'none';
+            $('#ApplicationFilledByRow')[0].style.display = '';  //'none';
+            $('#Approver1Row')[0].style.display = '';  //'none';
+            $('#Approver2Row')[0].style.display = '';  //'none';
+            $('#MoveInRow')[0].style.display = ''; //'none';
+            $('#ActiveRow')[0].style.display = ''; //'none';
+            $('#NoticeToMoveRow')[0].style.display = ''; //'none';
+            $('#TerminateRow')[0].style.display = ''; //'none';
             break;
 
         // "Pending First Approval"
         case 1:
             $('#ApplicationFilledByRow')[0].style.display = '';
-            $('#Approver1Row')[0].style.display = 'none';
-            $('#Approver2Row')[0].style.display = 'none';
-            $('#MoveInRow')[0].style.display = 'none';
-            $('#ActiveRow')[0].style.display = 'none';
-            $('#NoticeToMoveRow')[0].style.display = 'none';
-            $('#TerminateRow')[0].style.display = 'none';
+            $('#Approver1Row')[0].style.display = '';  //'none';
+            $('#Approver2Row')[0].style.display = '';  //'none';
+            $('#MoveInRow')[0].style.display = '';  //'none';
+            $('#ActiveRow')[0].style.display = '';  //'none';
+            $('#NoticeToMoveRow')[0].style.display = '';  //'none';
+            $('#TerminateRow')[0].style.display = '';  //'none';
 
             w2ui.RAActionForm.get('RAApprovalDecision1').hidden = false;
             $('button[name=save]').show();
@@ -90,11 +95,11 @@ window.reloadActionForm = function() {
         case 2:
             $('#ApplicationFilledByRow')[0].style.display = '';
             $('#Approver1Row')[0].style.display = '';
-            $('#Approver2Row')[0].style.display = 'none';
-            $('#MoveInRow')[0].style.display = 'none';
-            $('#ActiveRow')[0].style.display = 'none';
-            $('#NoticeToMoveRow')[0].style.display = 'none';
-            $('#TerminateRow')[0].style.display = 'none';
+            $('#Approver2Row')[0].style.display = '';  //'none';
+            $('#MoveInRow')[0].style.display = '';  //'none';
+            $('#ActiveRow')[0].style.display = '';  //'none';
+            $('#NoticeToMoveRow')[0].style.display = '';  //'none';
+            $('#TerminateRow')[0].style.display = '';  //'none';
 
             w2ui.RAActionForm.get('RAApprovalDecision2').hidden = false;
             $('button[name=save]').show();
@@ -107,9 +112,9 @@ window.reloadActionForm = function() {
             $('#Approver1Row')[0].style.display = '';
             $('#Approver2Row')[0].style.display = '';
             $('#MoveInRow')[0].style.display = '';
-            $('#ActiveRow')[0].style.display = 'none';
-            $('#NoticeToMoveRow')[0].style.display = 'none';
-            $('#TerminateRow')[0].style.display = 'none';
+            $('#ActiveRow')[0].style.display = '';  //'none';
+            $('#NoticeToMoveRow')[0].style.display = '';  //'none';
+            $('#TerminateRow')[0].style.display = '';  //'none';
 
             w2ui.RAActionForm.get('RADocumentDate').hidden = false;
             $('button[name=RAGenerateRAForm]').show();
@@ -124,8 +129,8 @@ window.reloadActionForm = function() {
             $('#Approver2Row')[0].style.display = '';
             $('#MoveInRow')[0].style.display = '';
             $('#ActiveRow')[0].style.display = '';
-            $('#NoticeToMoveRow')[0].style.display = 'none';
-            $('#TerminateRow')[0].style.display = 'none';
+            $('#NoticeToMoveRow')[0].style.display = '';  //'none';
+            $('#TerminateRow')[0].style.display = '';  //'none';
 
             $('#RAActionRAInfo').show();
             break;
@@ -138,7 +143,7 @@ window.reloadActionForm = function() {
             $('#MoveInRow')[0].style.display = '';
             $('#ActiveRow')[0].style.display = '';
             $('#NoticeToMoveRow')[0].style.display = '';
-            $('#TerminateRow')[0].style.display = 'none';
+            $('#TerminateRow')[0].style.display = '';  //'none';
 
             $('#RAActionNoticeToMoveInfo').show();
             break;
@@ -167,7 +172,9 @@ window.refreshLabels = function () {
     var data = app.raflow.data[activeFlowID];
     var meta = data.Data.meta;
 
+    //------------------------------------------------------------------------
     // Header Part
+    //------------------------------------------------------------------------
     var x = document.getElementById("bannerRAID");
     if (x !== null) {
         if (data.ID == 0) {
@@ -192,13 +199,15 @@ window.refreshLabels = function () {
         x.innerHTML = '' + data.Data.dates.RentStart + ' - ' + data.Data.dates.RentStop;
     }
 
+    //------------------------------------------------------------------------
     // Footer Part
+    //------------------------------------------------------------------------
     x = document.getElementById("footerApplicationFilledBy");
     if (x !== null) {
         if (meta.ApplicationReadyUID == 0) {
             x.innerHTML = '';
         } else {
-            x.innerHTML = meta.ApplicationReadyName + ' on ' + dtFormatISOToW2ui(meta.ApplicationReadyDate);
+            x.innerHTML = dtFormatISOToW2ui(meta.ApplicationReadyDate) + ' by ' + meta.ApplicationReadyName;
         }
     }
 
@@ -208,11 +217,11 @@ window.refreshLabels = function () {
             x.innerHTML = '';
         } else {
             if ((meta.RAFLAGS & (1<<4)) > 0) {
-                x.innerHTML = 'Approved by ' + meta.Approver1Name + ' on ' + dtFormatISOToW2ui(meta.DecisionDate1);
+                x.innerHTML = dtFormatISOToW2ui(meta.DecisionDate1) + '  Approved by ' + meta.Approver1Name ;
             } else{
                 var reason1 = app.ApplDeny.find(function(t){if(t.id == meta.DeclineReason1){return t;}});
                 var reason1Text = reason1 ? reason1.text : "";
-                x.innerHTML = 'Declined by ' + meta.Approver1Name + ' on ' + dtFormatISOToW2ui(meta.DecisionDate1) + ' Reason: ' + reason1Text;
+                x.innerHTML = dtFormatISOToW2ui(meta.DecisionDate1) + '  Declined by ' + meta.Approver1Name + ' (' + reason1Text + ')';
             }
         }
     }
@@ -223,11 +232,11 @@ window.refreshLabels = function () {
             x.innerHTML = '';
         } else {
             if ((meta.RAFLAGS & (1<<5)) > 0) {
-                x.innerHTML = 'Approved by ' + meta.Approver2Name + ' on ' + dtFormatISOToW2ui(meta.DecisionDate2);
+                x.innerHTML = dtFormatISOToW2ui(meta.DecisionDate2) + '  Approved by ' + meta.Approver2Name;
             } else{
                 var reason2 = app.ApplDeny.find(function(t){if(t.id == meta.DeclineReason2){return t;}});
                 var reason2Text = reason2 ? reason2.text : "";
-                x.innerHTML = 'Declined by ' + meta.Approver2Name + ' on ' + dtFormatISOToW2ui(meta.DecisionDate2) + ' Reason: ' + reason2Text;
+                x.innerHTML = dtFormatISOToW2ui(meta.DecisionDate2) + '  Declined by ' + meta.Approver2Name + ' (' + reason2Text + ')';
             }
         }
     }
@@ -237,7 +246,7 @@ window.refreshLabels = function () {
         if (meta.MoveInUID == 0) {
             x.innerHTML = '';
         } else {
-            x.innerHTML = meta.MoveInName + ' on ' + dtFormatISOToW2ui(meta.MoveInDate);
+            x.innerHTML = dtFormatISOToW2ui(meta.MoveInDate) + ' by ' + meta.MoveInName;
         }
     }
 
@@ -246,7 +255,7 @@ window.refreshLabels = function () {
         if (meta.ActiveUID == 0) {
             x.innerHTML = '';
         } else {
-            x.innerHTML = meta.ActiveName + ' on ' + dtFormatISOToW2ui(meta.ActiveDate);
+            x.innerHTML = dtFormatISOToW2ui(meta.ActiveDate) + ' by ' + meta.ActiveName;
         }
     }
 
@@ -255,7 +264,7 @@ window.refreshLabels = function () {
         if (meta.NoticeToMoveUID == 0) {
             x.innerHTML = '';
         } else {
-            x.innerHTML = meta.NoticeToMoveName + ' on ' + dtFormatISOToW2ui(meta.NoticeToMoveReported);
+            x.innerHTML = dtFormatISOToW2ui(meta.NoticeToMoveReported) + ' by ' + meta.NoticeToMoveName + ' (move date: ' + dtFormatISOToW2ui(meta.NoticeToMoveDate) + ')';
         }
     }
 
@@ -272,12 +281,14 @@ window.refreshLabels = function () {
                 tReason = app.WhyLeaving.find(function(t){if(t.id == meta.LeaseTerminationReason){return t;}});
             }
             tReasonText = tReason ? tReason.text : "";
-            x.innerHTML = meta.TerminatorName + ' on ' + dtFormatISOToW2ui(meta.TerminationDate) + ' Reason: ' + tReasonText;
+            x.innerHTML = dtFormatISOToW2ui(meta.TerminationDate) + ' by '+ meta.TerminatorName + ' (' + tReasonText + ')';
         }
     }
 
 
+    //------------------------------------------------------------------------
     // State Terminated Display Info
+    //------------------------------------------------------------------------
     x = document.getElementById("bannerTerminatedBy");
     if (x !== null) {
         if (meta.TerminatorUID > 0) {
@@ -451,7 +462,7 @@ window.loadRAActionTemplate = function() {
             padding: 0,
             panels: [
                 { type: 'left', style: app.pstyle2, hidden: true },
-                { type: 'top', style: app.pstyle2, content:'top', size:110,
+                { type: 'top', style: app.pstyle2, content:'top', size: actionsUI.hdrHeight,
                     toolbar: {
                         items: [
                             { id:'btnBackToRA', type: 'button', text: 'Back to Rental Agreement', icon: 'fas fa-angle-left' },
@@ -489,7 +500,7 @@ window.loadRAActionTemplate = function() {
                 },
                 { type: 'main', style: app.pstyle2, content: 'main'},
                 { type: 'preview', style: app.pstyle2, hidden: true },
-                { type: 'bottom', style: app.pstyle2, size: 128,content:'bottom' },
+                { type: 'bottom', style: app.pstyle2, size: actionsUI.ftrHeight,content:'bottom' },
                 { type: 'right', style: app.pstyle2, hidden: true}
             ],
             onRefresh: function(event) {
@@ -726,7 +737,11 @@ window.loadRAActionForm = function() {
                     var Mode = "Action";
 
                     var currentState = parseInt(app.raflow.data[FlowID].Data.meta.RAFLAGS & (0xf));
-                    if (Action === currentState) {
+                    //----------------------------------------------------------------
+                    // if Action is to change to current state, only do this if we're
+                    // in the Notice-To-Move state... in order to change the date.
+                    //----------------------------------------------------------------
+                    if (Action === currentState && Action != 5) {
                         return;
                     }
                     var reqData = {};

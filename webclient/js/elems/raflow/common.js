@@ -500,24 +500,3 @@ window.appendNewSlider = function(sliderID) {
     newSlider.find(".slider-content").empty().width(0);
 };
 
-//-----------------------------------------------------------------------------
-// getVehicleFees - will list down vehicle fees for a business
-//-----------------------------------------------------------------------------
-window.getVehicleFees = function () {
-    var bid = getCurrentBID();
-
-    return $.ajax({
-        url: "/v1/vehiclefees/" + bid.toString() + "/0",
-        method: "GET",
-        contentType: "application/json",
-        dataType: "json",
-        success: function (data) {
-            if (data.status != "error") {
-                app.vehicleFees[bid] = data.records;
-            }
-        },
-        error: function (data) {
-            console.log(data);
-        }
-    });
-};
