@@ -1,9 +1,10 @@
 /* global
     RACompConfig, HideSliderContent, appendNewSlider, ShowSliderContentW2UIComp,
-    loadTargetSection, requiredFieldsFulFilled, initRAFlowAjax,
-    saveActiveCompData, getRAFlowCompData,
-    lockOnGrid, FlowFilled, getApprovals, updateFlowData, updateFlowCopy, displayErrorDot, initBizErrors,
-    GetCurrentFlowID
+    loadTargetSection, requiredFieldsFulFilled, initRAFlowAjax, getRecIDFromTMPASMID
+    saveActiveCompData, getRAFlowCompData, displayActiveComponentError, displayRAPetsGridError, dispalyRAPeopleGridError,
+    lockOnGrid, getApprovals, updateFlowData, updateFlowCopy, displayErrorDot, initBizErrors,
+    dispalyRARentablesGridError, dispalyRAVehiclesGridError, dispalyRAParentChildGridError, dispalyRATiePeopleGridError,
+    GetCurrentFlowID, FlowFilled
 */
 
 "use strict";
@@ -63,17 +64,6 @@ $(document).on('click', '#ra-form #previous', function () {
 $(document).on('click', '#ra-form #save-ra-flow-btn', function () {
     getApprovals().done(function (data) {
 
-        if(data.total === 0 && data.errortype === "biz"){
-            alert("TODO: You'r good to go for pending first approval."); // TODO: Change its state to pending first approval. Remove this alert
-            return;
-        }
-
-        // Display error dot on each section if it have error
-        // For Basic error/business logic error
-        if(data.total === 0){
-            return;
-        }
-
         app.raflow.validationErrors = {
             dates: data.errors.dates.total > 0 || data.nonFieldsErrors.dates.length > 0,
             people: data.errors.people.length > 0 || data.nonFieldsErrors.people.length > 0,
@@ -85,6 +75,12 @@ $(document).on('click', '#ra-form #save-ra-flow-btn', function () {
         };
 
         displayErrorDot();
+
+        displayActiveComponentError();
+
+        if(data.total === 0 && data.errortype === "biz"){
+            alert("TODO: You'r good to go for pending first approval."); // TODO: Change its state to pending first approval. Remove this alert
+        }
 
     });
 });
@@ -343,7 +339,7 @@ window.FlowFilled = function(data) {
         // if required fields are fulfilled then mark this slide as done
 
         // Apply green mark when comp is not active and when it fulfilled the requirements
-        if (data.DataFulfilled[comp] && active_comp_id !== comp) {
+        if (app.raflow.FlowFilledData[comp] && active_comp_id !== comp) {
             $("#progressbar #steps-list li[data-target='#" + comp + "']").addClass("done");
         } else {
             $("#progressbar #steps-list li[data-target='#" + comp + "']").removeClass("done");
@@ -508,3 +504,80 @@ window.appendNewSlider = function(sliderID) {
     newSlider.find(".slider-content").empty().width(0);
 };
 
+//-----------------------------------------------------------------------------
+// getVehicleFees - will list down vehicle fees for a business
+//-----------------------------------------------------------------------------
+window.getVehicleFees = function () {
+    var bid = getCurrentBID();
+
+    return $.ajax({
+        url: "/v1/vehiclefees/" + bid.toString() + "/0",
+        method: "GET",
+        contentType: "application/json",
+        dataType: "json",
+        success: function (data) {
+            if (data.status != "error") {
+                app.vehicleFees[bid] = data.records;
+            }
+        },
+        error: function (data) {
+            console.log(data);
+        }
+    });
+};
+
+//-----------------------------------------------------------------------------
+// displayActiveComponentError - it displays/highlight error for active component
+//-----------------------------------------------------------------------------
+window.displayActiveComponentError = function () {
+    // get the current component (to be previous one)
+    var active_comp = $(".ra-form-component:visible");
+
+    // get active component id
+    var active_comp_id = active_comp.attr("id");
+
+    switch (active_comp_id) {
+        case "dates":
+            break;
+        case "people":
+            w2ui.RAPeopleGrid.refresh();
+            dispalyRAPeopleGridError();
+            break;
+        case "pets":
+            w2ui.RAPetsGrid.refresh();
+            displayRAPetsGridError();
+            break;
+        case "vehicles":
+            w2ui.RAVehiclesGrid.refresh();
+            dispalyRAVehiclesGridError();
+            break;
+        case "rentables":
+            w2ui.RARentablesGrid.refresh();
+            dispalyRARentablesGridError();
+            break;
+        case "parentchild":
+            w2ui.RAParentChildGrid.refresh();
+            dispalyRAParentChildGridError();
+            break;
+        case "tie":
+            w2ui.RATiePeopleGrid.refresh();
+            dispalyRATiePeopleGridError();
+            break;
+        case "final":
+            break;
+        default:
+            alert("invalid active comp: " + active_comp_id);
+            return;
+    }
+};
+
+// getRecIDFromTMPASMID It returns recid of grid record which matches TMPASMID
+window.getRecIDFromTMPASMID = function(grid, TMPASMID){
+    var recid;
+    for (var i = 0; i < grid.records.length; i++) {
+        if (grid.records[i].TMPASMID === TMPASMID) {
+            recid = grid.records[i].recid;
+        }
+    }
+    return recid;
+};

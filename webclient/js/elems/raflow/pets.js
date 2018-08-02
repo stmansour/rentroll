@@ -17,8 +17,8 @@
     FeeFormOnChangeHandler, FeeFormOnRefreshHandler,
     SliderContentDivLength, SetFeeFormRecordFromFeeData,
     RenderPetFeesGridSummary, RAFlowNewPetAJAX, updateFlowData,
-    GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary,
-    GetTiePeopleLocalData, GetCurrentFlowID
+    GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary, getRecIDFromTMPASMID,
+    GetTiePeopleLocalData, displayRAPetsGridError, getRecIDFromTMPPETID, displayRAPetFeesGridError, GetCurrentFlowID
 */
 
 "use strict";
@@ -173,6 +173,28 @@ window.loadRAPetsGrid = function () {
                     field: 'BID',
                     caption: 'BID',
                     hidden: true
+                },
+                {
+                    field: 'haveError',
+                    size: '30px',
+                    hidden: false,
+                    render: function (record) {
+                        var haveError = false;
+                        if (app.raflow.validationErrors.pets) {
+                            var pets = app.raflow.validationCheck.errors.pets;
+                            for (var i = 0; i < pets.length; i++) {
+                                if (pets[i].TMPPETID === record.TMPPETID && pets[i].total > 0) {
+                                    haveError = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (haveError) {
+                            return '<i class="fas fa-exclamation-triangle" title="error"></i>';
+                        } else {
+                            return "";
+                        }
+                    }
                 },
                 {
                     field: 'TMPTCID',
@@ -917,6 +939,9 @@ window.AssignPetsGridRecords = function() {
     // assign record in grid
     reassignGridRecids(grid.name);
 
+    // Display row with light red background if it have error
+    displayRAPetsGridError();
+
     // lock the grid until "Have pets?" checkbox checked.
     lockOnGrid(grid.name);
 };
@@ -1034,9 +1059,92 @@ window.AssignPetFeesGridRecords = function(TMPPETID) {
 
         // assign recid again
         reassignGridRecids(grid.name);
+
+        // highlight row with light red color if it have error
+        displayRAPetFeesGridError();
     });
 
     // render pet fees grid summary
     RenderPetFeesGridSummary(TMPPETID);
 };
 
+// dispalyRAPeopleGridError
+// It highlights grid's row if it have error
+window.displayRAPetsGridError = function (){
+    // load grid errors if any
+    var g = w2ui.RAPetsGrid;
+    var record, i;
+    for (i = 0; i < g.records.length; i++) {
+        // get record from grid to apply css
+        record = g.get(g.records[i].recid);
+
+        if (!("w2ui" in record)) {
+            record.w2ui = {}; // init w2ui if not present
+        }
+        if (!("class" in record.w2ui)) {
+            record.w2ui.class = ""; // init class string
+        }
+        if (!("style" in record.w2ui)) {
+            record.w2ui.style = {}; // init style object
+        }
+    }
+
+    if (app.raflow.validationErrors.pets) {
+        var pets = app.raflow.validationCheck.errors.pets;
+        for (i = 0; i < pets.length; i++) {
+            var recid = getRecIDFromTMPPETID(g, pets[i].TMPPETID);
+            if (pets[i].total > 0) {
+                g.get(recid).w2ui.style = "background-color: #EEB4B4";
+                g.refreshRow(recid);
+            }else{
+                g.get(recid).w2ui.style = {};
+                g.refreshRow(recid);
+            }
+        }
+    }
+};
+
+window.displayRAPetFeesGridError = function () {
+    // load grid errors if any
+    var g = w2ui.RAPetFeesGrid;
+    var record, i;
+    for (i = 0; i < g.records.length; i++) {
+        // get record from grid to apply css
+        record = g.get(g.records[i].recid);
+
+        if (!("w2ui" in record)) {
+            record.w2ui = {}; // init w2ui if not present
+        }
+        if (!("class" in record.w2ui)) {
+            record.w2ui.class = ""; // init class string
+        }
+        if (!("style" in record.w2ui)) {
+            record.w2ui.style = {}; // init style object
+        }
+    }
+
+    if (app.raflow.validationErrors.pets) {
+        var pets = app.raflow.validationCheck.errors.pets;
+        for (i = 0; i < pets.length; i++) {
+            for (var j = 0; j < pets[i].fees.length; j++) {
+                if (pets[i].fees[j].total > 0) {
+                    var recid = getRecIDFromTMPASMID(g, pets[i].fees[j].TMPASMID);
+                    g.get(recid).w2ui.style = "background-color: #EEB4B4";
+                    g.refreshRow(recid);
+                }
+            }
+        }
+    }
+};
+
+// getRecIDFromTMPPETID It returns recid of grid record which matches TMPTCID
+window.getRecIDFromTMPPETID = function(grid, TMPPETID){
+    // var g = w2ui.RAPeopleGrid;
+    var recid;
+    for (var i = 0; i < grid.records.length; i++) {
+        if (grid.records[i].TMPPETID === TMPPETID) {
+            recid = grid.records[i].recid;
+        }
+    }
+    return recid;
+};
