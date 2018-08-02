@@ -4,7 +4,7 @@
     saveActiveCompData, getRAFlowCompData, displayActiveComponentError, displayRAPetsGridError, dispalyRAPeopleGridError,
     lockOnGrid, getApprovals, updateFlowData, updateFlowCopy, displayErrorDot, initBizErrors,
     dispalyRARentablesGridError, dispalyRAVehiclesGridError, dispalyRAParentChildGridError, dispalyRATiePeopleGridError,
-    GetCurrentFlowID, FlowFilled
+    GetCurrentFlowID, FlowFilled, ReassignPeopleGridRecords, AssignPetsGridRecords, AssignVehiclesGridRecords, AssignRentableGridRecords
 */
 
 "use strict";
@@ -540,20 +540,16 @@ window.displayActiveComponentError = function () {
         case "dates":
             break;
         case "people":
-            w2ui.RAPeopleGrid.refresh();
-            dispalyRAPeopleGridError();
+            ReassignPeopleGridRecords();
             break;
         case "pets":
-            w2ui.RAPetsGrid.refresh();
-            displayRAPetsGridError();
+            AssignPetsGridRecords();
             break;
         case "vehicles":
-            w2ui.RAVehiclesGrid.refresh();
-            dispalyRAVehiclesGridError();
+            AssignVehiclesGridRecords();
             break;
         case "rentables":
-            w2ui.RARentablesGrid.refresh();
-            dispalyRARentablesGridError();
+            AssignRentableGridRecords();
             break;
         case "parentchild":
             w2ui.RAParentChildGrid.refresh();
