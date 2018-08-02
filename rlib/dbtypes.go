@@ -51,8 +51,8 @@ const (
 	RASTATEPendingApproval2 = 2
 	RASTATEMoveIn           = 3
 	RASTATEActive           = 4
-	RASTATETerminated       = 5
-	RASTATENoticeToMove     = 6
+	RASTATENoticeToMove     = 5
+	RASTATETerminated       = 6
 
 	// ROLLERSL is the name of the StringList that Roller
 	// needs to process RA state changes, etc.

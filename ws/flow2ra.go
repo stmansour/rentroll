@@ -115,6 +115,17 @@ func Flow2RA(ctx context.Context, flowid int64) (int64, error) {
 		}
 		rlib.Console("\tMetaData data updated on RAID=%d\n", nraid)
 	}
+
+	// REMOVE FLOW IF MIGRATION DONE SUCCESSFULLY
+	// Delete only if state is active or above active
+	var state = x.ra.FLAGS & uint64(0xF)
+	if state >= 4 && state <= 6 {
+		err = rlib.DeleteFlow(ctx, flowid)
+		if err != nil {
+			return nraid, err
+		}
+	}
+
 	rlib.Console("\tx.oldRAID = %d, x.newRAID = %d\n", x.oldRAID, x.newRAID)
 	return x.newRAID, nil
 }
