@@ -1927,7 +1927,7 @@ type RRprepSQL struct {
 	InsertClosePeriod                       *sql.Stmt
 	UpdateClosePeriod                       *sql.Stmt
 	DeleteClosePeriod                       *sql.Stmt
-	GetFlowMetaDataInRange                  *sql.Stmt
+	GetFlowByUserRefNo                      *sql.Stmt
 	GetFlowForRAID                          *sql.Stmt
 	GetBusinessProperties                   *sql.Stmt
 	GetBusinessPropertiesByName             *sql.Stmt

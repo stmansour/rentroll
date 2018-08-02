@@ -35,7 +35,7 @@ func SvcHandlerFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.Console("Entered %s\n", funcname)
 
 	// if the command is not from listed below then do check for flowID
-	if !(d.wsSearchReq.Cmd == "getAllFlows" || d.wsSearchReq.Cmd == "init") {
+	if !(d.wsSearchReq.Cmd == "all" || d.wsSearchReq.Cmd == "init") {
 		if d.ID, err = SvcExtractIDFromURI(r.RequestURI, "FlowID", 3, w); err != nil {
 			SvcErrorReturn(w, err, funcname)
 			return
@@ -45,11 +45,11 @@ func SvcHandlerFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.Console("Request: %s:  BID = %d,  FlowID = %d\n", d.wsSearchReq.Cmd, d.BID, d.ID)
 
 	switch d.wsSearchReq.Cmd {
-	case "getAllFlows":
-		GetAllFlowsByUser(w, r, d)
+	case "all":
+		GetAllFlowsByType(w, r, d)
 		break
 	case "get":
-		GetFlow(w, r, d)
+		GetFlowByType(w, r, d)
 		break
 	case "init":
 		InitiateFlow(w, r, d)
@@ -117,47 +117,18 @@ func InitiateFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	return
 }
 
-// GetFlow returns flow associated with given flowID
-func GetFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	const funcname = "GetFlow"
-	var (
-		err error
-		req struct {
-			FlowID int64
-		}
-		flow rlib.Flow
-	)
-
-	rlib.Console("Entered %s\n", funcname)
-	rlib.Console("record data = %s\n", d.data)
-
-	if err := json.Unmarshal([]byte(d.data), &req); err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
-	}
-
-	flow, err = rlib.GetFlow(r.Context(), req.FlowID)
-	if err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
-	}
-
-	// -------------------
-	// WRITE FLOW RESPONSE
-	// -------------------
-	SvcWriteFlowResponse(r.Context(), d.BID, flow, w)
-	return
+// FlowTypeRequest struct
+type FlowTypeRequest struct {
+	FlowType string
 }
 
-// GetAllFlowsByUser returns all flows for the current user and given flow
-func GetAllFlowsByUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	const funcname = "GetAllFlowsByUser"
+// GetAllFlowsByType returns all flows for the current user and given flow
+func GetAllFlowsByType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "GetAllFlowsByType"
 
 	var (
 		err error
-		f   struct {
-			FlowType string
-		}
+		f   FlowTypeRequest
 	)
 
 	rlib.Console("Entered %s\n", funcname)
@@ -168,38 +139,41 @@ func GetAllFlowsByUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	// get all flowIDs
-	// recs, err := rlib.GetFlowIDsByUser(r.Context())
-	m, err := rlib.GetFlowMetaDataInRange(r.Context(), &d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
-	if err != nil {
+	// initiate flow for given string
+	switch f.FlowType {
+	case rlib.RAFlow:
+		GetAllRAFlows(w, r, d)
+		return
+	default:
+		err = fmt.Errorf("unrecognized flow type: %s", f.FlowType)
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+}
+
+// GetFlowByType returns flow associated with given flowID
+func GetFlowByType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "GetFlowByType"
+	var (
+		err error
+		req FlowTypeRequest
+	)
+
+	rlib.Console("Entered %s\n", funcname)
+	rlib.Console("record data = %s\n", d.data)
+
+	if err := json.Unmarshal([]byte(d.data), &req); err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
 	// initiate flow for given string
-	switch f.FlowType {
+	switch req.FlowType {
 	case rlib.RAFlow:
-		// ResponseData response data for ra flow
-		var g struct {
-			Status  string               `json:"status"`
-			Records []GridRAFlowResponse `json:"records"`
-		}
-		g.Records = []GridRAFlowResponse{}
-		for i := 0; i < len(m); i++ {
-			var t = GridRAFlowResponse{
-				Recid:     int64(i),
-				BID:       d.BID,
-				FlowID:    m[i].FlowID,
-				UserRefNo: m[i].UserRefNo,
-				BUD:       string(rlib.GetBUDFromBIDList(d.BID)),
-			}
-			g.Records = append(g.Records, t)
-		}
-		g.Status = "success"
-		SvcWriteResponse(d.BID, &g, w)
+		GetRAFlow(w, r, d)
 		return
 	default:
-		err = fmt.Errorf("unrecognized flow type: %s", f.FlowType)
+		err = fmt.Errorf("unrecognized flow type: %s", req.FlowType)
 		SvcErrorReturn(w, err, funcname)
 		return
 	}

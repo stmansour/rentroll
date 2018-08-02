@@ -280,20 +280,27 @@ window.initRAFlowAjax = function () {
 };
 
 //-----------------------------------------------------------------------------
-// getFlowDataAjax - get the ajax data from the server and returns ajax promise
+// GetRAFlowDataAjax - get the ajax data from the server and returns ajax promise
 //
 // @params
 //   FlowID = ID of the flow
 //-----------------------------------------------------------------------------
-window.getFlowDataAjax = function(FlowID) {
+window.GetRAFlowDataAjax = function(FlowID, RAID) {
     var bid = getCurrentBID();
+    var reqData = {
+        "cmd":      "get",
+        "FlowID":   FlowID,
+        "RAID":     RAID,
+        "Version":  "raid",
+        "FlowType": "RA"
+    };
 
     return $.ajax({
-        url: "/v1/flow/" + bid.toString() + "/" + FlowID.toString(),
+        url: "/v1/flow/" + bid.toString() + "/",
         method: "POST",
         contentType: "application/json",
         dataType: "json",
-        data: JSON.stringify({"cmd": "get", "FlowID": FlowID}),
+        data: JSON.stringify(reqData),
         success: function (data) {
             if (data.status !== "error") {
                 updateFlowData(data);

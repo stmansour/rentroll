@@ -1,7 +1,7 @@
 /*global
     initRAFlowAjax,
     RACompConfig, w2ui,
-    getFlowDataAjax,
+    GetRAFlowDataAjax,
     manageParentRentableW2UIItems, managePeopleW2UIItems,
     LoadRAFlowTemplate,
     renderRAStateInToolbar,
@@ -101,15 +101,80 @@ window.buildRAApplicantElements = function() {
             toolbarReload: true,
             toolbarColumns: false,
         },
+        searches: [
+            { field: 'RAID', caption: 'RAID', type: 'text' },
+            { field: 'Payors', caption: 'Payor(s)', type: 'text' },
+            { field: 'AgreementStart', caption: 'Agreement Start Date', type: 'date' },
+            { field: 'AgreementStop', caption: 'Agreement Stop Date', type: 'date' },
+            { field: 'UserRefNo', caption: 'Reference Number', type: 'text' },
+        ],
         columns: [
-            {field: 'recid',     caption: 'recid',   size: '40px',   hidden: true, sortable:   true },
-            {field: 'BID',       caption: 'BID',                     hidden: true,                  },
-            {field: 'BUD',       caption: 'BUD',                     hidden: true,                  },
-            {field: 'FlowID',    caption: 'Flow ID', size: '50px',                 sortable:   true },
-            {field: 'UserRefNo', caption: 'Ref No',  size: '200px',                sortable:   true },
+            {
+                field: 'recid',
+                caption: 'recid',
+                size: '40px',
+                hidden: true,
+                sortable: true
+            },
+            {
+                field: 'BID',
+                caption: 'BID',
+                hidden: true
+            },
+            {
+                field: 'BUD',
+                caption: 'BUD',
+                hidden: true
+            },
+            {
+                field: 'RAID',
+                caption: 'RAID',
+                size: "60px",
+                sortable: true,
+                render: function (record) {
+                    if (record.RAID) {
+                        return "RAID - " + record.RAID;
+                    }
+                }
+            },
+            {
+                field: 'Payors',
+                caption: 'Payor(s)',
+                size: '250px',
+                sortable: true
+            },
+            {
+                field: 'AgreementStart',
+                caption: 'Agreement<br>Start',
+                render: 'date',
+                size: '80px',
+                sortable: true,
+                style: 'text-align: right'
+            },
+            {
+                field: 'AgreementStop',
+                caption: 'Agreement<br>Stop',
+                render: 'date',
+                size: '80px',
+                sortable: true,
+                style: 'text-align: right'
+            },
+            {
+                field: 'FlowID',
+                caption: 'Flow ID',
+                size: '50px',
+                hidden: true,
+                sortable:   true
+            },
+            {
+                field: 'UserRefNo',
+                caption: 'Ref No',
+                size: '200px',
+                sortable:   true
+            },
         ],
         onRequest: function(event) {
-            event.postData.cmd = "getAllFlows";
+            event.postData.cmd = "all";
             event.postData.FlowType = "RA";
         },
         onRefresh: function(event) {
@@ -147,7 +212,7 @@ window.buildRAApplicantElements = function() {
                         // get grid record
                         var rec = grid.get(recid);
 
-                        getFlowDataAjax(rec.FlowID)
+                        GetRAFlowDataAjax(rec.FlowID, rec.RAID)
                         .done(function(data) {
                             if (data.status != "success") {
                                 grid.message(data.message);
@@ -193,6 +258,7 @@ window.buildRAApplicantElements = function() {
                                 recid:  newRecid,
                                 BID:    bid,
                                 BUD:    bud,
+                                RAID:   0,
                                 FlowID: data.record.Flow.FlowID
                             });
 
