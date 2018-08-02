@@ -28,7 +28,8 @@ getSchema() {
 	else
 		dbhost=$(grep "RRDbhost" confprod.json | awk '{print $2}' | sed -e 's/[",]//g')
 		dbuser=$(grep "RRDbuser" confprod.json | awk '{print $2}' | sed -e 's/[",]//g')
-		OPTS="-h ${dbhost} -u ${dbuser} -P 3306"
+		dbpass=$(grep "RRDbpass" confprod.json | awk '{print $2}' | sed -e 's/[",]//g')
+		OPTS="-h ${dbhost} -u ${dbuser} -p${dbpass} -P 3306"
 	fi
 	mysql ${OPTS} ${3} < cmds >t
 	echo "DONE"
