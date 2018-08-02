@@ -19,7 +19,7 @@
     RenderVehicleFeesGridSummary, RAFlowNewVehicleAJAX,
     GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary,
     GetVehicleIdentity, updateFlowData, GetTiePeopleLocalData,
-    RecalculateVehicleFees, getRecIDFromTMPVID, dispalyRAVehiclesGridError
+    getRecIDFromTMPVID, dispalyRAVehiclesGridError, GetCurrentFlowID
 */
 
 "use strict";
@@ -29,10 +29,11 @@
 //-----------------------------------------------------------------------------
 window.RAFlowNewVehicleAJAX = function() {
     var BID = getCurrentBID();
-    var data = {"cmd": "new", "FlowID": app.raflow.activeFlowID};
+    var FlowID = GetCurrentFlowID();
+    var data = {"cmd": "new", "FlowID": FlowID};
 
     return $.ajax({
-        url: '/v1/raflow-vehicles/' + BID.toString() + "/" + app.raflow.activeFlowID.toString() + "/",
+        url: '/v1/raflow-vehicles/' + BID.toString() + "/" + FlowID.toString() + "/",
         method: "POST",
         data: JSON.stringify(data),
         contentType: "application/json",
@@ -185,9 +186,8 @@ window.loadRAVehiclesGrid = function () {
                     hidden: false,
                     render: function (record) {
                         var haveError = false;
-                        var flowID = app.raflow.activeFlowID;
-                        if (app.raflow.validationErrors[flowID].vehicles) {
-                            var vehicle = app.raflow.validationCheck[flowID].errors.vehicle;
+                        if (app.raflow.validationErrors.vehicles) {
+                            var vehicle = app.raflow.validationCheck.errors.vehicle;
                             for (var i = 0; i < vehicle.length; i++) {
                                 if (vehicle[i].TMPVID === record.TMPVID && vehicle[i].total > 0) {
                                     haveError = true;
@@ -277,8 +277,8 @@ window.loadRAVehiclesGrid = function () {
             onRefresh: function(event) {
                 // have to manage recid on every refresh of this grid
                 event.onComplete = function() {
-                    $("#RAVehiclesGrid_checkbox")[0].checked = app.raflow.data[app.raflow.activeFlowID].Data.meta.HaveVehicles;
-                    $("#RAVehiclesGrid_checkbox")[0].disabled = app.raflow.data[app.raflow.activeFlowID].Data.meta.HaveVehicles;
+                    $("#RAVehiclesGrid_checkbox")[0].checked = app.raflow.Flow.Data.meta.HaveVehicles;
+                    $("#RAVehiclesGrid_checkbox")[0].disabled = app.raflow.Flow.Data.meta.HaveVehicles;
                     lockOnGrid("RAVehiclesGrid");
                 };
             },
@@ -435,7 +435,7 @@ window.loadRAVehiclesGrid = function () {
                     }
 
                     // get RAID for active flow
-                    var RAID = app.raflow.data[app.raflow.activeFlowID].ID;
+                    var RAID = app.raflow.Flow.ID;
                     if (RAID > 0) {
                         $(f.box).find("input[name=ParkingPermitNumber]").prop("disabled", false);
                     } else {
@@ -555,7 +555,7 @@ window.loadRAVehiclesGrid = function () {
                     var f = w2ui.RAVehicleForm;
 
                     // get local data from TMPVID
-                    var compData = getRAFlowCompData("vehicles", app.raflow.activeFlowID) || [];
+                    var compData = getRAFlowCompData("vehicles") || [];
                     var itemIndex = GetVehicleLocalData(f.record.TMPVID, true);
 
                     // if it exists then
@@ -915,7 +915,7 @@ window.SetRAVehicleLayoutContent = function(TMPVID) {
 window.GetVehicleLocalData = function(TMPVID, returnIndex) {
     var cloneData = {};
     var foundIndex = -1;
-    var compData = getRAFlowCompData("vehicles", app.raflow.activeFlowID) || [];
+    var compData = getRAFlowCompData("vehicles") || [];
     compData.forEach(function(item, index) {
         if (item.TMPVID == TMPVID) {
             if (returnIndex) {
@@ -937,7 +937,7 @@ window.GetVehicleLocalData = function(TMPVID, returnIndex) {
 // SetVehicleLocalData - save the data for requested a TMPVID in local data
 //-----------------------------------------------------------------------------
 window.SetVehicleLocalData = function(TMPVID, vehicleData) {
-    var compData = getRAFlowCompData("vehicles", app.raflow.activeFlowID) || [];
+    var compData = getRAFlowCompData("vehicles") || [];
     var dataIndex = -1;
     compData.forEach(function(item, index) {
         if (item.TMPVID == TMPVID) {
@@ -957,7 +957,7 @@ window.SetVehicleLocalData = function(TMPVID, vehicleData) {
 //                               copy of flow data again
 //-----------------------------------------------------------------------------
 window.AssignVehiclesGridRecords = function() {
-    var compData = getRAFlowCompData("vehicles", app.raflow.activeFlowID);
+    var compData = getRAFlowCompData("vehicles");
     var grid = w2ui.RAVehiclesGrid;
 
     // reset last sel recid
@@ -992,7 +992,7 @@ window.AssignVehiclesGridRecords = function() {
 // SaveVehiclesCompData - saves the data on server side
 //------------------------------------------------------------------------------
 window.SaveVehiclesCompData = function() {
-    var compData = getRAFlowCompData("vehicles", app.raflow.activeFlowID);
+    var compData = getRAFlowCompData("vehicles");
     return saveActiveCompData(compData, "vehicles");
 };
 
@@ -1003,7 +1003,7 @@ window.SaveVehiclesCompData = function() {
 window.GetVehicleFeeLocalData = function(TMPVID, TMPASMID, returnIndex) {
     var cloneData = {};
     var foundIndex = -1;
-    var compData = getRAFlowCompData("vehicles", app.raflow.activeFlowID) || [];
+    var compData = getRAFlowCompData("vehicles") || [];
     compData.forEach(function(item, index) {
         if (item.TMPVID == TMPVID) {
             var feesData = item.Fees || [];
@@ -1031,7 +1031,7 @@ window.GetVehicleFeeLocalData = function(TMPVID, TMPASMID, returnIndex) {
 //                          in local data
 //-----------------------------------------------------------------------------
 window.SetVehicleFeeLocalData = function(TMPVID, TMPASMID, vehicleFeeData) {
-    var compData = getRAFlowCompData("vehicles", app.raflow.activeFlowID);
+    var compData = getRAFlowCompData("vehicles");
     var pIndex = -1,
         fIndex = -1;
 
@@ -1125,54 +1125,6 @@ window.GetVehicleIdentity = function(record) {
     return "";
 };
 
-//-----------------------------------------------------------------------------
-// RecalculateVehicleFees - will determine if recalcuation needed for vehicle
-//                          fees. If needed, it will hit the server to get the
-//                          latest new collection of fees for that.
-//-----------------------------------------------------------------------------
-window.RecalculateVehicleFees = function (TMPVID, TMPTCID) {
-    var BID = getCurrentBID();
-    var tiePerson = GetTiePeopleLocalData(TMPTCID);
-
-    // if no tied rentable then return
-    var RID = tiePerson.PRID;
-    if (!RID) {
-        return;
-    }
-
-    var data = {
-        "cmd":          "recalculate",
-        "FlowID":       app.raflow.activeFlowID,
-        "TMPVID":       TMPVID,
-        "RID":          RID,
-    };
-
-    return $.ajax({
-        url: "/v1/vehiclefees/" + BID.toString() + "/" + app.raflow.activeFlowID.toString(),
-        method: "POST",
-        contentType: "application/json",
-        dataType: "json",
-        data: JSON.stringify(data),
-        success: function (data) {
-            if (data.status !== "error") {
-                // get the last tmpasmid of fees
-                var oldLastTMPASMID = app.raflow.data[app.raflow.activeFlowID].Data.meta.LastTMPASMID;
-
-                // Update flow local copy and green checks
-                updateFlowData(data);
-
-                // re-assign fees grid records if modifiec
-                if (oldLastTMPASMID !== data.record.Flow.Data.meta.LastTMPASMID) {
-                    AssignVehicleFeesGridRecords(TMPVID);
-                }
-            }
-        },
-        error: function (data) {
-            console.error(data);
-        }
-    });
-};
-
 // dispalyRAPeopleGridError
 // It highlights grid's row if it have error
 window.dispalyRAVehiclesGridError = function (){
@@ -1194,10 +1146,8 @@ window.dispalyRAVehiclesGridError = function (){
         }
     }
 
-    // If biz error than highlight grid row
-    var flowID = app.raflow.activeFlowID;
-    if (app.raflow.validationErrors[flowID].vehicles) {
-        var vehicles = app.raflow.validationCheck[flowID].errors.vehicle;
+    if (app.raflow.validationErrors.vehicles) {
+        var vehicles = app.raflow.validationCheck.errors.vehicle;
         for (i = 0; i < vehicles.length; i++) {
             if (vehicles[i].total > 0) {
                 var recid = getRecIDFromTMPVID(g, vehicles[i].TMPVID);
@@ -1227,10 +1177,8 @@ window.displayRAVehicleFeesGridError = function () {
         }
     }
 
-    // If biz error than highlight grid row
-    var flowID = app.raflow.activeFlowID;
-    if (app.raflow.validationErrors[flowID].vehicles) {
-        var vehicles = app.raflow.validationCheck[flowID].errors.vehicle;
+    if (app.raflow.validationErrors.vehicles) {
+        var vehicles = app.raflow.validationCheck.errors.vehicle;
         for (i = 0; i < vehicles.length; i++) {
             for (var j = 0; j < vehicles[i].fees.length; j++) {
                 if (vehicles[i].fees[j].total > 0) {

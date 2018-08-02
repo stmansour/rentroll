@@ -12,29 +12,13 @@
 "use strict";
 
 //-----------------------------------------------------------------------------
-// setToNewRAForm -  enable the Rental Agreement form in toplayout.  Also, set
-//                   the forms url and request data from the server
-// @params
-//   bid = business id (or the BUD)
-//-----------------------------------------------------------------------------
-window.setToNewRAForm = function (bid, FlowID) {
-
-    if (FlowID < 1) {
-        return false;
-    }
-
-    // load ra flow template
-    LoadRAFlowTemplate(bid, FlowID);
-};
-
-//-----------------------------------------------------------------------------
 // LoadRAFlowTemplate - load RA flow with data and green checkmark and
 //                      necessary settings, it loads dateForm by default
 //
 // @params
 //   FlowID = Id of the Flow
 //-----------------------------------------------------------------------------
-window.LoadRAFlowTemplate = function(bid, FlowID) {
+window.LoadRAFlowTemplate = function(bid) {
 
     // set the toplayout content
     w2ui.toplayout.content('right', w2ui.newraLayout);
@@ -63,9 +47,6 @@ window.LoadRAFlowTemplate = function(bid, FlowID) {
             // mark form dirty flag as false
             app.form_is_dirty = false;
 
-            // set this flow id as in active
-            app.raflow.activeFlowID = FlowID;
-
             // set BID in raflow settings
             app.raflow.BID = bid;
 
@@ -75,7 +56,7 @@ window.LoadRAFlowTemplate = function(bid, FlowID) {
             // calculate parent rentable items
             manageParentRentableW2UIItems();
 
-            var raFlags = app.raflow.data[FlowID].Data.meta.RAFLAGS;
+            var raFlags = app.raflow.Flow.Data.meta.RAFLAGS;
 
             // renders the Rental Agreement State in Toolbar
             renderRAStateInToolbar(raFlags);
@@ -171,15 +152,7 @@ window.buildRAApplicantElements = function() {
                             if (data.status != "success") {
                                 grid.message(data.message);
                             } else {
-                                setToNewRAForm(rec.BID, rec.FlowID);
-                                setTimeout(function () {
-                                    // Init biz error
-                                    if(app.raflow.validationErrors[rec.FlowID] === {} || typeof(app.raflow.validationErrors[rec.FlowID]) == "undefined"){
-                                        initBizErrors();
-                                    }else{
-                                        displayErrorDot();
-                                    }
-                                }, 500);
+                                LoadRAFlowTemplate(rec.BID);
                             }
                         })
                         .fail(function() {
@@ -223,16 +196,7 @@ window.buildRAApplicantElements = function() {
                             grid.select(app.last.grid_sel_recid);
 
                             var rec = grid.get(newRecid);
-                            setToNewRAForm(rec.BID, rec.FlowID);
-
-                            setTimeout(function () {
-                                // Init biz error
-                                if(app.raflow.validationErrors[rec.FlowID] === {} || typeof(app.raflow.validationErrors[rec.FlowID]) == "undefined"){
-                                    initBizErrors();
-                                }else{
-                                    displayErrorDot();
-                                }
-                            }, 500);
+                            LoadRAFlowTemplate(rec.BID);
 
                         } else {
                             grid.message(data.message);
@@ -280,7 +244,6 @@ window.buildRAApplicantElements = function() {
                                 yes_callBack = function() {
                                     w2ui.toplayout.hide('right',true);
                                     w2ui.applicantsGrid.render();
-                                    app.raflow.activeFlowID = "";
                                 };
                             form_dirty_alert(yes_callBack, no_callBack);
                             break;
@@ -298,8 +261,8 @@ window.buildRAApplicantElements = function() {
                         }
                     },
                     onRefresh: function(event) {
-                        if(app.raflow.activeFlowID) {
-                            var raflags = app.raflow.data[app.raflow.activeFlowID].Data.meta.RAFLAGS;
+                        if(Object.keys(app.raflow.Flow).length != 0) {
+                            var raflags = app.raflow.Flow.Data.meta.RAFLAGS;
                             renderRAStateInToolbar(raflags);
                         }
                     }

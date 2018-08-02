@@ -9,7 +9,8 @@
     manageBGInfoFormFields, addDummyBackgroundInfo, savePeopleCompData, getPeopleLocalData, setPeopleLocalData,
     getPeopleLocalDataByTCID, setTransactantDefaultRole,
     getStringListData, getSLStringList, updateRATransactantFormCheckboxes, updateFlowData,
-    managePeopleW2UIItems, removeRAFlowPersonAJAX, saveRAFlowPersonAJAX, onCheckboxesChange, getRecIDFromTMPTCID, dispalyRAPeopleGridError
+    managePeopleW2UIItems, removeRAFlowPersonAJAX, saveRAFlowPersonAJAX, onCheckboxesChange, getRecIDFromTMPTCID, dispalyRAPeopleGridError,
+    GetCurrentFlowID
 */
 
 "use strict";
@@ -128,9 +129,8 @@ window.loadRAPeopleForm = function () {
                     hidden: false,
                     render: function (record) {
                         var haveError = false;
-                        var flowID = app.raflow.activeFlowID;
-                        if (app.raflow.validationErrors[flowID].people) {
-                            var people = app.raflow.validationCheck[flowID].errors.people;
+                        if (app.raflow.validationErrors.people) {
+                            var people = app.raflow.validationCheck.errors.people;
                             for (var i = 0; i < people.length; i++) {
                                 if (people[i].TMPTCID === record.TMPTCID && people[i].total > 0) {
                                     haveError = true;
@@ -455,9 +455,8 @@ window.dispalyRAPeopleGridError = function (){
     }
 
     // If biz error than highlight grid row
-    var flowID = app.raflow.activeFlowID;
-    if (app.raflow.validationErrors[flowID].people) {
-        var people = app.raflow.validationCheck[flowID].errors.people;
+    if (app.raflow.validationErrors.people) {
+        var people = app.raflow.validationCheck.errors.people;
         for (i = 0; i < people.length; i++) {
             if (people[i].total > 0) {
                 var recid = getRecIDFromTMPTCID(g, people[i].TMPTCID);
@@ -495,16 +494,17 @@ window.setNotRequiredFields = function (listOfNotRequiredFields, required) {
 // remove person with associated pets, vehicles from json data via Ajax
 window.removeRAFlowPersonAJAX = function (TMPTCID) {
     var bid = getCurrentBID();
+    var FlowID = GetCurrentFlowID();
 
     // temporary data
     var data = {
         "cmd": "delete",
         "TMPTCID": TMPTCID,
-        "FlowID": app.raflow.activeFlowID
+        "FlowID": FlowID
     };
 
     return $.ajax({
-        url: "/v1/raflow-person/" + bid.toString() + "/" + app.raflow.activeFlowID.toString(),
+        url: "/v1/raflow-person/" + bid.toString() + "/" + FlowID.toString(),
         method: "POST",
         contentType: "application/json",
         dataType: "json",
@@ -526,16 +526,17 @@ window.removeRAFlowPersonAJAX = function (TMPTCID) {
 // save Transanctant in raflow
 window.saveRAFlowPersonAJAX = function (TCID) {
     var bid = getCurrentBID();
+    var FlowID = GetCurrentFlowID();
 
     // temporary data
     var data = {
         "cmd": "save",
         "TCID": TCID,
-        "FlowID": app.raflow.activeFlowID
+        "FlowID": FlowID
     };
 
     return $.ajax({
-        url: "/v1/raflow-person/" + bid.toString() + "/" + app.raflow.activeFlowID.toString(),
+        url: "/v1/raflow-person/" + bid.toString() + "/" + FlowID.toString(),
         method: "POST",
         contentType: "application/json",
         dataType: "json",
@@ -571,7 +572,7 @@ window.getRAPeopleGridRecord = function (records, TCID) {
 // ReassignPeopleGridRecords
 //--------------------------------------------------------------------
 window.ReassignPeopleGridRecords = function () {
-    var compData = getRAFlowCompData("people", app.raflow.activeFlowID);
+    var compData = getRAFlowCompData("people");
     var grid = w2ui.RAPeopleGrid;
 
     if (compData) {
@@ -627,7 +628,7 @@ window.openNewTransactantForm = function () {
 //-----------------------------------------------------------------------------
 window.acceptTransactant = function () {
 
-    var compData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
+    var compData = getRAFlowCompData("people") || [];
 
     var peopleForm = w2ui.RAPeopleForm;
 
@@ -720,7 +721,7 @@ window.addDummyBackgroundInfo = function () {
 // savePeopleCompData - saves the data on server side
 //------------------------------------------------------------------------------
 window.savePeopleCompData = function() {
-	var compData = getRAFlowCompData("people", app.raflow.activeFlowID);
+	var compData = getRAFlowCompData("people");
 	return saveActiveCompData(compData, "people");
 };
 
@@ -731,7 +732,7 @@ window.savePeopleCompData = function() {
 window.getPeopleLocalDataByTCID = function(TCID, returnIndex) {
     var cloneData = {};
     var foundIndex = -1;
-    var compData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
+    var compData = getRAFlowCompData("people") || [];
     compData.forEach(function(item, index) {
         if (item.TCID === TCID) {
             if (returnIndex) {
@@ -754,7 +755,7 @@ window.getPeopleLocalDataByTCID = function(TCID, returnIndex) {
 window.getPeopleLocalData = function(TMPTCID, returnIndex) {
 	var cloneData = {};
 	var foundIndex = -1;
-	var compData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
+	var compData = getRAFlowCompData("people") || [];
 	compData.forEach(function(item, index) {
 		if (item.TMPTCID === TMPTCID) {
 			if (returnIndex) {
@@ -775,7 +776,7 @@ window.getPeopleLocalData = function(TMPTCID, returnIndex) {
 // setPeopleLocalData - save the data for requested a TMPTCID in local data
 //-----------------------------------------------------------------------------
 window.setPeopleLocalData = function(TMPTCID, peopleData) {
-	var compData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
+	var compData = getRAFlowCompData("people") || [];
 	var dataIndex = -1;
 	compData.forEach(function(item, index) {
 		if (item.TMPTCID === TMPTCID) {
@@ -794,7 +795,7 @@ window.setPeopleLocalData = function(TMPTCID, peopleData) {
 // setTransactantDefaultRole - Assign default role for new transanctant.
 //-----------------------------------------------------------------------------
 window.setTransactantDefaultRole = function (transactantRec) {
-	var compData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
+	var compData = getRAFlowCompData("people") || [];
 	// If first record in the grid than transanctant will be renter by default
 	if (compData.length === 0) {
 		transactantRec.IsRenter = true;
@@ -831,7 +832,7 @@ window.managePeopleW2UIItems = function() {
     };
 
     // get comp data
-    var peopleCompData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
+    var peopleCompData = getRAFlowCompData("people") || [];
 
     // first build the list of rentables and sort it out in asc order of TMPTCID
     peopleCompData.forEach(function(peopleItem) {
