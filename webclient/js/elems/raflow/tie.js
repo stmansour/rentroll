@@ -79,9 +79,8 @@ window.loadRATieSection = function () {
                     hidden: false,
                     render: function (record) {
                         var haveError = false;
-                        var flowID = app.raflow.activeFlowID;
-                        if (app.raflow.validationErrors[flowID].tie) {
-                            var tiePeople = app.raflow.validationCheck[flowID].errors.tie.people;
+                        if (app.raflow.validationErrors.tie) {
+                            var tiePeople = app.raflow.validationCheck.errors.tie.people;
                             for (var i = 0; i < tiePeople.length; i++) {
                                 if (tiePeople[i].TMPTCID === record.TMPTCID && tiePeople[i].total > 0) {
                                     haveError = true;
@@ -162,7 +161,7 @@ window.GetTiePeopleLocalData = function(TMPTCID, returnIndex) {
     var cloneData = {};
     var foundIndex = -1;
 
-    var compData = getRAFlowCompData("tie", app.raflow.activeFlowID);
+    var compData = getRAFlowCompData("tie");
     var tiePeopleData = compData.people || [];
 
     tiePeopleData.forEach(function(item, index) {
@@ -186,7 +185,7 @@ window.GetTiePeopleLocalData = function(TMPTCID, returnIndex) {
 //                      for requested TMPTCID by matching TMPTCID
 //-----------------------------------------------------------------------------
 window.SetTiePeopleLocalData = function(TMPTCID, data) {
-    var compData = getRAFlowCompData("tie", app.raflow.activeFlowID);
+    var compData = getRAFlowCompData("tie");
     var tiePeopleData = compData.people || [];
 
     var dataIndex = -1;
@@ -212,7 +211,7 @@ window.SetTiePeopleLocalData = function(TMPTCID, data) {
 // -------------------------------------------------------------------------------
 window.AssignTiePeopleGridRecords = function() {
     var BID = getCurrentBID();
-    var peopleCompData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
+    var peopleCompData = getRAFlowCompData("people") || [];
     var grid = w2ui.RATiePeopleGrid,
         tieGridRecords = [];
 
@@ -299,7 +298,7 @@ window.AssignTiePeopleGridRecords = function() {
 //                       modified data on the server via API
 //-----------------------------------------------------------------------------
 window.SaveTiePeopleData = function() {
-    var compData = getRAFlowCompData("tie", app.raflow.activeFlowID),
+    var compData = getRAFlowCompData("tie"),
         tiePeopleData = compData.people || [],
         dataToSaveFlag = false,
         gridRecords = w2ui.RATiePeopleGrid.records || [];
@@ -362,10 +361,8 @@ window.dispalyRATiePeopleGridError = function (){
         }
     }
 
-    // If biz error than highlight grid row
-    var flowID = app.raflow.activeFlowID;
-    if (app.raflow.validationErrors[flowID].tie) {
-        var tie = app.raflow.validationCheck[flowID].errors.tie.people;
+    if (app.raflow.validationErrors.tie) {
+        var tie = app.raflow.validationCheck.errors.tie.people;
         for (i = 0; i < tie.length; i++) {
             if (tie[i].total > 0) {
                 var recid = getRecIDFromTMPTCID(g, tie[i].TMPTCID);

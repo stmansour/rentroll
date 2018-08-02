@@ -45,9 +45,8 @@ window.loadRAPeopleChildSection = function () {
                     hidden: false,
                     render: function (record) {
                         var haveError = false;
-                        var flowID = app.raflow.activeFlowID;
-                        if (app.raflow.validationErrors[flowID].parentchild) {
-                            var parentchild = app.raflow.validationCheck[flowID].errors.parentchild;
+                        if (app.raflow.validationErrors.parentchild) {
+                            var parentchild = app.raflow.validationCheck.errors.parentchild;
                             for (var i = 0; i < parentchild.length; i++) {
                                 if (parentchild[i].PRID === record.PRID && parentchild[i].CRID === record.CRID && parentchild[i].total > 0) {
                                     haveError = true;
@@ -114,8 +113,8 @@ window.loadRAPeopleChildSection = function () {
     }
 
     // prepare parent and child rentable list based on rentables section data
-    var rentableCompData = getRAFlowCompData("rentables", app.raflow.activeFlowID) || [],
-        compData = getRAFlowCompData("parentchild", app.raflow.activeFlowID) || [],
+    var rentableCompData = getRAFlowCompData("rentables") || [],
+        compData = getRAFlowCompData("parentchild") || [],
         recidCounter = 1, // always starts with 1
         BID = getCurrentBID(),
         gridRecords = [];
@@ -205,7 +204,7 @@ window.loadRAPeopleChildSection = function () {
 //                           modified data on the server via API
 //-----------------------------------------------------------------------------
 window.saveParentChildCompData = function() {
-    var compData = getRAFlowCompData("parentchild", app.raflow.activeFlowID) || [],
+    var compData = getRAFlowCompData("parentchild") || [],
         dataToSaveFlag = false,
         gridRecords = w2ui.RAParentChildGrid.records || [];
 
@@ -239,7 +238,7 @@ window.saveParentChildCompData = function() {
         });
 
         // set this to it's position
-        app.raflow.data[app.raflow.activeFlowID].parentchild = modCompData;
+        app.raflow.Flow.parentchild = modCompData;
 
         // now hit the server API to save
         saveActiveCompData(modCompData, "parentchild");
@@ -253,7 +252,7 @@ window.saveParentChildCompData = function() {
 window.getChildRentableLocalData = function(RID, returnIndex) {
     var cloneData = {};
     var foundIndex = -1;
-    var compData = getRAFlowCompData("parentchild", app.raflow.activeFlowID);
+    var compData = getRAFlowCompData("parentchild");
     compData.forEach(function(item, index) {
         if (item.CRID == RID) {
             if (returnIndex) {
@@ -275,7 +274,7 @@ window.getChildRentableLocalData = function(RID, returnIndex) {
 //                              for requested RID by matching CRID
 //-----------------------------------------------------------------------------
 window.setChildRentableLocalData = function(RID, data) {
-    var compData = getRAFlowCompData("parentchild", app.raflow.activeFlowID);
+    var compData = getRAFlowCompData("parentchild");
     var dataIndex = -1;
     compData.forEach(function(item, index) {
         if (item.CRID == RID) {
@@ -311,10 +310,8 @@ window.dispalyRAParentChildGridError = function (){
         }
     }
 
-    // If biz error than highlight grid row
-    var flowID = app.raflow.activeFlowID;
-    if (app.raflow.validationErrors[flowID].parentchild) {
-        var parentchild = app.raflow.validationCheck[flowID].errors.parentchild;
+    if (app.raflow.validationErrors.parentchild) {
+        var parentchild = app.raflow.validationCheck.errors.parentchild;
         for (i = 0; i < parentchild.length; i++) {
             if (parentchild[i].total > 0) {
                 var recid = getRecIDFromCRID(g, parentchild[i].CRID);
