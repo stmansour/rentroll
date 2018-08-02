@@ -10,6 +10,34 @@
 "use strict";
 
 //-----------------------------------------------------------------------------
+// GetRefNoByRAID returns UserRefNo By RAID from applicantsGrid RECORDS
+//-----------------------------------------------------------------------------
+window.GetRefNoByRAID = function(RAID) {
+    var RefNo = "";
+    w2ui.applicantsGrid.records.forEach(function(gridRec) {
+        if (gridRec.RAID == RAID) {
+            RefNo = gridRec.UserRefNo;
+            return;
+        }
+    });
+    return RefNo;
+};
+
+//-----------------------------------------------------------------------------
+// GetRAIDByRefNo returns RAID By UserRefNo from applicantsGrid RECORDS
+//-----------------------------------------------------------------------------
+window.GetRAIDByRefNo = function(RefNo) {
+    var RAID = -1;
+    w2ui.applicantsGrid.records.forEach(function(gridRec) {
+        if (gridRec.UserRefNo == RefNo) {
+            RAID = gridRec.RAID;
+            return;
+        }
+    });
+    return RAID;
+};
+
+//-----------------------------------------------------------------------------
 // GetCurrentFlowID returns current flow ID
 // which user looking at the flow currently
 //-----------------------------------------------------------------------------

@@ -4,9 +4,9 @@
     GetRAFlowDataAjax,
     manageParentRentableW2UIItems, managePeopleW2UIItems,
     LoadRAFlowTemplate,
-    renderRAStateInToolbar,
     loadRAActionTemplate,
-    getStringListData, initBizErrors, displayErrorDot
+    getStringListData, initBizErrors, displayErrorDot,
+    ChangeRAFlowVersionToolbar, GetRefNoByRAID
 */
 
 "use strict";
@@ -56,10 +56,13 @@ window.LoadRAFlowTemplate = function(bid) {
             // calculate parent rentable items
             manageParentRentableW2UIItems();
 
-            var raFlags = app.raflow.Flow.Data.meta.RAFLAGS;
+            // get info from local copy
+            var FLAGS = app.raflow.Flow.Data.meta.RAFLAGS,
+                RAID = app.raflow.Flow.ID,
+                RefNo = GetRefNoByRAID(RAID);
 
-            // renders the Rental Agreement State in Toolbar
-            renderRAStateInToolbar(raFlags);
+            // render the toolbar based on raflow version
+            ChangeRAFlowVersionToolbar("raid", RAID, RefNo, FLAGS);
 
             // clear grid, form if previously loaded in DOM
             for (var comp in app.raFlowPartTypes) {
@@ -295,13 +298,16 @@ window.buildRAApplicantElements = function() {
                 content: 'main',
                 toolbar: {
                     items: [
-                        { id: 'btnNotes', type: 'button', icon: 'far fa-sticky-note' },
-                        { id: 'raState', type: 'html',
-                            html: '<span style="padding: 0 10px">State: <span id="RAState">StateText</span></span>'
-                        },
-                        { id: 'stateAction', type: 'button', caption: 'Actions', icon: 'fas fa-pencil-alt'},
-                        { id: 'bt3', type: 'spacer' },
-                        { id: 'btnClose', type: 'button', icon: 'fas fa-times' }
+                        { id: 'btnNotes',       type: 'button',     icon: 'far fa-sticky-note' },
+                        { id: 'id',             type: 'html',       html: '' },
+                        {                       type: 'break' },
+                        { id: 'state',          type: 'html',       html: '' },
+                        {                       type: 'break' },
+                        { id: 'editViewBtn',    type: 'button',     text: '' },
+                        { id: 'bt3',            type: 'spacer' },
+                        { id: 'stateAction',    type: 'button',     icon: 'fas fa-cog', text: 'Actions' },
+                        {                       type: 'break' },
+                        { id: 'btnClose',       type: 'button',     icon: 'fas fa-times' }
                     ],
                     onClick: function (event) {
                         switch(event.target) {
@@ -326,12 +332,6 @@ window.buildRAApplicantElements = function() {
                             break;
                         }
                     },
-                    onRefresh: function(event) {
-                        if(Object.keys(app.raflow.Flow).length != 0) {
-                            var raflags = app.raflow.Flow.Data.meta.RAFLAGS;
-                            renderRAStateInToolbar(raflags);
-                        }
-                    }
                 }
             },
             { type: 'preview',      hidden: true },
@@ -347,14 +347,42 @@ window.buildRAApplicantElements = function() {
 };
 
 //-----------------------------------------------------------------------
-// renderRAStateInToolbar - it selects Rental Agreement State from the
-//                          string list on basis of raFlags and displays
-//                          it on the toolbar.
+// ChangeRAFlowVersionToolbar - change the toolbar items content based on
+//                              the requested version of raflow
 //
 // @params
-//   raFlags = FLAGS of rental agreement
+//   version    = raflow version ("raid" / "refno")
+//   RefNo      = Flow Reference No
+//   RAID       = Associated Rental Agreement ID if exists (optional)
+//   FLAGS      = Current version raflow FLAGS, will render the state
 //-----------------------------------------------------------------------
-window.renderRAStateInToolbar = function(raFlags) {
-    var raStateString = app.RAStates[parseInt(raFlags & 0xf)];
-    $(w2ui.newraLayout_main_toolbar.box).find('#RAState').text(raStateString);
+window.ChangeRAFlowVersionToolbar = function(version, RAID, RefNo, FLAGS) {
+
+    // get state string
+    var state = app.RAStates[parseInt(FLAGS & 0xF)];
+    var stateHTML = '<p>State: <span id="RAState">' + state + '</span></p>';
+
+    var idString = "",
+        editViewBtnCaption = "",
+        editViewBtnIcon = "";
+
+    switch(version) {
+        case "raid":
+            idString = "<p><strong>RA" + RAID + "</strong></p>";
+            editViewBtnCaption = "Edit" + (RefNo ? " " + RefNo : "");
+            editViewBtnIcon = "fas fa-pencil-alt fa-xs";
+            break;
+        case "refno":
+            idString = "<p><strong>" + RefNo + "</strong></p>";
+            editViewBtnCaption = "View" + (RAID ? " RA" + RAID : "");
+            editViewBtnIcon = "";
+            break;
+    }
+
+    // icon: 'fas fa-pencil-alt fa-sm'
+
+    w2ui.newraLayout.get("main").toolbar.set('id', {html: idString});
+    w2ui.newraLayout.get("main").toolbar.set('editViewBtn', {text: editViewBtnCaption, icon: editViewBtnIcon});
+    w2ui.newraLayout.get("main").toolbar.set('state', {html: stateHTML});
+    w2ui.newraLayout.get("main").toolbar.refresh();
 };
