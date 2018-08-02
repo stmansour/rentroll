@@ -3,10 +3,22 @@
     loadTargetSection, requiredFieldsFulFilled, initRAFlowAjax, getRecIDFromTMPASMID
     saveActiveCompData, getRAFlowCompData, displayActiveComponentError, displayRAPetsGridError, dispalyRAPeopleGridError,
     lockOnGrid, dataFulFilled, getApprovals, updateFlowData, updateFlowCopy, displayErrorDot, initBizErrors,
-    dispalyRARentablesGridError, dispalyRAVehiclesGridError, dispalyRAParentChildGridError, dispalyRATiePeopleGridError
+    dispalyRARentablesGridError, dispalyRAVehiclesGridError, dispalyRAParentChildGridError, dispalyRATiePeopleGridError,
+    GetCurrentFlowID
 */
 
 "use strict";
+
+//-----------------------------------------------------------------------------
+// GetCurrentFlowID returns current flow ID
+// which user looking at the flow currently
+//-----------------------------------------------------------------------------
+window.GetCurrentFlowID = function() {
+    if (Object.keys(app.raflow.Flow).length != 0) { // IF NOT BLANK THEN
+        return app.raflow.Flow.FlowID;
+    }
+    return 0;
+};
 
 //-----------------------------------------------------------------------------
 // NEXT BUTTON CLICK EVENT HANDLER
@@ -52,8 +64,7 @@ $(document).on('click', '#ra-form #previous', function () {
 $(document).on('click', '#ra-form #save-ra-flow-btn', function () {
     getApprovals().done(function (data) {
 
-        var FlowID = app.raflow.activeFlowID;
-        app.raflow.validationErrors[FlowID] = {
+        app.raflow.validationErrors = {
             dates: data.errors.dates.total > 0 || data.nonFieldsErrors.dates.length > 0,
             people: data.errors.people.length > 0 || data.nonFieldsErrors.people.length > 0,
             pets: data.errors.pets.length > 0 || data.nonFieldsErrors.pets.length > 0,
@@ -76,8 +87,7 @@ $(document).on('click', '#ra-form #save-ra-flow-btn', function () {
 
 // initBizErrors To initialize bizError local copy for active flow
 window.initBizErrors = function(){
-    var FlowID = app.raflow.activeFlowID;
-    app.raflow.validationErrors[FlowID] = {
+    app.raflow.validationErrors = {
         dates: false,
         people: false,
         pets: false,
@@ -90,9 +100,8 @@ window.initBizErrors = function(){
 
 // displayErrorDot it show red dot on each section of section contain biz logic error
 window.displayErrorDot = function(){
-    var FlowID = app.raflow.activeFlowID;
     for (var comp in app.raFlowPartTypes) {
-        if (app.raflow.validationErrors[FlowID][comp]) {
+        if (app.raflow.validationErrors[comp]) {
             $("#progressbar #steps-list li[data-target='#" + comp + "'] .error").addClass("error-true");
         } else {
             $("#progressbar #steps-list li[data-target='#" + comp + "'] .error").removeClass("error-true");
@@ -103,7 +112,7 @@ window.displayErrorDot = function(){
 window.getApprovals = function(){
 
     var bid = getCurrentBID();
-    var FlowID = app.raflow.activeFlowID;
+    var FlowID = GetCurrentFlowID();
     var data = {
         "cmd": "get",
         "FlowID": FlowID
@@ -118,7 +127,7 @@ window.getApprovals = function(){
         success: function (data) {
             console.info(data);
             // Update validationCheck error local copy
-            app.raflow.validationCheck[FlowID] = data;
+            app.raflow.validationCheck = data;
         },
         error: function (data) {
             console.error(data);
@@ -173,11 +182,11 @@ window.lockOnGrid = function (gridName) {
 //   key    = flow component key
 //   FlowID = for which FlowID's component
 //-----------------------------------------------------------------------------
-window.getRAFlowCompData = function (compKey, FlowID) {
+window.getRAFlowCompData = function (compKey) {
 
     var bid = getCurrentBID();
 
-    var flowJSON = app.raflow.data[FlowID];
+    var flowJSON = app.raflow.Flow;
     if (flowJSON.Data) {
         return flowJSON.Data[compKey];
     }
@@ -190,14 +199,13 @@ window.getRAFlowCompData = function (compKey, FlowID) {
 //
 // @params
 //   key    = flow component key
-//   FlowID = for which FlowID's component
 //   data   = data to set in the component
 //-----------------------------------------------------------------------------
-window.setRAFlowCompData = function (compKey, FlowID, data) {
+window.setRAFlowCompData = function (compKey, data) {
 
     var bid = getCurrentBID();
 
-    var flowJSON = app.raflow.data[FlowID];
+    var flowJSON = app.raflow.Flow;
     if (flowJSON.Data) {
         flowJSON.Data[compKey] = data;
     }
@@ -213,7 +221,7 @@ window.setRAFlowCompData = function (compKey, FlowID, data) {
 window.saveActiveCompData = function (compData, compID) {
 
     var bid = getCurrentBID();
-    var FlowID = app.raflow.activeFlowID;
+    var FlowID = GetCurrentFlowID();
 
     // temporary data
     var data = {
@@ -233,7 +241,7 @@ window.saveActiveCompData = function (compData, compID) {
         data: JSON.stringify(data),
         success: function (data) {
             if (data.status != "error") {
-                console.log("data has been saved for: ", app.raflow.activeFlowID, ", compID: ", compID);
+                console.log("data has been saved for: ", FlowID, ", compID: ", compID);
                 // Update flow local copy and green checks
                 updateFlowData(data);
             } else {
@@ -302,26 +310,26 @@ window.updateFlowData = function(data){
     updateFlowCopy(data.record.Flow);
     setTimeout(function() {
         // Enable/Disable green check
-        dataFulFilled(data.record);
+        FlowFilled(data.record);
     }, 500);
 };
 
 // updateFlowCopy
 window.updateFlowCopy = function(flow){
-    app.raflow.data[flow.FlowID] = flow;
+    app.raflow.Flow = flow;
 };
 
 // -----------------------------------------------------
-// dataFulFilled:
+// FlowFilled:
 // Enable/Disable green checks
 // Enable/Disable get approvals button
 // raflow parts
 // -----------------------------------------------------
-window.dataFulFilled = function(data) {
+window.FlowFilled = function(data) {
 
-    // Update local copy of basicCheck and dataFulfilled
-    app.raflow.basicCheck[data.Flow.FlowID] = data.BasicCheck;
-    app.raflow.dataFulfilled[data.Flow.FlowID] = data.DataFulfilled;
+    // Update local copy of basicCheck and FlowFilledData
+    app.raflow.basicCheck = data.BasicCheck;
+    app.raflow.FlowFilledData = data.DataFulfilled;
 
     // Enable/Disable green check for the each section
     var active_comp = $(".ra-form-component:visible");
@@ -347,7 +355,7 @@ window.loadTargetSection = function (target, previousActiveCompID) {
     } else {}*/
 
     // get component data based on ID from locally
-    var compData = getRAFlowCompData(previousActiveCompID, app.raflow.activeFlowID);
+    var compData = getRAFlowCompData(previousActiveCompID);
 
     // default would be compData
     var modCompData = compData;
