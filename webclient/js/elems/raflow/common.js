@@ -2,9 +2,9 @@
     RACompConfig, HideSliderContent, appendNewSlider, ShowSliderContentW2UIComp,
     loadTargetSection, requiredFieldsFulFilled, initRAFlowAjax, getRecIDFromTMPASMID
     saveActiveCompData, getRAFlowCompData, displayActiveComponentError, displayRAPetsGridError, dispalyRAPeopleGridError,
-    lockOnGrid, dataFulFilled, getApprovals, updateFlowData, updateFlowCopy, displayErrorDot, initBizErrors,
+    lockOnGrid, getApprovals, updateFlowData, updateFlowCopy, displayErrorDot, initBizErrors,
     dispalyRARentablesGridError, dispalyRAVehiclesGridError, dispalyRAParentChildGridError, dispalyRATiePeopleGridError,
-    GetCurrentFlowID
+    GetCurrentFlowID, FlowFilled
 */
 
 "use strict";
@@ -339,7 +339,7 @@ window.FlowFilled = function(data) {
         // if required fields are fulfilled then mark this slide as done
 
         // Apply green mark when comp is not active and when it fulfilled the requirements
-        if (data.DataFulfilled[comp] && active_comp_id !== comp) {
+        if (app.raflow.FlowFilledData[comp] && active_comp_id !== comp) {
             $("#progressbar #steps-list li[data-target='#" + comp + "']").addClass("done");
         } else {
             $("#progressbar #steps-list li[data-target='#" + comp + "']").removeClass("done");

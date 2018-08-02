@@ -141,9 +141,8 @@ window.loadRARentablesGrid = function () {
                     hidden: false,
                     render: function (record) {
                         var haveError = false;
-                        var flowID = app.raflow.activeFlowID;
-                        if (app.raflow.validationErrors[flowID].rentables) {
-                            var rentables = app.raflow.validationCheck[flowID].errors.rentables;
+                        if (app.raflow.validationErrors.rentables) {
+                            var rentables = app.raflow.validationCheck.errors.rentables;
                             for (var i = 0; i < rentables.length; i++) {
                                 if (rentables[i].RID === record.RID && rentables[i].total > 0) {
                                     haveError = true;
@@ -1052,10 +1051,8 @@ window.dispalyRARentablesGridError = function (){
         }
     }
 
-    // If biz error than highlight grid row
-    var flowID = app.raflow.activeFlowID;
-    if (app.raflow.validationErrors[flowID].rentables) {
-        var rentables = app.raflow.validationCheck[flowID].errors.rentables;
+    if (app.raflow.validationErrors.rentables) {
+        var rentables = app.raflow.validationCheck.errors.rentables;
         for (i = 0; i < rentables.length; i++) {
             if (rentables[i].total > 0) {
                 var recid = getRecIDFromRID(g, rentables[i].RID);
@@ -1086,10 +1083,8 @@ window.displayRARentableFeesGridError = function () {
         }
     }
 
-    // If biz error than highlight grid row
-    var flowID = app.raflow.activeFlowID;
-    if (app.raflow.validationErrors[flowID].rentables) {
-        var rentables = app.raflow.validationCheck[flowID].errors.rentables;
+    if (app.raflow.validationErrors.rentables) {
+        var rentables = app.raflow.validationCheck.errors.rentables;
         for (i = 0; i < rentables.length; i++) {
             for (var j = 0; j < rentables[i].fees.length; j++) {
                 if (rentables[i].fees[j].total > 0) {

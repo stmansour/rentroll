@@ -180,9 +180,8 @@ window.loadRAPetsGrid = function () {
                     hidden: false,
                     render: function (record) {
                         var haveError = false;
-                        var flowID = app.raflow.activeFlowID;
-                        if (app.raflow.validationErrors[flowID].pets) {
-                            var pets = app.raflow.validationCheck[flowID].errors.pets;
+                        if (app.raflow.validationErrors.pets) {
+                            var pets = app.raflow.validationCheck.errors.pets;
                             for (var i = 0; i < pets.length; i++) {
                                 if (pets[i].TMPPETID === record.TMPPETID && pets[i].total > 0) {
                                     haveError = true;
@@ -1090,10 +1089,8 @@ window.displayRAPetsGridError = function (){
         }
     }
 
-    // If biz error than highlight grid row
-    var flowID = app.raflow.activeFlowID;
-    if (app.raflow.validationErrors[flowID].pets) {
-        var pets = app.raflow.validationCheck[flowID].errors.pets;
+    if (app.raflow.validationErrors.pets) {
+        var pets = app.raflow.validationCheck.errors.pets;
         for (i = 0; i < pets.length; i++) {
             var recid = getRecIDFromTMPPETID(g, pets[i].TMPPETID);
             if (pets[i].total > 0) {
@@ -1126,10 +1123,8 @@ window.displayRAPetFeesGridError = function () {
         }
     }
 
-    // If biz error than highlight grid row
-    var flowID = app.raflow.activeFlowID;
-    if (app.raflow.validationErrors[flowID].pets) {
-        var pets = app.raflow.validationCheck[flowID].errors.pets;
+    if (app.raflow.validationErrors.pets) {
+        var pets = app.raflow.validationCheck.errors.pets;
         for (i = 0; i < pets.length; i++) {
             for (var j = 0; j < pets[i].fees.length; j++) {
                 if (pets[i].fees[j].total > 0) {

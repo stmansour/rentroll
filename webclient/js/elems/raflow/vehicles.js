@@ -186,9 +186,8 @@ window.loadRAVehiclesGrid = function () {
                     hidden: false,
                     render: function (record) {
                         var haveError = false;
-                        var flowID = app.raflow.activeFlowID;
-                        if (app.raflow.validationErrors[flowID].vehicles) {
-                            var vehicle = app.raflow.validationCheck[flowID].errors.vehicle;
+                        if (app.raflow.validationErrors.vehicles) {
+                            var vehicle = app.raflow.validationCheck.errors.vehicle;
                             for (var i = 0; i < vehicle.length; i++) {
                                 if (vehicle[i].TMPVID === record.TMPVID && vehicle[i].total > 0) {
                                     haveError = true;
@@ -1147,10 +1146,8 @@ window.dispalyRAVehiclesGridError = function (){
         }
     }
 
-    // If biz error than highlight grid row
-    var flowID = app.raflow.activeFlowID;
-    if (app.raflow.validationErrors[flowID].vehicles) {
-        var vehicles = app.raflow.validationCheck[flowID].errors.vehicle;
+    if (app.raflow.validationErrors.vehicles) {
+        var vehicles = app.raflow.validationCheck.errors.vehicle;
         for (i = 0; i < vehicles.length; i++) {
             if (vehicles[i].total > 0) {
                 var recid = getRecIDFromTMPVID(g, vehicles[i].TMPVID);
@@ -1180,10 +1177,8 @@ window.displayRAVehicleFeesGridError = function () {
         }
     }
 
-    // If biz error than highlight grid row
-    var flowID = app.raflow.activeFlowID;
-    if (app.raflow.validationErrors[flowID].vehicles) {
-        var vehicles = app.raflow.validationCheck[flowID].errors.vehicle;
+    if (app.raflow.validationErrors.vehicles) {
+        var vehicles = app.raflow.validationCheck.errors.vehicle;
         for (i = 0; i < vehicles.length; i++) {
             for (var j = 0; j < vehicles[i].fees.length; j++) {
                 if (vehicles[i].fees[j].total > 0) {
