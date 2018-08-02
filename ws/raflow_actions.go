@@ -166,6 +166,7 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 				case 4: // Active
 					modRAFlowMeta.ActiveUID = 0
+					modRAFlowMeta.ActiveName = ""
 					modRAFlowMeta.ActiveDate = rlib.JSONDateTime(time.Time{})
 
 				case 5: //Notice To Move
