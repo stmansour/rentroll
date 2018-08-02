@@ -1,5 +1,5 @@
 /* global
-    saveActiveCompData, getRAFlowCompData,
+    saveActiveCompData, getRAFlowCompData, getRecIDFromCRID, dispalyRAParentChildGridError,
     getChildRentableLocalData, setChildRentableLocalData, saveParentChildCompData
 */
 
@@ -25,7 +25,7 @@ window.loadRAPeopleChildSection = function () {
             columns: [
                 {
                     field: 'recid',
-                    hidden: true,
+                    hidden: true
                 },
                 {
                     field: 'BID',
@@ -38,6 +38,29 @@ window.loadRAPeopleChildSection = function () {
                 {
                     field: 'PRID',
                     hidden: true
+                },
+                {
+                    field: 'haveError',
+                    size: '30px',
+                    hidden: false,
+                    render: function (record) {
+                        var haveError = false;
+                        var flowID = app.raflow.activeFlowID;
+                        if (app.raflow.validationErrors[flowID].parentchild) {
+                            var parentchild = app.raflow.validationCheck[flowID].errors.parentchild;
+                            for (var i = 0; i < parentchild.length; i++) {
+                                if (parentchild[i].PRID === record.PRID && parentchild[i].CRID === record.CRID && parentchild[i].total > 0) {
+                                    haveError = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (haveError) {
+                            return '<i class="fas fa-exclamation-triangle" title="error"></i>';
+                        } else {
+                            return "";
+                        }
+                    }
                 },
                 {
                     field: 'ChildRentableName',
@@ -166,6 +189,9 @@ window.loadRAPeopleChildSection = function () {
         grid.getColumn("ParentRentableName").editable.items = app.raflow.parentRentableW2UIItems;
         grid.getColumn("ParentRentableName").render();
 
+        // display row with light red background if it have error
+        dispalyRAParentChildGridError();
+
         // save the data if it's been modified
         saveParentChildCompData();
 
@@ -262,4 +288,50 @@ window.setChildRentableLocalData = function(RID, data) {
     } else {
         compData.push(data);
     }
+};
+
+// dispalyRARentablesGridError
+// It highlights grid's row if it have error
+window.dispalyRAParentChildGridError = function (){
+    // load grid errors if any
+    var g = w2ui.RAParentChildGrid;
+    var record, i;
+    for (i = 0; i < g.records.length; i++) {
+        // get record from grid to apply css
+        record = g.get(g.records[i].recid);
+
+        if (!("w2ui" in record)) {
+            record.w2ui = {}; // init w2ui if not present
+        }
+        if (!("class" in record.w2ui)) {
+            record.w2ui.class = ""; // init class string
+        }
+        if (!("style" in record.w2ui)) {
+            record.w2ui.style = {}; // init style object
+        }
+    }
+
+    // If biz error than highlight grid row
+    var flowID = app.raflow.activeFlowID;
+    if (app.raflow.validationErrors[flowID].parentchild) {
+        var parentchild = app.raflow.validationCheck[flowID].errors.parentchild;
+        for (i = 0; i < parentchild.length; i++) {
+            if (parentchild[i].total > 0) {
+                var recid = getRecIDFromCRID(g, parentchild[i].CRID);
+                g.get(recid).w2ui.style = "background-color: #EEB4B4";
+                g.refreshRow(recid);
+            }
+        }
+    }
+};
+
+// getRecIDFromRID It returns recid of grid record which matches TMPTCID
+window.getRecIDFromCRID = function(grid, CRID){
+    var recid;
+    for (var i = 0; i < grid.records.length; i++) {
+        if (grid.records[i].CRID === CRID) {
+            recid = grid.records[i].recid;
+        }
+    }
+    return recid;
 };
