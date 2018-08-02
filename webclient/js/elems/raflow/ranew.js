@@ -153,14 +153,6 @@ window.buildRAApplicantElements = function() {
                                 grid.message(data.message);
                             } else {
                                 LoadRAFlowTemplate(rec.BID);
-                                setTimeout(function () {
-                                    // Init biz error
-                                    if(app.raflow.validationErrors === {} || typeof(app.raflow.validationErrors) == "undefined"){
-                                        initBizErrors();
-                                    }else{
-                                        displayErrorDot();
-                                    }
-                                }, 500);
                             }
                         })
                         .fail(function() {
@@ -205,15 +197,6 @@ window.buildRAApplicantElements = function() {
 
                             var rec = grid.get(newRecid);
                             LoadRAFlowTemplate(rec.BID);
-
-                            setTimeout(function () {
-                                // Init biz error
-                                if(app.raflow.validationErrors === {} || typeof(app.raflow.validationErrors) == "undefined"){
-                                    initBizErrors();
-                                }else{
-                                    displayErrorDot();
-                                }
-                            }, 500);
 
                         } else {
                             grid.message(data.message);
