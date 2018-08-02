@@ -67,15 +67,6 @@ window.buildRA2FlowElements = function() {
 
                     // load ra flow template
                     LoadRAFlowTemplate(bid, flowID);
-
-                    setTimeout(function () {
-                        // Init biz error
-                        if(app.raflow.validationErrors[flowID] === {} || typeof(app.raflow.validationErrors[flowID]) == "undefined"){
-                            initBizErrors();
-                        }else{
-                            displayErrorDot();
-                        }
-                    }, 500);
                 })
                 .fail(function(/*data*/){
                     w2ui.ra2flowGrid.error("Get Rental Agreement Flow failed.");
