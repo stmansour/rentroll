@@ -6,7 +6,8 @@
     LoadRAFlowTemplate,
     loadRAActionTemplate,
     getStringListData, initBizErrors, displayErrorDot,
-    ChangeRAFlowVersionToolbar, GetRefNoByRAID
+    ChangeRAFlowVersionToolbar, GetRefNoByRAIDFromGrid,
+    LoadRAFlowVersionData
 */
 
 "use strict";
@@ -18,7 +19,7 @@
 // @params
 //   FlowID = Id of the Flow
 //-----------------------------------------------------------------------------
-window.LoadRAFlowTemplate = function(bid) {
+window.LoadRAFlowTemplate = function(bid, raFlowVersion) {
 
     // set the toplayout content
     w2ui.toplayout.content('right', w2ui.newraLayout);
@@ -58,11 +59,17 @@ window.LoadRAFlowTemplate = function(bid) {
 
             // get info from local copy
             var FLAGS = app.raflow.Flow.Data.meta.RAFLAGS,
-                RAID = app.raflow.Flow.ID,
-                RefNo = GetRefNoByRAID(RAID);
+                RAID = app.raflow.Flow.ID;
 
+            var RefNo;
             // render the toolbar based on raflow version
-            ChangeRAFlowVersionToolbar("raid", RAID, RefNo, FLAGS);
+            if (RAID > 0) {
+                // EXISTING RA WON'T HAVE NY REF.NO SO IN FLOW VERSION DATA
+                RefNo = GetRefNoByRAIDFromGrid(RAID);
+            } else {
+                RefNo = app.raflow.Flow.UserRefNo;
+            }
+            ChangeRAFlowVersionToolbar(raFlowVersion, RAID, RefNo, FLAGS);
 
             // clear grid, form if previously loaded in DOM
             for (var comp in app.raFlowPartTypes) {
@@ -133,12 +140,7 @@ window.buildRAApplicantElements = function() {
                 field: 'RAID',
                 caption: 'RAID',
                 size: "60px",
-                sortable: true,
-                render: function (record) {
-                    if (record.RAID) {
-                        return "RAID - " + record.RAID;
-                    }
-                }
+                sortable: true
             },
             {
                 field: 'Payors',
@@ -214,13 +216,21 @@ window.buildRAApplicantElements = function() {
 
                         // get grid record
                         var rec = grid.get(recid);
+                        var version = "";
 
-                        GetRAFlowDataAjax(rec.FlowID, rec.RAID)
+                        // IF RAID IS AVAILABLE THEN WE'LL LOAD RAID VERSION
+                        if (rec.RAID > 0) {
+                            version = "raid";
+                        } else {
+                            version = "refno";
+                        }
+
+                        GetRAFlowDataAjax(rec.UserRefNo, rec.RAID, version)
                         .done(function(data) {
                             if (data.status != "success") {
                                 grid.message(data.message);
                             } else {
-                                LoadRAFlowTemplate(rec.BID);
+                                LoadRAFlowTemplate(rec.BID, version);
                             }
                         })
                         .fail(function() {
@@ -250,11 +260,15 @@ window.buildRAApplicantElements = function() {
 
                             // add new record
                             grid.add({
-                                recid:  newRecid,
-                                BID:    bid,
-                                BUD:    bud,
-                                RAID:   0,
-                                FlowID: data.record.Flow.FlowID
+                                recid:          newRecid,
+                                BID:            bid,
+                                BUD:            bud,
+                                RAID:           0,
+                                Payors:         null,
+                                AgreementStart: null,
+                                AgreementStop:  null,
+                                FlowID:         data.record.Flow.FlowID,
+                                UserRefNo:      data.record.Flow.UserRefNo,
                             });
 
                             grid.refresh();
@@ -265,7 +279,7 @@ window.buildRAApplicantElements = function() {
                             grid.select(app.last.grid_sel_recid);
 
                             var rec = grid.get(newRecid);
-                            LoadRAFlowTemplate(rec.BID);
+                            LoadRAFlowTemplate(rec.BID, "refno");
 
                         } else {
                             grid.message(data.message);
@@ -299,13 +313,14 @@ window.buildRAApplicantElements = function() {
                 toolbar: {
                     items: [
                         { id: 'btnNotes',       type: 'button',     icon: 'far fa-sticky-note' },
-                        { id: 'id',             type: 'html',       html: '' },
+                        { id: 'id',             type: 'html',                               html: '' },
                         {                       type: 'break' },
-                        { id: 'state',          type: 'html',       html: '' },
+                        { id: 'state',          type: 'html',                               html: '' },
                         {                       type: 'break' },
-                        { id: 'editViewBtn',    type: 'button',     text: '' },
+                        { id: 'editViewBtn',    type: 'button',                             text: '' },
                         { id: 'bt3',            type: 'spacer' },
-                        { id: 'stateAction',    type: 'button',     icon: 'fas fa-cog', text: 'Actions' },
+                        { id: 'stateAction',    type: 'button',     icon: 'fas fa-cog',     text: 'Actions' },
+                        { id: 'remove-refno',   type: 'button',     icon: 'fas fa-trash',   style: 'margin: 0 10px;' },
                         {                       type: 'break' },
                         { id: 'btnClose',       type: 'button',     icon: 'fas fa-times' }
                     ],
@@ -329,6 +344,27 @@ window.buildRAApplicantElements = function() {
                             setTimeout(function() {
                                 loadRAActionTemplate();
                             }, 500);
+                            break;
+                        case 'editViewBtn':
+                            var version = app.raflow.version,
+                                RAID    = app.raflow.Flow.ID,
+                                RefNo   = "";
+
+                            if (RAID > 0) {
+                                // EXISTING RA WON'T HAVE NY REF.NO SO IN FLOW VERSION DATA
+                                RefNo = GetRefNoByRAIDFromGrid(RAID);
+                            } else {
+                                RAID = 0;
+                                RefNo = app.raflow.Flow.UserRefNo;
+                            }
+
+                            if (version === "raid") { // IF RAID VERSION LOADED THEN
+                                // LOAD REFERENCE NUMBER VERSION RAFLOW DATA
+                                LoadRAFlowVersionData(RAID, RefNo, "refno");
+                            } else if (version === "refno") { // IF REF.NO VERSION LOADED THEN
+                                // LOAD RAID VERSION RAFLOW DATA
+                                LoadRAFlowVersionData(RAID, RefNo, "raid");
+                            }
                             break;
                         }
                     },
@@ -358,9 +394,19 @@ window.buildRAApplicantElements = function() {
 //-----------------------------------------------------------------------
 window.ChangeRAFlowVersionToolbar = function(version, RAID, RefNo, FLAGS) {
 
-    // get state string
+    // RESET RAID
+    if (!RAID) {
+        RAID = 0;
+    }
+
+    // RESET REF NO
+    if (!RefNo) {
+        RefNo = "";
+    }
+
+    // GET STATE STRING USING FLAGS
     var state = app.RAStates[parseInt(FLAGS & 0xF)];
-    var stateHTML = '<p>State: <span id="RAState">' + state + '</span></p>';
+    var stateHTML = "<p style='margin:0 10px;'>State:&nbsp;<strong id='RAState'>" + state + "</strong></p>";
 
     var idString = "",
         editViewBtnCaption = "",
@@ -368,21 +414,75 @@ window.ChangeRAFlowVersionToolbar = function(version, RAID, RefNo, FLAGS) {
 
     switch(version) {
         case "raid":
-            idString = "<p><strong>RA" + RAID + "</strong></p>";
-            editViewBtnCaption = "Edit" + (RefNo ? " " + RefNo : "");
+            idString = "<p style='margin:0 10px;'><strong>RA" + RAID + "</strong></p>";
+            editViewBtnCaption = "<p style='margin:0 6px;'>Edit&nbsp;<strong>" + (RefNo ? " " + RefNo : "") + "</strong></p>";
             editViewBtnIcon = "fas fa-pencil-alt fa-xs";
+
+            // HIDE TRASH ICON
+            w2ui.newraLayout.get("main").toolbar.hide('remove-refno');
+
+            // SHOW EDIT/VIEW BUTTON AND SET THE TEXT
+            w2ui.newraLayout.get("main").toolbar.show('editViewBtn');
+            w2ui.newraLayout.get("main").toolbar.set('editViewBtn', {text: editViewBtnCaption, icon: editViewBtnIcon});
             break;
+
         case "refno":
-            idString = "<p><strong>" + RefNo + "</strong></p>";
-            editViewBtnCaption = "View" + (RAID ? " RA" + RAID : "");
+            idString = "<p style='margin:0 10px;'><strong>" + RefNo + "</strong></p>";
+            editViewBtnCaption = "<p style='margin:0 6px;'>" + (RAID ? "View&nbsp;<strong>RA" + RAID + "</strong>" : "") + "</p>";
             editViewBtnIcon = "";
+
+            // SHOW TRASH ICON
+            w2ui.newraLayout.get("main").toolbar.show('remove-refno');
+
+            // SHOW EDIT/VIEW BUTTON AND SET THE TEXT BASED ON RAID
+            if (RAID > 0) {
+                w2ui.newraLayout.get("main").toolbar.show('editViewBtn');
+                w2ui.newraLayout.get("main").toolbar.set('editViewBtn', {text: editViewBtnCaption, icon: editViewBtnIcon});
+            } else {
+                w2ui.newraLayout.get("main").toolbar.hide('editViewBtn');
+            }
             break;
     }
 
-    // icon: 'fas fa-pencil-alt fa-sm'
-
+    // SET THE ID AND STATE IN TOOLBAR
     w2ui.newraLayout.get("main").toolbar.set('id', {html: idString});
-    w2ui.newraLayout.get("main").toolbar.set('editViewBtn', {text: editViewBtnCaption, icon: editViewBtnIcon});
     w2ui.newraLayout.get("main").toolbar.set('state', {html: stateHTML});
+
+    // REFRESH THE TOOLBAR TO GET THE EFFECT
     w2ui.newraLayout.get("main").toolbar.refresh();
+};
+
+//-----------------------------------------------------------------------
+// LoadRAFlowVersionData will load the RAID versioned data in the interface
+//
+// @params
+//   RAID       = Associated Rental Agreement ID if exists (optional)
+//   UserRefNo  = Flow Reference No
+//   version    = version of raflow
+//-----------------------------------------------------------------------
+window.LoadRAFlowVersionData = function(RAID, UserRefNo, version) {
+
+    GetRAFlowDataAjax(UserRefNo, RAID, version)
+    .done(function(data) {
+        if (data.status != "success") {
+            alert(data.message);
+        } else {
+            var FLAGS = app.raflow.Flow.Data.meta.RAFLAGS,
+                RAID = app.raflow.Flow.ID;
+
+            var RefNo;
+            if (version === "raid") {
+                // EXISTING RA WON'T HAVE NY REF.NO SO IN FLOW VERSION DATA
+                RefNo = GetRefNoByRAIDFromGrid(RAID);
+                ChangeRAFlowVersionToolbar("raid", RAID, RefNo, FLAGS);
+            } else if (version === "refno") {
+                RefNo = app.raflow.Flow.UserRefNo;
+                ChangeRAFlowVersionToolbar("refno", RAID, RefNo, FLAGS);
+            }
+            // LoadRAFlowTemplate(rec.BID);
+        }
+    })
+    .fail(function() {
+        alert("Error while fetching data for selected record");
+    });
 };

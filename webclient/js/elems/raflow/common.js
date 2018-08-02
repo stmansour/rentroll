@@ -10,9 +10,9 @@
 "use strict";
 
 //-----------------------------------------------------------------------------
-// GetRefNoByRAID returns UserRefNo By RAID from applicantsGrid RECORDS
+// GetRefNoByRAIDFromGrid returns UserRefNo By RAID from applicantsGrid RECORDS
 //-----------------------------------------------------------------------------
-window.GetRefNoByRAID = function(RAID) {
+window.GetRefNoByRAIDFromGrid = function(RAID) {
     var RefNo = "";
     w2ui.applicantsGrid.records.forEach(function(gridRec) {
         if (gridRec.RAID == RAID) {
@@ -24,9 +24,9 @@ window.GetRefNoByRAID = function(RAID) {
 };
 
 //-----------------------------------------------------------------------------
-// GetRAIDByRefNo returns RAID By UserRefNo from applicantsGrid RECORDS
+// GetRAIDByRefNoFromGrid returns RAID By UserRefNo from applicantsGrid RECORDS
 //-----------------------------------------------------------------------------
-window.GetRAIDByRefNo = function(RefNo) {
+window.GetRAIDByRefNoFromGrid = function(RefNo) {
     var RAID = -1;
     w2ui.applicantsGrid.records.forEach(function(gridRec) {
         if (gridRec.UserRefNo == RefNo) {
@@ -297,6 +297,7 @@ window.initRAFlowAjax = function () {
         data: JSON.stringify({"cmd": "init", "FlowType": app.raflow.name}),
         success: function (data) {
             if (data.status != "error") {
+                app.raflow.version = "refno";
                 // Update flow local copy and green checks
                 updateFlowData(data);
             }
@@ -311,16 +312,19 @@ window.initRAFlowAjax = function () {
 // GetRAFlowDataAjax - get the ajax data from the server and returns ajax promise
 //
 // @params
-//   FlowID = ID of the flow
+//   RefNo      = User Ref no of the raflow
+//   RAID       = Rental Agreement
+//   version    = which version of raflow
 //-----------------------------------------------------------------------------
-window.GetRAFlowDataAjax = function(FlowID, RAID) {
+window.GetRAFlowDataAjax = function(UserRefNo, RAID, version) {
     var bid = getCurrentBID();
+
     var reqData = {
-        "cmd":      "get",
-        "FlowID":   FlowID,
-        "RAID":     RAID,
-        "Version":  "raid",
-        "FlowType": "RA"
+        "cmd":          "get",
+        "UserRefNo":    UserRefNo,
+        "RAID":         RAID,
+        "Version":      version,
+        "FlowType":     "RA"
     };
 
     return $.ajax({
@@ -331,6 +335,7 @@ window.GetRAFlowDataAjax = function(FlowID, RAID) {
         data: JSON.stringify(reqData),
         success: function (data) {
             if (data.status !== "error") {
+                app.raflow.version = version;
                 updateFlowData(data);
             }
         },
@@ -352,6 +357,21 @@ window.updateFlowData = function(data){
 // updateFlowCopy
 window.updateFlowCopy = function(flow){
     app.raflow.Flow = flow;
+
+    // ALSO UPDATE THE LOCAL RECORDS IN GRID
+    w2ui.applicantsGrid.records.forEach(function(gridRec) {
+        if (gridRec.UserRefNo === flow.UserRefNo || gridRec.RAID === flow.ID) {
+            if (flow.UserRefNo) { // IF AVAILABLE THEN ONLY SET
+                gridRec.UserRefNo = flow.UserRefNo;
+            }
+            if (flow.ID) { // IF AVAILABLE THEN ONLY SET
+                gridRec.RAID = flow.ID;
+            }
+
+            w2ui.applicantsGrid.refresh();
+            return;
+        }
+    });
 };
 
 // -----------------------------------------------------
