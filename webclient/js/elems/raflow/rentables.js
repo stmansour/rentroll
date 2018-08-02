@@ -12,7 +12,7 @@
     SetFeeDataFromFeeFormRecord, SetFeeFormRecordFromFeeData, displayRARentableFeesGridError,
     FeeFormOnChangeHandler, GetFeeFormToolbar, FeeFormOnRefreshHandler, getRecIDFromRID,
     GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary, updateFlowData, dispalyRARentablesGridError,
-    GetCurrentFlowID
+    GetCurrentFlowID, EnableDisableRAFlowVersionInputs
 */
 
 "use strict";
@@ -98,6 +98,9 @@ window.loadRARentablesGrid = function () {
                         BUD = getBUDfromBID(BID);
 
                     f.record.BID = BID;
+
+                    // FREEZE THE INPUTS IF VERSION IS RAID
+                    EnableDisableRAFlowVersionInputs(f);
                 };
             }
         });
@@ -234,6 +237,10 @@ window.loadRARentablesGrid = function () {
                     caption: "Remove<br>Rentable",
                     size: '90px',
                     render: function (record/*, index, col_index*/) {
+                        // SPECIAL CHECK FOR THIS REMOVE BUTTON
+                        if (app.raflow.version === "raid") {
+                            return;
+                        }
                         var html = "";
                         if (record.RID && record.RID > 0) {
                             html = '<i class="fas fa-minus-circle" style="color: #DC3545; cursor: pointer;" title="remove rentable"></i>';
@@ -626,6 +633,9 @@ window.loadRARentablesGrid = function () {
                     } else {
                         feeForm.header = header.format("new", rentableName);
                     }
+
+                    // FREEZE THE INPUTS IF VERSION IS RAID
+                    EnableDisableRAFlowVersionInputs(feeForm);
                 };
             }
         });

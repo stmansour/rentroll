@@ -18,7 +18,8 @@
     SliderContentDivLength, SetFeeFormRecordFromFeeData,
     RenderPetFeesGridSummary, RAFlowNewPetAJAX, updateFlowData,
     GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary, getRecIDFromTMPASMID,
-    GetTiePeopleLocalData, displayRAPetsGridError, getRecIDFromTMPPETID, displayRAPetFeesGridError, GetCurrentFlowID
+    GetTiePeopleLocalData, displayRAPetsGridError, getRecIDFromTMPPETID, displayRAPetFeesGridError,
+    GetCurrentFlowID, EnableDisableRAFlowVersionInputs
 */
 
 "use strict";
@@ -380,39 +381,42 @@ window.loadRAPetsGrid = function () {
             },
             onRefresh: function(event) {
                 event.onComplete = function() {
-                    var f = w2ui.RAPetForm,
+                    var form = w2ui.RAPetForm,
                         header = "Edit Rental Agreement Pets ({0})";
 
                     // there is NO PETID actually, so have to work around with recid key
-                    formRefreshCallBack(f, "TMPPETID", header);
+                    formRefreshCallBack(form, "TMPPETID", header);
 
                     // selection of contact person
                     var TMPTCIDSel = {};
                     app.raflow.peopleW2UIItems.forEach(function(item) {
-                        if (item.id === f.record.TMPTCID) {
+                        if (item.id === form.record.TMPTCID) {
                             $.extend(TMPTCIDSel, item);
                         }
                     });
-                    f.get("TMPTCID").options.items = app.raflow.peopleW2UIItems;
-                    f.get("TMPTCID").options.selected = TMPTCIDSel;
+                    form.get("TMPTCID").options.items = app.raflow.peopleW2UIItems;
+                    form.get("TMPTCID").options.selected = TMPTCIDSel;
 
                     // hide delete button if it is NewRecord
-                    if (f.record.TMPPETID === 0) {
+                    if (form.record.TMPPETID === 0) {
                         $("#RAPetFormBtns").find("button[name=delete]").addClass("hidden");
                     } else {
                         $("#RAPetFormBtns").find("button[name=delete]").removeClass("hidden");
                     }
 
                     // format header
-                    var petIdentity = f.record.Name,
+                    var petIdentity = form.record.Name,
                         petString   = "<em>new</em>";
 
-                    if (f.record.PETID > 0) {
+                    if (form.record.PETID > 0) {
                         petString = petIdentity;
                     } else if (petIdentity) {
                         petString = "<em>new</em> - {0}".format(petIdentity);
                     }
-                    f.header = "Edit Pet (<strong>{0}</strong>)".format(petString);
+                    form.header = "Edit Pet (<strong>{0}</strong>)".format(petString);
+
+                    // FREEZE THE INPUTS IF VERSION IS RAID
+                    EnableDisableRAFlowVersionInputs(form);
                 };
             },
             onChange: function(event) {
@@ -543,6 +547,13 @@ window.loadRAPetsGrid = function () {
                         });
                     }
                 },
+            },
+            onRefresh: function(event) {
+                var form = this;
+                event.onComplete = function() {
+                    // FREEZE THE INPUTS IF VERSION IS RAID
+                    EnableDisableRAFlowVersionInputs(form);
+                };
             },
         });
 
@@ -832,6 +843,9 @@ window.loadRAPetsGrid = function () {
                     } else {
                         feeForm.header = header.format("new", petString);
                     }
+
+                    // FREEZE THE INPUTS IF VERSION IS RAID
+                    EnableDisableRAFlowVersionInputs(feeForm);
                 };
             }
         });

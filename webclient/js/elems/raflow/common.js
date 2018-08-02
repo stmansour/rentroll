@@ -248,6 +248,11 @@ window.setRAFlowCompData = function (compKey, data) {
 //-----------------------------------------------------------------------------
 window.saveActiveCompData = function (compData, compID) {
 
+    // IF RAID VERSION THEN DON"T DO ANYTHING
+    if (app.raflow.version === "raid") {
+        return;
+    }
+
     var bid = getCurrentBID();
     var FlowID = GetCurrentFlowID();
 
@@ -631,4 +636,41 @@ window.getRecIDFromTMPASMID = function(grid, TMPASMID){
         }
     }
     return recid;
+};
+
+//-----------------------------------------------------------------------
+// EnableDisableRAFlowVersionInputs
+//      enable/disable the inputs of form based on
+//      the current version of raflow.
+//      If "raid" then it'll disable else enable the inputs.
+//
+// @params
+//   form       = w2ui form component
+//-----------------------------------------------------------------------
+window.EnableDisableRAFlowVersionInputs = function(form) {
+    if (app.raflow.version === "raid") { // DISABLE ALL INPUTS & BUTTONS
+        $(form.box).find("input").prop("disabled", true);
+        $(form.box).find("button[class=w2ui-btn]").hide();
+        $(form.box).find("div[class=w2ui-buttons]").hide();
+   } else if (app.raflow.version === "refno") { // ENABLE ALL INPUTS & BUTTONS
+        $(form.box).find("input").not("input[name=BUD]").prop("disabled", false);
+        $(form.box).find("button[class=w2ui-btn]").show();
+        $(form.box).find("div[class=w2ui-buttons]").show();
+   }
+};
+
+//-----------------------------------------------------------------------
+// EnableDisableRAFlowVersionGrid
+//      lock/unlock the entire grid base on the current version of raflow.
+//      If "raid" then it'll disable else enable the inputs.
+//
+// @params
+//   grid       = w2ui grid component
+//-----------------------------------------------------------------------
+window.EnableDisableRAFlowVersionGrid = function(grid) {
+    if (app.raflow.version === "raid") { // DISABLE ALL INPUTS & BUTTONS
+        grid.lock();
+   } else if (app.raflow.version === "refno") { // ENABLE ALL INPUTS & BUTTONS
+        grid.unlock();
+   }
 };

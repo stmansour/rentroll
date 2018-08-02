@@ -19,7 +19,8 @@
     RenderVehicleFeesGridSummary, RAFlowNewVehicleAJAX,
     GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary,
     GetVehicleIdentity, updateFlowData, GetTiePeopleLocalData,
-    getRecIDFromTMPVID, dispalyRAVehiclesGridError, GetCurrentFlowID
+    getRecIDFromTMPVID, dispalyRAVehiclesGridError, GetCurrentFlowID,
+    EnableDisableRAFlowVersionInputs
 */
 
 "use strict";
@@ -455,6 +456,9 @@ window.loadRAVehiclesGrid = function () {
                         vehicleString = "<em>new</em> - {0}".format(vehicleIdentity);
                     }
                     f.header = "Edit Vehicle (<strong>{0}</strong>)".format(vehicleString);
+
+                    // FREEZE THE INPUTS IF VERSION IS RAID
+                    EnableDisableRAFlowVersionInputs(f);
                 };
             },
             onChange: function(event) {
@@ -586,6 +590,13 @@ window.loadRAVehiclesGrid = function () {
                     }
                 },
             },
+            onRefresh: function(event) {
+                var form = this;
+                event.onComplete = function() {
+                    // FREEZE THE INPUTS IF VERSION IS RAID
+                    EnableDisableRAFlowVersionInputs(form);
+                };
+            }
         });
 
         // -----------------------------------------------------------
@@ -874,6 +885,9 @@ window.loadRAVehiclesGrid = function () {
                     } else {
                         feeForm.header = header.format("new", vehicleString);
                     }
+
+                    // FREEZE THE INPUTS IF VERSION IS RAID
+                    EnableDisableRAFlowVersionInputs(feeForm);
                 };
             }
         });

@@ -378,6 +378,15 @@ window.buildRAApplicantElements = function() {
             event.onComplete = function() {
                 $("#raflow-container .slider").width($(this.box).width());
             };
+        },
+        onRefresh: function(event) {
+            event.onComplete = function() {
+                if (app.raflow.version === "raid") {
+                    $("button#save-ra-flow-btn").prop("disabled", true);
+                } else if (app.raflow.version === "refno") {
+                    $("button#save-ra-flow-btn").prop("disabled", false);
+                }
+            };
         }
     });
 };
@@ -480,6 +489,9 @@ window.LoadRAFlowVersionData = function(RAID, UserRefNo, version) {
                 ChangeRAFlowVersionToolbar("refno", RAID, RefNo, FLAGS);
             }
             // LoadRAFlowTemplate(rec.BID);
+
+            // REFRESH THE LAYOUT
+            w2ui.newraLayout.refresh();
         }
     })
     .fail(function() {
