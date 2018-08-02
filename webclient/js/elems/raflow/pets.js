@@ -17,8 +17,8 @@
     FeeFormOnChangeHandler, FeeFormOnRefreshHandler,
     SliderContentDivLength, SetFeeFormRecordFromFeeData,
     RenderPetFeesGridSummary, RAFlowNewPetAJAX, updateFlowData,
-    GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary,
-    GetTiePeopleLocalData,
+    GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary, getRecIDFromTMPASMID,
+    GetTiePeopleLocalData, displayRAPetsGridError, getRecIDFromTMPPETID, displayRAPetFeesGridError, GetCurrentFlowID
 */
 
 "use strict";
@@ -28,10 +28,11 @@
 //-----------------------------------------------------------------------------
 window.RAFlowNewPetAJAX = function() {
     var BID = getCurrentBID();
-    var data = {"cmd": "new", "FlowID": app.raflow.activeFlowID};
+    var FlowID = GetCurrentFlowID();
+    var data = {"cmd": "new", "FlowID": FlowID};
 
     return $.ajax({
-        url: '/v1/raflow-pets/' + BID.toString() + "/" + app.raflow.activeFlowID.toString() + "/",
+        url: '/v1/raflow-pets/' + BID.toString() + "/" + FlowID.toString() + "/",
         method: "POST",
         data: JSON.stringify(data),
         contentType: "application/json",
@@ -174,6 +175,28 @@ window.loadRAPetsGrid = function () {
                     hidden: true
                 },
                 {
+                    field: 'haveError',
+                    size: '30px',
+                    hidden: false,
+                    render: function (record) {
+                        var haveError = false;
+                        if (app.raflow.validationErrors.pets) {
+                            var pets = app.raflow.validationCheck.errors.pets;
+                            for (var i = 0; i < pets.length; i++) {
+                                if (pets[i].TMPPETID === record.TMPPETID && pets[i].total > 0) {
+                                    haveError = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (haveError) {
+                            return '<i class="fas fa-exclamation-triangle" title="error"></i>';
+                        } else {
+                            return "";
+                        }
+                    }
+                },
+                {
                     field: 'TMPTCID',
                     caption: 'Contact<br>Person',
                     size: '150px',
@@ -226,8 +249,8 @@ window.loadRAPetsGrid = function () {
             ],
             onRefresh: function (event) {
                 event.onComplete = function (){
-                    $("#RAPetsGrid_checkbox")[0].checked = app.raflow.data[app.raflow.activeFlowID].Data.meta.HavePets;
-                    $("#RAPetsGrid_checkbox")[0].disabled = app.raflow.data[app.raflow.activeFlowID].Data.meta.HavePets;
+                    $("#RAPetsGrid_checkbox")[0].checked = app.raflow.Flow.Data.meta.HavePets;
+                    $("#RAPetsGrid_checkbox")[0].disabled = app.raflow.Flow.Data.meta.HavePets;
                     lockOnGrid("RAPetsGrid");
                 };
             },
@@ -490,7 +513,7 @@ window.loadRAPetsGrid = function () {
                     var f = w2ui.RAPetForm;
 
                     // get local data from TMPPETID
-                    var compData = getRAFlowCompData("pets", app.raflow.activeFlowID) || [];
+                    var compData = getRAFlowCompData("pets") || [];
                     var itemIndex = GetPetLocalData(f.record.TMPPETID, true);
 
                     // if it exists then
@@ -850,7 +873,7 @@ window.SetRAPetLayoutContent = function(TMPPETID) {
 window.GetPetLocalData = function(TMPPETID, returnIndex) {
     var cloneData = {};
     var foundIndex = -1;
-    var compData = getRAFlowCompData("pets", app.raflow.activeFlowID) || [];
+    var compData = getRAFlowCompData("pets") || [];
     compData.forEach(function(item, index) {
         if (item.TMPPETID == TMPPETID) {
             if (returnIndex) {
@@ -872,7 +895,7 @@ window.GetPetLocalData = function(TMPPETID, returnIndex) {
 // SetPetLocalData - save the data for requested a TMPPETID in local data
 //-----------------------------------------------------------------------------
 window.SetPetLocalData = function(TMPPETID, petData) {
-    var compData = getRAFlowCompData("pets", app.raflow.activeFlowID) || [];
+    var compData = getRAFlowCompData("pets") || [];
     var dataIndex = -1;
     compData.forEach(function(item, index) {
         if (item.TMPPETID == TMPPETID) {
@@ -892,7 +915,7 @@ window.SetPetLocalData = function(TMPPETID, petData) {
 //                               copy of flow data again
 //-----------------------------------------------------------------------------
 window.AssignPetsGridRecords = function() {
-    var compData = getRAFlowCompData("pets", app.raflow.activeFlowID);
+    var compData = getRAFlowCompData("pets");
     var grid = w2ui.RAPetsGrid;
 
     // reset last sel recid
@@ -916,6 +939,9 @@ window.AssignPetsGridRecords = function() {
     // assign record in grid
     reassignGridRecids(grid.name);
 
+    // Display row with light red background if it have error
+    displayRAPetsGridError();
+
     // lock the grid until "Have pets?" checkbox checked.
     lockOnGrid(grid.name);
 };
@@ -924,7 +950,7 @@ window.AssignPetsGridRecords = function() {
 // SavePetsCompData - saves the data on server side
 //------------------------------------------------------------------------------
 window.SavePetsCompData = function() {
-    var compData = getRAFlowCompData("pets", app.raflow.activeFlowID);
+    var compData = getRAFlowCompData("pets");
     return saveActiveCompData(compData, "pets");
 };
 
@@ -935,7 +961,7 @@ window.SavePetsCompData = function() {
 window.GetPetFeeLocalData = function(TMPPETID, TMPASMID, returnIndex) {
     var cloneData = {};
     var foundIndex = -1;
-    var compData = getRAFlowCompData("pets", app.raflow.activeFlowID) || [];
+    var compData = getRAFlowCompData("pets") || [];
     compData.forEach(function(item, index) {
         if (item.TMPPETID == TMPPETID) {
             var feesData = item.Fees || [];
@@ -963,7 +989,7 @@ window.GetPetFeeLocalData = function(TMPPETID, TMPASMID, returnIndex) {
 //                   in local data
 //-----------------------------------------------------------------------------
 window.SetPetFeeLocalData = function(TMPPETID, TMPASMID, petFeeData) {
-    var compData = getRAFlowCompData("pets", app.raflow.activeFlowID);
+    var compData = getRAFlowCompData("pets");
     var pIndex = -1,
         fIndex = -1;
 
@@ -1033,9 +1059,92 @@ window.AssignPetFeesGridRecords = function(TMPPETID) {
 
         // assign recid again
         reassignGridRecids(grid.name);
+
+        // highlight row with light red color if it have error
+        displayRAPetFeesGridError();
     });
 
     // render pet fees grid summary
     RenderPetFeesGridSummary(TMPPETID);
 };
 
+// dispalyRAPeopleGridError
+// It highlights grid's row if it have error
+window.displayRAPetsGridError = function (){
+    // load grid errors if any
+    var g = w2ui.RAPetsGrid;
+    var record, i;
+    for (i = 0; i < g.records.length; i++) {
+        // get record from grid to apply css
+        record = g.get(g.records[i].recid);
+
+        if (!("w2ui" in record)) {
+            record.w2ui = {}; // init w2ui if not present
+        }
+        if (!("class" in record.w2ui)) {
+            record.w2ui.class = ""; // init class string
+        }
+        if (!("style" in record.w2ui)) {
+            record.w2ui.style = {}; // init style object
+        }
+    }
+
+    if (app.raflow.validationErrors.pets) {
+        var pets = app.raflow.validationCheck.errors.pets;
+        for (i = 0; i < pets.length; i++) {
+            var recid = getRecIDFromTMPPETID(g, pets[i].TMPPETID);
+            if (pets[i].total > 0) {
+                g.get(recid).w2ui.style = "background-color: #EEB4B4";
+                g.refreshRow(recid);
+            }else{
+                g.get(recid).w2ui.style = {};
+                g.refreshRow(recid);
+            }
+        }
+    }
+};
+
+window.displayRAPetFeesGridError = function () {
+    // load grid errors if any
+    var g = w2ui.RAPetFeesGrid;
+    var record, i;
+    for (i = 0; i < g.records.length; i++) {
+        // get record from grid to apply css
+        record = g.get(g.records[i].recid);
+
+        if (!("w2ui" in record)) {
+            record.w2ui = {}; // init w2ui if not present
+        }
+        if (!("class" in record.w2ui)) {
+            record.w2ui.class = ""; // init class string
+        }
+        if (!("style" in record.w2ui)) {
+            record.w2ui.style = {}; // init style object
+        }
+    }
+
+    if (app.raflow.validationErrors.pets) {
+        var pets = app.raflow.validationCheck.errors.pets;
+        for (i = 0; i < pets.length; i++) {
+            for (var j = 0; j < pets[i].fees.length; j++) {
+                if (pets[i].fees[j].total > 0) {
+                    var recid = getRecIDFromTMPASMID(g, pets[i].fees[j].TMPASMID);
+                    g.get(recid).w2ui.style = "background-color: #EEB4B4";
+                    g.refreshRow(recid);
+                }
+            }
+        }
+    }
+};
+
+// getRecIDFromTMPPETID It returns recid of grid record which matches TMPTCID
+window.getRecIDFromTMPPETID = function(grid, TMPPETID){
+    // var g = w2ui.RAPeopleGrid;
+    var recid;
+    for (var i = 0; i < grid.records.length; i++) {
+        if (grid.records[i].TMPPETID === TMPPETID) {
+            recid = grid.records[i].recid;
+        }
+    }
+    return recid;
+};

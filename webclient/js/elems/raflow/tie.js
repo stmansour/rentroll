@@ -1,7 +1,7 @@
 /* global
     getRAFlowCompData, reassignGridRecids,
     GetTiePeopleLocalData, SetTiePeopleLocalData, AssignTiePeopleGridRecords, SaveTiePeopleData,
-    getFullName
+    getFullName, dispalyRATiePeopleGridError, getRecIDFromTMPTCID
 */
 
 "use strict";
@@ -52,14 +52,14 @@ window.loadRATieSection = function () {
             header: 'People Tie',
             show: {
                 toolbar:    false,
-                footer:     true,
+                footer:     true
             },
             multiSelect: false,
             style: 'display: block;',
             columns: [
                 {
                     field: 'recid',
-                    hidden: true,
+                    hidden: true
                 },
                 {
                     field: 'BID',
@@ -72,6 +72,28 @@ window.loadRATieSection = function () {
                 {
                     field: 'PRID',
                     hidden: true
+                },
+                {
+                    field: 'haveError',
+                    size: '30px',
+                    hidden: false,
+                    render: function (record) {
+                        var haveError = false;
+                        if (app.raflow.validationErrors.tie) {
+                            var tiePeople = app.raflow.validationCheck.errors.tie.people;
+                            for (var i = 0; i < tiePeople.length; i++) {
+                                if (tiePeople[i].TMPTCID === record.TMPTCID && tiePeople[i].total > 0) {
+                                    haveError = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (haveError) {
+                            return '<i class="fas fa-exclamation-triangle" title="error"></i>';
+                        } else {
+                            return "";
+                        }
+                    }
                 },
                 {
                     field: 'FullName',
@@ -139,7 +161,7 @@ window.GetTiePeopleLocalData = function(TMPTCID, returnIndex) {
     var cloneData = {};
     var foundIndex = -1;
 
-    var compData = getRAFlowCompData("tie", app.raflow.activeFlowID);
+    var compData = getRAFlowCompData("tie");
     var tiePeopleData = compData.people || [];
 
     tiePeopleData.forEach(function(item, index) {
@@ -163,7 +185,7 @@ window.GetTiePeopleLocalData = function(TMPTCID, returnIndex) {
 //                      for requested TMPTCID by matching TMPTCID
 //-----------------------------------------------------------------------------
 window.SetTiePeopleLocalData = function(TMPTCID, data) {
-    var compData = getRAFlowCompData("tie", app.raflow.activeFlowID);
+    var compData = getRAFlowCompData("tie");
     var tiePeopleData = compData.people || [];
 
     var dataIndex = -1;
@@ -189,7 +211,7 @@ window.SetTiePeopleLocalData = function(TMPTCID, data) {
 // -------------------------------------------------------------------------------
 window.AssignTiePeopleGridRecords = function() {
     var BID = getCurrentBID();
-    var peopleCompData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
+    var peopleCompData = getRAFlowCompData("people") || [];
     var grid = w2ui.RATiePeopleGrid,
         tieGridRecords = [];
 
@@ -259,6 +281,9 @@ window.AssignTiePeopleGridRecords = function() {
         grid.getColumn("ParentRentableName").editable.items = app.raflow.parentRentableW2UIItems;
         grid.getColumn("ParentRentableName").render();
 
+        // display row with light red background if it have error
+        dispalyRATiePeopleGridError();
+
     } else {
         grid.clear();
     }
@@ -273,7 +298,7 @@ window.AssignTiePeopleGridRecords = function() {
 //                       modified data on the server via API
 //-----------------------------------------------------------------------------
 window.SaveTiePeopleData = function() {
-    var compData = getRAFlowCompData("tie", app.raflow.activeFlowID),
+    var compData = getRAFlowCompData("tie"),
         tiePeopleData = compData.people || [],
         dataToSaveFlag = false,
         gridRecords = w2ui.RATiePeopleGrid.records || [];
@@ -315,3 +340,46 @@ window.SaveTiePeopleData = function() {
     }
 };
 
+// dispalyRATiePeopleGridError
+// It highlights grid's row if it have error
+window.dispalyRATiePeopleGridError = function (){
+    // load grid errors if any
+    var g = w2ui.RATiePeopleGrid;
+    var record, i;
+    for (i = 0; i < g.records.length; i++) {
+        // get record from grid to apply css
+        record = g.get(g.records[i].recid);
+
+        if (!("w2ui" in record)) {
+            record.w2ui = {}; // init w2ui if not present
+        }
+        if (!("class" in record.w2ui)) {
+            record.w2ui.class = ""; // init class string
+        }
+        if (!("style" in record.w2ui)) {
+            record.w2ui.style = {}; // init style object
+        }
+    }
+
+    if (app.raflow.validationErrors.tie) {
+        var tie = app.raflow.validationCheck.errors.tie.people;
+        for (i = 0; i < tie.length; i++) {
+            if (tie[i].total > 0) {
+                var recid = getRecIDFromTMPTCID(g, tie[i].TMPTCID);
+                g.get(recid).w2ui.style = "background-color: #EEB4B4";
+                g.refreshRow(recid);
+            }
+        }
+    }
+};
+
+// getRecIDFromRID It returns recid of grid record which matches TMPTCID
+window.getRecIDFromTMPTCID = function(grid, TMPTCID){
+    var recid;
+    for (var i = 0; i < grid.records.length; i++) {
+        if (grid.records[i].TMPTCID === TMPTCID) {
+            recid = grid.records[i].recid;
+        }
+    }
+    return recid;
+};

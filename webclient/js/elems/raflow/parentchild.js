@@ -1,5 +1,5 @@
 /* global
-    saveActiveCompData, getRAFlowCompData,
+    saveActiveCompData, getRAFlowCompData, getRecIDFromCRID, dispalyRAParentChildGridError,
     getChildRentableLocalData, setChildRentableLocalData, saveParentChildCompData
 */
 
@@ -25,7 +25,7 @@ window.loadRAPeopleChildSection = function () {
             columns: [
                 {
                     field: 'recid',
-                    hidden: true,
+                    hidden: true
                 },
                 {
                     field: 'BID',
@@ -38,6 +38,28 @@ window.loadRAPeopleChildSection = function () {
                 {
                     field: 'PRID',
                     hidden: true
+                },
+                {
+                    field: 'haveError',
+                    size: '30px',
+                    hidden: false,
+                    render: function (record) {
+                        var haveError = false;
+                        if (app.raflow.validationErrors.parentchild) {
+                            var parentchild = app.raflow.validationCheck.errors.parentchild;
+                            for (var i = 0; i < parentchild.length; i++) {
+                                if (parentchild[i].PRID === record.PRID && parentchild[i].CRID === record.CRID && parentchild[i].total > 0) {
+                                    haveError = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (haveError) {
+                            return '<i class="fas fa-exclamation-triangle" title="error"></i>';
+                        } else {
+                            return "";
+                        }
+                    }
                 },
                 {
                     field: 'ChildRentableName',
@@ -91,8 +113,8 @@ window.loadRAPeopleChildSection = function () {
     }
 
     // prepare parent and child rentable list based on rentables section data
-    var rentableCompData = getRAFlowCompData("rentables", app.raflow.activeFlowID) || [],
-        compData = getRAFlowCompData("parentchild", app.raflow.activeFlowID) || [],
+    var rentableCompData = getRAFlowCompData("rentables") || [],
+        compData = getRAFlowCompData("parentchild") || [],
         recidCounter = 1, // always starts with 1
         BID = getCurrentBID(),
         gridRecords = [];
@@ -166,6 +188,9 @@ window.loadRAPeopleChildSection = function () {
         grid.getColumn("ParentRentableName").editable.items = app.raflow.parentRentableW2UIItems;
         grid.getColumn("ParentRentableName").render();
 
+        // display row with light red background if it have error
+        dispalyRAParentChildGridError();
+
         // save the data if it's been modified
         saveParentChildCompData();
 
@@ -179,7 +204,7 @@ window.loadRAPeopleChildSection = function () {
 //                           modified data on the server via API
 //-----------------------------------------------------------------------------
 window.saveParentChildCompData = function() {
-    var compData = getRAFlowCompData("parentchild", app.raflow.activeFlowID) || [],
+    var compData = getRAFlowCompData("parentchild") || [],
         dataToSaveFlag = false,
         gridRecords = w2ui.RAParentChildGrid.records || [];
 
@@ -213,7 +238,7 @@ window.saveParentChildCompData = function() {
         });
 
         // set this to it's position
-        app.raflow.data[app.raflow.activeFlowID].parentchild = modCompData;
+        app.raflow.Flow.parentchild = modCompData;
 
         // now hit the server API to save
         saveActiveCompData(modCompData, "parentchild");
@@ -227,7 +252,7 @@ window.saveParentChildCompData = function() {
 window.getChildRentableLocalData = function(RID, returnIndex) {
     var cloneData = {};
     var foundIndex = -1;
-    var compData = getRAFlowCompData("parentchild", app.raflow.activeFlowID);
+    var compData = getRAFlowCompData("parentchild");
     compData.forEach(function(item, index) {
         if (item.CRID == RID) {
             if (returnIndex) {
@@ -249,7 +274,7 @@ window.getChildRentableLocalData = function(RID, returnIndex) {
 //                              for requested RID by matching CRID
 //-----------------------------------------------------------------------------
 window.setChildRentableLocalData = function(RID, data) {
-    var compData = getRAFlowCompData("parentchild", app.raflow.activeFlowID);
+    var compData = getRAFlowCompData("parentchild");
     var dataIndex = -1;
     compData.forEach(function(item, index) {
         if (item.CRID == RID) {
@@ -262,4 +287,48 @@ window.setChildRentableLocalData = function(RID, data) {
     } else {
         compData.push(data);
     }
+};
+
+// dispalyRARentablesGridError
+// It highlights grid's row if it have error
+window.dispalyRAParentChildGridError = function (){
+    // load grid errors if any
+    var g = w2ui.RAParentChildGrid;
+    var record, i;
+    for (i = 0; i < g.records.length; i++) {
+        // get record from grid to apply css
+        record = g.get(g.records[i].recid);
+
+        if (!("w2ui" in record)) {
+            record.w2ui = {}; // init w2ui if not present
+        }
+        if (!("class" in record.w2ui)) {
+            record.w2ui.class = ""; // init class string
+        }
+        if (!("style" in record.w2ui)) {
+            record.w2ui.style = {}; // init style object
+        }
+    }
+
+    if (app.raflow.validationErrors.parentchild) {
+        var parentchild = app.raflow.validationCheck.errors.parentchild;
+        for (i = 0; i < parentchild.length; i++) {
+            if (parentchild[i].total > 0) {
+                var recid = getRecIDFromCRID(g, parentchild[i].CRID);
+                g.get(recid).w2ui.style = "background-color: #EEB4B4";
+                g.refreshRow(recid);
+            }
+        }
+    }
+};
+
+// getRecIDFromRID It returns recid of grid record which matches TMPTCID
+window.getRecIDFromCRID = function(grid, CRID){
+    var recid;
+    for (var i = 0; i < grid.records.length; i++) {
+        if (grid.records[i].CRID === CRID) {
+            recid = grid.records[i].recid;
+        }
+    }
+    return recid;
 };

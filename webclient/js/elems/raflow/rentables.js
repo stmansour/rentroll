@@ -7,11 +7,12 @@
     SaveRentableCompData, SetRentableFeeLocalData, GetRentableFeeLocalData,
     ridRentablePickerRender, ridRentableDropRender, ridRentableCompare,
     AssignRentableGridRecords, AssignRentableFeesGridRecords,
-    SetRentableAmountsFromFees, manageParentRentableW2UIItems,
+    SetRentableAmountsFromFees, manageParentRentableW2UIItems, getRecIDFromTMPASMID,
     RenderRentablesGridSummary, GetFeeFormFields, GetFeeGridColumns,
-    SetFeeDataFromFeeFormRecord, SetFeeFormRecordFromFeeData,
-    FeeFormOnChangeHandler, GetFeeFormToolbar, FeeFormOnRefreshHandler,
-    GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary, updateFlowData
+    SetFeeDataFromFeeFormRecord, SetFeeFormRecordFromFeeData, displayRARentableFeesGridError,
+    FeeFormOnChangeHandler, GetFeeFormToolbar, FeeFormOnRefreshHandler, getRecIDFromRID,
+    GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary, updateFlowData, dispalyRARentablesGridError,
+    GetCurrentFlowID
 */
 
 "use strict";
@@ -20,7 +21,8 @@
 // getInitialRentableFeesData - pull down all fees records for the requested RID
 // @params - RID
 // -------------------------------------------------------------------------------
-window.getInitialRentableFeesData = function(BID, RID, FlowID) {
+window.getInitialRentableFeesData = function(BID, RID) {
+    var FlowID = GetCurrentFlowID();
     var data = {"RID": RID, "FlowID": FlowID};
     return $.ajax({
         url: "/v1/raflow-rentable-fees/" + BID.toString() + "/" + FlowID.toString(),
@@ -134,6 +136,28 @@ window.loadRARentablesGrid = function () {
                     hidden: true
                 },
                 {
+                    field: 'haveError',
+                    size: '30px',
+                    hidden: false,
+                    render: function (record) {
+                        var haveError = false;
+                        if (app.raflow.validationErrors.rentables) {
+                            var rentables = app.raflow.validationCheck.errors.rentables;
+                            for (var i = 0; i < rentables.length; i++) {
+                                if (rentables[i].RID === record.RID && rentables[i].total > 0) {
+                                    haveError = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (haveError) {
+                            return '<i class="fas fa-exclamation-triangle" title="error"></i>';
+                        } else {
+                            return "";
+                        }
+                    }
+                },
+                {
                     field: 'RentableName',
                     caption: 'Rentable',
                     size: '100%'
@@ -228,7 +252,7 @@ window.loadRARentablesGrid = function () {
                         var index = GetRentableLocalData(rec.RID, true);
 
                         // also manage local data
-                        var compData = getRAFlowCompData("rentables", app.raflow.activeFlowID);
+                        var compData = getRAFlowCompData("rentables");
                         compData.splice(index, 1);
 
                         // save data on server
@@ -277,7 +301,7 @@ window.loadRARentablesGrid = function () {
                             } else {
                                 // pull fees in case it's empty
                                 var BID = getCurrentBID();
-                                getInitialRentableFeesData(BID, rec.RID, app.raflow.activeFlowID)
+                                getInitialRentableFeesData(BID, rec.RID)
                                 .done(function(data) {
                                     if (data.status === "success") {
                                         // re-render fees grid records
@@ -622,7 +646,7 @@ window.loadRARentablesGrid = function () {
 //                               copy of flow data
 //-----------------------------------------------------------------------------
 window.AssignRentableGridRecords = function() {
-    var compData = getRAFlowCompData("rentables", app.raflow.activeFlowID);
+    var compData = getRAFlowCompData("rentables");
     if (compData) {
         w2ui.RARentablesGrid.records = compData;
         reassignGridRecids(w2ui.RARentablesGrid.name);
@@ -635,6 +659,9 @@ window.AssignRentableGridRecords = function() {
 
         // Render RentableGrid Summary
         RenderRentablesGridSummary();
+
+        // display row with light red background if it have error
+        dispalyRARentablesGridError();
 
     } else {
         w2ui.RARentablesGrid.clear();
@@ -694,7 +721,7 @@ window.SetRentableAmountsFromFees = function(RID) {
 //                             comp data
 //-----------------------------------------------------------------------------
 window.RenderRentablesGridSummary = function() {
-    var compData = getRAFlowCompData("rentables", app.raflow.activeFlowID) || [];
+    var compData = getRAFlowCompData("rentables") || [];
     var grid = w2ui.RARentablesGrid;
 
     // summary record in fees grid
@@ -765,6 +792,9 @@ window.AssignRentableFeesGridRecords = function(RID) {
         }
     });
 
+    // It highlight row with light red color if it have error
+    displayRARentableFeesGridError();
+
     if (foundRIDIndex > -1) {
         var rentableGridRec = w2ui.RARentablesGrid.get(foundRIDIndex);
         var summaryRec = grid.summary[0]; //only one summary we have
@@ -807,7 +837,7 @@ window.AcceptRentable = function () {
         var BID     = getCurrentBID(),
             fRec    = w2ui.RARentableSearchForm.record;
 
-        getInitialRentableFeesData(BID, fRec.RID, app.raflow.activeFlowID)
+        getInitialRentableFeesData(BID, fRec.RID)
         .done(function(data) {
             if (data.status === "success") {
                 // reset the form
@@ -845,7 +875,7 @@ window.manageParentRentableW2UIItems = function() {
     };
 
     // get comp data
-    var rentableCompData = getRAFlowCompData("rentables", app.raflow.activeFlowID) || [];
+    var rentableCompData = getRAFlowCompData("rentables") || [];
 
     // first build the list of parent rentables and sort it out in asc order of RID
     rentableCompData.forEach(function(rentableItem) {
@@ -883,7 +913,7 @@ window.manageParentRentableW2UIItems = function() {
 // SaveRentableCompData - saves the data on server side
 //------------------------------------------------------------------------------
 window.SaveRentableCompData = function() {
-    var compData = getRAFlowCompData("rentables", app.raflow.activeFlowID);
+    var compData = getRAFlowCompData("rentables");
     return saveActiveCompData(compData, "rentables");
 };
 
@@ -894,7 +924,7 @@ window.SaveRentableCompData = function() {
 window.GetRentableLocalData = function(RID, returnIndex) {
     var cloneData = {};
     var foundIndex = -1;
-    var compData = getRAFlowCompData("rentables", app.raflow.activeFlowID);
+    var compData = getRAFlowCompData("rentables");
     compData.forEach(function(item, index) {
         if (item.RID == RID) {
             if (returnIndex) {
@@ -915,7 +945,7 @@ window.GetRentableLocalData = function(RID, returnIndex) {
 // SetRentableLocalData - save the data for requested RID in local data
 //-----------------------------------------------------------------------------
 window.SetRentableLocalData = function(RID, rentableData) {
-    var compData = getRAFlowCompData("rentables", app.raflow.activeFlowID);
+    var compData = getRAFlowCompData("rentables");
     var dataIndex = -1;
     compData.forEach(function(item, index) {
         if (item.RID == RID) {
@@ -943,7 +973,7 @@ window.SetRentableLocalData = function(RID, rentableData) {
 window.GetRentableFeeLocalData = function(RID, TMPASMID, returnIndex) {
     var cloneData = {};
     var foundIndex = -1;
-    var compData = getRAFlowCompData("rentables", app.raflow.activeFlowID);
+    var compData = getRAFlowCompData("rentables");
     compData.forEach(function(item) {
         if (item.RID == RID) {
             var feesData = item.Fees || [];
@@ -971,7 +1001,7 @@ window.GetRentableFeeLocalData = function(RID, TMPASMID, returnIndex) {
 //                           requested RID in local data
 //-----------------------------------------------------------------------------
 window.SetRentableFeeLocalData = function(RID, TMPASMID, rentableFeeData) {
-    var compData    = getRAFlowCompData("rentables", app.raflow.activeFlowID),
+    var compData    = getRAFlowCompData("rentables"),
         rIndex      = -1,
         fIndex      = -1;
 
@@ -998,4 +1028,83 @@ window.SetRentableFeeLocalData = function(RID, TMPASMID, rentableFeeData) {
             compData[rIndex].Fees.push(rentableFeeData);
         }
     }
+};
+
+// dispalyRARentablesGridError
+// It highlights grid's row if it have error
+window.dispalyRARentablesGridError = function (){
+    // load grid errors if any
+    var g = w2ui.RARentablesGrid;
+    var record, i;
+    for (i = 0; i < g.records.length; i++) {
+        // get record from grid to apply css
+        record = g.get(g.records[i].recid);
+
+        if (!("w2ui" in record)) {
+            record.w2ui = {}; // init w2ui if not present
+        }
+        if (!("class" in record.w2ui)) {
+            record.w2ui.class = ""; // init class string
+        }
+        if (!("style" in record.w2ui)) {
+            record.w2ui.style = {}; // init style object
+        }
+    }
+
+    if (app.raflow.validationErrors.rentables) {
+        var rentables = app.raflow.validationCheck.errors.rentables;
+        for (i = 0; i < rentables.length; i++) {
+            if (rentables[i].total > 0) {
+                var recid = getRecIDFromRID(g, rentables[i].RID);
+                g.get(recid).w2ui.style = "background-color: #EEB4B4";
+                g.refreshRow(recid);
+            }
+        }
+    }
+};
+
+// displayRARentableFeesGridError It highlight row with light red color if it have error
+window.displayRARentableFeesGridError = function () {
+    // load grid errors if any
+    var g = w2ui.RARentableFeesGrid;
+    var record, i;
+    for (i = 0; i < g.records.length; i++) {
+        // get record from grid to apply css
+        record = g.get(g.records[i].recid);
+
+        if (!("w2ui" in record)) {
+            record.w2ui = {}; // init w2ui if not present
+        }
+        if (!("class" in record.w2ui)) {
+            record.w2ui.class = ""; // init class string
+        }
+        if (!("style" in record.w2ui)) {
+            record.w2ui.style = {}; // init style object
+        }
+    }
+
+    if (app.raflow.validationErrors.rentables) {
+        var rentables = app.raflow.validationCheck.errors.rentables;
+        for (i = 0; i < rentables.length; i++) {
+            for (var j = 0; j < rentables[i].fees.length; j++) {
+                if (rentables[i].fees[j].total > 0) {
+                    var recid = getRecIDFromTMPASMID(g, rentables[i].fees[j].TMPASMID);
+                    g.get(recid).w2ui.style = "background-color: #EEB4B4";
+                    g.refreshRow(recid);
+                }
+            }
+        }
+    }
+};
+
+// getRecIDFromRID It returns recid of grid record which matches TMPTCID
+window.getRecIDFromRID = function(grid, RID){
+    // var g = w2ui.RAPeopleGrid;
+    var recid;
+    for (var i = 0; i < grid.records.length; i++) {
+        if (grid.records[i].RID === RID) {
+            recid = grid.records[i].recid;
+        }
+    }
+    return recid;
 };
