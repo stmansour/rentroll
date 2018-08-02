@@ -459,14 +459,6 @@ window.loadRAVehiclesGrid = function () {
             },
             onChange: function(event) {
                 event.onComplete = function() {
-                    // if contact person is changed then hit the server to re-calculate fees
-                    if (event.target === "TMPTCID") {
-                        var TMPTCID = parseInt(event.value_new.id),
-                            TMPVID = this.record.TMPVID;
-
-                        // re calculate fees if person is changed
-                        RecalculateVehicleFees(TMPVID, TMPTCID);
-                    }
 
                     // formRecDiffer: 1=current record, 2=original record, 3=diff object
                     var diff = formRecDiffer(this.record, app.active_form_original, {});

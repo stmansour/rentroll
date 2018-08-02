@@ -229,11 +229,8 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 			// create new pet info
 			var newRAFlowPet rlib.RAPetsFlowData
 
-			// get tied-up rentable with this person
-			RID := getTiedUpContactPersonRentable(personTMPTCID, raFlowData.Tie)
-
 			// get new pet with some initial data
-			newRAFlowPet, err = rlib.NewRAFlowPet(ctx, d.BID, RID,
+			newRAFlowPet, err = rlib.NewRAFlowPet(ctx, d.BID,
 				raFlowData.Dates.RentStart, raFlowData.Dates.RentStop,
 				raFlowData.Dates.PossessionStart, raFlowData.Dates.PossessionStop,
 				&modRAFlowMeta)
@@ -296,11 +293,8 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 			// create new pet info
 			var newRAFlowVehicle rlib.RAVehiclesFlowData
 
-			// get tied-up rentable with this person
-			RID := getTiedUpContactPersonRentable(personTMPTCID, raFlowData.Tie)
-
 			// get new vehicle with some initial data
-			newRAFlowVehicle, err = rlib.NewRAFlowVehicle(ctx, d.BID, RID,
+			newRAFlowVehicle, err = rlib.NewRAFlowVehicle(ctx, d.BID,
 				raFlowData.Dates.RentStart, raFlowData.Dates.RentStop,
 				raFlowData.Dates.PossessionStart, raFlowData.Dates.PossessionStop,
 				&modRAFlowMeta)
@@ -559,17 +553,5 @@ func DeleteRAFlowPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 	// WRITE FLOW RESPONSE
 	// -------------------
 	SvcWriteFlowResponse(ctx, d.BID, flow, w)
-	return
-}
-
-// getTiedUpContactPersonRentable returns rentable tied up with
-// contact person from tie-up data in raflow
-func getTiedUpContactPersonRentable(TMPTCID int64, raflowTie rlib.RATieFlowData) (RID int64) {
-	for i := range raflowTie.People {
-		if TMPTCID == raflowTie.People[i].TMPTCID {
-			RID = raflowTie.People[i].PRID
-			return
-		}
-	}
 	return
 }
