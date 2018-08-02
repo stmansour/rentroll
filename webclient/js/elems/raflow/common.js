@@ -291,7 +291,7 @@ window.GetRAFlowDataAjax = function(FlowID, RAID) {
         "cmd":      "get",
         "FlowID":   FlowID,
         "RAID":     RAID,
-        "Mode":     "view",
+        "Version":  "raid",
         "FlowType": "RA"
     };
 

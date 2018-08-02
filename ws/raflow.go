@@ -145,7 +145,6 @@ func GetAllRAFlows(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	// get where clause and order clause for sql query
 	whereClause, orderClause := GetSearchAndSortSQL(d, RAFlowGridFieldsMap)
-	fmt.Println(whereClause)
 	if len(whereClause) > 0 {
 		srch += " AND (" + whereClause + ")"
 	}
@@ -233,7 +232,7 @@ func GetAllRAFlows(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 type GetRAFlowRequest struct {
 	UserRefNo string
 	RAID      int64
-	Mode      string // view or edit
+	Version   string // "raid" or "refno"
 }
 
 // GetRAFlow returns all existing Rental Agreements and all Flows
@@ -267,9 +266,9 @@ func GetRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	// IF REQUEST IS TO GET DATA FOR RENTAL AGREEMENT
-	if req.RAID > 0 {
-
+	// BASED ON MODE DO OPERATION
+	switch req.Version {
+	case "raid":
 		// GET RENTAL AGREEMENT
 		var ra rlib.RentalAgreement
 		ra, err = rlib.GetRentalAgreement(ctx, req.RAID)
@@ -281,87 +280,79 @@ func GetRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			return
 		}
 
-		// BASED ON MODE DO OPERATION
-		switch req.Mode {
-		case "view":
-			// convert permanent ra to flow data and get it
-			var raf rlib.RAFlowJSONData
-			raf, err = rlib.ConvertRA2Flow(ctx, &ra)
-			if err != nil {
-				return
-			}
-
-			//-------------------------------------------------------------------------
-			// Save the flow to the db
-			//-------------------------------------------------------------------------
-			var raflowJSONData []byte
-			raflowJSONData, err = json.Marshal(&raf)
-			if err != nil {
-				return
-			}
-
-			//-------------------------------------------------------------------------
-			// Fill out the datastructure and save it to the db as a flow...
-			//-------------------------------------------------------------------------
-			flow = rlib.Flow{
-				BID:       ra.BID,
-				FlowID:    0, // we're not creating any flow, just to see RA content
-				UserRefNo: "",
-				FlowType:  rlib.RAFlow,
-				ID:        ra.RAID,
-				Data:      raflowJSONData,
-				CreateBy:  0,
-				LastModBy: 0,
-			}
-
-			// -------------------
-			// WRITE FLOW RESPONSE
-			// -------------------
-			SvcWriteFlowResponse(ctx, d.BID, flow, w)
+		// convert permanent ra to flow data and get it
+		var raf rlib.RAFlowJSONData
+		raf, err = rlib.ConvertRA2Flow(ctx, &ra)
+		if err != nil {
 			return
+		}
 
-		case "edit":
-			// GET FLOW FOR THIS RA
-			flow, err = rlib.GetFlowForRAID(ctx, "RA", ra.RAID)
-			if err != nil {
-				return
-			}
-
-			if flow.ID == ra.RAID {
-				// -------------------
-				// WRITE FLOW RESPONSE
-				// -------------------
-				SvcWriteFlowResponse(ctx, d.BID, flow, w)
-				return
-			}
-
-			// GET THE NEW FLOW ID CREATED USING PERMANENT DATA
-			flowID, err := GetRA2FlowCore(ctx, &ra, d.sess.UID)
-			if err != nil {
-				return
-			}
-
-			// GET GENERATED FLOW USING NEW ID
-			flow, err = rlib.GetFlow(ctx, flowID)
-			if err != nil {
-				return
-			}
-
-			// -------------------
-			// WRITE FLOW RESPONSE
-			// -------------------
-			SvcWriteFlowResponse(ctx, d.BID, flow, w)
+		//-------------------------------------------------------------------------
+		// Save the flow to the db
+		//-------------------------------------------------------------------------
+		var raflowJSONData []byte
+		raflowJSONData, err = json.Marshal(&raf)
+		if err != nil {
 			return
+		}
 
-		default:
-			err = fmt.Errorf("Invalid mode to get raflow for RAID: %d", req.RAID)
-			return
-		} // SWITCH FOR MODE ENDS HERE ///////
+		//-------------------------------------------------------------------------
+		// Fill out the datastructure and save it to the db as a flow...
+		//-------------------------------------------------------------------------
+		flow = rlib.Flow{
+			BID:       ra.BID,
+			FlowID:    0, // we're not creating any flow, just to see RA content
+			UserRefNo: "",
+			FlowType:  rlib.RAFlow,
+			ID:        ra.RAID,
+			Data:      raflowJSONData,
+			CreateBy:  0,
+			LastModBy: 0,
+		}
 
-	} else { // IT'S FOR FLOW
+		// -------------------
+		// WRITE FLOW RESPONSE
+		// -------------------
+		SvcWriteFlowResponse(ctx, d.BID, flow, w)
+		return
 
+	case "refno":
 		// GET THE FLOW BY REFERENCE NO IF RAID == 0
 		flow, err = rlib.GetFlowByUserRefNo(ctx, d.BID, req.UserRefNo)
+		if err != nil {
+			return
+		}
+
+		// IF FLOW FOUND WITH REF.NO THEN RETURN THE RESPONSE
+		if flow.FlowID > 0 {
+			// -------------------
+			// WRITE FLOW RESPONSE
+			// -------------------
+			SvcWriteFlowResponse(ctx, d.BID, flow, w)
+			return
+		}
+
+		// IF NOT FOUND THEN TRY TO CREATE NEW ONE FROM RAID
+		// GET RENTAL AGREEMENT
+		var ra rlib.RentalAgreement
+		ra, err = rlib.GetRentalAgreement(ctx, req.RAID)
+		if err != nil {
+			return
+		}
+		if ra.RAID == 0 {
+			err = fmt.Errorf("Rental Agreement not found with given RAID: %d", req.RAID)
+			return
+		}
+
+		// GET THE NEW FLOW ID CREATED USING PERMANENT DATA
+		var flowID int64
+		flowID, err = GetRA2FlowCore(ctx, &ra, d.sess.UID)
+		if err != nil {
+			return
+		}
+
+		// GET GENERATED FLOW USING NEW ID
+		flow, err = rlib.GetFlow(ctx, flowID)
 		if err != nil {
 			return
 		}
@@ -370,6 +361,10 @@ func GetRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// WRITE FLOW RESPONSE
 		// -------------------
 		SvcWriteFlowResponse(ctx, d.BID, flow, w)
+		return
+
+	default:
+		err = fmt.Errorf("Invalid version to get raflow for RAID: %d", req.RAID)
 		return
 	}
 }
