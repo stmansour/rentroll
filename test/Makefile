@@ -13,6 +13,7 @@ clean:
 	cd ./importers/onesite/okc;make clean
 	cd ./tws2;make clean
 	cd ./webclient;make clean
+	@cd ./sqlschema;make clean
 	@echo "*** CLEAN completed in test ***"
 
 test: validate functest

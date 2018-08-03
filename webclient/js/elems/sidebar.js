@@ -29,9 +29,7 @@ window.buildSidebar = function(flag) {
                 },
                 { id: 'rentagr', text: plural(app.sRentalAgreement), img: 'icon-folder', expanded: true, group: true,
                     nodes: [
-                            { id: 'applicants',   text: plural(app.sApplicant),          icon: 'fas fa-certificate', hint: 'Rental Agreements' },
-                            { id: 'ra2flow',      text: plural(app.sRentalAgreement) + "2", icon: 'fas fa-certificate', hint: 'Rental Agreements' },
-                            { id: 'rentalagrs',   text: plural(app.sRentalAgreement),    icon: 'fas fa-certificate', hint: 'Rental Agreements' },
+                            { id: 'applicants',   text: plural(app.sRentalAgreement),          icon: 'fas fa-certificate', hint: 'Rental Agreements' },
                             { id: 'transactants', text: plural(app.sTransactant),        icon: 'fas fa-users' },
                             // { id: 'assignrnt',    text: 'Assign A ' + app.sRentable,     icon: 'far fa-check-square' },
                             // { id: 'movein',       text: app.sTransactant + ' Arrival',   icon: 'fas fa-sign-in-alt' },

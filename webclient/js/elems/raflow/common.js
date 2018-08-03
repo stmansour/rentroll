@@ -1,13 +1,42 @@
 /* global
-    RACompConfig, HideSliderContent, appendNewSlider, ShowSliderContentW2UIComp,
-    loadTargetSection, requiredFieldsFulFilled, initRAFlowAjax, getRecIDFromTMPASMID
+    RACompConfig, HideSliderContent, appendNewSlider, ShowSliderContentW2UIComp, displayFormFieldsError,
+    loadTargetSection, requiredFieldsFulFilled, initRAFlowAjax, getRecIDFromTMPASMID, getFeeIndex,
     saveActiveCompData, getRAFlowCompData, displayActiveComponentError, displayRAPetsGridError, dispalyRAPeopleGridError,
     lockOnGrid, getApprovals, updateFlowData, updateFlowCopy, displayErrorDot, initBizErrors,
     dispalyRARentablesGridError, dispalyRAVehiclesGridError, dispalyRAParentChildGridError, dispalyRATiePeopleGridError,
-    GetCurrentFlowID, FlowFilled, ReassignPeopleGridRecords, AssignPetsGridRecords, AssignVehiclesGridRecords, AssignRentableGridRecords
+    GetCurrentFlowID, FlowFilled, ReassignPeopleGridRecords, AssignPetsGridRecords, AssignVehiclesGridRecords, AssignRentableGridRecords,
+    GetGridToolbarAddButtonID, HideRAFlowLoader
 */
 
 "use strict";
+
+//-----------------------------------------------------------------------------
+// GetRefNoByRAIDFromGrid returns UserRefNo By RAID from applicantsGrid RECORDS
+//-----------------------------------------------------------------------------
+window.GetRefNoByRAIDFromGrid = function(RAID) {
+    var RefNo = "";
+    w2ui.applicantsGrid.records.forEach(function(gridRec) {
+        if (gridRec.RAID == RAID) {
+            RefNo = gridRec.UserRefNo;
+            return;
+        }
+    });
+    return RefNo;
+};
+
+//-----------------------------------------------------------------------------
+// GetRAIDByRefNoFromGrid returns RAID By UserRefNo from applicantsGrid RECORDS
+//-----------------------------------------------------------------------------
+window.GetRAIDByRefNoFromGrid = function(RefNo) {
+    var RAID = -1;
+    w2ui.applicantsGrid.records.forEach(function(gridRec) {
+        if (gridRec.UserRefNo == RefNo) {
+            RAID = gridRec.RAID;
+            return;
+        }
+    });
+    return RAID;
+};
 
 //-----------------------------------------------------------------------------
 // GetCurrentFlowID returns current flow ID
@@ -220,6 +249,11 @@ window.setRAFlowCompData = function (compKey, data) {
 //-----------------------------------------------------------------------------
 window.saveActiveCompData = function (compData, compID) {
 
+    // IF RAID VERSION THEN DON"T DO ANYTHING
+    if (app.raflow.version === "raid") {
+        return;
+    }
+
     var bid = getCurrentBID();
     var FlowID = GetCurrentFlowID();
 
@@ -269,6 +303,7 @@ window.initRAFlowAjax = function () {
         data: JSON.stringify({"cmd": "init", "FlowType": app.raflow.name}),
         success: function (data) {
             if (data.status != "error") {
+                app.raflow.version = "refno";
                 // Update flow local copy and green checks
                 updateFlowData(data);
             }
@@ -280,29 +315,66 @@ window.initRAFlowAjax = function () {
 };
 
 //-----------------------------------------------------------------------------
-// getFlowDataAjax - get the ajax data from the server and returns ajax promise
+// GetRAFlowDataAjax - get the ajax data from the server and returns ajax promise
 //
 // @params
-//   FlowID = ID of the flow
+//   RefNo      = User Ref no of the raflow
+//   RAID       = Rental Agreement
+//   version    = which version of raflow
 //-----------------------------------------------------------------------------
-window.getFlowDataAjax = function(FlowID) {
+window.GetRAFlowDataAjax = function(UserRefNo, RAID, version) {
     var bid = getCurrentBID();
 
+    var reqData = {
+        "cmd":          "get",
+        "UserRefNo":    UserRefNo,
+        "RAID":         RAID,
+        "Version":      version,
+        "FlowType":     "RA"
+    };
+
     return $.ajax({
-        url: "/v1/flow/" + bid.toString() + "/" + FlowID.toString(),
+        url: "/v1/flow/" + bid.toString() + "/",
         method: "POST",
         contentType: "application/json",
         dataType: "json",
-        data: JSON.stringify({"cmd": "get", "FlowID": FlowID}),
+        data: JSON.stringify(reqData),
+        beforeSend: function() {
+            // show the loader
+            HideRAFlowLoader(false);
+            $("#raflow-container .loader").css("display", "flex");
+        },
         success: function (data) {
             if (data.status !== "error") {
+                app.raflow.version = version;
                 updateFlowData(data);
             }
         },
         error: function (data) {
             console.log(data);
+        },
+        complete: function() {
+            // hide the loader
+            HideRAFlowLoader(true);
         }
     });
+};
+
+// HideRAFlowLoader loader to show the progress while fetching data from the server
+// which also disabled the controls in toolbar
+window.HideRAFlowLoader = function(hide) {
+    app.raflow.loading = !hide;
+    if (hide) {
+        if (w2ui.newraLayout) {
+            $(w2ui.newraLayout.get("main").toolbar.box).find("button").prop('disabled', true);
+        }
+        $("#raflow-container .loader").hide();
+    } else {
+        if (w2ui.newraLayout) {
+            $(w2ui.newraLayout.get("main").toolbar.box).find("button").prop('disabled', false);
+        }
+        $("#raflow-container .loader").show();
+    }
 };
 
 // updateFlowData
@@ -317,6 +389,21 @@ window.updateFlowData = function(data){
 // updateFlowCopy
 window.updateFlowCopy = function(flow){
     app.raflow.Flow = flow;
+
+    // ALSO UPDATE THE LOCAL RECORDS IN GRID
+    w2ui.applicantsGrid.records.forEach(function(gridRec) {
+        if (gridRec.UserRefNo === flow.UserRefNo || gridRec.RAID === flow.ID) {
+            if (flow.UserRefNo) { // IF AVAILABLE THEN ONLY SET
+                gridRec.UserRefNo = flow.UserRefNo;
+            }
+            if (flow.ID) { // IF AVAILABLE THEN ONLY SET
+                gridRec.RAID = flow.ID;
+            }
+
+            w2ui.applicantsGrid.refresh();
+            return;
+        }
+    });
 };
 
 // -----------------------------------------------------
@@ -458,6 +545,7 @@ window.loadTargetSection = function (target, previousActiveCompID) {
 // @params
 //   w2uiComp = w2ui component
 //   width    = width to apply to slider content div
+//   sliderID = slider ID (as in stack fashion)
 //-----------------------------------------------------------------------------
 window.ShowSliderContentW2UIComp = function(w2uiComp, width, sliderID) {
     if (!sliderID) {
@@ -470,9 +558,21 @@ window.ShowSliderContentW2UIComp = function(w2uiComp, width, sliderID) {
 };
 
 //-----------------------------------------------------------------------------
+// HideAllSliderContent - hides all slider and empty the content inside
+//                        slider-content div
+//-----------------------------------------------------------------------------
+window.HideAllSliderContent = function() {
+    $("#raflow-container .slider").hide();
+    $("#raflow-container .slider .slider-content").width(0);
+    $("#raflow-container .slider .slider-content").empty();
+};
+
+//-----------------------------------------------------------------------------
 // HideSliderContent - hide the slider and empty the content inside
 //                     slider-content div
 //
+// @params
+//      sliderID = slider ID (as in stack fashion)
 //-----------------------------------------------------------------------------
 window.HideSliderContent = function(sliderID) {
     if (!sliderID) {
@@ -576,4 +676,102 @@ window.getRecIDFromTMPASMID = function(grid, TMPASMID){
         }
     }
     return recid;
+};
+
+// displayFormFieldsError It display form fields error  for record
+window.displayFormFieldsError = function(index, records, formName){
+    // Iterate through fields with errors
+    for(var key in records[index].errors){
+        var field = $("[name=" + formName + "] input#" + key);
+        var error = records[index].errors[key].join(", ");
+
+        field.css("border-color", "red");
+        field.after("<small class='error'>" + error + "</small>");
+    }
+};
+
+// getFeeIndex it return an index of fee which have TMPASMID
+window.getFeeIndex = function (TMPASMID, fees) {
+
+    var index = -1;
+
+    for(var i = 0; i < fees.length; i++){
+        // If TMPASMID doesn't match iterate for next element
+        if(fees[i].TMPASMID === TMPASMID){
+            index = i;
+            break;
+        }
+    }
+
+    return index;
+};
+
+//-----------------------------------------------------------------------
+// EnableDisableRAFlowVersionInputs
+//      enable/disable the inputs of form based on
+//      the current version of raflow.
+//      If "raid" then it'll disable else enable the inputs.
+//
+// @params
+//   form       = w2ui form component
+//-----------------------------------------------------------------------
+window.EnableDisableRAFlowVersionInputs = function(form) {
+    if (app.raflow.version === "raid") { // DISABLE ALL INPUTS & BUTTONS
+        $(form.box).find("input").prop("disabled", true);
+        $(form.box).find("button[class=w2ui-btn]").hide();
+        $(form.box).find("div[class=w2ui-buttons]").hide();
+   } else if (app.raflow.version === "refno") { // ENABLE ALL INPUTS & BUTTONS
+        $(form.box).find("input").not("input[name=BUD]").prop("disabled", false);
+        $(form.box).find("button[class=w2ui-btn]").show();
+        $(form.box).find("div[class=w2ui-buttons]").show();
+   }
+};
+
+//-----------------------------------------------------------------------
+// EnableDisableRAFlowVersionGrid
+//      lock/unlock the entire grid base on the current version of raflow.
+//      If "raid" then it'll disable else enable the inputs.
+//
+// @params
+//   grid       = w2ui grid component
+//-----------------------------------------------------------------------
+window.EnableDisableRAFlowVersionGrid = function(grid) {
+    if (app.raflow.version === "raid") { // DISABLE ALL INPUTS & BUTTONS
+        grid.lock();
+   } else if (app.raflow.version === "refno") { // ENABLE ALL INPUTS & BUTTONS
+        grid.unlock();
+   }
+};
+
+// GetGridToolbarAddButtonID to get the DOM ID of add button in grid by gridName
+window.GetGridToolbarAddButtonID = function(gridName) {
+    return "tb_" + gridName +"_toolbar_item_w2ui-add";
+};
+
+// ShowHideGridToolbarAddButton shows/hides add button based on raflow version
+window.ShowHideGridToolbarAddButton = function(gridName) {
+    var addBtnID = GetGridToolbarAddButtonID(gridName);
+    if (app.raflow.version === "raid") {
+        $("#"+addBtnID).hide();
+    } else if (app.raflow.version === "refno") {
+        $("#"+addBtnID).show();
+    }
+};
+
+//-----------------------------------------------------------------------------
+// DeleteRAFlowAJAX - will request to remove ref.no version raflow
+//-----------------------------------------------------------------------------
+window.DeleteRAFlowAJAX = function (UserRefNo) {
+    var bid = getCurrentBID();
+
+    return $.ajax({
+        url: "/v1/flow/" + bid.toString() + "/0",
+        method: "POST",
+        contentType: "application/json",
+        dataType: "json",
+        data: JSON.stringify({"cmd": "delete", "UserRefNo": UserRefNo}),
+        error: function (data) {
+            console.log(data);
+        }
+    });
 };

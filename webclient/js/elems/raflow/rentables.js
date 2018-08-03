@@ -8,11 +8,13 @@
     ridRentablePickerRender, ridRentableDropRender, ridRentableCompare,
     AssignRentableGridRecords, AssignRentableFeesGridRecords,
     SetRentableAmountsFromFees, manageParentRentableW2UIItems, getRecIDFromTMPASMID,
-    RenderRentablesGridSummary, GetFeeFormFields, GetFeeGridColumns,
+    RenderRentablesGridSummary, GetFeeFormFields, GetFeeGridColumns, getFeeIndex,
     SetFeeDataFromFeeFormRecord, SetFeeFormRecordFromFeeData, displayRARentableFeesGridError,
-    FeeFormOnChangeHandler, GetFeeFormToolbar, FeeFormOnRefreshHandler, getRecIDFromRID,
+    FeeFormOnChangeHandler, GetFeeFormToolbar, FeeFormOnRefreshHandler, getRecIDFromRID, displayFormFieldsError,
     GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary, updateFlowData, dispalyRARentablesGridError,
-    GetCurrentFlowID
+    displayRARentableFeeFormError, getRentableIndex, displayFormFieldsError,
+    GetCurrentFlowID, EnableDisableRAFlowVersionInputs, ShowHideGridToolbarAddButton,
+    HideAllSliderContent
 */
 
 "use strict";
@@ -98,6 +100,9 @@ window.loadRARentablesGrid = function () {
                         BUD = getBUDfromBID(BID);
 
                     f.record.BID = BID;
+
+                    // FREEZE THE INPUTS IF VERSION IS RAID
+                    EnableDisableRAFlowVersionInputs(f);
                 };
             }
         });
@@ -234,6 +239,10 @@ window.loadRARentablesGrid = function () {
                     caption: "Remove<br>Rentable",
                     size: '90px',
                     render: function (record/*, index, col_index*/) {
+                        // SPECIAL CHECK FOR THIS REMOVE BUTTON
+                        if (app.raflow.version === "raid") {
+                            return;
+                        }
                         var html = "";
                         if (record.RID && record.RID > 0) {
                             html = '<i class="fas fa-minus-circle" style="color: #DC3545; cursor: pointer;" title="remove rentable"></i>';
@@ -336,7 +345,7 @@ window.loadRARentablesGrid = function () {
                 toolbarAdd:     true,
                 toolbarReload:  false,
                 toolbarInput:   false,
-                toolbarColumns: true,
+                toolbarColumns: false,
                 footer:         false,
             },
             style: 'border: 2px solid white; display: block;',
@@ -438,6 +447,11 @@ window.loadRARentablesGrid = function () {
                                 // When RentCycle is Norecur then disable the RentCycle list field.
                                 var isDisabled = feeForm.record.RentCycleText.text === app.cycleFreq[0];
                                 $("#RentCycleText").prop("disabled", isDisabled);
+
+                                // TODO(Akshay): Enable errors for rentables fees grid
+                                // setTimeout(function () {
+                                //     displayRARentableFeeFormError();
+                                // }, 500);
                             })
                             .fail(function(data) {
                                 console.log("failure" + data);
@@ -447,7 +461,13 @@ window.loadRARentablesGrid = function () {
                     // warn user if form content has been changed
                     form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);
                 };
-            }
+            },
+            onRefresh: function(event) {
+                var grid = this;
+                event.onComplete = function() {
+                    ShowHideGridToolbarAddButton(grid.name);
+                };
+            },
         });
 
         // -----------------------------------------------------------
@@ -626,6 +646,9 @@ window.loadRARentablesGrid = function () {
                     } else {
                         feeForm.header = header.format("new", rentableName);
                     }
+
+                    // FREEZE THE INPUTS IF VERSION IS RAID
+                    EnableDisableRAFlowVersionInputs(feeForm);
                 };
             }
         });
@@ -634,6 +657,7 @@ window.loadRARentablesGrid = function () {
     // now load grid in division
     $('#ra-form #rentables .grid-container').w2render(w2ui.RARentablesGrid);
     $('#ra-form #rentables .form-container').w2render(w2ui.RARentableSearchForm);
+    HideAllSliderContent();
 
     // load the existing data in rentables component
     setTimeout(function () {
@@ -1107,4 +1131,44 @@ window.getRecIDFromRID = function(grid, RID){
         }
     }
     return recid;
+};
+
+// displayRARentableFeeFormError If form field have error than it highlight with red border and
+window.displayRARentableFeeFormError = function(RID){
+
+    // if pet section doesn't have error than return
+    if(!app.raflow.validationErrors.rentables){
+        return;
+    }
+
+    var form = w2ui.RARentableFeeForm;
+    var record = form.record;
+
+    // get list of pets
+    var rentables = app.raflow.validationCheck.errors.rentables;
+
+    // get index of vehicle for whom form is opened
+    var rentableIndex = getRentableIndex(RID, rentables);
+
+    var index = getFeeIndex(record.TMPASMID, rentables[rentableIndex].fees);
+
+    if(index > -1){
+        displayFormFieldsError(index, rentables[rentableIndex].fees, "RARentableFeeForm");
+    }
+};
+
+// getRentableIndex it return an index of rentable who have RID
+window.getRentableIndex = function (RID, rentables) {
+
+    var index = -1;
+
+    for(var i = 0; i < rentables.length; i++){
+        // If RID doesn't match iterate for next element
+        if(rentables[i].RID === RID){
+            index = i;
+            break;
+        }
+    }
+
+    return index;
 };

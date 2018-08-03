@@ -7890,46 +7890,33 @@ func GetFlowIDsByUser(ctx context.Context) ([]int64, error) {
 	return t, rows.Err()
 }
 
-// GetFlowMetaDataInRange reads all flows struct between the supplied dates.
-// The returned data does NOT include the JSON
+// GetFlowByUserRefNo reads all flows struct by supplied user ref no.
 //
 // INPUTS
-//     d1,d2 date range
+//     UserRefNo - string
 //
 // RETURNS
-//     a slice of flows
+//     a flow
 //     any error encountered
 //-----------------------------------------------------------------------------
-func GetFlowMetaDataInRange(ctx context.Context, d1, d2 *time.Time) ([]Flow, error) {
-	var err error
-	var m []Flow
-
+func GetFlowByUserRefNo(ctx context.Context, BID int64, UserRefNo string) (a Flow, err error) {
 	if sessionCheck(ctx) {
-		return m, ErrSessionRequired
+		return a, ErrSessionRequired
 	}
 
-	var rows *sql.Rows
-	fields := []interface{}{d1, d2}
+	var (
+		row      *sql.Row
+		prepStmt = RRdb.Prepstmt.GetFlowByUserRefNo
+		fields   = []interface{}{BID, UserRefNo}
+	)
+
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.GetFlowMetaDataInRange)
-		defer stmt.Close()
-		rows, err = stmt.Query(fields...)
+		tStmt := tx.Stmt(prepStmt)
+		defer tStmt.Close()
+		row = tStmt.QueryRow(fields...)
 	} else {
-		rows, err = RRdb.Prepstmt.GetFlowMetaDataInRange.Query(fields...)
+		row = prepStmt.QueryRow(fields...)
 	}
 
-	if err != nil {
-		return m, err
-	}
-	defer rows.Close()
-
-	for i := 0; rows.Next(); i++ {
-		var a Flow
-		err = rows.Scan(&a.FlowID, &a.BID, &a.UserRefNo, &a.FlowType, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
-		if err != nil {
-			return m, err
-		}
-		m = append(m, a)
-	}
-	return m, rows.Err()
+	return a, ReadFlow(row, &a)
 }

@@ -1585,6 +1585,7 @@ type RRprepSQL struct {
 	DeleteUser                              *sql.Stmt
 	DeleteVehicle                           *sql.Stmt
 	DeleteFlow                              *sql.Stmt
+	DeleteFlowByRefNo                       *sql.Stmt
 	FindAgreementByRentable                 *sql.Stmt
 	FindTCIDByNote                          *sql.Stmt
 	FindTransactantByPhoneOrEmail           *sql.Stmt
@@ -1927,7 +1928,7 @@ type RRprepSQL struct {
 	InsertClosePeriod                       *sql.Stmt
 	UpdateClosePeriod                       *sql.Stmt
 	DeleteClosePeriod                       *sql.Stmt
-	GetFlowMetaDataInRange                  *sql.Stmt
+	GetFlowByUserRefNo                      *sql.Stmt
 	GetFlowForRAID                          *sql.Stmt
 	GetBusinessProperties                   *sql.Stmt
 	GetBusinessPropertiesByName             *sql.Stmt

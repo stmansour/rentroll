@@ -1,5 +1,6 @@
 /* global
-    getRAFlowCompData,
+    getRAFlowCompData, EnableDisableRAFlowVersionInputs,
+    HideAllSliderContent
 */
 
 "use strict";
@@ -35,22 +36,29 @@ window.loadRADatesForm = function () {
                 }
             },
             onRefresh: function (event) {
-                var t = new Date(),
+                var form = this;
+                event.onComplete = function() {
+                    var t = new Date(),
                     nyd = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
 
-                // set default values with start=current day, stop=next year day, if record is blank
-                this.record.AgreementStart = this.record.AgreementStart || w2uiDateControlString(t);
-                this.record.AgreementStop = this.record.AgreementStop || w2uiDateControlString(nyd);
-                this.record.RentStart = this.record.RentStart || w2uiDateControlString(t);
-                this.record.RentStop = this.record.RentStop || w2uiDateControlString(nyd);
-                this.record.PossessionStart = this.record.PossessionStart || w2uiDateControlString(t);
-                this.record.PossessionStop = this.record.PossessionStop || w2uiDateControlString(nyd);
+                    // set default values with start=current day, stop=next year day, if record is blank
+                   form.record.AgreementStart =form.record.AgreementStart || w2uiDateControlString(t);
+                   form.record.AgreementStop =form.record.AgreementStop || w2uiDateControlString(nyd);
+                   form.record.RentStart =form.record.RentStart || w2uiDateControlString(t);
+                   form.record.RentStop =form.record.RentStop || w2uiDateControlString(nyd);
+                   form.record.PossessionStart =form.record.PossessionStart || w2uiDateControlString(t);
+                   form.record.PossessionStop =form.record.PossessionStop || w2uiDateControlString(nyd);
+
+                   // FREEZE THE INPUTS IF VERSION IS RAID
+                   EnableDisableRAFlowVersionInputs(form);
+                };
             }
         });
     }
 
     // now render the form in specifiec targeted division
     $('#ra-form #dates .form-container').w2render(w2ui.RADatesForm);
+    HideAllSliderContent();
 
     // load the existing data in dates component
     setTimeout(function () {

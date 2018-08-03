@@ -1,6 +1,7 @@
 /* global
     saveActiveCompData, getRAFlowCompData, getRecIDFromCRID, dispalyRAParentChildGridError,
-    getChildRentableLocalData, setChildRentableLocalData, saveParentChildCompData
+    getChildRentableLocalData, setChildRentableLocalData, saveParentChildCompData,
+    EnableDisableRAFlowVersionGrid
 */
 
 "use strict";
@@ -87,6 +88,12 @@ window.loadRAPeopleChildSection = function () {
                     }
                 },
             ],
+            onRefresh: function(event) {
+                var grid = this;
+                event.onComplete = function() {
+                    EnableDisableRAFlowVersionGrid(grid);
+                };
+            },
             onChange: function(event) {
                 var grid = this;
                 event.onComplete = function() {

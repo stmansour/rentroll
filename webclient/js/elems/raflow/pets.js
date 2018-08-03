@@ -18,7 +18,10 @@
     SliderContentDivLength, SetFeeFormRecordFromFeeData,
     RenderPetFeesGridSummary, RAFlowNewPetAJAX, updateFlowData,
     GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary, getRecIDFromTMPASMID,
-    GetTiePeopleLocalData, displayRAPetsGridError, getRecIDFromTMPPETID, displayRAPetFeesGridError, GetCurrentFlowID
+    displayRAPetFormError, getPetIndex, displayFormFieldsError, displayRAPetFeeFormError, getFeeIndex,
+    GetTiePeopleLocalData, displayRAPetsGridError, getRecIDFromTMPPETID, displayRAPetFeesGridError,
+    GetCurrentFlowID, EnableDisableRAFlowVersionInputs, ShowHideGridToolbarAddButton,
+    HideAllSliderContent
 */
 
 "use strict";
@@ -146,7 +149,7 @@ window.loadRAPetsGrid = function () {
                 toolbar: true,
                 toolbarSearch: false,
                 toolbarAdd: true,
-                toolbarReload: true,
+                toolbarReload: false,
                 toolbarInput: false,
                 toolbarColumns: false,
                 footer: true,
@@ -248,10 +251,13 @@ window.loadRAPetsGrid = function () {
                 }
             ],
             onRefresh: function (event) {
+                var grid = this;
                 event.onComplete = function (){
                     $("#RAPetsGrid_checkbox")[0].checked = app.raflow.Flow.Data.meta.HavePets;
                     $("#RAPetsGrid_checkbox")[0].disabled = app.raflow.Flow.Data.meta.HavePets;
                     lockOnGrid("RAPetsGrid");
+
+                    ShowHideGridToolbarAddButton(grid.name);
                 };
             },
             onClick: function(event) {
@@ -282,6 +288,12 @@ window.loadRAPetsGrid = function () {
                                 // fill layout with components and with data
                                 SetRAPetLayoutContent(TMPPETID);
                             }, 0);
+
+                            // load form fields error
+                            setTimeout(function () {
+                                displayRAPetFormError();
+                            }, 500);
+
                         };
 
                     // warn user if form content has been changed
@@ -380,39 +392,42 @@ window.loadRAPetsGrid = function () {
             },
             onRefresh: function(event) {
                 event.onComplete = function() {
-                    var f = w2ui.RAPetForm,
+                    var form = w2ui.RAPetForm,
                         header = "Edit Rental Agreement Pets ({0})";
 
                     // there is NO PETID actually, so have to work around with recid key
-                    formRefreshCallBack(f, "TMPPETID", header);
+                    formRefreshCallBack(form, "TMPPETID", header);
 
                     // selection of contact person
                     var TMPTCIDSel = {};
                     app.raflow.peopleW2UIItems.forEach(function(item) {
-                        if (item.id === f.record.TMPTCID) {
+                        if (item.id === form.record.TMPTCID) {
                             $.extend(TMPTCIDSel, item);
                         }
                     });
-                    f.get("TMPTCID").options.items = app.raflow.peopleW2UIItems;
-                    f.get("TMPTCID").options.selected = TMPTCIDSel;
+                    form.get("TMPTCID").options.items = app.raflow.peopleW2UIItems;
+                    form.get("TMPTCID").options.selected = TMPTCIDSel;
 
                     // hide delete button if it is NewRecord
-                    if (f.record.TMPPETID === 0) {
+                    if (form.record.TMPPETID === 0) {
                         $("#RAPetFormBtns").find("button[name=delete]").addClass("hidden");
                     } else {
                         $("#RAPetFormBtns").find("button[name=delete]").removeClass("hidden");
                     }
 
                     // format header
-                    var petIdentity = f.record.Name,
+                    var petIdentity = form.record.Name,
                         petString   = "<em>new</em>";
 
-                    if (f.record.PETID > 0) {
+                    if (form.record.PETID > 0) {
                         petString = petIdentity;
                     } else if (petIdentity) {
                         petString = "<em>new</em> - {0}".format(petIdentity);
                     }
-                    f.header = "Edit Pet (<strong>{0}</strong>)".format(petString);
+                    form.header = "Edit Pet (<strong>{0}</strong>)".format(petString);
+
+                    // FREEZE THE INPUTS IF VERSION IS RAID
+                    EnableDisableRAFlowVersionInputs(form);
                 };
             },
             onChange: function(event) {
@@ -544,6 +559,13 @@ window.loadRAPetsGrid = function () {
                     }
                 },
             },
+            onRefresh: function(event) {
+                var form = this;
+                event.onComplete = function() {
+                    // FREEZE THE INPUTS IF VERSION IS RAID
+                    EnableDisableRAFlowVersionInputs(form);
+                };
+            },
         });
 
         // -----------------------------------------------------------
@@ -559,7 +581,7 @@ window.loadRAPetsGrid = function () {
                 toolbarAdd:     true,
                 toolbarReload:  false,
                 toolbarInput:   false,
-                toolbarColumns: true,
+                toolbarColumns: false,
                 footer:         false,
             },
             multiSelect: false,
@@ -612,6 +634,11 @@ window.loadRAPetsGrid = function () {
                                 // When RentCycle is Norecur then disable the RentCycle list field.
                                 var isDisabled = feeForm.record.RentCycleText.text === app.cycleFreq[0];
                                 $("#RentCycleText").prop("disabled", isDisabled);
+
+                                // displat form field error if it have
+                                setTimeout(function(){
+                                    displayRAPetFeeFormError(w2ui.RAPetForm.record.TMPPETID);
+                                }, 500);
                             })
                             .fail(function(data) {
                                 console.log("failure" + data);
@@ -657,6 +684,12 @@ window.loadRAPetsGrid = function () {
                 .fail(function(data) {
                     console.log("failure" + data);
                 });
+            },
+            onRefresh: function(event) {
+                var grid = this;
+                event.onComplete = function() {
+                    ShowHideGridToolbarAddButton(grid.name);
+                };
             },
         });
 
@@ -832,6 +865,9 @@ window.loadRAPetsGrid = function () {
                     } else {
                         feeForm.header = header.format("new", petString);
                     }
+
+                    // FREEZE THE INPUTS IF VERSION IS RAID
+                    EnableDisableRAFlowVersionInputs(feeForm);
                 };
             }
         });
@@ -839,6 +875,7 @@ window.loadRAPetsGrid = function () {
 
     // now load grid in division
     $('#ra-form #pets .grid-container').w2render(w2ui.RAPetsGrid);
+    HideAllSliderContent();
 
     // load the existing data in pets component
     setTimeout(function () {
@@ -982,7 +1019,6 @@ window.GetPetFeeLocalData = function(TMPPETID, TMPASMID, returnIndex) {
     }
     return cloneData;
 };
-
 
 //-----------------------------------------------------------------------------
 // SetPetFeeLocalData - save the data for requested a TMPPETID, TMPASMID
@@ -1147,4 +1183,67 @@ window.getRecIDFromTMPPETID = function(grid, TMPPETID){
         }
     }
     return recid;
+};
+
+// displayRAPetFormError If form field have error than it highlight with red border and
+window.displayRAPetFormError = function(){
+
+    // if pet section doesn't have error than return
+    if(!app.raflow.validationErrors.pets){
+        return;
+    }
+
+    var form = w2ui.RAPetForm;
+    var record = form.record;
+
+    // get list of pets
+    var pets = app.raflow.validationCheck.errors.pets;
+
+    // get index of pet for whom form is opened
+    var index = getPetIndex(record.TMPPETID, pets);
+
+    if(index > -1){
+        displayFormFieldsError(index, pets, "RAPetForm");
+    }
+};
+
+// getPetIndex it return an index of pet who have TMPPETID
+window.getPetIndex = function (TMPPETID, pets) {
+
+    var index = -1;
+
+    for(var i = 0; i < pets.length; i++){
+        // If TMPPETID doesn't match iterate for next element
+        if(pets[i].TMPPETID === TMPPETID){
+            index = i;
+            break;
+        }
+    }
+
+    return index;
+};
+
+
+// displayRAPetFeeFormError If form field have error than it highlight with red border and
+window.displayRAPetFeeFormError = function(TMPPETID){
+
+    // if pet section doesn't have error than return
+    if(!app.raflow.validationErrors.pets){
+        return;
+    }
+
+    var form = w2ui.RAPetFeeForm;
+    var record = form.record;
+
+    // get list of pets
+    var pets = app.raflow.validationCheck.errors.pets;
+
+    // get index of pet for whom form is opened
+    var petIndex = getPetIndex(TMPPETID, pets);
+
+    var index = getFeeIndex(record.TMPASMID, pets[petIndex].fees);
+
+    if(index > -1){
+        displayFormFieldsError(index, pets[petIndex].fees, "RAPetFeeForm");
+    }
 };

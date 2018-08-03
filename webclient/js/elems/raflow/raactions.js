@@ -9,7 +9,8 @@
     dtFormatISOToW2ui,
     localtimeToUTC,
     updateFlowData,
-    GetCurrentFlowID
+    GetCurrentFlowID, CloseRAFlowLayout,
+    ChangeRAFlowVersionToolbar
 */
 "use strict";
 
@@ -20,7 +21,7 @@ var actionsUI = {
 
 // -------------------------------------------------------------------------------
 // submitActionForm - submits the data of action form
-// @params - FlowID, Decision, Reason, Action
+// @params - data
 // -------------------------------------------------------------------------------
 window.submitActionForm = function(data) {
     var BID = getCurrentBID();
@@ -33,8 +34,28 @@ window.submitActionForm = function(data) {
     }).done(function(data) {
         if (data.status === "success") {
 
-            // Update flow local copy and green checks
-            updateFlowData(data);
+            if (data.record.Flow.FlowID === -1) {
+                alert("Flow Already Exists");
+            }
+
+            if (data.record.Flow.FlowID > 0) {
+                app.raflow.version = 'refno';
+
+                var version = app.raflow.version;
+                var ID = data.record.Flow.ID;
+                var RefNo = data.record.Flow.UserRefNo;
+                var FLAGS = data.record.Flow.Data.meta.RAFLAGS;
+
+                ChangeRAFlowVersionToolbar(version, ID, RefNo, FLAGS);
+
+                // Update flow local copy and green checks
+                updateFlowData(data);
+            }
+
+            if (data.record.Flow.FlowID === 0) {
+                // Update flow local copy and green checks
+                updateFlowData(data);
+            }
 
             w2ui.raActionLayout.get('main').content.destroy();
 
@@ -455,7 +476,7 @@ window.refreshLabels = function () {
 //                        header & footer of action form respectively.
 // -----------------------------------------------------------------------
 window.loadRAActionTemplate = function() {
-    if(! w2ui.raActionLayout) {
+    if(!w2ui.raActionLayout) {
         $().w2layout({
             name: 'raActionLayout',
             padding: 0,
@@ -464,9 +485,9 @@ window.loadRAActionTemplate = function() {
                 { type: 'top', style: app.pstyle2, content:'top', size: actionsUI.hdrHeight,
                     toolbar: {
                         items: [
-                            { id:'btnBackToRA', type: 'button', text: 'Back to Rental Agreement', icon: 'fas fa-angle-left' },
-                            { id: 'bt3', type: 'spacer' },
-                            { id: 'btnClose', type: 'button', icon: 'fas fa-times' }
+                            { id: 'btnBackToRA',    type: 'button',     icon: 'fas fa-angle-left', text: '' },
+                            { id: 'bt3',            type: 'spacer' },
+                            { id: 'btnClose',       type: 'button',     icon: 'fas fa-times' }
                         ],
                         onClick: function (event) {
                             switch(event.target) {
@@ -483,12 +504,7 @@ window.loadRAActionTemplate = function() {
                                 break;
                             case 'btnClose':
                                 yes_callBack = function() {
-                                    w2ui.newraLayout.content('right','');
-                                    w2ui.newraLayout.hide('right',true);
-                                    w2ui.raActionLayout.get('main').content.destroy();
-                                    w2ui.newraLayout.unlock('main');
-                                    w2ui.applicantsGrid.render();
-                                    w2ui.toplayout.hide('right',true);
+                                    CloseRAFlowLayout();
                                 };
                                 form_dirty_alert(yes_callBack, no_callBack);
                                 break;
@@ -506,6 +522,22 @@ window.loadRAActionTemplate = function() {
                     refreshLabels();
                 };
             },
+            onRender: function(event) {
+                event.onComplete = function() {
+                    var layout = w2ui.raActionLayout;
+                    var btnBackToRAText = "";
+                    if (app.raflow.version === "raid") {
+                        var RAID = app.raflow.Flow.ID;
+                        btnBackToRAText = "Back to RA" + RAID;
+                    } else if(app.raflow.version === "refno") {
+                        var UserRefNo = app.raflow.Flow.UserRefNo;
+                        btnBackToRAText = "Back to " + UserRefNo;
+                    }
+                    layout.get("top").toolbar.set('btnBackToRA', {text: btnBackToRAText});
+                    // REFRESH THE TOOLBAR TO GET THE EFFECT
+                    layout.get("top").toolbar.refresh();
+                };
+            }
         });
     }
     w2ui.newraLayout.content('right', w2ui.raActionLayout);
@@ -676,7 +708,11 @@ window.loadRAActionForm = function() {
             },
             actions: {
                 save: function() {
-                    var FlowID = GetCurrentFlowID();
+                    var UserRefNo = app.raflow.Flow.UserRefNo;
+                    var RAID = app.raflow.Flow.ID;
+                    var Mode = "State";
+                    var Version = app.raflow.version;
+
                     var data = app.raflow.Flow.Data;
                     var raFlags = data.meta.RAFLAGS;
                     var raState =parseInt(raFlags & 0xf);
@@ -686,7 +722,7 @@ window.loadRAActionForm = function() {
                     var Decision2 = 0;
                     var DeclineReason2 = 0;
                     var DocumentDate = "1/1/1900";
-                    var Mode = "State";
+
                     var reqData = {};
                     switch(raState) {
                         case 1:
@@ -694,10 +730,12 @@ window.loadRAActionForm = function() {
                             DeclineReason1 = w2ui.RAActionForm.record.RADeclineReason1.id;
 
                             reqData = {
-                                "FlowID": FlowID,
+                                "UserRefNo":UserRefNo,
+                                "RAID":RAID,
+                                "Version":Version,
+                                "Mode": Mode,
                                 "Decision1": Decision1,
-                                "DeclineReason1": DeclineReason1,
-                                "Mode": Mode
+                                "DeclineReason1": DeclineReason1
                             };
                             submitActionForm(reqData);
                             break;
@@ -706,10 +744,12 @@ window.loadRAActionForm = function() {
                             DeclineReason2 = w2ui.RAActionForm.record.RADeclineReason2.id;
 
                             reqData = {
-                                "FlowID": FlowID,
+                                "UserRefNo":UserRefNo,
+                                "RAID":RAID,
+                                "Version":Version,
+                                "Mode": Mode,
                                 "Decision2": Decision2,
-                                "DeclineReason2": DeclineReason2,
-                                "Mode": Mode
+                                "DeclineReason2": DeclineReason2
                             };
                             submitActionForm(reqData);
                             break;
@@ -718,20 +758,24 @@ window.loadRAActionForm = function() {
                                 DocumentDate = w2ui.RAActionForm.record.RADocumentDate;
                             }
                             reqData = {
-                                "FlowID": FlowID,
-                                "DocumentDate": DocumentDate,
-                                "Mode": Mode
+                                "UserRefNo":UserRefNo,
+                                "RAID":RAID,
+                                "Version":Version,
+                                "Mode": Mode,
+                                "DocumentDate": DocumentDate
                             };
                             submitActionForm(reqData);
                             break;
                     }
                 },
                 updateAction: function() {
-                    var FlowID = GetCurrentFlowID();
+                    var UserRefNo = app.raflow.Flow.UserRefNo;
+                    var RAID = app.raflow.Flow.ID;
                     var Action = this.record.RAActions.id;
                     var TerminationReason = 0;
                     var NoticeToMoveDate = "1/1/1900";
                     var Mode = "Action";
+                    var Version = app.raflow.version;
 
                     var currentState = parseInt(app.raflow.Flow.Data.meta.RAFLAGS & (0xf));
                     //----------------------------------------------------------------
@@ -751,7 +795,9 @@ window.loadRAActionForm = function() {
                         case 3:
                         case 4:
                             reqData = {
-                                "FlowID": FlowID,
+                                "UserRefNo": UserRefNo,
+                                "RAID": RAID,
+                                "Version": Version,
                                 "Action": Action,
                                 "Mode": Mode
                             };
@@ -763,10 +809,12 @@ window.loadRAActionForm = function() {
                             }
 
                             reqData = {
-                                "FlowID": FlowID,
+                                "UserRefNo": UserRefNo,
+                                "RAID": RAID,
+                                "Version": Version,
                                 "Action": Action,
-                                "NoticeToMoveDate": NoticeToMoveDate,
-                                "Mode": Mode
+                                "Mode": Mode,
+                                "NoticeToMoveDate": NoticeToMoveDate
                             };
                             submitActionForm(reqData);
                             break;
@@ -775,10 +823,12 @@ window.loadRAActionForm = function() {
                                 TerminationReason = w2ui.RAActionForm.record.RATerminationReason.id;
                             }
                             reqData = {
-                                "FlowID": FlowID,
+                                "UserRefNo": UserRefNo,
+                                "RAID": RAID,
+                                "Version": Version,
                                 "Action": Action,
-                                "TerminationReason": TerminationReason,
-                                "Mode": Mode
+                                "Mode": Mode,
+                                "TerminationReason": TerminationReason
                             };
                             submitActionForm(reqData);
                             break;

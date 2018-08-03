@@ -368,13 +368,13 @@ func buildPreparedStatements() {
 	//==========================================
 	flds = "FlowID,BID,UserRefNo,FlowType,ID,Data,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["Flow"] = flds
-	RRdb.Prepstmt.GetFlowMetaDataInRange, err = RRdb.Dbrr.Prepare("SELECT FlowID,BID,UserRefNo,FlowType,CreateTS,CreateBy,LastModTime,LastModBy FROM Flow WHERE ? <= CreateTS AND CreateTS < ?")
+	RRdb.Prepstmt.GetFlowByUserRefNo, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Flow WHERE BID=? AND UserRefNo=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetFlow, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Flow where FlowID=?")
+	RRdb.Prepstmt.GetFlow, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Flow WHERE FlowID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetFlowsByFlowType, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Flow where FlowType=?")
+	RRdb.Prepstmt.GetFlowsByFlowType, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Flow WHERE FlowType=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetFlowIDsByUser, err = RRdb.Dbrr.Prepare("SELECT DISTINCT FlowID FROM Flow where CreateBy=?")
+	RRdb.Prepstmt.GetFlowIDsByUser, err = RRdb.Dbrr.Prepare("SELECT DISTINCT FlowID FROM Flow WHERE CreateBy=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetFlowForRAID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Flow WHERE FlowType=? AND ID=?")
 	Errcheck(err)
@@ -386,6 +386,8 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.UpdateFlowData, err = RRdb.Dbrr.Prepare("UPDATE Flow SET Data = JSON_REPLACE(Data, CONCAT('$.', ?), CAST(? AS JSON)) where FlowID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.DeleteFlow, err = RRdb.Dbrr.Prepare("DELETE from Flow WHERE FlowID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteFlowByRefNo, err = RRdb.Dbrr.Prepare("DELETE from Flow WHERE BID=? AND UserRefNo=?")
 	Errcheck(err)
 
 	//==========================================
