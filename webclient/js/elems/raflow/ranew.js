@@ -7,7 +7,7 @@
     loadRAActionTemplate,
     getStringListData, initBizErrors, displayErrorDot,
     ChangeRAFlowVersionToolbar, GetRefNoByRAIDFromGrid,
-    LoadRAFlowVersionData, CloseRAFlowLayout, DeleteRAFlowAJAX
+    LoadRAFlowVersionData, CloseRAFlowLayout, DeleteRAFlowAJAX, HideRAFlowLoader
 */
 
 "use strict";
@@ -20,6 +20,9 @@
 //   FlowID = Id of the Flow
 //-----------------------------------------------------------------------------
 window.LoadRAFlowTemplate = function(bid, raFlowVersion) {
+
+    // show the loader
+    HideRAFlowLoader(false);
 
     // set the toplayout content
     w2ui.toplayout.content('right', w2ui.newraLayout);
@@ -84,6 +87,9 @@ window.LoadRAFlowTemplate = function(bid, raFlowVersion) {
             $(".ra-form-component#dates").show();
             $("#progressbar #steps-list li[data-target='#dates']").removeClass("done").addClass("active");
             loadRADatesForm();
+
+            // hide the loader
+            HideRAFlowLoader(true);
         }, 0);
     });
 };
@@ -332,11 +338,26 @@ window.buildRAApplicantElements = function() {
                         case 'btnClose':
                             var no_callBack = function() { return false; },
                                 yes_callBack = function() {
+                                    // reset validationError. cause it should display error when it pressed GetApproval button
+                                    initBizErrors();
                                     CloseRAFlowLayout();
                                 };
                             form_dirty_alert(yes_callBack, no_callBack);
                             break;
                         }
+                    },
+                    onRefresh: function(event) {
+                        var toolbar = this;
+                        event.onComplete = function() {
+                            // ADDITIONAL CHECK REQUIRED HERE - SPECIAL ONE
+                            // BECAUSE WE DON'T KNOW WHEN RENDER WILL COMPLETE
+                            // WHEN TOOLBAR IS COMPLETELY REFRESHED THEN ALSO CHECK FOR BUTTON
+                            if (app.raflow.loading) {
+                                $(toolbar.box).find("button").prop('disabled', true);
+                            } else {
+                                $(toolbar.box).find("button").prop('disabled', false);
+                            }
+                        };
                     },
                 }
             },
@@ -468,8 +489,15 @@ window.LoadRAFlowVersionData = function(RAID, UserRefNo, version) {
             }
             // LoadRAFlowTemplate(rec.BID);
 
-            // REFRESH THE LAYOUT
+            /*// REFRESH THE LAYOUT
             w2ui.newraLayout.refresh();
+            REFRESH CAUSES THE INTERFACE JUMP BACK TO DATES SECTION ALWAYS
+            */
+
+            // LOAD THE CURRENT COMPONENT AGAIN
+            var active_comp = $(".ra-form-component:visible");
+            var active_comp_id = active_comp.attr("id");
+            loadTargetSection(active_comp_id, active_comp_id);
         }
     })
     .fail(function() {
@@ -519,6 +547,7 @@ $(document).on("click", "button#raactions", function(e) {
 
 // CloseRAFlowLayout closes the new ra layout with resetting right panel content
 window.CloseRAFlowLayout = function() {
+    app.raflow.version = ""; // RESET THE RAFLOW VERSION
     if (w2ui.raActionLayout) {
         w2ui.raActionLayout.content('main', '');
     }

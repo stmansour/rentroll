@@ -13,14 +13,17 @@
     GetAllARForFeeForm, SetDataFromFormRecord, SetFormRecordFromData,
     GetFeeGridColumns, GetFeeFormFields, GetFeeFormToolbar,
     SetFeeDataFromFeeFormRecord,
-    GetFeeFormInitRecord, getRecIDFromTMPASMID,
+    GetFeeFormInitRecord, getRecIDFromTMPASMID, getFeeIndex,
     FeeFormOnChangeHandler, FeeFormOnRefreshHandler,
     SliderContentDivLength, SetFeeFormRecordFromFeeData,
+    displayRAVehicleFeeFormError, RenderFeesGridSummary, displayRAVehicleFormError,
+    displayFormFieldsError, getVehicleIndex,
     RenderVehicleFeesGridSummary, RAFlowNewVehicleAJAX,
     GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary,
     GetVehicleIdentity, updateFlowData, GetTiePeopleLocalData,
     getRecIDFromTMPVID, dispalyRAVehiclesGridError, GetCurrentFlowID,
-    EnableDisableRAFlowVersionInputs, ShowHideGridToolbarAddButton
+    EnableDisableRAFlowVersionInputs, ShowHideGridToolbarAddButton,
+    HideAllSliderContent
 */
 
 "use strict";
@@ -317,6 +320,10 @@ window.loadRAVehiclesGrid = function () {
                                 // fill layout with components and with data
                                 SetRAVehicleLayoutContent(TMPVID);
                             }, 0);
+
+                            setTimeout(function () {
+                                displayRAVehicleFormError();
+                            }, 500);
                         };
 
                     // warn user if form content has been changed
@@ -671,6 +678,10 @@ window.loadRAVehiclesGrid = function () {
                                 // When RentCycle is Norecur then disable the RentCycle list field.
                                 var isDisabled = feeForm.record.RentCycleText.text === app.cycleFreq[0];
                                 $("#RentCycleText").prop("disabled", isDisabled);
+
+                                setTimeout(function () {
+                                    displayRAVehicleFeeFormError(w2ui.RAVehicleForm.record.TMPVID);
+                                }, 500);
                             })
                             .fail(function(data) {
                                 console.log("failure" + data);
@@ -907,6 +918,7 @@ window.loadRAVehiclesGrid = function () {
 
     // now load grid in target division
     $('#ra-form #vehicles .grid-container').w2render(w2ui.RAVehiclesGrid);
+    HideAllSliderContent();
 
     // load the existing data in vehicles component
     setTimeout(function () {
@@ -1227,4 +1239,66 @@ window.getRecIDFromTMPVID = function(grid, TMPVID){
         }
     }
     return recid;
+};
+
+// displayRAVehicleFormError If form field have error than it highlight with red border and
+window.displayRAVehicleFormError = function(){
+
+    // if pet section doesn't have error than return
+    if(!app.raflow.validationErrors.vehicles){
+        return;
+    }
+
+    var form = w2ui.RAVehicleForm;
+    var record = form.record;
+
+    // get list of pets
+    var vehicles = app.raflow.validationCheck.errors.vehicle;
+
+    // get index of pet for whom form is opened
+    var index = getVehicleIndex(record.TMPVID, vehicles);
+
+    if(index > -1){
+        displayFormFieldsError(index, vehicles, "RAVehicleForm");
+    }
+};
+
+// getVehicleIndex it return an index of vehicle who have TMPVID
+window.getVehicleIndex = function (TMPVID, vehicles) {
+
+    var index = -1;
+
+    for(var i = 0; i < vehicles.length; i++){
+        // If TMPVID doesn't match iterate for next element
+        if(vehicles[i].TMPVID === TMPVID){
+            index = i;
+            break;
+        }
+    }
+
+    return index;
+};
+
+// displayRAVehicleFeeFormError If form field have error than it highlight with red border and
+window.displayRAVehicleFeeFormError = function(TMPVID){
+
+    // if pet section doesn't have error than return
+    if(!app.raflow.validationErrors.vehicles){
+        return;
+    }
+
+    var form = w2ui.RAVehicleFeeForm;
+    var record = form.record;
+
+    // get list of pets
+    var vehicles = app.raflow.validationCheck.errors.vehicle;
+
+    // get index of vehicle for whom form is opened
+    var vehicleIndex = getVehicleIndex(TMPVID, vehicles);
+
+    var index = getFeeIndex(record.TMPASMID, vehicles[vehicleIndex].fees);
+
+    if(index > -1){
+        displayFormFieldsError(index, vehicles[vehicleIndex].fees, "RAVehicleFeeForm");
+    }
 };

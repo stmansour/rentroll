@@ -317,14 +317,34 @@ func GetRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 
 	case "refno":
-		// GET THE FLOW BY REFERENCE NO IF RAID == 0
-		flow, err = rlib.GetFlowByUserRefNo(ctx, d.BID, req.UserRefNo)
-		if err != nil {
-			return
-		}
 
-		// IF FLOW FOUND WITH REF.NO THEN RETURN THE RESPONSE
-		if flow.FlowID > 0 {
+		// IF CREATE ONE ONLY WHEN REF.NO IS BLANK
+		if req.UserRefNo == "" {
+			// IF NOT FOUND THEN TRY TO CREATE NEW ONE FROM RAID
+			// GET RENTAL AGREEMENT
+			var ra rlib.RentalAgreement
+			ra, err = rlib.GetRentalAgreement(ctx, req.RAID)
+			if err != nil {
+				return
+			}
+			if ra.RAID == 0 {
+				err = fmt.Errorf("Rental Agreement not found with given RAID: %d", req.RAID)
+				return
+			}
+
+			// GET THE NEW FLOW ID CREATED USING PERMANENT DATA
+			var flowID int64
+			flowID, err = GetRA2FlowCore(ctx, &ra, d.sess.UID)
+			if err != nil {
+				return
+			}
+
+			// GET GENERATED FLOW USING NEW ID
+			flow, err = rlib.GetFlow(ctx, flowID)
+			if err != nil {
+				return
+			}
+
 			// -------------------
 			// WRITE FLOW RESPONSE
 			// -------------------
@@ -332,31 +352,24 @@ func GetRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			return
 		}
 
-		// IF NOT FOUND THEN TRY TO CREATE NEW ONE FROM RAID
-		// GET RENTAL AGREEMENT
-		var ra rlib.RentalAgreement
-		ra, err = rlib.GetRentalAgreement(ctx, req.RAID)
-		if err != nil {
-			return
-		}
-		if ra.RAID == 0 {
-			err = fmt.Errorf("Rental Agreement not found with given RAID: %d", req.RAID)
+		// GIVEN REF.NO SHOULD BE VALID
+		if len(req.UserRefNo) != rlib.UserRefNoLength {
+			err = fmt.Errorf("given refno is not valid: %s ", req.UserRefNo)
 			return
 		}
 
-		// GET THE NEW FLOW ID CREATED USING PERMANENT DATA
-		var flowID int64
-		flowID, err = GetRA2FlowCore(ctx, &ra, d.sess.UID)
+		// IF REF NO IS PROVIDED THEN TRY TO FIND
+		// GET THE FLOW BY REFERENCE NO IF RAID == 0
+		flow, err = rlib.GetFlowByUserRefNo(ctx, d.BID, req.UserRefNo)
 		if err != nil {
 			return
 		}
 
-		// GET GENERATED FLOW USING NEW ID
-		flow, err = rlib.GetFlow(ctx, flowID)
-		if err != nil {
+		// IF FLOW FOUND WITH REF.NO THEN RETURN THE RESPONSE
+		if flow.FlowID == 0 {
+			err = fmt.Errorf("flow not found with given refno: %s ", req.UserRefNo)
 			return
 		}
-
 		// -------------------
 		// WRITE FLOW RESPONSE
 		// -------------------
@@ -364,7 +377,7 @@ func GetRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 
 	default:
-		err = fmt.Errorf("Invalid version to get raflow for RAID: %d", req.RAID)
+		err = fmt.Errorf("Invalid version: (%s) to get raflow for RAID: %d", req.Version, req.RAID)
 		return
 	}
 }

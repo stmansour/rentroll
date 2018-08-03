@@ -1,5 +1,16 @@
 package rlib
 
+// RAActionApplicationBeingCompleted are all constants used for RA actions
+const (
+	RAActionApplicationBeingCompleted = 0
+	RAActionSetToFirstApproval        = 1
+	RAActionSetToSecondApproval       = 2
+	RAActionSetToMoveIn               = 3
+	RAActionCompleteMoveIn            = 4
+	RAActionReceivedNoticeToMove      = 5
+	RAActionTerminate                 = 6
+)
+
 // RAStates is an array that maps the Rental Agreement state number to a
 // string.
 //-----------------------------------------------------------------------------
