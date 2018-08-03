@@ -355,6 +355,13 @@ func GetRA2FlowCore(ctx context.Context, ra *rlib.RentalAgreement, uid int64) (i
 		return flowID, err
 	}
 
+	// CHANGE THE STATE TO APPLICATION BEING COMPLETED
+	// AS WE'RE CREATING NEW FLOW
+	// TODO(Jay): CALL RESET META METHOD HERE
+	// action := rlib.RAActionApplicationBeingCompleted
+	// state := raf.Meta.RAFLAGS & uint64(0xF)
+	// resetMetaInfo(action, state, &raf.Meta)
+
 	//-------------------------------------------------------------------------
 	// Save the flow to the db
 	//-------------------------------------------------------------------------
@@ -366,6 +373,7 @@ func GetRA2FlowCore(ctx context.Context, ra *rlib.RentalAgreement, uid int64) (i
 	//-------------------------------------------------------------------------
 	// Fill out the datastructure and save it to the db as a flow...
 	//-------------------------------------------------------------------------
+
 	a := rlib.Flow{
 		BID:       ra.BID,
 		FlowID:    0, // it's new flowID,
