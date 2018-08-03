@@ -5,7 +5,7 @@
     lockOnGrid, getApprovals, updateFlowData, updateFlowCopy, displayErrorDot, initBizErrors,
     dispalyRARentablesGridError, dispalyRAVehiclesGridError, dispalyRAParentChildGridError, dispalyRATiePeopleGridError,
     GetCurrentFlowID, FlowFilled, ReassignPeopleGridRecords, AssignPetsGridRecords, AssignVehiclesGridRecords, AssignRentableGridRecords,
-    GetGridToolbarAddButtonID
+    GetGridToolbarAddButtonID, HideRAFlowLoader
 */
 
 "use strict";
@@ -339,6 +339,11 @@ window.GetRAFlowDataAjax = function(UserRefNo, RAID, version) {
         contentType: "application/json",
         dataType: "json",
         data: JSON.stringify(reqData),
+        beforeSend: function() {
+            // show the loader
+            HideRAFlowLoader(false);
+            $("#raflow-container .loader").css("display", "flex");
+        },
         success: function (data) {
             if (data.status !== "error") {
                 app.raflow.version = version;
@@ -347,8 +352,29 @@ window.GetRAFlowDataAjax = function(UserRefNo, RAID, version) {
         },
         error: function (data) {
             console.log(data);
+        },
+        complete: function() {
+            // hide the loader
+            HideRAFlowLoader(true);
         }
     });
+};
+
+// HideRAFlowLoader loader to show the progress while fetching data from the server
+// which also disabled the controls in toolbar
+window.HideRAFlowLoader = function(hide) {
+    app.raflow.loading = !hide;
+    if (hide) {
+        if (w2ui.newraLayout) {
+            $(w2ui.newraLayout.get("main").toolbar.box).find("button").prop('disabled', true);
+        }
+        $("#raflow-container .loader").hide();
+    } else {
+        if (w2ui.newraLayout) {
+            $(w2ui.newraLayout.get("main").toolbar.box).find("button").prop('disabled', false);
+        }
+        $("#raflow-container .loader").show();
+    }
 };
 
 // updateFlowData

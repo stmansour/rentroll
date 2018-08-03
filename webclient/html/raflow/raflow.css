@@ -112,6 +112,7 @@
     border-radius: 50%;
     height: 12px;
     width: 12px;
+
     /*
      Put top edge and left edge in the center
     */
@@ -119,6 +120,7 @@
     left: 120%;
     margin: -16px 0px 0px -16px;
     display: none;
+
     /*
      Offset the position correctly with
      minus half of the width and minus half of the height
@@ -469,4 +471,16 @@ section[name="RATransactantForm"] .w2ui-form-box .w2ui-field > div, div[name="tr
 
 #ra-form footer button#next {
     float: right;
+}
+
+#raflow-container .loader {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
 }

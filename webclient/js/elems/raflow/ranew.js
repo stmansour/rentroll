@@ -7,7 +7,7 @@
     loadRAActionTemplate,
     getStringListData, initBizErrors, displayErrorDot,
     ChangeRAFlowVersionToolbar, GetRefNoByRAIDFromGrid,
-    LoadRAFlowVersionData, CloseRAFlowLayout, DeleteRAFlowAJAX
+    LoadRAFlowVersionData, CloseRAFlowLayout, DeleteRAFlowAJAX, HideRAFlowLoader
 */
 
 "use strict";
@@ -20,6 +20,9 @@
 //   FlowID = Id of the Flow
 //-----------------------------------------------------------------------------
 window.LoadRAFlowTemplate = function(bid, raFlowVersion) {
+
+    // show the loader
+    HideRAFlowLoader(false);
 
     // set the toplayout content
     w2ui.toplayout.content('right', w2ui.newraLayout);
@@ -84,6 +87,9 @@ window.LoadRAFlowTemplate = function(bid, raFlowVersion) {
             $(".ra-form-component#dates").show();
             $("#progressbar #steps-list li[data-target='#dates']").removeClass("done").addClass("active");
             loadRADatesForm();
+
+            // hide the loader
+            HideRAFlowLoader(true);
         }, 0);
     });
 };
@@ -337,6 +343,19 @@ window.buildRAApplicantElements = function() {
                             form_dirty_alert(yes_callBack, no_callBack);
                             break;
                         }
+                    },
+                    onRefresh: function(event) {
+                        var toolbar = this;
+                        event.onComplete = function() {
+                            // ADDITIONAL CHECK REQUIRED HERE - SPECIAL ONE
+                            // BECAUSE WE DON'T KNOW WHEN RENDER WILL COMPLETE
+                            // WHEN TOOLBAR IS COMPLETELY REFRESHED THEN ALSO CHECK FOR BUTTON
+                            if (app.raflow.loading) {
+                                $(toolbar.box).find("button").prop('disabled', true);
+                            } else {
+                                $(toolbar.box).find("button").prop('disabled', false);
+                            }
+                        };
                     },
                 }
             },
