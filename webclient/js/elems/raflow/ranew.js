@@ -413,13 +413,15 @@ window.ChangeRAFlowVersionToolbar = function(version, RAID, RefNo, FLAGS) {
 
     var idString = "",
         editViewBtnHTML = "",
-        versionMode = "";
+        versionMode = "",
+        btnBackToRAText = "";
 
     switch(version) {
         case "raid":
             idString = "<p style='margin:0 10px; font-size: 12pt;'><strong>RA" + RAID + "</strong></p>";
             editViewBtnHTML = "<button class='w2ui-btn' id='edit_view_raflow'><i class='fas fa-pencil-alt fa-sm' style='margin-right: 7px;'></i>Edit" + (RefNo ? "&nbsp;&nbsp;" + RefNo : "") + "</button>";
             versionMode = "Viewing";
+            btnBackToRAText = "Back to RA" + RAID;
 
             // HIDE TRASH ICON
             w2ui.newraLayout.get("main").toolbar.hide('remove-refno');
@@ -433,6 +435,7 @@ window.ChangeRAFlowVersionToolbar = function(version, RAID, RefNo, FLAGS) {
             idString = "<p style='margin:0 10px; font-size: 12pt;'><strong>" + RefNo + "</strong></p>";
             editViewBtnHTML = "<button class='w2ui-btn' id='edit_view_raflow'><i class='fas fa-eye fa-sm' style='margin-right: 7px;'></i>" + (RAID ? "View RA" + RAID : "") + "</button>";
             versionMode = "Editing";
+            btnBackToRAText = "Back to " + RefNo;
 
             // SHOW TRASH ICON
             w2ui.newraLayout.get("main").toolbar.show('remove-refno');
@@ -458,6 +461,13 @@ window.ChangeRAFlowVersionToolbar = function(version, RAID, RefNo, FLAGS) {
 
     // REFRESH THE TOOLBAR TO GET THE EFFECT
     w2ui.newraLayout.get("main").toolbar.refresh();
+
+    // TOP TOOLBAR IN ACTION LAYOUT
+    if (w2ui.raActionLayout) {
+        w2ui.raActionLayout.get("top").toolbar.set('btnBackToRA', {text: btnBackToRAText});
+        // REFRESH THE TOOLBAR TO GET THE EFFECT
+        w2ui.raActionLayout.get("top").toolbar.refresh();
+    }
 };
 
 //-----------------------------------------------------------------------
