@@ -44,6 +44,13 @@ type RARentableFormSave struct {
 	RARDtStop    rlib.JSONDate // stop date/time
 }
 
+// RARPostCmd is the input data format for a Save command
+type RARPostCmd struct {
+	Cmd      string `json:"cmd"`
+	Recid    int64  `json:"recid"`
+	FormName string `json:"name"`
+}
+
 // SaveRARentableInput is the input data format for a Save command
 type SaveRARentableInput struct {
 	Cmd      string             `json:"cmd"`

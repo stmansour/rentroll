@@ -1,8 +1,7 @@
 /*global
 	buildDepositElements, buildAppLayout, buildSidebar, buildAllocFundsGrid,
     buildAccountElements, buildTransactElements, buildRentableTypeElements,
-    buildRentableElements, buildRAElements, buildRAPayorPicker,
-    buildRUserPicker, buildRentablePicker, buildRAPicker, buildReceiptElements,
+    buildRentableElements, buildRAPicker, buildReceiptElements,
     buildAssessmentElements, buildExpenseElements, buildARElements,
     buildPaymentTypeElements, buildDepositoryElements, buildDepositElements,
     buildStatementsElements, buildReportElements, buildLedgerElements,
@@ -10,7 +9,7 @@
     buildRentRollElements, buildLoginForm, buildAppLayout,
     buildROVReceiptElements,buildTaskListElements,buildTaskListDefElements,
     finishTaskListForm, createDepositForm, createPayorStmtForm,
-    createStmtForm, createRentalAgreementForm, finishForms, finishTLDForm,
+    createStmtForm, finishForms, finishTLDForm,
     buildClosePeriodElements,buildRAApplicantElements,buildRA2FlowElements,
 */
 
@@ -33,11 +32,7 @@ window.buildPageElementsWrapper = function (uitype) {
     buildTransactElements();
     buildRentableTypeElements();
     buildRentableElements();
-    buildRAElements();
     buildRAApplicantElements();
-    buildRAPayorPicker();
-    buildRUserPicker();
-    buildRentablePicker();
     buildRAPicker();
     switch (uitype) {
         case 0: buildReceiptElements(uitype); break;
@@ -46,7 +41,6 @@ window.buildPageElementsWrapper = function (uitype) {
     buildAssessmentElements();
     buildExpenseElements();
     buildARElements();
-    buildRAElements();
     buildRA2FlowElements();
     buildPaymentTypeElements();
     buildDepositoryElements();
@@ -65,7 +59,6 @@ window.buildPageElementsWrapper = function (uitype) {
 };
 
 window.finishForms = function () {
-    createRentalAgreementForm();
     createStmtForm();
     createPayorStmtForm();
     createDepositForm();
