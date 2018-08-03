@@ -12,8 +12,8 @@ import (
 
 // RAActionDataRequest is a struct to hold info about actions taken on Rental Agreement
 type RAActionDataRequest struct {
-	UserRefNo string
-	RAID      int64
+	UserRefNo string // It is a User Reference Number that refers to Flow
+	RAID      int64  // It is RAID of Rental Agreement
 	Version   string // "raid" or "refno"
 	Action    int64  // If '-1' then Do nothing
 	Mode      string // It represents that which button submitted the form
@@ -283,9 +283,11 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 		}
 
 		if flow.FlowID > 0 {
-			// show warning that flow is already available in edit mode
-			err = fmt.Errorf("Flow already available for RAID: %d", RAID)
-			return flow, err
+			// flow is already available, therefor send blank flow
+			// to indicate warning
+			blankData := []byte("{}")
+			flow = rlib.Flow{FlowID: -1, Data: blankData}
+			return flow, nil
 		}
 
 		// IF NOT FOUND THEN TRY TO CREATE NEW ONE FROM RAID
