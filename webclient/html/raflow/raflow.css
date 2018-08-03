@@ -444,8 +444,8 @@ section[name="RATransactantForm"] .w2ui-form-box .w2ui-field > div, div[name="tr
 }
 
 .ra-form-component#final .container .grid-container {
-    /* min-height: 50%; */
-    height: 60%;
+    max-height: 240px;
+    overflow: auto;
     margin-top: 20px;
     box-sizing: border-box;
 }
