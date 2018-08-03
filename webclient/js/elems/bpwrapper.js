@@ -10,7 +10,7 @@
     buildROVReceiptElements,buildTaskListElements,buildTaskListDefElements,
     finishTaskListForm, createDepositForm, createPayorStmtForm,
     createStmtForm, finishForms, finishTLDForm,
-    buildClosePeriodElements,buildRAApplicantElements,buildRA2FlowElements,
+    buildClosePeriodElements,buildRAApplicantElements
 */
 
 "use strict";
@@ -41,7 +41,6 @@ window.buildPageElementsWrapper = function (uitype) {
     buildAssessmentElements();
     buildExpenseElements();
     buildARElements();
-    buildRA2FlowElements();
     buildPaymentTypeElements();
     buildDepositoryElements();
     buildDepositElements();
