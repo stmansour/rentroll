@@ -111,7 +111,7 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	case "raid":
 		flow, err = handleRAIDVersion(ctx, d, foo, raFlowData)
 		if err != nil {
-			// SvcErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 	case "refno":
