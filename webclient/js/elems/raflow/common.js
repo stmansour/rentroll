@@ -1,6 +1,6 @@
 /* global
-    RACompConfig, HideSliderContent, appendNewSlider, ShowSliderContentW2UIComp,
-    loadTargetSection, requiredFieldsFulFilled, initRAFlowAjax, getRecIDFromTMPASMID
+    RACompConfig, HideSliderContent, appendNewSlider, ShowSliderContentW2UIComp, displayFormFieldsError,
+    loadTargetSection, requiredFieldsFulFilled, initRAFlowAjax, getRecIDFromTMPASMID, getFeeIndex,
     saveActiveCompData, getRAFlowCompData, displayActiveComponentError, displayRAPetsGridError, dispalyRAPeopleGridError,
     lockOnGrid, getApprovals, updateFlowData, updateFlowCopy, displayErrorDot, initBizErrors,
     dispalyRARentablesGridError, dispalyRAVehiclesGridError, dispalyRAParentChildGridError, dispalyRATiePeopleGridError,
@@ -678,6 +678,34 @@ window.getRecIDFromTMPASMID = function(grid, TMPASMID){
     return recid;
 };
 
+// displayFormFieldsError It display form fields error  for record
+window.displayFormFieldsError = function(index, records, formName){
+    // Iterate through fields with errors
+    for(var key in records[index].errors){
+        var field = $("[name=" + formName + "] input#" + key);
+        var error = records[index].errors[key].join(", ");
+
+        field.css("border-color", "red");
+        field.after("<small class='error'>" + error + "</small>");
+    }
+};
+
+// getFeeIndex it return an index of fee which have TMPASMID
+window.getFeeIndex = function (TMPASMID, fees) {
+
+    var index = -1;
+
+    for(var i = 0; i < fees.length; i++){
+        // If TMPASMID doesn't match iterate for next element
+        if(fees[i].TMPASMID === TMPASMID){
+            index = i;
+            break;
+        }
+    }
+
+    return index;
+};
+
 //-----------------------------------------------------------------------
 // EnableDisableRAFlowVersionInputs
 //      enable/disable the inputs of form based on
@@ -747,4 +775,3 @@ window.DeleteRAFlowAJAX = function (UserRefNo) {
         }
     });
 };
-
