@@ -7,7 +7,7 @@ sqlschema:
 	@echo "*** Completed in ${THISDIR} ***"
 
 clean:
-	rm -f fixrcpts.sql fixrr.sql dbqqqmods.sql fixrcpts
+	@rm -f fixrcpts.sql fixrr.sql dbqqqmods.sql fixrcpts.sql
 	@echo "*** CLEAN completed in ${THISDIR} ***"
 
 config.json:
