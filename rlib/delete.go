@@ -1624,3 +1624,29 @@ func DeleteFlow(ctx context.Context, FlowID int64) error {
 	}
 	return err
 }
+
+// DeleteFlowByRefNo deletes a flow with the given UserRefNo
+func DeleteFlowByRefNo(ctx context.Context, BID int64, UserRefNo string) error {
+	var err error
+
+	// session... context
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+	}
+
+	fields := []interface{}{BID, UserRefNo}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.DeleteFlowByRefNo)
+		defer stmt.Close()
+		_, err = stmt.Exec(fields...)
+	} else {
+		_, err = RRdb.Prepstmt.DeleteFlowByRefNo.Exec(fields...)
+	}
+	if err != nil {
+		Ulog("Error deleting FlowParts for UserRefNo = %s, error: %v\n", UserRefNo, err)
+	}
+	return err
+}
