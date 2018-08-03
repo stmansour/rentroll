@@ -8,10 +8,11 @@
     ridRentablePickerRender, ridRentableDropRender, ridRentableCompare,
     AssignRentableGridRecords, AssignRentableFeesGridRecords,
     SetRentableAmountsFromFees, manageParentRentableW2UIItems, getRecIDFromTMPASMID,
-    RenderRentablesGridSummary, GetFeeFormFields, GetFeeGridColumns,
+    RenderRentablesGridSummary, GetFeeFormFields, GetFeeGridColumns, getFeeIndex,
     SetFeeDataFromFeeFormRecord, SetFeeFormRecordFromFeeData, displayRARentableFeesGridError,
-    FeeFormOnChangeHandler, GetFeeFormToolbar, FeeFormOnRefreshHandler, getRecIDFromRID,
+    FeeFormOnChangeHandler, GetFeeFormToolbar, FeeFormOnRefreshHandler, getRecIDFromRID, displayFormFieldsError,
     GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary, updateFlowData, dispalyRARentablesGridError,
+    displayRARentableFeeFormError, getRentableIndex, displayFormFieldsError,
     GetCurrentFlowID, EnableDisableRAFlowVersionInputs, ShowHideGridToolbarAddButton
 */
 
@@ -445,6 +446,11 @@ window.loadRARentablesGrid = function () {
                                 // When RentCycle is Norecur then disable the RentCycle list field.
                                 var isDisabled = feeForm.record.RentCycleText.text === app.cycleFreq[0];
                                 $("#RentCycleText").prop("disabled", isDisabled);
+
+                                // TODO(Akshay): Enable errors for rentables fees grid
+                                // setTimeout(function () {
+                                //     displayRARentableFeeFormError();
+                                // }, 500);
                             })
                             .fail(function(data) {
                                 console.log("failure" + data);
@@ -1123,4 +1129,44 @@ window.getRecIDFromRID = function(grid, RID){
         }
     }
     return recid;
+};
+
+// displayRARentableFeeFormError If form field have error than it highlight with red border and
+window.displayRARentableFeeFormError = function(RID){
+
+    // if pet section doesn't have error than return
+    if(!app.raflow.validationErrors.rentables){
+        return;
+    }
+
+    var form = w2ui.RARentableFeeForm;
+    var record = form.record;
+
+    // get list of pets
+    var rentables = app.raflow.validationCheck.errors.rentables;
+
+    // get index of vehicle for whom form is opened
+    var rentableIndex = getRentableIndex(RID, rentables);
+
+    var index = getFeeIndex(record.TMPASMID, rentables[rentableIndex].fees);
+
+    if(index > -1){
+        displayFormFieldsError(index, rentables[rentableIndex].fees, "RARentableFeeForm");
+    }
+};
+
+// getRentableIndex it return an index of rentable who have RID
+window.getRentableIndex = function (RID, rentables) {
+
+    var index = -1;
+
+    for(var i = 0; i < rentables.length; i++){
+        // If RID doesn't match iterate for next element
+        if(rentables[i].RID === RID){
+            index = i;
+            break;
+        }
+    }
+
+    return index;
 };

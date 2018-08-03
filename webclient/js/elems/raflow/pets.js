@@ -18,6 +18,7 @@
     SliderContentDivLength, SetFeeFormRecordFromFeeData,
     RenderPetFeesGridSummary, RAFlowNewPetAJAX, updateFlowData,
     GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary, getRecIDFromTMPASMID,
+    displayRAPetFormError, getPetIndex, displayFormFieldsError, displayRAPetFeeFormError, getFeeIndex,
     GetTiePeopleLocalData, displayRAPetsGridError, getRecIDFromTMPPETID, displayRAPetFeesGridError,
     GetCurrentFlowID, EnableDisableRAFlowVersionInputs, ShowHideGridToolbarAddButton
 */
@@ -286,6 +287,12 @@ window.loadRAPetsGrid = function () {
                                 // fill layout with components and with data
                                 SetRAPetLayoutContent(TMPPETID);
                             }, 0);
+
+                            // load form fields error
+                            setTimeout(function () {
+                                displayRAPetFormError();
+                            }, 500);
+
                         };
 
                     // warn user if form content has been changed
@@ -626,6 +633,11 @@ window.loadRAPetsGrid = function () {
                                 // When RentCycle is Norecur then disable the RentCycle list field.
                                 var isDisabled = feeForm.record.RentCycleText.text === app.cycleFreq[0];
                                 $("#RentCycleText").prop("disabled", isDisabled);
+
+                                // displat form field error if it have
+                                setTimeout(function(){
+                                    displayRAPetFeeFormError(w2ui.RAPetForm.record.TMPPETID);
+                                }, 500);
                             })
                             .fail(function(data) {
                                 console.log("failure" + data);
@@ -1006,7 +1018,6 @@ window.GetPetFeeLocalData = function(TMPPETID, TMPASMID, returnIndex) {
     return cloneData;
 };
 
-
 //-----------------------------------------------------------------------------
 // SetPetFeeLocalData - save the data for requested a TMPPETID, TMPASMID
 //                   in local data
@@ -1170,4 +1181,67 @@ window.getRecIDFromTMPPETID = function(grid, TMPPETID){
         }
     }
     return recid;
+};
+
+// displayRAPetFormError If form field have error than it highlight with red border and
+window.displayRAPetFormError = function(){
+
+    // if pet section doesn't have error than return
+    if(!app.raflow.validationErrors.pets){
+        return;
+    }
+
+    var form = w2ui.RAPetForm;
+    var record = form.record;
+
+    // get list of pets
+    var pets = app.raflow.validationCheck.errors.pets;
+
+    // get index of pet for whom form is opened
+    var index = getPetIndex(record.TMPPETID, pets);
+
+    if(index > -1){
+        displayFormFieldsError(index, pets, "RAPetForm");
+    }
+};
+
+// getPetIndex it return an index of pet who have TMPPETID
+window.getPetIndex = function (TMPPETID, pets) {
+
+    var index = -1;
+
+    for(var i = 0; i < pets.length; i++){
+        // If TMPPETID doesn't match iterate for next element
+        if(pets[i].TMPPETID === TMPPETID){
+            index = i;
+            break;
+        }
+    }
+
+    return index;
+};
+
+
+// displayRAPetFeeFormError If form field have error than it highlight with red border and
+window.displayRAPetFeeFormError = function(TMPPETID){
+
+    // if pet section doesn't have error than return
+    if(!app.raflow.validationErrors.pets){
+        return;
+    }
+
+    var form = w2ui.RAPetFeeForm;
+    var record = form.record;
+
+    // get list of pets
+    var pets = app.raflow.validationCheck.errors.pets;
+
+    // get index of pet for whom form is opened
+    var petIndex = getPetIndex(TMPPETID, pets);
+
+    var index = getFeeIndex(record.TMPASMID, pets[petIndex].fees);
+
+    if(index > -1){
+        displayFormFieldsError(index, pets[petIndex].fees, "RAPetFeeForm");
+    }
 };

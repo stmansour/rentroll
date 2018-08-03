@@ -332,12 +332,14 @@ window.buildRAApplicantElements = function() {
                         case 'btnClose':
                             var no_callBack = function() { return false; },
                                 yes_callBack = function() {
+                                    // reset validationError. cause it should display error when it pressed GetApproval button
+                                    initBizErrors();
                                     CloseRAFlowLayout();
                                 };
                             form_dirty_alert(yes_callBack, no_callBack);
                             break;
                         }
-                    },
+                    }
                 }
             },
             { type: 'preview',      hidden: true },
