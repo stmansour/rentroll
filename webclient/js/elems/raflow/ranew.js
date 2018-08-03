@@ -313,18 +313,21 @@ window.buildRAApplicantElements = function() {
                 toolbar: {
                     items: [
                         { id: 'btnNotes',       type: 'button',     icon: 'far fa-sticky-note' },
-                        { id: 'id',             type: 'html',                               html: '' },
-                        {                       type: 'break' },
-                        { id: 'state',          type: 'html',                               html: '' },
-                        {                       type: 'break' },
-                        { id: 'editViewBtn',    type: 'button',                             text: '' },
+                        { id: 'id',             type: 'html' },
+                        { id: 'state',          type: 'html' },
                         { id: 'bt3',            type: 'spacer' },
-                        { id: 'stateAction',    type: 'button',     icon: 'fas fa-cog',     text: 'Actions' },
-                        { id: 'remove-refno',   type: 'button',     icon: 'fas fa-trash',   style: 'margin: 0 10px;' },
+                        { id: 'versionMode',    type: 'html' },
+                        {                       type: 'break' },
+                        { id: 'stateAction',    type: 'html' },
+                        { id: 'remove-refno',   type: 'html',
+                            html: '<button id="remove_raflow" class="w2ui-btn" style="min-width: 30px; padding: 6px 0px;"><i class="fas fa-trash"></i></button>' },
+                        {                       type: 'break' },
+                        { id: 'editViewBtn',    type: 'html' },
                         {                       type: 'break' },
                         { id: 'btnClose',       type: 'button',     icon: 'fas fa-times' }
                     ],
                     onClick: function (event) {
+                        console.log(event.target);
                         switch(event.target) {
                         case 'btnClose':
                             var no_callBack = function() { return false; },
@@ -346,25 +349,7 @@ window.buildRAApplicantElements = function() {
                             }, 500);
                             break;
                         case 'editViewBtn':
-                            var version = app.raflow.version,
-                                RAID    = app.raflow.Flow.ID,
-                                RefNo   = "";
 
-                            if (RAID > 0) {
-                                // EXISTING RA WON'T HAVE NY REF.NO SO IN FLOW VERSION DATA
-                                RefNo = GetRefNoByRAIDFromGrid(RAID);
-                            } else {
-                                RAID = 0;
-                                RefNo = app.raflow.Flow.UserRefNo;
-                            }
-
-                            if (version === "raid") { // IF RAID VERSION LOADED THEN
-                                // LOAD REFERENCE NUMBER VERSION RAFLOW DATA
-                                LoadRAFlowVersionData(RAID, RefNo, "refno");
-                            } else if (version === "refno") { // IF REF.NO VERSION LOADED THEN
-                                // LOAD RAID VERSION RAFLOW DATA
-                                LoadRAFlowVersionData(RAID, RefNo, "raid");
-                            }
                             break;
                         }
                     },
@@ -415,30 +400,33 @@ window.ChangeRAFlowVersionToolbar = function(version, RAID, RefNo, FLAGS) {
 
     // GET STATE STRING USING FLAGS
     var state = app.RAStates[parseInt(FLAGS & 0xF)];
-    var stateHTML = "<p style='margin:0 10px;'>State:&nbsp;<strong id='RAState'>" + state + "</strong></p>";
+    var stateHTML = "<p style='margin:0 10px; font-size: 10pt;'>State:&nbsp;<span id='RAState'>" + state + "</span></p>";
+
+    // STATE CHANGE ACTIONS BUTTON HTML
+    var stateActionHTML = "<button class='w2ui-btn' id='raactions'><i class='fas fa-cog' style='margin-right: 7px;'></i>Actions</button>";
 
     var idString = "",
-        editViewBtnCaption = "",
-        editViewBtnIcon = "";
+        editViewBtnHTML = "",
+        versionMode = "";
 
     switch(version) {
         case "raid":
-            idString = "<p style='margin:0 10px;'><strong>RA" + RAID + "</strong></p>";
-            editViewBtnCaption = "<p style='margin:0 6px;'>Edit&nbsp;<strong>" + (RefNo ? " " + RefNo : "") + "</strong></p>";
-            editViewBtnIcon = "fas fa-pencil-alt fa-xs";
+            idString = "<p style='margin:0 10px; font-size: 12pt;'><strong>RA" + RAID + "</strong></p>";
+            editViewBtnHTML = "<button class='w2ui-btn' id='edit_view_raflow'><i class='fas fa-pencil-alt fa-sm' style='margin-right: 7px;'></i>Edit" + (RefNo ? "&nbsp;&nbsp;" + RefNo : "") + "</button>";
+            versionMode = "Viewing";
 
             // HIDE TRASH ICON
             w2ui.newraLayout.get("main").toolbar.hide('remove-refno');
 
             // SHOW EDIT/VIEW BUTTON AND SET THE TEXT
             w2ui.newraLayout.get("main").toolbar.show('editViewBtn');
-            w2ui.newraLayout.get("main").toolbar.set('editViewBtn', {text: editViewBtnCaption, icon: editViewBtnIcon});
+            w2ui.newraLayout.get("main").toolbar.set('editViewBtn', {html: editViewBtnHTML});
             break;
 
         case "refno":
-            idString = "<p style='margin:0 10px;'><strong>" + RefNo + "</strong></p>";
-            editViewBtnCaption = "<p style='margin:0 6px;'>" + (RAID ? "View&nbsp;<strong>RA" + RAID + "</strong>" : "") + "</p>";
-            editViewBtnIcon = "";
+            idString = "<p style='margin:0 10px; font-size: 12pt;'><strong>" + RefNo + "</strong></p>";
+            editViewBtnHTML = "<button class='w2ui-btn' id='edit_view_raflow'><i class='fas fa-eye fa-sm' style='margin-right: 7px;'></i>" + (RAID ? "View RA" + RAID : "") + "</button>";
+            versionMode = "Editing";
 
             // SHOW TRASH ICON
             w2ui.newraLayout.get("main").toolbar.show('remove-refno');
@@ -446,16 +434,21 @@ window.ChangeRAFlowVersionToolbar = function(version, RAID, RefNo, FLAGS) {
             // SHOW EDIT/VIEW BUTTON AND SET THE TEXT BASED ON RAID
             if (RAID > 0) {
                 w2ui.newraLayout.get("main").toolbar.show('editViewBtn');
-                w2ui.newraLayout.get("main").toolbar.set('editViewBtn', {text: editViewBtnCaption, icon: editViewBtnIcon});
+                w2ui.newraLayout.get("main").toolbar.set('editViewBtn', {html: editViewBtnHTML});
             } else {
                 w2ui.newraLayout.get("main").toolbar.hide('editViewBtn');
             }
             break;
     }
 
+    // VERSION MODE
+    var versionModeHTML = "<small style='font-size: 8.5pt; color: #555; vertical-align: 2px; margin-left: 10px;'>"+versionMode+"</small>";
+
     // SET THE ID AND STATE IN TOOLBAR
     w2ui.newraLayout.get("main").toolbar.set('id', {html: idString});
     w2ui.newraLayout.get("main").toolbar.set('state', {html: stateHTML});
+    w2ui.newraLayout.get("main").toolbar.set('stateAction', {html: stateActionHTML});
+    w2ui.newraLayout.get("main").toolbar.set('versionMode', {html: versionModeHTML});
 
     // REFRESH THE TOOLBAR TO GET THE EFFECT
     w2ui.newraLayout.get("main").toolbar.refresh();
@@ -498,3 +491,28 @@ window.LoadRAFlowVersionData = function(RAID, UserRefNo, version) {
         alert("Error while fetching data for selected record");
     });
 };
+
+//-----------------------------------------------------------------------------
+// EDIT/VIEW RAFLOW BUTTON CLICK EVENT HANDLER
+//-----------------------------------------------------------------------------
+$(document).on("click", "button#edit_view_raflow", function(e) {
+    var version = app.raflow.version,
+        RAID    = app.raflow.Flow.ID,
+        RefNo   = "";
+
+    if (RAID > 0) {
+        // EXISTING RA WON'T HAVE NY REF.NO SO IN FLOW VERSION DATA
+        RefNo = GetRefNoByRAIDFromGrid(RAID);
+    } else {
+        RAID = 0;
+        RefNo = app.raflow.Flow.UserRefNo;
+    }
+
+    if (version === "raid") { // IF RAID VERSION LOADED THEN
+        // LOAD REFERENCE NUMBER VERSION RAFLOW DATA
+        LoadRAFlowVersionData(RAID, RefNo, "refno");
+    } else if (version === "refno") { // IF REF.NO VERSION LOADED THEN
+        // LOAD RAID VERSION RAFLOW DATA
+        LoadRAFlowVersionData(RAID, RefNo, "raid");
+    }
+});
