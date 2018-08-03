@@ -483,9 +483,11 @@ window.LoadRAFlowVersionData = function(RAID, UserRefNo, version) {
                 // EXISTING RA WON'T HAVE NY REF.NO SO IN FLOW VERSION DATA
                 RefNo = GetRefNoByRAIDFromGrid(RAID);
                 ChangeRAFlowVersionToolbar("raid", RAID, RefNo, FLAGS);
+                $("button#save-ra-flow-btn").prop("disabled", true);
             } else if (version === "refno") {
                 RefNo = app.raflow.Flow.UserRefNo;
                 ChangeRAFlowVersionToolbar("refno", RAID, RefNo, FLAGS);
+                $("button#save-ra-flow-btn").prop("disabled", false);
             }
             // LoadRAFlowTemplate(rec.BID);
 
