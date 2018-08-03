@@ -334,7 +334,7 @@ func GetRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 			// GET THE NEW FLOW ID CREATED USING PERMANENT DATA
 			var flowID int64
-			flowID, err = GetRA2FlowCore(ctx, &ra, d.sess.UID)
+			flowID, err = GetRA2FlowCore(ctx, &ra, d)
 			if err != nil {
 				return
 			}
