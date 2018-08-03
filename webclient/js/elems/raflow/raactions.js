@@ -14,7 +14,7 @@
 "use strict";
 
 var actionsUI = {
-    hdrHeight: 117,
+    hdrHeight: 122,
     ftrHeight: 150,
 };
 
