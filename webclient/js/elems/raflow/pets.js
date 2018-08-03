@@ -19,7 +19,7 @@
     RenderPetFeesGridSummary, RAFlowNewPetAJAX, updateFlowData,
     GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary, getRecIDFromTMPASMID,
     GetTiePeopleLocalData, displayRAPetsGridError, getRecIDFromTMPPETID, displayRAPetFeesGridError,
-    GetCurrentFlowID, EnableDisableRAFlowVersionInputs
+    GetCurrentFlowID, EnableDisableRAFlowVersionInputs, ShowHideGridToolbarAddButton
 */
 
 "use strict";
@@ -147,7 +147,7 @@ window.loadRAPetsGrid = function () {
                 toolbar: true,
                 toolbarSearch: false,
                 toolbarAdd: true,
-                toolbarReload: true,
+                toolbarReload: false,
                 toolbarInput: false,
                 toolbarColumns: false,
                 footer: true,
@@ -249,10 +249,13 @@ window.loadRAPetsGrid = function () {
                 }
             ],
             onRefresh: function (event) {
+                var grid = this;
                 event.onComplete = function (){
                     $("#RAPetsGrid_checkbox")[0].checked = app.raflow.Flow.Data.meta.HavePets;
                     $("#RAPetsGrid_checkbox")[0].disabled = app.raflow.Flow.Data.meta.HavePets;
                     lockOnGrid("RAPetsGrid");
+
+                    ShowHideGridToolbarAddButton(grid.name);
                 };
             },
             onClick: function(event) {
@@ -570,7 +573,7 @@ window.loadRAPetsGrid = function () {
                 toolbarAdd:     true,
                 toolbarReload:  false,
                 toolbarInput:   false,
-                toolbarColumns: true,
+                toolbarColumns: false,
                 footer:         false,
             },
             multiSelect: false,
@@ -668,6 +671,12 @@ window.loadRAPetsGrid = function () {
                 .fail(function(data) {
                     console.log("failure" + data);
                 });
+            },
+            onRefresh: function(event) {
+                var grid = this;
+                event.onComplete = function() {
+                    ShowHideGridToolbarAddButton(grid.name);
+                };
             },
         });
 

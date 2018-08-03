@@ -12,7 +12,7 @@
     SetFeeDataFromFeeFormRecord, SetFeeFormRecordFromFeeData, displayRARentableFeesGridError,
     FeeFormOnChangeHandler, GetFeeFormToolbar, FeeFormOnRefreshHandler, getRecIDFromRID,
     GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary, updateFlowData, dispalyRARentablesGridError,
-    GetCurrentFlowID, EnableDisableRAFlowVersionInputs
+    GetCurrentFlowID, EnableDisableRAFlowVersionInputs, ShowHideGridToolbarAddButton
 */
 
 "use strict";
@@ -343,7 +343,7 @@ window.loadRARentablesGrid = function () {
                 toolbarAdd:     true,
                 toolbarReload:  false,
                 toolbarInput:   false,
-                toolbarColumns: true,
+                toolbarColumns: false,
                 footer:         false,
             },
             style: 'border: 2px solid white; display: block;',
@@ -454,7 +454,13 @@ window.loadRARentablesGrid = function () {
                     // warn user if form content has been changed
                     form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);
                 };
-            }
+            },
+            onRefresh: function(event) {
+                var grid = this;
+                event.onComplete = function() {
+                    ShowHideGridToolbarAddButton(grid.name);
+                };
+            },
         });
 
         // -----------------------------------------------------------

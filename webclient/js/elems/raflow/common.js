@@ -4,7 +4,8 @@
     saveActiveCompData, getRAFlowCompData, displayActiveComponentError, displayRAPetsGridError, dispalyRAPeopleGridError,
     lockOnGrid, getApprovals, updateFlowData, updateFlowCopy, displayErrorDot, initBizErrors,
     dispalyRARentablesGridError, dispalyRAVehiclesGridError, dispalyRAParentChildGridError, dispalyRATiePeopleGridError,
-    GetCurrentFlowID, FlowFilled, ReassignPeopleGridRecords, AssignPetsGridRecords, AssignVehiclesGridRecords, AssignRentableGridRecords
+    GetCurrentFlowID, FlowFilled, ReassignPeopleGridRecords, AssignPetsGridRecords, AssignVehiclesGridRecords, AssignRentableGridRecords,
+    GetGridToolbarAddButtonID
 */
 
 "use strict";
@@ -673,4 +674,19 @@ window.EnableDisableRAFlowVersionGrid = function(grid) {
    } else if (app.raflow.version === "refno") { // ENABLE ALL INPUTS & BUTTONS
         grid.unlock();
    }
+};
+
+// GetGridToolbarAddButtonID to get the DOM ID of add button in grid by gridName
+window.GetGridToolbarAddButtonID = function(gridName) {
+    return "tb_" + gridName +"_toolbar_item_w2ui-add";
+};
+
+// ShowHideGridToolbarAddButton shows/hides add button based on raflow version
+window.ShowHideGridToolbarAddButton = function(gridName) {
+    var addBtnID = GetGridToolbarAddButtonID(gridName);
+    if (app.raflow.version === "raid") {
+        $("#"+addBtnID).hide();
+    } else if (app.raflow.version === "refno") {
+        $("#"+addBtnID).show();
+    }
 };

@@ -10,7 +10,7 @@
     getPeopleLocalDataByTCID, setTransactantDefaultRole,
     getStringListData, getSLStringList, updateRATransactantFormCheckboxes, updateFlowData,
     managePeopleW2UIItems, removeRAFlowPersonAJAX, saveRAFlowPersonAJAX, onCheckboxesChange, getRecIDFromTMPTCID, dispalyRAPeopleGridError,
-    GetCurrentFlowID, EnableDisableRAFlowVersionInputs
+    GetCurrentFlowID, EnableDisableRAFlowVersionInputs, ShowHideGridToolbarAddButton
 */
 
 "use strict";
@@ -106,7 +106,7 @@ window.loadRAPeopleForm = function () {
                 toolbar: true,
                 toolbarSearch: false,
                 toolbarAdd: true,
-                toolbarReload: true,
+                toolbarReload: false,
                 toolbarInput: false,
                 toolbarColumns: false,
                 footer: true
@@ -201,6 +201,12 @@ window.loadRAPeopleForm = function () {
                     // }
                 }
             ],
+            onRefresh: function(event) {
+                var grid = this;
+                event.onComplete = function() {
+                    ShowHideGridToolbarAddButton(grid.name);
+                };
+            },
             onClick: function (event) {
                 event.onComplete = function () {
                     var yes_args = [this, event.recid],
