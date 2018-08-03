@@ -337,20 +337,6 @@ window.buildRAApplicantElements = function() {
                                 };
                             form_dirty_alert(yes_callBack, no_callBack);
                             break;
-                        case 'stateAction':
-                            var BID = getCurrentBID();
-                            var BUD = getBUDfromBID(BID);
-                            getStringListData(BID, BUD);
-
-                            w2ui.newraLayout.lock('main');
-                            // set the newralayout's right panel content
-                            setTimeout(function() {
-                                loadRAActionTemplate();
-                            }, 500);
-                            break;
-                        case 'editViewBtn':
-
-                            break;
                         }
                     },
                 }
@@ -516,3 +502,19 @@ $(document).on("click", "button#edit_view_raflow", function(e) {
         LoadRAFlowVersionData(RAID, RefNo, "raid");
     }
 });
+
+//-----------------------------------------------------------------------------
+// ACTIONS BUTTON CLICK EVENT HANDLER
+//-----------------------------------------------------------------------------
+$(document).on("click", "button#raactions", function(e) {
+    var BID = getCurrentBID();
+    var BUD = getBUDfromBID(BID);
+    getStringListData(BID, BUD);
+
+    w2ui.newraLayout.lock('main');
+    // set the newralayout's right panel content
+    setTimeout(function() {
+        loadRAActionTemplate();
+    }, 500);
+});
+
