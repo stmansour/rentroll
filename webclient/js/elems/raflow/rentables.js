@@ -12,7 +12,8 @@
     SetFeeDataFromFeeFormRecord, SetFeeFormRecordFromFeeData, displayRARentableFeesGridError,
     FeeFormOnChangeHandler, GetFeeFormToolbar, FeeFormOnRefreshHandler, getRecIDFromRID,
     GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary, updateFlowData, dispalyRARentablesGridError,
-    GetCurrentFlowID, EnableDisableRAFlowVersionInputs, ShowHideGridToolbarAddButton
+    GetCurrentFlowID, EnableDisableRAFlowVersionInputs, ShowHideGridToolbarAddButton,
+    HideAllSliderContent
 */
 
 "use strict";
@@ -650,6 +651,7 @@ window.loadRARentablesGrid = function () {
     // now load grid in division
     $('#ra-form #rentables .grid-container').w2render(w2ui.RARentablesGrid);
     $('#ra-form #rentables .form-container').w2render(w2ui.RARentableSearchForm);
+    HideAllSliderContent();
 
     // load the existing data in rentables component
     setTimeout(function () {

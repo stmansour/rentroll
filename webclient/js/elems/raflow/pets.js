@@ -19,7 +19,8 @@
     RenderPetFeesGridSummary, RAFlowNewPetAJAX, updateFlowData,
     GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary, getRecIDFromTMPASMID,
     GetTiePeopleLocalData, displayRAPetsGridError, getRecIDFromTMPPETID, displayRAPetFeesGridError,
-    GetCurrentFlowID, EnableDisableRAFlowVersionInputs, ShowHideGridToolbarAddButton
+    GetCurrentFlowID, EnableDisableRAFlowVersionInputs, ShowHideGridToolbarAddButton,
+    HideAllSliderContent
 */
 
 "use strict";
@@ -862,6 +863,7 @@ window.loadRAPetsGrid = function () {
 
     // now load grid in division
     $('#ra-form #pets .grid-container').w2render(w2ui.RAPetsGrid);
+    HideAllSliderContent();
 
     // load the existing data in pets component
     setTimeout(function () {

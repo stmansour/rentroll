@@ -20,7 +20,8 @@
     GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary,
     GetVehicleIdentity, updateFlowData, GetTiePeopleLocalData,
     getRecIDFromTMPVID, dispalyRAVehiclesGridError, GetCurrentFlowID,
-    EnableDisableRAFlowVersionInputs, ShowHideGridToolbarAddButton
+    EnableDisableRAFlowVersionInputs, ShowHideGridToolbarAddButton,
+    HideAllSliderContent
 */
 
 "use strict";
@@ -907,6 +908,7 @@ window.loadRAVehiclesGrid = function () {
 
     // now load grid in target division
     $('#ra-form #vehicles .grid-container').w2render(w2ui.RAVehiclesGrid);
+    HideAllSliderContent();
 
     // load the existing data in vehicles component
     setTimeout(function () {

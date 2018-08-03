@@ -545,6 +545,7 @@ window.loadTargetSection = function (target, previousActiveCompID) {
 // @params
 //   w2uiComp = w2ui component
 //   width    = width to apply to slider content div
+//   sliderID = slider ID (as in stack fashion)
 //-----------------------------------------------------------------------------
 window.ShowSliderContentW2UIComp = function(w2uiComp, width, sliderID) {
     if (!sliderID) {
@@ -557,9 +558,21 @@ window.ShowSliderContentW2UIComp = function(w2uiComp, width, sliderID) {
 };
 
 //-----------------------------------------------------------------------------
+// HideAllSliderContent - hides all slider and empty the content inside
+//                        slider-content div
+//-----------------------------------------------------------------------------
+window.HideAllSliderContent = function() {
+    $("#raflow-container .slider").hide();
+    $("#raflow-container .slider .slider-content").width(0);
+    $("#raflow-container .slider .slider-content").empty();
+};
+
+//-----------------------------------------------------------------------------
 // HideSliderContent - hide the slider and empty the content inside
 //                     slider-content div
 //
+// @params
+//      sliderID = slider ID (as in stack fashion)
 //-----------------------------------------------------------------------------
 window.HideSliderContent = function(sliderID) {
     if (!sliderID) {

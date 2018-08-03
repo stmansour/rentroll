@@ -10,7 +10,8 @@
     getPeopleLocalDataByTCID, setTransactantDefaultRole,
     getStringListData, getSLStringList, updateRATransactantFormCheckboxes, updateFlowData,
     managePeopleW2UIItems, removeRAFlowPersonAJAX, saveRAFlowPersonAJAX, onCheckboxesChange, getRecIDFromTMPTCID, dispalyRAPeopleGridError,
-    GetCurrentFlowID, EnableDisableRAFlowVersionInputs, ShowHideGridToolbarAddButton
+    GetCurrentFlowID, EnableDisableRAFlowVersionInputs, ShowHideGridToolbarAddButton,
+    HideAllSliderContent
 */
 
 "use strict";
@@ -427,6 +428,7 @@ window.loadRAPeopleForm = function () {
     // load form in div
     $('#ra-form #people .grid-container').w2render(w2ui.RAPeopleGrid);
     $('#ra-form #people .form-container').w2render(w2ui.RAPeopleForm);
+    HideAllSliderContent();
 
     // load existing info in PeopleForm and PeopleGrid
     setTimeout(function () {

@@ -487,8 +487,15 @@ window.LoadRAFlowVersionData = function(RAID, UserRefNo, version) {
             }
             // LoadRAFlowTemplate(rec.BID);
 
-            // REFRESH THE LAYOUT
+            /*// REFRESH THE LAYOUT
             w2ui.newraLayout.refresh();
+            REFRESH CAUSES THE INTERFACE JUMP BACK TO DATES SECTION ALWAYS
+            */
+
+            // LOAD THE CURRENT COMPONENT AGAIN
+            var active_comp = $(".ra-form-component:visible");
+            var active_comp_id = active_comp.attr("id");
+            loadTargetSection(active_comp_id, active_comp_id);
         }
     })
     .fail(function() {

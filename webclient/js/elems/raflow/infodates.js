@@ -1,5 +1,6 @@
 /* global
-    getRAFlowCompData, EnableDisableRAFlowVersionInputs
+    getRAFlowCompData, EnableDisableRAFlowVersionInputs,
+    HideAllSliderContent
 */
 
 "use strict";
@@ -57,6 +58,7 @@ window.loadRADatesForm = function () {
 
     // now render the form in specifiec targeted division
     $('#ra-form #dates .form-container').w2render(w2ui.RADatesForm);
+    HideAllSliderContent();
 
     // load the existing data in dates component
     setTimeout(function () {
