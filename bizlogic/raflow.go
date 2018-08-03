@@ -671,7 +671,9 @@ func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Vali
 			peopleFieldsErrors[0].Errors["IsRenter"] = append(peopleFieldsErrors[0].Errors["IsRenter"], err.Error())
 			peopleFieldsErrors[0].Total++
 		} else {
-			var peopleFieldsError PeopleFieldsError
+			var peopleFieldsError = PeopleFieldsError{
+				Errors: make(map[string][]string, 0),
+			}
 
 			peopleFieldsError.TMPTCID = people[0].TMPTCID
 			peopleFieldsError.Errors["IsRenter"] = append(peopleFieldsError.Errors["IsRenter"], err.Error())
