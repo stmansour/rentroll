@@ -17,9 +17,9 @@
     FeeFormOnChangeHandler, FeeFormOnRefreshHandler,
     SliderContentDivLength, SetFeeFormRecordFromFeeData,
     RenderVehicleFeesGridSummary, RAFlowNewVehicleAJAX,
-    GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary,
-    GetVehicleIdentity, updateFlowData, GetTiePeopleLocalData,
-    getRecIDFromTMPVID, dispalyRAVehiclesGridError, GetCurrentFlowID
+    GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary, displayRAVehicleFormError,
+    GetVehicleIdentity, updateFlowData, GetTiePeopleLocalData, displayFormFieldsError,
+    getRecIDFromTMPVID, dispalyRAVehiclesGridError, GetCurrentFlowID, getVehicleIndex
 */
 
 "use strict";
@@ -312,6 +312,10 @@ window.loadRAVehiclesGrid = function () {
                                 // fill layout with components and with data
                                 SetRAVehicleLayoutContent(TMPVID);
                             }, 0);
+
+                            setTimeout(function () {
+                                displayRAVehicleFormError();
+                            }, 500);
                         };
 
                     // warn user if form content has been changed
@@ -1203,4 +1207,42 @@ window.getRecIDFromTMPVID = function(grid, TMPVID){
         }
     }
     return recid;
+};
+
+// displayRAVehicleFormError If form field have error than it highlight with red border and
+window.displayRAVehicleFormError = function(){
+
+    // if pet section doesn't have error than return
+    if(!app.raflow.validationErrors.vehicles){
+        return;
+    }
+
+    var form = w2ui.RAVehicleForm;
+    var record = form.record;
+
+    // get list of pets
+    var vehicles = app.raflow.validationCheck.errors.vehicle;
+
+    // get index of pet for whom form is opened
+    var index = getVehicleIndex(record.TMPVID, vehicles);
+
+    if(index > -1){
+        displayFormFieldsError(index, vehicles);
+    }
+};
+
+// getVehicleIndex it return an index of vehicle who have TMPVID
+window.getVehicleIndex = function (TMPVID, vehicles) {
+
+    var index = -1;
+
+    for(var i = 0; i < vehicles.length; i++){
+        // If TMPVID doesn't match iterate for next element
+        if(vehicles[i].TMPVID === TMPVID){
+            index = i;
+            break;
+        }
+    }
+
+    return index;
 };

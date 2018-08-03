@@ -1,5 +1,5 @@
 /* global
-    RACompConfig, HideSliderContent, appendNewSlider, ShowSliderContentW2UIComp,
+    RACompConfig, HideSliderContent, appendNewSlider, ShowSliderContentW2UIComp, displayFormFieldsError,
     loadTargetSection, requiredFieldsFulFilled, initRAFlowAjax, getRecIDFromTMPASMID
     saveActiveCompData, getRAFlowCompData, displayActiveComponentError, displayRAPetsGridError, dispalyRAPeopleGridError,
     lockOnGrid, getApprovals, updateFlowData, updateFlowCopy, displayErrorDot, initBizErrors,
@@ -576,4 +576,16 @@ window.getRecIDFromTMPASMID = function(grid, TMPASMID){
         }
     }
     return recid;
+};
+
+// displayFormFieldsError It display form fields error  for record
+window.displayFormFieldsError = function(index, records){
+    // Iterate through fields with errors
+    for(var key in records[index].errors){
+        var field = $("input#" + key);
+        var error = records[index].errors[key].join(", ");
+
+        field.css("border-color", "red");
+        field.after("<small class='error'>" + error + "</small>");
+    }
 };

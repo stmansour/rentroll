@@ -470,3 +470,14 @@ section[name="RATransactantForm"] .w2ui-form-box .w2ui-field > div, div[name="tr
 #ra-form footer button#next {
     float: right;
 }
+
+small.error {
+    margin-top: .25rem;
+    font-size: 10px;
+    color: red;
+    display: block;
+}
+
+small.no-error {
+    display: none;
+}

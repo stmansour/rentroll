@@ -244,6 +244,9 @@ window.buildRAApplicantElements = function() {
                                 yes_callBack = function() {
                                     w2ui.toplayout.hide('right',true);
                                     w2ui.applicantsGrid.render();
+
+                                    // reset validationError. cause it should display error when it pressed GetApproval button
+                                    initBizErrors();
                                 };
                             form_dirty_alert(yes_callBack, no_callBack);
                             break;

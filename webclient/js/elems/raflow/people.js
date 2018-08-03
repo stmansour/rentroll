@@ -10,7 +10,7 @@
     getPeopleLocalDataByTCID, setTransactantDefaultRole,
     getStringListData, getSLStringList, updateRATransactantFormCheckboxes, updateFlowData,
     managePeopleW2UIItems, removeRAFlowPersonAJAX, saveRAFlowPersonAJAX, onCheckboxesChange, getRecIDFromTMPTCID, dispalyRAPeopleGridError,
-    GetCurrentFlowID
+    GetCurrentFlowID, displayRAPeopleFormError, getPeopleIndex, displayFormFieldsError
 */
 
 "use strict";
@@ -235,6 +235,8 @@ window.loadRAPeopleForm = function () {
                                 setRATransactantFormHeader(form.record);
 
                                 form.refresh(); // need to refresh for form changes
+
+                                displayRAPeopleFormError();
                             }).fail(function (data) {
                                 form.message(data.message);
                             });
@@ -880,4 +882,42 @@ window.getRecIDFromTMPTCID = function(grid, TMPTCID){
         }
     }
     return recid;
+};
+
+// displayRAPeopleFormError If form field have error than it highlight with red border and
+window.displayRAPeopleFormError = function(){
+
+    // if pet section doesn't have error than return
+    if(!app.raflow.validationErrors.people){
+        return;
+    }
+
+    var form = w2ui.RATransactantForm;
+    var record = form.record;
+
+    // get list of pets
+    var people = app.raflow.validationCheck.errors.people;
+
+    // get index of pet for whom form is opened
+    var index = getPeopleIndex(record.TMPTCID, people);
+
+    if(index > -1){
+        displayFormFieldsError(index, people);
+    }
+};
+
+// getPeopleIndex it return an index of people who have TMPTCID
+window.getPeopleIndex = function (TMPTCID, people) {
+
+    var index = -1;
+
+    for(var i = 0; i < people.length; i++){
+        // If TMPTCID doesn't match iterate for next element
+        if(people[i].TMPTCID === TMPTCID){
+            index = i;
+            break;
+        }
+    }
+
+    return index;
 };
