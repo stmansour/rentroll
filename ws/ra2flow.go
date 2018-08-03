@@ -315,7 +315,7 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	flowID, err := GetRA2FlowCore(ctx, &ra, d.sess.UID)
+	flowID, err := GetRA2FlowCore(ctx, &ra, d)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 	}
@@ -345,8 +345,9 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 // RETURNS:
 //     the new flowID
 //     any error encountered
+//     service data
 //-------------------------------------------------------------------------
-func GetRA2FlowCore(ctx context.Context, ra *rlib.RentalAgreement, uid int64) (int64, error) {
+func GetRA2FlowCore(ctx context.Context, ra *rlib.RentalAgreement, d *ServiceData) (int64, error) {
 	var flowID int64
 
 	// convert permanent ra to flow data and get it
@@ -357,10 +358,17 @@ func GetRA2FlowCore(ctx context.Context, ra *rlib.RentalAgreement, uid int64) (i
 
 	// CHANGE THE STATE TO APPLICATION BEING COMPLETED
 	// AS WE'RE CREATING NEW FLOW
-	// TODO(Jay): CALL RESET META METHOD HERE
-	// action := rlib.RAActionApplicationBeingCompleted
-	// state := raf.Meta.RAFLAGS & uint64(0xF)
-	// resetMetaInfo(action, state, &raf.Meta)
+	action := int64(rlib.RAActionApplicationBeingCompleted)
+	state := raf.Meta.RAFLAGS & uint64(0xF)
+
+	// reset meta info
+	ActionResetMetaData(action, state, &raf.Meta)
+
+	// set data in meta based on Action
+	err = SetActionMetaData(ctx, d, action, &raf.Meta)
+	if err != nil {
+		return flowID, err
+	}
 
 	//-------------------------------------------------------------------------
 	// Save the flow to the db
@@ -381,8 +389,8 @@ func GetRA2FlowCore(ctx context.Context, ra *rlib.RentalAgreement, uid int64) (i
 		FlowType:  rlib.RAFlow,
 		ID:        ra.RAID,
 		Data:      raflowJSONData,
-		CreateBy:  uid,
-		LastModBy: uid,
+		CreateBy:  d.sess.UID,
+		LastModBy: d.sess.UID,
 	}
 
 	// insert new flow

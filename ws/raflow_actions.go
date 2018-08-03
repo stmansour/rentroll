@@ -275,7 +275,11 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 	var err error
 
 	switch Action {
-	case 0, 1, 2, 3:
+	case
+		rlib.RAActionApplicationBeingCompleted,
+		rlib.RAActionSetToFirstApproval,
+		rlib.RAActionSetToSecondApproval,
+		rlib.RAActionSetToMoveIn:
 		// If flow is present then get that flow
 		flow, err = rlib.GetFlowForRAID(ctx, "RA", RAID)
 		if err != nil {
@@ -304,7 +308,7 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 
 		// GET THE NEW FLOW ID CREATED USING PERMANENT DATA
 		var flowID int64
-		flowID, err = GetRA2FlowCore(ctx, &ra, d.sess.UID)
+		flowID, err = GetRA2FlowCore(ctx, &ra, d)
 		if err != nil {
 			return flow, err
 		}
@@ -319,10 +323,10 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 		modRAFlowMeta := raFlowData.Meta
 
 		// RESET META INFO IF NEEDED
-		resetMetaInfo(Action, State, &modRAFlowMeta)
+		ActionResetMetaData(Action, State, &modRAFlowMeta)
 
 		// MODIFY META DATA
-		err = modifyMetaData(ctx, d, Action, &modRAFlowMeta)
+		err = SetActionMetaData(ctx, d, Action, &modRAFlowMeta)
 		if err != nil {
 			return flow, err
 		}
@@ -345,7 +349,10 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 			return flow, err
 		}
 
-	case 4, 5, 6:
+	case
+		rlib.RAActionCompleteMoveIn,
+		rlib.RAActionReceivedNoticeToMove,
+		rlib.RAActionTerminate:
 
 		// GET RENTAL AGREEMENT
 		var ra rlib.RentalAgreement
@@ -402,10 +409,10 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 		State = ra.FLAGS & uint64(0xF)
 
 		// RESET META INFO IF NEEDED
-		resetMetaInfo(Action, State, &modRAFlowMeta)
+		ActionResetMetaData(Action, State, &modRAFlowMeta)
 
 		// MODIFY META DATA
-		err = modifyMetaData(ctx, d, Action, &modRAFlowMeta)
+		err = SetActionMetaData(ctx, d, Action, &modRAFlowMeta)
 		if err != nil {
 			return flow, err
 		}
@@ -479,16 +486,17 @@ func getUserFullName(ctx context.Context, UID int64) (string, error) {
 	return person.DisplayName(), nil
 }
 
-func resetMetaInfo(Action int64, State uint64, modRAFlowMeta *rlib.RAFlowMetaInfo) {
+// ActionResetMetaData resets the info in meta based on the action upto the current state
+func ActionResetMetaData(Action int64, State uint64, modRAFlowMeta *rlib.RAFlowMetaInfo) {
 	if Action <= int64(State) {
 		for i := Action; i <= int64(State); i++ {
 			switch i {
-			case 0: // Application Being Completed
+			case rlib.RAActionApplicationBeingCompleted:
 				modRAFlowMeta.ApplicationReadyUID = 0
 				modRAFlowMeta.ApplicationReadyName = ""
 				modRAFlowMeta.ApplicationReadyDate = rlib.JSONDateTime(time.Time{})
 
-			case 1: // Pending First Approval
+			case rlib.RAActionSetToFirstApproval:
 				modRAFlowMeta.Approver1 = 0
 				modRAFlowMeta.Approver1Name = ""
 				modRAFlowMeta.DeclineReason1 = 0
@@ -497,7 +505,7 @@ func resetMetaInfo(Action int64, State uint64, modRAFlowMeta *rlib.RAFlowMetaInf
 				// reset 4th bit of RAFLAG to 0
 				modRAFlowMeta.RAFLAGS = modRAFlowMeta.RAFLAGS & ^uint64(1<<4)
 
-			case 2: // Pending Second Approval
+			case rlib.RAActionSetToSecondApproval:
 				modRAFlowMeta.Approver2 = 0
 				modRAFlowMeta.Approver2Name = ""
 				modRAFlowMeta.DeclineReason2 = 0
@@ -506,23 +514,23 @@ func resetMetaInfo(Action int64, State uint64, modRAFlowMeta *rlib.RAFlowMetaInf
 				// reset 5th bit of RAFLAG to 0
 				modRAFlowMeta.RAFLAGS = modRAFlowMeta.RAFLAGS & ^uint64(1<<5)
 
-			case 3: // Move-In / Execute Modification
+			case rlib.RAActionSetToMoveIn:
 				modRAFlowMeta.MoveInUID = 0
 				modRAFlowMeta.MoveInName = ""
 				modRAFlowMeta.DocumentDate = rlib.JSONDateTime(time.Time{})
 
-			case 4: // Active
+			case rlib.RAActionCompleteMoveIn:
 				modRAFlowMeta.ActiveUID = 0
 				modRAFlowMeta.ActiveName = ""
 				modRAFlowMeta.ActiveDate = rlib.JSONDateTime(time.Time{})
 
-			case 5: //Notice To Move
+			case rlib.RAActionReceivedNoticeToMove:
 				modRAFlowMeta.NoticeToMoveUID = 0
 				modRAFlowMeta.NoticeToMoveName = ""
 				modRAFlowMeta.NoticeToMoveDate = rlib.JSONDateTime(time.Time{})
 				modRAFlowMeta.NoticeToMoveReported = rlib.JSONDateTime(time.Time{})
 
-			case 6: // Terminated
+			case rlib.RAActionTerminate:
 				modRAFlowMeta.TerminatorUID = 0
 				modRAFlowMeta.TerminatorName = ""
 				modRAFlowMeta.LeaseTerminationReason = 0
@@ -532,7 +540,8 @@ func resetMetaInfo(Action int64, State uint64, modRAFlowMeta *rlib.RAFlowMetaInf
 	}
 }
 
-func modifyMetaData(ctx context.Context, d *ServiceData, Action int64, modRAFlowMeta *rlib.RAFlowMetaInfo) error {
+// SetActionMetaData sets the info in meta based on the given action
+func SetActionMetaData(ctx context.Context, d *ServiceData, Action int64, modRAFlowMeta *rlib.RAFlowMetaInfo) error {
 	var err error
 
 	// set location for time as UTC
@@ -549,10 +558,10 @@ func modifyMetaData(ctx context.Context, d *ServiceData, Action int64, modRAFlow
 	// take latest RAFLAGS value at this point(in case flag bits are reset)
 	clearedState := modRAFlowMeta.RAFLAGS & ^uint64(0xF)
 	switch Action {
-	case 0: // Application Being Completed
+	case rlib.RAActionApplicationBeingCompleted:
 		modRAFlowMeta.RAFLAGS = (clearedState | 0)
 
-	case 1: // Set To First Approval
+	case rlib.RAActionSetToFirstApproval:
 		var fullName string
 		fullName, err = getUserFullName(ctx, d.sess.UID)
 		if err != nil {
@@ -565,10 +574,10 @@ func modifyMetaData(ctx context.Context, d *ServiceData, Action int64, modRAFlow
 
 		modRAFlowMeta.RAFLAGS = (clearedState | 1)
 
-	case 2: // Set To Second Approval
+	case rlib.RAActionSetToSecondApproval:
 		modRAFlowMeta.RAFLAGS = (clearedState | 2)
 
-	case 3: // Set To Move-In
+	case rlib.RAActionSetToMoveIn:
 		var fullName string
 		fullName, err = getUserFullName(ctx, d.sess.UID)
 		if err != nil {
@@ -581,7 +590,7 @@ func modifyMetaData(ctx context.Context, d *ServiceData, Action int64, modRAFlow
 
 		modRAFlowMeta.RAFLAGS = (clearedState | 3)
 
-	case 4: // Complete Move-In
+	case rlib.RAActionCompleteMoveIn:
 		var fullName string
 		fullName, err = getUserFullName(ctx, d.sess.UID)
 		if err != nil {
@@ -593,7 +602,7 @@ func modifyMetaData(ctx context.Context, d *ServiceData, Action int64, modRAFlow
 		modRAFlowMeta.ActiveDate = rlib.JSONDateTime(today)
 		modRAFlowMeta.RAFLAGS = (clearedState | 4)
 
-	case 5: // Notice-To-Move
+	case rlib.RAActionReceivedNoticeToMove:
 		var data RANoticeToMoveData
 		if err = json.Unmarshal([]byte(d.data), &data); err != nil {
 			return err
@@ -612,7 +621,7 @@ func modifyMetaData(ctx context.Context, d *ServiceData, Action int64, modRAFlow
 
 		modRAFlowMeta.RAFLAGS = (clearedState | 5)
 
-	case 6: // Terminate
+	case rlib.RAActionTerminate:
 		var data RATerminationData
 		if err = json.Unmarshal([]byte(d.data), &data); err != nil {
 			return err
