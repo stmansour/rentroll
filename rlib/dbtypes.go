@@ -1585,6 +1585,7 @@ type RRprepSQL struct {
 	DeleteUser                              *sql.Stmt
 	DeleteVehicle                           *sql.Stmt
 	DeleteFlow                              *sql.Stmt
+	DeleteFlowByRefNo                       *sql.Stmt
 	FindAgreementByRentable                 *sql.Stmt
 	FindTCIDByNote                          *sql.Stmt
 	FindTransactantByPhoneOrEmail           *sql.Stmt

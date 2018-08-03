@@ -9,7 +9,7 @@
     dtFormatISOToW2ui,
     localtimeToUTC,
     updateFlowData,
-    GetCurrentFlowID
+    GetCurrentFlowID, CloseRAFlowLayout
 */
 "use strict";
 
@@ -483,12 +483,7 @@ window.loadRAActionTemplate = function() {
                                 break;
                             case 'btnClose':
                                 yes_callBack = function() {
-                                    w2ui.newraLayout.content('right','');
-                                    w2ui.newraLayout.hide('right',true);
-                                    w2ui.raActionLayout.get('main').content.destroy();
-                                    w2ui.newraLayout.unlock('main');
-                                    w2ui.applicantsGrid.render();
-                                    w2ui.toplayout.hide('right',true);
+                                    CloseRAFlowLayout();
                                 };
                                 form_dirty_alert(yes_callBack, no_callBack);
                                 break;

@@ -690,3 +690,22 @@ window.ShowHideGridToolbarAddButton = function(gridName) {
         $("#"+addBtnID).show();
     }
 };
+
+//-----------------------------------------------------------------------------
+// DeleteRAFlowAJAX - will request to remove ref.no version raflow
+//-----------------------------------------------------------------------------
+window.DeleteRAFlowAJAX = function (UserRefNo) {
+    var bid = getCurrentBID();
+
+    return $.ajax({
+        url: "/v1/flow/" + bid.toString() + "/0",
+        method: "POST",
+        contentType: "application/json",
+        dataType: "json",
+        data: JSON.stringify({"cmd": "delete", "UserRefNo": UserRefNo}),
+        error: function (data) {
+            console.log(data);
+        }
+    });
+};
+

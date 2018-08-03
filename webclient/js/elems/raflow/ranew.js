@@ -7,7 +7,7 @@
     loadRAActionTemplate,
     getStringListData, initBizErrors, displayErrorDot,
     ChangeRAFlowVersionToolbar, GetRefNoByRAIDFromGrid,
-    LoadRAFlowVersionData
+    LoadRAFlowVersionData, CloseRAFlowLayout, DeleteRAFlowAJAX
 */
 
 "use strict";
@@ -332,8 +332,7 @@ window.buildRAApplicantElements = function() {
                         case 'btnClose':
                             var no_callBack = function() { return false; },
                                 yes_callBack = function() {
-                                    w2ui.toplayout.hide('right',true);
-                                    w2ui.applicantsGrid.render();
+                                    CloseRAFlowLayout();
                                 };
                             form_dirty_alert(yes_callBack, no_callBack);
                             break;
@@ -516,5 +515,40 @@ $(document).on("click", "button#raactions", function(e) {
     setTimeout(function() {
         loadRAActionTemplate();
     }, 500);
+});
+
+// CloseRAFlowLayout closes the new ra layout with resetting right panel content
+window.CloseRAFlowLayout = function() {
+    if (w2ui.raActionLayout) {
+        w2ui.raActionLayout.content('main', '');
+    }
+    w2ui.newraLayout.unlock('main');
+    w2ui.newraLayout.content('right', '');
+    w2ui.newraLayout.hide('right', true);
+    w2ui.toplayout.hide('right', true);
+    w2ui.applicantsGrid.render();
+};
+
+//-----------------------------------------------------------------------------
+// REMOVE FLOW BUTTON CLICK EVENT HANDLER
+//-----------------------------------------------------------------------------
+$(document).on("click", "button#remove_raflow", function(e) {
+    var version = app.raflow.version,
+        RefNo   = app.raflow.Flow.UserRefNo;
+
+    // ONLY REF.NO CAN BE DELETED
+    if (version === "raid") { // IF RAID VERSION LOADED THEN
+        return;
+    }
+
+    // delete the flow
+    DeleteRAFlowAJAX(RefNo)
+    .done(function(data) {
+        if (data.status ==="success") {
+            CloseRAFlowLayout();
+        } else {
+            alert(data.message);
+        }
+    });
 });
 
