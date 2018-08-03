@@ -103,14 +103,16 @@ window.GetVehicleFormInitRecord = function (previousFormRecord) {
 // form definition
 // -------------------------------------------------------------
 window.SetlocalDataFromRAVehicleFormRecord = function(TMPVID) {
-    var form            = w2ui.RAVehicleForm,
-        vehicleFormData = getFormSubmitData(form.record, true);
+    var form            = w2ui.RAVehicleForm;
 
     // get data from form field's TMPVID
     var localVehicleData = GetVehicleLocalData(TMPVID);
 
     // set data from form
     var vehicleData = SetDataFromFormRecord(TMPVID, form, localVehicleData);
+
+    // KEEP VEHICLE YEAR IN NUMBERIC
+    vehicleData.VehicleYear = parseInt(vehicleData.VehicleYear);
 
     // if not Fees then assign in vehicle data
     if (!vehicleData.hasOwnProperty("Fees")) {
@@ -397,7 +399,7 @@ window.loadRAVehiclesGrid = function () {
                 { field: 'VehicleMake',         type: 'text',   required: false },
                 { field: 'VehicleModel',        type: 'text',   required: false },
                 { field: 'VehicleColor',        type: 'text',   required: false },
-                { field: 'VehicleYear',         type: 'int',    required: false },
+                { field: 'VehicleYear',         type: 'number', required: false },
                 { field: 'LicensePlateState',   type: 'text',   required: false },
                 { field: 'LicensePlateNumber',  type: 'text',   required: false },
                 { field: 'VIN',                 type: 'text',   required: false },
