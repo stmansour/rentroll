@@ -387,6 +387,8 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.DeleteFlow, err = RRdb.Dbrr.Prepare("DELETE from Flow WHERE FlowID=?")
 	Errcheck(err)
+	RRdb.Prepstmt.DeleteFlowByRefNo, err = RRdb.Dbrr.Prepare("DELETE from Flow WHERE BID=? AND UserRefNo=?")
+	Errcheck(err)
 
 	//==========================================
 	// INVOICE

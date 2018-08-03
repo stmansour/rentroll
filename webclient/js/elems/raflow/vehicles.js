@@ -19,7 +19,8 @@
     RenderVehicleFeesGridSummary, RAFlowNewVehicleAJAX,
     GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary,
     GetVehicleIdentity, updateFlowData, GetTiePeopleLocalData,
-    getRecIDFromTMPVID, dispalyRAVehiclesGridError, GetCurrentFlowID
+    getRecIDFromTMPVID, dispalyRAVehiclesGridError, GetCurrentFlowID,
+    EnableDisableRAFlowVersionInputs, ShowHideGridToolbarAddButton
 */
 
 "use strict";
@@ -157,7 +158,7 @@ window.loadRAVehiclesGrid = function () {
             show    : {
                 toolbar         : true,
                 toolbarSearch   : false,
-                toolbarReload   : true,
+                toolbarReload   : false,
                 toolbarInput    : false,
                 toolbarColumns  : false,
                 footer          : true,
@@ -277,11 +278,15 @@ window.loadRAVehiclesGrid = function () {
                 }
             ],
             onRefresh: function(event) {
+                var grid = this;
+
                 // have to manage recid on every refresh of this grid
                 event.onComplete = function() {
                     $("#RAVehiclesGrid_checkbox")[0].checked = app.raflow.Flow.Data.meta.HaveVehicles;
                     $("#RAVehiclesGrid_checkbox")[0].disabled = app.raflow.Flow.Data.meta.HaveVehicles;
                     lockOnGrid("RAVehiclesGrid");
+
+                    ShowHideGridToolbarAddButton(grid.name);
                 };
             },
             onClick : function (event){
@@ -457,6 +462,9 @@ window.loadRAVehiclesGrid = function () {
                         vehicleString = "<em>new</em> - {0}".format(vehicleIdentity);
                     }
                     f.header = "Edit Vehicle (<strong>{0}</strong>)".format(vehicleString);
+
+                    // FREEZE THE INPUTS IF VERSION IS RAID
+                    EnableDisableRAFlowVersionInputs(f);
                 };
             },
             onChange: function(event) {
@@ -588,6 +596,13 @@ window.loadRAVehiclesGrid = function () {
                     }
                 },
             },
+            onRefresh: function(event) {
+                var form = this;
+                event.onComplete = function() {
+                    // FREEZE THE INPUTS IF VERSION IS RAID
+                    EnableDisableRAFlowVersionInputs(form);
+                };
+            }
         });
 
         // -----------------------------------------------------------
@@ -701,6 +716,12 @@ window.loadRAVehiclesGrid = function () {
                 .fail(function(data) {
                     console.log("failure" + data);
                 });
+            },
+            onRefresh: function(event) {
+                var grid = this;
+                event.onComplete = function() {
+                    ShowHideGridToolbarAddButton(grid.name);
+                };
             },
         });
 
@@ -876,6 +897,9 @@ window.loadRAVehiclesGrid = function () {
                     } else {
                         feeForm.header = header.format("new", vehicleString);
                     }
+
+                    // FREEZE THE INPUTS IF VERSION IS RAID
+                    EnableDisableRAFlowVersionInputs(feeForm);
                 };
             }
         });

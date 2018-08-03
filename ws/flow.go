@@ -179,15 +179,18 @@ func GetFlowByType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 }
 
+// DeleteFlowRequest struct for the delete request
+type DeleteFlowRequest struct {
+	UserRefNo string
+}
+
 // DeleteFlow delete the flow from database with associated all flow parts
 // for a given flowID
 func DeleteFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "DeleteFlow"
 	var (
 		err error
-		del struct {
-			FlowID int64
-		}
+		del DeleteFlowRequest
 	)
 
 	rlib.Console("Entered %s\n", funcname)
@@ -199,7 +202,7 @@ func DeleteFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	// delete flow parts by flowID
-	err = rlib.DeleteFlow(r.Context(), del.FlowID)
+	err = rlib.DeleteFlowByRefNo(r.Context(), d.BID, del.UserRefNo)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return

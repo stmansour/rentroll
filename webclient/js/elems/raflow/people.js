@@ -10,7 +10,7 @@
     getPeopleLocalDataByTCID, setTransactantDefaultRole,
     getStringListData, getSLStringList, updateRATransactantFormCheckboxes, updateFlowData,
     managePeopleW2UIItems, removeRAFlowPersonAJAX, saveRAFlowPersonAJAX, onCheckboxesChange, getRecIDFromTMPTCID, dispalyRAPeopleGridError,
-    GetCurrentFlowID
+    GetCurrentFlowID, EnableDisableRAFlowVersionInputs, ShowHideGridToolbarAddButton
 */
 
 "use strict";
@@ -85,12 +85,15 @@ window.loadRAPeopleForm = function () {
                 }
             },
             onRefresh: function (event) {
-                var f = this;
+                var form = this;
                 event.onComplete = function () {
                     var BID = getCurrentBID(),
                         BUD = getBUDfromBID(BID);
 
-                    f.record.BID = BID;
+                    form.record.BID = BID;
+
+                    // FREEZE THE INPUTS IF VERSION IS RAID
+                    EnableDisableRAFlowVersionInputs(form);
                 };
             }
         });
@@ -103,7 +106,7 @@ window.loadRAPeopleForm = function () {
                 toolbar: true,
                 toolbarSearch: false,
                 toolbarAdd: true,
-                toolbarReload: true,
+                toolbarReload: false,
                 toolbarInput: false,
                 toolbarColumns: false,
                 footer: true
@@ -198,6 +201,12 @@ window.loadRAPeopleForm = function () {
                     // }
                 }
             ],
+            onRefresh: function(event) {
+                var grid = this;
+                event.onComplete = function() {
+                    ShowHideGridToolbarAddButton(grid.name);
+                };
+            },
             onClick: function (event) {
                 event.onComplete = function () {
                     var yes_args = [this, event.recid],
@@ -386,7 +395,10 @@ window.loadRAPeopleForm = function () {
                         $(form.box).find("button[name=delete]").removeClass("hidden");
                     }
 
-                    onCheckboxesChange(this);
+                    onCheckboxesChange(form);
+
+                    // FREEZE THE INPUTS IF VERSION IS RAID
+                    EnableDisableRAFlowVersionInputs(form);
                 };
             },
             onValidate: function (event) {

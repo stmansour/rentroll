@@ -1,7 +1,8 @@
 /* global
     getRAFlowCompData, reassignGridRecids,
     GetTiePeopleLocalData, SetTiePeopleLocalData, AssignTiePeopleGridRecords, SaveTiePeopleData,
-    getFullName, dispalyRATiePeopleGridError, getRecIDFromTMPTCID
+    getFullName, dispalyRATiePeopleGridError, getRecIDFromTMPTCID,
+    EnableDisableRAFlowVersionGrid
 */
 
 "use strict";
@@ -121,6 +122,12 @@ window.loadRATieSection = function () {
                     }
                 },
             ],
+            onRefresh: function(event) {
+                var grid = this;
+                event.onComplete = function() {
+                    EnableDisableRAFlowVersionGrid(grid);
+                };
+            },
             onChange: function(event) {
                 var grid = this;
                 event.onComplete = function() {
