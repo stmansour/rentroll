@@ -1,6 +1,6 @@
 /* global
     RACompConfig, HideSliderContent, appendNewSlider, ShowSliderContentW2UIComp, displayFormFieldsError,
-    loadTargetSection, requiredFieldsFulFilled, initRAFlowAjax, getRecIDFromTMPASMID
+    loadTargetSection, requiredFieldsFulFilled, initRAFlowAjax, getRecIDFromTMPASMID, getFeeIndex,
     saveActiveCompData, getRAFlowCompData, displayActiveComponentError, displayRAPetsGridError, dispalyRAPeopleGridError,
     lockOnGrid, getApprovals, updateFlowData, updateFlowCopy, displayErrorDot, initBizErrors,
     dispalyRARentablesGridError, dispalyRAVehiclesGridError, dispalyRAParentChildGridError, dispalyRATiePeopleGridError,
@@ -588,4 +588,20 @@ window.displayFormFieldsError = function(index, records, formName){
         field.css("border-color", "red");
         field.after("<small class='error'>" + error + "</small>");
     }
+};
+
+// getFeeIndex it return an index of fee which have TMPASMID
+window.getFeeIndex = function (TMPASMID, fees) {
+
+    var index = -1;
+
+    for(var i = 0; i < fees.length; i++){
+        // If TMPASMID doesn't match iterate for next element
+        if(fees[i].TMPASMID === TMPASMID){
+            index = i;
+            break;
+        }
+    }
+
+    return index;
 };

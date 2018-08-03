@@ -1222,19 +1222,3 @@ window.displayRAPetFeeFormError = function(TMPPETID){
         displayFormFieldsError(index, pets[petIndex].fees, "RAPetFeeForm");
     }
 };
-
-// getFeeIndex it return an index of fee which have TMPASMID
-window.getFeeIndex = function (TMPASMID, fees) {
-
-    var index = -1;
-
-    for(var i = 0; i < fees.length; i++){
-        // If TMPASMID doesn't match iterate for next element
-        if(fees[i].TMPASMID === TMPASMID){
-            index = i;
-            break;
-        }
-    }
-
-    return index;
-};

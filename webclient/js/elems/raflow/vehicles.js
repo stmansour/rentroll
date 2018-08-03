@@ -13,10 +13,10 @@
     GetAllARForFeeForm, SetDataFromFormRecord, SetFormRecordFromData,
     GetFeeGridColumns, GetFeeFormFields, GetFeeFormToolbar,
     SetFeeDataFromFeeFormRecord,
-    GetFeeFormInitRecord, getRecIDFromTMPASMID,
+    GetFeeFormInitRecord, getRecIDFromTMPASMID, getFeeIndex,
     FeeFormOnChangeHandler, FeeFormOnRefreshHandler,
     SliderContentDivLength, SetFeeFormRecordFromFeeData,
-    RenderVehicleFeesGridSummary, RAFlowNewVehicleAJAX,
+    RenderVehicleFeesGridSummary, RAFlowNewVehicleAJAX, displayRAVehicleFeeFormError,
     GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary, displayRAVehicleFormError,
     GetVehicleIdentity, updateFlowData, GetTiePeopleLocalData, displayFormFieldsError,
     getRecIDFromTMPVID, dispalyRAVehiclesGridError, GetCurrentFlowID, getVehicleIndex
@@ -660,6 +660,10 @@ window.loadRAVehiclesGrid = function () {
                                 // When RentCycle is Norecur then disable the RentCycle list field.
                                 var isDisabled = feeForm.record.RentCycleText.text === app.cycleFreq[0];
                                 $("#RentCycleText").prop("disabled", isDisabled);
+
+                                setTimeout(function () {
+                                    displayRAVehicleFeeFormError(w2ui.RAVehicleForm.record.TMPVID);
+                                }, 500);
                             })
                             .fail(function(data) {
                                 console.log("failure" + data);
@@ -1245,4 +1249,28 @@ window.getVehicleIndex = function (TMPVID, vehicles) {
     }
 
     return index;
+};
+
+// displayRAVehicleFeeFormError If form field have error than it highlight with red border and
+window.displayRAVehicleFeeFormError = function(TMPVID){
+
+    // if pet section doesn't have error than return
+    if(!app.raflow.validationErrors.vehicles){
+        return;
+    }
+
+    var form = w2ui.RAVehicleFeeForm;
+    var record = form.record;
+
+    // get list of pets
+    var vehicles = app.raflow.validationCheck.errors.vehicle;
+
+    // get index of vehicle for whom form is opened
+    var vehicleIndex = getVehicleIndex(TMPVID, vehicles);
+
+    var index = getFeeIndex(record.TMPASMID, vehicles[vehicleIndex].fees);
+
+    if(index > -1){
+        displayFormFieldsError(index, vehicles[vehicleIndex].fees, "RAVehicleFeeForm");
+    }
 };
