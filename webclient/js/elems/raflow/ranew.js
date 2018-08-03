@@ -519,6 +519,7 @@ $(document).on("click", "button#raactions", function(e) {
 
 // CloseRAFlowLayout closes the new ra layout with resetting right panel content
 window.CloseRAFlowLayout = function() {
+    app.raflow.version = ""; // RESET THE RAFLOW VERSION
     if (w2ui.raActionLayout) {
         w2ui.raActionLayout.content('main', '');
     }
