@@ -579,10 +579,10 @@ window.getRecIDFromTMPASMID = function(grid, TMPASMID){
 };
 
 // displayFormFieldsError It display form fields error  for record
-window.displayFormFieldsError = function(index, records){
+window.displayFormFieldsError = function(index, records, formName){
     // Iterate through fields with errors
     for(var key in records[index].errors){
-        var field = $("input#" + key);
+        var field = $("[name=" + formName + "] input#" + key);
         var error = records[index].errors[key].join(", ");
 
         field.css("border-color", "red");

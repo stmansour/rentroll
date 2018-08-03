@@ -1173,7 +1173,7 @@ window.displayRAPetFormError = function(){
     var index = getPetIndex(record.TMPPETID, pets);
 
     if(index > -1){
-        displayFormFieldsError(index, pets);
+        displayFormFieldsError(index, pets, "RAPetForm");
     }
 };
 

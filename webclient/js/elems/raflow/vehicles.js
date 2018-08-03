@@ -1227,7 +1227,7 @@ window.displayRAVehicleFormError = function(){
     var index = getVehicleIndex(record.TMPVID, vehicles);
 
     if(index > -1){
-        displayFormFieldsError(index, vehicles);
+        displayFormFieldsError(index, vehicles, "RAVehicleForm");
     }
 };
 

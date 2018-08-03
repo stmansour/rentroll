@@ -902,7 +902,7 @@ window.displayRAPeopleFormError = function(){
     var index = getPeopleIndex(record.TMPTCID, people);
 
     if(index > -1){
-        displayFormFieldsError(index, people);
+        displayFormFieldsError(index, people, "RATransactantForm");
     }
 };
 
