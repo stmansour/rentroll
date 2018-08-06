@@ -34,3 +34,6 @@ makeProdNode() {
 
 makeProdNode
 ./pdfinstall.sh  >log.out 2>&1
+if [ ! -f "/usr/local/share/man/man1/rentroll.1" ]; then
+	./installman.sh >installman.log 2>&1
+fi

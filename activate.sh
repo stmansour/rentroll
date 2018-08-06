@@ -80,6 +80,9 @@ stopwatchdog() {
 #--------------------------------------------------------------
 makeProdNode() {
 	${GETFILE} accord/db/confprod.json ; mv confprod.json config.json  >log.out 2>&1
+    if [ -f config.json ]; then
+        chmod 600 config.json
+    fi
 }
 
 #--------------------------------------------------------------
@@ -175,10 +178,6 @@ start() {
 			cp ./activate.sh /etc/init.d/${PROGNAME}
 			chkconfig --add ${PROGNAME}
 		fi
-	fi
-
-	if [ ! -f "/usr/local/share/man/man1/rentroll.1" ]; then
-		./installman.sh >installman.log 2>&1
 	fi
 
 	#---------------------------------------------------
