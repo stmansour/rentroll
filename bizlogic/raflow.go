@@ -693,9 +693,7 @@ func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Vali
 // validatePetBizLogic Perform business logic check on pet section
 // ----------------------------------------------------------------------
 // 1. Every pet must be associated with a transactant
-// 2. Pets are optional. Means if HavePets is set to false in meta
-// information than it should not have any pets.
-// 3. DtStart must be prior to DtStop
+// 2. DtStart must be prior to DtStop
 // ----------------------------------------------------------------------
 func validatePetBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) {
 	const funcname = "validatePetBizLogic"
@@ -732,7 +730,7 @@ func validatePetBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 		}
 
 		// -----------------------------------------------
-		// --------- Check for rule no 3 -----------------
+		// --------- Check for rule no 2 -----------------
 		// -----------------------------------------------
 		startDate := time.Time(pet.DtStart)
 		stopDate := time.Time(pet.DtStop)
@@ -768,9 +766,7 @@ func validatePetBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 // validateVehicleBizLogic Perform business logic check on vehicle section
 // ----------------------------------------------------------------------
 // 1. Every vehicle must be associated with a transactant
-// 2. Vehicle are optional. Means if HaveVehicles is set to false in meta
-// information than it should not have any vehicles.
-// 3. DtStart must be prior to DtStop
+// 2. DtStart must be prior to DtStop
 // ----------------------------------------------------------------------
 func validateVehicleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) {
 	const funcname = "validateVehicleBizLogic"
@@ -809,7 +805,7 @@ func validateVehicleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Val
 		}
 
 		// -----------------------------------------------
-		// --------- Check for rule no 3 ---------------
+		// --------- Check for rule no 2 ---------------
 		// -----------------------------------------------
 		startDate := time.Time(vehicle.DtStart)
 		stopDate := time.Time(vehicle.DtStop)
@@ -915,7 +911,7 @@ func validateRentableBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Va
 
 // validateFeesBizLogic perform business logic check on fees section
 // ----------------------------------------------------------------------
-// 1. Start date must be prior to Stop date
+// 1. Start date must be prior or equal to Stop date
 // ----------------------------------------------------------------------
 func validateFeesBizLogic(ctx context.Context, fees []rlib.RAFeesData) ([]RAFeesError, int) {
 	const funcname = "validateFeesBizLogic"

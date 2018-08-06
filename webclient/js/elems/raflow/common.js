@@ -97,7 +97,7 @@ $(document).on('click', '#ra-form #save-ra-flow-btn', function () {
             dates: data.errors.dates.total > 0 || data.nonFieldsErrors.dates.length > 0,
             people: data.errors.people.length > 0 || data.nonFieldsErrors.people.length > 0,
             pets: data.errors.pets.length > 0 || data.nonFieldsErrors.pets.length > 0,
-            vehicles: data.errors.vehicle.length > 0 || data.nonFieldsErrors.vehicles.length > 0,
+            vehicles: data.errors.vehicles.length > 0 || data.nonFieldsErrors.vehicles.length > 0,
             rentables: data.errors.rentables.length > 0 || data.nonFieldsErrors.rentables.length > 0,
             parentchild: data.errors.parentchild.length > 0 || data.nonFieldsErrors.parentchild.length > 0,
             tie: data.errors.tie.people.length > 0 || data.nonFieldsErrors.tie.length > 0
@@ -814,5 +814,7 @@ window.displayNonFieldsError = function (comp) {
         $("#non-fields-error").css('display', 'none');
     }
 
-    $("#non-fields-error-conten").empty().add("<ul>" + errorString + "</ul>");
+    console.debug(errorString);
+
+    $("#non-fields-error-content").empty().appendTo("<ul>" + errorString + "</ul>");
 };
