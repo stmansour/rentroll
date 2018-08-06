@@ -791,6 +791,7 @@ window.toggleNonFieldsErrorDisplay = function () {
         content[0].style.display = "none";
     } else {
         content[0].style.display = "block";
+        content[0].style.border = "1px solid red";
     }
 };
 
@@ -800,14 +801,19 @@ window.toggleNonFieldsErrorDisplay = function () {
 window.displayNonFieldsError = function (comp) {
 
     var errorString = "";
-    if(app.raflow.validationErrors[comp] && app.raflow.validationCheck.nonFieldsErrors[comp].length > 0){
-        $("#non-fields-error").css('display', 'block');
+    if(app.raflow.validationErrors[comp]){
+        $("#error-summary").css('display', 'block');
+
+        // Display error count
+        $("#field-errors-count").html(app.raflow.validationCheck.errors[comp].length);
+        $("#non-field-errors-count").html(app.raflow.validationCheck.nonFieldsErrors[comp].length);
+
         for(var i = 0; i < app.raflow.validationCheck.nonFieldsErrors[comp].length; i++){
             console.debug(app.raflow.validationCheck.nonFieldsErrors[comp][i]);
             errorString += "<li>" + app.raflow.validationCheck.nonFieldsErrors[comp][i] + "</li>";
         }
     }else{
-        $("#non-fields-error").css('display', 'none');
+        $("#error-summary").css('display', 'none');
     }
 
     $("#non-fields-error-content").empty();

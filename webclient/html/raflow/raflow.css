@@ -498,9 +498,6 @@ small.no-error {
 
 /* Style the button that is used to open and close the collapsible content */
 .collapsible {
-    content: '\002B'; /* Unicode character for "plus" sign (+) */
-    background-color: #D32F2F;
-    color: #FFFFFF;
     cursor: pointer;
     padding: 10px;
     width: 100%;
@@ -510,28 +507,39 @@ small.no-error {
     font-size: 15px;
 }
 
-/* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
-.collapsible:hover {
-    background-color: #EF5350;
-}
-
 /* Style the collapsible content. Note: hidden by default */
 .non-fields-error-content {
     padding: 10px 18px 10px 25px;
     display: none;
     overflow: hidden;
-    background-color: #EF5350;
-    color: #FFFFFF;
     text-align: left;
     margin: 0px;
     list-style: initial;
 }
 
-#non-fields-error {
+#error-summary {
     margin-bottom: 10px;
     display: none;
 }
 
 #non-fields-error-content ul{
     list-style: initial;
+}
+
+#non-fields-error-content div{
+    border: 1px solid red;
+    height: auto;
+    width: 100%;
+    border-top: none;
+}
+
+div #error-info{
+    border: 1px solid red;
+    height: auto;
+    width: 100%;
+    margin-top: 5px;
+}
+
+#error-info .fa-exclamation-triangle{
+    color: red;
 }
