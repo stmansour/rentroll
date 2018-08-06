@@ -143,9 +143,9 @@ type RAPeopleFlowData struct {
 
 	// ---------- Basic Info -----------
 	FirstName      string `validate:"string,min=1,max=100"`
-	MiddleName     string `validate:"string,min=1,max=100"`
+	MiddleName     string `validate:"string,min=1,max=100,omitempty"`
 	LastName       string `validate:"string,min=1,max=100"`
-	PreferredName  string `validate:"string,min=1,max=100"`
+	PreferredName  string `validate:"string,min=1,max=100,omitempty"`
 	IsCompany      bool   `validate:"-"`
 	CompanyName    string `validate:"string,min=1,max=100,omitempty"` // It is required when IsCompany flag is true. It'll be checked in bizlogic validation.
 	PrimaryEmail   string `validate:"email"`
