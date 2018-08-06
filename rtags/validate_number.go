@@ -49,7 +49,7 @@ func (v IntegerNumberValidator) Validate(val interface{}) error {
 	n, ok := val.(int64)
 
 	if !ok {
-		return fmt.Errorf("should be type of number")
+		return fmt.Errorf("must be type of number")
 	}
 
 	// get int64 compatible number
@@ -57,12 +57,12 @@ func (v IntegerNumberValidator) Validate(val interface{}) error {
 
 	// min length check
 	if !v.Min.Skip && num < v.Min.Value {
-		return fmt.Errorf("should be greater than %d", v.Min.Value)
+		return fmt.Errorf("must be greater than %d", v.Min.Value)
 	}
 
 	// max length check
 	if !v.Max.Skip && v.Max.Value >= v.Min.Value && num > v.Max.Value {
-		return fmt.Errorf("should be less than %d", v.Max.Value)
+		return fmt.Errorf("must be less than %d", v.Max.Value)
 	}
 
 	return nil
@@ -73,7 +73,7 @@ func (v FloatNumberValidator) Validate(val interface{}) error {
 	// don't panic
 	n, ok := val.(float64)
 	if !ok {
-		return fmt.Errorf("should be a decimal number")
+		return fmt.Errorf("must be a decimal number")
 	}
 
 	// get float64 compatible number
@@ -81,12 +81,12 @@ func (v FloatNumberValidator) Validate(val interface{}) error {
 
 	// min length check
 	if !v.Min.Skip && num < v.Min.Value {
-		return fmt.Errorf("should be greater than %.2f", v.Min.Value)
+		return fmt.Errorf("must be greater than %.2f", v.Min.Value)
 	}
 
 	// max length check
 	if !v.Max.Skip && v.Max.Value >= v.Min.Value && num > v.Max.Value {
-		return fmt.Errorf("should be less than %.2f", v.Max.Value)
+		return fmt.Errorf("must be less than %.2f", v.Max.Value)
 	}
 
 	return nil
