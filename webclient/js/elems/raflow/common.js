@@ -5,7 +5,7 @@
     lockOnGrid, getApprovals, updateFlowData, updateFlowCopy, displayErrorDot, initBizErrors,
     dispalyRARentablesGridError, dispalyRAVehiclesGridError, dispalyRAParentChildGridError, dispalyRATiePeopleGridError,
     GetCurrentFlowID, FlowFilled, ReassignPeopleGridRecords, AssignPetsGridRecords, AssignVehiclesGridRecords, AssignRentableGridRecords,
-    GetGridToolbarAddButtonID, HideRAFlowLoader
+    GetGridToolbarAddButtonID, HideRAFlowLoader, toggleNonFieldsErrorDisplay, displayNonFieldsError
 */
 
 "use strict";
@@ -97,7 +97,7 @@ $(document).on('click', '#ra-form #save-ra-flow-btn', function () {
             dates: data.errors.dates.total > 0 || data.nonFieldsErrors.dates.length > 0,
             people: data.errors.people.length > 0 || data.nonFieldsErrors.people.length > 0,
             pets: data.errors.pets.length > 0 || data.nonFieldsErrors.pets.length > 0,
-            vehicles: data.errors.vehicle.length > 0 || data.nonFieldsErrors.vehicle.length > 0,
+            vehicles: data.errors.vehicle.length > 0 || data.nonFieldsErrors.vehicles.length > 0,
             rentables: data.errors.rentables.length > 0 || data.nonFieldsErrors.rentables.length > 0,
             parentchild: data.errors.parentchild.length > 0 || data.nonFieldsErrors.parentchild.length > 0,
             tie: data.errors.tie.people.length > 0 || data.nonFieldsErrors.tie.length > 0
@@ -506,6 +506,9 @@ window.loadTargetSection = function (target, previousActiveCompID) {
     $("#progressbar #steps-list li[data-target='#" + target + "']").removeClass("done").addClass("active");
     $(".ra-form-component#" + target).show();
 
+    // display target comp non fields error
+    displayNonFieldsError(target);
+
     // hide previous navigation button if the target is in first section
     if ($(".ra-form-component#" + target).is($(".ra-form-component").first())) {
         $("#ra-form footer button#previous").prop("disabled", true);
@@ -774,4 +777,42 @@ window.DeleteRAFlowAJAX = function (UserRefNo) {
             console.log(data);
         }
     });
+};
+
+//-----------------------------------------------------------------------------
+// toggleNonFieldsErrorDisplay
+//-----------------------------------------------------------------------------
+window.toggleNonFieldsErrorDisplay = function () {
+
+    $(".collapsible").toggleClass("active-collapsible");
+
+    var content = $("#non-fields-error-content");
+    if (content[0].style.display === "block") {
+        content[0].style.display = "none";
+    } else {
+        content[0].style.display = "block";
+    }
+};
+
+//-----------------------------------------------------------------------------
+// displayNonFieldsError
+//-----------------------------------------------------------------------------
+window.displayNonFieldsError = function (comp) {
+
+    console.debug(comp);
+    console.debug(app.raflow.validationErrors[comp]);
+    console.debug(app.raflow.validationCheck.nonFieldsErrors[comp]);
+
+    var errorString = "";
+    if(app.raflow.validationErrors[comp] && app.raflow.validationCheck.nonFieldsErrors[comp].length > 0){
+        $("#non-fields-error").css('display', 'block');
+        for(var i = 0; i < app.raflow.validationCheck.nonFieldsErrors[comp].length; i++){
+            console.debug(app.raflow.validationCheck.nonFieldsErrors[comp][i]);
+            errorString += "<li>" + app.raflow.validationCheck.nonFieldsErrors[comp][i] + "<li>";
+        }
+    }else{
+        $("#non-fields-error").css('display', 'none');
+    }
+
+    $("#non-fields-error-conten").empty().add("<ul>" + errorString + "</ul>");
 };

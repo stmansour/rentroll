@@ -91,7 +91,7 @@ type RAFlowFieldsErrors struct {
 	Dates       DatesFieldsError         `json:"dates"`
 	People      []PeopleFieldsError      `json:"people"`
 	Pets        []PetFieldsError         `json:"pets"`
-	Vehicle     []VehicleFieldsError     `json:"vehicle"`
+	Vehicle     []VehicleFieldsError     `json:"vehicles"`
 	Rentables   []RentablesFieldsError   `json:"rentables"`
 	ParentChild []ParentChildFieldsError `json:"parentchild"`
 	Tie         TieFieldsError           `json:"tie"`
@@ -102,7 +102,7 @@ type RAFlowNonFieldsErrors struct {
 	Dates       []string `json:"dates"`
 	People      []string `json:"people"`
 	Pets        []string `json:"pets"`
-	Vehicle     []string `json:"vehicle"`
+	Vehicle     []string `json:"vehicles"`
 	Rentables   []string `json:"rentables"`
 	ParentChild []string `json:"parentchild"`
 	Tie         []string `json:"tie"`
