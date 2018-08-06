@@ -72,20 +72,6 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 	}()
 
-	// FLAG: SHOULD WE MIGRATE DATA TO RA
-	// migrateData := false
-
-	// // set location for time as UTC
-	// var location *time.Location
-	// location, err = time.LoadLocation("UTC")
-	// if err != nil {
-	// 	return
-	// }
-
-	// // get current time in UTC
-	// var today time.Time
-	// today = time.Now().In(location)
-
 	// HTTP METHOD CHECK
 	if r.Method != "POST" {
 		err = fmt.Errorf("Only POST method is allowed")
@@ -114,144 +100,11 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			return
 		}
 	case "refno":
-		err = fmt.Errorf("implementation error")
-		return
-
-		// TODO(Jay): implemention action handler for refno version of raflow
-		// handleRefNoVersion()
-	}
-
-	/*switch MODE {
-	case "State":
-		switch state {
-		case 1: // Pending First Approval
-			var data RAApprover1Data
-			if err = json.Unmarshal([]byte(d.data), &data); err != nil {
-				return
-			}
-
-			var fullName string
-			fullName, err = getUserFullName(ctx, d.sess.UID)
-			if err != nil {
-				return
-			}
-
-			if data.Decision1 == 1 { // Approved
-				// set 4th bit of Flag as 1
-				modRAFlowMeta.RAFLAGS = modRAFlowMeta.RAFLAGS | uint64(1<<4)
-
-				// FLAGS
-				clearedState = modRAFlowMeta.RAFLAGS & ^uint64(0xf)
-				modRAFlowMeta.RAFLAGS = (clearedState | 2)
-			} else if data.Decision1 == 2 && data.DeclineReason1 > 0 { // Declined
-				// set 4th bit of Flag as 0
-				modRAFlowMeta.RAFLAGS = modRAFlowMeta.RAFLAGS & ^uint64(1<<4)
-				modRAFlowMeta.DeclineReason1 = data.DeclineReason1
-
-				modRAFlowMeta.TerminatorUID = d.sess.UID
-				modRAFlowMeta.TerminatorName = fullName
-				modRAFlowMeta.TerminationDate = rlib.JSONDateTime(today)
-
-				// IF BIZCACHE NOT INITIALIZED THEN
-				if rlib.RRdb.BizTypes[d.BID] == nil {
-					var xbiz rlib.XBusiness
-					err = rlib.InitBizInternals(d.BID, &xbiz)
-					if err != nil {
-						return
-					}
-				}
-				// APPLICATION DECLINED SLSID IN LEASE TERMINATION REASON
-				modRAFlowMeta.LeaseTerminationReason = rlib.RRdb.BizTypes[d.BID].Msgs.S[rlib.MSGAPPDECLINED].SLSID
-
-				// FLAGS
-				clearedState = modRAFlowMeta.RAFLAGS & ^uint64(0xf)
-				modRAFlowMeta.RAFLAGS = (clearedState | 6)
-			} else {
-				err = fmt.Errorf("approver1 data is not valid")
-				return
-			}
-
-			modRAFlowMeta.Approver1 = d.sess.UID
-			modRAFlowMeta.Approver1Name = fullName
-			modRAFlowMeta.DecisionDate1 = rlib.JSONDateTime(today)
-
-		case 2: // Pending Second Approval
-			var data RAApprover2Data
-			if err = json.Unmarshal([]byte(d.data), &data); err != nil {
-				return
-			}
-
-			var fullName string
-			fullName, err = getUserFullName(ctx, d.sess.UID)
-			if err != nil {
-				return
-			}
-
-			if data.Decision2 == 1 { // Approved
-				modRAFlowMeta.MoveInUID = d.sess.UID
-				modRAFlowMeta.MoveInName = fullName
-				modRAFlowMeta.MoveInDate = rlib.JSONDateTime(today)
-
-				// set 5th bit of Flag as 1
-				modRAFlowMeta.RAFLAGS = modRAFlowMeta.RAFLAGS | uint64(1<<5)
-
-				// FLAGS
-				clearedState = modRAFlowMeta.RAFLAGS & ^uint64(0xf)
-				modRAFlowMeta.RAFLAGS = (clearedState | 3)
-			} else if data.Decision2 == 2 && data.DeclineReason2 > 0 { // Declined
-				// set 5th bit of Flag as 0
-				modRAFlowMeta.RAFLAGS = modRAFlowMeta.RAFLAGS & ^uint64(1<<5)
-				modRAFlowMeta.DeclineReason2 = data.DeclineReason2
-
-				modRAFlowMeta.TerminatorUID = d.sess.UID
-				modRAFlowMeta.TerminatorName = fullName
-				modRAFlowMeta.TerminationDate = rlib.JSONDateTime(today)
-
-				// IF BIZCACHE NOT INITIALIZED THEN
-				if rlib.RRdb.BizTypes[d.BID] == nil {
-					var xbiz rlib.XBusiness
-					err = rlib.InitBizInternals(d.BID, &xbiz)
-					if err != nil {
-						return
-					}
-				}
-				// APPLICATION DECLINED SLSID IN LEASE TERMINATION REASON
-				modRAFlowMeta.LeaseTerminationReason = rlib.RRdb.BizTypes[d.BID].Msgs.S[rlib.MSGAPPDECLINED].SLSID
-
-				// FLAGS
-				clearedState = modRAFlowMeta.RAFLAGS & ^uint64(0xf)
-				modRAFlowMeta.RAFLAGS = (clearedState | 6)
-			} else {
-				err = fmt.Errorf("approver2 data is not valid")
-				return
-			}
-
-			modRAFlowMeta.Approver2 = d.sess.UID
-			modRAFlowMeta.Approver2Name = fullName
-			modRAFlowMeta.DecisionDate2 = rlib.JSONDateTime(today)
-
-		case 3: // Move-In / Execute Modification
-			var data RAMoveInData
-			if err = json.Unmarshal([]byte(d.data), &data); err != nil {
-				return
-			}
-			modRAFlowMeta.DocumentDate = rlib.JSONDateTime(data.DocumentDate)
+		flow, err = handleRefNoVersion(ctx, d, foo, raFlowData)
+		if err != nil {
+			return
 		}
 	}
-
-	//-------------------------------------------------------
-	// MODIFY META DATA TOO
-	//-------------------------------------------------------
-	var modMetaData []byte
-	modMetaData, err = json.Marshal(&modRAFlowMeta)
-	if err != nil {
-		return
-	}
-
-	err = rlib.UpdateFlowData(ctx, "meta", modMetaData, &flow)
-	if err != nil {
-		return
-	}*/
 
 	// ------------------
 	// COMMIT TRANSACTION
@@ -322,8 +175,47 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 			return flow, err
 		}
 
+		ApplicationReadyName, _ := rlib.GetDirectoryPerson(ctx, ra.ApplicationReadyUID)
+		MoveInName, _ := rlib.GetDirectoryPerson(ctx, ra.MoveInUID)
+		ActiveName, _ := rlib.GetDirectoryPerson(ctx, ra.ActiveUID)
+		Approver1Name, _ := rlib.GetDirectoryPerson(ctx, ra.Approver1)
+		Approver2Name, _ := rlib.GetDirectoryPerson(ctx, ra.Approver2)
+		TerminatorName, _ := rlib.GetDirectoryPerson(ctx, ra.TerminatorUID)
+		NoticeToMoveName, _ := rlib.GetDirectoryPerson(ctx, ra.NoticeToMoveUID)
+
 		// get meta in modRAFlowMeta, we're going to modify it
-		modRAFlowMeta := raFlowData.Meta
+		modRAFlowMeta := rlib.RAFlowMetaInfo{
+			RAID:                   ra.RAID,
+			RAFLAGS:                ra.FLAGS,
+			ApplicationReadyUID:    ra.ApplicationReadyUID,
+			ApplicationReadyName:   ApplicationReadyName.DisplayName(),
+			ApplicationReadyDate:   rlib.JSONDateTime(ra.ApplicationReadyDate),
+			Approver1:              ra.Approver1,
+			Approver1Name:          Approver1Name.DisplayName(),
+			DecisionDate1:          rlib.JSONDateTime(ra.DecisionDate1),
+			DeclineReason1:         ra.DeclineReason1,
+			Approver2:              ra.Approver2,
+			Approver2Name:          Approver2Name.DisplayName(),
+			DecisionDate2:          rlib.JSONDateTime(ra.DecisionDate2),
+			DeclineReason2:         ra.DeclineReason2,
+			MoveInUID:              ra.MoveInUID,
+			MoveInName:             MoveInName.DisplayName(),
+			MoveInDate:             rlib.JSONDateTime(ra.MoveInDate),
+			ActiveUID:              ra.ActiveUID,
+			ActiveName:             ActiveName.DisplayName(),
+			ActiveDate:             rlib.JSONDateTime(ra.ActiveDate),
+			TerminatorUID:          ra.TerminatorUID,
+			TerminatorName:         TerminatorName.DisplayName(),
+			TerminationDate:        rlib.JSONDateTime(ra.TerminationDate),
+			LeaseTerminationReason: ra.LeaseTerminationReason,
+			DocumentDate:           rlib.JSONDateTime(ra.DocumentDate),
+			NoticeToMoveUID:        ra.NoticeToMoveUID,
+			NoticeToMoveName:       NoticeToMoveName.DisplayName(),
+			NoticeToMoveDate:       rlib.JSONDateTime(ra.NoticeToMoveDate),
+			NoticeToMoveReported:   rlib.JSONDateTime(ra.NoticeToMoveReported),
+		}
+
+		State = ra.FLAGS & uint64(0xF)
 
 		// RESET META INFO IF NEEDED
 		ActionResetMetaData(Action, State, &modRAFlowMeta)
@@ -477,8 +369,247 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 	return flow, nil
 }
 
-func handleRefNoVersion() {
+func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequest, raFlowData rlib.RAFlowJSONData) (rlib.Flow, error) {
+	UserRefNo := foo.UserRefNo
+	Action := foo.Action
+	Mode := foo.Mode
 
+	var flow rlib.Flow
+	var err error
+
+	migrateData := false
+
+	// GET FLOW BY REFNO
+	flow, err = rlib.GetFlowByUserRefNo(ctx, d.BID, UserRefNo)
+	if err != nil {
+		return flow, err
+	}
+	if flow.FlowID <= 0 {
+		err = fmt.Errorf("Rental Agreement Flow not found with given Customer Reference No.: %s", UserRefNo)
+		return flow, err
+	}
+
+	// get unmarshalled raflow data into struct
+	err = json.Unmarshal(flow.Data, &raFlowData)
+	if err != nil {
+		return flow, err
+	}
+
+	// get meta in modRAFlowMeta, we're going to modify it
+	modRAFlowMeta := raFlowData.Meta
+
+	// GET THE CURRENT STATE FROM THE LAST 4 BITS
+	State := raFlowData.Meta.RAFLAGS & uint64(0xF)
+
+	switch Mode {
+	case "Action":
+		switch Action {
+		case
+			rlib.RAActionApplicationBeingCompleted,
+			rlib.RAActionSetToFirstApproval,
+			rlib.RAActionSetToSecondApproval,
+			rlib.RAActionSetToMoveIn,
+			rlib.RAActionCompleteMoveIn:
+
+			// RESET META INFO IF NEEDED
+			ActionResetMetaData(Action, State, &modRAFlowMeta)
+
+			// MODIFY META DATA
+			err = SetActionMetaData(ctx, d, Action, &modRAFlowMeta)
+			if err != nil {
+				return flow, err
+			}
+
+			if Action == rlib.RAActionCompleteMoveIn {
+				migrateData = true
+			}
+
+		default:
+			err = fmt.Errorf("Invalid Action Taken.")
+			return flow, err
+		}
+	case "State":
+		// set location for time as UTC
+		var location *time.Location
+		location, err = time.LoadLocation("UTC")
+		if err != nil {
+			return flow, err
+		}
+
+		// get current time in UTC
+		var today time.Time
+		today = time.Now().In(location)
+
+		// take latest RAFLAGS value at this point(in case flag bits are reset)
+		clearedState := modRAFlowMeta.RAFLAGS & ^uint64(0xF)
+
+		switch State {
+		case rlib.RASTATEPendingApproval1:
+			var data RAApprover1Data
+			if err = json.Unmarshal([]byte(d.data), &data); err != nil {
+				return flow, err
+			}
+
+			var fullName string
+			fullName, err = getUserFullName(ctx, d.sess.UID)
+			if err != nil {
+				return flow, err
+			}
+
+			if data.Decision1 == 1 { // Approved
+				// set 4th bit of Flag as 1
+				modRAFlowMeta.RAFLAGS = modRAFlowMeta.RAFLAGS | uint64(1<<4)
+
+				// FLAGS
+				clearedState = modRAFlowMeta.RAFLAGS & ^uint64(0xf)
+				modRAFlowMeta.RAFLAGS = (clearedState | 2)
+			} else if data.Decision1 == 2 && data.DeclineReason1 > 0 { // Declined
+				// set 4th bit of Flag as 0
+				modRAFlowMeta.RAFLAGS = modRAFlowMeta.RAFLAGS & ^uint64(1<<4)
+				modRAFlowMeta.DeclineReason1 = data.DeclineReason1
+
+				modRAFlowMeta.TerminatorUID = d.sess.UID
+				modRAFlowMeta.TerminatorName = fullName
+				modRAFlowMeta.TerminationDate = rlib.JSONDateTime(today)
+
+				// IF BIZCACHE NOT INITIALIZED THEN
+				if rlib.RRdb.BizTypes[d.BID] == nil {
+					var xbiz rlib.XBusiness
+					err = rlib.InitBizInternals(d.BID, &xbiz)
+					if err != nil {
+						return flow, err
+					}
+				}
+				// APPLICATION DECLINED SLSID IN LEASE TERMINATION REASON
+				modRAFlowMeta.LeaseTerminationReason = rlib.RRdb.BizTypes[d.BID].Msgs.S[rlib.MSGAPPDECLINED].SLSID
+
+				// FLAGS
+				clearedState = modRAFlowMeta.RAFLAGS & ^uint64(0xf)
+				modRAFlowMeta.RAFLAGS = (clearedState | 6)
+			} else {
+				err = fmt.Errorf("approver1 data is not valid")
+				return flow, err
+			}
+
+			modRAFlowMeta.Approver1 = d.sess.UID
+			modRAFlowMeta.Approver1Name = fullName
+			modRAFlowMeta.DecisionDate1 = rlib.JSONDateTime(today)
+
+		case rlib.RASTATEPendingApproval2:
+			var data RAApprover2Data
+			if err = json.Unmarshal([]byte(d.data), &data); err != nil {
+				return flow, err
+			}
+
+			var fullName string
+			fullName, err = getUserFullName(ctx, d.sess.UID)
+			if err != nil {
+				return flow, err
+			}
+
+			if data.Decision2 == 1 { // Approved
+				modRAFlowMeta.MoveInUID = d.sess.UID
+				modRAFlowMeta.MoveInName = fullName
+				modRAFlowMeta.MoveInDate = rlib.JSONDateTime(today)
+
+				// set 5th bit of Flag as 1
+				modRAFlowMeta.RAFLAGS = modRAFlowMeta.RAFLAGS | uint64(1<<5)
+
+				// FLAGS
+				clearedState = modRAFlowMeta.RAFLAGS & ^uint64(0xf)
+				modRAFlowMeta.RAFLAGS = (clearedState | 3)
+			} else if data.Decision2 == 2 && data.DeclineReason2 > 0 { // Declined
+				// set 5th bit of Flag as 0
+				modRAFlowMeta.RAFLAGS = modRAFlowMeta.RAFLAGS & ^uint64(1<<5)
+				modRAFlowMeta.DeclineReason2 = data.DeclineReason2
+
+				modRAFlowMeta.TerminatorUID = d.sess.UID
+				modRAFlowMeta.TerminatorName = fullName
+				modRAFlowMeta.TerminationDate = rlib.JSONDateTime(today)
+
+				// IF BIZCACHE NOT INITIALIZED THEN
+				if rlib.RRdb.BizTypes[d.BID] == nil {
+					var xbiz rlib.XBusiness
+					err = rlib.InitBizInternals(d.BID, &xbiz)
+					if err != nil {
+						return flow, err
+					}
+				}
+				// APPLICATION DECLINED SLSID IN LEASE TERMINATION REASON
+				modRAFlowMeta.LeaseTerminationReason = rlib.RRdb.BizTypes[d.BID].Msgs.S[rlib.MSGAPPDECLINED].SLSID
+
+				// FLAGS
+				clearedState = modRAFlowMeta.RAFLAGS & ^uint64(0xf)
+				modRAFlowMeta.RAFLAGS = (clearedState | 6)
+			} else {
+				err = fmt.Errorf("approver2 data is not valid")
+				return flow, err
+			}
+
+			modRAFlowMeta.Approver2 = d.sess.UID
+			modRAFlowMeta.Approver2Name = fullName
+			modRAFlowMeta.DecisionDate2 = rlib.JSONDateTime(today)
+
+		case rlib.RASTATEMoveIn:
+			var data RAMoveInData
+			if err = json.Unmarshal([]byte(d.data), &data); err != nil {
+				return flow, err
+			}
+
+			var fullName string
+			fullName, err = getUserFullName(ctx, d.sess.UID)
+			if err != nil {
+				return flow, err
+			}
+
+			modRAFlowMeta.MoveInUID = d.sess.UID
+			modRAFlowMeta.MoveInName = fullName
+			modRAFlowMeta.MoveInDate = rlib.JSONDateTime(today)
+
+			modRAFlowMeta.DocumentDate = rlib.JSONDateTime(data.DocumentDate)
+		}
+	}
+
+	// UPDATE META AND FLOW
+	var modMetaData []byte
+	modMetaData, err = json.Marshal(&modRAFlowMeta)
+	if err != nil {
+		return flow, err
+	}
+
+	err = rlib.UpdateFlowData(ctx, "meta", modMetaData, &flow)
+	if err != nil {
+		return flow, err
+	}
+
+	// GET UPDATED FLOW
+	flow, err = rlib.GetFlowByUserRefNo(ctx, flow.BID, flow.UserRefNo)
+	if err != nil {
+		return flow, err
+	}
+
+	if migrateData {
+		// migrate data to real table via hook
+		var newRAID int64
+		newRAID, err = Flow2RA(ctx, flow.FlowID)
+		if err != nil {
+			return flow, err
+		}
+
+		// After Migration, flow will be deleted
+		// Hence we create a Flow structure and return it just for display purpose
+		flow = rlib.Flow{
+			BID:       flow.BID,
+			FlowID:    0, // we're not creating any flow, just to see RA content
+			UserRefNo: "",
+			ID:        newRAID,
+			FlowType:  rlib.RAFlow,
+			Data:      flow.Data,
+			CreateBy:  0,
+			LastModBy: 0,
+		}
+	}
+	return flow, nil
 }
 
 func getUserFullName(ctx context.Context, UID int64) (string, error) {
@@ -520,6 +651,7 @@ func ActionResetMetaData(Action int64, State uint64, modRAFlowMeta *rlib.RAFlowM
 			case rlib.RAActionSetToMoveIn:
 				modRAFlowMeta.MoveInUID = 0
 				modRAFlowMeta.MoveInName = ""
+				modRAFlowMeta.MoveInDate = rlib.JSONDateTime(time.Time{})
 				modRAFlowMeta.DocumentDate = rlib.JSONDateTime(time.Time{})
 
 			case rlib.RAActionCompleteMoveIn:
