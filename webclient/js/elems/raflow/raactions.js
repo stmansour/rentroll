@@ -528,10 +528,10 @@ window.loadRAActionTemplate = function() {
                     var btnBackToRAText = "";
                     if (app.raflow.version === "raid") {
                         var RAID = app.raflow.Flow.ID;
-                        btnBackToRAText = "Back to RA" + RAID;
+                        btnBackToRAText = "<p style='font-size: 10pt; margin: 0 5px;'>Back to <strong>RA" + RAID + "</strong></p>";
                     } else if(app.raflow.version === "refno") {
                         var UserRefNo = app.raflow.Flow.UserRefNo;
-                        btnBackToRAText = "Back to " + UserRefNo;
+                        btnBackToRAText = "<p style='font-size: 10pt; margin: 0 5px;'>Back to <strong>" + UserRefNo + "</strong></p>";
                     }
                     layout.get("top").toolbar.set('btnBackToRA', {text: btnBackToRAText});
                     // REFRESH THE TOOLBAR TO GET THE EFFECT
