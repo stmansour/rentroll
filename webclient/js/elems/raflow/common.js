@@ -799,22 +799,18 @@ window.toggleNonFieldsErrorDisplay = function () {
 //-----------------------------------------------------------------------------
 window.displayNonFieldsError = function (comp) {
 
-    console.debug(comp);
-    console.debug(app.raflow.validationErrors[comp]);
-    console.debug(app.raflow.validationCheck.nonFieldsErrors[comp]);
-
     var errorString = "";
     if(app.raflow.validationErrors[comp] && app.raflow.validationCheck.nonFieldsErrors[comp].length > 0){
         $("#non-fields-error").css('display', 'block');
         for(var i = 0; i < app.raflow.validationCheck.nonFieldsErrors[comp].length; i++){
             console.debug(app.raflow.validationCheck.nonFieldsErrors[comp][i]);
-            errorString += "<li>" + app.raflow.validationCheck.nonFieldsErrors[comp][i] + "<li>";
+            errorString += "<li>" + app.raflow.validationCheck.nonFieldsErrors[comp][i] + "</li>";
         }
     }else{
         $("#non-fields-error").css('display', 'none');
     }
 
-    console.debug(errorString);
+    $("#non-fields-error-content").empty();
+    $("#non-fields-error-content").append("<ul>" + errorString + "</ul>");
 
-    $("#non-fields-error-content").empty().appendTo("<ul>" + errorString + "</ul>");
 };
