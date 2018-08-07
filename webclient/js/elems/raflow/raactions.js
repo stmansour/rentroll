@@ -71,7 +71,9 @@ window.submitActionForm = function(data) {
                 updateFlowData(data);
             }
 
-            w2ui.raActionLayout.get('main').content.destroy();
+            if("raActionLayout" in w2ui){
+                w2ui.raActionLayout.get('main').content.destroy();
+            }
 
             loadRAActionTemplate();
             setTimeout(function() {

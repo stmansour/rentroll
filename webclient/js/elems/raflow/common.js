@@ -5,7 +5,7 @@
     lockOnGrid, getApprovals, updateFlowData, updateFlowCopy, displayErrorDot, initBizErrors,
     dispalyRARentablesGridError, dispalyRAVehiclesGridError, dispalyRAParentChildGridError, dispalyRATiePeopleGridError,
     GetCurrentFlowID, FlowFilled, ReassignPeopleGridRecords, AssignPetsGridRecords, AssignVehiclesGridRecords, AssignRentableGridRecords,
-    GetGridToolbarAddButtonID, HideRAFlowLoader, toggleNonFieldsErrorDisplay, displayErrorSummary
+    GetGridToolbarAddButtonID, HideRAFlowLoader, toggleNonFieldsErrorDisplay, displayErrorSummary, submitActionForm
 */
 
 "use strict";
@@ -107,8 +107,18 @@ $(document).on('click', '#ra-form #save-ra-flow-btn', function () {
 
         displayActiveComponentError();
 
+        // Change its state to pending first approval.
         if(data.total === 0 && data.errortype === "biz"){
-            alert("TODO: You'r good to go for pending first approval."); // TODO: Change its state to pending first approval. Remove this alert
+            console.debug("TODO: You'r good to go for pending first approval.");
+
+            var reqData = {
+                "UserRefNo": app.raflow.Flow.UserRefNo,
+                "RAID": app.raflow.Flow.ID,
+                "Version": app.raflow.version,
+                "Action": 1, // 1 indicates that pending first approval
+                "Mode": "Action"
+            };
+            submitActionForm(reqData);
         }
 
     });
