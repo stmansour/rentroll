@@ -152,12 +152,12 @@ type RAPeopleFlowData struct {
 	SecondaryEmail string `validate:"email,omitempty"`
 	WorkPhone      string `validate:"string,min=1,max=100,omitempty"` // Either Workphone or CellPhone is compulsory. It'll be checked in bizlogic validation
 	CellPhone      string `validate:"string,min=1,max=100,omitempty"` // Either Workphone or CellPhone is compulsory. It'll be checked in bizlogic validation
-	Address        string `validate:"string,min=1,max=100"`
+	Address        string `validate:"string,min=1,max=100,omitempty"`
 	Address2       string `validate:"string,min=0,max=100,omitempty"`
-	City           string `validate:"string,min=1,max=100"`
-	State          string `validate:"string,min=1,max=25"`
-	PostalCode     string `validate:"string,min=1,max=100"`
-	Country        string `validate:"string,min=1,max=100"`
+	City           string `validate:"string,min=1,max=100,omitempty"`
+	State          string `validate:"string,min=1,max=25,omitempty"`
+	PostalCode     string `validate:"string,min=1,max=100,omitempty"`
+	Country        string `validate:"string,min=1,max=100,omitempty"`
 	Website        string `validate:"string,min=1,max=100,omitempty"`
 	Comment        string `validate:"string,min=1,max=2048,omitempty"`
 
