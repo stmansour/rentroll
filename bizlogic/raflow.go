@@ -1175,8 +1175,12 @@ func DataFulfilledRAFlow(ctx context.Context, a *rlib.RAFlowJSONData, d *rlib.RA
 	// ---------------------------
 	// Check for rentables section
 	// ---------------------------
-	if len(a.Rentables) > 0 {
-		d.Rentables = true
+	// There must be at least one parent rentable
+	for _, rentable := range a.Rentables {
+		if rentable.RTFLAGS&(1<<1) == 0 {
+			d.Rentables = true
+			break
+		}
 	}
 
 	// -----------------------------
