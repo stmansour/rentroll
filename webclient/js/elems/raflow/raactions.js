@@ -72,7 +72,7 @@ window.submitActionForm = function(data) {
             }
 
             if("raActionLayout" in w2ui){
-                w2ui.raActionLayout.get('main').content.destroy();
+                w2ui.raActionLayout.get('main').content = "";
             }
 
             loadRAActionTemplate();
