@@ -930,6 +930,7 @@ func validateRentableBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Va
 // validateFeesBizLogic perform business logic check on fees section
 // ----------------------------------------------------------------------
 // 1. Start date must be prior or equal to Stop date
+// 2. Check fee must be exist in the database
 // ----------------------------------------------------------------------
 func validateFeesBizLogic(ctx context.Context, fees []rlib.RAFeesData) ([]RAFeesError, int) {
 	const funcname = "validateFeesBizLogic"
@@ -962,7 +963,19 @@ func validateFeesBizLogic(ctx context.Context, fees []rlib.RAFeesData) ([]RAFees
 			// define and assign error
 			err = fmt.Errorf("start date must be prior to stop date")
 			raFeesError.Errors["Start"] = append(raFeesError.Errors["Start"], err.Error())
-			// Modify vehicle section error count
+			// Modify fees section error count
+			raFeesError.Total++
+		}
+
+		// -----------------------------------------------
+		// --------- Check for rule no 2 -----------------
+		// -----------------------------------------------
+		// 2. Check fee must be exist in the database
+		ar, err := rlib.GetAR(ctx, fee.ARID)
+		if !(ar.ARID > 0) {
+			err = fmt.Errorf("fee doesn't exist")
+			raFeesError.Errors["ARName"] = append(raFeesError.Errors["ARName"], err.Error())
+			// Modify fees section error count
 			raFeesError.Total++
 		}
 
