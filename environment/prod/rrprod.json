@@ -1,0 +1,32 @@
+{
+    "EnvName": "RentRoll Sandbox",
+    "Instances": [
+	{
+	    "InstName": "rrnode",
+	    "OS":       "Linux",
+	    "Count":    1,
+		"Resources": {
+			"MySql": true
+		},
+	    "Apps": [
+	    	{
+	    		"UID": "t01",
+	    		"Name": "tgo",
+	    		"Repo": "jenkins-snapshot/tgo/latest",
+	    		"UPort": 8102,
+	    		"IsTest": false
+	    	},
+	    	{
+	    		"UID": "rr01",
+	    		"Name": "rentroll",
+	    		"Repo": "jenkins-snapshot/rentroll/latest",
+	    		"UPort": 8270,
+	    		"IsTest": false,
+				"AppRes": {
+					"Cmd": "./prodsetup.sh"
+				}
+	    	}
+	    ]
+	}
+	]
+}

@@ -1,9 +1,18 @@
 #!/bin/bash
-# chkconfig: 345 99 01
-# description: activation script to start/stop Accord RentRoll
+#------------------------------------------------------------------------------
+# RentRoll Activation Script
 #
-# processname: rentroll
-
+# This script performs most server management tasks such as
+#       startup
+#       shutdown
+#       restart
+#
+#  Notes:
+#   1. Env values:
+#      0 = development
+#      1 = production
+#      2 = QA
+#------------------------------------------------------------------------------
 
 HOST=localhost
 PROGNAME="rentroll"
@@ -53,14 +62,15 @@ ZZEOF
 
 stopwatchdog() {
 	# make sure we can find it
-    pidline=$(ps -ef | grep pbwatchdog | grep -v grep)
-    if [ "${pidline}" != "" ]; then
-        lines=$(echo "${pidline}" | wc -l)
-        if [ $lines -gt "0" ]; then
-            pid=$(echo "${pidline}" | awk '{print $2}')
-            $(kill $pid)
-        fi
-    fi
+    # pidline=$(ps -ef | grep pbwatchdog | grep -v grep)
+    # if [ "${pidline}" != "" ]; then
+    #     lines=$(echo "${pidline}" | wc -l)
+    #     if [ $lines -gt "0" ]; then
+    #         pid=$(echo "${pidline}" | awk '{print $2}')
+    #         $(kill $pid)
+    #     fi
+    # fi
+    killall pbwatchdog
 }
 
 #--------------------------------------------------------------
@@ -70,6 +80,9 @@ stopwatchdog() {
 #--------------------------------------------------------------
 makeProdNode() {
 	${GETFILE} accord/db/confprod.json ; mv confprod.json config.json  >log.out 2>&1
+    if [ -f config.json ]; then
+        chmod 600 config.json
+    fi
 }
 
 #--------------------------------------------------------------
@@ -167,10 +180,6 @@ start() {
 		fi
 	fi
 
-	if [ ! -f "/usr/local/share/man/man1/rentroll.1" ]; then
-		./installman.sh >installman.log 2>&1
-	fi
-
 	#---------------------------------------------------
 	# Make sure MySQL is running, if not retry 3 times...
 	#---------------------------------------------------
@@ -214,22 +223,7 @@ stop() {
 	#---------------------------------------------------
 	# stop watchdog first
 	#---------------------------------------------------
-	W=$(ps -ef | grep "rrwatchdog" | grep "bash" | wc -l)
-	if [ ${W} == 1 ]; then
-		case "${OS}" in
-		"Darwin")
-			pid=$(ps -ef | grep rrwatchdog | grep "bash" | sed -e 's/[ \t]*[0-9][0-9]*[ \t][ \t]*\([0-9][0-9]*\)[ \t].*/\1/')
-			;;
-		"Linux")
-			pid=$(ps -ef | grep rrwatchdog | grep "bash" | sed -e 's/[^ \t]*[ \t][ \t]*\([0-9][0-9]*\)[ \t].*/\1/')
-			;;
-		"*")
-			echo "Unsupported Operating System"
-			exit 1
-			;;
-		esac
-		kill ${pid}
-	fi
+    killall -9 rrwatchdog
 
 	#---------------------------------------------------
 	# now stop the server
