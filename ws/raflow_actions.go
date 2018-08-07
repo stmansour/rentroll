@@ -425,7 +425,7 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 			}
 
 		default:
-			err = fmt.Errorf("Invalid Action Taken.")
+			err = fmt.Errorf("Invalid Action Taken")
 			return flow, err
 		}
 	case "State":
