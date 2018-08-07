@@ -19,7 +19,7 @@ func (v DateValidator) Validate(val interface{}) error {
 	// don't panic
 	s, ok := val.(rlib.JSONDate)
 	if !ok {
-		return fmt.Errorf("should be type of date")
+		return fmt.Errorf("must be type of date")
 	}
 
 	// blank check

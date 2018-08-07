@@ -91,6 +91,7 @@ package: rentroll
 	cp rentroll ./${DIST}/rentroll/
 	cp ../gotable/pdfinstall.sh ${DIST}/rentroll/
 	cp activate.sh update.sh ./${DIST}/rentroll/
+	cp prodsetup.sh update.sh ./${DIST}/rentroll/
 	rm -f ./rrnewdb ./rrbkup ./rrrestore
 	ln -s ${DIST}/rentroll/rrnewdb
 	ln -s ${DIST}/rentroll/rrbkup
