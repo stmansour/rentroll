@@ -724,7 +724,7 @@ func validatePetBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 			//Error
 			err = fmt.Errorf("pet must be associated with a person")
 			// list error
-			petFieldsError.Errors["TMPPETID"] = append(petFieldsError.Errors["TMPPETID"], err.Error())
+			petFieldsError.Errors["TMPTCID"] = append(petFieldsError.Errors["TMPTCID"], err.Error())
 			// Modify error count
 			petFieldsError.Total++
 		}
@@ -801,7 +801,7 @@ func validateVehicleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Val
 			vehicleFieldsError.Total++
 
 			// list error
-			vehicleFieldsError.Errors["TMPVID"] = append(vehicleFieldsError.Errors["TMPVID"], err.Error())
+			vehicleFieldsError.Errors["TMPTCID"] = append(vehicleFieldsError.Errors["TMPTCID"], err.Error())
 		}
 
 		// -----------------------------------------------
