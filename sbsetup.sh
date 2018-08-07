@@ -24,7 +24,7 @@ DATABASENAME="${PROGNAME}"
 DBUSER="ec2-user"
 IAM=$(whoami)
 OS=$(uname)
-
+MYSQL="mysql --no-defaults"
 #--------------------------------------------------------------
 #  For QA, Sandbox, and Production nodes, go through the
 #  laundry list of details...
@@ -36,15 +36,15 @@ setupAppNode() {
 	#---------------------
 	# database
 	#---------------------
-	RRDB=$(echo "show databases;" | mysql | grep rentroll | wc -l)
-	if [ ${RRDB} -gt "0" ]; then
+	RRDB=$(echo "show databases;" | ${MYSQL} | grep rentroll | wc -l)
+	if [ ${RRDB} == "0" ]; then
 	    rm -rf ${DATABASENAME}db*  >log.out 2>&1
 	    ${GETFILE} accord/db/${DATABASENAME}db.sql.gz  >log.out 2>&1
 	    gunzip ${DATABASENAME}db.sql  >log.out 2>&1
 	    echo "DROP DATABASE IF EXISTS ${DATABASENAME}; CREATE DATABASE ${DATABASENAME}; USE ${DATABASENAME};" > restore.sql
 	    echo "source ${DATABASENAME}db.sql" >> restore.sql
 	    echo "GRANT ALL PRIVILEGES ON ${DATABASENAME} TO 'ec2-user'@'localhost' WITH GRANT OPTION;" >> restore.sql
-	    mysql ${MYSQLOPTS} < restore.sql  >log.out 2>&1
+	    ${MYSQL} < restore.sql  >log.out 2>&1
 	fi
 
 	#---------------------
