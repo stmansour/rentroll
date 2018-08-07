@@ -41,9 +41,11 @@ setupAppNode() {
 	    rm -rf ${DATABASENAME}db*  >log.out 2>&1
 	    ${GETFILE} accord/db/${DATABASENAME}db.sql.gz  >log.out 2>&1
 	    gunzip ${DATABASENAME}db.sql  >log.out 2>&1
+		echo "CREATE USER 'ec2-user'@'localhost';" | mysql > log.out 2>&1
 	    echo "DROP DATABASE IF EXISTS ${DATABASENAME}; CREATE DATABASE ${DATABASENAME}; USE ${DATABASENAME};" > restore.sql
 	    echo "source ${DATABASENAME}db.sql" >> restore.sql
-	    echo "GRANT ALL PRIVILEGES ON ${DATABASENAME} TO 'ec2-user'@'localhost' WITH GRANT OPTION;" >> restore.sql
+	    # echo "GRANT ALL PRIVILEGES ON ${DATABASENAME} TO 'ec2-user'@'localhost' WITH GRANT OPTION;" >> restore.sql
+	    echo "GRANT ALL PRIVILEGES ON *.* TO 'ec2-user'@'localhost' WITH GRANT OPTION;" >> restore.sql
 	    ${MYSQL} < restore.sql  >log.out 2>&1
 	fi
 
