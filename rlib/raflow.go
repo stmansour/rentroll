@@ -120,7 +120,7 @@ type RAFlowMetaInfo struct {
 
 // RADatesFlowData contains data in the dates part of RA flow
 type RADatesFlowData struct {
-	BID             int64    `validate:"number,min=1"`
+	BID             int64    `validate:"number,min=0"`
 	AgreementStart  JSONDate `validate:"date"` // TermStart
 	AgreementStop   JSONDate `validate:"date"` // TermStop
 	RentStart       JSONDate `validate:"date"`
@@ -133,8 +133,8 @@ type RADatesFlowData struct {
 // RAPeopleFlowData contains data in the background-info part of RA flow
 type RAPeopleFlowData struct {
 	TMPTCID int64 `validate:"number,min=1"`
-	BID     int64 `validate:"number,min=1"`
-	TCID    int64 `validate:"number,min=1"`
+	BID     int64 `validate:"number,min=0"`
+	TCID    int64 `validate:"number,min=0"`
 
 	// Role
 	IsRenter    bool `validate:"-"`
@@ -142,10 +142,10 @@ type RAPeopleFlowData struct {
 	IsGuarantor bool `validate:"-"`
 
 	// ---------- Basic Info -----------
-	FirstName      string `validate:"string,min=1,max=100"`
-	MiddleName     string `validate:"string,min=1,max=100"`
-	LastName       string `validate:"string,min=1,max=100"`
-	PreferredName  string `validate:"string,min=1,max=100"`
+	FirstName      string `validate:"string,min=1,max=100,omitempty"` // It handles in business logic if isCompany flag is false
+	MiddleName     string `validate:"string,min=1,max=100,omitempty"`
+	LastName       string `validate:"string,min=1,max=100,omitempty"` // It handles in business logic if isCompany flag is false
+	PreferredName  string `validate:"string,min=1,max=100,omitempty"`
 	IsCompany      bool   `validate:"-"`
 	CompanyName    string `validate:"string,min=1,max=100,omitempty"` // It is required when IsCompany flag is true. It'll be checked in bizlogic validation.
 	PrimaryEmail   string `validate:"email"`
@@ -200,7 +200,7 @@ type RAPeopleFlowData struct {
 
 	// ---------- Payor -----------
 	CreditLimit         float64 `validate:"number:float,min=0.00,omitempty"`
-	TaxpayorID          string  `validate:"string,min=1,max=25,omitempty"`
+	TaxpayorID          string  `validate:"string,min=1,max=25,omitempty"`   // It requires when transanctant is renter or gurantor. It handles via business logic
 	GrossIncome         float64 `validate:"number:float,min=0.00,omitempty"` // When role is set to renter or guarantor than it is compulsory. It'll be check via bizlogic.
 	DriversLicense      string  `validate:"string,min=1,max=128"`
 	EligibleFuturePayor bool    `validate:"-"`
@@ -286,7 +286,7 @@ type RAFeesData struct {
 	// SalesTaxAmt     float64       // FUTURE RELEASE
 	TransOccTax float64 `validate:"number:float,min=0.00"`
 	// TransOccAmt float64 // FUTURE RELEASE
-	Comment string `validate:"-"`
+	Comment string `validate:"string,min=1,max=256,omitempty"`
 }
 
 // RAParentChildFlowData contains data in the Parent/Child part of RA flow

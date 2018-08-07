@@ -193,9 +193,9 @@ window.loadRAVehiclesGrid = function () {
                     render: function (record) {
                         var haveError = false;
                         if (app.raflow.validationErrors.vehicles) {
-                            var vehicle = app.raflow.validationCheck.errors.vehicle;
-                            for (var i = 0; i < vehicle.length; i++) {
-                                if (vehicle[i].TMPVID === record.TMPVID && vehicle[i].total > 0) {
+                            var vehicles = app.raflow.validationCheck.errors.vehicles;
+                            for (var i = 0; i < vehicles.length; i++) {
+                                if (vehicles[i].TMPVID === record.TMPVID && vehicles[i].total > 0) {
                                     haveError = true;
                                     break;
                                 }
@@ -1185,7 +1185,7 @@ window.dispalyRAVehiclesGridError = function (){
     }
 
     if (app.raflow.validationErrors.vehicles) {
-        var vehicles = app.raflow.validationCheck.errors.vehicle;
+        var vehicles = app.raflow.validationCheck.errors.vehicles;
         for (i = 0; i < vehicles.length; i++) {
             if (vehicles[i].total > 0) {
                 var recid = getRecIDFromTMPVID(g, vehicles[i].TMPVID);
@@ -1291,7 +1291,7 @@ window.displayRAVehicleFeeFormError = function(TMPVID){
     var record = form.record;
 
     // get list of pets
-    var vehicles = app.raflow.validationCheck.errors.vehicle;
+    var vehicles = app.raflow.validationCheck.errors.vehicles;
 
     // get index of vehicle for whom form is opened
     var vehicleIndex = getVehicleIndex(TMPVID, vehicles);

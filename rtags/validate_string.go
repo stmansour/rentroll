@@ -30,7 +30,7 @@ func (v StringValidator) Validate(val interface{}) error {
 	// don't panic
 	s, ok := val.(string)
 	if !ok {
-		return fmt.Errorf("should be type of string")
+		return fmt.Errorf("must be type of string")
 	}
 
 	// get length of string
@@ -43,12 +43,12 @@ func (v StringValidator) Validate(val interface{}) error {
 
 	// min length check
 	if !v.Min.Skip && sl < v.Min.Value {
-		return fmt.Errorf("should be at least %d chars long", v.Min.Value)
+		return fmt.Errorf("must be at least %d chars long", v.Min.Value)
 	}
 
 	// max length check, max should be >= min
 	if !v.Max.Skip && v.Max.Value >= v.Min.Value && sl > v.Max.Value {
-		return fmt.Errorf("should be less than %d chars", v.Max.Value)
+		return fmt.Errorf("must be less than %d chars", v.Max.Value)
 	}
 
 	return nil

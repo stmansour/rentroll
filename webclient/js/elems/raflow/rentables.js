@@ -14,7 +14,7 @@
     GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary, updateFlowData, dispalyRARentablesGridError,
     displayRARentableFeeFormError, getRentableIndex, displayFormFieldsError,
     GetCurrentFlowID, EnableDisableRAFlowVersionInputs, ShowHideGridToolbarAddButton,
-    HideAllSliderContent
+    HideAllSliderContent, displayNonFieldsError
 */
 
 "use strict";
@@ -448,10 +448,9 @@ window.loadRARentablesGrid = function () {
                                 var isDisabled = feeForm.record.RentCycleText.text === app.cycleFreq[0];
                                 $("#RentCycleText").prop("disabled", isDisabled);
 
-                                // TODO(Akshay): Enable errors for rentables fees grid
-                                // setTimeout(function () {
-                                //     displayRARentableFeeFormError();
-                                // }, 500);
+                                setTimeout(function () {
+                                    displayRARentableFeeFormError(app.raflow.last.RID);
+                                }, 500);
                             })
                             .fail(function(data) {
                                 console.log("failure" + data);
@@ -467,7 +466,7 @@ window.loadRARentablesGrid = function () {
                 event.onComplete = function() {
                     ShowHideGridToolbarAddButton(grid.name);
                 };
-            },
+            }
         });
 
         // -----------------------------------------------------------
@@ -618,11 +617,7 @@ window.loadRARentablesGrid = function () {
                        // formRecDiffer: 1=current record, 2=original record, 3=diff object
                     var diff = formRecDiffer(this.record, app.active_form_original, {});
                     // if diff == {} then make dirty flag as false, else true
-                    if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
-                        app.form_is_dirty = false;
-                    } else {
-                        app.form_is_dirty = true;
-                    }
+                    app.form_is_dirty = !($.isPlainObject(diff) && $.isEmptyObject(diff));
                 };
             },
             onRefresh: function(event) {
