@@ -694,6 +694,7 @@ func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Vali
 // ----------------------------------------------------------------------
 // 1. Every pet must be associated with a transactant
 // 2. DtStart must be prior to DtStop
+// 3. There must be at least one entry for fees
 // ----------------------------------------------------------------------
 func validatePetBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) {
 	const funcname = "validatePetBizLogic"
@@ -745,6 +746,14 @@ func validatePetBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 			petFieldsError.Total++
 		}
 
+		// There must be one entry for the Fees
+		// ----------- Check for rule no 3 ------------
+		if !(len(pet.Fees) > 0) {
+			err = fmt.Errorf("must be at least one entry for the fees")
+			petFieldsError.Total++
+			petFieldsError.Errors["Fees"] = append(petFieldsError.Errors["Fees"], err.Error())
+		}
+
 		// ---------------------------------------------------
 		// --------- Biz logic check for fees section --------
 		// ---------------------------------------------------
@@ -767,6 +776,7 @@ func validatePetBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 // ----------------------------------------------------------------------
 // 1. Every vehicle must be associated with a transactant
 // 2. DtStart must be prior to DtStop
+// 3. There must be one entry for the Fees
 // ----------------------------------------------------------------------
 func validateVehicleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) {
 	const funcname = "validateVehicleBizLogic"
@@ -818,6 +828,14 @@ func validateVehicleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Val
 
 			// Modify vehicle section error count
 			vehicleFieldsError.Total++
+		}
+
+		// There must be one entry for the Fees
+		// ----------- Check for rule no 3 ------------
+		if !(len(vehicle.Fees) > 0) {
+			err = fmt.Errorf("must be at least one entry for the fees")
+			vehicleFieldsError.Total++
+			vehicleFieldsError.Errors["Fees"] = append(vehicleFieldsError.Errors["Fees"], err.Error())
 		}
 
 		// ---------------------------------------------------
