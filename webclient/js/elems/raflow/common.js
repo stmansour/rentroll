@@ -5,7 +5,7 @@
     lockOnGrid, getApprovals, updateFlowData, updateFlowCopy, displayErrorDot, initBizErrors,
     dispalyRARentablesGridError, dispalyRAVehiclesGridError, dispalyRAParentChildGridError, dispalyRATiePeopleGridError,
     GetCurrentFlowID, FlowFilled, ReassignPeopleGridRecords, AssignPetsGridRecords, AssignVehiclesGridRecords, AssignRentableGridRecords,
-    GetGridToolbarAddButtonID, HideRAFlowLoader, toggleNonFieldsErrorDisplay, displayNonFieldsError
+    GetGridToolbarAddButtonID, HideRAFlowLoader, toggleNonFieldsErrorDisplay, displayErrorSummary
 */
 
 "use strict";
@@ -506,8 +506,8 @@ window.loadTargetSection = function (target, previousActiveCompID) {
     $("#progressbar #steps-list li[data-target='#" + target + "']").removeClass("done").addClass("active");
     $(".ra-form-component#" + target).show();
 
-    // display target comp non fields error
-    displayNonFieldsError(target);
+    // display target comp fields summary
+    displayErrorSummary(target);
 
     // hide previous navigation button if the target is in first section
     if ($(".ra-form-component#" + target).is($(".ra-form-component").first())) {
@@ -668,6 +668,8 @@ window.displayActiveComponentError = function () {
             alert("invalid active comp: " + active_comp_id);
             return;
     }
+
+    displayErrorSummary(active_comp_id);
 };
 
 // getRecIDFromTMPASMID It returns recid of grid record which matches TMPASMID
@@ -779,13 +781,10 @@ window.DeleteRAFlowAJAX = function (UserRefNo) {
     });
 };
 
-//-----------------------------------------------------------------------------
-// toggleNonFieldsErrorDisplay
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------
+// toggleNonFieldsErrorDisplay - It exapand/collapse non-field error summary section
+//----------------------------------------------------------------------------------
 window.toggleNonFieldsErrorDisplay = function () {
-
-    $(".collapsible").toggleClass("active-collapsible");
-
     var content = $("#non-fields-error-content");
     if (content[0].style.display === "block") {
         content[0].style.display = "none";
@@ -795,27 +794,46 @@ window.toggleNonFieldsErrorDisplay = function () {
 };
 
 //-----------------------------------------------------------------------------
-// displayNonFieldsError
+// displayErrorSummary - It display error summary for active section.
 //-----------------------------------------------------------------------------
-window.displayNonFieldsError = function (comp) {
+window.displayErrorSummary = function (comp) {
 
-    var errorString = "";
+    var error_summary_sel = "#error-summary";
+    var non_field_error_dd_sel = "#error-info .fa-caret-down";
+    var non_field_error_content_sel = "#non-fields-error-content";
+
+
     if(app.raflow.validationErrors[comp]){
-        $("#error-summary").css('display', 'block');
+        // Display error summary
+        $(error_summary_sel).css('display', 'block');
 
-        // Display error count
-        $("#field-errors-count").html(app.raflow.validationCheck.errors[comp].length);
-        $("#non-field-errors-count").html(app.raflow.validationCheck.nonFieldsErrors[comp].length);
+        var form_errors_count = app.raflow.validationCheck.errors[comp].length;
+        var non_fields_errors_count = app.raflow.validationCheck.nonFieldsErrors[comp].length;
 
-        for(var i = 0; i < app.raflow.validationCheck.nonFieldsErrors[comp].length; i++){
-            console.debug(app.raflow.validationCheck.nonFieldsErrors[comp][i]);
-            errorString += "<li>" + app.raflow.validationCheck.nonFieldsErrors[comp][i] + "</li>";
+        // Update error count for form error and non fields error
+        $("#field-errors-count").html(form_errors_count); // TODO(Akshay): Manage for date section
+        $("#non-field-errors-count").html(non_fields_errors_count);
+
+        // If there are any non fields errors than display dropdown icon. Via it can expand non-fields-error summary
+        if(non_fields_errors_count > 0){
+            $(non_field_error_dd_sel).css('display', 'inline');
+
+            var errorString = "";
+            for(var i = 0; i < app.raflow.validationCheck.nonFieldsErrors[comp].length; i++){
+                console.debug(app.raflow.validationCheck.nonFieldsErrors[comp][i]);
+                errorString += "<li>" + app.raflow.validationCheck.nonFieldsErrors[comp][i] + "</li>";
+            }
+
+            // non fields error content
+            $(non_field_error_content_sel).empty();
+            $(non_field_error_content_sel).append("<ul>" + errorString + "</ul>");
+        }else{
+            $(non_field_error_dd_sel).css('display', 'none');
         }
-    }else{
-        $("#error-summary").css('display', 'none');
+
     }
-
-    $("#non-fields-error-content").empty();
-    $("#non-fields-error-content").append("<ul>" + errorString + "</ul>");
-
+    else{
+        // Hide error summary
+        $(error_summary_sel).css('display', 'none');
+    }
 };

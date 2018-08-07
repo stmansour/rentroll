@@ -544,3 +544,7 @@ div #error-info{
 #error-info .fa-exclamation-triangle{
     color: red;
 }
+
+#error-info .fa-caret-down{
+    display: none;
+}
