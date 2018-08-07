@@ -526,11 +526,11 @@ small.no-error {
     list-style: initial;
 }
 
-#non-fields-error-content div{
+div #non-fields-error-content{
     border: 1px solid red;
     height: auto;
     width: 100%;
-    border-top: none;
+    border-top: none !important;
 }
 
 div #error-info{
@@ -538,6 +538,7 @@ div #error-info{
     height: auto;
     width: 100%;
     margin-top: 5px;
+    padding: 10px 0px 10px 0px;
 }
 
 #error-info .fa-exclamation-triangle{

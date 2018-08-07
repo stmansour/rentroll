@@ -791,7 +791,6 @@ window.toggleNonFieldsErrorDisplay = function () {
         content[0].style.display = "none";
     } else {
         content[0].style.display = "block";
-        content[0].style.border = "1px solid red";
     }
 };
 
