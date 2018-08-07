@@ -444,9 +444,9 @@ window.loadRAPeopleForm = function () {
 // It set RATransactantForm header title
 window.setRATransactantFormHeader = function (record) {
     if (record.IsCompany > 0) {
-        w2ui.RATransactantForm.header = 'Background Information - ' + record.CompanyName;
+        w2ui.RATransactantForm.header = 'Background Information - <strong>' + record.CompanyName + '</strong>';
     } else {
-        w2ui.RATransactantForm.header = 'Background Information - ' + record.FirstName + ' ' + record.MiddleName + ' ' + record.LastName;
+        w2ui.RATransactantForm.header = 'Background Information - <strong>' + record.FirstName + ' ' + record.MiddleName + ' ' + record.LastName + '</strong>';
     }
 };
 

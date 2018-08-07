@@ -91,7 +91,7 @@ type RAFlowFieldsErrors struct {
 	Dates       DatesFieldsError         `json:"dates"`
 	People      []PeopleFieldsError      `json:"people"`
 	Pets        []PetFieldsError         `json:"pets"`
-	Vehicle     []VehicleFieldsError     `json:"vehicle"`
+	Vehicle     []VehicleFieldsError     `json:"vehicles"`
 	Rentables   []RentablesFieldsError   `json:"rentables"`
 	ParentChild []ParentChildFieldsError `json:"parentchild"`
 	Tie         TieFieldsError           `json:"tie"`
@@ -102,7 +102,7 @@ type RAFlowNonFieldsErrors struct {
 	Dates       []string `json:"dates"`
 	People      []string `json:"people"`
 	Pets        []string `json:"pets"`
-	Vehicle     []string `json:"vehicle"`
+	Vehicle     []string `json:"vehicles"`
 	Rentables   []string `json:"rentables"`
 	ParentChild []string `json:"parentchild"`
 	Tie         []string `json:"tie"`
@@ -551,7 +551,7 @@ func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Vali
 			Errors:  make(map[string][]string, 0),
 		}
 
-		err = fmt.Errorf("should not be blank")
+		err = fmt.Errorf("must not be blank")
 
 		// ----------- Check rule no. 1  ----------------
 		// If isCompany flag is true then CompanyName is required
@@ -574,7 +574,7 @@ func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Vali
 
 		// ----------- Check rule no. 4  ----------------
 		// If role is set to Renter or guarantor than it must have mentioned GrossIncome
-		err = fmt.Errorf("gross income should be greater than 0.00")
+		err = fmt.Errorf("gross income must be greater than 0.00")
 		if (p.IsRenter || p.IsGuarantor) && !(p.GrossIncome > 0.00) {
 			peopleFieldsError.Errors["GrossIncome"] = append(peopleFieldsError.Errors["GrossIncome"], err.Error())
 			peopleFieldsError.Total++
@@ -620,7 +620,7 @@ func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Vali
 
 		// ----------- Check rule no. 8  ----------------
 		// When it is brand new RA Application(RAID==0) it require "current" address related information
-		err = fmt.Errorf("should not be blank")
+		err = fmt.Errorf("must not be blank")
 		if p.CurrentAddress == "" && RAID == 0 {
 			peopleFieldsError.Errors["CurrentAddress"] = append(peopleFieldsError.Errors["CurrentAddress"], err.Error())
 			peopleFieldsError.Total++
@@ -641,7 +641,7 @@ func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Vali
 			peopleFieldsError.Total++
 		}
 
-		err = fmt.Errorf("should provide reason")
+		err = fmt.Errorf("must provide reason")
 		if p.CurrentReasonForMoving == 0 && RAID == 0 {
 			peopleFieldsError.Errors["CurrentReasonForMoving"] = append(peopleFieldsError.Errors["CurrentReasonForMoving"], err.Error())
 			peopleFieldsError.Total++
@@ -665,7 +665,7 @@ func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Vali
 	// ----------- Check rule no. 3 ----------------
 	// If only one person exist in the list, then it should have isRenter role marked as true
 	if len(people) == 1 && !people[0].IsRenter {
-		err = fmt.Errorf("person should be renter")
+		err = fmt.Errorf("person must be renter")
 
 		if len(peopleFieldsErrors) == 1 {
 			peopleFieldsErrors[0].Errors["IsRenter"] = append(peopleFieldsErrors[0].Errors["IsRenter"], err.Error())
@@ -693,9 +693,7 @@ func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Vali
 // validatePetBizLogic Perform business logic check on pet section
 // ----------------------------------------------------------------------
 // 1. Every pet must be associated with a transactant
-// 2. Pets are optional. Means if HavePets is set to false in meta
-// information than it should not have any pets.
-// 3. DtStart must be prior to DtStop
+// 2. DtStart must be prior to DtStop
 // ----------------------------------------------------------------------
 func validatePetBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) {
 	const funcname = "validatePetBizLogic"
@@ -726,13 +724,13 @@ func validatePetBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 			//Error
 			err = fmt.Errorf("pet must be associated with a person")
 			// list error
-			petFieldsError.Errors["TMPPETID"] = append(petFieldsError.Errors["TMPPETID"], err.Error())
+			petFieldsError.Errors["TMPTCID"] = append(petFieldsError.Errors["TMPTCID"], err.Error())
 			// Modify error count
 			petFieldsError.Total++
 		}
 
 		// -----------------------------------------------
-		// --------- Check for rule no 3 -----------------
+		// --------- Check for rule no 2 -----------------
 		// -----------------------------------------------
 		startDate := time.Time(pet.DtStart)
 		stopDate := time.Time(pet.DtStop)
@@ -768,9 +766,7 @@ func validatePetBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 // validateVehicleBizLogic Perform business logic check on vehicle section
 // ----------------------------------------------------------------------
 // 1. Every vehicle must be associated with a transactant
-// 2. Vehicle are optional. Means if HaveVehicles is set to false in meta
-// information than it should not have any vehicles.
-// 3. DtStart must be prior to DtStop
+// 2. DtStart must be prior to DtStop
 // ----------------------------------------------------------------------
 func validateVehicleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) {
 	const funcname = "validateVehicleBizLogic"
@@ -805,11 +801,11 @@ func validateVehicleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Val
 			vehicleFieldsError.Total++
 
 			// list error
-			vehicleFieldsError.Errors["TMPVID"] = append(vehicleFieldsError.Errors["TMPVID"], err.Error())
+			vehicleFieldsError.Errors["TMPTCID"] = append(vehicleFieldsError.Errors["TMPTCID"], err.Error())
 		}
 
 		// -----------------------------------------------
-		// --------- Check for rule no 3 ---------------
+		// --------- Check for rule no 2 ---------------
 		// -----------------------------------------------
 		startDate := time.Time(vehicle.DtStart)
 		stopDate := time.Time(vehicle.DtStop)
@@ -877,7 +873,7 @@ func validateRentableBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Va
 		// There must be one entry for the Fees
 		// ----------- Check for rule no 2 ------------
 		if !(len(rentable.Fees) > 0) {
-			err = fmt.Errorf("should be at least one entry for the fees")
+			err = fmt.Errorf("must be at least one entry for the fees")
 			rentablesFieldsError.Total++
 			rentablesFieldsError.Errors["Fees"] = append(rentablesFieldsError.Errors["Fees"], err.Error())
 		}
@@ -904,7 +900,7 @@ func validateRentableBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Va
 
 	// There must be one parent rentable
 	if !(parentRentableCount > 0) {
-		err = fmt.Errorf("should have at least one parent rentable")
+		err = fmt.Errorf("must have at least one parent rentable")
 		rentablesNonFieldsErrors = append(rentablesNonFieldsErrors, err.Error())
 	}
 
@@ -915,7 +911,7 @@ func validateRentableBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Va
 
 // validateFeesBizLogic perform business logic check on fees section
 // ----------------------------------------------------------------------
-// 1. Start date must be prior to Stop date
+// 1. Start date must be prior or equal to Stop date
 // ----------------------------------------------------------------------
 func validateFeesBizLogic(ctx context.Context, fees []rlib.RAFeesData) ([]RAFeesError, int) {
 	const funcname = "validateFeesBizLogic"
@@ -994,7 +990,7 @@ func validateParentChildBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g 
 		r, err := rlib.GetRentable(ctx, pc.PRID)
 		// Not exist than RID will be 0
 		if !(r.RID > 0 && pc.PRID > 0) {
-			err = fmt.Errorf("parent rentable should exists")
+			err = fmt.Errorf("parent rentable must exists")
 			parentChildFieldsError.Errors["PRID"] = append(parentChildFieldsError.Errors["PRID"], err.Error())
 			parentChildFieldsError.Total++
 		}
@@ -1003,7 +999,7 @@ func validateParentChildBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g 
 		r, err = rlib.GetRentable(ctx, pc.CRID)
 		// Not exist than RID will be 0
 		if !(r.RID > 0 && pc.CRID > 0) {
-			err = fmt.Errorf("child rentable should exists")
+			err = fmt.Errorf("child rentable must exists")
 			parentChildFieldsError.Errors["CRID"] = append(parentChildFieldsError.Errors["CRID"], err.Error())
 			parentChildFieldsError.Total++
 		}
@@ -1053,7 +1049,7 @@ func validateTiePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *V
 		r, err := rlib.GetRentable(ctx, p.PRID)
 		// Not exist than RID will be 0
 		if !(r.RID > 0 && p.PRID > 0) {
-			err = fmt.Errorf("parent rentable should be tied")
+			err = fmt.Errorf("parent rentable must be tied")
 			tiePeopleFieldsError.Errors["PRID"] = append(tiePeopleFieldsError.Errors["PRID"], err.Error())
 			tiePeopleFieldsError.Total++
 		}
@@ -1062,7 +1058,7 @@ func validateTiePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *V
 		// 2. Person must be occupant.
 		if !isPersonOccupant(p.TMPTCID, a.People) {
 			// Person is not occupant
-			err = fmt.Errorf("person should be an occupant")
+			err = fmt.Errorf("person must be an occupant")
 			tiePeopleFieldsError.Errors["IsOccupant"] = append(tiePeopleFieldsError.Errors["IsOccupant"], err.Error())
 			tiePeopleFieldsError.Total++
 		} else {
@@ -1077,7 +1073,7 @@ func validateTiePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *V
 	}
 
 	if !(occupantCount > 0) {
-		err := fmt.Errorf("should have at least one occupant")
+		err := fmt.Errorf("must have at least one occupant")
 		tieNonFieldsErrors = append(tieNonFieldsErrors, err.Error())
 	}
 
@@ -1219,7 +1215,7 @@ func DataFulfilledRAFlow(ctx context.Context, a *rlib.RAFlowJSONData, d *rlib.RA
 	//    ==============================================================//
 	//
 
-	// There should be at least one person
+	// There must be at least one person
 	if len(a.Tie.People) > 1 {
 		d.Tie = true
 	}

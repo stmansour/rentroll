@@ -16,7 +16,7 @@ type EmailValidator struct {
 func (v EmailValidator) Validate(val interface{}) error {
 	s, ok := val.(string)
 	if !ok {
-		return fmt.Errorf("should be type of string")
+		return fmt.Errorf("must be type of string")
 	}
 
 	// it does match regex pattern then raise an error

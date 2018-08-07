@@ -53,6 +53,20 @@ window.submitActionForm = function(data) {
             }
 
             if (data.record.Flow.FlowID === 0) {
+                if (app.raflow.version === 'refno') {
+                    // load ActionForm and Toolbar for raid version
+                    w2ui.newraLayout.content('right', '');
+                    w2ui.newraLayout.hide('right', true);
+
+                    app.raflow.version = 'raid';
+                    var ver = app.raflow.version;
+                    var id = data.record.Flow.ID;
+                    var refno = data.record.Flow.UserRefNo;
+                    var flags = data.record.Flow.Data.meta.RAFLAGS;
+
+                    ChangeRAFlowVersionToolbar(ver, id, refno, flags);
+                }
+
                 // Update flow local copy and green checks
                 updateFlowData(data);
             }
@@ -73,6 +87,18 @@ window.submitActionForm = function(data) {
 // reloadActionForm - reloads the data of action form according to state
 // -------------------------------------------------------------------------------
 window.reloadActionForm = function() {
+    // if version is refno, then remove NoticeToMove and Terminate options from Dropdown
+    if (app.raflow.version === 'refno') {
+        var itemArrayObject = Array.from(app.w2ui.listItems.RAActions);
+        itemArrayObject.pop();
+        itemArrayObject.pop();
+
+        w2ui.RAActionForm.get('RAActions').options.items = itemArrayObject;
+
+    } else if( app.raflow.version === 'raid' ) {
+        w2ui.RAActionForm.get('RAActions').options.items = app.w2ui.listItems.RAActions;
+    }
+
     $('#RAActionRAInfo').hide();
     $('#RAActionTerminatedRAInfo').hide();
     $('#RAActionNoticeToMoveInfo').hide();
@@ -528,10 +554,10 @@ window.loadRAActionTemplate = function() {
                     var btnBackToRAText = "";
                     if (app.raflow.version === "raid") {
                         var RAID = app.raflow.Flow.ID;
-                        btnBackToRAText = "Back to RA" + RAID;
+                        btnBackToRAText = "<p style='font-size: 10pt; margin: 0 5px;'>Back to <strong>RA" + RAID + "</strong></p>";
                     } else if(app.raflow.version === "refno") {
                         var UserRefNo = app.raflow.Flow.UserRefNo;
-                        btnBackToRAText = "Back to " + UserRefNo;
+                        btnBackToRAText = "<p style='font-size: 10pt; margin: 0 5px;'>Back to <strong>" + UserRefNo + "</strong></p>";
                     }
                     layout.get("top").toolbar.set('btnBackToRA', {text: btnBackToRAText});
                     // REFRESH THE TOOLBAR TO GET THE EFFECT
