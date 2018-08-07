@@ -125,39 +125,39 @@ setupAppNode() {
 	fi
 }
 
-#--------------------------------------------------------------
-#  For QA, Sandbox, and Production nodes, go through the
-#  laundry list of details...
-#  1. Set up permissions for the database on QA and Sandbox nodes
-#  2. Install a database with some data for testing
-#  3. For PDF printing, install wkhtmltopdf
-#--------------------------------------------------------------
-setupAppNode() {
-    #-----------------------------------------------------------------
-	#  If no config.json exists, pull the development environment
-	#  version and use it.  The Env values mean the following:
-	#    0 = development environment
-	#    1 = production environment
-	#    2 = QA environment
-	#-----------------------------------------------------------------
-	if [ ! -f ./config.json ]; then
-		${GETFILE} accord/db/confdev.json  >log.out 2>&1
-		mv confdev.json config.json
-	fi
-	#---------------------
-	# database
-	#---------------------
-	RRDB=$(echo "show databases;" | mysql | grep rentroll | wc -l)
-	if [ ${RRDB} -lt "1" ]; then
-	    rm -rf ${DATABASENAME}db*  >log.out 2>&1
-        ./rrnewdb
-	fi
-
-	#---------------------
-	# wkhtmltopdf
-	#---------------------
-	./pdfinstall.sh  >log.out 2>&1
-}
+# #--------------------------------------------------------------
+# #  For QA, Sandbox, and Production nodes, go through the
+# #  laundry list of details...
+# #  1. Set up permissions for the database on QA and Sandbox nodes
+# #  2. Install a database with some data for testing
+# #  3. For PDF printing, install wkhtmltopdf
+# #--------------------------------------------------------------
+# setupAppNode() {
+#     #-----------------------------------------------------------------
+# 	#  If no config.json exists, pull the development environment
+# 	#  version and use it.  The Env values mean the following:
+# 	#    0 = development environment
+# 	#    1 = production environment
+# 	#    2 = QA environment
+# 	#-----------------------------------------------------------------
+# 	if [ ! -f ./config.json ]; then
+# 		${GETFILE} accord/db/confdev.json  >log.out 2>&1
+# 		mv confdev.json config.json
+# 	fi
+# 	#---------------------
+# 	# database
+# 	#---------------------
+# 	RRDB=$(echo "show databases;" | mysql | grep rentroll | wc -l)
+# 	if [ ${RRDB} -lt "1" ]; then
+# 	    rm -rf ${DATABASENAME}db*  >log.out 2>&1
+#         ./rrnewdb
+# 	fi
+#
+# 	#---------------------
+# 	# wkhtmltopdf
+# 	#---------------------
+# 	./pdfinstall.sh  >log.out 2>&1
+# }
 
 start() {
     #--------------------------------------------------------
