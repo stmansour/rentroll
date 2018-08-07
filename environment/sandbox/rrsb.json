@@ -22,9 +22,9 @@
 	    		"Repo": "jenkins-snapshot/phonebook/latest",
 	    		"UPort": 8250,
 	    		"IsTest": false,
-				"AppRes": {
-					"Cmd": "./pbrestore -f -n"
-				}
+			"AppRes": {
+				"Cmd": "./pbrestore -f -n"
+			}
 	    	},
 	    	{
 	    		"UID": "rr01",
@@ -32,9 +32,9 @@
 	    		"Repo": "jenkins-snapshot/rentroll/latest",
 	    		"UPort": 8270,
 	    		"IsTest": false,
-				"AppRes": {
-					"Cmd": "./rrnewdb"
-				}
+			"AppRes": {
+				"Cmd": "./sbsetup.sh"
+			}
 	    	}
 	    ]
 	}
