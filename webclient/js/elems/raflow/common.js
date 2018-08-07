@@ -109,7 +109,6 @@ $(document).on('click', '#ra-form #save-ra-flow-btn', function () {
 
         // Change its state to pending first approval.
         if(data.total === 0 && data.errortype === "biz"){
-            console.debug("TODO: You'r good to go for pending first approval.");
 
             var reqData = {
                 "UserRefNo": app.raflow.Flow.UserRefNo,
