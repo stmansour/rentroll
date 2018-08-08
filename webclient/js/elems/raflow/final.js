@@ -52,7 +52,10 @@ window.BuildRAFinalRentablesFeesGrid = function() {
         },
         multiSelect: false,
         style: 'border: 2px solid silver; display: block; background-color: transparent;',
-        columns: gridCols
+        columns: gridCols,
+        onSelect: function (event) {
+            event.preventDefault(); // Prevent selection of row
+        }
     });
 };
 
@@ -92,11 +95,14 @@ window.BuildRAFinalPetsFeesGrid = function() {
         show: {
             toolbar:    false,
             header:     true,
-            footer:     false,
+            footer:     false
         },
         multiSelect: false,
         style: 'border: 2px solid silver; display: block;',
-        columns: gridCols
+        columns: gridCols,
+        onSelect: function (event) {
+            event.preventDefault(); // Prevent selection of row
+        }
     });
 };
 
@@ -136,11 +142,14 @@ window.BuildRAFinalVehiclesFeesGrid = function() {
         show: {
             toolbar:    false,
             header:     true,
-            footer:     false,
+            footer:     false
         },
         multiSelect: false,
         style: 'border: 2px solid silver; display: block;',
         columns: gridCols,
+        onSelect: function (event) {
+            event.preventDefault(); // Prevent selection of row
+        }
     });
 };
 

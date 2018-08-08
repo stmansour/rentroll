@@ -127,6 +127,16 @@
     */
 }
 
+.tab-error-dot {
+    background: #f44336;
+    border-radius: 50%;
+    height: 8px;
+    width: 8px;
+    position: absolute;
+    top: 4px;
+    right: 4px;
+}
+
 #progressbar #steps-list li a div.error-true {
     display: initial;
 }

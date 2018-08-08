@@ -630,7 +630,7 @@ window.loadRAVehiclesGrid = function () {
             },
             multiSelect: false,
             style: 'border: 1px solid silver;',
-            columns: GetFeeGridColumns(),
+            columns: GetFeeGridColumns('RAVehicleFeesGrid'),
             onClick: function(event) {
                 event.onComplete = function() {
                     var yes_args = [this, event.recid],
@@ -886,9 +886,6 @@ window.loadRAVehiclesGrid = function () {
                 var feeForm = this;
                 event.onComplete = function() {
 
-                    // minimum actions need to be taken care in refres event for fee form
-                    FeeFormOnRefreshHandler(feeForm);
-
                     // there is NO VID actually, so have to work around with recid key
                     formRefreshCallBack(feeForm);
 
@@ -911,6 +908,9 @@ window.loadRAVehiclesGrid = function () {
 
                     // FREEZE THE INPUTS IF VERSION IS RAID
                     EnableDisableRAFlowVersionInputs(feeForm);
+
+                    // minimum actions need to be taken care in refres event for fee form
+                    FeeFormOnRefreshHandler(feeForm);
                 };
             }
         });
@@ -1216,7 +1216,7 @@ window.displayRAVehicleFeesGridError = function () {
     }
 
     if (app.raflow.validationErrors.vehicles) {
-        var vehicles = app.raflow.validationCheck.errors.vehicle;
+        var vehicles = app.raflow.validationCheck.errors.vehicles;
         for (i = 0; i < vehicles.length; i++) {
             for (var j = 0; j < vehicles[i].fees.length; j++) {
                 if (vehicles[i].fees[j].total > 0) {
@@ -1253,7 +1253,7 @@ window.displayRAVehicleFormError = function(){
     var record = form.record;
 
     // get list of pets
-    var vehicles = app.raflow.validationCheck.errors.vehicle;
+    var vehicles = app.raflow.validationCheck.errors.vehicles;
 
     // get index of pet for whom form is opened
     var index = getVehicleIndex(record.TMPVID, vehicles);

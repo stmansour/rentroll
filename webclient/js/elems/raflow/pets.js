@@ -586,7 +586,7 @@ window.loadRAPetsGrid = function () {
             },
             multiSelect: false,
             style: 'border: 1px solid silver;',
-            columns: GetFeeGridColumns(),
+            columns: GetFeeGridColumns('RAPetFeesGrid'),
             onClick: function(event) {
                 event.onComplete = function() {
                     var yes_args = [this, event.recid],
@@ -843,9 +843,6 @@ window.loadRAPetsGrid = function () {
                 var feeForm = this;
                 event.onComplete = function() {
 
-                    // minimum actions need to be taken care in refres event for fee form
-                    FeeFormOnRefreshHandler(feeForm);
-
                     // there is NO PETID actually, so have to work around with recid key
                     formRefreshCallBack(feeForm);
 
@@ -868,6 +865,9 @@ window.loadRAPetsGrid = function () {
 
                     // FREEZE THE INPUTS IF VERSION IS RAID
                     EnableDisableRAFlowVersionInputs(feeForm);
+
+                    // minimum actions need to be taken care in refres event for fee form
+                    FeeFormOnRefreshHandler(feeForm);
                 };
             }
         });

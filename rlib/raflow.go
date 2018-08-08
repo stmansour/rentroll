@@ -313,10 +313,7 @@ type RATiePeopleData struct {
 func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessage, flowPart string, flow *Flow) (err error) {
 	const funcname = "UpdateRAFlowJSON"
 	var (
-		raFlowData          RAFlowJSONData
-		modFlowPartData     = []byte(nil)
-		possessDatesChanged bool
-		rentDatesChanged    bool
+		raFlowData RAFlowJSONData
 	)
 	fmt.Printf("Entered in %s\n", funcname)
 
@@ -333,7 +330,6 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 	if err != nil {
 		return
 	}
-	meta := raFlowData.Meta
 
 	// JSON MARSHAL WITH ADDRESS
 	// REF: https://stackoverflow.com/questions/21390979/custom-marshaljson-never-gets-called-in-go
@@ -358,15 +354,22 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 			}
 
 			// ----- POSSESSION DATES CHANGED CHECK ----- //
-			if !((time.Time)(raFlowData.Dates.PossessionStart).Equal((time.Time)(a.PossessionStart)) &&
-				(time.Time)(raFlowData.Dates.PossessionStop).Equal((time.Time)(a.PossessionStop))) {
-				possessDatesChanged = true
+			newPStart := (time.Time)(a.PossessionStart)
+			newPStop := (time.Time)(a.PossessionStop)
+			if !((time.Time)(raFlowData.Dates.PossessionStart).Equal(newPStart) &&
+				(time.Time)(raFlowData.Dates.PossessionStop).Equal(newPStop)) {
+				possessDateChangeRAFlowUpdates(ctx, newPStart, newPStop, &raFlowData)
 			}
 
 			// ----- RENT DATES CHANGED CHECK ----- //
-			if !((time.Time)(raFlowData.Dates.RentStart).Equal((time.Time)(a.RentStart)) &&
-				(time.Time)(raFlowData.Dates.RentStop).Equal((time.Time)(a.RentStop))) {
-				rentDatesChanged = true
+			newRStart := (time.Time)(a.RentStart)
+			newRStop := (time.Time)(a.RentStop)
+			if !((time.Time)(raFlowData.Dates.RentStart).Equal(newRStart) &&
+				(time.Time)(raFlowData.Dates.RentStop).Equal(newRStop)) {
+				err = rentDateChangeRAFlowUpdates(ctx, BID, newRStart, newRStop, &raFlowData)
+				if err != nil {
+					return
+				}
 			}
 
 		} else {
@@ -384,10 +387,7 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 		}
 
 		// MODIFIED PART DATA
-		modFlowPartData, err = json.Marshal(&a)
-		if err != nil {
-			return
-		}
+		raFlowData.Dates = a
 
 	case PeopleRAFlowPart:
 		a := []RAPeopleFlowData{}
@@ -402,8 +402,8 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 			// IF NOT TMPTCID THEN ASSIGN IT
 			for i := range a {
 				if a[i].TMPTCID == 0 {
-					meta.LastTMPTCID++
-					a[i].TMPTCID = meta.LastTMPTCID
+					raFlowData.Meta.LastTMPTCID++
+					a[i].TMPTCID = raFlowData.Meta.LastTMPTCID
 				}
 
 				// if Special needs are none, then it should indicate none
@@ -415,10 +415,7 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 		}
 
 		// MODIFIED PART DATA
-		modFlowPartData, err = json.Marshal(&a)
-		if err != nil {
-			return
-		}
+		raFlowData.People = a
 
 	case PetsRAFlowPart:
 		a := []RAPetsFlowData{}
@@ -433,34 +430,31 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 			// IF NOT TMPPETID THEN ASSIGN IT
 			for i := range a {
 
+				if a[i].TMPPETID == 0 {
+					raFlowData.Meta.LastTMPPETID++
+					a[i].TMPPETID = raFlowData.Meta.LastTMPPETID
+				}
+
 				// IF NOT FEES LIST THEN
 				if len(a[i].Fees) == 0 {
 					a[i].Fees = []RAFeesData{}
 				}
 
-				if a[i].TMPPETID == 0 {
-					meta.LastTMPPETID++
-					a[i].TMPPETID = meta.LastTMPPETID
-
-					// IF NOT TMPASMID IN EACH FEE THEN
-					for j := range a[i].Fees {
-						if a[i].Fees[j].TMPASMID == 0 {
-							meta.LastTMPASMID++
-							a[i].Fees[j].TMPASMID = meta.LastTMPASMID
-						}
+				// IF NOT TMPASMID IN EACH FEE THEN
+				for j := range a[i].Fees {
+					if a[i].Fees[j].TMPASMID == 0 {
+						raFlowData.Meta.LastTMPASMID++
+						a[i].Fees[j].TMPASMID = raFlowData.Meta.LastTMPASMID
 					}
 				}
 			}
 
 			// HAVEPETS  - BASED ON PET LIST LENGTH
-			meta.HavePets = len(a) > 0
+			raFlowData.Meta.HavePets = len(a) > 0
 		}
 
 		// MODIFIED PART DATA
-		modFlowPartData, err = json.Marshal(&a)
-		if err != nil {
-			return
-		}
+		raFlowData.Pets = a
 
 	case VehiclesRAFlowPart:
 		a := []RAVehiclesFlowData{}
@@ -475,34 +469,31 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 			// IF NOT TMPPETID THEN
 			for i := range a {
 
+				if a[i].TMPVID == 0 {
+					raFlowData.Meta.LastTMPVID++
+					a[i].TMPVID = raFlowData.Meta.LastTMPVID
+				}
+
 				// IF NOT FEES ASSOCIATED
 				if len(a[i].Fees) == 0 {
 					a[i].Fees = []RAFeesData{}
 				}
 
-				if a[i].TMPVID == 0 {
-					meta.LastTMPVID++
-					a[i].TMPVID = meta.LastTMPVID
-
-					// IF NOT TMPASMID IN EACH FEE
-					for j := range a[i].Fees {
-						if a[i].Fees[j].TMPASMID == 0 {
-							meta.LastTMPASMID++
-							a[i].Fees[j].TMPASMID = meta.LastTMPASMID
-						}
+				// IF NOT TMPASMID IN EACH FEE
+				for j := range a[i].Fees {
+					if a[i].Fees[j].TMPASMID == 0 {
+						raFlowData.Meta.LastTMPASMID++
+						a[i].Fees[j].TMPASMID = raFlowData.Meta.LastTMPASMID
 					}
 				}
 			}
 
 			// HAVE VEHICLES - BASED ON VEHICLE LIST LENGTH
-			meta.HaveVehicles = len(a) > 0
+			raFlowData.Meta.HaveVehicles = len(a) > 0
 		}
 
 		// MODIFIED PART DATA
-		modFlowPartData, err = json.Marshal(&a)
-		if err != nil {
-			return
-		}
+		raFlowData.Vehicles = a
 
 	case RentablesRAFlowPart:
 		a := []RARentablesFlowData{}
@@ -525,8 +516,8 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 				// IF NOT TMPASMID IN EACH FEE THEN
 				for j := range a[i].Fees {
 					if a[i].Fees[j].TMPASMID == 0 {
-						meta.LastTMPASMID++
-						a[i].Fees[j].TMPASMID = meta.LastTMPASMID
+						raFlowData.Meta.LastTMPASMID++
+						a[i].Fees[j].TMPASMID = raFlowData.Meta.LastTMPASMID
 					}
 				}
 
@@ -534,10 +525,7 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 		}
 
 		// MODIFIED PART DATA
-		modFlowPartData, err = json.Marshal(&a)
-		if err != nil {
-			return
-		}
+		raFlowData.Rentables = a
 
 	case ParentChildRAFlowPart:
 		a := []RAParentChildFlowData{}
@@ -551,10 +539,7 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 		}
 
 		// MODIFIED PART DATA
-		modFlowPartData, err = json.Marshal(&a)
-		if err != nil {
-			return
-		}
+		raFlowData.ParentChild = a
 
 	case TieRAFlowPart:
 		a := RATieFlowData{}
@@ -573,138 +558,180 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 		}
 
 		// MODIFIED PART DATA
-		modFlowPartData, err = json.Marshal(&a)
-		if err != nil {
-			return
-		}
+		raFlowData.Tie = a
 
 	default:
 		err = fmt.Errorf("unrecognized part type in RA flow: %s", flowPart)
 		return
 	}
 
-	// NOW UPDATE THE JSON FOR GIVEN FLOW PART
-	err = UpdateFlowData(ctx, flowPart, modFlowPartData, flow)
+	// GET JSON DATA FROM THE STRUCT
+	var modFlowData []byte
+	modFlowData, err = json.Marshal(&raFlowData)
 	if err != nil {
 		return
 	}
 
-	// IF MODIFIED META IS NOT EQUAL TO FLOW META THEN ONLY UPDATE META JSON
-	if !reflect.DeepEqual(meta, raFlowData.Meta) {
-		var modMetaInfo []byte
-		modMetaInfo, err = json.Marshal(&meta)
-		if err != nil {
-			return
-		}
-		err = UpdateFlowData(ctx, "meta", modMetaInfo, flow)
-		if err != nil {
-			return
-		}
-	}
+	// ASSIGN JSON MARSHALLED MODIFIED DATA
+	flow.Data = modFlowData
 
-	// IF POSSESSION DATES WERE CHANGED THEN TAKE NECESSARY ACTION
-	if possessDatesChanged {
-		err = possessDateChangeRAFlowUpdates(ctx, flow.FlowID)
-		if err != nil {
-			return
-		}
-	}
-
-	// IF RENT DATES WERE CHANGED THEN TAKE NECESSARY ACTION
-	if rentDatesChanged {
-		err = rentDateChangeRAFlowUpdates(ctx, flow.FlowID)
-		if err != nil {
-			return
-		}
-	}
-
-	return
+	// NOW UPDATE THE WHOLE FLOW
+	return UpdateFlow(ctx, flow)
 }
 
 // possessDateChangeRAFlowUpdates updates raflow json with required
 // modification if possession dates are changed
-func possessDateChangeRAFlowUpdates(ctx context.Context, flowID int64) (err error) {
+func possessDateChangeRAFlowUpdates(ctx context.Context, pStart, pStop time.Time, raFlowData *RAFlowJSONData) {
 
-	// ----- GET THE UPDATED FLOW ----- //
-	var flow Flow
-	flow, err = GetFlow(ctx, flowID)
-	if err != nil {
-		return
-	}
-	if flow.FlowID == 0 {
-		err = fmt.Errorf("given flow with ID (%d) doesn't exist", flowID)
-		return
-	}
+	start := JSONDate(pStart)
+	stop := JSONDate(pStop)
 
-	// ----- GET THE RAFLOW DATA FROM FLOW ------ //
-	var raFlowData RAFlowJSONData
-	err = json.Unmarshal(flow.Data, &raFlowData)
-	if err != nil {
-		return
+	// ----- UPDATE PETS DTSTART/DTSTOP WITH NEW DATES ----- //
+	for i := range raFlowData.Pets {
+		raFlowData.Pets[i].DtStart = start
+		raFlowData.Pets[i].DtStop = stop
 	}
 
 	// ----- UPDATE PETS DTSTART/DTSTOP WITH NEW DATES ----- //
-	pets := raFlowData.Pets
-	for i := range pets {
-		pets[i].DtStart = raFlowData.Dates.PossessionStart
-		pets[i].DtStop = raFlowData.Dates.PossessionStop
+	for i := range raFlowData.Vehicles {
+		raFlowData.Vehicles[i].DtStart = start
+		raFlowData.Vehicles[i].DtStop = stop
 	}
-
-	var modPetsData []byte
-	modPetsData, err = json.Marshal(&pets)
-	if err != nil {
-		return
-	}
-	err = UpdateFlowData(ctx, "pets", modPetsData, &flow)
-	if err != nil {
-		return
-	}
-
-	// ----- UPDATE PETS DTSTART/DTSTOP WITH NEW DATES ----- //
-	vehicles := raFlowData.Vehicles
-	for i := range vehicles {
-		vehicles[i].DtStart = raFlowData.Dates.PossessionStart
-		vehicles[i].DtStop = raFlowData.Dates.PossessionStop
-	}
-
-	var modVehiclesData []byte
-	modVehiclesData, err = json.Marshal(&vehicles)
-	if err != nil {
-		return
-	}
-	err = UpdateFlowData(ctx, "vehicles", modVehiclesData, &flow)
-	if err != nil {
-		return
-	}
-
-	return
 }
 
 // rentDateChangeRAFlowUpdates updates raflow json with required
 // modification if rent dates are changed
-func rentDateChangeRAFlowUpdates(ctx context.Context, flowID int64) (err error) {
+func rentDateChangeRAFlowUpdates(ctx context.Context, BID int64, rStart, rStop time.Time, raFlowData *RAFlowJSONData) (err error) {
 
-	// ----- GET THE UPDATED FLOW ----- //
-	var flow Flow
-	flow, err = GetFlow(ctx, flowID)
-	if err != nil {
-		return
-	}
-	if flow.FlowID == 0 {
-		err = fmt.Errorf("given flow with ID (%d) doesn't exist", flowID)
-		return
+	const (
+		bizPropName = "general"
+	)
+
+	// -----------------------------------------------
+	// PET FEES MODIFICATION
+	// -----------------------------------------------
+	// LOOP OVER PET FEES IN RAFLOW
+	for pi := range raFlowData.Pets {
+
+		// GET FEES COPY
+		fees := []RAFeesData{}
+
+		// REMOVE PRORATED FEES FROM THE LIST
+		for i := range raFlowData.Pets[pi].Fees {
+			var ar AR
+			ar, err = GetAR(ctx, raFlowData.Pets[pi].Fees[i].ARID)
+			if err != nil {
+				return
+			}
+
+			// IF NOT (RENT ASM && START == STOP) THEN APPEND
+			if !(ar.FLAGS&(1<<4) != 0 &&
+				(time.Time)(raFlowData.Pets[pi].Fees[i].Start).Equal((time.Time)(raFlowData.Pets[pi].Fees[i].Stop))) {
+				fees = append(fees, raFlowData.Pets[pi].Fees[i])
+			}
+		}
+
+		// GET MODIFIED PET FEES FROM THIS FLOW DATA PET FEES AND RENT DATES
+		var modPetFees []RAFeesData
+		modPetFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName, rStart, rStop, fees)
+		if err != nil {
+			return
+		}
+
+		// UPDATE LASTASMID FOR EACH FEE
+		for i := range modPetFees {
+			raFlowData.Meta.LastTMPASMID++
+			modPetFees[i].TMPASMID = raFlowData.Meta.LastTMPASMID
+		}
+
+		// RE-ASSIGN FEES
+		raFlowData.Pets[pi].Fees = modPetFees
 	}
 
-	// ----- GET THE RAFLOW DATA FROM FLOW ------ //
-	var raFlowData RAFlowJSONData
-	err = json.Unmarshal(flow.Data, &raFlowData)
-	if err != nil {
-		return
+	// -----------------------------------------------
+	// VEHICLE FEES MODIFICATION
+	// -----------------------------------------------
+	// LOOP OVER VEHICLE FEES IN RAFLOW
+	for pi := range raFlowData.Vehicles {
+
+		// GET FEES COPY
+		fees := []RAFeesData{}
+
+		// REMOVE PRORATED FEES FROM THE LIST
+		for i := range raFlowData.Vehicles[pi].Fees {
+			var ar AR
+			ar, err = GetAR(ctx, raFlowData.Vehicles[pi].Fees[i].ARID)
+			if err != nil {
+				return
+			}
+
+			// IF NOT (RENT ASM && START == STOP) THEN APPEND
+			if !(ar.FLAGS&(1<<4) != 0 &&
+				(time.Time)(raFlowData.Vehicles[pi].Fees[i].Start).Equal((time.Time)(raFlowData.Vehicles[pi].Fees[i].Stop))) {
+				fees = append(fees, raFlowData.Vehicles[pi].Fees[i])
+			}
+		}
+
+		// GET MODIFIED VEHICLE FEES FROM THIS FLOW DATA VEHICLE FEES AND RENT DATES
+		var modVehicleFees []RAFeesData
+		modVehicleFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName, rStart, rStop, fees)
+		if err != nil {
+			return
+		}
+
+		// UPDATE LASTASMID FOR EACH FEE
+		for i := range modVehicleFees {
+			raFlowData.Meta.LastTMPASMID++
+			modVehicleFees[i].TMPASMID = raFlowData.Meta.LastTMPASMID
+		}
+
+		// RE-ASSIGN FEES
+		raFlowData.Vehicles[pi].Fees = modVehicleFees
 	}
 
-	// IMPLEMENTATION ERROR //
-	// TODO(Sudip): re-calculate fees for pets, vehicles, rentables
-	return /*fmt.Errorf("implementation error")*/
+	// -----------------------------------------------
+	// RENTABLE FEES MODIFICATION
+	// -----------------------------------------------
+	// LOOP OVER RENTABLE FEES IN RAFLOW
+	for pi := range raFlowData.Rentables {
+
+		// GET FEES COPY
+		fees := []RAFeesData{}
+
+		// REMOVE PRORATED FEES FROM THE LIST
+		for i := range raFlowData.Rentables[pi].Fees {
+			var ar AR
+			ar, err = GetAR(ctx, raFlowData.Rentables[pi].Fees[i].ARID)
+			if err != nil {
+				return
+			}
+
+			// IF NOT (RENT ASM && START == STOP) THEN APPEND
+			// i.e, NOT (PRORATED ONE)
+			if !(ar.FLAGS&(1<<4) != 0 &&
+				(time.Time)(raFlowData.Rentables[pi].Fees[i].Start).Equal((time.Time)(raFlowData.Rentables[pi].Fees[i].Stop))) {
+				fees = append(fees, raFlowData.Rentables[pi].Fees[i])
+			}
+		}
+
+		// GET MODIFIED RENTABLE FEES FROM THIS FLOW DATA RENTABLE FEES AND RENT DATES
+		var modRentableFees []RAFeesData
+		modRentableFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName, rStart, rStop, fees)
+		if err != nil {
+			return
+		}
+
+		// UPDATE LASTASMID FOR EACH FEE
+		for i := range modRentableFees {
+			raFlowData.Meta.LastTMPASMID++
+			modRentableFees[i].TMPASMID = raFlowData.Meta.LastTMPASMID
+		}
+
+		// RE-ASSIGN FEES
+		raFlowData.Rentables[pi].Fees = modRentableFees
+	}
+
+	return
 }
 
 // InsertInitialRAFlow writes a bunch of flow's sections record for a particular RA
