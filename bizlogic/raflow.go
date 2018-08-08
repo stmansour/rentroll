@@ -747,11 +747,12 @@ func validatePetBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 		}
 
 		// There must be one entry for the Fees
+		// If not than display it via nonfields error
 		// ----------- Check for rule no 3 ------------
 		if !(len(pet.Fees) > 0) {
-			err = fmt.Errorf("must be at least one entry for the fees")
-			petFieldsError.Total++
-			petFieldsError.Errors["Fees"] = append(petFieldsError.Errors["Fees"], err.Error())
+			// Do not increment error count because it is consider as non fields error
+			err = fmt.Errorf("%s: must have at least one entry for the fees", pet.Name)
+			petNonFieldsErrors = append(petNonFieldsErrors, err.Error())
 		}
 
 		// ---------------------------------------------------
@@ -833,9 +834,9 @@ func validateVehicleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Val
 		// There must be one entry for the Fees
 		// ----------- Check for rule no 3 ------------
 		if !(len(vehicle.Fees) > 0) {
-			err = fmt.Errorf("must be at least one entry for the fees")
-			vehicleFieldsError.Total++
-			vehicleFieldsError.Errors["Fees"] = append(vehicleFieldsError.Errors["Fees"], err.Error())
+			// Do not increment error count because it is consider as non fields error
+			err = fmt.Errorf("%d %s %s: must have at least one entry for the fees", vehicle.VehicleYear, vehicle.VehicleMake, vehicle.VehicleModel)
+			vehicleNonFieldsErrors = append(vehicleNonFieldsErrors, err.Error())
 		}
 
 		// ---------------------------------------------------
@@ -891,9 +892,9 @@ func validateRentableBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Va
 		// There must be one entry for the Fees
 		// ----------- Check for rule no 2 ------------
 		if !(len(rentable.Fees) > 0) {
-			err = fmt.Errorf("must be at least one entry for the fees")
-			rentablesFieldsError.Total++
-			rentablesFieldsError.Errors["Fees"] = append(rentablesFieldsError.Errors["Fees"], err.Error())
+			// Do not increment error count because it is consider as non fields error
+			err = fmt.Errorf("%s: must have at least one entry for the fees", rentable.RentableName)
+			rentablesNonFieldsErrors = append(rentablesNonFieldsErrors, err.Error())
 		}
 
 		// Check if rentable is parent. If yes than increment parentRentableCount

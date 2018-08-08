@@ -12,7 +12,7 @@
     managePeopleW2UIItems, removeRAFlowPersonAJAX, saveRAFlowPersonAJAX, onCheckboxesChange, getRecIDFromTMPTCID, dispalyRAPeopleGridError,
     displayRAPeopleFormError, getPeopleIndex, displayFormFieldsError,
     GetCurrentFlowID, EnableDisableRAFlowVersionInputs, ShowHideGridToolbarAddButton,
-    HideAllSliderContent
+    HideAllSliderContent, displayRAPeopleFormTabErrorDot
 */
 
 "use strict";
@@ -248,6 +248,8 @@ window.loadRAPeopleForm = function () {
                                 form.refresh(); // need to refresh for form changes
 
                                 displayRAPeopleFormError();
+
+                                displayRAPeopleFormTabErrorDot();
                             }).fail(function (data) {
                                 form.message(data.message);
                             });
@@ -381,6 +383,10 @@ window.loadRAPeopleForm = function () {
             },
             onRefresh: function (event) {
                 event.onComplete = function () {
+
+                    // Hide Save and Add Button
+                    $("button[name=saveadd]").addClass("hidden");
+
                     var form = this,
                         BID = getCurrentBID(),
                         BUD = getBUDfromBID(BID);
@@ -403,6 +409,9 @@ window.loadRAPeopleForm = function () {
 
                     // FREEZE THE INPUTS IF VERSION IS RAID
                     EnableDisableRAFlowVersionInputs(form);
+
+                    // Display error dot for the tabs
+                    displayRAPeopleFormTabErrorDot();
                 };
             },
             onValidate: function (event) {
@@ -935,4 +944,33 @@ window.getPeopleIndex = function (TMPTCID, people) {
     }
 
     return index;
+};
+
+// displayRAPeopleFormTabErrorDot
+window.displayRAPeopleFormTabErrorDot = function () {
+
+    // Basic Info tab
+    if ($(".w2ui-page.page-0").find(".error").length > 0){
+        $("#tabs_RATransactantForm_tabs_tab_tab1").css('position', 'relative');
+        $("#tabs_RATransactantForm_tabs_tab_tab1").append("<div class='tab-error-dot'></div>");
+    }
+
+    // Prospect tab
+    if ($(".w2ui-page.page-1").find(".error").length > 0){
+        $("#tabs_RATransactantForm_tabs_tab_tab4").css('position', 'relative');
+        $("#tabs_RATransactantForm_tabs_tab_tab4").append("<div class='tab-error-dot'></div>");
+    }
+
+    // Payor tab
+    if ($(".w2ui-page.page-2").find(".error").length > 0){
+        $("#tabs_RATransactantForm_tabs_tab_tab3").css('position', 'relative');
+        $("#tabs_RATransactantForm_tabs_tab_tab3").append("<div class='tab-error-dot'></div>");
+    }
+
+    // User tab
+    if ($(".w2ui-page.page-3").find(".error").length > 0){
+        $("#tabs_RATransactantForm_tabs_tab_tab2").css('position', 'relative');
+        $("#tabs_RATransactantForm_tabs_tab_tab2").append("<div class='tab-error-dot'></div>");
+    }
+
 };
