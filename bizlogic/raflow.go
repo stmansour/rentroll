@@ -694,6 +694,7 @@ func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Vali
 // ----------------------------------------------------------------------
 // 1. Every pet must be associated with a transactant
 // 2. DtStart must be prior to DtStop
+// 3. There must be at least one entry for fees
 // ----------------------------------------------------------------------
 func validatePetBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) {
 	const funcname = "validatePetBizLogic"
@@ -745,6 +746,14 @@ func validatePetBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 			petFieldsError.Total++
 		}
 
+		// There must be one entry for the Fees
+		// ----------- Check for rule no 3 ------------
+		if !(len(pet.Fees) > 0) {
+			err = fmt.Errorf("must be at least one entry for the fees")
+			petFieldsError.Total++
+			petFieldsError.Errors["Fees"] = append(petFieldsError.Errors["Fees"], err.Error())
+		}
+
 		// ---------------------------------------------------
 		// --------- Biz logic check for fees section --------
 		// ---------------------------------------------------
@@ -767,6 +776,7 @@ func validatePetBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 // ----------------------------------------------------------------------
 // 1. Every vehicle must be associated with a transactant
 // 2. DtStart must be prior to DtStop
+// 3. There must be one entry for the Fees
 // ----------------------------------------------------------------------
 func validateVehicleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) {
 	const funcname = "validateVehicleBizLogic"
@@ -818,6 +828,14 @@ func validateVehicleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Val
 
 			// Modify vehicle section error count
 			vehicleFieldsError.Total++
+		}
+
+		// There must be one entry for the Fees
+		// ----------- Check for rule no 3 ------------
+		if !(len(vehicle.Fees) > 0) {
+			err = fmt.Errorf("must be at least one entry for the fees")
+			vehicleFieldsError.Total++
+			vehicleFieldsError.Errors["Fees"] = append(vehicleFieldsError.Errors["Fees"], err.Error())
 		}
 
 		// ---------------------------------------------------
@@ -912,6 +930,7 @@ func validateRentableBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Va
 // validateFeesBizLogic perform business logic check on fees section
 // ----------------------------------------------------------------------
 // 1. Start date must be prior or equal to Stop date
+// 2. Check fee must be exist in the database
 // ----------------------------------------------------------------------
 func validateFeesBizLogic(ctx context.Context, fees []rlib.RAFeesData) ([]RAFeesError, int) {
 	const funcname = "validateFeesBizLogic"
@@ -944,7 +963,19 @@ func validateFeesBizLogic(ctx context.Context, fees []rlib.RAFeesData) ([]RAFees
 			// define and assign error
 			err = fmt.Errorf("start date must be prior to stop date")
 			raFeesError.Errors["Start"] = append(raFeesError.Errors["Start"], err.Error())
-			// Modify vehicle section error count
+			// Modify fees section error count
+			raFeesError.Total++
+		}
+
+		// -----------------------------------------------
+		// --------- Check for rule no 2 -----------------
+		// -----------------------------------------------
+		// 2. Check fee must be exist in the database
+		ar, err := rlib.GetAR(ctx, fee.ARID)
+		if !(ar.ARID > 0) {
+			err = fmt.Errorf("fee doesn't exist")
+			raFeesError.Errors["ARName"] = append(raFeesError.Errors["ARName"], err.Error())
+			// Modify fees section error count
 			raFeesError.Total++
 		}
 
@@ -1157,8 +1188,12 @@ func DataFulfilledRAFlow(ctx context.Context, a *rlib.RAFlowJSONData, d *rlib.RA
 	// ---------------------------
 	// Check for rentables section
 	// ---------------------------
-	if len(a.Rentables) > 0 {
-		d.Rentables = true
+	// There must be at least one parent rentable
+	for _, rentable := range a.Rentables {
+		if rentable.RTFLAGS&(1<<1) == 0 {
+			d.Rentables = true
+			break
+		}
 	}
 
 	// -----------------------------

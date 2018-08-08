@@ -23,7 +23,7 @@
 	    		"UPort": 8250,
 	    		"IsTest": false,
 			"AppRes": {
-				"Cmd": "./pbrestore -f -n"
+				"Cmd": "./sbsetup.sh"
 			}
 	    	},
 	    	{
