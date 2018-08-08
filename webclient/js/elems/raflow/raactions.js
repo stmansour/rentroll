@@ -10,7 +10,9 @@
     localtimeToUTC,
     updateFlowData,
     GetCurrentFlowID, CloseRAFlowLayout,
-    ChangeRAFlowVersionToolbar
+    ChangeRAFlowVersionToolbar,
+    displayErrorDot,
+    displayActiveComponentError
 */
 "use strict";
 
@@ -39,6 +41,29 @@ window.submitActionForm = function(data) {
             }
 
             if (data.record.Flow.FlowID > 0) {
+                var resErr = data.record.BasicCheck;
+                app.raflow.validationErrors = {
+                    dates: resErr.errors.dates.total > 0 || resErr.nonFieldsErrors.dates.length > 0,
+                    people: resErr.errors.people.length > 0 || resErr.nonFieldsErrors.people.length > 0,
+                    pets: resErr.errors.pets.length > 0 || resErr.nonFieldsErrors.pets.length > 0,
+                    vehicles: resErr.errors.vehicles.length > 0 || resErr.nonFieldsErrors.vehicles.length > 0,
+                    rentables: resErr.errors.rentables.length > 0 || resErr.nonFieldsErrors.rentables.length > 0,
+                    parentchild: resErr.errors.parentchild.length > 0 || resErr.nonFieldsErrors.parentchild.length > 0,
+                    tie: resErr.errors.tie.people.length > 0 || resErr.nonFieldsErrors.tie.length > 0
+                };
+
+                // Update validationCheck error local copy
+                app.raflow.validationCheck = resErr;
+
+                displayErrorDot();
+
+                displayActiveComponentError();
+
+                if(resErr.total > 0){
+                    w2ui.raActionLayout.get('top').toolbar.click('btnBackToRA');
+                    return;
+                }
+
                 app.raflow.version = 'refno';
 
                 var version = app.raflow.version;
@@ -101,6 +126,7 @@ window.reloadActionForm = function() {
         w2ui.RAActionForm.get('RAActions').options.items = app.w2ui.listItems.RAActions;
     }
 
+    // HIDE ALL OF THE COMPONENTS, LABELS, DIV'S
     $('#RAActionRAInfo').hide();
     $('#RAActionTerminatedRAInfo').hide();
     $('#RAActionNoticeToMoveInfo').hide();
@@ -110,10 +136,20 @@ window.reloadActionForm = function() {
     $('button[name=RAGenerateMoveOutForm]').hide();
     $('button[name=save]').hide();
 
+    w2ui.RAActionForm.get('RAApprovalDecision1').hidden = true;
+    w2ui.RAActionForm.get('RADeclineReason1').hidden = true;
+    w2ui.RAActionForm.get('RAApprovalDecision2').hidden = true;
+    w2ui.RAActionForm.get('RADeclineReason2').hidden = true;
+    w2ui.RAActionForm.get('RATerminationReason').hidden = true;
+    w2ui.RAActionForm.get('RADocumentDate').hidden = true;
+    w2ui.RAActionForm.get('RANoticeToMoveDate').hidden = true;
+
     var data = app.raflow.Flow.Data;
     var raFlags = data.meta.RAFLAGS;
+    var state = parseInt(raFlags & 0xf);
 
-    switch (parseInt(raFlags & 0xf)) {
+    // DISPLAY COMPONENTS, LABELS AND DIV'S ACCORDING TO CURRENT STATE
+    switch (state) {
         // "Application Being Completed"
         case 0:
             $('#ApplicationFilledByRow')[0].style.display = '';  //'none';
