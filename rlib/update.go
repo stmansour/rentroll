@@ -364,6 +364,11 @@ func UpdateFlow(ctx context.Context, a *Flow) error {
 		a.LastModBy = sess.UID
 	}
 
+	// make sure that json is valid before inserting it in database
+	if !(IsByteDataValidJSON(a.Data)) {
+		return ErrFlowInvalidJSONData
+	}
+
 	fields := []interface{}{a.BID, a.UserRefNo, a.FlowType, a.ID, []byte(a.Data), a.LastModBy, a.FlowID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateFlow)
