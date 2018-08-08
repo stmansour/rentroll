@@ -5,7 +5,7 @@
     lockOnGrid, getApprovals, updateFlowData, updateFlowCopy, displayErrorDot, initBizErrors,
     dispalyRARentablesGridError, dispalyRAVehiclesGridError, dispalyRAParentChildGridError, dispalyRATiePeopleGridError,
     GetCurrentFlowID, FlowFilled, ReassignPeopleGridRecords, AssignPetsGridRecords, AssignVehiclesGridRecords, AssignRentableGridRecords,
-    GetGridToolbarAddButtonID, HideRAFlowLoader, toggleNonFieldsErrorDisplay, displayErrorSummary, submitActionForm
+    GetGridToolbarAddButtonID, HideRAFlowLoader, toggleNonFieldsErrorDisplay, displayErrorSummary, submitActionForm, displayGreenCircle
 */
 
 "use strict";
@@ -109,7 +109,6 @@ $(document).on('click', '#ra-form #save-ra-flow-btn', function () {
 
         // Change its state to pending first approval.
         if(data.total === 0 && data.errortype === "biz"){
-            console.debug("TODO: You'r good to go for pending first approval.");
 
             var reqData = {
                 "UserRefNo": app.raflow.Flow.UserRefNo,
@@ -428,6 +427,14 @@ window.FlowFilled = function(data) {
     app.raflow.basicCheck = data.BasicCheck;
     app.raflow.FlowFilledData = data.DataFulfilled;
 
+    displayGreenCircle();
+};
+
+// -----------------------------------------------------
+// displayGreenCircle
+// -----------------------------------------------------
+window.displayGreenCircle = function(){
+
     // Enable/Disable green check for the each section
     var active_comp = $(".ra-form-component:visible");
     var active_comp_id = active_comp.attr("id");
@@ -518,6 +525,9 @@ window.loadTargetSection = function (target, previousActiveCompID) {
 
     // display target comp fields summary
     displayErrorSummary(target);
+
+    // display green circle based on datafulfilled flag
+    displayGreenCircle();
 
     // hide previous navigation button if the target is in first section
     if ($(".ra-form-component#" + target).is($(".ra-form-component").first())) {
