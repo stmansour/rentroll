@@ -383,6 +383,10 @@ window.loadRAPeopleForm = function () {
             },
             onRefresh: function (event) {
                 event.onComplete = function () {
+
+                    // Hide Save and Add Button
+                    $("button[name=saveadd]").addClass("hidden");
+
                     var form = this,
                         BID = getCurrentBID(),
                         BUD = getBUDfromBID(BID);
