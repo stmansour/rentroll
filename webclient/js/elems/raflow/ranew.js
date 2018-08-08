@@ -237,6 +237,11 @@ window.buildRAApplicantElements = function() {
                                 grid.message(data.message);
                             } else {
                                 LoadRAFlowTemplate(rec.BID, version);
+
+                                // Update local copy of string list
+                                var BID = getCurrentBID();
+                                var BUD = getBUDfromBID(BID);
+                                getStringListData(BID, BUD);
                             }
                         })
                         .fail(function() {
