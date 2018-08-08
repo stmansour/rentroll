@@ -177,7 +177,6 @@ func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName s
 		rentAsmCharge := (ar.FLAGS & (1 << 4)) != 0
 
 		if oneTimeCharge {
-			fmt.Printf("IS ONETIME CHARGE: %t\n", oneTimeCharge)
 			// ADD FEE IN LIST
 			raFee := RAFeesData{
 				TMPASMID:        0,
@@ -196,31 +195,20 @@ func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName s
 			fees = append(fees, raFee)
 
 		} else if rentAsmCharge { // IT MUST BE RENT ASM ONE
-			fmt.Printf("IS RENT CHARGE: %t\n", rentAsmCharge)
 
 			// CHECK FOR PRORATED AMOUNT REQUIRED
 			needProratedRent := rStart.Day() != epoch.Day()
 
 			// START DAY IS NOT SAME AS EPOCH THEN CALCULATE PRORATED AMOUNT
 			if needProratedRent {
-				fmt.Printf("Prorated one: %t\n", needProratedRent)
 				td2 := time.Date(rStart.Year(), rStart.Month(), epoch.Day(), rStart.Hour(), rStart.Minute(), rStart.Second(), rStart.Nanosecond(), rStart.Location())
 				td2 = NextPeriod(&td2, RentCycle)
 
 				tot, np, tp := SimpleProrateAmount(baseFee.ContractAmount, RentCycle, ProrationCycle, &rStart, &td2, &epoch)
-				fmt.Println("tot, np, tp: ", tot, np, tp)
 				cmt := ""
-				fmt.Println("baseFee.ContractAmount: ", baseFee.ContractAmount)
-				fmt.Println("RentCycle: ", RentCycle)
-				fmt.Println("ProrationCycle: ", ProrationCycle)
-				fmt.Println("rStart: ", rStart)
-				fmt.Println("rStop: ", rStop)
-				fmt.Println("epoch: ", epoch)
-				fmt.Println("td2: ", td2)
 				if tot < baseFee.ContractAmount {
 					cmt = fmt.Sprintf("prorated for %d of %d %s", np, tp, ProrationUnits(ProrationCycle))
 				}
-				fmt.Printf("comment in prorated: %s\n", cmt)
 
 				// ADD FEE IN LIST
 				raFee := RAFeesData{
@@ -229,7 +217,7 @@ func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName s
 					ARID:            baseFee.ARID,
 					ARName:          baseFee.ARName,
 					ContractAmount:  tot,
-					RentCycle:       RentCycle,
+					RentCycle:       RECURNONE,
 					Start:           JSONDate(rStart),
 					Stop:            JSONDate(rStart),
 					AtSigningPreTax: 0.00,
