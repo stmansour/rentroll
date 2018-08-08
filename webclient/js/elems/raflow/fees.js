@@ -74,7 +74,90 @@ window.GetFeeFormFields = function() {
 // GetFeeGridColumns - returns a clone of column definition list
 //                     required by any fees grid
 // -------------------------------------------------------------------------------
-window.GetFeeGridColumns = function() {
+window.GetFeeGridColumns = function(feesGrid) {
+
+    var haveErrorCol;
+    switch (feesGrid){
+        case 'RAPetFeesGrid':
+            haveErrorCol = {
+                field: 'haveError',
+                size: '30px',
+                hidden: false,
+                render: function (record) {
+                    var haveError = false;
+                    if (app.raflow.validationErrors.pets) {
+                        var pets = app.raflow.validationCheck.errors.pets;
+                        for (var i = 0; i < pets.length; i++) {
+                            for(var j = 0; j < pets[i].fees.length; j++){
+                                if(pets[i].fees[j].TMPASMID === record.TMPASMID){
+                                    haveError = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (haveError) {
+                        return '<i class="fas fa-exclamation-triangle" title="error"></i>';
+                    } else {
+                        return "";
+                    }
+                }
+            };
+            break;
+        case 'RAVehicleFeesGrid':
+            haveErrorCol = {
+                field: 'haveError',
+                size: '30px',
+                hidden: false,
+                render: function (record) {
+                    var haveError = false;
+                    if (app.raflow.validationErrors.vehicles) {
+                        var vehicles = app.raflow.validationCheck.errors.vehicles;
+                        for (var i = 0; i < vehicles.length; i++) {
+                            for(var j = 0; j < vehicles[i].fees.length; j++){
+                                if(vehicles[i].fees[j].TMPASMID === record.TMPASMID){
+                                    haveError = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (haveError) {
+                        return '<i class="fas fa-exclamation-triangle" title="error"></i>';
+                    } else {
+                        return "";
+                    }
+                }
+            };
+            break;
+        case 'RARentableFeesGrid':
+            haveErrorCol = {
+                field: 'haveError',
+                size: '30px',
+                hidden: false,
+                render: function (record) {
+                    var haveError = false;
+                    if (app.raflow.validationErrors.rentables) {
+                        var rentables = app.raflow.validationCheck.errors.rentables;
+                        for (var i = 0; i < rentables.length; i++) {
+                            for(var j = 0; j < rentables[i].fees.length; j++){
+                                if(rentables[i].fees[j].TMPASMID === record.TMPASMID){
+                                    haveError = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (haveError) {
+                        return '<i class="fas fa-exclamation-triangle" title="error"></i>';
+                    } else {
+                        return "";
+                    }
+                }
+            };
+            break;
+    }
+
     var columns = [
         {
             field: 'recid',
@@ -217,6 +300,8 @@ window.GetFeeGridColumns = function() {
             }
         }
     ];
+
+    columns.unshift(haveErrorCol);
 
     // RETURN the clone
     return $.extend(true, [], columns);

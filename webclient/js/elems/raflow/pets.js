@@ -586,7 +586,7 @@ window.loadRAPetsGrid = function () {
             },
             multiSelect: false,
             style: 'border: 1px solid silver;',
-            columns: GetFeeGridColumns(),
+            columns: GetFeeGridColumns('RAPetFeesGrid'),
             onClick: function(event) {
                 event.onComplete = function() {
                     var yes_args = [this, event.recid],

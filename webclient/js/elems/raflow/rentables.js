@@ -346,14 +346,14 @@ window.loadRARentablesGrid = function () {
                 toolbarReload:  false,
                 toolbarInput:   false,
                 toolbarColumns: false,
-                footer:         false,
+                footer:         false
             },
             style: 'border: 2px solid white; display: block;',
-            columns: GetFeeGridColumns(),
+            columns: GetFeeGridColumns('RARentableFeesGrid'),
             toolbar: {
                 items: [
                     {id: 'bt3', type: 'spacer'},
-                    {id: 'btnClose', type: 'button', icon: 'fas fa-times'},
+                    {id: 'btnClose', type: 'button', icon: 'fas fa-times'}
                 ],
                 onClick: function (event) {
                     switch(event.target) {
