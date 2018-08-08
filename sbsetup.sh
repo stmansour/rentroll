@@ -60,7 +60,7 @@ setupAppNode() {
 	#    2 = QA environment
 	#-----------------------------------------------------------------
 	if [ ! -f ./config.json ]; then
-		${GETFILE} accord/db/confdev.json  >log.out 2>&1
+		${GETFILE} accord/db/conflocal.json  >log.out 2>&1
 		mv confdev.json config.json
 	fi
 }
