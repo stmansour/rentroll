@@ -886,9 +886,6 @@ window.loadRAVehiclesGrid = function () {
                 var feeForm = this;
                 event.onComplete = function() {
 
-                    // minimum actions need to be taken care in refres event for fee form
-                    FeeFormOnRefreshHandler(feeForm);
-
                     // there is NO VID actually, so have to work around with recid key
                     formRefreshCallBack(feeForm);
 
@@ -911,6 +908,9 @@ window.loadRAVehiclesGrid = function () {
 
                     // FREEZE THE INPUTS IF VERSION IS RAID
                     EnableDisableRAFlowVersionInputs(feeForm);
+
+                    // minimum actions need to be taken care in refres event for fee form
+                    FeeFormOnRefreshHandler(feeForm);
                 };
             }
         });
