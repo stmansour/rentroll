@@ -612,7 +612,7 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 
 	// IF RENT DATES WERE CHANGED THEN TAKE NECESSARY ACTION
 	if rentDatesChanged {
-		err = rentDateChangeRAFlowUpdates(ctx, flow.FlowID)
+		err = rentDateChangeRAFlowUpdates(ctx, BID, flow.FlowID)
 		if err != nil {
 			return
 		}
@@ -682,7 +682,11 @@ func possessDateChangeRAFlowUpdates(ctx context.Context, flowID int64) (err erro
 
 // rentDateChangeRAFlowUpdates updates raflow json with required
 // modification if rent dates are changed
-func rentDateChangeRAFlowUpdates(ctx context.Context, flowID int64) (err error) {
+func rentDateChangeRAFlowUpdates(ctx context.Context, BID, flowID int64) (err error) {
+
+	const (
+		bizPropName = "general"
+	)
 
 	// ----- GET THE UPDATED FLOW ----- //
 	var flow Flow
@@ -702,9 +706,86 @@ func rentDateChangeRAFlowUpdates(ctx context.Context, flowID int64) (err error) 
 		return
 	}
 
-	// IMPLEMENTATION ERROR //
-	// TODO(Sudip): re-calculate fees for pets, vehicles, rentables
-	return /*fmt.Errorf("implementation error")*/
+	// META MIGHT BE MODIFIED //
+	meta := raFlowData.Meta
+
+	// -----------------------------------------------
+	// PET FEES MODIFICATION
+	// -----------------------------------------------
+
+	// LOOP OVER PET FEES IN RAFLOW
+	for pi := range raFlowData.Pets {
+		fees := raFlowData.Pets[pi].Fees
+
+		// REMOVE PRORATED FEES FROM THE LIST
+		for i := range fees {
+			var ar AR
+			ar, err = GetAR(ctx, fees[i].ARID)
+			if err != nil {
+				return
+			}
+			if ar.FLAGS&(1<<4) != 0 && (time.Time)(fees[i].Start).Equal((time.Time)(fees[i].Stop)) {
+				fees = append(fees[:i], fees[i+1:]...)
+			}
+		}
+
+		// GET MODIFIED PET FEES FROM THIS FLOW DATA PET FEES AND RENT DATES
+		var modPetFees []RAFeesData
+		fmt.Printf("PetFees data before: %d\n", len(fees))
+		modPetFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName,
+			(time.Time)(raFlowData.Dates.RentStart), (time.Time)(raFlowData.Dates.RentStop),
+			fees)
+		if err != nil {
+			return
+		}
+		fmt.Printf("modified fees: %d\n", len(raFlowData.Pets[pi].Fees))
+
+		// UPDATE FEE
+		for i := range modPetFees {
+			for j := range raFlowData.Pets[pi].Fees {
+				if raFlowData.Pets[pi].Fees[j].ARID == modPetFees[i].ARID {
+					modPetFees[i].TMPASMID = raFlowData.Pets[pi].Fees[j].TMPASMID
+					raFlowData.Pets[pi].Fees[j] = modPetFees[i]
+					fmt.Println(raFlowData.Pets[pi].Fees[j].ContractAmount)
+				}
+			}
+		}
+	}
+
+	// UPDATE PETS JSON
+	var modPetsInfo []byte
+	modPetsInfo, err = json.Marshal(&raFlowData.Pets)
+	if err != nil {
+		return
+	}
+	err = UpdateFlowData(ctx, "pets", modPetsInfo, &flow)
+	if err != nil {
+		return
+	}
+
+	// -----------------------------------------------
+	// VEHICLE FEES MODIFICATION
+	// -----------------------------------------------
+
+	// -----------------------------------------------
+	// META UPDATE
+	// -----------------------------------------------
+	// IF MODIFIED META IS NOT EQUAL TO FLOW META THEN ONLY UPDATE META JSON
+	if !reflect.DeepEqual(meta, raFlowData.Meta) {
+		var modMetaInfo []byte
+		modMetaInfo, err = json.Marshal(&meta)
+		if err != nil {
+			return
+		}
+		err = UpdateFlowData(ctx, "meta", modMetaInfo, &flow)
+		if err != nil {
+			return
+		}
+	}
+
+	// TODO (Sudip): re-calculate rentable fees
+
+	return
 }
 
 // InsertInitialRAFlow writes a bunch of flow's sections record for a particular RA
