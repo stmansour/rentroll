@@ -52,7 +52,7 @@ window.GetCurrentFlowID = function() {
 //-----------------------------------------------------------------------------
 // NEXT BUTTON CLICK EVENT HANDLER
 //-----------------------------------------------------------------------------
-$(document).on('click', '#ra-form #next', function () {
+$(document).on('click', '#ra-footer #next', function () {
     // get the current component (to be previous one)
     var active_comp = $(".ra-form-component:visible");
 
@@ -71,7 +71,7 @@ $(document).on('click', '#ra-form #next', function () {
 //-----------------------------------------------------------------------------
 // PREVIOUS BUTTON CLICK EVENT HANDLER
 //-----------------------------------------------------------------------------
-$(document).on('click', '#ra-form #previous', function () {
+$(document).on('click', '#ra-footer #previous', function () {
     // get the current component (to be previous one)
     var active_comp = $(".ra-form-component:visible");
 
@@ -90,7 +90,7 @@ $(document).on('click', '#ra-form #previous', function () {
 //-----------------------------------------------------------------------------
 // Get Approvals BUTTON CLICK EVENT HANDLER
 //-----------------------------------------------------------------------------
-$(document).on('click', '#ra-form #save-ra-flow-btn', function () {
+$(document).on('click', '#ra-footer #save-ra-flow-btn', function () {
     getApprovals().done(function (data) {
 
         app.raflow.validationErrors = {
@@ -176,7 +176,7 @@ window.getApprovals = function(){
 //-----------------------------------------------------------------------------
 // FORM WIZARD STEP LINK CLICK EVENT HANDLER
 //-----------------------------------------------------------------------------
-$(document).on('click', '#ra-form #progressbar #steps-list a', function () {
+$(document).on('click', '#ra-progressbar #progressbar #steps-list a', function () {
     var active_comp = $(".ra-form-component:visible");
 
     // load target form
