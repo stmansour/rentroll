@@ -731,25 +731,21 @@ func rentDateChangeRAFlowUpdates(ctx context.Context, BID, flowID int64) (err er
 
 		// GET MODIFIED PET FEES FROM THIS FLOW DATA PET FEES AND RENT DATES
 		var modPetFees []RAFeesData
-		fmt.Printf("PetFees data before: %d\n", len(fees))
 		modPetFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName,
 			(time.Time)(raFlowData.Dates.RentStart), (time.Time)(raFlowData.Dates.RentStop),
 			fees)
 		if err != nil {
 			return
 		}
-		fmt.Printf("modified fees: %d\n", len(raFlowData.Pets[pi].Fees))
 
-		// UPDATE FEE
+		// UPDATE LASTASMID FOR EACH FEE
 		for i := range modPetFees {
-			for j := range raFlowData.Pets[pi].Fees {
-				if raFlowData.Pets[pi].Fees[j].ARID == modPetFees[i].ARID {
-					modPetFees[i].TMPASMID = raFlowData.Pets[pi].Fees[j].TMPASMID
-					raFlowData.Pets[pi].Fees[j] = modPetFees[i]
-					fmt.Println(raFlowData.Pets[pi].Fees[j].ContractAmount)
-				}
-			}
+			meta.LastTMPASMID++
+			modPetFees[i].TMPASMID = meta.LastTMPASMID
 		}
+
+		// RE-ASSIGN FEES
+		raFlowData.Pets[pi].Fees = modPetFees
 	}
 
 	// UPDATE PETS JSON
