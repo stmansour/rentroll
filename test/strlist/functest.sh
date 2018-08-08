@@ -1,7 +1,7 @@
 #!/bin/bash
 
-TESTNAME="Crypto - Encrypt and Decrypt"
-TESTSUMMARY="Test encrypt / decrypt functions"
+TESTNAME="StringLists - Create and Validate"
+TESTSUMMARY="Ensures roller messages are created and maintained"
 
 
 source ../share/base.sh

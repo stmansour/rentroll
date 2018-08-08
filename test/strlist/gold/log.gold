@@ -1,6 +1,6 @@
-Test Name:    Crypto - Encrypt and Decrypt
-Test Purpose: Test encrypt / decrypt functions
-Date/Time:    Fri Jul 27 00:03:59 PDT 2018
+Test Name:    StringLists - Create and Validate
+Test Purpose: Ensures roller messages are created and maintained
+Date/Time:    Tue Aug  7 16:29:25 PDT 2018
 
 Create new database...  successful
-Test completed: Fri Jul 27 00:04:02 PDT 2018
+Test completed: Tue Aug  7 16:29:30 PDT 2018
