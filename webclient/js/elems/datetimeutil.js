@@ -291,6 +291,23 @@ window.w2uiDateControlString = function (dt) {
 };
 
 //-----------------------------------------------------------------------------
+// w2uiUTCDateControlString
+//           - return a UTC date string formatted the way the w2ui dates are
+//             expected, based on the supplied date that can be
+//             used as the .value attribute of a date control.  That is, in
+//             the format  m/d/yyyy.
+// @params
+//   dt = java date value
+// @return string value mm-dd-yyyy
+//-----------------------------------------------------------------------------
+window.w2uiUTCDateControlString = function (dt) {
+    var m = dt.getUTCMonth() + 1;
+    var d = zeroPad(dt.getUTCDate(), 2);
+    var s = '' + m + '/' + d+'/' + dt.getUTCFullYear();
+    return s;
+};
+
+//-----------------------------------------------------------------------------
 // w2uiDateTimeControlString
 //           - return a datetime string formatted the way the w2ui datetimes
 //             are expected, based on the supplied date that can be

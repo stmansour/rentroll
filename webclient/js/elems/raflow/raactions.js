@@ -12,7 +12,8 @@
     GetCurrentFlowID, CloseRAFlowLayout,
     ChangeRAFlowVersionToolbar,
     displayErrorDot,
-    displayActiveComponentError
+    displayActiveComponentError,
+    w2uiUTCDateControlString
 */
 "use strict";
 
@@ -348,7 +349,7 @@ window.refreshLabels = function () {
         if (meta.NoticeToMoveUID == 0) {
             x.innerHTML = '';
         } else {
-            x.innerHTML = dtFormatISOToW2ui(meta.NoticeToMoveReported) + ' by ' + meta.NoticeToMoveName + ' (move date: ' + dtFormatISOToW2ui(meta.NoticeToMoveDate) + ')';
+            x.innerHTML = dtFormatISOToW2ui(meta.NoticeToMoveReported) + ' by ' + meta.NoticeToMoveName + ' (move date: ' + w2uiUTCDateControlString(new Date(meta.NoticeToMoveDate)) + ')';
         }
     }
 
@@ -423,7 +424,7 @@ window.refreshLabels = function () {
     x = document.getElementById("bannerMoveDate");
     if (x !== null) {
         if (meta.NoticeToMoveDate != "1900-01-01 00:00:00 UTC") {
-            x.innerHTML = dtFormatISOToW2ui(meta.NoticeToMoveDate);
+            x.innerHTML = w2uiUTCDateControlString(new Date(meta.NoticeToMoveDate));
         } else {
             x.innerHTML = '';
         }
@@ -442,7 +443,7 @@ window.refreshLabels = function () {
     x = document.getElementById("bannerDocumentDate");
     if (x !== null) {
         if (meta.DocumentDate != "1900-01-01 00:00:00 UTC") {
-            x.innerHTML = dtFormatISOToW2ui(meta.DocumentDate);
+            x.innerHTML = w2uiUTCDateControlString(new Date(meta.DocumentDate));
         } else {
             x.innerHTML = '';
         }
