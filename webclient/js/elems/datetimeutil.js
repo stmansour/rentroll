@@ -302,7 +302,7 @@ window.w2uiDateControlString = function (dt) {
 //-----------------------------------------------------------------------------
 window.w2uiUTCDateControlString = function (dt) {
     var m = dt.getUTCMonth() + 1;
-    var d = zeroPad(dt.getUTCDate(), 2);
+    var d = dt.getUTCDate();
     var s = '' + m + '/' + d+'/' + dt.getUTCFullYear();
     return s;
 };
