@@ -366,9 +366,6 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 			newRStop := (time.Time)(a.RentStop)
 			if !((time.Time)(raFlowData.Dates.RentStart).Equal(newRStart) &&
 				(time.Time)(raFlowData.Dates.RentStop).Equal(newRStop)) {
-				fmt.Println("********************************")
-				fmt.Println("Entered in rent date changes...")
-				fmt.Println("********************************")
 				err = rentDateChangeRAFlowUpdates(ctx, BID, newRStart, newRStop, &raFlowData)
 				if err != nil {
 					return
@@ -433,21 +430,21 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 			// IF NOT TMPPETID THEN ASSIGN IT
 			for i := range a {
 
+				if a[i].TMPPETID == 0 {
+					raFlowData.Meta.LastTMPPETID++
+					a[i].TMPPETID = raFlowData.Meta.LastTMPPETID
+				}
+
 				// IF NOT FEES LIST THEN
 				if len(a[i].Fees) == 0 {
 					a[i].Fees = []RAFeesData{}
 				}
 
-				if a[i].TMPPETID == 0 {
-					raFlowData.Meta.LastTMPPETID++
-					a[i].TMPPETID = raFlowData.Meta.LastTMPPETID
-
-					// IF NOT TMPASMID IN EACH FEE THEN
-					for j := range a[i].Fees {
-						if a[i].Fees[j].TMPASMID == 0 {
-							raFlowData.Meta.LastTMPASMID++
-							a[i].Fees[j].TMPASMID = raFlowData.Meta.LastTMPASMID
-						}
+				// IF NOT TMPASMID IN EACH FEE THEN
+				for j := range a[i].Fees {
+					if a[i].Fees[j].TMPASMID == 0 {
+						raFlowData.Meta.LastTMPASMID++
+						a[i].Fees[j].TMPASMID = raFlowData.Meta.LastTMPASMID
 					}
 				}
 			}
@@ -472,21 +469,21 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 			// IF NOT TMPPETID THEN
 			for i := range a {
 
+				if a[i].TMPVID == 0 {
+					raFlowData.Meta.LastTMPVID++
+					a[i].TMPVID = raFlowData.Meta.LastTMPVID
+				}
+
 				// IF NOT FEES ASSOCIATED
 				if len(a[i].Fees) == 0 {
 					a[i].Fees = []RAFeesData{}
 				}
 
-				if a[i].TMPVID == 0 {
-					raFlowData.Meta.LastTMPVID++
-					a[i].TMPVID = raFlowData.Meta.LastTMPVID
-
-					// IF NOT TMPASMID IN EACH FEE
-					for j := range a[i].Fees {
-						if a[i].Fees[j].TMPASMID == 0 {
-							raFlowData.Meta.LastTMPASMID++
-							a[i].Fees[j].TMPASMID = raFlowData.Meta.LastTMPASMID
-						}
+				// IF NOT TMPASMID IN EACH FEE
+				for j := range a[i].Fees {
+					if a[i].Fees[j].TMPASMID == 0 {
+						raFlowData.Meta.LastTMPASMID++
+						a[i].Fees[j].TMPASMID = raFlowData.Meta.LastTMPASMID
 					}
 				}
 			}
@@ -575,16 +572,11 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 		return
 	}
 
-	// ASSIGN MODIFIED DATA
+	// ASSIGN JSON MARSHALLED MODIFIED DATA
 	flow.Data = modFlowData
 
-	// NOW UPDATE THE JSON FOR GIVEN FLOW PART
-	err = UpdateFlow(ctx, flow)
-	if err != nil {
-		return
-	}
-
-	return
+	// NOW UPDATE THE WHOLE FLOW
+	return UpdateFlow(ctx, flow)
 }
 
 // possessDateChangeRAFlowUpdates updates raflow json with required
