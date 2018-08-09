@@ -411,11 +411,13 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 					a[i].SpecialNeeds = "None"
 				}
 			}
-
 		}
 
 		// MODIFIED PART DATA
 		raFlowData.People = a
+
+		// SYNC TIE RECORDS ON CHANGE OF PEOPLE
+		SyncTieRecords(&raFlowData)
 
 	case PetsRAFlowPart:
 		a := []RAPetsFlowData{}
@@ -578,26 +580,15 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 	}
 
 	//  IF DATA HAS BEEN CHANGED, RESET META AND SET STATE TO APP BEING COMPLETED
-	// SESSION NOT FOUND THEN
-	sess, _ := sessionCheck(ctx)
-	ApplicationReadyUID := sess.UID
-	person, err := GetDirectoryPerson(ctx, ApplicationReadyUID)
-	if err != nil {
-		return
-	}
-	ApplicationReadyName := person.DisplayName()
 
 	resetMeta := RAFlowMetaInfo{
-		RAID:                 raFlowData.Meta.RAID,
-		LastTMPPETID:         raFlowData.Meta.LastTMPPETID,
-		LastTMPVID:           raFlowData.Meta.LastTMPVID,
-		LastTMPTCID:          raFlowData.Meta.LastTMPTCID,
-		LastTMPASMID:         raFlowData.Meta.LastTMPASMID,
-		HavePets:             raFlowData.Meta.HavePets,
-		HaveVehicles:         raFlowData.Meta.HaveVehicles,
-		ApplicationReadyUID:  ApplicationReadyUID,
-		ApplicationReadyName: ApplicationReadyName,
-		ApplicationReadyDate: JSONDateTime(time.Now().UTC()),
+		RAID:         raFlowData.Meta.RAID,
+		LastTMPPETID: raFlowData.Meta.LastTMPPETID,
+		LastTMPVID:   raFlowData.Meta.LastTMPVID,
+		LastTMPTCID:  raFlowData.Meta.LastTMPTCID,
+		LastTMPASMID: raFlowData.Meta.LastTMPASMID,
+		HavePets:     raFlowData.Meta.HavePets,
+		HaveVehicles: raFlowData.Meta.HaveVehicles,
 	}
 	raFlowData.Meta = resetMeta
 
@@ -613,6 +604,49 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 
 	// NOW UPDATE THE WHOLE FLOW
 	return UpdateFlow(ctx, flow)
+}
+
+// SyncTieRecords change the records on change of people or rentable records
+func SyncTieRecords(raFlowData *RAFlowJSONData) {
+	// IF NOT PEOPLE IN TIE THEN
+	if len(raFlowData.Tie.People) == 0 {
+		raFlowData.Tie.People = []RATiePeopleData{}
+	}
+
+	for i := range raFlowData.People {
+		// TIE RECORD SYNC FOR OCCUPANTS
+		if raFlowData.People[i].IsOccupant {
+			personFound := false
+			for k := range raFlowData.Tie.People {
+				if raFlowData.Tie.People[k].TMPTCID == raFlowData.People[i].TMPTCID {
+					personFound = true
+
+					// IF ONLY ONE RENTABLE THEN ASSIGN IT'S RID IN ALL TIE PEOPLE ENTRIES
+					if len(raFlowData.Rentables) == 1 {
+						raFlowData.Tie.People[k].PRID = raFlowData.Rentables[0].RID
+					}
+
+					break
+				}
+			}
+
+			// IF PERSON NOT FOUND THEN ADD ENTRY IN TIE
+			if !personFound {
+				tiePerson := RATiePeopleData{
+					BID:     0,
+					TMPTCID: raFlowData.People[i].TMPTCID,
+					PRID:    0,
+				}
+
+				// IF ONLY ONE RENTABLE THEN ASSIGN IT'S RID IN ALL TIE PEOPLE ENTRIES
+				if len(raFlowData.Rentables) == 1 {
+					tiePerson.PRID = raFlowData.Rentables[0].RID
+				}
+
+				raFlowData.Tie.People = append(raFlowData.Tie.People, tiePerson)
+			}
+		}
+	}
 }
 
 // possessDateChangeRAFlowUpdates updates raflow json with required
