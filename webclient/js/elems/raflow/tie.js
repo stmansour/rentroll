@@ -2,7 +2,7 @@
     getRAFlowCompData, reassignGridRecids,
     GetTiePeopleLocalData, SetTiePeopleLocalData, AssignTiePeopleGridRecords, SaveTiePeopleData,
     getFullName, dispalyRATiePeopleGridError, getRecIDFromTMPTCID,
-    EnableDisableRAFlowVersionGrid
+    EnableDisableRAFlowVersionGrid, SaveTieCompData
 */
 
 "use strict";
@@ -143,10 +143,21 @@ window.loadRATieSection = function () {
                         // set data
                         grid.set(event.recid, record);
                         SetTiePeopleLocalData(record.TMPTCID, localTiePeopleData);
-                    }
 
-                    // save grid changes
-                    this.save();
+                        // SAVE DATA ON SERVER SIDE
+                        SaveTieCompData()
+                        .done(function(data) {
+                            if (data.status === 'success') {
+                                // save grid changes
+                                grid.save();
+                            } else {
+                                grid.message(data.message);
+                            }
+                        })
+                        .fail(function(data) {
+                            console.log("failure " + data);
+                        });
+                    }
                 };
             }
         });
@@ -389,4 +400,12 @@ window.getRecIDFromTMPTCID = function(grid, TMPTCID){
         }
     }
     return recid;
+};
+
+//------------------------------------------------------------------------------
+// SaveTieCompData - saves the data on server side
+//------------------------------------------------------------------------------
+window.SaveTieCompData = function() {
+    var compData = getRAFlowCompData("tie");
+    return saveActiveCompData(compData, "tie");
 };
