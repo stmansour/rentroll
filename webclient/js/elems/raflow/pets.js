@@ -367,6 +367,7 @@ window.loadRAPetsGrid = function () {
                     switch (event.target){
                         case 'btnClose':
                             HideSliderContent();
+                            w2ui.RAPetsGrid.selectNone();
                             break;
                     }
                 }

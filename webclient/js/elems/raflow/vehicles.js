@@ -396,6 +396,8 @@ window.loadRAVehiclesGrid = function () {
                     switch (event.target){
                         case 'btnClose':
                             HideSliderContent();
+                            // unselect selected record
+                            w2ui.RAVehiclesGrid.selectNone();
                             break;
                     }
                 }
