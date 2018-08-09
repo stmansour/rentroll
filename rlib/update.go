@@ -3,6 +3,7 @@ package rlib
 import (
 	"context"
 	"encoding/hex"
+	"encoding/json"
 	"extres"
 )
 
@@ -369,7 +370,35 @@ func UpdateFlow(ctx context.Context, a *Flow) error {
 		return ErrFlowInvalidJSONData
 	}
 
-	fields := []interface{}{a.BID, a.UserRefNo, a.FlowType, a.ID, []byte(a.Data), a.LastModBy, a.FlowID}
+	// -------------------------------------------------------------------------
+	// RESET META - CHANGE STATE TO APPLICATION BEING COMPLETED
+	// -------------------------------------------------------------------------
+	flowData := RAFlowJSONData{}
+	err = json.Unmarshal([]byte(a.Data), &flowData)
+	if err != nil {
+		return err
+	}
+
+	//  IF DATA HAS BEEN CHANGED, RESET META AND SET STATE TO APP BEING COMPLETED
+	resetMeta := RAFlowMetaInfo{
+		RAID:         flowData.Meta.RAID,
+		LastTMPPETID: flowData.Meta.LastTMPPETID,
+		LastTMPVID:   flowData.Meta.LastTMPVID,
+		LastTMPTCID:  flowData.Meta.LastTMPTCID,
+		LastTMPASMID: flowData.Meta.LastTMPASMID,
+		HavePets:     flowData.Meta.HavePets,
+		HaveVehicles: flowData.Meta.HaveVehicles,
+	}
+	flowData.Meta = resetMeta
+
+	var modFlowJSONData []byte
+	modFlowJSONData, err = json.Marshal(&flowData)
+	if err != nil {
+		return err
+	}
+	// -------------------------------------------------------------------------
+
+	fields := []interface{}{a.BID, a.UserRefNo, a.FlowType, a.ID, modFlowJSONData, a.LastModBy, a.FlowID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateFlow)
 		defer stmt.Close()
