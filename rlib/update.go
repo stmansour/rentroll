@@ -351,8 +351,9 @@ func UpdateExpense(ctx context.Context, a *Expense) error {
 	return updateError(err, "Expense", *a)
 }
 
-// UpdateFlow updates the flow record
-func UpdateFlow(ctx context.Context, a *Flow) error {
+// UpdateFlowWithInitState updates the flow record with resetting it's state
+// to application being complete
+func UpdateFlowWithInitState(ctx context.Context, a *Flow) error {
 	var err error
 
 	// session... context
