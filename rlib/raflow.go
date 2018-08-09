@@ -565,6 +565,42 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 		return
 	}
 
+	// LOOK FOR DATA CHANGES
+	var originData RAFlowJSONData
+	err = json.Unmarshal(flow.Data, &originData)
+	if err != nil {
+		return
+	}
+
+	// IF THERE ARE NO DATA CHANGES THEN JUST RETURN
+	if reflect.DeepEqual(originData, raFlowData) {
+		return
+	}
+
+	//  IF DATA HAS BEEN CHANGED, RESET META AND SET STATE TO APP BEING COMPLETED
+	// SESSION NOT FOUND THEN
+	sess, _ := sessionCheck(ctx)
+	ApplicationReadyUID := sess.UID
+	person, err := GetDirectoryPerson(ctx, ApplicationReadyUID)
+	if err != nil {
+		return
+	}
+	ApplicationReadyName := person.DisplayName()
+
+	resetMeta := RAFlowMetaInfo{
+		RAID:                 raFlowData.Meta.RAID,
+		LastTMPPETID:         raFlowData.Meta.LastTMPPETID,
+		LastTMPVID:           raFlowData.Meta.LastTMPVID,
+		LastTMPTCID:          raFlowData.Meta.LastTMPTCID,
+		LastTMPASMID:         raFlowData.Meta.LastTMPASMID,
+		HavePets:             raFlowData.Meta.HavePets,
+		HaveVehicles:         raFlowData.Meta.HaveVehicles,
+		ApplicationReadyUID:  ApplicationReadyUID,
+		ApplicationReadyName: ApplicationReadyName,
+		ApplicationReadyDate: JSONDateTime(time.Now().UTC()),
+	}
+	raFlowData.Meta = resetMeta
+
 	// GET JSON DATA FROM THE STRUCT
 	var modFlowData []byte
 	modFlowData, err = json.Marshal(&raFlowData)
