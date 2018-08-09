@@ -631,6 +631,13 @@ func SyncParentChildRecords(raFlowData *RAFlowJSONData) {
 		}
 	}
 
+	// IF ONLY ONE RENTABLE THEN ASSIGN IT'S RID IN ALL TIE PEOPLE ENTRIES
+	reAssignRID := int64(0)
+	shouldReAssignRID := len(parentRentables) <= 1
+	if len(parentRentables) == 1 {
+		reAssignRID = parentRentables[0].RID
+	}
+
 	// CHILD RENTABLES
 	for i := range raFlowData.Rentables {
 		if raFlowData.Rentables[i].RTFLAGS&(1<<childRentableBit) != 0 {
@@ -640,8 +647,8 @@ func SyncParentChildRecords(raFlowData *RAFlowJSONData) {
 					found = true
 
 					// IF ONLY ONE RENTABLE THEN ASSIGN IT'S RID IN ALL TIE PEOPLE ENTRIES
-					if len(parentRentables) == 1 {
-						raFlowData.ParentChild[k].PRID = parentRentables[0].RID
+					if shouldReAssignRID {
+						raFlowData.ParentChild[k].PRID = reAssignRID
 					}
 				}
 			}
@@ -655,8 +662,8 @@ func SyncParentChildRecords(raFlowData *RAFlowJSONData) {
 				}
 
 				// IF ONLY ONE RENTABLE THEN ASSIGN IT'S RID IN ALL TIE PEOPLE ENTRIES
-				if len(parentRentables) == 1 {
-					n.PRID = parentRentables[0].RID
+				if shouldReAssignRID {
+					n.PRID = reAssignRID
 				}
 
 				// APPEND
@@ -685,6 +692,13 @@ func SyncTieRecords(raFlowData *RAFlowJSONData) {
 		}
 	}
 
+	// IF ONLY ONE RENTABLE THEN ASSIGN IT'S RID IN ALL TIE PEOPLE ENTRIES
+	reAssignRID := int64(0)
+	shouldReAssignRID := len(parentRentables) <= 1
+	if len(parentRentables) == 1 {
+		reAssignRID = parentRentables[0].RID
+	}
+
 	for i := range raFlowData.People {
 		// TIE RECORD SYNC FOR OCCUPANTS
 		if raFlowData.People[i].IsOccupant {
@@ -694,8 +708,8 @@ func SyncTieRecords(raFlowData *RAFlowJSONData) {
 					personFound = true
 
 					// IF ONLY ONE RENTABLE THEN ASSIGN IT'S RID IN ALL TIE PEOPLE ENTRIES
-					if len(parentRentables) == 1 {
-						raFlowData.Tie.People[k].PRID = parentRentables[0].RID
+					if shouldReAssignRID {
+						raFlowData.Tie.People[k].PRID = reAssignRID
 					}
 
 					break
@@ -711,8 +725,8 @@ func SyncTieRecords(raFlowData *RAFlowJSONData) {
 				}
 
 				// IF ONLY ONE RENTABLE THEN ASSIGN IT'S RID IN ALL TIE PEOPLE ENTRIES
-				if len(parentRentables) == 1 {
-					tiePerson.PRID = parentRentables[0].RID
+				if shouldReAssignRID {
+					tiePerson.PRID = reAssignRID
 				}
 
 				raFlowData.Tie.People = append(raFlowData.Tie.People, tiePerson)
