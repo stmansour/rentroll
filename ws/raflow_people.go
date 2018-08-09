@@ -183,9 +183,6 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 
 		// append in json list
 		raFlowData.People = append(raFlowData.People, newRAFlowPerson)
-
-		// SYNC TIE RECORDS ON CHANGE OF PEOPLE
-		rlib.SyncTieRecords(&raFlowData)
 	}
 
 	// -------------------------------------------
@@ -286,6 +283,12 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 	// Update HavePets Flag in meta information of flow
 	raFlowData.Meta.HavePets = len(raFlowData.Pets) > 0
 	raFlowData.Meta.HaveVehicles = len(raFlowData.Vehicles) > 0
+
+	// ----------------------------------------------
+	// SYNC RECORDS IN OTHER SECTIONS
+	// ----------------------------------------------
+	// SYNC TIE RECORDS ON CHANGE OF PEOPLE
+	rlib.SyncTieRecords(&raFlowData)
 
 	// LOOK FOR DATA CHANGES
 	var originData rlib.RAFlowJSONData
@@ -425,24 +428,24 @@ func DeleteRAFlowPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 	// ----------------------------------------------
 	// REMOVE ASSOCIATED PETS
 	// ----------------------------------------------
+	pets := []rlib.RAPetsFlowData{}
 	for i := range raFlowData.Pets {
-		if raFlowData.Pets[i].TMPTCID == personTMPTCID {
-			// remove this pet from the list
-			raFlowData.Pets = append(raFlowData.Pets[:i], raFlowData.Pets[i+1:]...)
+		if raFlowData.Pets[i].TMPTCID != personTMPTCID {
+			pets = append(pets, raFlowData.Pets[i])
 		}
 	}
+	raFlowData.Pets = pets
 
 	// ----------------------------------------------
 	// REMOVE ASSOCIATED VEHICLES
 	// ----------------------------------------------
-	fmt.Println(len(raFlowData.Vehicles))
+	vehicles := []rlib.RAVehiclesFlowData{}
 	for i := range raFlowData.Vehicles {
-		fmt.Println("Vehicles Index: ", i)
-		if raFlowData.Vehicles[i].TMPTCID == personTMPTCID {
-			// remove this pet from the list
-			raFlowData.Vehicles = append(raFlowData.Vehicles[:i], raFlowData.Vehicles[i+1:]...)
+		if raFlowData.Vehicles[i].TMPTCID != personTMPTCID {
+			vehicles = append(vehicles, raFlowData.Vehicles[i])
 		}
 	}
+	raFlowData.Vehicles = vehicles
 
 	// LOOK FOR DATA CHANGES
 	var originData rlib.RAFlowJSONData
