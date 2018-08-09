@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"reflect"
 	"rentroll/rlib"
 )
 
@@ -64,13 +65,12 @@ func SvcRAFlowPersonHandler(w http.ResponseWriter, r *http.Request, d *ServiceDa
 func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "SaveRAFlowPersonDetails"
 	var (
-		raFlowData    rlib.RAFlowJSONData
-		foo           RAPersonDetailsRequest
-		modRAFlowMeta rlib.RAFlowMetaInfo // we might need to update meta info
-		err           error
-		tx            *sql.Tx
-		ctx           context.Context
-		prospectFlag  uint64
+		raFlowData   rlib.RAFlowJSONData
+		foo          RAPersonDetailsRequest
+		err          error
+		tx           *sql.Tx
+		ctx          context.Context
+		prospectFlag uint64
 	)
 	fmt.Printf("Entered %s\n", funcname)
 
@@ -125,9 +125,6 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 		return
 	}
 
-	// get flow meta data in modRAFlowMeta, which is going to modified if required
-	modRAFlowMeta = raFlowData.Meta
-
 	// ----------------------------------------------
 	// get person details with given TCID
 	// ----------------------------------------------
@@ -174,8 +171,8 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 		}
 
 		// custom tmp tcid
-		modRAFlowMeta.LastTMPTCID++
-		newRAFlowPerson.TMPTCID = modRAFlowMeta.LastTMPTCID
+		raFlowData.Meta.LastTMPTCID++
+		newRAFlowPerson.TMPTCID = raFlowData.Meta.LastTMPTCID
 		personTMPTCID = newRAFlowPerson.TMPTCID
 
 		// Manage "Have you ever been"(Prospect) section FLAGS
@@ -186,20 +183,6 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 
 		// append in json list
 		raFlowData.People = append(raFlowData.People, newRAFlowPerson)
-
-		var modPeopleData []byte
-		modPeopleData, err = json.Marshal(&raFlowData.People)
-		if err != nil {
-			SvcErrorReturn(w, err, funcname)
-			return
-		}
-
-		// update flow with this modified people part
-		err = rlib.UpdateFlowData(ctx, "people", modPeopleData, &flow)
-		if err != nil {
-			SvcErrorReturn(w, err, funcname)
-			return
-		}
 	}
 
 	// -------------------------------------------
@@ -214,7 +197,6 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 	}
 
 	// find this RID in flow data rentable list
-	shouldModifyPetsData := false
 	for i := range petList {
 		exist := false
 		for k := range raFlowData.Pets {
@@ -233,7 +215,7 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 			newRAFlowPet, err = rlib.NewRAFlowPet(ctx, d.BID,
 				raFlowData.Dates.RentStart, raFlowData.Dates.RentStop,
 				raFlowData.Dates.PossessionStart, raFlowData.Dates.PossessionStop,
-				&modRAFlowMeta)
+				&raFlowData.Meta)
 			if err != nil {
 				return
 			}
@@ -246,28 +228,11 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 
 			// append in pets list
 			raFlowData.Pets = append(raFlowData.Pets, newRAFlowPet)
-
-			// should modify the content in raflow json?
-			shouldModifyPetsData = true
-		}
-	}
-
-	if shouldModifyPetsData {
-		var modPetsData []byte
-		modPetsData, err = json.Marshal(&raFlowData.Pets)
-		if err != nil {
-			return
-		}
-
-		// update flow with this modified pets part
-		err = rlib.UpdateFlowData(ctx, "pets", modPetsData, &flow)
-		if err != nil {
-			return
 		}
 	}
 
 	// -----------------------------------------------
-	// find vehicles list associated with current TCID
+	// ADD ALL VEHICLES ASSOCIATED WITH CURRENT TCID
 	// -----------------------------------------------
 
 	// get the list of pets
@@ -278,7 +243,6 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 	}
 
 	// loop over list and append it in raflow data
-	shouldModifyVehiclesData := false
 	for i := range vehicleList {
 		exist := false
 		for k := range raFlowData.Vehicles {
@@ -297,7 +261,7 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 			newRAFlowVehicle, err = rlib.NewRAFlowVehicle(ctx, d.BID,
 				raFlowData.Dates.RentStart, raFlowData.Dates.RentStop,
 				raFlowData.Dates.PossessionStart, raFlowData.Dates.PossessionStop,
-				&modRAFlowMeta)
+				&raFlowData.Meta)
 			if err != nil {
 				return
 			}
@@ -310,58 +274,52 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 
 			// append in vehicles list of json data
 			raFlowData.Vehicles = append(raFlowData.Vehicles, newRAFlowVehicle)
-
-			// should modify content for raflow json
-			shouldModifyVehiclesData = true
-		}
-	}
-
-	if shouldModifyVehiclesData {
-		// get marshalled data
-		var modVData []byte
-		modVData, err = json.Marshal(&raFlowData.Vehicles)
-		if err != nil {
-			return
-		}
-
-		// update flow with this modified vehicles part
-		err = rlib.UpdateFlowData(ctx, "vehicles", modVData, &flow)
-		if err != nil {
-			return
 		}
 	}
 
 	// ----------------------------------------------
-	// update meta info if required
+	// META UPDATE
 	// ----------------------------------------------
-	if raFlowData.Meta.LastTMPASMID < modRAFlowMeta.LastTMPASMID {
-
-		// Update HavePets Flag in meta information of flow
-		modRAFlowMeta.HavePets = len(raFlowData.Pets) > 0
-		modRAFlowMeta.HaveVehicles = len(raFlowData.Vehicles) > 0
-
-		// get marshalled data
-		var modMetaData []byte
-		modMetaData, err = json.Marshal(&modRAFlowMeta)
-		if err != nil {
-			return
-		}
-
-		// update flow with this modified meta part
-		err = rlib.UpdateFlowData(ctx, "meta", modMetaData, &flow)
-		if err != nil {
-			return
-		}
-	}
+	// Update HavePets Flag in meta information of flow
+	raFlowData.Meta.HavePets = len(raFlowData.Pets) > 0
+	raFlowData.Meta.HaveVehicles = len(raFlowData.Vehicles) > 0
 
 	// ----------------------------------------------
-	// return response
+	// SYNC RECORDS IN OTHER SECTIONS
 	// ----------------------------------------------
+	// SYNC TIE RECORDS ON CHANGE OF PEOPLE
+	rlib.SyncTieRecords(&raFlowData)
 
-	// get the modified flow
-	flow, err = rlib.GetFlow(ctx, flow.FlowID)
+	// LOOK FOR DATA CHANGES
+	var originData rlib.RAFlowJSONData
+	err = json.Unmarshal(flow.Data, &originData)
 	if err != nil {
 		return
+	}
+
+	// IF THERE ARE DATA CHANGES THEN ONLY UPDATE THE FLOW
+	if !reflect.DeepEqual(originData, raFlowData) {
+		// GET JSON DATA FROM THE STRUCT
+		var modFlowData []byte
+		modFlowData, err = json.Marshal(&raFlowData)
+		if err != nil {
+			return
+		}
+
+		// ASSIGN JSON MARSHALLED MODIFIED DATA
+		flow.Data = modFlowData
+
+		// NOW UPDATE THE WHOLE FLOW
+		err = rlib.UpdateFlow(ctx, &flow)
+		if err != nil {
+			return
+		}
+
+		// get the modified flow
+		flow, err = rlib.GetFlow(ctx, flow.FlowID)
+		if err != nil {
+			return
+		}
 	}
 
 	// ------------------
@@ -446,100 +404,79 @@ func DeleteRAFlowPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 	}
 
 	// ----------------------------------------------
-	// get person details with given TMPTCID
+	// GET PERSON DETAILS WITH GIVEN TMPTCID
 	// ----------------------------------------------
 	personTMPTCID := int64(0)
 
 	// this is for accept Transactant, so find it by TMPTCID
-	tcidExistInJSONData := false
 	for i := range raFlowData.People {
 		if raFlowData.People[i].TMPTCID == foo.TMPTCID {
-			tcidExistInJSONData = true
+
+			// PERSON TMPTCID
 			personTMPTCID = raFlowData.People[i].TMPTCID
 
 			// remove the element then
 			raFlowData.People = append(raFlowData.People[:i], raFlowData.People[i+1:]...)
 
+			// SYNC TIE RECORDS
+			rlib.SyncTieRecords(&raFlowData)
+
 			break
 		}
 	}
 
-	if tcidExistInJSONData {
-		var modPeopleData []byte
-		modPeopleData, err = json.Marshal(&raFlowData.People)
-		if err != nil {
-			return
-		}
-
-		// update flow with this modified people part
-		err = rlib.UpdateFlowData(ctx, "people", modPeopleData, &flow)
-		if err != nil {
-			return
-		}
-	}
-
 	// ----------------------------------------------
-	// remove associated pets
+	// REMOVE ASSOCIATED PETS
 	// ----------------------------------------------
-	shouldModifyPetsData := false
+	pets := []rlib.RAPetsFlowData{}
 	for i := range raFlowData.Pets {
-		if raFlowData.Pets[i].TMPTCID == personTMPTCID {
-			shouldModifyPetsData = true
-			// remove this pet from the list
-			raFlowData.Pets = append(raFlowData.Pets[:i], raFlowData.Pets[i+1:]...)
+		if raFlowData.Pets[i].TMPTCID != personTMPTCID {
+			pets = append(pets, raFlowData.Pets[i])
 		}
 	}
-
-	if shouldModifyPetsData {
-		var modPetsData []byte
-		modPetsData, err = json.Marshal(&raFlowData.Pets)
-		if err != nil {
-			return
-		}
-
-		// update flow with this modified pets part
-		err = rlib.UpdateFlowData(ctx, "pets", modPetsData, &flow)
-		if err != nil {
-			return
-		}
-	}
+	raFlowData.Pets = pets
 
 	// ----------------------------------------------
-	// remove associated vehicles
+	// REMOVE ASSOCIATED VEHICLES
 	// ----------------------------------------------
-	shouldModifyVehiclesData := false
+	vehicles := []rlib.RAVehiclesFlowData{}
 	for i := range raFlowData.Vehicles {
-		if raFlowData.Vehicles[i].TMPTCID == personTMPTCID {
-			shouldModifyVehiclesData = true
-			// remove this pet from the list
-			raFlowData.Vehicles = append(raFlowData.Vehicles[:i], raFlowData.Vehicles[i+1:]...)
+		if raFlowData.Vehicles[i].TMPTCID != personTMPTCID {
+			vehicles = append(vehicles, raFlowData.Vehicles[i])
 		}
 	}
+	raFlowData.Vehicles = vehicles
 
-	if shouldModifyVehiclesData {
-		// get marshalled data
-		var modVData []byte
-		modVData, err = json.Marshal(&raFlowData.Vehicles)
-		if err != nil {
-			return
-		}
-
-		// update flow with this modified vehicles part
-		err = rlib.UpdateFlowData(ctx, "vehicles", modVData, &flow)
-		if err != nil {
-			return
-		}
-	}
-
-	// ----------------------------------------------
-	// return response
-	// ----------------------------------------------
-
-	// get the modified flow
-	flow, err = rlib.GetFlow(ctx, flow.FlowID)
+	// LOOK FOR DATA CHANGES
+	var originData rlib.RAFlowJSONData
+	err = json.Unmarshal(flow.Data, &originData)
 	if err != nil {
-		SvcErrorReturn(w, err, funcname)
 		return
+	}
+
+	// IF THERE ARE DATA CHANGES THEN ONLY UPDATE THE FLOW
+	if !reflect.DeepEqual(originData, raFlowData) {
+		// GET JSON DATA FROM THE STRUCT
+		var modFlowData []byte
+		modFlowData, err = json.Marshal(&raFlowData)
+		if err != nil {
+			return
+		}
+
+		// ASSIGN JSON MARSHALLED MODIFIED DATA
+		flow.Data = modFlowData
+
+		// NOW UPDATE THE WHOLE FLOW
+		err = rlib.UpdateFlow(ctx, &flow)
+		if err != nil {
+			return
+		}
+
+		// get the modified flow
+		flow, err = rlib.GetFlow(ctx, flow.FlowID)
+		if err != nil {
+			return
+		}
 	}
 
 	// ------------------

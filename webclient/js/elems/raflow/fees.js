@@ -332,6 +332,11 @@ window.GetFeeFormToolbar = function() {
 // -------------------------------------------------------------------------------
 window.FeeFormOnRefreshHandler = function(feeForm) {
 
+    // if RAID version then don't do anything
+    if (app.raflow.version == "raid") {
+        return;
+    }
+
     // -- ARID -- //
     var ARIDSel = {};
     feeForm.get("ARID").options.items.forEach(function(item) {

@@ -2,7 +2,7 @@
     RACompConfig, SliderContentDivLength, reassignGridRecids,
     HideSliderContent, appendNewSlider, ShowSliderContentW2UIComp,
     saveActiveCompData, getRAFlowCompData,
-    GetFeeFormInitRecord, getInitialRentableFeesData,
+    GetFeeFormInitRecord, SaveRAFlowRentableAJAX,
     GetRentableLocalData, SetRentableLocalData, GetAllARForFeeForm,
     SaveRentableCompData, SetRentableFeeLocalData, GetRentableFeeLocalData,
     ridRentablePickerRender, ridRentableDropRender, ridRentableCompare,
@@ -14,20 +14,59 @@
     GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary, updateFlowData, dispalyRARentablesGridError,
     displayRARentableFeeFormError, getRentableIndex, displayFormFieldsError,
     GetCurrentFlowID, EnableDisableRAFlowVersionInputs, ShowHideGridToolbarAddButton,
-    HideAllSliderContent, displayNonFieldsError
+    HideAllSliderContent, displayNonFieldsError, RemoveRAFlowRentableAJAX
 */
 
 "use strict";
 
 // -------------------------------------------------------------------------------
-// getInitialRentableFeesData - pull down all fees records for the requested RID
+// SaveRAFlowRentableAJAX - pull down all fees records for the requested RID
 // @params - RID
 // -------------------------------------------------------------------------------
-window.getInitialRentableFeesData = function(BID, RID) {
-    var FlowID = GetCurrentFlowID();
-    var data = {"RID": RID, "FlowID": FlowID};
+window.SaveRAFlowRentableAJAX = function(RID) {
+    var BID = getCurrentBID(),
+        FlowID = GetCurrentFlowID();
+
+    // request payload data
+    var data = {
+        "cmd": "save",
+        "RID": RID,
+        "FlowID": FlowID
+    };
+
     return $.ajax({
-        url: "/v1/raflow-rentable-fees/" + BID.toString() + "/" + FlowID.toString(),
+        url: "/v1/raflow-rentable/" + BID.toString() + "/" + FlowID.toString(),
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(data)
+    }).done(function(data) {
+        if (data.status === "success") {
+            // Update flow local copy and green checks
+            updateFlowData(data);
+
+            // set the rentable grid records again
+            AssignRentableGridRecords();
+        }
+    });
+};
+
+// -------------------------------------------------------------------------------
+// RemoveRAFlowRentableAJAX - remove rentables
+// @params - RID
+// -------------------------------------------------------------------------------
+window.RemoveRAFlowRentableAJAX = function (RID) {
+    var BID = getCurrentBID(),
+        FlowID = GetCurrentFlowID();
+
+    // request payload data
+    var data = {
+        "cmd": "delete",
+        "RID": RID,
+        "FlowID": FlowID
+    };
+
+    return $.ajax({
+        url: "/v1/raflow-rentable/" + BID.toString() + "/" + FlowID.toString(),
         method: "POST",
         contentType: "application/json",
         data: JSON.stringify(data)
@@ -256,24 +295,14 @@ window.loadRARentablesGrid = function () {
                     // if it's remove column then remove the record
                     // maybe confirm dialog will be added
                     if(w2ui.RARentablesGrid.getColumn("RemoveRec", true) == event.column) {
-                        // remove entry from local data
                         var rec = w2ui.RARentablesGrid.get(event.recid);
-                        var index = GetRentableLocalData(rec.RID, true);
 
-                        // also manage local data
-                        var compData = getRAFlowCompData("rentables");
-                        compData.splice(index, 1);
-
-                        // save data on server
-                        SaveRentableCompData()
+                        RemoveRAFlowRentableAJAX(rec.RID)
                         .done(function(data) {
                             if (data.status === "success") {
-                                // after saving rentable comp data re-calculate parent rentable
+                                // after removing rentable comp data re-calculate parent rentable
                                 // w2ui items list
                                 manageParentRentableW2UIItems();
-
-                                // remove from grid
-                                w2ui.RARentablesGrid.remove(event.recid);
                             }
                         });
                         return;
@@ -310,7 +339,7 @@ window.loadRARentablesGrid = function () {
                             } else {
                                 // pull fees in case it's empty
                                 var BID = getCurrentBID();
-                                getInitialRentableFeesData(BID, rec.RID)
+                                SaveRAFlowRentableAJAX(rec.RID)
                                 .done(function(data) {
                                     if (data.status === "success") {
                                         // re-render fees grid records
@@ -359,6 +388,8 @@ window.loadRARentablesGrid = function () {
                     switch(event.target) {
                         case "btnClose":
                             HideSliderContent();
+                            // unselect selected record
+                            w2ui.RARentablesGrid.selectNone();
                             break;
                     }
                 }
@@ -624,9 +655,6 @@ window.loadRARentablesGrid = function () {
                 var feeForm = this;
                 event.onComplete = function() {
 
-                    // minimum actions need to be taken care in refres event for fee form
-                    FeeFormOnRefreshHandler(feeForm);
-
                     // there is NO PETID actually, so have to work around with recid key
                     formRefreshCallBack(feeForm);
 
@@ -644,6 +672,9 @@ window.loadRARentablesGrid = function () {
 
                     // FREEZE THE INPUTS IF VERSION IS RAID
                     EnableDisableRAFlowVersionInputs(feeForm);
+
+                    // minimum actions need to be taken care in refres event for fee form
+                    FeeFormOnRefreshHandler(feeForm);
                 };
             }
         });
@@ -856,7 +887,7 @@ window.AcceptRentable = function () {
         var BID     = getCurrentBID(),
             fRec    = w2ui.RARentableSearchForm.record;
 
-        getInitialRentableFeesData(BID, fRec.RID)
+        SaveRAFlowRentableAJAX(fRec.RID)
         .done(function(data) {
             if (data.status === "success") {
                 // reset the form

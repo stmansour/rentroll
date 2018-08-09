@@ -10,13 +10,16 @@
     localtimeToUTC,
     updateFlowData,
     GetCurrentFlowID, CloseRAFlowLayout,
-    ChangeRAFlowVersionToolbar
+    ChangeRAFlowVersionToolbar,
+    displayErrorDot,
+    displayActiveComponentError,
+    w2uiUTCDateControlString
 */
 "use strict";
 
 var actionsUI = {
     hdrHeight: 122,
-    ftrHeight: 150,
+    ftrHeight: 150
 };
 
 // -------------------------------------------------------------------------------
@@ -39,6 +42,29 @@ window.submitActionForm = function(data) {
             }
 
             if (data.record.Flow.FlowID > 0) {
+                var resErr = data.record.ValidationCheck;
+                app.raflow.validationErrors = {
+                    dates: resErr.errors.dates.total > 0 || resErr.nonFieldsErrors.dates.length > 0,
+                    people: resErr.errors.people.length > 0 || resErr.nonFieldsErrors.people.length > 0,
+                    pets: resErr.errors.pets.length > 0 || resErr.nonFieldsErrors.pets.length > 0,
+                    vehicles: resErr.errors.vehicles.length > 0 || resErr.nonFieldsErrors.vehicles.length > 0,
+                    rentables: resErr.errors.rentables.length > 0 || resErr.nonFieldsErrors.rentables.length > 0,
+                    parentchild: resErr.errors.parentchild.length > 0 || resErr.nonFieldsErrors.parentchild.length > 0,
+                    tie: resErr.errors.tie.people.length > 0 || resErr.nonFieldsErrors.tie.length > 0
+                };
+
+                // Update validationCheck error local copy
+                app.raflow.validationCheck = resErr;
+
+                displayErrorDot();
+
+                displayActiveComponentError();
+
+                if(resErr.total > 0){
+                    w2ui.raActionLayout.get('top').toolbar.click('btnBackToRA');
+                    return;
+                }
+
                 app.raflow.version = 'refno';
 
                 var version = app.raflow.version;
@@ -81,6 +107,7 @@ window.submitActionForm = function(data) {
             },200);
         } else {
             //Display Error
+            alert(data.message);
         }
     });
 };
@@ -101,6 +128,7 @@ window.reloadActionForm = function() {
         w2ui.RAActionForm.get('RAActions').options.items = app.w2ui.listItems.RAActions;
     }
 
+    // HIDE ALL OF THE COMPONENTS, LABELS, DIV'S
     $('#RAActionRAInfo').hide();
     $('#RAActionTerminatedRAInfo').hide();
     $('#RAActionNoticeToMoveInfo').hide();
@@ -110,10 +138,20 @@ window.reloadActionForm = function() {
     $('button[name=RAGenerateMoveOutForm]').hide();
     $('button[name=save]').hide();
 
+    w2ui.RAActionForm.get('RAApprovalDecision1').hidden = true;
+    w2ui.RAActionForm.get('RADeclineReason1').hidden = true;
+    w2ui.RAActionForm.get('RAApprovalDecision2').hidden = true;
+    w2ui.RAActionForm.get('RADeclineReason2').hidden = true;
+    w2ui.RAActionForm.get('RATerminationReason').hidden = true;
+    w2ui.RAActionForm.get('RADocumentDate').hidden = true;
+    w2ui.RAActionForm.get('RANoticeToMoveDate').hidden = true;
+
     var data = app.raflow.Flow.Data;
     var raFlags = data.meta.RAFLAGS;
+    var state = parseInt(raFlags & 0xf);
 
-    switch (parseInt(raFlags & 0xf)) {
+    // DISPLAY COMPONENTS, LABELS AND DIV'S ACCORDING TO CURRENT STATE
+    switch (state) {
         // "Application Being Completed"
         case 0:
             $('#ApplicationFilledByRow')[0].style.display = '';  //'none';
@@ -164,6 +202,12 @@ window.reloadActionForm = function() {
             $('#ActiveRow')[0].style.display = '';  //'none';
             $('#NoticeToMoveRow')[0].style.display = '';  //'none';
             $('#TerminateRow')[0].style.display = '';  //'none';
+
+            // auto load date in component if it is present in meta
+            if (data.meta.DocumentDate != "1900-01-01 00:00:00 UTC"){
+                var documentDate = w2uiUTCDateControlString(new Date(data.meta.DocumentDate));
+                w2ui.RAActionForm.record.RADocumentDate = documentDate;
+            }
 
             w2ui.RAActionForm.get('RADocumentDate').hidden = false;
             $('button[name=RAGenerateRAForm]').show();
@@ -312,7 +356,11 @@ window.refreshLabels = function () {
         if (meta.NoticeToMoveUID == 0) {
             x.innerHTML = '';
         } else {
-            x.innerHTML = dtFormatISOToW2ui(meta.NoticeToMoveReported) + ' by ' + meta.NoticeToMoveName + ' (move date: ' + dtFormatISOToW2ui(meta.NoticeToMoveDate) + ')';
+            var moveDate = '';
+            if (meta.NoticeToMoveDate != "1900-01-01 00:00:00 UTC") {
+                moveDate = w2uiUTCDateControlString(new Date(meta.NoticeToMoveDate));
+            }
+            x.innerHTML = dtFormatISOToW2ui(meta.NoticeToMoveReported) + ' by ' + meta.NoticeToMoveName + ' (move date: ' + moveDate + ')';
         }
     }
 
@@ -387,7 +435,7 @@ window.refreshLabels = function () {
     x = document.getElementById("bannerMoveDate");
     if (x !== null) {
         if (meta.NoticeToMoveDate != "1900-01-01 00:00:00 UTC") {
-            x.innerHTML = dtFormatISOToW2ui(meta.NoticeToMoveDate);
+            x.innerHTML = w2uiUTCDateControlString(new Date(meta.NoticeToMoveDate));
         } else {
             x.innerHTML = '';
         }
@@ -406,7 +454,7 @@ window.refreshLabels = function () {
     x = document.getElementById("bannerDocumentDate");
     if (x !== null) {
         if (meta.DocumentDate != "1900-01-01 00:00:00 UTC") {
-            x.innerHTML = dtFormatISOToW2ui(meta.DocumentDate);
+            x.innerHTML = w2uiUTCDateControlString(new Date(meta.DocumentDate));
         } else {
             x.innerHTML = '';
         }
@@ -639,6 +687,12 @@ window.loadRAActionForm = function() {
                             case 5: // Received Notice-To-Move
                                 w2ui.RAActionForm.get('RANoticeToMoveDate').hidden = false;
 
+                                // auto load date in component if it is present in meta
+                                if (app.raflow.Flow.Data.meta.NoticeToMoveDate != "1900-01-01 00:00:00 UTC"){
+                                    var moveDate = w2uiUTCDateControlString(new Date(app.raflow.Flow.Data.meta.NoticeToMoveDate));
+                                    this.record.RANoticeToMoveDate = moveDate;
+                                }
+
                                 w2ui.RAActionForm.get('RATerminationReason').hidden = true;
                                 delete this.record.RATerminationReason;
                                 $('button[name=updateAction]').attr('disabled',false);
@@ -648,6 +702,7 @@ window.loadRAActionForm = function() {
                                 w2ui.RAActionForm.get('RATerminationReason').hidden = false;
                                 $('button[name=updateAction]').attr('disabled',true);
 
+                                delete this.record.RANoticeToMoveDate;
                                 w2ui.RAActionForm.get('RANoticeToMoveDate').hidden = true;
                                 break;
 
@@ -656,7 +711,7 @@ window.loadRAActionForm = function() {
                                 delete this.record.RATerminationReason;
                                 $('button[name=updateAction]').attr('disabled',false);
 
-
+                                delete this.record.RANoticeToMoveDate;
                                 w2ui.RAActionForm.get('RANoticeToMoveDate').hidden = true;
                         }
                         break;

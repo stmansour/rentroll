@@ -5,7 +5,8 @@
     lockOnGrid, getApprovals, updateFlowData, updateFlowCopy, displayErrorDot, initBizErrors,
     dispalyRARentablesGridError, dispalyRAVehiclesGridError, dispalyRAParentChildGridError, dispalyRATiePeopleGridError,
     GetCurrentFlowID, FlowFilled, ReassignPeopleGridRecords, AssignPetsGridRecords, AssignVehiclesGridRecords, AssignRentableGridRecords,
-    GetGridToolbarAddButtonID, HideRAFlowLoader, toggleNonFieldsErrorDisplay, displayErrorSummary, submitActionForm, displayGreenCircle
+    GetGridToolbarAddButtonID, HideRAFlowLoader, toggleNonFieldsErrorDisplay, displayErrorSummary, submitActionForm, displayGreenCircle,
+    modifyFieldErrorMessage
 */
 
 "use strict";
@@ -222,8 +223,6 @@ window.lockOnGrid = function (gridName) {
 //-----------------------------------------------------------------------------
 window.getRAFlowCompData = function (compKey) {
 
-    var bid = getCurrentBID();
-
     var flowJSON = app.raflow.Flow;
     if (flowJSON.Data) {
         return flowJSON.Data[compKey];
@@ -240,8 +239,6 @@ window.getRAFlowCompData = function (compKey) {
 //   data   = data to set in the component
 //-----------------------------------------------------------------------------
 window.setRAFlowCompData = function (compKey, data) {
-
-    var bid = getCurrentBID();
 
     var flowJSON = app.raflow.Flow;
     if (flowJSON.Data) {
@@ -423,8 +420,8 @@ window.updateFlowCopy = function(flow){
 // -----------------------------------------------------
 window.FlowFilled = function(data) {
 
-    // Update local copy of basicCheck and FlowFilledData
-    app.raflow.basicCheck = data.BasicCheck;
+    // Update local copy of validationCheck and FlowFilledData
+    app.raflow.validationCheck = data.ValidationCheck;
     app.raflow.FlowFilledData = data.DataFulfilled;
 
     displayGreenCircle();
@@ -710,9 +707,33 @@ window.displayFormFieldsError = function(index, records, formName){
         var field = $("[name=" + formName + "] input#" + key);
         var error = records[index].errors[key].join(", ");
 
+        // Customize error for list input fields or if any other fields require
+        var modifiedError = modifyFieldErrorMessage(key);
+        if(modifiedError !== ""){
+            error = modifiedError;
+        }
+
         field.css("border-color", "red");
         field.after("<small class='error'>" + error + "</small>");
     }
+};
+
+// ---------------------------------------------------------------------
+// modifyFieldErrorMessage - It modifies error message for key field
+// ---------------------------------------------------------------------
+window.modifyFieldErrorMessage = function(key){
+    var error = "";
+    switch (key){
+        case "SourceSLSID":
+            error = "please select a source";
+            break;
+        case "ARID":
+            error = "please select an account rule";
+            break;
+        default:
+            error = "";
+    }
+    return error;
 };
 
 // getFeeIndex it return an index of fee which have TMPASMID

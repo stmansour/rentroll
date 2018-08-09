@@ -14,7 +14,6 @@ type BizPropsFee struct {
 	ARID             int64
 	ARName           string
 	Amount           float64
-	ARFLAGS          uint64
 	ARRentCycle      int64
 	ARProrationCycle int64
 }
@@ -80,7 +79,6 @@ func GetBizPropPetFees(ctx context.Context, BID int64, bizPropName string) (fees
 		pf.ARID = ar.ARID
 		pf.ARName = ar.Name
 		pf.Amount = ar.DefaultAmount
-		pf.ARFLAGS = ar.FLAGS
 		pf.ARRentCycle = ar.DefaultRentCycle
 		pf.ARProrationCycle = ar.DefaultProrationCycle
 
@@ -124,7 +122,6 @@ func GetBizPropVehicleFees(ctx context.Context, BID int64, bizPropName string) (
 		vf.ARID = ar.ARID
 		vf.ARName = ar.Name
 		vf.Amount = ar.DefaultAmount
-		vf.ARFLAGS = ar.FLAGS
 		vf.ARRentCycle = ar.DefaultRentCycle
 		vf.ARProrationCycle = ar.DefaultProrationCycle
 

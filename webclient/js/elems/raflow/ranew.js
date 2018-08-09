@@ -267,6 +267,9 @@ window.buildRAApplicantElements = function() {
                             var bid = getCurrentBID(),
                                 bud = getBUDfromBID(bid);
 
+                            // Update local copy of string list
+                            getStringListData(bid, bud);
+
                             var newRecid = grid.records.length;
 
                             // add new record
