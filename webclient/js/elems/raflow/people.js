@@ -282,7 +282,7 @@ window.loadRAPeopleForm = function () {
                     switch (event.target) {
                         case 'btnClose':
                             HideSliderContent();
-                            // Unselect record
+                            // unselect all selected record
                             w2ui.RAPeopleGrid.selectNone();
                             break;
                         case 'addInfo':
@@ -347,11 +347,11 @@ window.loadRAPeopleForm = function () {
                             // clear the form
                             form.clear();
 
-                            // update RAPeopleGrid
-                            ReassignPeopleGridRecords();
-
                             // close the form
                             HideSliderContent();
+
+                            // update RAPeopleGrid
+                            ReassignPeopleGridRecords();
                         } else {
                             form.message(data.message);
                         }
