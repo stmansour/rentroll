@@ -388,6 +388,8 @@ window.loadRARentablesGrid = function () {
                     switch(event.target) {
                         case "btnClose":
                             HideSliderContent();
+                            // unselect selected record
+                            w2ui.RARentablesGrid.selectNone();
                             break;
                     }
                 }
