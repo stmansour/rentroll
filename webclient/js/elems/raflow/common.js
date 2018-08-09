@@ -5,7 +5,8 @@
     lockOnGrid, getApprovals, updateFlowData, updateFlowCopy, displayErrorDot, initBizErrors,
     dispalyRARentablesGridError, dispalyRAVehiclesGridError, dispalyRAParentChildGridError, dispalyRATiePeopleGridError,
     GetCurrentFlowID, FlowFilled, ReassignPeopleGridRecords, AssignPetsGridRecords, AssignVehiclesGridRecords, AssignRentableGridRecords,
-    GetGridToolbarAddButtonID, HideRAFlowLoader, toggleNonFieldsErrorDisplay, displayErrorSummary, submitActionForm, displayGreenCircle
+    GetGridToolbarAddButtonID, HideRAFlowLoader, toggleNonFieldsErrorDisplay, displayErrorSummary, submitActionForm, displayGreenCircle,
+    ChangeRAFlowVersionToolbar
 */
 
 "use strict";
@@ -287,6 +288,14 @@ window.saveActiveCompData = function (compData, compID) {
                 console.log("data has been saved for: ", FlowID, ", compID: ", compID);
                 // Update flow local copy and green checks
                 updateFlowData(data);
+
+                // get info from local copy and refresh toolbar
+                var VERSION = app.raflow.version,
+                    RAID = app.raflow.Flow.ID,
+                    REFNO = app.raflow.Flow.UserRefNo,
+                    FLAGS = app.raflow.Flow.Data.meta.RAFLAGS;
+                ChangeRAFlowVersionToolbar(VERSION,RAID,REFNO,FLAGS);
+
             } else {
                 console.error(data.message);
             }
