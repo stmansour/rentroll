@@ -261,7 +261,7 @@ window.loadRAPeopleForm = function () {
             },
             onAdd: function () {
                 openNewTransactantForm();
-            },
+            }
         });
 
         // background info form
@@ -282,6 +282,8 @@ window.loadRAPeopleForm = function () {
                     switch (event.target) {
                         case 'btnClose':
                             HideSliderContent();
+                            // Unselect record
+                            w2ui.RAPeopleGrid.selectNone();
                             break;
                         case 'addInfo':
                             addDummyBackgroundInfo();
