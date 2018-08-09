@@ -11,9 +11,15 @@ import (
 // if necessary
 //
 // INPUTS
-//    a = the assessment to insert
-//  exp = if it is a recurring assessment and the start date is in the past, should
-//        past entries be created?  true = yes
+//    ctx  = database context
+//    anew = the assessment to update
+//    mode = how to handle recurring assessments:
+//           0: just reverse this instance
+//           1: reverse this and future instances
+//           2: reverse all instances
+//    dt   = date of modification
+//    exp  = if it is a recurring assessment and the start date is in the past,
+//           should past entries be created?  true = yes
 //
 // RETURNS
 //    a slice of BizErrors
@@ -80,6 +86,65 @@ func UpdateAssessment(ctx context.Context, anew *rlib.Assessment, mode int, dt *
 	err = rlib.UpdateAssessment(ctx, anew) // reversal not needed, just update the assessment
 	if err != nil {
 		return bizErrSys(&err)
+	}
+	return nil
+}
+
+// UpdateAssessmentEndDate updates the stop date of the supplied assessment,
+// which must be the recurring series definition. It will not modify instances
+// that ocurred prior to dt. If an instance occurs during the period containing
+// dt, then that instance will be adjusted (prorated) accordingly.
+//
+// INPUTS
+//    ctx  = database context
+//    a    = the recurring assessment definition to adjust
+//    dt   = new stop date for definition
+//
+// RETURNS
+//    any error encountered
+//-------------------------------------------------------------------------------------
+func UpdateAssessmentEndDate(ctx context.Context, a *rlib.Assessment, dt *time.Time) error {
+	//--------------------------------------------------------------------------
+	// First, the easy part... change the stop date of the recurring definition
+	//--------------------------------------------------------------------------
+	a.Stop = *dt
+	err := rlib.UpdateAssessment(ctx, a)
+	if err != nil {
+		return err
+	}
+
+	//--------------------------------------------------------------------------
+	// Now, check to see if there is an instance for the period containing dt
+	//--------------------------------------------------------------------------
+	e := time.Date(dt.Year(), dt.Month(), dt.Day(), 0, 0, 0, 0, time.UTC)
+	ok, epoch := rlib.GetEpochFromBaseDate(e, a.Start, a.Stop, a.RentCycle)
+	if !ok {
+		return fmt.Errorf("UpdateAssessmentEndDate for ASMID=%d, received ok=false from GetEpochFromBaseDate", a.ASMID)
+	}
+	if epoch.Equal(e) {
+		// TODO: validate this case
+	} else {
+		// epoch is the end datetime of the next cycle, get the start date/time
+		d1 := rlib.GetPreviousInstance(epoch, a.RentCycle)
+		// do we have an instance of assessment a in the time range [d1,epoch)
+		ai, err := rlib.GetAssessmentInstance(ctx, &d1, a.ASMID)
+		if err != nil {
+			return err
+		}
+		if ai.ASMID == 0 {
+			return nil // we're done, there was no instance found
+		}
+		// found an instance, we need to prorate this instance
+		amount, n, p := rlib.SimpleProrateAmount(ai.Amount, ai.RentCycle, ai.ProrationCycle, &ai.Start, dt, &ai.Start)
+		ai.Amount = amount
+		if len(ai.Comment) > 0 {
+			ai.Comment += "  |  "
+		}
+		ai.Comment += fmt.Sprintf("prorated for %d of %d %s", n, p, rlib.ProrationUnits(ai.RentCycle))
+		be := UpdateAssessment(ctx, &ai, 0, dt, 0)
+		if len(be) > 0 {
+			return BizErrorListToError(be)
+		}
 	}
 	return nil
 }

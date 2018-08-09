@@ -495,6 +495,74 @@ func GetUnpaidAssessmentsByRAID(ctx context.Context, RAID int64) ([]Assessment, 
 	return getAssessmentsByRows(ctx, rows)
 }
 
+// GetAssessmentInstancesByRAID returns a list of the recurring assessment
+// instances for the supplied RAID that happen in the supplied time range
+// INPUTS
+//    ctx   - context
+//    RAID  - Rental Agreement id of interest
+//    d1,d2 - Define the time period of interest, d1 = start, d2 = stop
+//
+// RETURNS
+//    array of assessment instances that occur between d1 / d2
+//    error = any error encountered
+//-----------------------------------------------------------------------------
+func GetAssessmentInstancesByRAID(ctx context.Context, RAID int64, d1, d2 *time.Time) ([]Assessment, error) {
+	var err error
+	var t []Assessment
+	if sessionCheck(ctx) {
+		return t, ErrSessionRequired
+	}
+
+	var rows *sql.Rows
+	fields := []interface{}{RAID, d1, d2}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAssessmentInstancesByRAID)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetAssessmentInstancesByRAID.Query(fields...)
+	}
+
+	if err != nil {
+		return t, err
+	}
+	return getAssessmentsByRows(ctx, rows)
+}
+
+// GetRecurringAssessmentDefsByRAID returns a list of the recurring assessment
+// definitions for the supplied RAID that happen in the supplied time range
+// INPUTS
+//    ctx   - context
+//    RAID  - Rental Agreement id of interest
+//    d1,d2 - Define the time period of interest, d1 = start, d2 = stop
+//
+// RETURNS
+//    array of recurring assessment definitions that overlap d1/d2
+//    error = any error encountered
+//-----------------------------------------------------------------------------
+func GetRecurringAssessmentDefsByRAID(ctx context.Context, RAID int64, d1, d2 *time.Time) ([]Assessment, error) {
+	var err error
+	var t []Assessment
+	if sessionCheck(ctx) {
+		return t, ErrSessionRequired
+	}
+
+	var rows *sql.Rows
+	fields := []interface{}{RAID, d1, d2}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRecurringAssessmentDefsByRAID)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetRecurringAssessmentDefsByRAID.Query(fields...)
+	}
+
+	if err != nil {
+		return t, err
+	}
+	return getAssessmentsByRows(ctx, rows)
+}
+
 // GetEpochAssessmentsByRentalAgreement for the supplied RAID
 // INPUTS
 // ctx  - context
@@ -505,11 +573,8 @@ func GetUnpaidAssessmentsByRAID(ctx context.Context, RAID int64) ([]Assessment, 
 //    which are not part of a recurring series
 //-----------------------------------------------------------------------------
 func GetEpochAssessmentsByRentalAgreement(ctx context.Context, RAID int64) ([]Assessment, error) {
-
-	var (
-		err error
-		t   []Assessment
-	)
+	var err error
+	var t []Assessment
 	if sessionCheck(ctx) {
 		return t, ErrSessionRequired
 	}

@@ -4,6 +4,7 @@ package ws
 import (
 	"context"
 	"fmt"
+	"rentroll/bizlogic"
 	"rentroll/rlib"
 	"time"
 )
@@ -54,6 +55,45 @@ func Fees2RA(ctx context.Context, x *WriteHandlerContext) error {
 			}
 		}
 	}
+
+	//--------------------------------------------------
+	// Adjust assessments as needed on the old RAID
+	//--------------------------------------------------
+	if x.raOrig.RAID > 0 {
+		if err = AdjustOldRAIDAssessments(ctx, x); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// AdjustOldRAIDAssessments adjusts dates on recurring assessments of the old
+// RAID and prorates assessment instances that occur during the period of
+// the RentStart date of the new agreement.
+//
+// INPUTS
+//     ctx    - db context for transactions
+//     x - all the contextual info we need for performing this operation
+//
+// RETURNS
+//     Any errors encountered
+//-----------------------------------------------------------------------------
+func AdjustOldRAIDAssessments(ctx context.Context, x *WriteHandlerContext) error {
+	//-------------------------------------------------
+	// Adjust recurring assessment definitions
+	//-------------------------------------------------
+	m, err := rlib.GetRecurringAssessmentDefsByRAID(ctx, x.raOrig.RAID, &x.ra.RentStart, &x.ra.RentStop)
+	if err != nil {
+		return err
+	}
+	for _, v := range m {
+		v.Stop = x.ra.RentStart                                  // it stops on this date
+		err = bizlogic.UpdateAssessmentEndDate(ctx, &v, &v.Stop) // this adjusts the instance containing dt if needed
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -80,7 +120,7 @@ func F2RASaveFee(ctx context.Context, x *WriteHandlerContext, fee *rlib.RAFeesDa
 }
 
 // F2RASaveNewFee handles all the updates necessary to move the
-// supplied field into the permanent tables.
+// supplied fee into the permanent tables.
 //
 // INPUTS
 //     ctx  - db context for transactions
@@ -168,7 +208,7 @@ func F2RASaveNewFee(ctx context.Context, x *WriteHandlerContext, fee *rlib.RAFee
 }
 
 // F2RAUpdateExistingAssessment handles all the updates necessary to move the
-// supplied field into the permanent tables.
+// supplied fee into the permanent tables.
 //
 // INPUTS
 //     ctx  - db context for transactions

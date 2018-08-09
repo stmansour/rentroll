@@ -1937,6 +1937,8 @@ type RRprepSQL struct {
 	DeleteBusinessProperties                *sql.Stmt
 	GetAssessmentsByRAIDRID                 *sql.Stmt
 	GetRentalAgreementPayorsByRAID          *sql.Stmt
+	GetAssessmentInstancesByRAID            *sql.Stmt
+	GetRecurringAssessmentDefsByRAID        *sql.Stmt
 }
 
 // DeleteBusinessFromDB deletes information from all tables if it is part of the supplied BID.
