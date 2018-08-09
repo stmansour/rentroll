@@ -789,7 +789,7 @@ func rentDateChangeRAFlowUpdates(ctx context.Context, BID int64, rStart, rStop t
 
 		// GET MODIFIED PET FEES FROM THIS FLOW DATA PET FEES AND RENT DATES
 		var modPetFees []RAFeesData
-		modPetFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName, rStart, rStop, fees)
+		modPetFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName, rStart, rStop, fees, true)
 		if err != nil {
 			return
 		}
@@ -830,7 +830,7 @@ func rentDateChangeRAFlowUpdates(ctx context.Context, BID int64, rStart, rStop t
 
 		// GET MODIFIED VEHICLE FEES FROM THIS FLOW DATA VEHICLE FEES AND RENT DATES
 		var modVehicleFees []RAFeesData
-		modVehicleFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName, rStart, rStop, fees)
+		modVehicleFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName, rStart, rStop, fees, true)
 		if err != nil {
 			return
 		}
@@ -872,7 +872,7 @@ func rentDateChangeRAFlowUpdates(ctx context.Context, BID int64, rStart, rStop t
 
 		// GET MODIFIED RENTABLE FEES FROM THIS FLOW DATA RENTABLE FEES AND RENT DATES
 		var modRentableFees []RAFeesData
-		modRentableFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName, rStart, rStop, fees)
+		modRentableFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName, rStart, rStop, fees, true)
 		if err != nil {
 			return
 		}
