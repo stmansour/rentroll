@@ -223,8 +223,6 @@ window.lockOnGrid = function (gridName) {
 //-----------------------------------------------------------------------------
 window.getRAFlowCompData = function (compKey) {
 
-    var bid = getCurrentBID();
-
     var flowJSON = app.raflow.Flow;
     if (flowJSON.Data) {
         return flowJSON.Data[compKey];
