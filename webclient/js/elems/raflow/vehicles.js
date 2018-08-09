@@ -48,7 +48,7 @@ window.RAFlowNewVehicleAJAX = function() {
             // Update flow local copy and green checks
             updateFlowData(data);
 
-            // set the rentable grid records again
+            // reassign records
             AssignVehiclesGridRecords();
 
             // mark new TMPVID from meta

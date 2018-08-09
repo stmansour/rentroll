@@ -45,6 +45,10 @@ window.RAFlowNewPetAJAX = function() {
         if (data.status === "success") {
             // Update flow local copy and green checks
             updateFlowData(data);
+
+            // reassign records
+            AssignPetsGridRecords();
+
             // mark new TMPPETID from meta
             app.raflow.last.TMPPETID = data.record.Flow.Data.meta.LastTMPPETID;
         }
