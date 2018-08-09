@@ -89,6 +89,9 @@ func Flow2RA(ctx context.Context, flowid int64) (int64, error) {
 				rlib.Console("\n\nERROR IN FlowSaveRA: %s\n\n\n", err.Error())
 				return x.newRAID, err
 			}
+		} else {
+			err = fmt.Errorf("there are no data changes")
+			return x.newRAID, err
 		}
 		//------------------------------------------------------------
 		// if there are meta data changes, then updated existing RAID
