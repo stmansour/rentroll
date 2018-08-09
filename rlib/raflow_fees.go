@@ -51,7 +51,7 @@ func GetRAFlowInitialPetFees(ctx context.Context,
 	}
 
 	// GET CALCULATED FEES FROM THIS BIZ CONIGURED FEES
-	fees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName, rStart, rStop, petFees)
+	fees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName, rStart, rStop, petFees, false)
 	if err != nil {
 		return
 	}
@@ -110,7 +110,7 @@ func GetRAFlowInitialVehicleFees(ctx context.Context,
 	}
 
 	// GET CALCULATED FEES FROM THIS BIZ CONIGURED FEES
-	fees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName, rStart, rStop, vehicleFees)
+	fees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName, rStart, rStop, vehicleFees, false)
 	if err != nil {
 		return
 	}
@@ -129,6 +129,7 @@ func GetRAFlowInitialVehicleFees(ctx context.Context,
 func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName string,
 	rStart, rStop time.Time,
 	baseFees []RAFeesData,
+	removeOneTimeCharge bool,
 ) (fees []RAFeesData, err error) {
 
 	const funcname = "GetCalculatedFeesFromBaseFees"
@@ -176,7 +177,7 @@ func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName s
 		oneTimeCharge := (ar.FLAGS & (1 << 6)) != 0
 		rentAsmCharge := (ar.FLAGS & (1 << 4)) != 0
 
-		if oneTimeCharge {
+		if oneTimeCharge && !removeOneTimeCharge {
 			// ADD FEE IN LIST
 			raFee := RAFeesData{
 				TMPASMID:        0,
@@ -193,7 +194,6 @@ func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName s
 				Comment:         "",
 			}
 			fees = append(fees, raFee)
-
 		} else if rentAsmCharge { // IT MUST BE RENT ASM ONE
 
 			// CHECK FOR PRORATED AMOUNT REQUIRED

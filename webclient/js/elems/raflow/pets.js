@@ -509,14 +509,25 @@ window.loadRAPetsGrid = function () {
                     SavePetsCompData()
                     .done(function(data) {
                         if (data.status === 'success') {
-                            // add new formatted record to current form
-                            f.actions.reset();
-                            f.record = GetPetFormInitRecord(f.record);
-                            f.refresh();
-                            f.refresh();
 
-                            // re-assign records in grid
-                            AssignPetsGridRecords();
+                            // get new entry for pet
+                            RAFlowNewPetAJAX()
+                            .done(function(data) {
+                                // IT'S MANAGED IN AJAX API
+                                var TMPPETID = app.raflow.last.TMPPETID;
+
+                                // add new formatted record to current form
+                                f.actions.reset();
+                                f.record = GetPetLocalData(TMPPETID);
+                                f.refresh();
+                                f.refresh();
+
+                                // re-assign records in grid
+                                AssignPetsGridRecords();
+                            })
+                            .fail(function(data) {
+                                f.message("failure " + data);
+                            });
                         } else {
                             f.message(data.message);
                         }

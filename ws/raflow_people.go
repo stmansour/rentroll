@@ -447,6 +447,12 @@ func DeleteRAFlowPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 	}
 	raFlowData.Vehicles = vehicles
 
+	// ----------------------------------------------
+	// SYNC RECORDS IN OTHER SECTIONS
+	// ----------------------------------------------
+	// SYNC TIE RECORDS ON CHANGE OF PEOPLE
+	rlib.SyncTieRecords(&raFlowData)
+
 	// LOOK FOR DATA CHANGES
 	var originData rlib.RAFlowJSONData
 	err = json.Unmarshal(flow.Data, &originData)
