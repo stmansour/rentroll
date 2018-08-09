@@ -107,6 +107,7 @@ window.submitActionForm = function(data) {
             },200);
         } else {
             //Display Error
+            alert(data.message);
         }
     });
 };
