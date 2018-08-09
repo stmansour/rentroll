@@ -6,35 +6,65 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"reflect"
 	"rentroll/bizlogic"
 	"rentroll/rlib"
 	"sort"
 	"time"
 )
 
-// RARentableFeesDataRequest is struct for request for rentable fees
-type RARentableFeesDataRequest struct {
+// RARentableDetailsRequest is struct for request for rentable fees
+type RARentableDetailsRequest struct {
 	RID    int64
 	FlowID int64
 }
 
-// SvcGetRAFlowRentableFeesData generates a list of rentable fees with auto populate AR fees
+// SvcRAFlowRentableHandler handles operation on rentable of raflow json data
+//           0    1     2   3
+// uri /v1/raflow-rentable/BID/flowID
+// The server command can be:
+//      save
+//      delete
+//-----------------------------------------------------------------------------------
+func SvcRAFlowRentableHandler(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcRAFlowRentableHandler"
+	var (
+		err error
+	)
+	fmt.Printf("Entered %s\n", funcname)
+	fmt.Printf("Request: %s:  BID = %d,  FlowID = %d\n", d.wsSearchReq.Cmd, d.BID, d.ID)
+
+	switch d.wsSearchReq.Cmd {
+	case "save":
+		SaveRAFlowRentableDetails(w, r, d)
+		break
+	case "delete":
+		DeleteRAFlowRentable(w, r, d)
+		break
+	default:
+		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+}
+
+// SaveRAFlowRentableDetails save Rentable and generates a list of rentable fees with auto populate AR fees
 // It modifies raflow json doc by writing Fees data to raflow "rentables" component data
 // wsdoc {
-//  @Title Get list of Rentable fees with auto populate AR fees
-//  @URL /v1/raflow-rentable-fees/:BUI/
+//  @Title Saves rentable with list of Rentable fees with auto populate AR fees
+//  @URL /v1/raflow-rentable/:BUI/
 //  @Method  GET
-//  @Synopsis Get Rentable Fees list
-//  @Description Get all rentable fees with auto populate AR fees
-//  @Input RARentableFeesDataRequest
+//  @Synopsis Save Rentable with Fees list
+//  @Description Save rentable with all fees with auto populate AR fees
+//  @Input RARentableDetailsRequest
 //  @Response FlowResponse
 // wsdoc }
-func SvcGetRAFlowRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	const funcname = "SvcGetRAFlowRentableFeesData"
+func SaveRAFlowRentableDetails(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SaveRAFlowRentableDetails"
 	var (
 		rfd         rlib.RARentablesFlowData
 		raFlowData  rlib.RAFlowJSONData
-		foo         RARentableFeesDataRequest
+		foo         RARentableDetailsRequest
 		feesRecords = []rlib.RAFeesData{}
 		today       = time.Now()
 		err         error
@@ -94,9 +124,6 @@ func SvcGetRAFlowRentableFeesData(w http.ResponseWriter, r *http.Request, d *Ser
 		return
 	}
 
-	// get meta in modRAFlowMeta, we're going to modify it
-	modRAFlowMeta := raFlowData.Meta
-
 	//-------------------------------------------------------
 	// FIND RENTABLE AND RENTABLETYPE FROM REQUEST RID
 	//-------------------------------------------------------
@@ -130,9 +157,9 @@ func SvcGetRAFlowRentableFeesData(w http.ResponseWriter, r *http.Request, d *Ser
 	if ar.ARID > 0 {
 		// make sure the IsRentASM is marked true
 		if ar.FLAGS&0x10 != 0 {
-			modRAFlowMeta.LastTMPASMID++
+			raFlowData.Meta.LastTMPASMID++
 			rec := rlib.RAFeesData{
-				TMPASMID:       modRAFlowMeta.LastTMPASMID,
+				TMPASMID:       raFlowData.Meta.LastTMPASMID,
 				ARID:           ar.ARID,
 				ARName:         ar.Name,
 				ContractAmount: ar.DefaultAmount,
@@ -172,9 +199,9 @@ func SvcGetRAFlowRentableFeesData(w http.ResponseWriter, r *http.Request, d *Ser
 			continue
 		}
 
-		modRAFlowMeta.LastTMPASMID++
+		raFlowData.Meta.LastTMPASMID++
 		rec := rlib.RAFeesData{
-			TMPASMID:       modRAFlowMeta.LastTMPASMID,
+			TMPASMID:       raFlowData.Meta.LastTMPASMID,
 			ARID:           ar.ARID,
 			ARName:         ar.Name,
 			ContractAmount: ar.DefaultAmount,
@@ -228,47 +255,184 @@ func SvcGetRAFlowRentableFeesData(w http.ResponseWriter, r *http.Request, d *Ser
 		raFlowData.Rentables[rIndex] = rfd
 	}
 
-	//-------------------------------------------------------
-	// MODIFY RENTABLE JSON DATA IN RAFLOW
-	//-------------------------------------------------------
-	var modRData []byte
-	modRData, err = json.Marshal(&raFlowData.Rentables)
+	// ----------------------------------------------
+	// SYNC RECORDS IN OTHER SECTIONS
+	// ----------------------------------------------
+	// SYNC TIE RECORDS ON CHANGE OF PEOPLE
+	rlib.SyncTieRecords(&raFlowData)
+
+	// SYNC PARENT CHILD RECORDS ON CHANGE OF PEOPLE
+	rlib.SyncParentChildRecords(&raFlowData)
+
+	// LOOK FOR DATA CHANGES
+	var originData rlib.RAFlowJSONData
+	err = json.Unmarshal(flow.Data, &originData)
 	if err != nil {
 		return
 	}
 
-	// update flow with this modified rentable part
-	err = rlib.UpdateFlowData(ctx, "rentables", modRData, &flow)
-	if err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
-	}
-
-	//-------------------------------------------------------
-	// MODIFY META DATA TOO
-	//-------------------------------------------------------
-	if raFlowData.Meta.LastTMPASMID < modRAFlowMeta.LastTMPASMID {
-		var modMetaData []byte
-		modMetaData, err = json.Marshal(&modRAFlowMeta)
+	// IF THERE ARE DATA CHANGES THEN ONLY UPDATE THE FLOW
+	if !reflect.DeepEqual(originData, raFlowData) {
+		// GET JSON DATA FROM THE STRUCT
+		var modFlowData []byte
+		modFlowData, err = json.Marshal(&raFlowData)
 		if err != nil {
 			return
 		}
 
-		err = rlib.UpdateFlowData(ctx, "meta", modMetaData, &flow)
+		// ASSIGN JSON MARSHALLED MODIFIED DATA
+		flow.Data = modFlowData
+
+		// NOW UPDATE THE WHOLE FLOW
+		err = rlib.UpdateFlow(ctx, &flow)
 		if err != nil {
+			return
+		}
+
+		// get the modified flow
+		flow, err = rlib.GetFlow(ctx, flow.FlowID)
+		if err != nil {
+			return
+		}
+	}
+
+	// ------------------
+	// COMMIT TRANSACTION
+	// ------------------
+	if err = tx.Commit(); err != nil {
+		return
+	}
+
+	// -------------------
+	// WRITE FLOW RESPONSE
+	// -------------------
+	SvcWriteFlowResponse(ctx, d.BID, flow, w)
+	return
+}
+
+// RAFlowDeleteRentableRequest is struct for request to remove person from json data
+type RAFlowDeleteRentableRequest struct {
+	RID    int64
+	FlowID int64
+}
+
+// DeleteRAFlowRentable remove rentable and syncs the records in parent/child, tie sections
+// wsdoc {
+//  @Title Remove Rentable entry
+//  @URL /v1/raflow-rentable/:BUI/:FlowID
+//  @Method POST
+//  @Synopsis Remove Rentable from RAFlow json data
+//  @Description Remove Rentable from RAFlow json data
+//  @Input RAFlowDeleteRentableRequest
+//  @Response FlowResponse
+// wsdoc }
+func DeleteRAFlowRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "DeleteRAFlowRentable"
+	var (
+		raFlowData rlib.RAFlowJSONData
+		foo        RAFlowDeleteRentableRequest
+		err        error
+		tx         *sql.Tx
+		ctx        context.Context
+	)
+	fmt.Printf("Entered %s\n", funcname)
+
+	// ===============================================
+	// defer function to handle transactaion rollback
+	// ===============================================
+	defer func() {
+		if err != nil {
+			if tx != nil {
+				tx.Rollback()
+			}
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
+	}()
+
+	// http method check
+	if r.Method != "POST" {
+		err = fmt.Errorf("Only POST method is allowed")
+		return
+	}
+
+	// unmarshal data into request data struct
+	if err = json.Unmarshal([]byte(d.data), &foo); err != nil {
+		return
+	}
+
+	//-------------------------------------------------------
+	// GET THE NEW `tx`, UPDATED CTX FROM THE REQUEST CONTEXT
+	//-------------------------------------------------------
+	tx, ctx, err = rlib.NewTransactionWithContext(r.Context())
+	if err != nil {
+		return
+	}
+
+	// get flow and it must exist
+	var flow rlib.Flow
+	flow, err = rlib.GetFlow(ctx, foo.FlowID)
+	if err != nil {
+		return
+	}
+
+	// get unmarshalled raflow data into struct
+	err = json.Unmarshal(flow.Data, &raFlowData)
+	if err != nil {
+		return
 	}
 
 	// ----------------------------------------------
-	// return response
+	// REMOVE ASSOCIATED PETS
 	// ----------------------------------------------
+	for i := range raFlowData.Rentables {
+		if raFlowData.Rentables[i].RID == foo.RID {
+			// remove this pet from the list
+			raFlowData.Rentables = append(raFlowData.Rentables[:i], raFlowData.Rentables[i+1:]...)
 
-	// get the modified flow
-	flow, err = rlib.GetFlow(ctx, flow.FlowID)
+			break
+		}
+	}
+
+	// ----------------------------------------------
+	// SYNC RECORDS IN OTHER SECTIONS
+	// ----------------------------------------------
+	// SYNC TIE RECORDS ON CHANGE OF PEOPLE
+	rlib.SyncTieRecords(&raFlowData)
+
+	// SYNC PARENT CHILD RECORDS ON CHANGE OF PEOPLE
+	rlib.SyncParentChildRecords(&raFlowData)
+
+	// LOOK FOR DATA CHANGES
+	var originData rlib.RAFlowJSONData
+	err = json.Unmarshal(flow.Data, &originData)
 	if err != nil {
 		return
+	}
+
+	// IF THERE ARE DATA CHANGES THEN ONLY UPDATE THE FLOW
+	if !reflect.DeepEqual(originData, raFlowData) {
+		// GET JSON DATA FROM THE STRUCT
+		var modFlowData []byte
+		modFlowData, err = json.Marshal(&raFlowData)
+		if err != nil {
+			return
+		}
+
+		// ASSIGN JSON MARSHALLED MODIFIED DATA
+		flow.Data = modFlowData
+
+		// NOW UPDATE THE WHOLE FLOW
+		err = rlib.UpdateFlow(ctx, &flow)
+		if err != nil {
+			return
+		}
+
+		// get the modified flow
+		flow, err = rlib.GetFlow(ctx, flow.FlowID)
+		if err != nil {
+			return
+		}
 	}
 
 	// ------------------
