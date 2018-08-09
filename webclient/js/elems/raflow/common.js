@@ -6,7 +6,7 @@
     dispalyRARentablesGridError, dispalyRAVehiclesGridError, dispalyRAParentChildGridError, dispalyRATiePeopleGridError,
     GetCurrentFlowID, FlowFilled, ReassignPeopleGridRecords, AssignPetsGridRecords, AssignVehiclesGridRecords, AssignRentableGridRecords,
     GetGridToolbarAddButtonID, HideRAFlowLoader, toggleNonFieldsErrorDisplay, displayErrorSummary, submitActionForm, displayGreenCircle,
-    modifyFieldErrorMessage
+    modifyFieldErrorMessage,ChangeRAFlowVersionToolbar
 */
 
 "use strict";
@@ -386,6 +386,16 @@ window.HideRAFlowLoader = function(hide) {
 // updateFlowData
 window.updateFlowData = function(data){
     updateFlowCopy(data.record.Flow);
+
+    if(!jQuery.isEmptyObject(app.raflow.Flow)) {
+        // get info from local copy and refresh toolbar
+        var VERSION = app.raflow.version,
+            RAID = app.raflow.Flow.ID,
+            REFNO = app.raflow.Flow.UserRefNo,
+            FLAGS = app.raflow.Flow.Data.meta.RAFLAGS;
+        ChangeRAFlowVersionToolbar(VERSION,RAID,REFNO,FLAGS);
+    }
+
     setTimeout(function() {
         // Enable/Disable green check
         FlowFilled(data.record);
