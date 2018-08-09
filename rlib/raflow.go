@@ -411,11 +411,13 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 					a[i].SpecialNeeds = "None"
 				}
 			}
-
 		}
 
 		// MODIFIED PART DATA
 		raFlowData.People = a
+
+		// SYNC TIE RECORDS ON CHANGE OF PEOPLE
+		SyncTieRecords(&raFlowData)
 
 	case PetsRAFlowPart:
 		a := []RAPetsFlowData{}
@@ -527,6 +529,12 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 		// MODIFIED PART DATA
 		raFlowData.Rentables = a
 
+		// SYNC PARENT-CHILD RECORDS
+		SyncParentChildRecords(&raFlowData)
+
+		// SYNC TIE RECORDS
+		SyncTieRecords(&raFlowData)
+
 	case ParentChildRAFlowPart:
 		a := []RAParentChildFlowData{}
 
@@ -565,6 +573,31 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 		return
 	}
 
+	// LOOK FOR DATA CHANGES
+	var originData RAFlowJSONData
+	err = json.Unmarshal(flow.Data, &originData)
+	if err != nil {
+		return
+	}
+
+	// IF THERE ARE NO DATA CHANGES THEN JUST RETURN
+	if reflect.DeepEqual(originData, raFlowData) {
+		return
+	}
+
+	//  IF DATA HAS BEEN CHANGED, RESET META AND SET STATE TO APP BEING COMPLETED
+
+	resetMeta := RAFlowMetaInfo{
+		RAID:         raFlowData.Meta.RAID,
+		LastTMPPETID: raFlowData.Meta.LastTMPPETID,
+		LastTMPVID:   raFlowData.Meta.LastTMPVID,
+		LastTMPTCID:  raFlowData.Meta.LastTMPTCID,
+		LastTMPASMID: raFlowData.Meta.LastTMPASMID,
+		HavePets:     raFlowData.Meta.HavePets,
+		HaveVehicles: raFlowData.Meta.HaveVehicles,
+	}
+	raFlowData.Meta = resetMeta
+
 	// GET JSON DATA FROM THE STRUCT
 	var modFlowData []byte
 	modFlowData, err = json.Marshal(&raFlowData)
@@ -577,6 +610,115 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 
 	// NOW UPDATE THE WHOLE FLOW
 	return UpdateFlow(ctx, flow)
+}
+
+// SyncParentChildRecords modifies parent-child list cause of on change of rentable records
+func SyncParentChildRecords(raFlowData *RAFlowJSONData) {
+	const (
+		childRentableBit = 1 // 0 = NO > can't be child, 1 = Yes > can be child
+	)
+
+	// IF NO PEOPLE IN TIE THEN
+	if len(raFlowData.ParentChild) == 0 {
+		raFlowData.ParentChild = []RAParentChildFlowData{}
+	}
+
+	// GET ALL PARENT RENTABLES FIRST
+	parentRentables := []RARentablesFlowData{}
+	for i := range raFlowData.Rentables {
+		if raFlowData.Rentables[i].RTFLAGS&(1<<childRentableBit) == 0 {
+			parentRentables = append(parentRentables, raFlowData.Rentables[i])
+		}
+	}
+
+	// CHILD RENTABLES
+	for i := range raFlowData.Rentables {
+		if raFlowData.Rentables[i].RTFLAGS&(1<<childRentableBit) != 0 {
+			found := false
+			for k := range raFlowData.ParentChild {
+				if raFlowData.ParentChild[k].CRID == raFlowData.Rentables[i].RID {
+					found = true
+
+					// IF ONLY ONE RENTABLE THEN ASSIGN IT'S RID IN ALL TIE PEOPLE ENTRIES
+					if len(parentRentables) == 1 {
+						raFlowData.ParentChild[k].PRID = parentRentables[0].RID
+					}
+				}
+			}
+
+			// IF ENTRY NOT FOUND THEN APPEND
+			if !found {
+				n := RAParentChildFlowData{
+					BID:  0, // WILL BE REMOVED
+					PRID: 0,
+					CRID: raFlowData.Rentables[i].RID,
+				}
+
+				// IF ONLY ONE RENTABLE THEN ASSIGN IT'S RID IN ALL TIE PEOPLE ENTRIES
+				if len(parentRentables) == 1 {
+					n.PRID = parentRentables[0].RID
+				}
+
+				// APPEND
+				raFlowData.ParentChild = append(raFlowData.ParentChild, n)
+			}
+		}
+	}
+}
+
+// SyncTieRecords modifies tie records cause of on change of people or rentable records
+func SyncTieRecords(raFlowData *RAFlowJSONData) {
+	const (
+		childRentableBit = 1 // 0 = NO > can't be child, 1 = Yes > can be child
+	)
+
+	// IF NO PEOPLE IN TIE THEN
+	if len(raFlowData.Tie.People) == 0 {
+		raFlowData.Tie.People = []RATiePeopleData{}
+	}
+
+	// GET ALL PARENT RENTABLES FIRST
+	parentRentables := []RARentablesFlowData{}
+	for i := range raFlowData.Rentables {
+		if raFlowData.Rentables[i].RTFLAGS&(1<<childRentableBit) == 0 {
+			parentRentables = append(parentRentables, raFlowData.Rentables[i])
+		}
+	}
+
+	for i := range raFlowData.People {
+		// TIE RECORD SYNC FOR OCCUPANTS
+		if raFlowData.People[i].IsOccupant {
+			personFound := false
+			for k := range raFlowData.Tie.People {
+				if raFlowData.Tie.People[k].TMPTCID == raFlowData.People[i].TMPTCID {
+					personFound = true
+
+					// IF ONLY ONE RENTABLE THEN ASSIGN IT'S RID IN ALL TIE PEOPLE ENTRIES
+					if len(parentRentables) == 1 {
+						raFlowData.Tie.People[k].PRID = parentRentables[0].RID
+					}
+
+					break
+				}
+			}
+
+			// IF PERSON NOT FOUND THEN ADD ENTRY IN TIE
+			if !personFound {
+				tiePerson := RATiePeopleData{
+					BID:     0, // WILL BE REMOVED
+					TMPTCID: raFlowData.People[i].TMPTCID,
+					PRID:    0,
+				}
+
+				// IF ONLY ONE RENTABLE THEN ASSIGN IT'S RID IN ALL TIE PEOPLE ENTRIES
+				if len(parentRentables) == 1 {
+					tiePerson.PRID = parentRentables[0].RID
+				}
+
+				raFlowData.Tie.People = append(raFlowData.Tie.People, tiePerson)
+			}
+		}
+	}
 }
 
 // possessDateChangeRAFlowUpdates updates raflow json with required
