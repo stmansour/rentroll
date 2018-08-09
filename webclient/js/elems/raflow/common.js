@@ -284,14 +284,6 @@ window.saveActiveCompData = function (compData, compID) {
                 console.log("data has been saved for: ", FlowID, ", compID: ", compID);
                 // Update flow local copy and green checks
                 updateFlowData(data);
-
-                // get info from local copy and refresh toolbar
-                var VERSION = app.raflow.version,
-                    RAID = app.raflow.Flow.ID,
-                    REFNO = app.raflow.Flow.UserRefNo,
-                    FLAGS = app.raflow.Flow.Data.meta.RAFLAGS;
-                ChangeRAFlowVersionToolbar(VERSION,RAID,REFNO,FLAGS);
-
             } else {
                 console.error(data.message);
             }
@@ -394,6 +386,16 @@ window.HideRAFlowLoader = function(hide) {
 // updateFlowData
 window.updateFlowData = function(data){
     updateFlowCopy(data.record.Flow);
+
+    if(!jQuery.isEmptyObject(app.raflow.Flow)) {
+        // get info from local copy and refresh toolbar
+        var VERSION = app.raflow.version,
+            RAID = app.raflow.Flow.ID,
+            REFNO = app.raflow.Flow.UserRefNo,
+            FLAGS = app.raflow.Flow.Data.meta.RAFLAGS;
+        ChangeRAFlowVersionToolbar(VERSION,RAID,REFNO,FLAGS);
+    }
+
     setTimeout(function() {
         // Enable/Disable green check
         FlowFilled(data.record);
