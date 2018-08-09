@@ -411,11 +411,13 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 					a[i].SpecialNeeds = "None"
 				}
 			}
-
 		}
 
 		// MODIFIED PART DATA
 		raFlowData.People = a
+
+		// SYNC TIE RECORDS ON CHANGE OF PEOPLE
+		SyncTieRecords(&raFlowData)
 
 	case PetsRAFlowPart:
 		a := []RAPetsFlowData{}
@@ -613,6 +615,49 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 
 	// NOW UPDATE THE WHOLE FLOW
 	return UpdateFlow(ctx, flow)
+}
+
+// SyncTieRecords change the records on change of people or rentable records
+func SyncTieRecords(raFlowData *RAFlowJSONData) {
+	// IF NOT PEOPLE IN TIE THEN
+	if len(raFlowData.Tie.People) == 0 {
+		raFlowData.Tie.People = []RATiePeopleData{}
+	}
+
+	for i := range raFlowData.People {
+		// TIE RECORD SYNC FOR OCCUPANTS
+		if raFlowData.People[i].IsOccupant {
+			personFound := false
+			for k := range raFlowData.Tie.People {
+				if raFlowData.Tie.People[k].TMPTCID == raFlowData.People[i].TMPTCID {
+					personFound = true
+
+					// IF ONLY ONE RENTABLE THEN ASSIGN IT'S RID IN ALL TIE PEOPLE ENTRIES
+					if len(raFlowData.Rentables) == 1 {
+						raFlowData.Tie.People[k].PRID = raFlowData.Rentables[0].RID
+					}
+
+					break
+				}
+			}
+
+			// IF PERSON NOT FOUND THEN ADD ENTRY IN TIE
+			if !personFound {
+				tiePerson := RATiePeopleData{
+					BID:     0,
+					TMPTCID: raFlowData.People[i].TMPTCID,
+					PRID:    0,
+				}
+
+				// IF ONLY ONE RENTABLE THEN ASSIGN IT'S RID IN ALL TIE PEOPLE ENTRIES
+				if len(raFlowData.Rentables) == 1 {
+					tiePerson.PRID = raFlowData.Rentables[0].RID
+				}
+
+				raFlowData.Tie.People = append(raFlowData.Tie.People, tiePerson)
+			}
+		}
+	}
 }
 
 // possessDateChangeRAFlowUpdates updates raflow json with required
