@@ -424,8 +424,11 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 	// PERFORM BASIC VALIDATION ON FLOW DATA
 	bizlogic.ValidateRAFlowBasic(ctx, &raFlowData, &raflowRespData.BasicCheck)
 
-	// Perform Bizlogic check validation on RAFlow
-	bizlogic.ValidateRAFlowBizLogic(ctx, &raFlowData, &raflowRespData.BasicCheck, flow.ID)
+	// If basic error count is zero then perform bizLogic validations
+	if raflowRespData.BasicCheck.Total == 0 {
+		// Perform Bizlogic check validation on RAFlow
+		bizlogic.ValidateRAFlowBizLogic(ctx, &raFlowData, &raflowRespData.BasicCheck, flow.ID)
+	}
 
 	// CHECK DATA FULFILLED
 	bizlogic.DataFulfilledRAFlow(ctx, &raFlowData, &raflowRespData.DataFulfilled)
@@ -435,7 +438,6 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 			raflowRespData.DataFulfilled.Pets && raflowRespData.DataFulfilled.Vehicles &&
 			raflowRespData.DataFulfilled.Rentables && raflowRespData.DataFulfilled.ParentChild &&
 			raflowRespData.DataFulfilled.Tie) {
-		fmt.Println("**************** BasicCheck.Total:", raflowRespData.BasicCheck.Total)
 		return raflowRespData, nil
 	}
 
