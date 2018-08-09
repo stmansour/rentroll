@@ -416,6 +416,7 @@ window.FeeFormOnChangeHandler = function(feeForm, field, newValue) {
             feeForm.get("RentCycleText").options.selected = rentCycleW2UISel;
             feeForm.record.RentCycleText = rentCycleW2UISel;
             feeForm.refresh();
+            feeForm.refresh();
 
             // When RentCycle is Norecur then disable the RentCycle list field.
             var isDisabled = feeForm.record.RentCycleText.text === app.cycleFreq[0];

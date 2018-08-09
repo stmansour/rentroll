@@ -47,11 +47,13 @@ func GetRAFlowInitialPetFees(ctx context.Context,
 	for i := range petBizFees {
 		raFee := RAFeesData{ContractAmount: petBizFees[i].Amount}
 		MigrateStructVals(&petBizFees[i], &raFee)
+		raFee.RentCycle = petBizFees[i].ARRentCycle
+		raFee.ProrationCycle = petBizFees[i].ARProrationCycle
 		petFees = append(petFees, raFee)
 	}
 
 	// GET CALCULATED FEES FROM THIS BIZ CONIGURED FEES
-	fees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName, rStart, rStop, petFees)
+	fees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName, rStart, rStop, petFees, false)
 	if err != nil {
 		return
 	}
@@ -106,11 +108,13 @@ func GetRAFlowInitialVehicleFees(ctx context.Context,
 	for i := range vehicleBizFees {
 		raFee := RAFeesData{ContractAmount: vehicleBizFees[i].Amount}
 		MigrateStructVals(&vehicleBizFees[i], &raFee)
+		raFee.RentCycle = vehicleBizFees[i].ARRentCycle
+		raFee.ProrationCycle = vehicleBizFees[i].ARProrationCycle
 		vehicleFees = append(vehicleFees, raFee)
 	}
 
 	// GET CALCULATED FEES FROM THIS BIZ CONIGURED FEES
-	fees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName, rStart, rStop, vehicleFees)
+	fees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName, rStart, rStop, vehicleFees, false)
 	if err != nil {
 		return
 	}
@@ -129,10 +133,13 @@ func GetRAFlowInitialVehicleFees(ctx context.Context,
 func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName string,
 	rStart, rStop time.Time,
 	baseFees []RAFeesData,
+	removeOneTimeCharge bool,
 ) (fees []RAFeesData, err error) {
 
 	const funcname = "GetCalculatedFeesFromBaseFees"
-	fmt.Printf("Entered in %s\n", funcname)
+	fmt.Printf("Entered in %s, \n", funcname)
+	// fmt.Printf("%s: removeOneTimeCharge: %t, rStart: %s, rStop: %s\n", funcname,
+	// 	removeOneTimeCharge, rStart.Format(RRDATEFMT3), rStop.Format(RRDATEFMT3))
 
 	// INITIALIZE FEES
 	fees = []RAFeesData{}
@@ -149,8 +156,7 @@ func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName s
 
 		// GET RENT, PRORATION CYCLE
 		RentCycle := baseFee.RentCycle
-		// TODO(Sudip): IF PRORATIONCYCLE WILL BE ADDED IN FEES THEN TAKE THAT
-		ProrationCycle := ar.DefaultProrationCycle
+		ProrationCycle := baseFee.ProrationCycle
 
 		// ========================================================================
 		// GET EPOCH BASED ON RENTCYCLE FOR THIS BASE FEE
@@ -176,7 +182,7 @@ func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName s
 		oneTimeCharge := (ar.FLAGS & (1 << 6)) != 0
 		rentAsmCharge := (ar.FLAGS & (1 << 4)) != 0
 
-		if oneTimeCharge {
+		if oneTimeCharge && !removeOneTimeCharge {
 			// ADD FEE IN LIST
 			raFee := RAFeesData{
 				TMPASMID:        0,
@@ -193,7 +199,6 @@ func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName s
 				Comment:         "",
 			}
 			fees = append(fees, raFee)
-
 		} else if rentAsmCharge { // IT MUST BE RENT ASM ONE
 
 			// CHECK FOR PRORATED AMOUNT REQUIRED
