@@ -279,6 +279,7 @@ type RAFeesData struct {
 	ARName          string   `validate:"string,min=1,max=100"`
 	ContractAmount  float64  `validate:"number:float,min=0.00"`
 	RentCycle       int64    `validate:"number,min=0"`
+	ProrationCycle  int64    `validate:"number,min=0"`
 	Start           JSONDate `validate:"date"`
 	Stop            JSONDate `validate:"date"`
 	AtSigningPreTax float64  `validate:"number:float,min=0.00"`
