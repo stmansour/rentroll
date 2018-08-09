@@ -5,7 +5,8 @@
     lockOnGrid, getApprovals, updateFlowData, updateFlowCopy, displayErrorDot, initBizErrors,
     dispalyRARentablesGridError, dispalyRAVehiclesGridError, dispalyRAParentChildGridError, dispalyRATiePeopleGridError,
     GetCurrentFlowID, FlowFilled, ReassignPeopleGridRecords, AssignPetsGridRecords, AssignVehiclesGridRecords, AssignRentableGridRecords,
-    GetGridToolbarAddButtonID, HideRAFlowLoader, toggleNonFieldsErrorDisplay, displayErrorSummary, submitActionForm, displayGreenCircle
+    GetGridToolbarAddButtonID, HideRAFlowLoader, toggleNonFieldsErrorDisplay, displayErrorSummary, submitActionForm, displayGreenCircle,
+    modifyFieldErrorMessage
 */
 
 "use strict";
@@ -710,9 +711,33 @@ window.displayFormFieldsError = function(index, records, formName){
         var field = $("[name=" + formName + "] input#" + key);
         var error = records[index].errors[key].join(", ");
 
+        // Customize error for list input fields or if any other fields require
+        var modifiedError = modifyFieldErrorMessage(key);
+        if(modifiedError !== ""){
+            error = modifiedError;
+        }
+
         field.css("border-color", "red");
         field.after("<small class='error'>" + error + "</small>");
     }
+};
+
+// ---------------------------------------------------------------------
+// modifyFieldErrorMessage - It modifies error message for key field
+// ---------------------------------------------------------------------
+window.modifyFieldErrorMessage = function(key){
+    var error = "";
+    switch (key){
+        case "SourceSLSID":
+            error = "please select a source";
+            break;
+        case "ARID":
+            error = "please select an account rule";
+            break;
+        default:
+            error = "";
+    }
+    return error;
 };
 
 // getFeeIndex it return an index of fee which have TMPASMID
