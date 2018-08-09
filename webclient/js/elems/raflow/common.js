@@ -240,8 +240,6 @@ window.getRAFlowCompData = function (compKey) {
 //-----------------------------------------------------------------------------
 window.setRAFlowCompData = function (compKey, data) {
 
-    var bid = getCurrentBID();
-
     var flowJSON = app.raflow.Flow;
     if (flowJSON.Data) {
         flowJSON.Data[compKey] = data;
