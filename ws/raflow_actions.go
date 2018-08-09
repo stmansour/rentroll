@@ -407,7 +407,7 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 		return raflowRespData, err
 	}
 	if flow.FlowID <= 0 {
-		err = fmt.Errorf("rental Agreement Flow not found with given Customer Reference No.: %s", UserRefNo)
+		err = fmt.Errorf("Rental Agreement Flow not found with given Customer Reference No.: %s", UserRefNo)
 		return raflowRespData, err
 	}
 
@@ -422,18 +422,18 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 	raflowRespData.Flow = flow
 
 	// PERFORM BASIC VALIDATION ON FLOW DATA
-	bizlogic.ValidateRAFlowBasic(ctx, &raFlowData, &raflowRespData.ValidationCheck)
+	bizlogic.ValidateRAFlowBasic(ctx, &raFlowData, &raflowRespData.BasicCheck)
 
 	// If basic error count is zero then perform bizLogic validations
-	if raflowRespData.ValidationCheck.Total == 0 {
+	if raflowRespData.BasicCheck.Total == 0 {
 		// Perform Bizlogic check validation on RAFlow
-		bizlogic.ValidateRAFlowBizLogic(ctx, &raFlowData, &raflowRespData.ValidationCheck, flow.ID)
+		bizlogic.ValidateRAFlowBizLogic(ctx, &raFlowData, &raflowRespData.BasicCheck, flow.ID)
 	}
 
 	// CHECK DATA FULFILLED
 	bizlogic.DataFulfilledRAFlow(ctx, &raFlowData, &raflowRespData.DataFulfilled)
 
-	if raflowRespData.ValidationCheck.Total > 0 ||
+	if raflowRespData.BasicCheck.Total > 0 ||
 		!(raflowRespData.DataFulfilled.Dates && raflowRespData.DataFulfilled.People &&
 			raflowRespData.DataFulfilled.Pets && raflowRespData.DataFulfilled.Vehicles &&
 			raflowRespData.DataFulfilled.Rentables && raflowRespData.DataFulfilled.ParentChild &&
