@@ -420,8 +420,8 @@ window.updateFlowCopy = function(flow){
 // -----------------------------------------------------
 window.FlowFilled = function(data) {
 
-    // Update local copy of basicCheck and FlowFilledData
-    app.raflow.basicCheck = data.BasicCheck;
+    // Update local copy of validationCheck and FlowFilledData
+    app.raflow.validationCheck = data.ValidationCheck;
     app.raflow.FlowFilledData = data.DataFulfilled;
 
     displayGreenCircle();
