@@ -580,26 +580,15 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 	}
 
 	//  IF DATA HAS BEEN CHANGED, RESET META AND SET STATE TO APP BEING COMPLETED
-	// SESSION NOT FOUND THEN
-	sess, _ := sessionCheck(ctx)
-	ApplicationReadyUID := sess.UID
-	person, err := GetDirectoryPerson(ctx, ApplicationReadyUID)
-	if err != nil {
-		return
-	}
-	ApplicationReadyName := person.DisplayName()
 
 	resetMeta := RAFlowMetaInfo{
-		RAID:                 raFlowData.Meta.RAID,
-		LastTMPPETID:         raFlowData.Meta.LastTMPPETID,
-		LastTMPVID:           raFlowData.Meta.LastTMPVID,
-		LastTMPTCID:          raFlowData.Meta.LastTMPTCID,
-		LastTMPASMID:         raFlowData.Meta.LastTMPASMID,
-		HavePets:             raFlowData.Meta.HavePets,
-		HaveVehicles:         raFlowData.Meta.HaveVehicles,
-		ApplicationReadyUID:  ApplicationReadyUID,
-		ApplicationReadyName: ApplicationReadyName,
-		ApplicationReadyDate: JSONDateTime(time.Now().UTC()),
+		RAID:         raFlowData.Meta.RAID,
+		LastTMPPETID: raFlowData.Meta.LastTMPPETID,
+		LastTMPVID:   raFlowData.Meta.LastTMPVID,
+		LastTMPTCID:  raFlowData.Meta.LastTMPTCID,
+		LastTMPASMID: raFlowData.Meta.LastTMPASMID,
+		HavePets:     raFlowData.Meta.HavePets,
+		HaveVehicles: raFlowData.Meta.HaveVehicles,
 	}
 	raFlowData.Meta = resetMeta
 
