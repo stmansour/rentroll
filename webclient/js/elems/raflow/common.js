@@ -857,7 +857,7 @@ window.displayErrorSummary = function (comp) {
         var non_fields_errors_count = app.raflow.validationCheck.nonFieldsErrors[comp].length;
 
         // Update error count for form error and non fields error
-        $("#field-errors-count").html(form_errors_count); // TODO(Akshay): Manage for date section
+        $("#field-errors-count").html(form_errors_count); // TODO(Akshay): Manage for date, tie-people section
         $("#non-field-errors-count").html(non_fields_errors_count);
 
         // If there are any non fields errors than display dropdown icon. Via it can expand non-fields-error summary
