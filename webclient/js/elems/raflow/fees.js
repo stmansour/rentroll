@@ -362,6 +362,13 @@ window.FeeFormOnRefreshHandler = function(feeForm) {
     } else {
         $(feeForm.box).find("input[name=Stop]").prop("disabled", false);
     }
+
+    // HIDE DELETE BUTTON IF RECORD IS NEW
+    if (feeForm.record.TMPASMID === 0) {
+        $(feeForm.box).find("div[class=w2ui-buttons] button[name=delete]").hide();
+    } else {
+        $(feeForm.box).find("div[class=w2ui-buttons] button[name=delete]").show();
+    }
 };
 
 // -------------------------------------------------------------------------------
