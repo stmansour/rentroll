@@ -107,6 +107,7 @@ func UpdateAssessmentEndDate(ctx context.Context, a *rlib.Assessment, dt *time.T
 	//--------------------------------------------------------------------------
 	// First, the easy part... change the stop date of the recurring definition
 	//--------------------------------------------------------------------------
+	origStopDate := a.Stop
 	a.Stop = *dt
 	err := rlib.UpdateAssessment(ctx, a)
 	if err != nil {
@@ -117,15 +118,18 @@ func UpdateAssessmentEndDate(ctx context.Context, a *rlib.Assessment, dt *time.T
 	// Now, check to see if there is an instance for the period containing dt
 	//--------------------------------------------------------------------------
 	e := time.Date(dt.Year(), dt.Month(), dt.Day(), 0, 0, 0, 0, time.UTC)
-	ok, epoch := rlib.GetEpochFromBaseDate(e, a.Start, a.Stop, a.RentCycle)
+	rlib.Console("e = %s, a.Start = %s, Stop = %s\n", e.Format(rlib.RRDATEREPORTFMT), a.Start.Format(rlib.RRDATEREPORTFMT), origStopDate.Format(rlib.RRDATEREPORTFMT))
+	ok, epoch := rlib.GetEpochFromBaseDate(a.Start, e, origStopDate, a.RentCycle)
 	if !ok {
 		return fmt.Errorf("UpdateAssessmentEndDate for ASMID=%d, received ok=false from GetEpochFromBaseDate", a.ASMID)
 	}
+	rlib.Console("UpdateAssessmentEndDate: dt = %s, epoch = %s\n", dt.Format(rlib.RRDATEREPORTFMT), epoch.Format(rlib.RRDATEREPORTFMT))
 	if epoch.Equal(e) {
 		// TODO: validate this case
 	} else {
 		// epoch is the end datetime of the next cycle, get the start date/time
 		d1 := rlib.GetPreviousInstance(epoch, a.RentCycle)
+		rlib.Console("d1 = %s\n", d1.Format(rlib.RRDATEREPORTFMT))
 		// do we have an instance of assessment a in the time range [d1,epoch)
 		ai, err := rlib.GetAssessmentInstance(ctx, &d1, a.ASMID)
 		if err != nil {
@@ -135,6 +139,7 @@ func UpdateAssessmentEndDate(ctx context.Context, a *rlib.Assessment, dt *time.T
 			return nil // we're done, there was no instance found
 		}
 		// found an instance, we need to prorate this instance
+		rlib.Console("Found instance to prorate: ASMID = %d\n", ai.ASMID)
 		amount, n, p := rlib.SimpleProrateAmount(ai.Amount, ai.RentCycle, ai.ProrationCycle, &ai.Start, dt, &ai.Start)
 		ai.Amount = amount
 		if len(ai.Comment) > 0 {

@@ -79,7 +79,7 @@ func Flow2RA(ctx context.Context, flowid int64) (int64, error) {
 			return nraid, err
 		}
 
-		rlib.Console("\tData changes found = %d\n", changes)
+		rlib.Console("\tData changes found = %t\n", changes)
 		//-----------------------------------------------------------------------
 		// If there were changes to the data, create an amended Rental Agreement
 		//-----------------------------------------------------------------------

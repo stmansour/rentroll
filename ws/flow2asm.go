@@ -56,45 +56,46 @@ func Fees2RA(ctx context.Context, x *WriteHandlerContext) error {
 		}
 	}
 
-	//--------------------------------------------------
-	// Adjust assessments as needed on the old RAID
-	//--------------------------------------------------
-	if x.raOrig.RAID > 0 {
-		if err = AdjustOldRAIDAssessments(ctx, x); err != nil {
-			return err
-		}
-	}
+	//--------------------------------------------------------------------------
+	// Now clean up any assessments that are associated with the old RAID but
+	// that have not been updated as part of any fee in the new RAID.
+	//--------------------------------------------------------------------------
+	CleanUpRemainingAssessments(ctx, x)
 
 	return nil
 }
 
-// AdjustOldRAIDAssessments adjusts dates on recurring assessments of the old
-// RAID and prorates assessment instances that occur during the period of
-// the RentStart date of the new agreement.
+// CleanUpRemainingAssessments handles all the assessments associated with the
+// original RAID that were not found while handling the amended RAID.
+//
 //
 // INPUTS
-//     ctx    - db context for transactions
-//     x - all the contextual info we need for performing this operation
+//     ctx  - db context for transactions
+//     x    - all the contextual info we need for performing this operation
 //
 // RETURNS
 //     Any errors encountered
 //-----------------------------------------------------------------------------
-func AdjustOldRAIDAssessments(ctx context.Context, x *WriteHandlerContext) error {
-	//-------------------------------------------------
-	// Adjust recurring assessment definitions
-	//-------------------------------------------------
-	m, err := rlib.GetRecurringAssessmentDefsByRAID(ctx, x.raOrig.RAID, &x.ra.RentStart, &x.ra.RentStop)
+func CleanUpRemainingAssessments(ctx context.Context, x *WriteHandlerContext) error {
+	//--------------------------------------------------------------------------
+	// Get the list of any assessments associated with the old rental agreement
+	// that overlap the time range of the new rental agreement.
+	//--------------------------------------------------------------------------
+	m, err := rlib.GetAssessmentInstancesByRAID(ctx, x.raOrig.RAID, x.ra.RentStart, x.ra.RentStop)
 	if err != nil {
 		return err
 	}
 	for _, v := range m {
-		v.Stop = x.ra.RentStart                                  // it stops on this date
-		err = bizlogic.UpdateAssessmentEndDate(ctx, &v, &v.Stop) // this adjusts the instance containing dt if needed
-		if err != nil {
-			return err
+		// If it is a non-recurring assessment, reverse it.
+		if v.RentCycle == rlib.RECURNONE {
+			be := bizlogic.ReverseAssessment(ctx, &v, 0, &x.ra.RentStart)
+			if len(be) > 0 {
+				return bizlogic.BizErrorListToError(be)
+			}
 		}
+
+		// If it is a recurring assessment, stop it.
 	}
-	return nil
 }
 
 // F2RASaveFee handles all the updates necessary to move the
@@ -222,7 +223,7 @@ func F2RASaveNewFee(ctx context.Context, x *WriteHandlerContext, fee *rlib.RAFee
 //     Any errors encountered
 //-----------------------------------------------------------------------------
 func F2RAUpdateExistingAssessment(ctx context.Context, x *WriteHandlerContext, fee *rlib.RAFeesData, eltype, id, tmptcid int64) error {
-	// rlib.Console("Entered F2RAUpdateExistingAssessment\n")
+	rlib.Console("Entered F2RAUpdateExistingAssessment\n")
 	if fee.ASMID == int64(0) {
 		return fmt.Errorf("fee.ASMID must be > 0")
 	}
@@ -251,9 +252,15 @@ func F2RAUpdateExistingAssessment(ctx context.Context, x *WriteHandlerContext, f
 	// If it's recurring we'll just stop it on the start date of the new
 	// rental agreement
 	//-------------------------------------------------------------------
-	a.Stop = dt
-	if err = rlib.UpdateAssessment(ctx, &a); err != nil {
-		return err
+	if a.RentCycle > rlib.RECURNONE {
+		err = bizlogic.UpdateAssessmentEndDate(ctx, &a, &dt)
+		if err != nil {
+			return err
+		}
+		// a.Stop = dt
+		// if err = rlib.UpdateAssessment(ctx, &a); err != nil {
+		// 	return err
+		// }
 	}
 
 	err = F2RASaveNewFee(ctx, x, fee, eltype, id, tmptcid)
