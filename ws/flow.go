@@ -319,6 +319,9 @@ func SvcWriteFlowResponse(ctx context.Context, BID int64, flow rlib.Flow, w http
 		return
 	}
 
+	// CHECK DATA FULFILLED
+	bizlogic.DataFulfilledRAFlow(ctx, &raFlowData, &raflowRespData.DataFulfilled)
+
 	// PERFORM BASIC VALIDATION ON FLOW DATA
 	bizlogic.ValidateRAFlowBasic(ctx, &raFlowData, &raflowRespData.ValidationCheck)
 
@@ -327,9 +330,6 @@ func SvcWriteFlowResponse(ctx context.Context, BID int64, flow rlib.Flow, w http
 		// Perform Bizlogic check validation on RAFlow
 		bizlogic.ValidateRAFlowBizLogic(ctx, &raFlowData, &raflowRespData.ValidationCheck, flow.ID)
 	}
-
-	// CHECK DATA FULFILLED
-	bizlogic.DataFulfilledRAFlow(ctx, &raFlowData, &raflowRespData.DataFulfilled)
 
 	resp.Record = raflowRespData
 	resp.Status = "success"

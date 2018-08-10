@@ -565,6 +565,9 @@ window.loadRAPetsGrid = function () {
 
                                 // close the form
                                 HideSliderContent();
+
+                                // Unselect all selected record from the grid
+                                w2ui.RAPetsGrid.selectNone();
                             } else {
                                 f.message(data.message);
                             }

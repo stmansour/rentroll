@@ -4,7 +4,7 @@
     saveActiveCompData, getRAFlowCompData, displayActiveComponentError, displayRAPetsGridError, dispalyRAPeopleGridError,
     lockOnGrid, getApprovals, updateFlowData, updateFlowCopy, displayErrorDot, initBizErrors,
     dispalyRARentablesGridError, dispalyRAVehiclesGridError, dispalyRAParentChildGridError, dispalyRATiePeopleGridError,
-    GetCurrentFlowID, FlowFilled, ReassignPeopleGridRecords, AssignPetsGridRecords, AssignVehiclesGridRecords, AssignRentableGridRecords,
+    GetCurrentFlowID, ReassignPeopleGridRecords, AssignPetsGridRecords, AssignVehiclesGridRecords, AssignRentableGridRecords,
     GetGridToolbarAddButtonID, HideRAFlowLoader, toggleNonFieldsErrorDisplay, displayErrorSummary, submitActionForm, displayGreenCircle,
     modifyFieldErrorMessage,ChangeRAFlowVersionToolbar
 */
@@ -387,6 +387,13 @@ window.HideRAFlowLoader = function(hide) {
 window.updateFlowData = function(data){
     updateFlowCopy(data.record.Flow);
 
+    // Update local copy of validation check
+    app.raflow.validationCheck = data.record.ValidationCheck;
+
+    // Update local copy of FlowFilledData
+    app.raflow.FlowFilledData = data.record.DataFulfilled;
+
+
     if(!jQuery.isEmptyObject(app.raflow.Flow)) {
         // get info from local copy and refresh toolbar
         var VERSION = app.raflow.version,
@@ -398,7 +405,10 @@ window.updateFlowData = function(data){
 
     setTimeout(function() {
         // Enable/Disable green check
-        FlowFilled(data.record);
+        displayGreenCircle();
+
+        // Update error summary
+        displayActiveComponentError();
     }, 500);
 };
 
@@ -420,21 +430,6 @@ window.updateFlowCopy = function(flow){
             return;
         }
     });
-};
-
-// -----------------------------------------------------
-// FlowFilled:
-// Enable/Disable green checks
-// Enable/Disable get approvals button
-// raflow parts
-// -----------------------------------------------------
-window.FlowFilled = function(data) {
-
-    // Update local copy of validationCheck and FlowFilledData
-    app.raflow.validationCheck = data.ValidationCheck;
-    app.raflow.FlowFilledData = data.DataFulfilled;
-
-    displayGreenCircle();
 };
 
 // -----------------------------------------------------

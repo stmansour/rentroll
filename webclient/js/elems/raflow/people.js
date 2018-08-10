@@ -350,6 +350,9 @@ window.loadRAPeopleForm = function () {
                             // close the form
                             HideSliderContent();
 
+                            // unselect all selected record
+                            w2ui.RAPeopleGrid.selectNone();
+
                             // update RAPeopleGrid
                             ReassignPeopleGridRecords();
                         } else {
@@ -538,8 +541,8 @@ window.removeRAFlowPersonAJAX = function (TMPTCID) {
         dataType: "json",
         data: JSON.stringify(data),
         success: function (data) {
-            if (data.status != "error") {
-                // Update flow local copy and green checks
+            if (data.status !== "error") {
+                // Update flow response local copy and green checks
                 updateFlowData(data);
             } else {
                 console.error(data.message);
