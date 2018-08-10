@@ -250,6 +250,7 @@ window.buildRAApplicantElements = function() {
                                 var BID = getCurrentBID();
                                 var BUD = getBUDfromBID(BID);
                                 getStringListData(BID, BUD);
+                                initBizErrors();
                             }
                         })
                         .fail(function() {

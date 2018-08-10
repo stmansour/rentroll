@@ -4,7 +4,7 @@
     saveActiveCompData, getRAFlowCompData, displayActiveComponentError, displayRAPetsGridError, dispalyRAPeopleGridError,
     lockOnGrid, getApprovals, updateFlowData, updateFlowCopy, displayErrorDot, initBizErrors,
     dispalyRARentablesGridError, dispalyRAVehiclesGridError, dispalyRAParentChildGridError, dispalyRATiePeopleGridError,
-    GetCurrentFlowID, FlowFilled, ReassignPeopleGridRecords, AssignPetsGridRecords, AssignVehiclesGridRecords, AssignRentableGridRecords,
+    GetCurrentFlowID, ReassignPeopleGridRecords, AssignPetsGridRecords, AssignVehiclesGridRecords, AssignRentableGridRecords,
     GetGridToolbarAddButtonID, HideRAFlowLoader, toggleNonFieldsErrorDisplay, displayErrorSummary, submitActionForm, displayGreenCircle,
     modifyFieldErrorMessage,ChangeRAFlowVersionToolbar
 */
@@ -134,12 +134,12 @@ $(document).on('click', '#ra-form #save-ra-flow-btn', function () {
 
         app.raflow.validationErrors = {
             dates: data.errors.dates.total > 0 || data.nonFieldsErrors.dates.length > 0,
-            people: data.errors.people.length > 0 || data.nonFieldsErrors.people.length > 0,
-            pets: data.errors.pets.length > 0 || data.nonFieldsErrors.pets.length > 0,
-            vehicles: data.errors.vehicles.length > 0 || data.nonFieldsErrors.vehicles.length > 0,
-            rentables: data.errors.rentables.length > 0 || data.nonFieldsErrors.rentables.length > 0,
-            parentchild: data.errors.parentchild.length > 0 || data.nonFieldsErrors.parentchild.length > 0,
-            tie: data.errors.tie.people.length > 0 || data.nonFieldsErrors.tie.length > 0
+            people: data.errors.people.total > 0 || data.nonFieldsErrors.people.length > 0,
+            pets: data.errors.pets.total > 0 || data.nonFieldsErrors.pets.length > 0,
+            vehicles: data.errors.vehicles.total > 0 || data.nonFieldsErrors.vehicles.length > 0,
+            rentables: data.errors.rentables.total > 0 || data.nonFieldsErrors.rentables.length > 0,
+            parentchild: data.errors.parentchild.total > 0 || data.nonFieldsErrors.parentchild.length > 0,
+            tie: data.errors.tie.people.total > 0 || data.nonFieldsErrors.tie.length > 0
         };
 
         displayErrorDot();
@@ -425,6 +425,13 @@ window.HideRAFlowLoader = function(hide) {
 window.updateFlowData = function(data){
     updateFlowCopy(data.record.Flow);
 
+    // Update local copy of validation check
+    app.raflow.validationCheck = data.record.ValidationCheck;
+
+    // Update local copy of FlowFilledData
+    app.raflow.FlowFilledData = data.record.DataFulfilled;
+
+
     if(!jQuery.isEmptyObject(app.raflow.Flow)) {
         // get info from local copy and refresh toolbar
         var VERSION = app.raflow.version,
@@ -436,7 +443,10 @@ window.updateFlowData = function(data){
 
     setTimeout(function() {
         // Enable/Disable green check
-        FlowFilled(data.record);
+        displayGreenCircle();
+
+        // Update error summary
+        displayActiveComponentError();
     }, 500);
 };
 
@@ -458,21 +468,6 @@ window.updateFlowCopy = function(flow){
             return;
         }
     });
-};
-
-// -----------------------------------------------------
-// FlowFilled:
-// Enable/Disable green checks
-// Enable/Disable get approvals button
-// raflow parts
-// -----------------------------------------------------
-window.FlowFilled = function(data) {
-
-    // Update local copy of basicCheck and FlowFilledData
-    app.raflow.basicCheck = data.BasicCheck;
-    app.raflow.FlowFilledData = data.DataFulfilled;
-
-    displayGreenCircle();
 };
 
 // -----------------------------------------------------
@@ -863,11 +858,16 @@ window.displayErrorSummary = function (comp) {
         // Display error summary
         $(error_summary_sel).css('display', 'block');
 
-        var form_errors_count = app.raflow.validationCheck.errors[comp].length;
+        var form_errors_count;
+        if(comp !== "tie"){
+            form_errors_count = app.raflow.validationCheck.errors[comp].total;
+        }else{
+            form_errors_count = app.raflow.validationCheck.errors[comp].people.total;
+        }
         var non_fields_errors_count = app.raflow.validationCheck.nonFieldsErrors[comp].length;
 
         // Update error count for form error and non fields error
-        $("#field-errors-count").html(form_errors_count); // TODO(Akshay): Manage for date section
+        $("#field-errors-count").html(form_errors_count);
         $("#non-field-errors-count").html(non_fields_errors_count);
 
         // If there are any non fields errors than display dropdown icon. Via it can expand non-fields-error summary

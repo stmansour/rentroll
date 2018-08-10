@@ -83,18 +83,54 @@ type TiePeopleFieldsError struct {
 
 // TieFieldsError is to hold Errorlist for Tie section
 type TieFieldsError struct {
-	TiePeople []TiePeopleFieldsError `json:"people"`
+	TiePeople TiePeopleError `json:"people"`
+}
+
+// PeopleError is to hold list of people error and total count
+type PeopleError struct {
+	Total        int                 `json:"total"`
+	PeopleErrors []PeopleFieldsError `json:"errors"`
+}
+
+// PetsError is to hold list of pet error and total count
+type PetsError struct {
+	Total     int              `json:"total"`
+	PetErrors []PetFieldsError `json:"errors"`
+}
+
+// VehiclesError is to hold list of vehicle error and total count
+type VehiclesError struct {
+	Total         int                  `json:"total"`
+	VehicleErrors []VehicleFieldsError `json:"errors"`
+}
+
+// RentablesError is to hold list of rentable error and total count
+type RentablesError struct {
+	Total          int                    `json:"total"`
+	RentableErrors []RentablesFieldsError `json:"errors"`
+}
+
+// ParentChildrenError is to hold list of parent child error and total count
+type ParentChildrenError struct {
+	Total             int                      `json:"total"`
+	ParentChildErrors []ParentChildFieldsError `json:"errors"`
+}
+
+// TiePeopleError is to hold list of tie people error and total error count
+type TiePeopleError struct {
+	Total           int                    `json:"total"`
+	TiePeopleErrors []TiePeopleFieldsError `json:"errors"`
 }
 
 // RAFlowFieldsErrors is to hold Errorlist for each section of RAFlow
 type RAFlowFieldsErrors struct {
-	Dates       DatesFieldsError         `json:"dates"`
-	People      []PeopleFieldsError      `json:"people"`
-	Pets        []PetFieldsError         `json:"pets"`
-	Vehicle     []VehicleFieldsError     `json:"vehicles"`
-	Rentables   []RentablesFieldsError   `json:"rentables"`
-	ParentChild []ParentChildFieldsError `json:"parentchild"`
-	Tie         TieFieldsError           `json:"tie"`
+	Dates       DatesFieldsError    `json:"dates"`
+	People      PeopleError         `json:"people"`
+	Pets        PetsError           `json:"pets"`
+	Vehicle     VehiclesError       `json:"vehicles"`
+	Rentables   RentablesError      `json:"rentables"`
+	ParentChild ParentChildrenError `json:"parentchild"`
+	Tie         TieFieldsError      `json:"tie"`
 }
 
 // RAFlowNonFieldsErrors is to hold non fields error
@@ -123,17 +159,35 @@ func ValidateRAFlowBasic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 		Dates: DatesFieldsError{
 			Errors: make(map[string][]string, 0),
 		},
-		People:      []PeopleFieldsError{},
-		Pets:        []PetFieldsError{},
-		Vehicle:     []VehicleFieldsError{},
-		Rentables:   []RentablesFieldsError{},
-		ParentChild: []ParentChildFieldsError{},
+		People: PeopleError{
+			Total:        0,
+			PeopleErrors: []PeopleFieldsError{},
+		},
+		Pets: PetsError{
+			Total:     0,
+			PetErrors: []PetFieldsError{},
+		},
+		Vehicle: VehiclesError{
+			Total:         0,
+			VehicleErrors: []VehicleFieldsError{},
+		},
+		Rentables: RentablesError{
+			Total:          0,
+			RentableErrors: []RentablesFieldsError{},
+		},
+		ParentChild: ParentChildrenError{
+			Total:             0,
+			ParentChildErrors: []ParentChildFieldsError{},
+		},
 		Tie: TieFieldsError{
-			TiePeople: []TiePeopleFieldsError{},
+			TiePeople: TiePeopleError{
+				Total:           0,
+				TiePeopleErrors: []TiePeopleFieldsError{},
+			},
 		},
 	}
 
-	tieFieldsErrors.TiePeople = make([]TiePeopleFieldsError, 0)
+	tieFieldsErrors.TiePeople.TiePeopleErrors = make([]TiePeopleFieldsError, 0)
 
 	// Initialize non fields errors
 	raFlowNonFieldsErrors = RAFlowNonFieldsErrors{
@@ -181,11 +235,12 @@ func ValidateRAFlowBasic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 		}
 
 		// Modify Total Error
+		raFlowFieldsErrors.People.Total += peopleFieldsErrors.Total
 		g.Total += peopleFieldsErrors.Total
 
 		// Skip the row if it doesn't have error for the any fields
 		if len(errs) > 0 {
-			raFlowFieldsErrors.People = append(raFlowFieldsErrors.People, peopleFieldsErrors)
+			raFlowFieldsErrors.People.PeopleErrors = append(raFlowFieldsErrors.People.PeopleErrors, peopleFieldsErrors)
 		}
 	}
 
@@ -229,13 +284,14 @@ func ValidateRAFlowBasic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 
 		// Modify total error
 		g.Total += petFieldsErrors.Total
+		raFlowFieldsErrors.Pets.Total += petFieldsErrors.Total
 
 		// If there is no error in pet than skip that pet's error being added.
 		if petFieldsErrors.Total == 0 {
 			continue
 		}
 
-		raFlowFieldsErrors.Pets = append(raFlowFieldsErrors.Pets, petFieldsErrors)
+		raFlowFieldsErrors.Pets.PetErrors = append(raFlowFieldsErrors.Pets.PetErrors, petFieldsErrors)
 	}
 
 	// ----------------------------------------------
@@ -279,11 +335,12 @@ func ValidateRAFlowBasic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 		}
 
 		// Modify Total Error
+		raFlowFieldsErrors.Vehicle.Total += vehicleFieldsErrors.Total
 		g.Total += vehicleFieldsErrors.Total
 
 		// If there is no error in vehicle than skip that vehicle's error being added.
 		if vehicleFieldsErrors.Total > 0 {
-			raFlowFieldsErrors.Vehicle = append(raFlowFieldsErrors.Vehicle, vehicleFieldsErrors)
+			raFlowFieldsErrors.Vehicle.VehicleErrors = append(raFlowFieldsErrors.Vehicle.VehicleErrors, vehicleFieldsErrors)
 		}
 	}
 
@@ -330,11 +387,12 @@ func ValidateRAFlowBasic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 		}
 
 		// Modify Total Error
+		raFlowFieldsErrors.Rentables.Total += rentablesFieldsErrors.Total
 		g.Total += rentablesFieldsErrors.Total
 
 		// If there is no error in vehicle than skip that rentable's error being added.
 		if rentablesFieldsErrors.Total > 0 {
-			raFlowFieldsErrors.Rentables = append(raFlowFieldsErrors.Rentables, rentablesFieldsErrors)
+			raFlowFieldsErrors.Rentables.RentableErrors = append(raFlowFieldsErrors.Rentables.RentableErrors, rentablesFieldsErrors)
 		}
 
 	}
@@ -355,10 +413,11 @@ func ValidateRAFlowBasic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 		}
 
 		// Modify Total Error
+		raFlowFieldsErrors.ParentChild.Total = parentChildFieldsErrors.Total
 		g.Total += parentChildFieldsErrors.Total
 
 		if parentChildFieldsErrors.Total > 0 {
-			raFlowFieldsErrors.ParentChild = append(raFlowFieldsErrors.ParentChild, parentChildFieldsErrors)
+			raFlowFieldsErrors.ParentChild.ParentChildErrors = append(raFlowFieldsErrors.ParentChild.ParentChildErrors, parentChildFieldsErrors)
 		}
 	}
 
@@ -377,10 +436,11 @@ func ValidateRAFlowBasic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 		}
 
 		// Modify Total Error
+		tieFieldsErrors.TiePeople.Total += tiePeopleFieldsErrors.Total
 		g.Total += tiePeopleFieldsErrors.Total
 
 		if tiePeopleFieldsErrors.Total > 0 {
-			tieFieldsErrors.TiePeople = append(tieFieldsErrors.TiePeople, tiePeopleFieldsErrors)
+			tieFieldsErrors.TiePeople.TiePeopleErrors = append(tieFieldsErrors.TiePeople.TiePeopleErrors, tiePeopleFieldsErrors)
 		}
 	}
 
@@ -685,7 +745,8 @@ func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Vali
 		errCount++
 	}
 
-	g.Errors.People = peopleFieldsErrors
+	g.Errors.People.Total += errCount
+	g.Errors.People.PeopleErrors = peopleFieldsErrors
 	g.NonFieldsErrors.People = peopleNonFieldsErrors
 	g.Total += errCount + len(peopleNonFieldsErrors)
 }
@@ -758,7 +819,8 @@ func validatePetBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 		}
 	}
 
-	g.Errors.Pets = petFieldsErrors
+	g.Errors.Pets.PetErrors = petFieldsErrors
+	g.Errors.Pets.Total += errCount
 	g.NonFieldsErrors.Pets = petNonFieldsErrors
 	g.Total += errCount + len(petNonFieldsErrors)
 }
@@ -833,7 +895,8 @@ func validateVehicleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Val
 		}
 	}
 
-	g.Errors.Vehicle = vehicleFieldsErrors
+	g.Errors.Vehicle.Total += errCount
+	g.Errors.Vehicle.VehicleErrors = vehicleFieldsErrors
 	g.NonFieldsErrors.Vehicle = vehicleNonFieldsErrors
 	g.Total += errCount + len(vehicleNonFieldsErrors)
 }
@@ -895,7 +958,8 @@ func validateRentableBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Va
 		rentablesNonFieldsErrors = append(rentablesNonFieldsErrors, err.Error())
 	}
 
-	g.Errors.Rentables = rentablesFieldsErrors
+	g.Errors.Rentables.Total += errCount
+	g.Errors.Rentables.RentableErrors = rentablesFieldsErrors
 	g.NonFieldsErrors.Rentables = rentablesNonFieldsErrors
 	g.Total += errCount + len(rentablesNonFieldsErrors)
 }
@@ -945,9 +1009,13 @@ func validateFeesBizLogic(ctx context.Context, fees []rlib.RAFeesData) ([]RAFees
 		// -----------------------------------------------
 		// 2. Check fee must be exist in the database
 		ar, err := rlib.GetAR(ctx, fee.ARID)
+		fmt.Println("ARID Debugging ***************")
+		fmt.Println(ar.ARID)
+		fmt.Println(fee.ARID)
+		fmt.Println("ARID Debugging ***************")
 		if !(ar.ARID > 0) {
-			err = fmt.Errorf("fee doesn't exist")
-			raFeesError.Errors["ARName"] = append(raFeesError.Errors["ARName"], err.Error())
+			err = fmt.Errorf("fee associated account rule doesn't exist")
+			raFeesError.Errors["ARID"] = append(raFeesError.Errors["ARID"], err.Error())
 			// Modify fees section error count
 			raFeesError.Total++
 		}
@@ -1014,9 +1082,10 @@ func validateParentChildBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g 
 		}
 	}
 
-	g.Errors.ParentChild = parentChildFieldsErrors
+	g.Errors.ParentChild.Total += errCount
+	g.Errors.ParentChild.ParentChildErrors = parentChildFieldsErrors
 	g.NonFieldsErrors.ParentChild = parentChildNonFieldsErrors
-	g.Total += errCount
+	g.Total += errCount + len(parentChildNonFieldsErrors)
 }
 
 // validateTiePeopleBizLogic Perform business logic check on Tie section for people
@@ -1081,7 +1150,8 @@ func validateTiePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *V
 		tieNonFieldsErrors = append(tieNonFieldsErrors, err.Error())
 	}
 
-	g.Errors.Tie.TiePeople = tiePeopleFieldsErrors
+	g.Errors.Tie.TiePeople.Total += errCount
+	g.Errors.Tie.TiePeople.TiePeopleErrors = tiePeopleFieldsErrors
 	g.NonFieldsErrors.Tie = tieNonFieldsErrors
 	g.Total += errCount + len(tieNonFieldsErrors)
 }

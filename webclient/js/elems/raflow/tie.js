@@ -81,7 +81,7 @@ window.loadRATieSection = function () {
                     render: function (record) {
                         var haveError = false;
                         if (app.raflow.validationErrors.tie) {
-                            var tiePeople = app.raflow.validationCheck.errors.tie.people;
+                            var tiePeople = app.raflow.validationCheck.errors.tie.people.errors;
                             for (var i = 0; i < tiePeople.length; i++) {
                                 if (tiePeople[i].TMPTCID === record.TMPTCID && tiePeople[i].total > 0) {
                                     haveError = true;
@@ -380,7 +380,7 @@ window.dispalyRATiePeopleGridError = function (){
     }
 
     if (app.raflow.validationErrors.tie) {
-        var tie = app.raflow.validationCheck.errors.tie.people;
+        var tie = app.raflow.validationCheck.errors.tie.people.errors;
         for (i = 0; i < tie.length; i++) {
             if (tie[i].total > 0) {
                 var recid = getRecIDFromTMPTCID(g, tie[i].TMPTCID);
