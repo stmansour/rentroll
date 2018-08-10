@@ -575,6 +575,12 @@ window.loadRAActionTemplate = function() {
                                         w2ui.raActionLayout.get('main').content.destroy();
                                         w2ui.newraLayout.unlock('main');
                                         w2ui.newraLayout.get('main').toolbar.refresh();
+
+                                        // get the current component of raflow interface (to be previous one)
+                                        var active_comp = $(".ra-form-component:visible");
+
+                                        // load target section (for refresh purpose)
+                                        loadTargetSection(active_comp.attr("id"), active_comp.attr("id"));
                                     };
                                 form_dirty_alert(yes_callBack, no_callBack);
                                 break;
