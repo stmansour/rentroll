@@ -86,6 +86,11 @@ type TieFieldsError struct {
 	TiePeople []TiePeopleFieldsError `json:"people"`
 }
 
+type PeopleError struct {
+	Total        int                 `json:"total"`
+	PeopleErrors []PeopleFieldsError `json:"errors"`
+}
+
 // PetsError
 type PetsError struct {
 	Total     int              `json:"total"`
@@ -95,7 +100,7 @@ type PetsError struct {
 // RAFlowFieldsErrors is to hold Errorlist for each section of RAFlow
 type RAFlowFieldsErrors struct {
 	Dates       DatesFieldsError         `json:"dates"`
-	People      []PeopleFieldsError      `json:"people"`
+	People      PeopleError              `json:"people"`
 	Pets        PetsError                `json:"pets"`
 	Vehicle     []VehicleFieldsError     `json:"vehicles"`
 	Rentables   []RentablesFieldsError   `json:"rentables"`
@@ -129,7 +134,10 @@ func ValidateRAFlowBasic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 		Dates: DatesFieldsError{
 			Errors: make(map[string][]string, 0),
 		},
-		People: []PeopleFieldsError{},
+		People: PeopleError{
+			Total:        0,
+			PeopleErrors: []PeopleFieldsError{},
+		},
 		Pets: PetsError{
 			Total:     0,
 			PetErrors: []PetFieldsError{},
@@ -190,11 +198,12 @@ func ValidateRAFlowBasic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 		}
 
 		// Modify Total Error
+		raFlowFieldsErrors.People.Total += peopleFieldsErrors.Total
 		g.Total += peopleFieldsErrors.Total
 
 		// Skip the row if it doesn't have error for the any fields
 		if len(errs) > 0 {
-			raFlowFieldsErrors.People = append(raFlowFieldsErrors.People, peopleFieldsErrors)
+			raFlowFieldsErrors.People.PeopleErrors = append(raFlowFieldsErrors.People.PeopleErrors, peopleFieldsErrors)
 		}
 	}
 
@@ -695,7 +704,8 @@ func validatePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Vali
 		errCount++
 	}
 
-	g.Errors.People = peopleFieldsErrors
+	g.Errors.People.Total += errCount
+	g.Errors.People.PeopleErrors = peopleFieldsErrors
 	g.NonFieldsErrors.People = peopleNonFieldsErrors
 	g.Total += errCount + len(peopleNonFieldsErrors)
 }
@@ -769,6 +779,7 @@ func validatePetBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 	}
 
 	g.Errors.Pets.PetErrors = petFieldsErrors
+	g.Errors.Pets.Total += errCount
 	g.NonFieldsErrors.Pets = petNonFieldsErrors
 	g.Total += errCount + len(petNonFieldsErrors)
 }

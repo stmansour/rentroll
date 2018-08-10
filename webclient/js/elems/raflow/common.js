@@ -96,12 +96,12 @@ $(document).on('click', '#ra-form #save-ra-flow-btn', function () {
 
         app.raflow.validationErrors = {
             dates: data.errors.dates.total > 0 || data.nonFieldsErrors.dates.length > 0,
-            people: data.errors.people.length > 0 || data.nonFieldsErrors.people.length > 0,
+            people: data.errors.people.total > 0 || data.nonFieldsErrors.people.length > 0,
             pets: data.errors.pets.total > 0 || data.nonFieldsErrors.pets.length > 0,
-            vehicles: data.errors.vehicles.length > 0 || data.nonFieldsErrors.vehicles.length > 0,
-            rentables: data.errors.rentables.length > 0 || data.nonFieldsErrors.rentables.length > 0,
-            parentchild: data.errors.parentchild.length > 0 || data.nonFieldsErrors.parentchild.length > 0,
-            tie: data.errors.tie.people.length > 0 || data.nonFieldsErrors.tie.length > 0
+            vehicles: data.errors.vehicles.total > 0 || data.nonFieldsErrors.vehicles.length > 0,
+            rentables: data.errors.rentables.total > 0 || data.nonFieldsErrors.rentables.length > 0,
+            parentchild: data.errors.parentchild.total > 0 || data.nonFieldsErrors.parentchild.length > 0,
+            tie: data.errors.tie.people.total > 0 || data.nonFieldsErrors.tie.length > 0
         };
 
         displayErrorDot();
@@ -853,13 +853,7 @@ window.displayErrorSummary = function (comp) {
         // Display error summary
         $(error_summary_sel).css('display', 'block');
 
-        var form_errors_count;
-        if(comp === "pets"){
-            form_errors_count = app.raflow.validationCheck.errors[comp].total;
-        }else{
-            form_errors_count = app.raflow.validationCheck.errors[comp].length;
-        }
-
+        var form_errors_count = app.raflow.validationCheck.errors[comp].total;
         var non_fields_errors_count = app.raflow.validationCheck.nonFieldsErrors[comp].length;
 
         // Update error count for form error and non fields error

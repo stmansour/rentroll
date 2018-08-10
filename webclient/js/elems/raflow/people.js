@@ -135,7 +135,7 @@ window.loadRAPeopleForm = function () {
                     render: function (record) {
                         var haveError = false;
                         if (app.raflow.validationErrors.people) {
-                            var people = app.raflow.validationCheck.errors.people;
+                            var people = app.raflow.validationCheck.errors.people.errors;
                             for (var i = 0; i < people.length; i++) {
                                 if (people[i].TMPTCID === record.TMPTCID && people[i].total > 0) {
                                     haveError = true;
@@ -487,7 +487,7 @@ window.dispalyRAPeopleGridError = function (){
 
     // If biz error than highlight grid row
     if (app.raflow.validationErrors.people) {
-        var people = app.raflow.validationCheck.errors.people;
+        var people = app.raflow.validationCheck.errors.people.errors;
         for (i = 0; i < people.length; i++) {
             if (people[i].total > 0) {
                 var recid = getRecIDFromTMPTCID(g, people[i].TMPTCID);
@@ -925,7 +925,7 @@ window.displayRAPeopleFormError = function(){
     var record = form.record;
 
     // get list of pets
-    var people = app.raflow.validationCheck.errors.people;
+    var people = app.raflow.validationCheck.errors.people.errors;
 
     // get index of pet for whom form is opened
     var index = getPeopleIndex(record.TMPTCID, people);
