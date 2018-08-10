@@ -104,6 +104,7 @@ func UpdateAssessment(ctx context.Context, anew *rlib.Assessment, mode int, dt *
 //    any error encountered
 //-------------------------------------------------------------------------------------
 func UpdateAssessmentEndDate(ctx context.Context, a *rlib.Assessment, dt *time.Time) error {
+	rlib.Console("Entered UpdateAssessmentEndDate\n")
 	//--------------------------------------------------------------------------
 	// First, the easy part... change the stop date of the recurring definition
 	//--------------------------------------------------------------------------
@@ -145,7 +146,7 @@ func UpdateAssessmentEndDate(ctx context.Context, a *rlib.Assessment, dt *time.T
 		if len(ai.Comment) > 0 {
 			ai.Comment += "  |  "
 		}
-		ai.Comment += fmt.Sprintf("prorated for %d of %d %s", n, p, rlib.ProrationUnits(ai.RentCycle))
+		ai.Comment += fmt.Sprintf("prorated for %d of %d %s", n, p, rlib.ProrationUnits(ai.ProrationCycle))
 		be := UpdateAssessment(ctx, &ai, 0, dt, 0)
 		if len(be) > 0 {
 			return BizErrorListToError(be)

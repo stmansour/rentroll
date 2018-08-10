@@ -1056,14 +1056,17 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement) (RAFlowJSONData, e
 	TerminatorName, _ := GetDirectoryPerson(ctx, ra.TerminatorUID)
 	NoticeToMoveName, _ := GetDirectoryPerson(ctx, ra.NoticeToMoveUID)
 
+	now := time.Now()
+	today := time.Date(now.Year(), now.Month(), now.Day(), ra.AgreementStart.Hour(), ra.AgreementStart.Minute(), 0, 0, ra.AgreementStart.Location())
+
 	var raf = RAFlowJSONData{
 		Dates: RADatesFlowData{
 			BID:             ra.BID,
-			RentStart:       JSONDate(ra.RentStart),
+			RentStart:       JSONDate(today /*ra.RentStart*/),
 			RentStop:        JSONDate(ra.RentStop),
-			AgreementStart:  JSONDate(ra.AgreementStart),
+			AgreementStart:  JSONDate(today /*ra.AgreementStart*/),
 			AgreementStop:   JSONDate(ra.AgreementStop),
-			PossessionStart: JSONDate(ra.PossessionStart),
+			PossessionStart: JSONDate(today /*ra.PossessionStart*/),
 			PossessionStop:  JSONDate(ra.PossessionStop),
 			CSAgent:         ra.CSAgent,
 		},
@@ -1150,7 +1153,6 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement) (RAFlowJSONData, e
 	//-------------------------------------------------------------------------
 	// Add Rentables
 	//-------------------------------------------------------------------------
-	now := time.Now()
 	o, err := GetRentalAgreementRentables(ctx, ra.RAID, &ra.AgreementStart, &ra.AgreementStop)
 	if err != nil {
 		return raf, nil

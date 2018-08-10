@@ -60,7 +60,9 @@ func Fees2RA(ctx context.Context, x *WriteHandlerContext) error {
 	// Now clean up any assessments that are associated with the old RAID but
 	// that have not been updated as part of any fee in the new RAID.
 	//--------------------------------------------------------------------------
-	//CleanUpRemainingAssessments(ctx, x)
+	if err = CleanUpRemainingAssessments(ctx, x); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -77,26 +79,34 @@ func Fees2RA(ctx context.Context, x *WriteHandlerContext) error {
 //     Any errors encountered
 //-----------------------------------------------------------------------------
 func CleanUpRemainingAssessments(ctx context.Context, x *WriteHandlerContext) error {
+	rlib.Console("Entered CleanUpRemainingAssessments")
+	if x.raf.Meta.RAID == 0 {
+		rlib.Console("No cleanup necessary. x.raf.Meta.RAID is 0\n")
+		return nil // nothing to do, no old RAID
+	}
 	//--------------------------------------------------------------------------
 	// Get the list of any assessments associated with the old rental agreement
 	// that overlap the time range of the new rental agreement.
 	//--------------------------------------------------------------------------
-	m, err := rlib.GetAssessmentInstancesByRAID(ctx, x.raOrig.RAID, &x.ra.RentStart, &x.ra.RentStop)
+	m, err := rlib.GetRecurringAssessmentDefsByRAID(ctx, x.raOrig.RAID, &x.ra.RentStart, &x.ra.RentStop)
 	if err != nil {
 		return err
 	}
+	rlib.Console("Found %d assessments to review\n", len(m))
 	for _, v := range m {
-		// If it is a non-recurring assessment, reverse it.
+		rlib.Console("ASMID = %d\n", v.ASMID)
 		if v.RentCycle == rlib.RECURNONE {
+			// If it is a non-recurring assessment, reverse it.
 			be := bizlogic.ReverseAssessment(ctx, &v, 0, &x.ra.RentStart)
 			if len(be) > 0 {
 				return bizlogic.BizErrorListToError(be)
 			}
 		} else {
 			// If it is a recurring assessment, stop it.
-
+			if err = bizlogic.UpdateAssessmentEndDate(ctx, &v, &x.ra.RentStart); err != nil {
+				return err
+			}
 		}
-
 	}
 	return nil
 }
@@ -116,6 +126,7 @@ func CleanUpRemainingAssessments(ctx context.Context, x *WriteHandlerContext) er
 //     Any errors encountered
 //-----------------------------------------------------------------------------
 func F2RASaveFee(ctx context.Context, x *WriteHandlerContext, fee *rlib.RAFeesData, eltype, id, tmptcid int64) error {
+	rlib.Console("F2RASaveFee processing fee = %d, ASMID = %d\n", fee.TMPASMID, fee.ASMID)
 	if 0 < fee.ASMID {
 		return F2RAUpdateExistingAssessment(ctx, x, fee, eltype, id, tmptcid)
 	}
@@ -183,13 +194,12 @@ func F2RASaveNewFee(ctx context.Context, x *WriteHandlerContext, fee *rlib.RAFee
 	// rlib.Console("bid = %d, fee ARID = %d\n", b.BID, fee.ARID)
 	b.Amount = fee.ContractAmount
 	b.AcctRule = ""
+	b.RentCycle = fee.RentCycle
 	b.RAID = x.ra.RAID
 	b.Start = time.Time(fee.Start)
 	b.Stop = time.Time(fee.Stop)
 	b.RentCycle = fee.RentCycle
-	// TODO(Steve & Sudip): WE SHOULD USE FEE PRORATION CYCLE OR TAKE DEFAULT ONE?
-	// b.ProrationCycle = rlib.RRdb.BizTypes[b.BID].AR[fee.ARID].DefaultProrationCycle
-	b.ProrationCycle = fee.ProrationCycle
+	b.ProrationCycle = rlib.RRdb.BizTypes[b.BID].AR[fee.ARID].DefaultProrationCycle
 	b.InvoiceNo = 0
 	b.ARID = fee.ARID
 	switch eltype {

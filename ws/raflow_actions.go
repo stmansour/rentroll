@@ -734,9 +734,13 @@ func SetActionMetaData(ctx context.Context, d *ServiceData, Action int64, modRAF
 	//--------------------------------------------------------------------------
 	// safeguard for dereferencing d.sess which may not exist if we're testing
 	//--------------------------------------------------------------------------
-	UID := int64(0)
+	UID := int64(-99)
 	if d.sess != nil {
 		UID = d.sess.UID
+	} else {
+		if !SvcCtx.NoAuth {
+			return rlib.ErrSessionRequired
+		}
 	}
 
 	// take latest RAFLAGS value at this point(in case flag bits are reset)

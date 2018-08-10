@@ -338,7 +338,7 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 				rlib.RRdb.BizTypes[x.raOrig.BID].Msgs.S[rlib.MSGRAUPDATED].SLSID // "Rental Agreement was updated"
 
 			// support noauth testing
-			UID := int64(0)
+			UID := int64(-99)
 			if !SvcCtx.NoAuth {
 				sess, ok := rlib.SessionFromContext(ctx)
 				if !ok {
