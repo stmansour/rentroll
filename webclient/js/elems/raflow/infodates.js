@@ -89,7 +89,7 @@ window.loadRADatesForm = function () {
     // load the existing data in dates component
     setTimeout(function () {
         SetRADatesFormRecordFromLocalData();
-    }, 500);
+    }, 0);
 };
 
 // -------------------------------------------------------------
