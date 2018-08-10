@@ -71,6 +71,11 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
+
+		// COMMIT TRANSACTION
+		if tx != nil {
+			err = tx.Commit()
+		}
 	}()
 
 	// HTTP METHOD CHECK
@@ -101,13 +106,6 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			return
 		}
 
-		// ------------------
-		// COMMIT TRANSACTION
-		// ------------------
-		if err = tx.Commit(); err != nil {
-			return
-		}
-
 		// -------------------
 		// WRITE FLOW RESPONSE
 		// -------------------
@@ -120,13 +118,6 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 		raflowRespData, err = handleRefNoVersion(ctx, d, foo, raFlowData)
 		if err != nil {
-			return
-		}
-
-		// ------------------
-		// COMMIT TRANSACTION
-		// ------------------
-		if err = tx.Commit(); err != nil {
 			return
 		}
 

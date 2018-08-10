@@ -259,10 +259,23 @@ func GetRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
+
+		// COMMIT TRANSACTION
+		if tx != nil {
+			err = tx.Commit()
+		}
 	}()
 
 	// ------- unmarshal the request data  ---------------
 	if err := json.Unmarshal([]byte(d.data), &req); err != nil {
+		return
+	}
+
+	//-------------------------------------------------------
+	// GET THE NEW `tx`, UPDATED CTX FROM THE REQUEST CONTEXT
+	//-------------------------------------------------------
+	tx, ctx, err = rlib.NewTransactionWithContext(r.Context())
+	if err != nil {
 		return
 	}
 
@@ -318,7 +331,7 @@ func GetRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	case "refno":
 
-		// IF CREATE ONE ONLY WHEN REF.NO IS BLANK
+		// CREATE ONE ONLY WHEN REF.NO IS BLANK
 		if req.UserRefNo == "" {
 			// IF NOT FOUND THEN TRY TO CREATE NEW ONE FROM RAID
 			// GET RENTAL AGREEMENT

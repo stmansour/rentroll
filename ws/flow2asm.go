@@ -183,12 +183,13 @@ func F2RASaveNewFee(ctx context.Context, x *WriteHandlerContext, fee *rlib.RAFee
 	// rlib.Console("bid = %d, fee ARID = %d\n", b.BID, fee.ARID)
 	b.Amount = fee.ContractAmount
 	b.AcctRule = ""
-	b.RentCycle = fee.RentCycle
 	b.RAID = x.ra.RAID
 	b.Start = time.Time(fee.Start)
 	b.Stop = time.Time(fee.Stop)
 	b.RentCycle = fee.RentCycle
-	b.ProrationCycle = rlib.RRdb.BizTypes[b.BID].AR[fee.ARID].DefaultProrationCycle
+	// TODO(Steve & Sudip): WE SHOULD USE FEE PRORATION CYCLE OR TAKE DEFAULT ONE?
+	// b.ProrationCycle = rlib.RRdb.BizTypes[b.BID].AR[fee.ARID].DefaultProrationCycle
+	b.ProrationCycle = fee.ProrationCycle
 	b.InvoiceNo = 0
 	b.ARID = fee.ARID
 	switch eltype {
