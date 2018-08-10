@@ -591,6 +591,8 @@ window.CloseRAFlowLayout = function() {
 // REMOVE FLOW BUTTON CLICK EVENT HANDLER
 //-----------------------------------------------------------------------------
 $(document).on("click", "button#remove_raflow", function(e) {
+    e.preventDefault();
+
     var version = app.raflow.version,
         RefNo   = app.raflow.Flow.UserRefNo;
 
