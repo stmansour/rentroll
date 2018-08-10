@@ -116,6 +116,7 @@ type ParentChildrenError struct {
 	ParentChildErrors []ParentChildFieldsError `json:"errors"`
 }
 
+// TiePeopleError is to hold list of tie people error and total error count
 type TiePeopleError struct {
 	Total           int                    `json:"total"`
 	TiePeopleErrors []TiePeopleFieldsError `json:"errors"`

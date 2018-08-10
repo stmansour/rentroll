@@ -45,12 +45,12 @@ window.submitActionForm = function(data) {
                 var resErr = data.record.ValidationCheck;
                 app.raflow.validationErrors = {
                     dates: resErr.errors.dates.total > 0 || resErr.nonFieldsErrors.dates.length > 0,
-                    people: resErr.errors.people.length > 0 || resErr.nonFieldsErrors.people.length > 0,
-                    pets: resErr.errors.pets.length > 0 || resErr.nonFieldsErrors.pets.length > 0,
-                    vehicles: resErr.errors.vehicles.length > 0 || resErr.nonFieldsErrors.vehicles.length > 0,
-                    rentables: resErr.errors.rentables.length > 0 || resErr.nonFieldsErrors.rentables.length > 0,
-                    parentchild: resErr.errors.parentchild.length > 0 || resErr.nonFieldsErrors.parentchild.length > 0,
-                    tie: resErr.errors.tie.people.length > 0 || resErr.nonFieldsErrors.tie.length > 0
+                    people: resErr.errors.people.total > 0 || resErr.nonFieldsErrors.people.length > 0,
+                    pets: resErr.errors.pets.total > 0 || resErr.nonFieldsErrors.pets.length > 0,
+                    vehicles: resErr.errors.vehicles.total > 0 || resErr.nonFieldsErrors.vehicles.length > 0,
+                    rentables: resErr.errors.rentables.total > 0 || resErr.nonFieldsErrors.rentables.length > 0,
+                    parentchild: resErr.errors.parentchild.total > 0 || resErr.nonFieldsErrors.parentchild.length > 0,
+                    tie: resErr.errors.tie.people.total > 0 || resErr.nonFieldsErrors.tie.length > 0
                 };
 
                 // Update validationCheck error local copy
