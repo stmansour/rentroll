@@ -20,6 +20,14 @@
 //   FlowID = Id of the Flow
 //-----------------------------------------------------------------------------
 window.LoadRAFlowTemplate = function(bid, raFlowVersion) {
+    if("RAActionForm" in w2ui){
+        w2ui.RAActionForm.destroy();
+    }
+    if("raActionLayout" in w2ui){
+        w2ui.raActionLayout.destroy();
+        w2ui.newraLayout.get('right').content = "";
+        w2ui.newraLayout.hide('right');
+    }
 
     // show the loader
     HideRAFlowLoader(false);
@@ -242,6 +250,7 @@ window.buildRAApplicantElements = function() {
                                 var BID = getCurrentBID();
                                 var BUD = getBUDfromBID(BID);
                                 getStringListData(BID, BUD);
+                                initBizErrors();
                             }
                         })
                         .fail(function() {
@@ -582,6 +591,8 @@ window.CloseRAFlowLayout = function() {
 // REMOVE FLOW BUTTON CLICK EVENT HANDLER
 //-----------------------------------------------------------------------------
 $(document).on("click", "button#remove_raflow", function(e) {
+    e.preventDefault();
+
     var version = app.raflow.version,
         RefNo   = app.raflow.Flow.UserRefNo;
 

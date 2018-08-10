@@ -47,7 +47,7 @@ window.loadRAPeopleChildSection = function () {
                     render: function (record) {
                         var haveError = false;
                         if (app.raflow.validationErrors.parentchild) {
-                            var parentchild = app.raflow.validationCheck.errors.parentchild;
+                            var parentchild = app.raflow.validationCheck.errors.parentchild.errors;
                             for (var i = 0; i < parentchild.length; i++) {
                                 if (parentchild[i].PRID === record.PRID && parentchild[i].CRID === record.CRID && parentchild[i].total > 0) {
                                     haveError = true;
@@ -329,7 +329,7 @@ window.dispalyRAParentChildGridError = function (){
     }
 
     if (app.raflow.validationErrors.parentchild) {
-        var parentchild = app.raflow.validationCheck.errors.parentchild;
+        var parentchild = app.raflow.validationCheck.errors.parentchild.errors;
         for (i = 0; i < parentchild.length; i++) {
             if (parentchild[i].total > 0) {
                 var recid = getRecIDFromCRID(g, parentchild[i].CRID);

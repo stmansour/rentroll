@@ -3,16 +3,12 @@
 <head>
     <title>AIR Roller</title>
     <link rel="stylesheet" type="text/css" href="/webclient/js/w2ui-1.5.rc1.min.css" />
-    <script src="/webclient/js/jquery.min.js"></script>
-    <script src="/webclient/js/w2ui-1.5.rc1.js"></script>
-    <link rel="stylesheet" href="/webclient/html/fa/css/all.css">
-    <link rel="stylesheet" href="/webclient/html/rentroll.css">
-    <link rel="stylesheet" href="/webclient/html/raflow/raflow.css">
+    <link rel="stylesheet" type="text/css" href="/webclient/html/fa/css/all.css">
+    <link rel="stylesheet" type="text/css" href="/webclient/html/rentroll.css">
+    <link rel="stylesheet" type="text/css" href="/webclient/html/raflow/raflow.css">
     <link rel="icon" type="image/png" href="/webclient/html/images/roller-32.png">
 </head>
 <body>
-
-
 
 <!--  color Icon images:  icon-page, w2ui-icon-check, ... see below in toptoolbar -->
 <!--
@@ -24,7 +20,14 @@ toptoolbar    - w2ui toolbar
 sidebarL1     - w2ui sidebar
 
 -->
+<div id="layout" style="position: absolute; top: 0px; left: 0px; bottom: 0px; right: 0px;"></div>
+<div id="blank_screen"></div>
 
+
+<!-- SCRIPTS -->
+<script src="/webclient/js/jquery.min.js"></script>
+<script src="/webclient/js/w2ui-1.5.rc1.js"></script>
+<script src="/webclient/js/bundle.js"></script>
 <script>
 /*global
     $, console, w2ui, defineDateFmts,
@@ -132,7 +135,6 @@ var app = {
         name:                       "RA",
         version:                    "",
         Flow:                       {}, // per Flow SECTION
-        basicCheck:                 {}, // per Flow SECTION
         FlowFilledData:             {}, // per Flow SECTION
         validationCheck:            {}, // per Flow SECTION
         validationErrors:           {}, // per Flow SECTION
@@ -368,10 +370,6 @@ $(function () {
 
 </script>
 
-<div id="layout" style="position: absolute; top: 0px; left: 0px; bottom: 0px; right: 0px;"></div>
-<div id="blank_screen"></div>
-<script src="/webclient/js/bundle.js"></script>
 </body>
 </html>
-
 

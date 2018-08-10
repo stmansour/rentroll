@@ -4,12 +4,50 @@
     saveActiveCompData, getRAFlowCompData, displayActiveComponentError, displayRAPetsGridError, dispalyRAPeopleGridError,
     lockOnGrid, getApprovals, updateFlowData, updateFlowCopy, displayErrorDot, initBizErrors,
     dispalyRARentablesGridError, dispalyRAVehiclesGridError, dispalyRAParentChildGridError, dispalyRATiePeopleGridError,
-    GetCurrentFlowID, FlowFilled, ReassignPeopleGridRecords, AssignPetsGridRecords, AssignVehiclesGridRecords, AssignRentableGridRecords,
+    GetCurrentFlowID, ReassignPeopleGridRecords, AssignPetsGridRecords, AssignVehiclesGridRecords, AssignRentableGridRecords,
     GetGridToolbarAddButtonID, HideRAFlowLoader, toggleNonFieldsErrorDisplay, displayErrorSummary, submitActionForm, displayGreenCircle,
     modifyFieldErrorMessage,ChangeRAFlowVersionToolbar
 */
 
 "use strict";
+
+//-----------------------------------------------------------------------------
+// RAFlowAJAX - A command ajax caller for all raflow related APIs
+//              It will show loader before any request starts and
+//              hides the loader when request is served
+//-----------------------------------------------------------------------------
+window.RAFlowAJAX = function(URL, METHOD, REQDATA) {
+
+    var DATA = null;
+    if (METHOD === "POST") {
+        DATA = JSON.stringify(REQDATA);
+    }
+
+    return $.ajax({
+        url: URL,
+        method: METHOD,
+        contentType: "application/json",
+        dataType: "json",
+        data: DATA,
+        beforeSend: function() {
+            // show the loader
+            HideRAFlowLoader(false);
+            $("#raflow-container .loader").css("display", "flex");
+        },
+        success: function (data) {
+            if (data.status !== "error") {
+                updateFlowData(data);
+            }
+        },
+        error: function (data) {
+            console.log(data);
+        },
+        complete: function() {
+            // hide the loader
+            HideRAFlowLoader(true);
+        }
+    });
+};
 
 //-----------------------------------------------------------------------------
 // GetRefNoByRAIDFromGrid returns UserRefNo By RAID from applicantsGrid RECORDS
@@ -96,12 +134,12 @@ $(document).on('click', '#ra-form #save-ra-flow-btn', function () {
 
         app.raflow.validationErrors = {
             dates: data.errors.dates.total > 0 || data.nonFieldsErrors.dates.length > 0,
-            people: data.errors.people.length > 0 || data.nonFieldsErrors.people.length > 0,
-            pets: data.errors.pets.length > 0 || data.nonFieldsErrors.pets.length > 0,
-            vehicles: data.errors.vehicles.length > 0 || data.nonFieldsErrors.vehicles.length > 0,
-            rentables: data.errors.rentables.length > 0 || data.nonFieldsErrors.rentables.length > 0,
-            parentchild: data.errors.parentchild.length > 0 || data.nonFieldsErrors.parentchild.length > 0,
-            tie: data.errors.tie.people.length > 0 || data.nonFieldsErrors.tie.length > 0
+            people: data.errors.people.total > 0 || data.nonFieldsErrors.people.length > 0,
+            pets: data.errors.pets.total > 0 || data.nonFieldsErrors.pets.length > 0,
+            vehicles: data.errors.vehicles.total > 0 || data.nonFieldsErrors.vehicles.length > 0,
+            rentables: data.errors.rentables.total > 0 || data.nonFieldsErrors.rentables.length > 0,
+            parentchild: data.errors.parentchild.total > 0 || data.nonFieldsErrors.parentchild.length > 0,
+            tie: data.errors.tie.people.total > 0 || data.nonFieldsErrors.tie.length > 0
         };
 
         displayErrorDot();
@@ -387,6 +425,13 @@ window.HideRAFlowLoader = function(hide) {
 window.updateFlowData = function(data){
     updateFlowCopy(data.record.Flow);
 
+    // Update local copy of validation check
+    app.raflow.validationCheck = data.record.ValidationCheck;
+
+    // Update local copy of FlowFilledData
+    app.raflow.FlowFilledData = data.record.DataFulfilled;
+
+
     if(!jQuery.isEmptyObject(app.raflow.Flow)) {
         // get info from local copy and refresh toolbar
         var VERSION = app.raflow.version,
@@ -398,7 +443,10 @@ window.updateFlowData = function(data){
 
     setTimeout(function() {
         // Enable/Disable green check
-        FlowFilled(data.record);
+        displayGreenCircle();
+
+        // Update error summary
+        displayActiveComponentError();
     }, 500);
 };
 
@@ -420,21 +468,6 @@ window.updateFlowCopy = function(flow){
             return;
         }
     });
-};
-
-// -----------------------------------------------------
-// FlowFilled:
-// Enable/Disable green checks
-// Enable/Disable get approvals button
-// raflow parts
-// -----------------------------------------------------
-window.FlowFilled = function(data) {
-
-    // Update local copy of basicCheck and FlowFilledData
-    app.raflow.basicCheck = data.BasicCheck;
-    app.raflow.FlowFilledData = data.DataFulfilled;
-
-    displayGreenCircle();
 };
 
 // -----------------------------------------------------
@@ -461,52 +494,34 @@ window.displayGreenCircle = function(){
 // load form according to target
 window.loadTargetSection = function (target, previousActiveCompID) {
 
-    /*if ($("#progressbar #steps-list li[data-target='#" + target + "']").hasClass("done")) {
-        console.log("target has been saved", target);
-    } else {}*/
-
-    // get component data based on ID from locally
-    var compData = getRAFlowCompData(previousActiveCompID);
-
-    // default would be compData
-    var modCompData = compData;
-
     switch (previousActiveCompID) {
         case "dates":
-            modCompData = w2ui.RADatesForm.record;
             w2ui.RADatesForm.actions.reset();
             break;
         case "people":
-            // modCompData = compData;
             w2ui.RAPeopleGrid.clear();
             w2ui.RAPeopleForm.actions.reset();
             break;
         case "pets":
-            // modCompData = compData;
             w2ui.RAPetsGrid.clear();
             w2ui.RAPetForm.actions.reset();
             break;
         case "vehicles":
-            // modCompData = compData;
             w2ui.RAVehiclesGrid.clear();
             w2ui.RAVehicleForm.actions.reset();
             break;
         case "rentables":
-            // modCompData = compData;
             w2ui.RARentablesGrid.clear();
             w2ui.RARentableFeesGrid.clear();
             w2ui.RARentableFeeForm.actions.reset();
             break;
         case "parentchild":
-            // modCompData = compData;
             w2ui.RAParentChildGrid.clear();
             break;
         case "tie":
-            // modCompData = compData;
             w2ui.RATiePeopleGrid.clear();
             break;
         case "final":
-            modCompData = null;
             w2ui.RAFinalRentablesFeesGrid.clear();
             w2ui.RAFinalPetsFeesGrid.clear();
             w2ui.RAFinalVehiclesFeesGrid.clear();
@@ -514,12 +529,6 @@ window.loadTargetSection = function (target, previousActiveCompID) {
         default:
             alert("invalid active comp: " + previousActiveCompID);
             return;
-    }
-
-    // get part type from the class index
-    if (modCompData) {
-        // save the content on server for active component
-        saveActiveCompData(modCompData, previousActiveCompID);
     }
 
     // hide active component
@@ -554,15 +563,6 @@ window.loadTargetSection = function (target, previousActiveCompID) {
     var targetLoader = RACompConfig[target].loader;
     if (targetLoader.length > 0) {
         window[targetLoader]();
-        /*setTimeout(function() {
-            var validateForm = compIDw2uiForms[previousActiveCompID];
-            if (typeof w2ui[validateForm] !== "undefined") {
-                var issues = w2ui[validateForm].validate();
-                if (!(Array.isArray(issues) && issues.length > 0)) {
-                    // $("#progressbar #steps-list li[data-target='#" + previousActiveCompID + "']").addClass("done");
-                }
-            }
-        }, 500);*/
     } else {
         console.log("unknown target from nav li: ", target);
     }
@@ -858,11 +858,16 @@ window.displayErrorSummary = function (comp) {
         // Display error summary
         $(error_summary_sel).css('display', 'block');
 
-        var form_errors_count = app.raflow.validationCheck.errors[comp].length;
+        var form_errors_count;
+        if(comp !== "tie"){
+            form_errors_count = app.raflow.validationCheck.errors[comp].total;
+        }else{
+            form_errors_count = app.raflow.validationCheck.errors[comp].people.total;
+        }
         var non_fields_errors_count = app.raflow.validationCheck.nonFieldsErrors[comp].length;
 
         // Update error count for form error and non fields error
-        $("#field-errors-count").html(form_errors_count); // TODO(Akshay): Manage for date section
+        $("#field-errors-count").html(form_errors_count);
         $("#non-field-errors-count").html(non_fields_errors_count);
 
         // If there are any non fields errors than display dropdown icon. Via it can expand non-fields-error summary
