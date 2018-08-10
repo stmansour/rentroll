@@ -1009,6 +1009,10 @@ func validateFeesBizLogic(ctx context.Context, fees []rlib.RAFeesData) ([]RAFees
 		// -----------------------------------------------
 		// 2. Check fee must be exist in the database
 		ar, err := rlib.GetAR(ctx, fee.ARID)
+		fmt.Println("ARID Debugging ***************")
+		fmt.Println(ar.ARID)
+		fmt.Println(fee.ARID)
+		fmt.Println("ARID Debugging ***************")
 		if !(ar.ARID > 0) {
 			err = fmt.Errorf("fee associated account rule doesn't exist")
 			raFeesError.Errors["ARID"] = append(raFeesError.Errors["ARID"], err.Error())

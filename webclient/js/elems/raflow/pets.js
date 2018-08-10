@@ -1254,7 +1254,7 @@ window.displayRAPetFeeFormError = function(TMPPETID){
     var record = form.record;
 
     // get list of pets
-    var pets = app.raflow.validationCheck.errors.pets;
+    var pets = app.raflow.validationCheck.errors.pets.errors;
 
     // get index of pet for whom form is opened
     var petIndex = getPetIndex(TMPPETID, pets);
