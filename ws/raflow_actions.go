@@ -253,7 +253,7 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 			return flow, err
 		}
 
-		err = rlib.UpdateFlowData(ctx, "meta", modMetaData, &flow)
+		err = rlib.UpdateFlowPartData(ctx, "meta", modMetaData, &flow)
 		if err != nil {
 			return flow, err
 		}
@@ -625,7 +625,7 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 		return raflowRespData, err
 	}
 
-	err = rlib.UpdateFlowData(ctx, "meta", modMetaData, &flow)
+	err = rlib.UpdateFlowPartData(ctx, "meta", modMetaData, &flow)
 	if err != nil {
 		return raflowRespData, err
 	}
