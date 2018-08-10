@@ -12,6 +12,44 @@
 "use strict";
 
 //-----------------------------------------------------------------------------
+// RAFlowAJAX - A command ajax caller for all raflow related APIs
+//              It will show loader before any request starts and
+//              hides the loader when request is served
+//-----------------------------------------------------------------------------
+window.RAFlowAJAX = function(URL, METHOD, REQDATA) {
+
+    var DATA = null;
+    if (METHOD === "POST") {
+        DATA = JSON.stringify(REQDATA);
+    }
+
+    return $.ajax({
+        url: URL,
+        method: METHOD,
+        contentType: "application/json",
+        dataType: "json",
+        data: DATA,
+        beforeSend: function() {
+            // show the loader
+            HideRAFlowLoader(false);
+            $("#raflow-container .loader").css("display", "flex");
+        },
+        success: function (data) {
+            if (data.status !== "error") {
+                updateFlowData(data);
+            }
+        },
+        error: function (data) {
+            console.log(data);
+        },
+        complete: function() {
+            // hide the loader
+            HideRAFlowLoader(true);
+        }
+    });
+};
+
+//-----------------------------------------------------------------------------
 // GetRefNoByRAIDFromGrid returns UserRefNo By RAID from applicantsGrid RECORDS
 //-----------------------------------------------------------------------------
 window.GetRefNoByRAIDFromGrid = function(RAID) {
