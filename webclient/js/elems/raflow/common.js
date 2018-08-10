@@ -456,52 +456,34 @@ window.displayGreenCircle = function(){
 // load form according to target
 window.loadTargetSection = function (target, previousActiveCompID) {
 
-    /*if ($("#progressbar #steps-list li[data-target='#" + target + "']").hasClass("done")) {
-        console.log("target has been saved", target);
-    } else {}*/
-
-    // get component data based on ID from locally
-    var compData = getRAFlowCompData(previousActiveCompID);
-
-    // default would be compData
-    var modCompData = compData;
-
     switch (previousActiveCompID) {
         case "dates":
-            modCompData = w2ui.RADatesForm.record;
             w2ui.RADatesForm.actions.reset();
             break;
         case "people":
-            // modCompData = compData;
             w2ui.RAPeopleGrid.clear();
             w2ui.RAPeopleForm.actions.reset();
             break;
         case "pets":
-            // modCompData = compData;
             w2ui.RAPetsGrid.clear();
             w2ui.RAPetForm.actions.reset();
             break;
         case "vehicles":
-            // modCompData = compData;
             w2ui.RAVehiclesGrid.clear();
             w2ui.RAVehicleForm.actions.reset();
             break;
         case "rentables":
-            // modCompData = compData;
             w2ui.RARentablesGrid.clear();
             w2ui.RARentableFeesGrid.clear();
             w2ui.RARentableFeeForm.actions.reset();
             break;
         case "parentchild":
-            // modCompData = compData;
             w2ui.RAParentChildGrid.clear();
             break;
         case "tie":
-            // modCompData = compData;
             w2ui.RATiePeopleGrid.clear();
             break;
         case "final":
-            modCompData = null;
             w2ui.RAFinalRentablesFeesGrid.clear();
             w2ui.RAFinalPetsFeesGrid.clear();
             w2ui.RAFinalVehiclesFeesGrid.clear();
@@ -509,12 +491,6 @@ window.loadTargetSection = function (target, previousActiveCompID) {
         default:
             alert("invalid active comp: " + previousActiveCompID);
             return;
-    }
-
-    // get part type from the class index
-    if (modCompData) {
-        // save the content on server for active component
-        saveActiveCompData(modCompData, previousActiveCompID);
     }
 
     // hide active component
@@ -549,15 +525,6 @@ window.loadTargetSection = function (target, previousActiveCompID) {
     var targetLoader = RACompConfig[target].loader;
     if (targetLoader.length > 0) {
         window[targetLoader]();
-        /*setTimeout(function() {
-            var validateForm = compIDw2uiForms[previousActiveCompID];
-            if (typeof w2ui[validateForm] !== "undefined") {
-                var issues = w2ui[validateForm].validate();
-                if (!(Array.isArray(issues) && issues.length > 0)) {
-                    // $("#progressbar #steps-list li[data-target='#" + previousActiveCompID + "']").addClass("done");
-                }
-            }
-        }, 500);*/
     } else {
         console.log("unknown target from nav li: ", target);
     }

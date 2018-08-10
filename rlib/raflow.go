@@ -597,7 +597,7 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 	flow.Data = modFlowData
 
 	// NOW UPDATE THE WHOLE FLOW
-	return UpdateFlowWithInitState(ctx, flow)
+	return UpdateRAFlowWithInitState(ctx, flow)
 }
 
 // SyncParentChildRecords modifies parent-child list cause of on change of rentable records

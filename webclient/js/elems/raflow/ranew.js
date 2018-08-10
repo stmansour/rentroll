@@ -20,6 +20,14 @@
 //   FlowID = Id of the Flow
 //-----------------------------------------------------------------------------
 window.LoadRAFlowTemplate = function(bid, raFlowVersion) {
+    if("RAActionForm" in w2ui){
+        w2ui.RAActionForm.destroy();
+    }
+    if("raActionLayout" in w2ui){
+        w2ui.raActionLayout.destroy();
+        w2ui.newraLayout.get('right').content = "";
+        w2ui.newraLayout.hide('right');
+    }
 
     // show the loader
     HideRAFlowLoader(false);

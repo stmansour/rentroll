@@ -186,17 +186,17 @@ func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName s
 			// ADD FEE IN LIST
 			raFee := RAFeesData{
 				TMPASMID:        0,
-				ASMID:           0,
+				ASMID:           baseFee.ASMID,
 				ARID:            baseFee.ARID,
 				ARName:          baseFee.ARName,
 				ContractAmount:  baseFee.ContractAmount,
 				RentCycle:       RECURNONE,
 				Start:           JSONDate(rStart),
 				Stop:            JSONDate(rStart),
-				AtSigningPreTax: 0.00,
-				SalesTax:        0.00,
-				TransOccTax:     0.00,
-				Comment:         "",
+				AtSigningPreTax: baseFee.AtSigningPreTax,
+				SalesTax:        baseFee.SalesTax,
+				TransOccTax:     baseFee.TransOccTax,
+				Comment:         baseFee.Comment,
 			}
 			fees = append(fees, raFee)
 		} else if rentAsmCharge { // IT MUST BE RENT ASM ONE
@@ -218,16 +218,16 @@ func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName s
 				// ADD FEE IN LIST
 				raFee := RAFeesData{
 					TMPASMID:        0,
-					ASMID:           0,
+					ASMID:           baseFee.ASMID,
 					ARID:            baseFee.ARID,
 					ARName:          baseFee.ARName,
 					ContractAmount:  tot,
 					RentCycle:       RECURNONE,
 					Start:           JSONDate(rStart),
 					Stop:            JSONDate(rStart),
-					AtSigningPreTax: 0.00,
-					SalesTax:        0.00,
-					TransOccTax:     0.00,
+					AtSigningPreTax: baseFee.AtSigningPreTax,
+					SalesTax:        baseFee.SalesTax,
+					TransOccTax:     baseFee.TransOccTax,
 					Comment:         cmt,
 				}
 				fees = append(fees, raFee)
@@ -237,17 +237,17 @@ func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName s
 			// ADD FEE IN LIST
 			raFee := RAFeesData{
 				TMPASMID:        0,
-				ASMID:           0,
+				ASMID:           baseFee.ASMID,
 				ARID:            baseFee.ARID,
 				ARName:          baseFee.ARName,
 				ContractAmount:  baseFee.ContractAmount,
 				RentCycle:       RentCycle,
 				Start:           JSONDate(epoch),
 				Stop:            JSONDate(rStop),
-				AtSigningPreTax: 0.00,
-				SalesTax:        0.00,
-				TransOccTax:     0.00,
-				Comment:         "",
+				AtSigningPreTax: baseFee.AtSigningPreTax,
+				SalesTax:        baseFee.SalesTax,
+				TransOccTax:     baseFee.TransOccTax,
+				Comment:         baseFee.Comment,
 			}
 			fees = append(fees, raFee)
 		}

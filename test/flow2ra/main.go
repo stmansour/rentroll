@@ -250,7 +250,7 @@ func setUpdatedRAStartDate(ctx context.Context, flowid int64, dt *time.Time) err
 		if err != nil {
 			return err
 		}
-		err = rlib.UpdateFlowData(ctx, "pets", d, &flow)
+		err = rlib.UpdateFlowPartData(ctx, "pets", d, &flow)
 		if err != nil {
 			return err
 		}
@@ -263,7 +263,7 @@ func setUpdatedRAStartDate(ctx context.Context, flowid int64, dt *time.Time) err
 		if err != nil {
 			return err
 		}
-		err = rlib.UpdateFlowData(ctx, "vehicles", d, &flow)
+		err = rlib.UpdateFlowPartData(ctx, "vehicles", d, &flow)
 		if err != nil {
 			return err
 		}
@@ -276,7 +276,7 @@ func setUpdatedRAStartDate(ctx context.Context, flowid int64, dt *time.Time) err
 		if err != nil {
 			return err
 		}
-		err = rlib.UpdateFlowData(ctx, "rentables", d, &flow)
+		err = rlib.UpdateFlowPartData(ctx, "rentables", d, &flow)
 		if err != nil {
 			return err
 		}
@@ -287,7 +287,7 @@ func setUpdatedRAStartDate(ctx context.Context, flowid int64, dt *time.Time) err
 	if d, err = json.Marshal(&raf.Dates); err != nil {
 		return err
 	}
-	if err = rlib.UpdateFlowData(ctx, "dates", d, &flow); err != nil {
+	if err = rlib.UpdateFlowPartData(ctx, "dates", d, &flow); err != nil {
 		return err
 	}
 
