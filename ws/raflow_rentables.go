@@ -284,7 +284,7 @@ func SaveRAFlowRentableDetails(w http.ResponseWriter, r *http.Request, d *Servic
 		flow.Data = modFlowData
 
 		// NOW UPDATE THE WHOLE FLOW
-		err = rlib.UpdateFlowWithInitState(ctx, &flow)
+		err = rlib.UpdateRAFlowWithInitState(ctx, &flow)
 		if err != nil {
 			return
 		}
@@ -423,7 +423,7 @@ func DeleteRAFlowRentable(w http.ResponseWriter, r *http.Request, d *ServiceData
 		flow.Data = modFlowData
 
 		// NOW UPDATE THE WHOLE FLOW
-		err = rlib.UpdateFlowWithInitState(ctx, &flow)
+		err = rlib.UpdateRAFlowWithInitState(ctx, &flow)
 		if err != nil {
 			return
 		}

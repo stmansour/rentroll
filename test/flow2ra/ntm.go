@@ -83,7 +83,7 @@ func setToNoticeToMove(ctx context.Context, s *rlib.Session, raid int64) error {
 	}
 
 	// flow data with the updates to the meta fields
-	if err = rlib.UpdateFlowData(ctx, "meta", d, &flow); err != nil {
+	if err = rlib.UpdateFlowPartData(ctx, "meta", d, &flow); err != nil {
 		return err
 	}
 

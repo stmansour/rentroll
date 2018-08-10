@@ -12,6 +12,44 @@
 "use strict";
 
 //-----------------------------------------------------------------------------
+// RAFlowAJAX - A command ajax caller for all raflow related APIs
+//              It will show loader before any request starts and
+//              hides the loader when request is served
+//-----------------------------------------------------------------------------
+window.RAFlowAJAX = function(URL, METHOD, REQDATA) {
+
+    var DATA = null;
+    if (METHOD === "POST") {
+        DATA = JSON.stringify(REQDATA);
+    }
+
+    return $.ajax({
+        url: URL,
+        method: METHOD,
+        contentType: "application/json",
+        dataType: "json",
+        data: DATA,
+        beforeSend: function() {
+            // show the loader
+            HideRAFlowLoader(false);
+            $("#raflow-container .loader").css("display", "flex");
+        },
+        success: function (data) {
+            if (data.status !== "error") {
+                updateFlowData(data);
+            }
+        },
+        error: function (data) {
+            console.log(data);
+        },
+        complete: function() {
+            // hide the loader
+            HideRAFlowLoader(true);
+        }
+    });
+};
+
+//-----------------------------------------------------------------------------
 // GetRefNoByRAIDFromGrid returns UserRefNo By RAID from applicantsGrid RECORDS
 //-----------------------------------------------------------------------------
 window.GetRefNoByRAIDFromGrid = function(RAID) {
@@ -461,52 +499,34 @@ window.displayGreenCircle = function(){
 // load form according to target
 window.loadTargetSection = function (target, previousActiveCompID) {
 
-    /*if ($("#progressbar #steps-list li[data-target='#" + target + "']").hasClass("done")) {
-        console.log("target has been saved", target);
-    } else {}*/
-
-    // get component data based on ID from locally
-    var compData = getRAFlowCompData(previousActiveCompID);
-
-    // default would be compData
-    var modCompData = compData;
-
     switch (previousActiveCompID) {
         case "dates":
-            modCompData = w2ui.RADatesForm.record;
             w2ui.RADatesForm.actions.reset();
             break;
         case "people":
-            // modCompData = compData;
             w2ui.RAPeopleGrid.clear();
             w2ui.RAPeopleForm.actions.reset();
             break;
         case "pets":
-            // modCompData = compData;
             w2ui.RAPetsGrid.clear();
             w2ui.RAPetForm.actions.reset();
             break;
         case "vehicles":
-            // modCompData = compData;
             w2ui.RAVehiclesGrid.clear();
             w2ui.RAVehicleForm.actions.reset();
             break;
         case "rentables":
-            // modCompData = compData;
             w2ui.RARentablesGrid.clear();
             w2ui.RARentableFeesGrid.clear();
             w2ui.RARentableFeeForm.actions.reset();
             break;
         case "parentchild":
-            // modCompData = compData;
             w2ui.RAParentChildGrid.clear();
             break;
         case "tie":
-            // modCompData = compData;
             w2ui.RATiePeopleGrid.clear();
             break;
         case "final":
-            modCompData = null;
             w2ui.RAFinalRentablesFeesGrid.clear();
             w2ui.RAFinalPetsFeesGrid.clear();
             w2ui.RAFinalVehiclesFeesGrid.clear();
@@ -514,12 +534,6 @@ window.loadTargetSection = function (target, previousActiveCompID) {
         default:
             alert("invalid active comp: " + previousActiveCompID);
             return;
-    }
-
-    // get part type from the class index
-    if (modCompData) {
-        // save the content on server for active component
-        saveActiveCompData(modCompData, previousActiveCompID);
     }
 
     // hide active component
@@ -554,15 +568,6 @@ window.loadTargetSection = function (target, previousActiveCompID) {
     var targetLoader = RACompConfig[target].loader;
     if (targetLoader.length > 0) {
         window[targetLoader]();
-        /*setTimeout(function() {
-            var validateForm = compIDw2uiForms[previousActiveCompID];
-            if (typeof w2ui[validateForm] !== "undefined") {
-                var issues = w2ui[validateForm].validate();
-                if (!(Array.isArray(issues) && issues.length > 0)) {
-                    // $("#progressbar #steps-list li[data-target='#" + previousActiveCompID + "']").addClass("done");
-                }
-            }
-        }, 500);*/
     } else {
         console.log("unknown target from nav li: ", target);
     }
