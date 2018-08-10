@@ -853,11 +853,16 @@ window.displayErrorSummary = function (comp) {
         // Display error summary
         $(error_summary_sel).css('display', 'block');
 
-        var form_errors_count = app.raflow.validationCheck.errors[comp].total;
+        var form_errors_count;
+        if(comp !== "tie"){
+            form_errors_count = app.raflow.validationCheck.errors[comp].total;
+        }else{
+            form_errors_count = app.raflow.validationCheck.errors[comp].people.total;
+        }
         var non_fields_errors_count = app.raflow.validationCheck.nonFieldsErrors[comp].length;
 
         // Update error count for form error and non fields error
-        $("#field-errors-count").html(form_errors_count); // TODO(Akshay): Manage for date, tie-people section
+        $("#field-errors-count").html(form_errors_count);
         $("#non-field-errors-count").html(non_fields_errors_count);
 
         // If there are any non fields errors than display dropdown icon. Via it can expand non-fields-error summary

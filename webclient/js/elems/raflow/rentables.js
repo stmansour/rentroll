@@ -186,7 +186,7 @@ window.loadRARentablesGrid = function () {
                     render: function (record) {
                         var haveError = false;
                         if (app.raflow.validationErrors.rentables) {
-                            var rentables = app.raflow.validationCheck.errors.rentables;
+                            var rentables = app.raflow.validationCheck.errors.rentables.errors;
                             for (var i = 0; i < rentables.length; i++) {
                                 if (rentables[i].RID === record.RID && rentables[i].total > 0) {
                                     haveError = true;
@@ -1103,7 +1103,7 @@ window.dispalyRARentablesGridError = function (){
     }
 
     if (app.raflow.validationErrors.rentables) {
-        var rentables = app.raflow.validationCheck.errors.rentables;
+        var rentables = app.raflow.validationCheck.errors.rentables.errors;
         for (i = 0; i < rentables.length; i++) {
             if (rentables[i].total > 0) {
                 var recid = getRecIDFromRID(g, rentables[i].RID);
@@ -1135,7 +1135,7 @@ window.displayRARentableFeesGridError = function () {
     }
 
     if (app.raflow.validationErrors.rentables) {
-        var rentables = app.raflow.validationCheck.errors.rentables;
+        var rentables = app.raflow.validationCheck.errors.rentables.errors;
         for (i = 0; i < rentables.length; i++) {
             for (var j = 0; j < rentables[i].fees.length; j++) {
                 if (rentables[i].fees[j].total > 0) {
@@ -1172,7 +1172,7 @@ window.displayRARentableFeeFormError = function(RID){
     var record = form.record;
 
     // get list of pets
-    var rentables = app.raflow.validationCheck.errors.rentables;
+    var rentables = app.raflow.validationCheck.errors.rentables.errors;
 
     // get index of vehicle for whom form is opened
     var rentableIndex = getRentableIndex(RID, rentables);

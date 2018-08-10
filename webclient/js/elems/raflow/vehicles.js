@@ -193,7 +193,7 @@ window.loadRAVehiclesGrid = function () {
                     render: function (record) {
                         var haveError = false;
                         if (app.raflow.validationErrors.vehicles) {
-                            var vehicles = app.raflow.validationCheck.errors.vehicles;
+                            var vehicles = app.raflow.validationCheck.errors.vehicles.errors;
                             for (var i = 0; i < vehicles.length; i++) {
                                 if (vehicles[i].TMPVID === record.TMPVID && vehicles[i].total > 0) {
                                     haveError = true;
@@ -1196,7 +1196,7 @@ window.dispalyRAVehiclesGridError = function (){
     }
 
     if (app.raflow.validationErrors.vehicles) {
-        var vehicles = app.raflow.validationCheck.errors.vehicles;
+        var vehicles = app.raflow.validationCheck.errors.vehicles.errors;
         for (i = 0; i < vehicles.length; i++) {
             if (vehicles[i].total > 0) {
                 var recid = getRecIDFromTMPVID(g, vehicles[i].TMPVID);
@@ -1227,7 +1227,7 @@ window.displayRAVehicleFeesGridError = function () {
     }
 
     if (app.raflow.validationErrors.vehicles) {
-        var vehicles = app.raflow.validationCheck.errors.vehicles;
+        var vehicles = app.raflow.validationCheck.errors.vehicles.errors;
         for (i = 0; i < vehicles.length; i++) {
             for (var j = 0; j < vehicles[i].fees.length; j++) {
                 if (vehicles[i].fees[j].total > 0) {
@@ -1264,7 +1264,7 @@ window.displayRAVehicleFormError = function(){
     var record = form.record;
 
     // get list of pets
-    var vehicles = app.raflow.validationCheck.errors.vehicles;
+    var vehicles = app.raflow.validationCheck.errors.vehicles.errors;
 
     // get index of pet for whom form is opened
     var index = getVehicleIndex(record.TMPVID, vehicles);
@@ -1302,7 +1302,7 @@ window.displayRAVehicleFeeFormError = function(TMPVID){
     var record = form.record;
 
     // get list of pets
-    var vehicles = app.raflow.validationCheck.errors.vehicles;
+    var vehicles = app.raflow.validationCheck.errors.vehicles.errors;
 
     // get index of vehicle for whom form is opened
     var vehicleIndex = getVehicleIndex(TMPVID, vehicles);

@@ -86,7 +86,7 @@ window.GetFeeGridColumns = function(feesGrid) {
                 render: function (record) {
                     var haveError = false;
                     if (app.raflow.validationErrors.pets) {
-                        var pets = app.raflow.validationCheck.errors.pets;
+                        var pets = app.raflow.validationCheck.errors.pets.errors;
                         for (var i = 0; i < pets.length; i++) {
                             for(var j = 0; j < pets[i].fees.length; j++){
                                 if(pets[i].fees[j].TMPASMID === record.TMPASMID){
@@ -112,7 +112,7 @@ window.GetFeeGridColumns = function(feesGrid) {
                 render: function (record) {
                     var haveError = false;
                     if (app.raflow.validationErrors.vehicles) {
-                        var vehicles = app.raflow.validationCheck.errors.vehicles;
+                        var vehicles = app.raflow.validationCheck.errors.vehicles.errors;
                         for (var i = 0; i < vehicles.length; i++) {
                             for(var j = 0; j < vehicles[i].fees.length; j++){
                                 if(vehicles[i].fees[j].TMPASMID === record.TMPASMID){
@@ -138,7 +138,7 @@ window.GetFeeGridColumns = function(feesGrid) {
                 render: function (record) {
                     var haveError = false;
                     if (app.raflow.validationErrors.rentables) {
-                        var rentables = app.raflow.validationCheck.errors.rentables;
+                        var rentables = app.raflow.validationCheck.errors.rentables.errors;
                         for (var i = 0; i < rentables.length; i++) {
                             for(var j = 0; j < rentables[i].fees.length; j++){
                                 if(rentables[i].fees[j].TMPASMID === record.TMPASMID){
