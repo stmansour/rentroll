@@ -1,7 +1,7 @@
 /* global
     saveActiveCompData, getRAFlowCompData, getRecIDFromCRID, dispalyRAParentChildGridError,
-    getChildRentableLocalData, setChildRentableLocalData, saveParentChildCompData,
-    EnableDisableRAFlowVersionGrid
+    getChildRentableLocalData, SetChildRentableLocalData, saveParentChildCompData,
+    EnableDisableRAFlowVersionGrid, SaveParentChildCompData
 */
 
 "use strict";
@@ -109,11 +109,22 @@ window.loadRAPeopleChildSection = function () {
 
                         // set modified data in grid and locally
                         grid.set(event.recid, record);
-                        setChildRentableLocalData(record.CRID, localData);
-                    }
+                        SetChildRentableLocalData(record.CRID, localData);
 
-                    // save grid changes
-                    this.save();
+                        // SAVE DATA ON SERVER SIDE
+                        SaveParentChildCompData()
+                        .done(function(data) {
+                            if (data.status === 'success') {
+                                // save grid changes
+                                grid.save();
+                            } else {
+                                grid.message(data.message);
+                            }
+                        })
+                        .fail(function(data) {
+                            console.log("failure " + data);
+                        });
+                    }
                 };
             }
         });
@@ -277,10 +288,10 @@ window.getChildRentableLocalData = function(RID, returnIndex) {
 };
 
 //-----------------------------------------------------------------------------
-// setChildRentableLocalData - set the modified rentable data locally
+// SetChildRentableLocalData - set the modified rentable data locally
 //                              for requested RID by matching CRID
 //-----------------------------------------------------------------------------
-window.setChildRentableLocalData = function(RID, data) {
+window.SetChildRentableLocalData = function(RID, data) {
     var compData = getRAFlowCompData("parentchild");
     var dataIndex = -1;
     compData.forEach(function(item, index) {
@@ -338,4 +349,12 @@ window.getRecIDFromCRID = function(grid, CRID){
         }
     }
     return recid;
+};
+
+//------------------------------------------------------------------------------
+// SaveParentChildCompData - saves the data on server side
+//------------------------------------------------------------------------------
+window.SaveParentChildCompData = function() {
+    var compData = getRAFlowCompData("parentchild");
+    return saveActiveCompData(compData, "parentchild");
 };

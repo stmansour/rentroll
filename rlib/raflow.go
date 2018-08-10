@@ -279,6 +279,7 @@ type RAFeesData struct {
 	ARName          string   `validate:"string,min=1,max=100"`
 	ContractAmount  float64  `validate:"number:float,min=0.00"`
 	RentCycle       int64    `validate:"number,min=0"`
+	ProrationCycle  int64    `validate:"number,min=0"`
 	Start           JSONDate `validate:"date"`
 	Stop            JSONDate `validate:"date"`
 	AtSigningPreTax float64  `validate:"number:float,min=0.00"`
@@ -585,19 +586,6 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 		return
 	}
 
-	//  IF DATA HAS BEEN CHANGED, RESET META AND SET STATE TO APP BEING COMPLETED
-
-	resetMeta := RAFlowMetaInfo{
-		RAID:         raFlowData.Meta.RAID,
-		LastTMPPETID: raFlowData.Meta.LastTMPPETID,
-		LastTMPVID:   raFlowData.Meta.LastTMPVID,
-		LastTMPTCID:  raFlowData.Meta.LastTMPTCID,
-		LastTMPASMID: raFlowData.Meta.LastTMPASMID,
-		HavePets:     raFlowData.Meta.HavePets,
-		HaveVehicles: raFlowData.Meta.HaveVehicles,
-	}
-	raFlowData.Meta = resetMeta
-
 	// GET JSON DATA FROM THE STRUCT
 	var modFlowData []byte
 	modFlowData, err = json.Marshal(&raFlowData)
@@ -609,7 +597,7 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 	flow.Data = modFlowData
 
 	// NOW UPDATE THE WHOLE FLOW
-	return UpdateFlow(ctx, flow)
+	return UpdateFlowWithInitState(ctx, flow)
 }
 
 // SyncParentChildRecords modifies parent-child list cause of on change of rentable records
@@ -631,6 +619,14 @@ func SyncParentChildRecords(raFlowData *RAFlowJSONData) {
 		}
 	}
 
+	// GET ALL CHILD RENTABLES FIRST
+	childRentables := []RARentablesFlowData{}
+	for i := range raFlowData.Rentables {
+		if raFlowData.Rentables[i].RTFLAGS&(1<<childRentableBit) != 0 {
+			childRentables = append(childRentables, raFlowData.Rentables[i])
+		}
+	}
+
 	// IF ONLY ONE RENTABLE THEN ASSIGN IT'S RID IN ALL TIE PEOPLE ENTRIES
 	reAssignRID := int64(0)
 	shouldReAssignRID := len(parentRentables) <= 1
@@ -639,38 +635,50 @@ func SyncParentChildRecords(raFlowData *RAFlowJSONData) {
 	}
 
 	// CHILD RENTABLES
-	for i := range raFlowData.Rentables {
-		if raFlowData.Rentables[i].RTFLAGS&(1<<childRentableBit) != 0 {
-			found := false
-			for k := range raFlowData.ParentChild {
-				if raFlowData.ParentChild[k].CRID == raFlowData.Rentables[i].RID {
-					found = true
-
-					// IF ONLY ONE RENTABLE THEN ASSIGN IT'S RID IN ALL TIE PEOPLE ENTRIES
-					if shouldReAssignRID {
-						raFlowData.ParentChild[k].PRID = reAssignRID
-					}
-				}
-			}
-
-			// IF ENTRY NOT FOUND THEN APPEND
-			if !found {
-				n := RAParentChildFlowData{
-					BID:  0, // WILL BE REMOVED
-					PRID: 0,
-					CRID: raFlowData.Rentables[i].RID,
-				}
+	for i := range childRentables {
+		found := false
+		for k := range raFlowData.ParentChild {
+			if raFlowData.ParentChild[k].CRID == childRentables[i].RID {
+				found = true
 
 				// IF ONLY ONE RENTABLE THEN ASSIGN IT'S RID IN ALL TIE PEOPLE ENTRIES
 				if shouldReAssignRID {
-					n.PRID = reAssignRID
+					raFlowData.ParentChild[k].PRID = reAssignRID
 				}
 
-				// APPEND
-				raFlowData.ParentChild = append(raFlowData.ParentChild, n)
+				break
+			}
+		}
+
+		// IF ENTRY NOT FOUND THEN APPEND
+		if !found {
+			n := RAParentChildFlowData{
+				BID:  0, // WILL BE REMOVED
+				PRID: 0,
+				CRID: childRentables[i].RID,
+			}
+
+			// IF ONLY ONE RENTABLE THEN ASSIGN IT'S RID IN ALL TIE PEOPLE ENTRIES
+			if shouldReAssignRID {
+				n.PRID = reAssignRID
+			}
+
+			// APPEND
+			raFlowData.ParentChild = append(raFlowData.ParentChild, n)
+		}
+	}
+
+	// REMOVE ENTRY FROM PARENT CHILD WHICH ARE NOT IN CHILD RENTALBE LIST
+	modParentChild := []RAParentChildFlowData{}
+	for i := range raFlowData.ParentChild {
+		for k := range childRentables {
+			if raFlowData.ParentChild[i].CRID == childRentables[k].RID {
+				modParentChild = append(modParentChild, raFlowData.ParentChild[i])
+				break
 			}
 		}
 	}
+	raFlowData.ParentChild = modParentChild
 }
 
 // SyncTieRecords modifies tie records cause of on change of people or rentable records
@@ -692,6 +700,14 @@ func SyncTieRecords(raFlowData *RAFlowJSONData) {
 		}
 	}
 
+	// GET ALL OCCUPANTS
+	occupants := []RAPeopleFlowData{}
+	for i := range raFlowData.People {
+		if raFlowData.People[i].IsOccupant {
+			occupants = append(occupants, raFlowData.People[i])
+		}
+	}
+
 	// IF ONLY ONE RENTABLE THEN ASSIGN IT'S RID IN ALL TIE PEOPLE ENTRIES
 	reAssignRID := int64(0)
 	shouldReAssignRID := len(parentRentables) <= 1
@@ -699,40 +715,50 @@ func SyncTieRecords(raFlowData *RAFlowJSONData) {
 		reAssignRID = parentRentables[0].RID
 	}
 
-	for i := range raFlowData.People {
+	for i := range occupants {
 		// TIE RECORD SYNC FOR OCCUPANTS
-		if raFlowData.People[i].IsOccupant {
-			personFound := false
-			for k := range raFlowData.Tie.People {
-				if raFlowData.Tie.People[k].TMPTCID == raFlowData.People[i].TMPTCID {
-					personFound = true
-
-					// IF ONLY ONE RENTABLE THEN ASSIGN IT'S RID IN ALL TIE PEOPLE ENTRIES
-					if shouldReAssignRID {
-						raFlowData.Tie.People[k].PRID = reAssignRID
-					}
-
-					break
-				}
-			}
-
-			// IF PERSON NOT FOUND THEN ADD ENTRY IN TIE
-			if !personFound {
-				tiePerson := RATiePeopleData{
-					BID:     0, // WILL BE REMOVED
-					TMPTCID: raFlowData.People[i].TMPTCID,
-					PRID:    0,
-				}
+		personFound := false
+		for k := range raFlowData.Tie.People {
+			if raFlowData.Tie.People[k].TMPTCID == occupants[i].TMPTCID {
+				personFound = true
 
 				// IF ONLY ONE RENTABLE THEN ASSIGN IT'S RID IN ALL TIE PEOPLE ENTRIES
 				if shouldReAssignRID {
-					tiePerson.PRID = reAssignRID
+					raFlowData.Tie.People[k].PRID = reAssignRID
 				}
 
-				raFlowData.Tie.People = append(raFlowData.Tie.People, tiePerson)
+				break
+			}
+		}
+
+		// IF PERSON NOT FOUND THEN ADD ENTRY IN TIE
+		if !personFound {
+			tiePerson := RATiePeopleData{
+				BID:     0, // WILL BE REMOVED
+				TMPTCID: occupants[i].TMPTCID,
+				PRID:    0,
+			}
+
+			// IF ONLY ONE RENTABLE THEN ASSIGN IT'S RID IN ALL TIE PEOPLE ENTRIES
+			if shouldReAssignRID {
+				tiePerson.PRID = reAssignRID
+			}
+
+			raFlowData.Tie.People = append(raFlowData.Tie.People, tiePerson)
+		}
+	}
+
+	// REMOVE ENTRY FROM PARENT CHILD WHICH ARE NOT IN CHILD RENTALBE LIST
+	modTiePeople := []RATiePeopleData{}
+	for i := range raFlowData.Tie.People {
+		for k := range occupants {
+			if raFlowData.Tie.People[i].TMPTCID == occupants[k].TMPTCID {
+				modTiePeople = append(modTiePeople, raFlowData.Tie.People[i])
+				break
 			}
 		}
 	}
+	raFlowData.Tie.People = modTiePeople
 }
 
 // possessDateChangeRAFlowUpdates updates raflow json with required
@@ -789,7 +815,7 @@ func rentDateChangeRAFlowUpdates(ctx context.Context, BID int64, rStart, rStop t
 
 		// GET MODIFIED PET FEES FROM THIS FLOW DATA PET FEES AND RENT DATES
 		var modPetFees []RAFeesData
-		modPetFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName, rStart, rStop, fees)
+		modPetFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName, rStart, rStop, fees, true)
 		if err != nil {
 			return
 		}
@@ -830,7 +856,7 @@ func rentDateChangeRAFlowUpdates(ctx context.Context, BID int64, rStart, rStop t
 
 		// GET MODIFIED VEHICLE FEES FROM THIS FLOW DATA VEHICLE FEES AND RENT DATES
 		var modVehicleFees []RAFeesData
-		modVehicleFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName, rStart, rStop, fees)
+		modVehicleFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName, rStart, rStop, fees, true)
 		if err != nil {
 			return
 		}
@@ -872,7 +898,7 @@ func rentDateChangeRAFlowUpdates(ctx context.Context, BID int64, rStart, rStop t
 
 		// GET MODIFIED RENTABLE FEES FROM THIS FLOW DATA RENTABLE FEES AND RENT DATES
 		var modRentableFees []RAFeesData
-		modRentableFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName, rStart, rStop, fees)
+		modRentableFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName, rStart, rStop, fees, true)
 		if err != nil {
 			return
 		}

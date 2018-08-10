@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"reflect"
 	"rentroll/rlib"
 )
 
@@ -53,12 +54,11 @@ type RAFlowNewVehicleRequest struct {
 func CreateNewRAFlowVehicle(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "CreateNewRAFlowVehicle"
 	var (
-		foo           RAFlowNewVehicleRequest
-		raFlowData    = rlib.RAFlowJSONData{}
-		err           error
-		tx            *sql.Tx
-		ctx           context.Context
-		modRAFlowMeta rlib.RAFlowMetaInfo
+		foo        RAFlowNewVehicleRequest
+		raFlowData = rlib.RAFlowJSONData{}
+		err        error
+		tx         *sql.Tx
+		ctx        context.Context
 	)
 	fmt.Printf("Entered in %s\n", funcname)
 
@@ -106,7 +106,6 @@ func CreateNewRAFlowVehicle(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	if err != nil {
 		return
 	}
-	modRAFlowMeta = raFlowData.Meta
 
 	// --------------------------------------------------------
 	// APPEND FEES FOR VEHICLES
@@ -117,7 +116,7 @@ func CreateNewRAFlowVehicle(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	newRAFlowVehicle, err = rlib.NewRAFlowVehicle(ctx, d.BID,
 		raFlowData.Dates.RentStart, raFlowData.Dates.RentStop,
 		raFlowData.Dates.PossessionStart, raFlowData.Dates.PossessionStop,
-		&modRAFlowMeta)
+		&raFlowData.Meta)
 	if err != nil {
 		return
 	}
@@ -125,51 +124,39 @@ func CreateNewRAFlowVehicle(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	// append in vehicles list
 	raFlowData.Vehicles = append(raFlowData.Vehicles, newRAFlowVehicle)
 
-	// --------------------------------------------------------
-	// UPDATE JSON DOC WITH NEW VEHICLE DATA (BLANK)
-	// --------------------------------------------------------
-	var modVehiclesData []byte
-	modVehiclesData, err = json.Marshal(&raFlowData.Vehicles)
+	// Update HaveVehicles Flag in meta information of flow
+	raFlowData.Meta.HaveVehicles = len(raFlowData.Vehicles) > 0
+
+	// LOOK FOR DATA CHANGES
+	var originData rlib.RAFlowJSONData
+	err = json.Unmarshal(flow.Data, &originData)
 	if err != nil {
 		return
 	}
 
-	// update flow with this modified vehicles part
-	err = rlib.UpdateFlowData(ctx, "vehicles", modVehiclesData, &flow)
-	if err != nil {
-		return
-	}
-
-	// --------------------------------------------------------
-	// UPDATE JSON DOC WITH NEW META DATA IF APPLICABLE
-	// --------------------------------------------------------
-	if raFlowData.Meta.LastTMPASMID < modRAFlowMeta.LastTMPASMID {
-
-		// Update HaveVehicles Flag in meta information of flow
-		modRAFlowMeta.HaveVehicles = len(raFlowData.Vehicles) > 0
-
-		// get marshalled data
-		var modMetaData []byte
-		modMetaData, err = json.Marshal(&modRAFlowMeta)
+	// IF THERE ARE DATA CHANGES THEN ONLY UPDATE THE FLOW
+	if !reflect.DeepEqual(originData, raFlowData) {
+		// GET JSON DATA FROM THE STRUCT
+		var modFlowData []byte
+		modFlowData, err = json.Marshal(&raFlowData)
 		if err != nil {
 			return
 		}
 
-		// update flow with this modified meta part
-		err = rlib.UpdateFlowData(ctx, "meta", modMetaData, &flow)
+		// ASSIGN JSON MARSHALLED MODIFIED DATA
+		flow.Data = modFlowData
+
+		// NOW UPDATE THE WHOLE FLOW
+		err = rlib.UpdateFlowWithInitState(ctx, &flow)
 		if err != nil {
 			return
 		}
-	}
 
-	// ----------------------------------------------
-	// RETURN RESPONSE
-	// ----------------------------------------------
-
-	// get the modified flow
-	flow, err = rlib.GetFlow(ctx, flow.FlowID)
-	if err != nil {
-		return
+		// get the modified flow
+		flow, err = rlib.GetFlow(ctx, flow.FlowID)
+		if err != nil {
+			return
+		}
 	}
 
 	// ------------------

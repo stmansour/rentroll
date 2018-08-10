@@ -48,7 +48,7 @@ window.RAFlowNewVehicleAJAX = function() {
             // Update flow local copy and green checks
             updateFlowData(data);
 
-            // set the rentable grid records again
+            // reassign records
             AssignVehiclesGridRecords();
 
             // mark new TMPVID from meta
@@ -396,8 +396,6 @@ window.loadRAVehiclesGrid = function () {
                     switch (event.target){
                         case 'btnClose':
                             HideSliderContent();
-                            // unselect selected record
-                            w2ui.RAVehiclesGrid.selectNone();
                             break;
                     }
                 }
@@ -554,14 +552,25 @@ window.loadRAVehiclesGrid = function () {
                     SaveVehiclesCompData()
                     .done(function(data) {
                         if (data.status === 'success') {
-                            // reset form
-                            f.actions.reset();
-                            f.record = GetVehicleFormInitRecord(f.record);
-                            f.refresh();
-                            f.refresh();
 
-                            // re-assign records in grid
-                            AssignVehiclesGridRecords();
+                            // get new entry for vehicle
+                            RAFlowNewVehicleAJAX()
+                            .done(function(data) {
+                                // IT'S MANAGED IN AJAX API
+                                var TMPVID = app.raflow.last.TMPVID;
+
+                                // reset form
+                                f.actions.reset();
+                                f.record = GetVehicleLocalData(TMPVID);
+                                f.refresh();
+                                f.refresh();
+
+                                // re-assign records in grid
+                                AssignVehiclesGridRecords();
+                            })
+                            .fail(function(data) {
+                                f.message("failure " + data);
+                            });
                         } else {
                             f.message(data.message);
                         }
