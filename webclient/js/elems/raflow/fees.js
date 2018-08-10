@@ -347,27 +347,33 @@ window.FeeFormOnRefreshHandler = function(feeForm) {
     feeForm.get("RentCycleText").options.selected = RentCycleTextSel;
     feeForm.record.RentCycleText = RentCycleTextSel;
 
-    // -- START & STOP DATES -- //
-    // if RentCycle is 0=nonrecur then disable Stop date field
-    // and value should be same as Start
-    if (feeForm.record.RentCycle === 0) {
-        $(feeForm.box).find("input[name=Stop]").prop("disabled", true);
-        $(feeForm.box).find("input[name=Stop]").w2field().set(feeForm.record.Start);
-        feeForm.record.Stop = feeForm.record.Start;
-    } else {
-        $(feeForm.box).find("input[name=Stop]").prop("disabled", false);
-    }
-
-    // HIDE DELETE BUTTON IF RECORD IS NEW
-    if (feeForm.record.TMPASMID === 0) {
-        $(feeForm.box).find("div[class=w2ui-buttons] button[name=delete]").hide();
-    } else {
-        $(feeForm.box).find("div[class=w2ui-buttons] button[name=delete]").show();
-    }
-
     // FREEZE THE INPUTS IF VERSION IS RAID
     setTimeout(function() {
         EnableDisableRAFlowVersionInputs(feeForm);
+
+        // ONLY APPLICABLE WHEN FLOW IS IN EDIT MODE
+        if (app.raflow.version === "refno") {
+            // -- START & STOP DATES -- //
+            // if RentCycle is 0=nonrecur then disable Stop date field
+            // and value should be same as Start
+            if (feeForm.record.RentCycle === 0) {
+                $(feeForm.box).find("input[name=RentCycleText]").prop("disabled", true);
+                $(feeForm.box).find("input[name=Stop]").prop("disabled", true);
+                $(feeForm.box).find("input[name=Stop]").w2field().set(feeForm.record.Start);
+                feeForm.record.Stop = feeForm.record.Start;
+            } else {
+                $(feeForm.box).find("input[name=RentCycleText]").prop("disabled", false);
+                $(feeForm.box).find("input[name=Stop]").prop("disabled", false);
+            }
+
+            // HIDE DELETE BUTTON IF RECORD IS NEW
+            if (feeForm.record.TMPASMID === 0) {
+                $(feeForm.box).find("div[class=w2ui-buttons] button[name=delete]").hide();
+            } else {
+                $(feeForm.box).find("div[class=w2ui-buttons] button[name=delete]").show();
+            }
+        }
+
     }, 100);
 };
 
