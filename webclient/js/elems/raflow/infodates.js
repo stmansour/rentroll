@@ -1,6 +1,8 @@
 /* global
     getRAFlowCompData, EnableDisableRAFlowVersionInputs,
-    HideAllSliderContent
+    HideAllSliderContent, SetlocalDataFromRADatesFormRecord,
+    SetRADatesFormRecordFromLocalData, setRAFlowCompData,
+    SetFormRecordFromData, SetDataFromFormRecord, SaveDatesCompData
 */
 
 "use strict";
@@ -20,7 +22,6 @@ window.loadRADatesForm = function () {
             focus: -1,
             formURL: '/webclient/html/raflow/formra-dates.html',
             fields: [
-                {name: 'recid',             type: 'int',    required: true, html: {page: 0, column: 0}},
                 {name: 'BID',               type: 'int',    required: true, html: {page: 0, column: 0}},
                 {name: 'AgreementStart',    type: 'date',   required: true, html: {caption: "Term Start"}},
                 {name: 'AgreementStop',     type: 'date',   required: true, html: {caption: "Term Stop"}},
@@ -33,6 +34,31 @@ window.loadRADatesForm = function () {
             actions: {
                 reset: function () {
                     w2ui.RADatesForm.clear();
+                },
+                save: function() {
+                    var form = w2ui.RADatesForm;
+
+                    // clean dirty flag of form
+                    app.form_is_dirty = false;
+
+                    // validate form record
+                    var errors = form.validate();
+                    console.error("error in form validation on save action");
+                    console.error(errors);
+                    if (errors.length > 0) return;
+
+                    // update the modified data
+                    SetlocalDataFromRADatesFormRecord();
+
+                    // save data on server side
+                    SaveDatesCompData()
+                    .done(function(data) {
+                        if (data.status !== "success") {
+                            form.message(data.message);
+                        } else {
+                            form.refresh();
+                        }
+                    });
                 }
             },
             onRefresh: function (event) {
@@ -62,13 +88,56 @@ window.loadRADatesForm = function () {
 
     // load the existing data in dates component
     setTimeout(function () {
-        var compData = getRAFlowCompData("dates");
-
-        if (compData) {
-            w2ui.RADatesForm.record = compData;
-            w2ui.RADatesForm.refresh();
-        } else {
-            w2ui.RADatesForm.clear();
-        }
-    }, 500);
+        SetRADatesFormRecordFromLocalData();
+    }, 0);
 };
+
+// -------------------------------------------------------------
+// SetlocalDataFromRADatesFormRecord
+// ==================================
+// will update the data from the record
+// it will only update the field defined in fields list in
+// form definition
+// -------------------------------------------------------------
+window.SetlocalDataFromRADatesFormRecord = function() {
+    var form            = w2ui.RADatesForm;
+
+    // get local data
+    var localDatesData = getRAFlowCompData("dates");
+
+    // set data from form
+    // keep ID is 1 to set only records in defined fields
+    var datesData = SetDataFromFormRecord(1, form, localDatesData);
+
+    // set this modified data back
+    setRAFlowCompData("dates", datesData);
+};
+
+// -------------------------------------------------------------
+// SetRADatesFormRecordFromLocalData
+// ================================
+// will set the data in the form record
+// from local vehicle data
+// -------------------------------------------------------------
+window.SetRADatesFormRecordFromLocalData = function() {
+    var form = w2ui.RADatesForm;
+
+    // get local data
+    var localDatesData = getRAFlowCompData("dates");
+
+    // set form record from data
+    SetFormRecordFromData(form, localDatesData);
+
+    // refresh the form after setting the record
+    form.refresh();
+    form.refresh();
+};
+
+//------------------------------------------------------------------------------
+// SaveDatesCompData - saves the data on server side
+//------------------------------------------------------------------------------
+window.SaveDatesCompData = function() {
+    var compData = getRAFlowCompData("dates");
+    return saveActiveCompData(compData, "dates");
+};
+

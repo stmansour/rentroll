@@ -394,7 +394,7 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.UpdateFlow, err = RRdb.Dbrr.Prepare("UPDATE Flow SET " + s3 + " WHERE FlowID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.UpdateFlowData, err = RRdb.Dbrr.Prepare("UPDATE Flow SET Data = JSON_REPLACE(Data, CONCAT('$.', ?), CAST(? AS JSON)) where FlowID=?")
+	RRdb.Prepstmt.UpdateFlowPartData, err = RRdb.Dbrr.Prepare("UPDATE Flow SET Data = JSON_REPLACE(Data, CONCAT('$.', ?), CAST(? AS JSON)) where FlowID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.DeleteFlow, err = RRdb.Dbrr.Prepare("DELETE from Flow WHERE FlowID=?")
 	Errcheck(err)

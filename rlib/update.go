@@ -351,9 +351,9 @@ func UpdateExpense(ctx context.Context, a *Expense) error {
 	return updateError(err, "Expense", *a)
 }
 
-// UpdateFlowWithInitState updates the flow record with resetting it's state
+// UpdateRAFlowWithInitState updates the flow record with resetting it's state
 // to application being complete
-func UpdateFlowWithInitState(ctx context.Context, a *Flow) error {
+func UpdateRAFlowWithInitState(ctx context.Context, a *Flow) error {
 	var err error
 
 	// session... context
@@ -410,8 +410,38 @@ func UpdateFlowWithInitState(ctx context.Context, a *Flow) error {
 	return updateError(err, "Flow", *a)
 }
 
-// UpdateFlowData updates the flow Data json column
-func UpdateFlowData(ctx context.Context, jsonDataKey string, jsonData []byte, a *Flow) error {
+// UpdateFlow updates the flow record
+func UpdateFlow(ctx context.Context, a *Flow) error {
+	var err error
+
+	// session... context
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+		// user from session, CreateBy, LastModBy
+		a.LastModBy = sess.UID
+	}
+
+	// make sure that json is valid before inserting it in database
+	if !(IsByteDataValidJSON(a.Data)) {
+		return ErrFlowInvalidJSONData
+	}
+
+	fields := []interface{}{a.BID, a.UserRefNo, a.FlowType, a.ID, []byte(a.Data), a.LastModBy, a.FlowID}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.UpdateFlow)
+		defer stmt.Close()
+		_, err = stmt.Exec(fields...)
+	} else {
+		_, err = RRdb.Prepstmt.UpdateFlow.Exec(fields...)
+	}
+	return updateError(err, "Flow", *a)
+}
+
+// UpdateFlowPartData updates the flow Data json column
+func UpdateFlowPartData(ctx context.Context, jsonDataKey string, jsonData []byte, a *Flow) error {
 	var err error
 
 	// session... context
@@ -433,13 +463,13 @@ func UpdateFlowData(ctx context.Context, jsonDataKey string, jsonData []byte, a 
 	// in mysql `json` type column
 	fields := []interface{}{jsonDataKey, jsonData, a.FlowID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.UpdateFlowData)
+		stmt := tx.Stmt(RRdb.Prepstmt.UpdateFlowPartData)
 		defer stmt.Close()
 		_, err = stmt.Exec(fields...)
 	} else {
-		_, err = RRdb.Prepstmt.UpdateFlowData.Exec(fields...)
+		_, err = RRdb.Prepstmt.UpdateFlowPartData.Exec(fields...)
 	}
-	return updateError(err, "FlowData", *a)
+	return updateError(err, "FlowPartData", *a)
 }
 
 // UpdateInvoice updates a Invoice record

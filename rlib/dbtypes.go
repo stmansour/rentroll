@@ -1860,7 +1860,7 @@ type RRprepSQL struct {
 	UpdateTransactant                       *sql.Stmt
 	UpdateUser                              *sql.Stmt
 	UpdateVehicle                           *sql.Stmt
-	UpdateFlowData                          *sql.Stmt // flow table
+	UpdateFlowPartData                      *sql.Stmt // flow table
 	UpdateFlow                              *sql.Stmt // flow table
 	GetAssessmentInstancesByParent          *sql.Stmt
 	GetJournalAllocationsByASMID            *sql.Stmt

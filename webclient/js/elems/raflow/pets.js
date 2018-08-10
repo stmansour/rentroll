@@ -188,7 +188,7 @@ window.loadRAPetsGrid = function () {
                     render: function (record) {
                         var haveError = false;
                         if (app.raflow.validationErrors.pets) {
-                            var pets = app.raflow.validationCheck.errors.pets;
+                            var pets = app.raflow.validationCheck.errors.pets.errors;
                             for (var i = 0; i < pets.length; i++) {
                                 if (pets[i].TMPPETID === record.TMPPETID && pets[i].total > 0) {
                                     haveError = true;
@@ -565,6 +565,9 @@ window.loadRAPetsGrid = function () {
 
                                 // close the form
                                 HideSliderContent();
+
+                                // Unselect all selected record from the grid
+                                w2ui.RAPetsGrid.selectNone();
                             } else {
                                 f.message(data.message);
                             }
@@ -598,7 +601,7 @@ window.loadRAPetsGrid = function () {
                 toolbarReload:  false,
                 toolbarInput:   false,
                 toolbarColumns: false,
-                footer:         false,
+                footer:         false
             },
             multiSelect: false,
             style: 'border: 1px solid silver;',
@@ -706,7 +709,7 @@ window.loadRAPetsGrid = function () {
                 event.onComplete = function() {
                     ShowHideGridToolbarAddButton(grid.name);
                 };
-            },
+            }
         });
 
         // -----------------------------------------------------------
@@ -1142,16 +1145,15 @@ window.displayRAPetsGridError = function (){
     }
 
     if (app.raflow.validationErrors.pets) {
-        var pets = app.raflow.validationCheck.errors.pets;
+        var pets = app.raflow.validationCheck.errors.pets.errors;
         for (i = 0; i < pets.length; i++) {
             var recid = getRecIDFromTMPPETID(g, pets[i].TMPPETID);
             if (pets[i].total > 0) {
                 g.get(recid).w2ui.style = "background-color: #EEB4B4";
-                g.refreshRow(recid);
             }else{
                 g.get(recid).w2ui.style = {};
-                g.refreshRow(recid);
             }
+            g.refreshRow(recid);
         }
     }
 };
@@ -1176,7 +1178,7 @@ window.displayRAPetFeesGridError = function () {
     }
 
     if (app.raflow.validationErrors.pets) {
-        var pets = app.raflow.validationCheck.errors.pets;
+        var pets = app.raflow.validationCheck.errors.pets.errors;
         for (i = 0; i < pets.length; i++) {
             for (var j = 0; j < pets[i].fees.length; j++) {
                 if (pets[i].fees[j].total > 0) {
@@ -1213,7 +1215,7 @@ window.displayRAPetFormError = function(){
     var record = form.record;
 
     // get list of pets
-    var pets = app.raflow.validationCheck.errors.pets;
+    var pets = app.raflow.validationCheck.errors.pets.errors;
 
     // get index of pet for whom form is opened
     var index = getPetIndex(record.TMPPETID, pets);
@@ -1252,7 +1254,7 @@ window.displayRAPetFeeFormError = function(TMPPETID){
     var record = form.record;
 
     // get list of pets
-    var pets = app.raflow.validationCheck.errors.pets;
+    var pets = app.raflow.validationCheck.errors.pets.errors;
 
     // get index of pet for whom form is opened
     var petIndex = getPetIndex(TMPPETID, pets);

@@ -60,7 +60,7 @@ func Fees2RA(ctx context.Context, x *WriteHandlerContext) error {
 	// Now clean up any assessments that are associated with the old RAID but
 	// that have not been updated as part of any fee in the new RAID.
 	//--------------------------------------------------------------------------
-	CleanUpRemainingAssessments(ctx, x)
+	//CleanUpRemainingAssessments(ctx, x)
 
 	return nil
 }
@@ -81,7 +81,7 @@ func CleanUpRemainingAssessments(ctx context.Context, x *WriteHandlerContext) er
 	// Get the list of any assessments associated with the old rental agreement
 	// that overlap the time range of the new rental agreement.
 	//--------------------------------------------------------------------------
-	m, err := rlib.GetAssessmentInstancesByRAID(ctx, x.raOrig.RAID, x.ra.RentStart, x.ra.RentStop)
+	m, err := rlib.GetAssessmentInstancesByRAID(ctx, x.raOrig.RAID, &x.ra.RentStart, &x.ra.RentStop)
 	if err != nil {
 		return err
 	}
@@ -92,10 +92,13 @@ func CleanUpRemainingAssessments(ctx context.Context, x *WriteHandlerContext) er
 			if len(be) > 0 {
 				return bizlogic.BizErrorListToError(be)
 			}
+		} else {
+			// If it is a recurring assessment, stop it.
+
 		}
 
-		// If it is a recurring assessment, stop it.
 	}
+	return nil
 }
 
 // F2RASaveFee handles all the updates necessary to move the

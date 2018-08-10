@@ -147,7 +147,7 @@ func CreateNewRAFlowVehicle(w http.ResponseWriter, r *http.Request, d *ServiceDa
 		flow.Data = modFlowData
 
 		// NOW UPDATE THE WHOLE FLOW
-		err = rlib.UpdateFlowWithInitState(ctx, &flow)
+		err = rlib.UpdateRAFlowWithInitState(ctx, &flow)
 		if err != nil {
 			return
 		}
