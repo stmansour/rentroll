@@ -174,9 +174,14 @@ func SaveRAFlowRentableDetails(w http.ResponseWriter, r *http.Request, d *Servic
 
 			// If it have is non recur charge true
 			if ar.FLAGS&0x40 != 0 {
-				rec.RentCycle = 0 // norecur: index 0 in app.cycleFreq
+				rec.RentCycle = rlib.RECURNONE // norecur: index 0 in app.cycleFreq
+				rec.ProrationCycle = rlib.RECURNONE
 			} else {
-				rec.RentCycle = rt.RentCycle
+				// TODO(Steve & Sudip): SHOULD WE SET CYCLES FROM AR OR RENTABLE TYPES?
+				// rec.RentCycle = rt.RentCycle
+				// rec.ProrationCycle = rt.ProrationCycle
+				rec.RentCycle = ar.DefaultRentCycle
+				rec.ProrationCycle = ar.DefaultProrationCycle
 			}
 
 			feesRecords = append(feesRecords, rec)
@@ -216,9 +221,14 @@ func SaveRAFlowRentableDetails(w http.ResponseWriter, r *http.Request, d *Servic
 
 		// If it have is non recur charge  flag true
 		if ar.FLAGS&0x40 != 0 {
-			rec.RentCycle = 0 // norecur: index 0 in app.cycleFreq
+			rec.RentCycle = rlib.RECURNONE // norecur: index 0 in app.cycleFreq
+			rec.ProrationCycle = rlib.RECURNONE
 		} else {
-			rec.RentCycle = rt.RentCycle
+			// TODO(Steve & Sudip): SHOULD WE SET CYCLES FROM AR OR RENTABLE TYPES?
+			// rec.RentCycle = rt.RentCycle
+			// rec.ProrationCycle = rt.ProrationCycle
+			rec.RentCycle = ar.DefaultRentCycle
+			rec.ProrationCycle = ar.DefaultProrationCycle
 		}
 
 		/*if ar.FLAGS&0x20 != 0 { // same will be applied to Security Deposit ASM

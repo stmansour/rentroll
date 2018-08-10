@@ -31,6 +31,8 @@ window.GetFeeFormInitRecord = function () {
         ContractAmount:     0.0,
         RentCycle:          0,
         RentCycleText:      "",
+        ProrationCycle:     0,
+        ProrationCycleText: "",
         Start:              w2uiDateControlString(t),
         Stop:               w2uiDateControlString(nyd),
         AtSigningPreTax:    0.0,
@@ -48,22 +50,24 @@ window.GetFeeFormInitRecord = function () {
 // -------------------------------------------------------------------------------
 window.GetFeeFormFields = function() {
     var fields = [
-        {name: 'recid',             type: 'int',    required: false,    html: {page: 0, column: 0}},
-        {name: 'TMPASMID',          type: 'int',    required: true,     html: {page: 0, column: 0}},
-        {name: 'ASMID',             type: 'int',    required: true,     html: {page: 0, column: 0}},
-        {name: 'ARID',              type: 'list',   required: true,     html: {page: 0, column: 0}, options: {items: [], selected: {}}},
-        {name: 'ARName',            type: 'text',   required: true,     html: {page: 0, column: 0}},
-        {name: 'ContractAmount',    type: 'money',  required: true,     html: {page: 0, column: 0}},
-        {name: 'RentCycle',         type: 'int',    required: true,     html: {page: 0, column: 0}},
-        {name: 'RentCycleText',     type: 'list',   required: false,    html: {page: 0, column: 0}, options: {items: app.cycleFreq}},
-        {name: 'Start',             type: 'date',   required: true,     html: {page: 0, column: 0}},
-        {name: 'Stop',              type: 'date',   required: true,     html: {page: 0, column: 0}},
-        {name: 'AtSigningPreTax',   type: 'money',  required: true,     html: {page: 0, column: 0}},
-        {name: 'SalesTax',          type: 'money',  required: true,     html: {page: 0, column: 0}},
-        // {name: 'SalesTaxAmt',       type: 'money',  required: true,     html: {page: 0, column: 0}}, // FUTURE RELEASE
-        {name: 'TransOccTax',       type: 'money',  required: true,     html: {page: 0, column: 0}},
-        // {name: 'TransOccAmt',       type: 'money',  required: true,     html: {page: 0, column: 0}}, // FUTURE RELEASE
-        {name: 'Comment',           type: 'text',   required: false,    html: {page: 0, column: 0}},
+        {name: 'recid',                 type: 'int',    required: false,    html: {page: 0, column: 0}},
+        {name: 'TMPASMID',              type: 'int',    required: true,     html: {page: 0, column: 0}},
+        {name: 'ASMID',                 type: 'int',    required: true,     html: {page: 0, column: 0}},
+        {name: 'ARID',                  type: 'list',   required: true,     html: {page: 0, column: 0}, options: {items: [], selected: {}}},
+        {name: 'ARName',                type: 'text',   required: true,     html: {page: 0, column: 0}},
+        {name: 'ContractAmount',        type: 'money',  required: true,     html: {page: 0, column: 0}},
+        {name: 'RentCycle',             type: 'int',    required: true,     html: {page: 0, column: 0}},
+        {name: 'RentCycleText',         type: 'list',   required: false,    html: {page: 0, column: 0}, options: {items: app.cycleFreq}},
+        {name: 'ProrationCycle',        type: 'int',    required: true,     html: {page: 0, column: 0}},
+        {name: 'ProrationCycleText',    type: 'list',   required: false,    html: {page: 0, column: 0}, options: {items: app.cycleFreq}},
+        {name: 'Start',                 type: 'date',   required: true,     html: {page: 0, column: 0}},
+        {name: 'Stop',                  type: 'date',   required: true,     html: {page: 0, column: 0}},
+        {name: 'AtSigningPreTax',       type: 'money',  required: true,     html: {page: 0, column: 0}},
+        {name: 'SalesTax',              type: 'money',  required: true,     html: {page: 0, column: 0}},
+        // {name: 'SalesTaxAmt',           type: 'money',  required: true,     html: {page: 0, column: 0}}, // FUTURE RELEASE
+        {name: 'TransOccTax',           type: 'money',  required: true,     html: {page: 0, column: 0}},
+        // {name: 'TransOccAmt',           type: 'money',  required: true,     html: {page: 0, column: 0}}, // FUTURE RELEASE
+        {name: 'Comment',               type: 'text',   required: false,    html: {page: 0, column: 0}},
     ];
 
     // RETURN the clone
@@ -192,7 +196,7 @@ window.GetFeeGridColumns = function(feesGrid) {
         },
         {
             field: 'RentCycleText',
-            caption: 'Rent Cycle',
+            caption: 'Rent<br>Cycle',
             size: '80px',
             render: function (record/*, index, col_index*/) {
                 var text = '';
@@ -210,6 +214,28 @@ window.GetFeeGridColumns = function(feesGrid) {
         {
             field: 'RentCycle',
             caption: 'Rent Cycle Index',
+            hidden: true
+        },
+        {
+            field: 'ProrationCycleText',
+            caption: 'Proration<br>Cycle',
+            size: '80px',
+            render: function (record/*, index, col_index*/) {
+                var text = '';
+                if (record) {
+                    app.cycleFreq.forEach(function(itemText, itemIndex) {
+                        if (record.ProrationCycle == itemIndex) {
+                            text = itemText;
+                            return false;
+                        }
+                    });
+                }
+                return text;
+            },
+        },
+        {
+            field: 'ProrationCycle',
+            caption: 'Proration Cycle Index',
             hidden: true
         },
         {
@@ -341,28 +367,49 @@ window.FeeFormOnRefreshHandler = function(feeForm) {
     });
     feeForm.get("ARID").options.selected = ARIDSel;
 
-    // -- RENTCYCLE -- //
+    // -- RENT CYCLE -- //
     var selectedRentCycle = app.cycleFreq[feeForm.record.RentCycle];
     var RentCycleTextSel = { id: selectedRentCycle, text: selectedRentCycle };
     feeForm.get("RentCycleText").options.selected = RentCycleTextSel;
     feeForm.record.RentCycleText = RentCycleTextSel;
 
-    // FREEZE THE INPUTS IF VERSION IS RAID
+    // -- PRORATION CYCLE -- //
+    var selectedProrationCycle, ProrationCycleTextSel;
+    if (feeForm.record.RentCycle === 0) { // IF ZERO THEN RESET
+        feeForm.record.ProrationCycle = 0;
+        selectedProrationCycle = app.cycleFreq[feeForm.record.ProrationCycle];
+        ProrationCycleTextSel = { id: selectedProrationCycle, text: selectedProrationCycle };
+        feeForm.get("ProrationCycleText").options.selected = ProrationCycleTextSel;
+        feeForm.record.ProrationCycleText = ProrationCycleTextSel;
+    } else {
+        selectedProrationCycle = app.cycleFreq[feeForm.record.ProrationCycle];
+        ProrationCycleTextSel = { id: selectedProrationCycle, text: selectedProrationCycle };
+        feeForm.get("ProrationCycleText").options.selected = ProrationCycleTextSel;
+        feeForm.record.ProrationCycleText = ProrationCycleTextSel;
+    }
+
     setTimeout(function() {
+
+        // FREEZE THE INPUTS IF VERSION IS RAID
         EnableDisableRAFlowVersionInputs(feeForm);
 
         // ONLY APPLICABLE WHEN FLOW IS IN EDIT MODE
         if (app.raflow.version === "refno") {
+
             // -- START & STOP DATES -- //
             // if RentCycle is 0=nonrecur then disable Stop date field
             // and value should be same as Start
             if (feeForm.record.RentCycle === 0) {
-                $(feeForm.box).find("input[name=RentCycleText]").prop("disabled", true);
+                // $(feeForm.box).find("input[name=RentCycleText]").prop("disabled", true);
+                // $(feeForm.box).find("input[name=ProrationCycleText]").prop("disabled", true);
+
+                // stop date
                 $(feeForm.box).find("input[name=Stop]").prop("disabled", true);
                 $(feeForm.box).find("input[name=Stop]").w2field().set(feeForm.record.Start);
                 feeForm.record.Stop = feeForm.record.Start;
             } else {
-                $(feeForm.box).find("input[name=RentCycleText]").prop("disabled", false);
+                // $(feeForm.box).find("input[name=RentCycleText]").prop("disabled", false);
+                // $(feeForm.box).find("input[name=ProrationCycleText]").prop("disabled", false);
                 $(feeForm.box).find("input[name=Stop]").prop("disabled", false);
             }
 
@@ -374,7 +421,7 @@ window.FeeFormOnRefreshHandler = function(feeForm) {
             }
         }
 
-    }, 100);
+    }, 200);
 };
 
 // -------------------------------------------------------------------------------
@@ -392,6 +439,17 @@ window.FeeFormOnChangeHandler = function(feeForm, field, newValue) {
             app.cycleFreq.forEach(function(itemText, itemIndex) {
                 if (newValue.text == itemText) {
                     feeForm.record.RentCycle = itemIndex;
+                    return false;
+                }
+            });
+            feeForm.refresh();
+        }
+        break;
+    case "ProrationCycleText":
+        if (newValue) {
+            app.cycleFreq.forEach(function(itemText, itemIndex) {
+                if (newValue.text == itemText) {
+                    feeForm.record.ProrationCycle = itemIndex;
                     return false;
                 }
             });
@@ -420,12 +478,14 @@ window.FeeFormOnChangeHandler = function(feeForm, field, newValue) {
                 // It indicates that rule follow non recur charge
                 // feeForm.record.RentCycleText = app.cycleFreq[0];
                 feeForm.record.RentCycle = 0;
+                feeForm.record.ProrationCycle = 0;
             } else {
                 var RID = app.raflow.last.RID,
                     localRData = GetRentableLocalData(RID);
 
                 // feeForm.record.RentCycleText = app.cycleFreq[localRData.RentCycle];
                 feeForm.record.RentCycle = localRData.RentCycle;
+                feeForm.record.ProrationCycle = localRData.ProrationCycle;
             }
 
             // select rentcycle as well
@@ -433,12 +493,20 @@ window.FeeFormOnChangeHandler = function(feeForm, field, newValue) {
             var rentCycleW2UISel = { id: selectedRentCycle, text: selectedRentCycle };
             feeForm.get("RentCycleText").options.selected = rentCycleW2UISel;
             feeForm.record.RentCycleText = rentCycleW2UISel;
+
+            // select prorationcycle as well
+            var selectedProrationCycle = app.cycleFreq[feeForm.record.ProrationCycle];
+            var prorationCycleW2UISel = { id: selectedProrationCycle, text: selectedProrationCycle };
+            feeForm.get("ProrationCycleText").options.selected = prorationCycleW2UISel;
+            feeForm.record.ProrationCycleText = prorationCycleW2UISel;
+
             feeForm.refresh();
             feeForm.refresh();
 
             // When RentCycle is Norecur then disable the RentCycle list field.
             var isDisabled = feeForm.record.RentCycleText.text === app.cycleFreq[0];
             $(feeForm.box).find("#RentCycleText").prop("disabled", isDisabled);
+            $(feeForm.box).find("#ProrationCycleText").prop("disabled", isDisabled);
         }
         break;
     }

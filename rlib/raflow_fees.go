@@ -45,10 +45,12 @@ func GetRAFlowInitialPetFees(ctx context.Context,
 	// PREPARE THE PET BASE FEES FROM BIZ FEES
 	var petFees = []RAFeesData{}
 	for i := range petBizFees {
-		raFee := RAFeesData{ContractAmount: petBizFees[i].Amount}
+		raFee := RAFeesData{
+			ContractAmount: petBizFees[i].Amount,
+			RentCycle:      petBizFees[i].ARRentCycle,
+			ProrationCycle: petBizFees[i].ARProrationCycle,
+		}
 		MigrateStructVals(&petBizFees[i], &raFee)
-		raFee.RentCycle = petBizFees[i].ARRentCycle
-		raFee.ProrationCycle = petBizFees[i].ARProrationCycle
 		petFees = append(petFees, raFee)
 	}
 
@@ -106,10 +108,12 @@ func GetRAFlowInitialVehicleFees(ctx context.Context,
 	// PREPARE THE VEHICLE BASE FEES FROM BIZ FEES
 	var vehicleFees = []RAFeesData{}
 	for i := range vehicleBizFees {
-		raFee := RAFeesData{ContractAmount: vehicleBizFees[i].Amount}
+		raFee := RAFeesData{
+			ContractAmount: vehicleBizFees[i].Amount,
+			RentCycle:      vehicleBizFees[i].ARRentCycle,
+			ProrationCycle: vehicleBizFees[i].ARProrationCycle,
+		}
 		MigrateStructVals(&vehicleBizFees[i], &raFee)
-		raFee.RentCycle = vehicleBizFees[i].ARRentCycle
-		raFee.ProrationCycle = vehicleBizFees[i].ARProrationCycle
 		vehicleFees = append(vehicleFees, raFee)
 	}
 
@@ -191,6 +195,7 @@ func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName s
 				ARName:          baseFee.ARName,
 				ContractAmount:  baseFee.ContractAmount,
 				RentCycle:       RECURNONE,
+				ProrationCycle:  RECURNONE,
 				Start:           JSONDate(rStart),
 				Stop:            JSONDate(rStart),
 				AtSigningPreTax: baseFee.AtSigningPreTax,
@@ -223,6 +228,7 @@ func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName s
 					ARName:          baseFee.ARName,
 					ContractAmount:  tot,
 					RentCycle:       RECURNONE,
+					ProrationCycle:  RECURNONE,
 					Start:           JSONDate(rStart),
 					Stop:            JSONDate(rStart),
 					AtSigningPreTax: baseFee.AtSigningPreTax,
@@ -242,6 +248,7 @@ func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName s
 				ARName:          baseFee.ARName,
 				ContractAmount:  baseFee.ContractAmount,
 				RentCycle:       RentCycle,
+				ProrationCycle:  ProrationCycle,
 				Start:           JSONDate(epoch),
 				Stop:            JSONDate(rStop),
 				AtSigningPreTax: baseFee.AtSigningPreTax,
