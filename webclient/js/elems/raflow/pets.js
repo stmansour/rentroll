@@ -801,8 +801,21 @@ window.loadRAPetsGrid = function () {
                 },
                 delete: function() {
                     var feeForm     = w2ui.RAPetFeeForm,
-                        feesGrid    = w2ui.RAPetFeesGrid,
                         TMPASMID    = feeForm.record.TMPASMID;
+
+                    // clean dirty flag of form
+                    app.form_is_dirty = false;
+
+                    // FRESH NEW FEE THEN JUST RETURN WITH CLOSING THE FORM
+                    if (TMPASMID === 0) {
+                        // reset form
+                        feeForm.actions.reset();
+
+                        // close the form
+                        HideSliderContent(2);
+
+                        return;
+                    }
 
                     // get TMPPETID from last of raflow
                     var TMPPETID = app.raflow.last.TMPPETID;
@@ -821,9 +834,7 @@ window.loadRAPetsGrid = function () {
                         SavePetsCompData()
                         .done(function (data) {
                             if (data.status === 'success') {
-                                // reset form as well as remove record from the grid
-                                feesGrid.remove(TMPPETID);
-                                feesGrid.refresh();
+                                // reset form
                                 feeForm.actions.reset();
 
                                 // // Re render the fees grid records
@@ -881,9 +892,6 @@ window.loadRAPetsGrid = function () {
                     } else {
                         feeForm.header = header.format("new", petString);
                     }
-
-                    // FREEZE THE INPUTS IF VERSION IS RAID
-                    EnableDisableRAFlowVersionInputs(feeForm);
 
                     // minimum actions need to be taken care in refres event for fee form
                     FeeFormOnRefreshHandler(feeForm);

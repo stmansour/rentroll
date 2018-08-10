@@ -43,9 +43,11 @@ window.loadRADatesForm = function () {
 
                     // validate form record
                     var errors = form.validate();
-                    console.error("error in form validation on save action");
-                    console.error(errors);
-                    if (errors.length > 0) return;
+                    if (errors.length > 0) {
+                        console.error("error in form validation on save action");
+                        console.error(errors);
+                        return;
+                    }
 
                     // update the modified data
                     SetlocalDataFromRADatesFormRecord();

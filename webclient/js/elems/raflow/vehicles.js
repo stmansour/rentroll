@@ -836,8 +836,21 @@ window.loadRAVehiclesGrid = function () {
                 },
                 delete: function() {
                     var feeForm     = w2ui.RAVehicleFeeForm,
-                        feesGrid    = w2ui.RAVehicleFeesGrid,
                         TMPASMID    = feeForm.record.TMPASMID;
+
+                    // clean dirty flag of form
+                    app.form_is_dirty = false;
+
+                    // FRESH NEW FEE THEN JUST RETURN WITH CLOSING THE FORM
+                    if (TMPASMID === 0) {
+                        // reset form
+                        feeForm.actions.reset();
+
+                        // close the form
+                        HideSliderContent(2);
+
+                        return;
+                    }
 
                     // get TMPVID from last of raflow
                     var TMPVID = app.raflow.last.TMPVID;
@@ -856,9 +869,7 @@ window.loadRAVehiclesGrid = function () {
                         SaveVehiclesCompData()
                         .done(function (data) {
                             if (data.status === 'success') {
-                                // reset form as well as remove record from the grid
-                                feesGrid.remove(TMPVID);
-                                feesGrid.refresh();
+                                // reset form
                                 feeForm.actions.reset();
 
                                 // // Re render the fees grid records
@@ -916,9 +927,6 @@ window.loadRAVehiclesGrid = function () {
                     } else {
                         feeForm.header = header.format("new", vehicleString);
                     }
-
-                    // FREEZE THE INPUTS IF VERSION IS RAID
-                    EnableDisableRAFlowVersionInputs(feeForm);
 
                     // minimum actions need to be taken care in refres event for fee form
                     FeeFormOnRefreshHandler(feeForm);
