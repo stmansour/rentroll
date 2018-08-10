@@ -243,6 +243,11 @@ func SaveFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
+
+		// COMMIT TRANSACTION
+		if tx != nil {
+			err = tx.Commit()
+		}
 	}()
 
 	// ------- unmarshal the request data  ---------------
@@ -284,13 +289,6 @@ func SaveFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// get flow data in return it back
 	flow, err = rlib.GetFlow(ctx, flow.FlowID)
 	if err != nil {
-		return
-	}
-
-	// ------------------
-	// COMMIT TRANSACTION
-	// ------------------
-	if err = tx.Commit(); err != nil {
 		return
 	}
 

@@ -85,6 +85,11 @@ func SaveRAFlowRentableDetails(w http.ResponseWriter, r *http.Request, d *Servic
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
+
+		// COMMIT TRANSACTION
+		if tx != nil {
+			err = tx.Commit()
+		}
 	}()
 
 	// HTTP METHOD CHECK
@@ -296,13 +301,6 @@ func SaveRAFlowRentableDetails(w http.ResponseWriter, r *http.Request, d *Servic
 		}
 	}
 
-	// ------------------
-	// COMMIT TRANSACTION
-	// ------------------
-	if err = tx.Commit(); err != nil {
-		return
-	}
-
 	// -------------------
 	// WRITE FLOW RESPONSE
 	// -------------------
@@ -347,6 +345,11 @@ func DeleteRAFlowRentable(w http.ResponseWriter, r *http.Request, d *ServiceData
 			}
 			SvcErrorReturn(w, err, funcname)
 			return
+		}
+
+		// COMMIT TRANSACTION
+		if tx != nil {
+			err = tx.Commit()
 		}
 	}()
 
@@ -433,13 +436,6 @@ func DeleteRAFlowRentable(w http.ResponseWriter, r *http.Request, d *ServiceData
 		if err != nil {
 			return
 		}
-	}
-
-	// ------------------
-	// COMMIT TRANSACTION
-	// ------------------
-	if err = tx.Commit(); err != nil {
-		return
 	}
 
 	// -------------------

@@ -86,6 +86,11 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
+
+		// COMMIT TRANSACTION
+		if tx != nil {
+			err = tx.Commit()
+		}
 	}()
 
 	// http method check
@@ -322,13 +327,6 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 		}
 	}
 
-	// ------------------
-	// COMMIT TRANSACTION
-	// ------------------
-	if err = tx.Commit(); err != nil {
-		return
-	}
-
 	// -------------------
 	// WRITE FLOW RESPONSE
 	// -------------------
@@ -368,6 +366,11 @@ func DeleteRAFlowPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 			}
 			SvcErrorReturn(w, err, funcname)
 			return
+		}
+
+		// COMMIT TRANSACTION
+		if tx != nil {
+			err = tx.Commit()
 		}
 	}()
 
@@ -483,13 +486,6 @@ func DeleteRAFlowPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 		if err != nil {
 			return
 		}
-	}
-
-	// ------------------
-	// COMMIT TRANSACTION
-	// ------------------
-	if err = tx.Commit(); err != nil {
-		return
 	}
 
 	// -------------------
