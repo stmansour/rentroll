@@ -86,11 +86,17 @@ type TieFieldsError struct {
 	TiePeople []TiePeopleFieldsError `json:"people"`
 }
 
+// PetsError
+type PetsError struct {
+	Total     int              `json:"total"`
+	PetErrors []PetFieldsError `json:"errors"`
+}
+
 // RAFlowFieldsErrors is to hold Errorlist for each section of RAFlow
 type RAFlowFieldsErrors struct {
 	Dates       DatesFieldsError         `json:"dates"`
 	People      []PeopleFieldsError      `json:"people"`
-	Pets        []PetFieldsError         `json:"pets"`
+	Pets        PetsError                `json:"pets"`
 	Vehicle     []VehicleFieldsError     `json:"vehicles"`
 	Rentables   []RentablesFieldsError   `json:"rentables"`
 	ParentChild []ParentChildFieldsError `json:"parentchild"`
@@ -123,8 +129,11 @@ func ValidateRAFlowBasic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 		Dates: DatesFieldsError{
 			Errors: make(map[string][]string, 0),
 		},
-		People:      []PeopleFieldsError{},
-		Pets:        []PetFieldsError{},
+		People: []PeopleFieldsError{},
+		Pets: PetsError{
+			Total:     0,
+			PetErrors: []PetFieldsError{},
+		},
 		Vehicle:     []VehicleFieldsError{},
 		Rentables:   []RentablesFieldsError{},
 		ParentChild: []ParentChildFieldsError{},
@@ -229,13 +238,14 @@ func ValidateRAFlowBasic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 
 		// Modify total error
 		g.Total += petFieldsErrors.Total
+		raFlowFieldsErrors.Pets.Total += petFieldsErrors.Total
 
 		// If there is no error in pet than skip that pet's error being added.
 		if petFieldsErrors.Total == 0 {
 			continue
 		}
 
-		raFlowFieldsErrors.Pets = append(raFlowFieldsErrors.Pets, petFieldsErrors)
+		raFlowFieldsErrors.Pets.PetErrors = append(raFlowFieldsErrors.Pets.PetErrors, petFieldsErrors)
 	}
 
 	// ----------------------------------------------
@@ -758,7 +768,7 @@ func validatePetBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *Validat
 		}
 	}
 
-	g.Errors.Pets = petFieldsErrors
+	g.Errors.Pets.PetErrors = petFieldsErrors
 	g.NonFieldsErrors.Pets = petNonFieldsErrors
 	g.Total += errCount + len(petNonFieldsErrors)
 }
@@ -946,8 +956,8 @@ func validateFeesBizLogic(ctx context.Context, fees []rlib.RAFeesData) ([]RAFees
 		// 2. Check fee must be exist in the database
 		ar, err := rlib.GetAR(ctx, fee.ARID)
 		if !(ar.ARID > 0) {
-			err = fmt.Errorf("fee doesn't exist")
-			raFeesError.Errors["ARName"] = append(raFeesError.Errors["ARName"], err.Error())
+			err = fmt.Errorf("fee associated account rule doesn't exist")
+			raFeesError.Errors["ARID"] = append(raFeesError.Errors["ARID"], err.Error())
 			// Modify fees section error count
 			raFeesError.Total++
 		}
