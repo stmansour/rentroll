@@ -390,6 +390,7 @@ window.loadRARentablesGrid = function () {
                             HideSliderContent();
                             // unselect selected record
                             w2ui.RARentablesGrid.selectNone();
+                            AssignRentableGridRecords();
                             break;
                     }
                 }
