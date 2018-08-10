@@ -7,7 +7,7 @@ common things for fees strcture!
     GetPetFeeLocalData, GetVehicleFeeLocalData, GetRentableFeeLocalData,
     SetDataFromFormRecord, SetPetFeeLocalData, SetVehicleFeeLocalData,
     SetRentableFeeLocalData, HideSliderContent, GetRentableLocalData,
-    GetFeeAccountRules
+    GetFeeAccountRules, EnableDisableRAFlowVersionInputs
 */
 
 "use strict";
@@ -332,11 +332,6 @@ window.GetFeeFormToolbar = function() {
 // -------------------------------------------------------------------------------
 window.FeeFormOnRefreshHandler = function(feeForm) {
 
-    // if RAID version then don't do anything
-    if (app.raflow.version == "raid") {
-        return;
-    }
-
     // -- ARID -- //
     var ARIDSel = {};
     feeForm.get("ARID").options.items.forEach(function(item) {
@@ -369,12 +364,22 @@ window.FeeFormOnRefreshHandler = function(feeForm) {
     } else {
         $(feeForm.box).find("div[class=w2ui-buttons] button[name=delete]").show();
     }
+
+    // FREEZE THE INPUTS IF VERSION IS RAID
+    setTimeout(function() {
+        EnableDisableRAFlowVersionInputs(feeForm);
+    }, 100);
 };
 
 // -------------------------------------------------------------------------------
 // FeeFormOnChangeHandler - handle the action on fee form change event
 // -------------------------------------------------------------------------------
 window.FeeFormOnChangeHandler = function(feeForm, field, newValue) {
+    // if RAID version then don't do anything
+    if (app.raflow.version == "raid") {
+        return;
+    }
+
     switch(field) {
     case "RentCycleText":
         if (newValue) {

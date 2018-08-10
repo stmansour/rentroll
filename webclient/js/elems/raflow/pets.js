@@ -893,9 +893,6 @@ window.loadRAPetsGrid = function () {
                         feeForm.header = header.format("new", petString);
                     }
 
-                    // FREEZE THE INPUTS IF VERSION IS RAID
-                    EnableDisableRAFlowVersionInputs(feeForm);
-
                     // minimum actions need to be taken care in refres event for fee form
                     FeeFormOnRefreshHandler(feeForm);
                 };

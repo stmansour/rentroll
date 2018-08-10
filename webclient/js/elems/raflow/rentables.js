@@ -682,9 +682,6 @@ window.loadRARentablesGrid = function () {
                         feeForm.header = header.format("new", rentableName);
                     }
 
-                    // FREEZE THE INPUTS IF VERSION IS RAID
-                    EnableDisableRAFlowVersionInputs(feeForm);
-
                     // minimum actions need to be taken care in refres event for fee form
                     FeeFormOnRefreshHandler(feeForm);
                 };
