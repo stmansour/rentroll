@@ -89,6 +89,9 @@ func Flow2RA(ctx context.Context, flowid int64) (int64, error) {
 				rlib.Console("\n\nERROR IN FlowSaveRA: %s\n\n\n", err.Error())
 				return x.newRAID, err
 			}
+		} else {
+			err = fmt.Errorf("there are no data changes")
+			return x.newRAID, err
 		}
 		//------------------------------------------------------------
 		// if there are meta data changes, then updated existing RAID
@@ -333,11 +336,18 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 			x.raOrig.FLAGS |= 5            // set the state to Terminated
 			x.raOrig.LeaseTerminationReason =
 				rlib.RRdb.BizTypes[x.raOrig.BID].Msgs.S[rlib.MSGRAUPDATED].SLSID // "Rental Agreement was updated"
-			sess, ok := rlib.SessionFromContext(ctx)
-			if !ok {
-				return nraid, rlib.ErrSessionRequired
+
+			// support noauth testing
+			UID := int64(0)
+			if !SvcCtx.NoAuth {
+				sess, ok := rlib.SessionFromContext(ctx)
+				if !ok {
+					return nraid, rlib.ErrSessionRequired
+				}
+				UID = sess.UID
 			}
-			x.raOrig.TerminatorUID = sess.UID
+
+			x.raOrig.TerminatorUID = UID
 			x.raOrig.TerminationDate = time.Now()
 
 			err = rlib.UpdateRentalAgreement(ctx, &x.raOrig)
@@ -379,7 +389,7 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 	for i := 0; i < len(ehandlers); i++ {
 		// rlib.Console("FlowSaveRA: running handler %s\n", ehandlers[i].Name)
 		if err = ehandlers[i].Handler(ctx, x); err != nil {
-			fmt.Printf("error returned from handler %s: %s\n", ehandlers[i].Name, err.Error())
+			rlib.Console("error returned from handler %s: %s\n", ehandlers[i].Name, err.Error())
 			return nraid, err
 		}
 	}

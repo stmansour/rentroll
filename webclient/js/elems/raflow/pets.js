@@ -45,6 +45,10 @@ window.RAFlowNewPetAJAX = function() {
         if (data.status === "success") {
             // Update flow local copy and green checks
             updateFlowData(data);
+
+            // reassign records
+            AssignPetsGridRecords();
+
             // mark new TMPPETID from meta
             app.raflow.last.TMPPETID = data.record.Flow.Data.meta.LastTMPPETID;
         }
@@ -367,6 +371,7 @@ window.loadRAPetsGrid = function () {
                     switch (event.target){
                         case 'btnClose':
                             HideSliderContent();
+                            w2ui.RAPetsGrid.selectNone();
                             break;
                     }
                 }
@@ -508,14 +513,25 @@ window.loadRAPetsGrid = function () {
                     SavePetsCompData()
                     .done(function(data) {
                         if (data.status === 'success') {
-                            // add new formatted record to current form
-                            f.actions.reset();
-                            f.record = GetPetFormInitRecord(f.record);
-                            f.refresh();
-                            f.refresh();
 
-                            // re-assign records in grid
-                            AssignPetsGridRecords();
+                            // get new entry for pet
+                            RAFlowNewPetAJAX()
+                            .done(function(data) {
+                                // IT'S MANAGED IN AJAX API
+                                var TMPPETID = app.raflow.last.TMPPETID;
+
+                                // add new formatted record to current form
+                                f.actions.reset();
+                                f.record = GetPetLocalData(TMPPETID);
+                                f.refresh();
+                                f.refresh();
+
+                                // re-assign records in grid
+                                AssignPetsGridRecords();
+                            })
+                            .fail(function(data) {
+                                f.message("failure " + data);
+                            });
                         } else {
                             f.message(data.message);
                         }

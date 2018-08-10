@@ -786,6 +786,8 @@ startRentRollServer() {
 		echo "${cmd}"
 		${RRBIN}/rentroll -p ${RRPORT} ${RSD} ${RENTROLLSERVERAUTH} ${RRCONFIGPATH} > ${RRBIN}/rrlog 2>&1 &
 		sleep 1
+		rm -f rrlog
+		ln -s ${RRBIN}/rrlog
 	fi
 }
 
@@ -814,7 +816,7 @@ dojsonPOST () {
 	TESTCOUNT=$((TESTCOUNT + 1))
 	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} $3 $4
 	CMD="curl -s -X POST ${1} -H \"Content-Type: application/json\" -d @${2}"
-	${CMD} | python -m json.tool >${3} 2>>${LOGFILE}
+	${CMD} | tee serverreply | python -m json.tool >${3} 2>>${LOGFILE}
 
 	checkPause
 
@@ -837,6 +839,7 @@ dojsonPOST () {
 		declare -a out_filters=(
 			's/(^[ \t]+"LastModTime":).*/$1 TIMESTAMP/'
 			's/(^[ \t]+"CreateTS":).*/$1 TIMESTAMP/'
+			's/(^[ \t]+"ActiveDate":).*/$1 TIMESTAMP/'
 		)
 		cp gold/${3}.gold qqx
 		cp ${3} qqy
@@ -1319,5 +1322,3 @@ echo >>${LOGFILE}
 if [ ${CREATENEWDB} -eq 1 ]; then
 	createDB
 fi
-
-

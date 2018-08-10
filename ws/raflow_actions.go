@@ -424,8 +424,11 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 	// PERFORM BASIC VALIDATION ON FLOW DATA
 	bizlogic.ValidateRAFlowBasic(ctx, &raFlowData, &raflowRespData.BasicCheck)
 
-	// Perform Bizlogic check validation on RAFlow
-	bizlogic.ValidateRAFlowBizLogic(ctx, &raFlowData, &raflowRespData.BasicCheck, flow.ID)
+	// If basic error count is zero then perform bizLogic validations
+	if raflowRespData.BasicCheck.Total == 0 {
+		// Perform Bizlogic check validation on RAFlow
+		bizlogic.ValidateRAFlowBizLogic(ctx, &raFlowData, &raflowRespData.BasicCheck, flow.ID)
+	}
 
 	// CHECK DATA FULFILLED
 	bizlogic.DataFulfilledRAFlow(ctx, &raFlowData, &raflowRespData.DataFulfilled)
@@ -435,7 +438,6 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 			raflowRespData.DataFulfilled.Pets && raflowRespData.DataFulfilled.Vehicles &&
 			raflowRespData.DataFulfilled.Rentables && raflowRespData.DataFulfilled.ParentChild &&
 			raflowRespData.DataFulfilled.Tie) {
-		fmt.Println("**************** BasicCheck.Total:", raflowRespData.BasicCheck.Total)
 		return raflowRespData, nil
 	}
 
@@ -738,6 +740,14 @@ func SetActionMetaData(ctx context.Context, d *ServiceData, Action int64, modRAF
 	var today time.Time
 	today = time.Now().In(location)
 
+	//--------------------------------------------------------------------------
+	// safeguard for dereferencing d.sess which may not exist if we're testing
+	//--------------------------------------------------------------------------
+	UID := int64(0)
+	if d.sess != nil {
+		UID = d.sess.UID
+	}
+
 	// take latest RAFLAGS value at this point(in case flag bits are reset)
 	clearedState := modRAFlowMeta.RAFLAGS & ^uint64(0xF)
 	switch Action {
@@ -746,12 +756,12 @@ func SetActionMetaData(ctx context.Context, d *ServiceData, Action int64, modRAF
 
 	case rlib.RAActionSetToFirstApproval:
 		var fullName string
-		fullName, err = getUserFullName(ctx, d.sess.UID)
+		fullName, err = getUserFullName(ctx, UID)
 		if err != nil {
 			return err
 		}
 
-		modRAFlowMeta.ApplicationReadyUID = d.sess.UID
+		modRAFlowMeta.ApplicationReadyUID = UID
 		modRAFlowMeta.ApplicationReadyName = fullName
 		modRAFlowMeta.ApplicationReadyDate = rlib.JSONDateTime(today)
 
@@ -762,12 +772,12 @@ func SetActionMetaData(ctx context.Context, d *ServiceData, Action int64, modRAF
 
 	case rlib.RAActionSetToMoveIn:
 		var fullName string
-		fullName, err = getUserFullName(ctx, d.sess.UID)
+		fullName, err = getUserFullName(ctx, UID)
 		if err != nil {
 			return err
 		}
 
-		modRAFlowMeta.MoveInUID = d.sess.UID
+		modRAFlowMeta.MoveInUID = UID
 		modRAFlowMeta.MoveInName = fullName
 		modRAFlowMeta.MoveInDate = rlib.JSONDateTime(today)
 
@@ -775,12 +785,12 @@ func SetActionMetaData(ctx context.Context, d *ServiceData, Action int64, modRAF
 
 	case rlib.RAActionCompleteMoveIn:
 		var fullName string
-		fullName, err = getUserFullName(ctx, d.sess.UID)
+		fullName, err = getUserFullName(ctx, UID)
 		if err != nil {
 			return err
 		}
 
-		modRAFlowMeta.ActiveUID = d.sess.UID
+		modRAFlowMeta.ActiveUID = UID
 		modRAFlowMeta.ActiveName = fullName
 		modRAFlowMeta.ActiveDate = rlib.JSONDateTime(today)
 		modRAFlowMeta.RAFLAGS = (clearedState | 4)
@@ -792,12 +802,12 @@ func SetActionMetaData(ctx context.Context, d *ServiceData, Action int64, modRAF
 		}
 
 		var fullName string
-		fullName, err = getUserFullName(ctx, d.sess.UID)
+		fullName, err = getUserFullName(ctx, UID)
 		if err != nil {
 			return err
 		}
 
-		modRAFlowMeta.NoticeToMoveUID = d.sess.UID
+		modRAFlowMeta.NoticeToMoveUID = UID
 		modRAFlowMeta.NoticeToMoveName = fullName
 		modRAFlowMeta.NoticeToMoveDate = rlib.JSONDateTime(data.NoticeToMoveDate)
 		modRAFlowMeta.NoticeToMoveReported = rlib.JSONDateTime(today)
@@ -812,12 +822,12 @@ func SetActionMetaData(ctx context.Context, d *ServiceData, Action int64, modRAF
 
 		if data.TerminationReason > 0 {
 			var fullName string
-			fullName, err = getUserFullName(ctx, d.sess.UID)
+			fullName, err = getUserFullName(ctx, UID)
 			if err != nil {
 				return err
 			}
 
-			modRAFlowMeta.TerminatorUID = d.sess.UID
+			modRAFlowMeta.TerminatorUID = UID
 			modRAFlowMeta.TerminatorName = fullName
 			modRAFlowMeta.TerminationDate = rlib.JSONDateTime(today)
 			modRAFlowMeta.LeaseTerminationReason = data.TerminationReason
