@@ -1,14 +1,15 @@
-strlist/refdb.sql
 sqlschema/fixrr.sql
 sqlschema/fixrcpts.sql
 ../tools/dbgen/empty.sql
 acctbal/baltest.sql
+flow2ra/rr.sql
 closeperiod/rr.sql
 payorstmt/pstmt.sql
 rfix/rcptfixed.sql
 rfix/receipts.sql
 roller/prodrr.sql
 rr/rr.sql
+strlist/refdb.sql
 tws/rr.sql
 tws3/rr.sql
 webclient/webclientTest.sql

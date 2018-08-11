@@ -1,0 +1,22 @@
+REX Assessments
+Aug 1, 2018 - Sep 30, 2018
+JGM First, LLC
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+
+                                                     Proration                                                      
+ASMID        RAID        Rentable     Rent Cycle     Cycle              Amount  AsmType  AR Name                    
+-----------  ----------  -----------  -------------  -------------  ----------  -------  ---------------------------
+ASM00000007  RA00000001  Rentable001  monthly        daily            1,000.00           Rent Non-Taxable           
+ASM00000015  RA00000001  Rentable001  monthly        daily               10.00           Pet Rent                   
+ASM00000020  RA00000001  Rentable001  non-recurring  non-recurring    4,000.00           Security Deposit Assessment
+ASM00000021  RA00000002  Rentable001  non-recurring  daily            1,000.00           Rent Non-Taxable           
+ASM00000023  RA00000002  Rentable001  non-recurring  daily               10.00           Pet Rent                   
+ASM00000025  RA00000001  Rentable001  monthly        daily           -1,000.00           Rent Non-Taxable           
+ASM00000026  RA00000001  Rentable001  monthly        daily              225.81           Rent Non-Taxable           
+ASM00000027  RA00000001  Rentable001  monthly        daily              -10.00           Pet Rent                   
+ASM00000028  RA00000001  Rentable001  monthly        daily                2.26           Pet Rent                   
+ASM00000029  RA00000001  Rentable001  non-recurring  non-recurring   -4,000.00           Security Deposit Assessment
+
