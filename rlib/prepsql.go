@@ -151,6 +151,9 @@ func buildPreparedStatements() {
 	//    description -------->>>                                                                                     old RAID   it's recurring    not an instance     overlaps new RAID range
 	RRdb.Prepstmt.GetRecurringAssessmentDefsByRAID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE RAID=? AND RentCycle > 0 AND PASMID=0 AND ? < Stop AND Start < ?")
 	Errcheck(err)
+	//    description -------->>>                                                                                      not recurring  not an instance  overlaps new RAID range         not a reversal   unpaid
+	RRdb.Prepstmt.GetNorecurAssessmentsByRAIDRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE RentCycle=0 AND PASMID=0 AND RAID=? AND Stop>=? AND Start<? AND FLAGS&4=0 AND FLAGS&3=0")
+	Errcheck(err)
 
 	//--------------------------------------------------------------------------
 	// FLAGS bits 0-1 mean: 0 = unpaid, 1 = partially paid, 2 = fully paid.

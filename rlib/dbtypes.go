@@ -1938,6 +1938,7 @@ type RRprepSQL struct {
 	GetAssessmentsByRAIDRID                 *sql.Stmt
 	GetRentalAgreementPayorsByRAID          *sql.Stmt
 	GetAssessmentInstancesByRAID            *sql.Stmt
+	GetNorecurAssessmentsByRAIDRange        *sql.Stmt
 	GetRecurringAssessmentDefsByRAID        *sql.Stmt
 }
 

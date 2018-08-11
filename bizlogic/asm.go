@@ -143,10 +143,7 @@ func UpdateAssessmentEndDate(ctx context.Context, a *rlib.Assessment, dt *time.T
 		rlib.Console("Found instance to prorate: ASMID = %d\n", ai.ASMID)
 		amount, n, p := rlib.SimpleProrateAmount(ai.Amount, ai.RentCycle, ai.ProrationCycle, &ai.Start, dt, &ai.Start)
 		ai.Amount = amount
-		if len(ai.Comment) > 0 {
-			ai.Comment += "  |  "
-		}
-		ai.Comment += fmt.Sprintf("prorated for %d of %d %s", n, p, rlib.ProrationUnits(ai.ProrationCycle))
+		ai.AppendComment(fmt.Sprintf("prorated for %d of %d %s", n, p, rlib.ProrationUnits(ai.ProrationCycle)))
 		be := UpdateAssessment(ctx, &ai, 0, dt, 0)
 		if len(be) > 0 {
 			return BizErrorListToError(be)
@@ -301,18 +298,19 @@ func ReverseAssessmentInstance(ctx context.Context, aold *rlib.Assessment, dt *t
 	}
 
 	anew := *aold
+	anew.Comment = ""
 	anew.ASMID = 0
 	anew.Amount = -anew.Amount
 	anew.RPASMID = aold.ASMID
 	anew.FLAGS |= 0x4 // set bit 2 to mark that this assessment is void
-	anew.Comment = fmt.Sprintf("Reversal of %s", aold.IDtoString())
+	anew.AppendComment(fmt.Sprintf("Reversal of %s", aold.IDtoString()))
 
 	errlist := InsertAssessment(ctx, &anew, 1)
 	if len(errlist) > 0 {
 		return errlist
 	}
 
-	aold.Comment = fmt.Sprintf("Reversed by %s", anew.IDtoString())
+	aold.AppendComment(fmt.Sprintf("Reversed by %s", anew.IDtoString()))
 	aold.FLAGS |= 0x4 // set bit 2 to mark that this assessment is void
 	err := rlib.UpdateAssessment(ctx, aold)
 	if err != nil {

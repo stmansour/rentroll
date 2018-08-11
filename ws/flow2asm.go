@@ -85,14 +85,14 @@ func CleanUpRemainingAssessments(ctx context.Context, x *WriteHandlerContext) er
 		return nil // nothing to do, no old RAID
 	}
 	//--------------------------------------------------------------------------
-	// Get the list of any assessments associated with the old rental agreement
-	// that overlap the time range of the new rental agreement.
+	// Get the list of any recurring assessments associated with the old rental
+	// agreement that overlap the time range of the new rental agreement.
 	//--------------------------------------------------------------------------
 	m, err := rlib.GetRecurringAssessmentDefsByRAID(ctx, x.raOrig.RAID, &x.ra.RentStart, &x.ra.RentStop)
 	if err != nil {
 		return err
 	}
-	rlib.Console("Found %d assessments to review\n", len(m))
+	rlib.Console("Found %d recurring assessment definitions to review\n", len(m))
 	for _, v := range m {
 		rlib.Console("ASMID = %d\n", v.ASMID)
 		if v.RentCycle == rlib.RECURNONE {
@@ -108,6 +108,21 @@ func CleanUpRemainingAssessments(ctx context.Context, x *WriteHandlerContext) er
 			}
 		}
 	}
+	rlib.Console("*** Completed processing recurring assessment definitions\n")
+	//--------------------------------------------------------------------------
+	// Anything non-recurring that happens as of the start date of the amended
+	// agreement must be deleted (reversed).
+	//--------------------------------------------------------------------------
+	m, err = rlib.GetNorecurAssessmentsByRAIDRange(ctx, x.raOrig.RAID, &x.ra.RentStart, &x.ra.RentStop)
+	if err != nil {
+		return err
+	}
+	rlib.Console("Found %d non-recurring assessments to reverse\n", len(m))
+	for _, v := range m {
+		v.AppendComment(fmt.Sprintf("Reversing due to amended RAID %d", x.ra.RAID))
+		bizlogic.ReverseAssessment(ctx, &v, 0, &x.ra.RentStart)
+	}
+	rlib.Console("*** Completed processing non-recurring\n")
 	return nil
 }
 
@@ -156,7 +171,7 @@ func F2RASaveNewFee(ctx context.Context, x *WriteHandlerContext, fee *rlib.RAFee
 	var b rlib.Assessment
 	dt := time.Time(x.raf.Dates.AgreementStart)
 	if fee.ASMID > 0 {
-		b.Comment = fmt.Sprintf("Continuation of ASMID %d from RAID %d", fee.ASMID, x.raf.Meta.RAID)
+		b.AppendComment(fmt.Sprintf("Continuation of ASMID %d from RAID %d", fee.ASMID, x.raf.Meta.RAID))
 	}
 	Start := time.Time(fee.Start) // the start time will be either the fee start
 	if Start.Before(dt) {         // or the start of the new rental agreement
