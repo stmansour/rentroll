@@ -20,21 +20,21 @@ startRentRollServer
 #  verifies that all assessments from RAID=1 to the new RAID (2) are correct.
 #
 #  Scenario:
-#	RAID 1 - AgreementStart = 2/13/2018,  AgreementStop = 3/1/2020
-#       RAID 2 - AgreementStart = 8/8/2018,   AgreementStop = 3/1/2020
-#       The flow used to create RAID 2 has no links between its fees and
-#                the assessments in RAID 1. So, the handling tests how
-#                "unlinked" assessments are handled when amending a rental
-#                agreement.
+#  RAID 1 - AgreementStart = 2/13/2018,  AgreementStop = 3/1/2020
+#  RAID 2 - AgreementStart = 8/8/2018,   AgreementStop = 3/1/2020
+#           The flow used to create RAID 2 has no links between its fees and
+#           the assessments in RAID 1. So, the handling tests how "unlinked"
+#           assessments are handled when amending a rental agreement.
 #
 #  Expected Results:
-#   1.  RAID 1 and all its assessments must be stopped on 8/8/2018
-#   2.	RAID 1 recurring assessments that affect period 8/8/2018 - 3/1/2020
-#       must be migrated to RAID 2
-#   3.  Prorated payments must be made to cover the partial months for
-#       both RAID 1 and RAID 2
-#   4.  Unlinked non-recurring assessments are reversed from the old RAID
-#       if they are not paid and/or if they are not already reversed.
+#   1.  All RAID 1 recurring assessment definitions that overlap the period
+#       8/8/2018 - 3/1/2020 must have their stop date set to 8/8/201
+#   2.  The RAID 1 rent assessment has already occured, and it has been paid.
+#       Same for the RAID 1 pet rent. The assessments must be reversed and the
+#       payments must become available.
+#   3.  There is a Security Deposit assessment (ASMID=20) due on 9/14 in the
+#       old rental agreement. It is not in the fees list for the RefNo, so it
+#       should be reversed
 #------------------------------------------------------------------------------
 
 # Send the command to change the flow to Active:

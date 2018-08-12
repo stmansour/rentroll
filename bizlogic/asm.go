@@ -168,7 +168,7 @@ func UpdateAssessmentEndDate(ctx context.Context, a *rlib.Assessment, dt *time.T
 func ReverseAssessment(ctx context.Context, aold *rlib.Assessment, mode int, dt *time.Time) []BizError {
 	funcname := "bizlogic.ReverseAssessment"
 	var errlist []BizError
-	rlib.Console("Entered ReverseAssessment.  mode = %d,  dt = %s\n", mode, dt.Format(rlib.RRDATEFMTSQL))
+	rlib.Console("#####>>>>>>>>> Entered ReverseAssessment. ASMID = %d, mode = %d,  dt = %s\n", aold.ASMID, mode, dt.Format(rlib.RRDATEFMTSQL))
 	if aold.PASMID == 0 && aold.RentCycle > 0 {
 		mode = 2 // force behavior on the epoch
 	}

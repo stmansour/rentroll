@@ -381,6 +381,21 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 		return nraid, err
 	}
 	x.newRAID = nraid
+	//-----------------------------------------------------
+	// Create a RentalAgreement Ledger marker
+	//-----------------------------------------------------
+	var lm = rlib.LedgerMarker{
+		BID:     x.ra.BID,
+		RAID:    x.newRAID,
+		RID:     0,
+		Dt:      x.ra.AgreementStart,
+		Balance: float64(0),
+		State:   rlib.LMINITIAL,
+	}
+	_, err = rlib.InsertLedgerMarker(ctx, &lm)
+	if err != nil {
+		return nraid, err
+	}
 
 	//---------------------------------------------------------------
 	// Now spin through the series of handlers that move the data

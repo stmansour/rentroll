@@ -351,9 +351,13 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 			return flow, err
 		}
 
+		// EditFlag should be set to true only when we're creating a Flow that
+		// becomes a RefNo (an amended RentalAgreement)
+		EditFlag := false // this is the behavior as it was prior to the EditFlag being added.
+
 		// Create flow to viewing in UI
 		var raf rlib.RAFlowJSONData
-		raf, err = rlib.ConvertRA2Flow(ctx, &ra)
+		raf, err = rlib.ConvertRA2Flow(ctx, &ra, EditFlag)
 		if err != nil {
 			return flow, err
 		}

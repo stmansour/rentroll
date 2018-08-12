@@ -23,8 +23,12 @@ import (
 func GetRA2FlowCore(ctx context.Context, ra *rlib.RentalAgreement, d *ServiceData) (int64, error) {
 	var flowID int64
 
+	// EditFlag should be set to true only when we're creating a Flow that
+	// becomes a RefNo (an amended RentalAgreement)
+	EditFlag := false // this is the behavior as it was prior to the EditFlag being added.
+
 	// convert permanent ra to flow data and get it
-	raf, err := rlib.ConvertRA2Flow(ctx, ra)
+	raf, err := rlib.ConvertRA2Flow(ctx, ra, EditFlag)
 	if err != nil {
 		return flowID, err
 	}

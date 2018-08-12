@@ -1014,7 +1014,8 @@ func RAFlowDataDiff(ctx context.Context, RAID int64) (isDiff bool, err error) {
 	}
 
 	// convert permanent ra to flow data and get it
-	permanentData, err = ConvertRA2Flow(ctx, &ra)
+	EditFlag := false // this flag should be set to true only when requesting fees for an amended RA
+	permanentData, err = ConvertRA2Flow(ctx, &ra, EditFlag)
 	if err != nil {
 		return
 	}
@@ -1035,14 +1036,19 @@ func RAFlowDataDiff(ctx context.Context, RAID int64) (isDiff bool, err error) {
 // rental agreement data to raflow data
 //
 // INPUTS:
-//     ctx    database context for transactions
-//     ra     the rental agreement to move into a flow
+//     ctx       database context for transactions
+//     ra        the rental agreement to move into a flow
+//     EditFlag  false: add all unpaid and/or recurring assessments (that have
+//               not been reversed) as fees
+//               true: only add recurring asms that overlap the new agreement
+//               term and nonrecurring asms that have not been paid or reversed
+//               and that are scheduled during the new agreement term.
 //
 // RETURNS:
 //     the RAFlowJSONData
 //     any error encountered
 //-------------------------------------------------------------------------
-func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement) (RAFlowJSONData, error) {
+func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement, EditFlag bool) (RAFlowJSONData, error) {
 	const funcname = "ConvertRA2Flow"
 
 	//-------------------------------------------------------------
@@ -1183,11 +1189,25 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement) (RAFlowJSONData, e
 		// For this we want to load all 1-time fees and all
 		// recurring fees.
 		//---------------------------------------------------------
-		asms, err := GetAssessmentsByRAIDRID(ctx, rfd.BID, ra.RAID, rfd.RID)
-		if err != nil {
-			return raf, nil
+		var asms []Assessment
+		if EditFlag {
+
+		} else {
+			asms, err = GetAssessmentsByRAIDRID(ctx, rfd.BID, ra.RAID, rfd.RID)
+			if err != nil {
+				return raf, nil
+			}
 		}
 		for j := 0; j < len(asms); j++ {
+			//----------------------------------------------------------
+			// Skip if it has been cancelled or fully or partially paid
+			//----------------------------------------------------------
+			if asms[j].FLAGS&4 > 0 || asms[j].FLAGS&3 > 0 { // vspartially or fully paid
+				continue
+			}
+			//----------------------------------------------------------
+			// Skip if it has been cancelled or fully or partially paid
+			//----------------------------------------------------------
 
 			//----------------------------------------------------------
 			// Get the account rule for this assessment...
