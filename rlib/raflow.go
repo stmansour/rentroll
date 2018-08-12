@@ -1200,14 +1200,23 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement, EditFlag bool) (RA
 		}
 		for j := 0; j < len(asms); j++ {
 			//----------------------------------------------------------
-			// Skip if it has been cancelled or fully or partially paid
+			// do any quick rejection needed
 			//----------------------------------------------------------
-			if asms[j].FLAGS&4 > 0 || asms[j].FLAGS&3 > 0 { // vspartially or fully paid
-				continue
+			if EditFlag {
+				if asms[j].FLAGS&4 > 0 || asms[j].FLAGS&3 > 0 { // reversed or partially or fully paid
+					continue
+				}
+				if !DateRangeOverlap(&now, &ra.AgreementStop, &asms[j].Start, &asms[j].Stop) {
+					continue
+				}
+				if asms[j].RentCycle == RECURNONE && !DateRangeOverlap(&now, &ra.AgreementStop, &asms[j].Start, &asms[j].Stop) {
+					continue
+				}
+			} else {
+				if asms[j].FLAGS&4 > 0 { // reversed
+					continue
+				}
 			}
-			//----------------------------------------------------------
-			// Skip if it has been cancelled or fully or partially paid
-			//----------------------------------------------------------
 
 			//----------------------------------------------------------
 			// Get the account rule for this assessment...
@@ -1240,16 +1249,6 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement, EditFlag bool) (RA
 			//----------------------------------------------------------
 			// Handle PET Fees
 			//----------------------------------------------------------
-			// TMPASMID        int64 // unique ID to manage fees uniquely across all fees in raflow json data
-			// ASMID           int64 // the permanent table assessment id if it is an existing RAID
-			// ARID            int64
-			// ARName          string
-			// ContractAmount  float64
-			// RentCycle       int64
-			// Start           JSONDate
-			// Stop            JSONDate
-			// AtSigningPreTax float64
-			// SalesTax        float64
 			if ar.FLAGS&(128) != 0 { // Is it a pet fee?
 				petid := asms[j].AssocElemID // find the pet...
 				for k := 0; k < len(raf.Pets); k++ {

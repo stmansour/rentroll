@@ -10,22 +10,19 @@ import (
 // RentalAgreement
 //
 // INPUTS:
-//     ctx    database context for transactions
-//     ra     the rental agreement to move into a flow
-//     uid    uid of the person creating this flow.  Typically it
-//            will be the uid in the session.
+//     ctx       database context for transactions
+//     ra        the rental agreement to move into a flow
+//     uid       uid of the person creating this flow.  Typically it
+//               will be the uid in the session.
+//     EditFlag  true -> get a version to edit,  false -> view existing
 //
 // RETURNS:
 //     the new flowID
 //     any error encountered
 //     service data
 //-------------------------------------------------------------------------
-func GetRA2FlowCore(ctx context.Context, ra *rlib.RentalAgreement, d *ServiceData) (int64, error) {
+func GetRA2FlowCore(ctx context.Context, ra *rlib.RentalAgreement, d *ServiceData, EditFlag bool) (int64, error) {
 	var flowID int64
-
-	// EditFlag should be set to true only when we're creating a Flow that
-	// becomes a RefNo (an amended RentalAgreement)
-	EditFlag := false // this is the behavior as it was prior to the EditFlag being added.
 
 	// convert permanent ra to flow data and get it
 	raf, err := rlib.ConvertRA2Flow(ctx, ra, EditFlag)

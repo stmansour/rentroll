@@ -175,7 +175,8 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 
 		// GET THE NEW FLOW ID CREATED USING PERMANENT DATA
 		var flowID int64
-		flowID, err = GetRA2FlowCore(ctx, &ra, d)
+		EditFlag := false // we're only creating this to update the state and meta info, so we don't need to filter fees
+		flowID, err = GetRA2FlowCore(ctx, &ra, d, EditFlag)
 		if err != nil {
 			return flow, err
 		}

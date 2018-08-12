@@ -279,6 +279,10 @@ func GetRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
+	// EditFlag should be set to true only when we're creating a Flow that
+	// becomes a RefNo (an amended RentalAgreement)
+	EditFlag := false // assume we're asking for the view version
+
 	// BASED ON MODE DO OPERATION
 	switch req.Version {
 	case "raid":
@@ -292,10 +296,6 @@ func GetRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			err = fmt.Errorf("Rental Agreement not found with given RAID: %d", req.RAID)
 			return
 		}
-
-		// EditFlag should be set to true only when we're creating a Flow that
-		// becomes a RefNo (an amended RentalAgreement)
-		EditFlag := false // this is the behavior as it was prior to the EditFlag being added.
 
 		// convert permanent ra to flow data and get it
 		var raf rlib.RAFlowJSONData
@@ -351,7 +351,8 @@ func GetRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 			// GET THE NEW FLOW ID CREATED USING PERMANENT DATA
 			var flowID int64
-			flowID, err = GetRA2FlowCore(ctx, &ra, d)
+			EditFlag = true
+			flowID, err = GetRA2FlowCore(ctx, &ra, d, EditFlag)
 			if err != nil {
 				return
 			}
