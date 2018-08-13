@@ -25,7 +25,7 @@
                     "RentStop": "3/1/2020"
                 },
                 "meta": {
-                    "ActiveDate": "2018-08-13 05:06:00 UTC",
+                    "ActiveDate": "2018-08-13 18:37:00 UTC",
                     "ActiveName": "UID-0",
                     "ActiveUID": -99,
                     "ApplicationReadyDate": "2018-08-13 04:48:00 UTC",
@@ -247,7 +247,6 @@
                     "total": 0
                 }
             },
-            "errortype": "biz",
             "nonFieldsErrors": {
                 "dates": [],
                 "parentchild": [],
@@ -257,6 +256,7 @@
                 "tie": [],
                 "vehicles": []
             },
+            "status": "success",
             "total": 0
         }
     },

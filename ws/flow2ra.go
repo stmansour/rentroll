@@ -310,6 +310,10 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 		if err != nil {
 			return nraid, err
 		}
+
+		// if err = rlib.InitBizInternals(x.raOrig.BID, &x.xbiz); err != nil {
+		// 	return nraid, err
+		// }
 		// saveFlags := x.raOrig.FLAGS
 		chgs := 0
 		AStart := time.Time(x.raf.Dates.AgreementStart)

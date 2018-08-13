@@ -539,6 +539,11 @@ func DeallocateAppliedFunds(ctx context.Context, a *rlib.Assessment, asmtRevID i
 		}
 
 		for k := 0; k < len(m); k++ {
+			// if this allocation does not reference a.ASMID, then skip it
+			// also, if it's already reversed, skip it
+			if m[k].ASMID != a.ASMID || m[k].FLAGS&4 != 0 {
+				continue
+			}
 			m[k].FLAGS |= 0x4 // set bit 2 to indicate that this is a voided entry
 			vra := m[k]
 			vra.Amount = -vra.Amount
