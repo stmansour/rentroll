@@ -167,7 +167,6 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 		if xp.Trn.TCID > 0 {
 			rlib.MigrateStructVals(&xp.Trn, &newRAFlowPerson)
 		}
-		newRAFlowPerson.BID = d.BID
 
 		// check for additional flags IsRenter, IsOccupant
 		newRAFlowPerson.IsOccupant = true

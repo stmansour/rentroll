@@ -61,8 +61,6 @@ window.RAFlowNewVehicleAJAX = function() {
 // Rental Agreement - Vehicles Grid
 // -------------------------------------------------------------------------------
 window.GetVehicleFormInitRecord = function (previousFormRecord) {
-    var BID = getCurrentBID();
-
     var t = new Date(),
         nyd = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
 
@@ -70,7 +68,6 @@ window.GetVehicleFormInitRecord = function (previousFormRecord) {
         recid:                  w2ui.RAVehiclesGrid.records.length + 1,
         TMPVID:                 0,
         VID:                    0,
-        BID:                    BID,
         TMPTCID:                0,
         VIN:                    "",
         VehicleType:            "",
@@ -180,10 +177,6 @@ window.loadRAVehiclesGrid = function () {
                 },
                 {
                     field: 'VID',
-                    hidden: true
-                },
-                {
-                    field: 'BID',
                     hidden: true
                 },
                 {
@@ -403,7 +396,6 @@ window.loadRAVehiclesGrid = function () {
             fields  : [
                 { field: 'recid',               type: 'int',    required: false,     html: { caption: 'recid', page: 0, column: 0 } },
                 { field: 'TMPVID',              type: 'int',    required: false  },
-                { field: 'BID',                 type: 'int',    required: true,      html: { caption: 'BID', page: 0, column: 0 } },
                 { field: 'VID',                 type: 'int',    required: false,     html: { caption: 'VID', page: 0, column: 0 } },
                 { field: 'TMPTCID',             type: 'list',   required: false,     options: {items: [], selected: {}} },
                 { field: 'VehicleType',         type: 'text',   required: true },
@@ -1134,8 +1126,7 @@ window.RenderVehicleFeesGridSummary = function(TMPVID) {
 //                                copy of vehicle fees data again
 //-----------------------------------------------------------------------------
 window.AssignVehicleFeesGridRecords = function(TMPVID) {
-    var grid    = w2ui.RAVehicleFeesGrid,
-        BID     = getCurrentBID();
+    var grid    = w2ui.RAVehicleFeesGrid;
 
     // clear the grid
     grid.clear();
@@ -1237,9 +1228,9 @@ window.displayRAVehicleFeesGridError = function () {
     if (app.raflow.validationErrors.vehicles) {
         var vehicles = app.raflow.validationCheck.errors.vehicles.errors;
         for (i = 0; i < vehicles.length; i++) {
-            for (var j = 0; j < vehicles[i].fees.length; j++) {
-                if (vehicles[i].fees[j].total > 0) {
-                    var recid = getRecIDFromTMPASMID(g, vehicles[i].fees[j].TMPASMID);
+            for (var j = 0; j < vehicles[i].fees.errors.length; j++) {
+                if (vehicles[i].fees.errors[j].total > 0) {
+                    var recid = getRecIDFromTMPASMID(g, vehicles[i].fees.errors[j].TMPASMID);
                     g.get(recid).w2ui.style = "background-color: #EEB4B4";
                     g.refreshRow(recid);
                 }
@@ -1315,9 +1306,9 @@ window.displayRAVehicleFeeFormError = function(TMPVID){
     // get index of vehicle for whom form is opened
     var vehicleIndex = getVehicleIndex(TMPVID, vehicles);
 
-    var index = getFeeIndex(record.TMPASMID, vehicles[vehicleIndex].fees);
+    var index = getFeeIndex(record.TMPASMID, vehicles[vehicleIndex].fees.errors);
 
     if(index > -1){
-        displayFormFieldsError(index, vehicles[vehicleIndex].fees, "RAVehicleFeeForm");
+        displayFormFieldsError(index, vehicles[vehicleIndex].fees.errors, "RAVehicleFeeForm");
     }
 };

@@ -2,7 +2,7 @@
     getRAFlowCompData, EnableDisableRAFlowVersionInputs,
     HideAllSliderContent, SetlocalDataFromRADatesFormRecord,
     SetRADatesFormRecordFromLocalData, setRAFlowCompData,
-    SetFormRecordFromData, SetDataFromFormRecord, SaveDatesCompData
+    SetFormRecordFromData, SetDataFromFormRecord, SaveDatesCompData, displayRADatesFormError
 */
 
 "use strict";
@@ -22,7 +22,6 @@ window.loadRADatesForm = function () {
             focus: -1,
             formURL: '/webclient/html/raflow/formra-dates.html',
             fields: [
-                {name: 'BID',               type: 'int',    required: true, html: {page: 0, column: 0}},
                 {name: 'AgreementStart',    type: 'date',   required: true, html: {caption: "Term Start"}},
                 {name: 'AgreementStop',     type: 'date',   required: true, html: {caption: "Term Stop"}},
                 {name: 'RentStart',         type: 'date',   required: true, html: {caption: "Rent Start"}},
@@ -91,7 +90,28 @@ window.loadRADatesForm = function () {
     // load the existing data in dates component
     setTimeout(function () {
         SetRADatesFormRecordFromLocalData();
+        displayRADatesFormError();
     }, 0);
+};
+
+// displayRADatesFormError If form field have error than it highlight with red border and
+window.displayRADatesFormError = function(){
+
+    // if pet section doesn't have error than return
+    if(!app.raflow.validationErrors.dates){
+        return;
+    }
+
+    // get list of pets
+    var dates = app.raflow.validationCheck.errors.dates;
+
+    // Iterate through fields with errors
+    for(var key in dates.errors){
+        var field = $("[name=RADatesForm] input#" + key);
+        var error = dates.errors[key].join(", ");
+        field.css("border-color", "red");
+        field.after("<small class='error'>" + error + "</small>");
+    }
 };
 
 // -------------------------------------------------------------

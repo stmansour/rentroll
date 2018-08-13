@@ -178,7 +178,7 @@ func F2RASaveNewFee(ctx context.Context, x *WriteHandlerContext, fee *rlib.RAFee
 		Start = dt // whichever is later
 	}
 	b.Stop = time.Time(fee.Stop)
-	b.BID = x.raf.Dates.BID
+	b.BID = x.raf.Meta.BID
 
 	//-------------------------------------------------------------------
 	// Set the Element Type and ID if necessary

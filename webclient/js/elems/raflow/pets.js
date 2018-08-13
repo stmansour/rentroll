@@ -56,7 +56,6 @@ window.RAFlowNewPetAJAX = function() {
 };
 
 window.GetPetFormInitRecord = function (previousFormRecord){
-    var BID = getCurrentBID();
 
     var t = new Date(),
         nyd = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
@@ -66,7 +65,6 @@ window.GetPetFormInitRecord = function (previousFormRecord){
         TMPPETID:               0,
         PETID:                  0,
         TMPTCID:                0,
-        BID:                    BID,
         Name:                   "",
         Breed:                  "",
         Type:                   "",
@@ -174,11 +172,6 @@ window.loadRAPetsGrid = function () {
                 {
                     field: 'PETID',
                     caption: 'PETID',
-                    hidden: true
-                },
-                {
-                    field: 'BID',
-                    caption: 'BID',
                     hidden: true
                 },
                 {
@@ -379,7 +372,6 @@ window.loadRAPetsGrid = function () {
             fields  : [
                 { field: 'recid',                   type: 'int',    required: false,     html: { caption: 'recid', page: 0, column: 0 } },
                 { field: 'TMPPETID',                type: 'int',    required: false  },
-                { field: 'BID',                     type: 'int',    required: true,      html: { caption: 'BID', page: 0, column: 0 } },
                 { field: 'PETID',                   type: 'int',    required: false,     html: { caption: 'PETID', page: 0, column: 0 } },
                 { field: 'TMPTCID',                 type: 'list',   required: false,     options: {items: [], selected: {}} },
                 { field: 'Name',                    type: 'text',   required: true   },
@@ -1267,9 +1259,9 @@ window.displayRAPetFeeFormError = function(TMPPETID){
     // get index of pet for whom form is opened
     var petIndex = getPetIndex(TMPPETID, pets);
 
-    var index = getFeeIndex(record.TMPASMID, pets[petIndex].fees);
+    var index = getFeeIndex(record.TMPASMID, pets[petIndex].fees.errors);
 
     if(index > -1){
-        displayFormFieldsError(index, pets[petIndex].fees, "RAPetFeeForm");
+        displayFormFieldsError(index, pets[petIndex].fees.errors, "RAPetFeeForm");
     }
 };

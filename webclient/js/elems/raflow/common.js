@@ -6,7 +6,7 @@
     dispalyRARentablesGridError, dispalyRAVehiclesGridError, dispalyRAParentChildGridError, dispalyRATiePeopleGridError,
     GetCurrentFlowID, ReassignPeopleGridRecords, AssignPetsGridRecords, AssignVehiclesGridRecords, AssignRentableGridRecords,
     GetGridToolbarAddButtonID, HideRAFlowLoader, toggleNonFieldsErrorDisplay, displayErrorSummary, submitActionForm, displayGreenCircle,
-    modifyFieldErrorMessage,ChangeRAFlowVersionToolbar
+    modifyFieldErrorMessage,ChangeRAFlowVersionToolbar, displayRADatesFormError
 */
 
 "use strict";
@@ -132,6 +132,10 @@ $(document).on('click', '#ra-form #previous', function () {
 $(document).on('click', '#ra-form #save-ra-flow-btn', function () {
     getApprovals().done(function (data) {
 
+        if(data.status !== "success"){
+            return;
+        }
+
         app.raflow.validationErrors = {
             dates: data.errors.dates.total > 0 || data.nonFieldsErrors.dates.length > 0,
             people: data.errors.people.total > 0 || data.nonFieldsErrors.people.length > 0,
@@ -147,7 +151,7 @@ $(document).on('click', '#ra-form #save-ra-flow-btn', function () {
         displayActiveComponentError();
 
         // Change its state to pending first approval.
-        if(data.total === 0 && data.errortype === "biz"){
+        if(data.total === 0){
 
             var reqData = {
                 "UserRefNo": app.raflow.Flow.UserRefNo,
@@ -203,8 +207,12 @@ window.getApprovals = function(){
         data: JSON.stringify(data),
         success: function (data) {
             console.info(data);
-            // Update validationCheck error local copy
-            app.raflow.validationCheck = data;
+            if(data.status === "success"){
+                // Update validationCheck error local copy
+                app.raflow.validationCheck = data;
+            }else{
+                console.error("something went wrong");
+            }
         },
         error: function (data) {
             console.error(data);
@@ -668,6 +676,7 @@ window.displayActiveComponentError = function () {
 
     switch (active_comp_id) {
         case "dates":
+            displayRADatesFormError();
             break;
         case "people":
             ReassignPeopleGridRecords();
@@ -773,11 +782,11 @@ window.getFeeIndex = function (TMPASMID, fees) {
 //-----------------------------------------------------------------------
 window.EnableDisableRAFlowVersionInputs = function(form) {
     if (app.raflow.version === "raid") { // DISABLE ALL INPUTS & BUTTONS
-        $(form.box).find("input").prop("disabled", true);
+        $(form.box).find("input,textarea").prop("disabled", true);
         $(form.box).find("button[class=w2ui-btn]").hide();
         $(form.box).find("div[class=w2ui-buttons]").hide();
    } else if (app.raflow.version === "refno") { // ENABLE ALL INPUTS & BUTTONS
-        $(form.box).find("input").not("input[name=BUD]").prop("disabled", false);
+        $(form.box).find("input,textarea").not("input[name=BUD]").prop("disabled", false);
         $(form.box).find("button[class=w2ui-btn]").show();
         $(form.box).find("div[class=w2ui-buttons]").show();
    }
@@ -885,6 +894,7 @@ window.displayErrorSummary = function (comp) {
             $(non_field_error_content_sel).append("<ul>" + errorString + "</ul>");
         }else{
             $(non_field_error_dd_sel).css('display', 'none');
+            $(non_field_error_content_sel).empty();
         }
 
     }

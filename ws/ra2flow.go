@@ -123,7 +123,6 @@ func addRAPtoFlow(ctx context.Context, tcid, rid int64, raf *rlib.RAFlowJSONData
 
 		// only tie occupants to rentable
 		var t rlib.RATiePeopleData
-		t.BID = rap.BID
 		t.TMPTCID = rap.TMPTCID
 		if rid > 0 {
 			t.PRID = rid
