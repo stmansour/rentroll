@@ -322,6 +322,7 @@ func SvcWriteFlowResponse(ctx context.Context, BID int64, flow rlib.Flow, w http
 	// CHECK DATA FULFILLED
 	bizlogic.DataFulfilledRAFlow(ctx, &raFlowData, &raflowRespData.DataFulfilled)
 
+	// TODO(Akshay): Wrap it by method
 	// init raFlowFieldsErrors
 	initRAFlowFieldsErrors(&raFlowFieldsErrors)
 

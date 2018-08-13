@@ -386,6 +386,11 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 }
 
 func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequest, raFlowData rlib.RAFlowJSONData) (RAFlowResponse, error) {
+	var (
+		raFlowFieldsErrors    bizlogic.RAFlowFieldsErrors
+		raFlowNonFieldsErrors bizlogic.RAFlowNonFieldsErrors
+	)
+
 	UserRefNo := foo.UserRefNo
 	Action := foo.Action
 	Mode := foo.Mode
@@ -417,14 +422,17 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 
 	raflowRespData.Flow = flow
 
-	//// PERFORM BASIC VALIDATION ON FLOW DATA
-	//bizlogic.ValidateRAFlowBasic(ctx, &raFlowData, &raflowRespData.ValidationCheck)
-	//
-	//// If basic error count is zero then perform bizLogic validations
-	//if raflowRespData.ValidationCheck.Total == 0 {
-	//	// Perform Bizlogic check validation on RAFlow
-	//	bizlogic.ValidateRAFlowBizLogic(ctx, &raFlowData, &raflowRespData.ValidationCheck, flow.ID)
-	//}
+	// init raFlowFieldsErrors
+	initRAFlowFieldsErrors(&raFlowFieldsErrors)
+
+	initRAFlowNonFieldsErrors(&raFlowNonFieldsErrors)
+
+	bizlogic.ValidateRAFlowParts(ctx, &raFlowFieldsErrors, &raFlowNonFieldsErrors, &raFlowData, flow.ID)
+
+	raflowRespData.ValidationCheck.Errors = raFlowFieldsErrors
+	raflowRespData.ValidationCheck.NonFieldsErrors = raFlowNonFieldsErrors
+	raflowRespData.ValidationCheck.Total += raFlowFieldsErrors.Pets.Total
+	raflowRespData.ValidationCheck.Status = "success"
 
 	// CHECK DATA FULFILLED
 	bizlogic.DataFulfilledRAFlow(ctx, &raFlowData, &raflowRespData.DataFulfilled)
