@@ -345,7 +345,7 @@ func GetRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				return
 			}
 			if ra.RAID == 0 {
-				err = fmt.Errorf("Rental Agreement not found with given RAID: %d", req.RAID)
+				err = fmt.Errorf("rental Agreement not found with given RAID: %d", req.RAID)
 				return
 			}
 

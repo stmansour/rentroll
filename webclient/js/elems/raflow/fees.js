@@ -92,8 +92,8 @@ window.GetFeeGridColumns = function(feesGrid) {
                     if (app.raflow.validationErrors.pets) {
                         var pets = app.raflow.validationCheck.errors.pets.errors;
                         for (var i = 0; i < pets.length; i++) {
-                            for(var j = 0; j < pets[i].fees.length; j++){
-                                if(pets[i].fees[j].TMPASMID === record.TMPASMID){
+                            for(var j = 0; j < pets[i].fees.errors.length; j++){
+                                if(pets[i].fees.errors[j].TMPASMID === record.TMPASMID){
                                     haveError = true;
                                     break;
                                 }
@@ -118,8 +118,8 @@ window.GetFeeGridColumns = function(feesGrid) {
                     if (app.raflow.validationErrors.vehicles) {
                         var vehicles = app.raflow.validationCheck.errors.vehicles.errors;
                         for (var i = 0; i < vehicles.length; i++) {
-                            for(var j = 0; j < vehicles[i].fees.length; j++){
-                                if(vehicles[i].fees[j].TMPASMID === record.TMPASMID){
+                            for(var j = 0; j < vehicles[i].fees.errors.length; j++){
+                                if(vehicles[i].fees.errors[j].TMPASMID === record.TMPASMID){
                                     haveError = true;
                                     break;
                                 }
@@ -144,8 +144,8 @@ window.GetFeeGridColumns = function(feesGrid) {
                     if (app.raflow.validationErrors.rentables) {
                         var rentables = app.raflow.validationCheck.errors.rentables.errors;
                         for (var i = 0; i < rentables.length; i++) {
-                            for(var j = 0; j < rentables[i].fees.length; j++){
-                                if(rentables[i].fees[j].TMPASMID === record.TMPASMID){
+                            for(var j = 0; j < rentables[i].fees.errors.length; j++){
+                                if(rentables[i].fees.errors[j].TMPASMID === record.TMPASMID){
                                     haveError = true;
                                     break;
                                 }

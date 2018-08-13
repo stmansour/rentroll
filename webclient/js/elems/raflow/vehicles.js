@@ -1237,9 +1237,9 @@ window.displayRAVehicleFeesGridError = function () {
     if (app.raflow.validationErrors.vehicles) {
         var vehicles = app.raflow.validationCheck.errors.vehicles.errors;
         for (i = 0; i < vehicles.length; i++) {
-            for (var j = 0; j < vehicles[i].fees.length; j++) {
-                if (vehicles[i].fees[j].total > 0) {
-                    var recid = getRecIDFromTMPASMID(g, vehicles[i].fees[j].TMPASMID);
+            for (var j = 0; j < vehicles[i].fees.errors.length; j++) {
+                if (vehicles[i].fees.errors[j].total > 0) {
+                    var recid = getRecIDFromTMPASMID(g, vehicles[i].fees.errors[j].TMPASMID);
                     g.get(recid).w2ui.style = "background-color: #EEB4B4";
                     g.refreshRow(recid);
                 }
@@ -1315,9 +1315,9 @@ window.displayRAVehicleFeeFormError = function(TMPVID){
     // get index of vehicle for whom form is opened
     var vehicleIndex = getVehicleIndex(TMPVID, vehicles);
 
-    var index = getFeeIndex(record.TMPASMID, vehicles[vehicleIndex].fees);
+    var index = getFeeIndex(record.TMPASMID, vehicles[vehicleIndex].fees.errors);
 
     if(index > -1){
-        displayFormFieldsError(index, vehicles[vehicleIndex].fees, "RAVehicleFeeForm");
+        displayFormFieldsError(index, vehicles[vehicleIndex].fees.errors, "RAVehicleFeeForm");
     }
 };

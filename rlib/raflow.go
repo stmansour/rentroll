@@ -209,14 +209,14 @@ type RAPeopleFlowData struct {
 	Points      int64    `validate:"number,min=1,omitempty"`
 	DateofBirth JSONDate `validate:"-"`
 	// Emergency contact information
-	EmergencyContactName      string `validate:"string,min=1,max=100"`
-	EmergencyContactAddress   string `validate:"string,min=1,max=100"`
-	EmergencyContactTelephone string `validate:"string,min=1,max=100"`
+	EmergencyContactName      string `validate:"string,min=1,max=100,omitempty"`
+	EmergencyContactAddress   string `validate:"string,min=1,max=100,omitempty"`
+	EmergencyContactTelephone string `validate:"string,min=1,max=100,omitempty"`
 	EmergencyContactEmail     string `validate:"email"`
 	AlternateEmailAddress     string `validate:"string,min=1,max=100,omitempty"`
 	EligibleFutureUser        bool   `validate:"-"`
 	Industry                  int64  `validate:"number,min=0,omitempty"`
-	SourceSLSID               int64  `validate:"number,min=1"` // It is compulsory when role is set to renter or user. It'll be check via bizlogic.
+	SourceSLSID               int64  `validate:"number,min=0,omitempty"` // It is compulsory when role is set to renter or user. It'll be check via bizlogic.
 }
 
 // RAPetsFlowData contains data in the pets part of RA flow

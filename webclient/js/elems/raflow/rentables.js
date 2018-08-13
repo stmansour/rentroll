@@ -1145,9 +1145,9 @@ window.displayRARentableFeesGridError = function () {
     if (app.raflow.validationErrors.rentables) {
         var rentables = app.raflow.validationCheck.errors.rentables.errors;
         for (i = 0; i < rentables.length; i++) {
-            for (var j = 0; j < rentables[i].fees.length; j++) {
-                if (rentables[i].fees[j].total > 0) {
-                    var recid = getRecIDFromTMPASMID(g, rentables[i].fees[j].TMPASMID);
+            for (var j = 0; j < rentables[i].fees.errors.length; j++) {
+                if (rentables[i].fees.errors[j].total > 0) {
+                    var recid = getRecIDFromTMPASMID(g, rentables[i].fees.errors[j].TMPASMID);
                     g.get(recid).w2ui.style = "background-color: #EEB4B4";
                     g.refreshRow(recid);
                 }
@@ -1185,10 +1185,10 @@ window.displayRARentableFeeFormError = function(RID){
     // get index of vehicle for whom form is opened
     var rentableIndex = getRentableIndex(RID, rentables);
 
-    var index = getFeeIndex(record.TMPASMID, rentables[rentableIndex].fees);
+    var index = getFeeIndex(record.TMPASMID, rentables[rentableIndex].fees.errors);
 
     if(index > -1){
-        displayFormFieldsError(index, rentables[rentableIndex].fees, "RARentableFeeForm");
+        displayFormFieldsError(index, rentables[rentableIndex].fees.errors, "RARentableFeeForm");
     }
 };
 

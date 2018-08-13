@@ -417,14 +417,14 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 
 	raflowRespData.Flow = flow
 
-	// PERFORM BASIC VALIDATION ON FLOW DATA
-	bizlogic.ValidateRAFlowBasic(ctx, &raFlowData, &raflowRespData.ValidationCheck)
-
-	// If basic error count is zero then perform bizLogic validations
-	if raflowRespData.ValidationCheck.Total == 0 {
-		// Perform Bizlogic check validation on RAFlow
-		bizlogic.ValidateRAFlowBizLogic(ctx, &raFlowData, &raflowRespData.ValidationCheck, flow.ID)
-	}
+	//// PERFORM BASIC VALIDATION ON FLOW DATA
+	//bizlogic.ValidateRAFlowBasic(ctx, &raFlowData, &raflowRespData.ValidationCheck)
+	//
+	//// If basic error count is zero then perform bizLogic validations
+	//if raflowRespData.ValidationCheck.Total == 0 {
+	//	// Perform Bizlogic check validation on RAFlow
+	//	bizlogic.ValidateRAFlowBizLogic(ctx, &raFlowData, &raflowRespData.ValidationCheck, flow.ID)
+	//}
 
 	// CHECK DATA FULFILLED
 	bizlogic.DataFulfilledRAFlow(ctx, &raFlowData, &raflowRespData.DataFulfilled)
