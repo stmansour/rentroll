@@ -782,11 +782,11 @@ window.getFeeIndex = function (TMPASMID, fees) {
 //-----------------------------------------------------------------------
 window.EnableDisableRAFlowVersionInputs = function(form) {
     if (app.raflow.version === "raid") { // DISABLE ALL INPUTS & BUTTONS
-        $(form.box).find("input").prop("disabled", true);
+        $(form.box).find("input,textarea").prop("disabled", true);
         $(form.box).find("button[class=w2ui-btn]").hide();
         $(form.box).find("div[class=w2ui-buttons]").hide();
    } else if (app.raflow.version === "refno") { // ENABLE ALL INPUTS & BUTTONS
-        $(form.box).find("input").not("input[name=BUD]").prop("disabled", false);
+        $(form.box).find("input,textarea").not("input[name=BUD]").prop("disabled", false);
         $(form.box).find("button[class=w2ui-btn]").show();
         $(form.box).find("div[class=w2ui-buttons]").show();
    }

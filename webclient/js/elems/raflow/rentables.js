@@ -168,10 +168,6 @@ window.loadRARentablesGrid = function () {
                     hidden: true
                 },
                 {
-                    field: 'BID',
-                    hidden: true
-                },
-                {
                     field: 'RTID',
                     hidden: true
                 },
@@ -333,26 +329,10 @@ window.loadRARentablesGrid = function () {
                             if(localRData.hasOwnProperty("Fees") && localRData.Fees.length > 0) {
                                 // set fees grid records
                                 AssignRentableFeesGridRecords(rec.RID);
-
-                                // show slider content
-                                ShowSliderContentW2UIComp(w2ui.RARentableFeesGrid, RACompConfig.rentables.sliderWidth);
-                            } else {
-                                // pull fees in case it's empty
-                                var BID = getCurrentBID();
-                                SaveRAFlowRentableAJAX(rec.RID)
-                                .done(function(data) {
-                                    if (data.status === "success") {
-                                        // re-render fees grid records
-                                        AssignRentableFeesGridRecords(rec.RID);
-
-                                        // show the slider content
-                                        ShowSliderContentW2UIComp(w2ui.RARentableFeesGrid, RACompConfig.rentables.sliderWidth);
-                                    }
-                                })
-                                .fail(function(data) {
-                                    console.log("ERROR from fees data: " + data);
-                                });
                             }
+
+                            // show slider content
+                            ShowSliderContentW2UIComp(w2ui.RARentableFeesGrid, RACompConfig.rentables.sliderWidth);
                         };
 
                     // warn user if content has been changed
@@ -893,8 +873,7 @@ window.AcceptRentable = function () {
         w2ui.RARentablesGrid.select(gridRecIndex); // highlight the existing record
         w2ui.RARentableSearchForm.clear(); // clear the search rentable form
     } else {
-        var BID     = getCurrentBID(),
-            fRec    = w2ui.RARentableSearchForm.record;
+        var fRec    = w2ui.RARentableSearchForm.record;
 
         SaveRAFlowRentableAJAX(fRec.RID)
         .done(function(data) {
