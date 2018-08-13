@@ -168,10 +168,6 @@ window.loadRARentablesGrid = function () {
                     hidden: true
                 },
                 {
-                    field: 'BID',
-                    hidden: true
-                },
-                {
                     field: 'RTID',
                     hidden: true
                 },
@@ -338,7 +334,6 @@ window.loadRARentablesGrid = function () {
                                 ShowSliderContentW2UIComp(w2ui.RARentableFeesGrid, RACompConfig.rentables.sliderWidth);
                             } else {
                                 // pull fees in case it's empty
-                                var BID = getCurrentBID();
                                 SaveRAFlowRentableAJAX(rec.RID)
                                 .done(function(data) {
                                     if (data.status === "success") {
@@ -893,8 +888,7 @@ window.AcceptRentable = function () {
         w2ui.RARentablesGrid.select(gridRecIndex); // highlight the existing record
         w2ui.RARentableSearchForm.clear(); // clear the search rentable form
     } else {
-        var BID     = getCurrentBID(),
-            fRec    = w2ui.RARentableSearchForm.record;
+        var fRec    = w2ui.RARentableSearchForm.record;
 
         SaveRAFlowRentableAJAX(fRec.RID)
         .done(function(data) {

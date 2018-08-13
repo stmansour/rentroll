@@ -22,7 +22,6 @@ window.loadRADatesForm = function () {
             focus: -1,
             formURL: '/webclient/html/raflow/formra-dates.html',
             fields: [
-                {name: 'BID',               type: 'int',    required: true, html: {page: 0, column: 0}},
                 {name: 'AgreementStart',    type: 'date',   required: true, html: {caption: "Term Start"}},
                 {name: 'AgreementStop',     type: 'date',   required: true, html: {caption: "Term Stop"}},
                 {name: 'RentStart',         type: 'date',   required: true, html: {caption: "Rent Start"}},
