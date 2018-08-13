@@ -35,6 +35,7 @@
                     "Approver1Name": "Steve Mansour",
                     "Approver2": 211,
                     "Approver2Name": "Steve Mansour",
+                    "BID": 1,
                     "DecisionDate1": "2018-08-13 04:48:00 UTC",
                     "DecisionDate2": "2018-08-13 04:48:00 UTC",
                     "DeclineReason1": 0,
