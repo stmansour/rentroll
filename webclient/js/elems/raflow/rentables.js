@@ -329,10 +329,10 @@ window.loadRARentablesGrid = function () {
                             if(localRData.hasOwnProperty("Fees") && localRData.Fees.length > 0) {
                                 // set fees grid records
                                 AssignRentableFeesGridRecords(rec.RID);
-
-                                // show slider content
-                                ShowSliderContentW2UIComp(w2ui.RARentableFeesGrid, RACompConfig.rentables.sliderWidth);
                             }
+
+                            // show slider content
+                            ShowSliderContentW2UIComp(w2ui.RARentableFeesGrid, RACompConfig.rentables.sliderWidth);
                         };
 
                     // warn user if content has been changed
