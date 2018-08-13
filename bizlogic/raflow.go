@@ -149,101 +149,6 @@ type RAFlowNonFieldsErrors struct {
 	Tie         []string `json:"tie"`
 }
 
-// ValidateRAFlowBasic validate RAFlow's fields section wise
-//-------------------------------------------------------------------------
-func ValidateRAFlowBasic(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) {
-
-	var (
-		tieFieldsErrors       TieFieldsError
-		raFlowNonFieldsErrors RAFlowNonFieldsErrors
-	)
-
-	tieFieldsErrors.TiePeople.TiePeopleErrors = make([]TiePeopleFieldsError, 0)
-
-	// Initialize non fields errors
-	raFlowNonFieldsErrors = RAFlowNonFieldsErrors{
-		Dates:       make([]string, 0),
-		People:      make([]string, 0),
-		Pets:        make([]string, 0),
-		Vehicle:     make([]string, 0),
-		Rentables:   make([]string, 0),
-		ParentChild: make([]string, 0),
-		Tie:         make([]string, 0),
-	}
-
-	// ----------------------------------------------
-	// validate RAParentChildFlowData structure
-	// ----------------------------------------------
-	for _, parentChild := range a.ParentChild {
-		// call validation function
-		errs := rtags.ValidateStructFromTagRules(parentChild)
-
-		// Modify error count for the response
-		parentChildFieldsErrors := ParentChildFieldsError{
-			Total:  len(errs),
-			PRID:   parentChild.PRID,
-			CRID:   parentChild.CRID,
-			Errors: errs,
-		}
-
-		// Modify Total Error
-		raFlowFieldsErrors.ParentChild.Total = parentChildFieldsErrors.Total
-		g.Total += parentChildFieldsErrors.Total
-
-		if parentChildFieldsErrors.Total > 0 {
-			raFlowFieldsErrors.ParentChild.ParentChildErrors = append(raFlowFieldsErrors.ParentChild.ParentChildErrors, parentChildFieldsErrors)
-		}
-	}
-
-	// ----------------------------------------------
-	// validate RATieFlowData.People structure
-	// ----------------------------------------------
-	for _, people := range a.Tie.People {
-		// call validation function
-		errs := rtags.ValidateStructFromTagRules(people)
-
-		// Modify error count for the response
-		tiePeopleFieldsErrors := TiePeopleFieldsError{
-			Total:   len(errs),
-			TMPTCID: people.TMPTCID,
-			Errors:  errs,
-		}
-
-		// Modify Total Error
-		tieFieldsErrors.TiePeople.Total += tiePeopleFieldsErrors.Total
-		g.Total += tiePeopleFieldsErrors.Total
-
-		if tiePeopleFieldsErrors.Total > 0 {
-			tieFieldsErrors.TiePeople.TiePeopleErrors = append(tieFieldsErrors.TiePeople.TiePeopleErrors, tiePeopleFieldsErrors)
-		}
-	}
-
-	// Assign all(people/pet/vehicles) tie related error
-	raFlowFieldsErrors.Tie = tieFieldsErrors
-
-	//---------------------------------------
-	// set the response
-	//---------------------------------------
-	//g.Errors = raFlowFieldsErrors
-	g.NonFieldsErrors = raFlowNonFieldsErrors
-}
-
-// ValidateRAFlowBizLogic is to check RAFlow's business logic
-func ValidateRAFlowBizLogic(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse, RAID int64) {
-	const funcname = "ValidateRAFlowBizLogic"
-	fmt.Printf("Entered %s\n", funcname)
-
-	// -----------------------------------------------
-	// --- Bizlogic check on parent/child section ----
-	// -----------------------------------------------
-	validateParentChildBizLogic(ctx, a, g)
-
-	// -----------------------------------------------
-	// --- Bizlogic check on tie-people section ----
-	// -----------------------------------------------
-	validateTiePeopleBizLogic(ctx, a, g)
-}
-
 // ValidateRAFlowParts
 func ValidateRAFlowParts(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, raFlowNonFieldsErrors *RAFlowNonFieldsErrors, a *rlib.RAFlowJSONData, RAID int64) {
 
@@ -271,6 +176,16 @@ func ValidateRAFlowParts(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsEr
 	// validate RARentablesFlowData structure
 	// ----------------------------------------------
 	validateRentables(ctx, raFlowFieldsErrors, raFlowNonFieldsErrors, a)
+
+	// ----------------------------------------------
+	// validate RAParentChildFlowData structure
+	// ----------------------------------------------
+	validateParentChild(ctx, raFlowFieldsErrors, raFlowNonFieldsErrors, a)
+
+	// ----------------------------------------------
+	// validate RATieFlowData.People structure
+	// ----------------------------------------------
+	validateTiePeople(ctx, raFlowFieldsErrors, raFlowNonFieldsErrors, a)
 }
 
 // validateDates
@@ -765,37 +680,29 @@ func validateFees(ctx context.Context, feesError *FeesError, fees []rlib.RAFeesD
 	}
 }
 
-// validateParentChildBizLogic Perform business logic check on parent/child section
+// validateParentChild
+// BizCheck
 // ----------------------------------------------------------------------
 // 1. If there are any entries are in the list then id of parent/child rentable must be greater than 0. Also check does it exist in database?
 // ----------------------------------------------------------------------
-func validateParentChildBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) {
-	const funcname = "validateParentChildBizLogic"
-	fmt.Printf("Entered %s\n", funcname)
+func validateParentChild(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, raFlowNonFieldsErrors *RAFlowNonFieldsErrors, a *rlib.RAFlowJSONData) {
+	for _, pc := range a.ParentChild {
+		// call validation function
+		errs := rtags.ValidateStructFromTagRules(pc)
 
-	var (
-		parentChildFieldsErrors    []ParentChildFieldsError
-		parentChildNonFieldsErrors = []string{}
-		errCount                   int
-	)
-
-	// Init Slice
-	parentChildFieldsErrors = make([]ParentChildFieldsError, 0)
-
-	pcData := a.ParentChild
-
-	for _, pc := range pcData {
-
-		// Init ParentChildFieldsError
+		// Modify error count for the response
 		parentChildFieldsError := ParentChildFieldsError{
+			Total:  len(errs),
 			PRID:   pc.PRID,
 			CRID:   pc.CRID,
-			Total:  0,
-			Errors: make(map[string][]string, 0),
+			Errors: errs,
 		}
 
 		// Check PRID exists in database which refer to RID in rentable table
 		r, err := rlib.GetRentable(ctx, pc.PRID)
+		if err != nil {
+			// TODO(Akshay): Handle error here
+		}
 		// Not exist than RID will be 0
 		if !(r.RID > 0 && pc.PRID > 0) {
 			err = fmt.Errorf("parent rentable must exists")
@@ -805,6 +712,9 @@ func validateParentChildBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g 
 
 		// Check CRID exists in database which refer to RID in rentable table
 		r, err = rlib.GetRentable(ctx, pc.CRID)
+		if err != nil {
+			// TODO(Akshay): Handle error here
+		}
 		// Not exist than RID will be 0
 		if !(r.RID > 0 && pc.CRID > 0) {
 			err = fmt.Errorf("child rentable must exists")
@@ -813,43 +723,32 @@ func validateParentChildBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g 
 		}
 
 		if parentChildFieldsError.Total > 0 {
-			errCount += parentChildFieldsError.Total
-			parentChildFieldsErrors = append(parentChildFieldsErrors, parentChildFieldsError)
+			raFlowFieldsErrors.ParentChild.ParentChildErrors = append(raFlowFieldsErrors.ParentChild.ParentChildErrors, parentChildFieldsError)
+			// Modify Total Error
+			raFlowFieldsErrors.ParentChild.Total += parentChildFieldsError.Total
 		}
 	}
-
-	g.Errors.ParentChild.Total += errCount
-	g.Errors.ParentChild.ParentChildErrors = parentChildFieldsErrors
-	g.NonFieldsErrors.ParentChild = parentChildNonFieldsErrors
-	g.Total += errCount + len(parentChildNonFieldsErrors)
 }
 
-// validateTiePeopleBizLogic Perform business logic check on Tie section for people
+// validateTiePeople
+// BizCheck
 // ----------------------------------------------------------------------
 // 1. PRID must be greater than 0. It should exists in database
 // 2. Person must be occupant.
 // ----------------------------------------------------------------------
-func validateTiePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *ValidateRAFlowResponse) {
-	const funcname = "validateParentChildBizLogic"
-	fmt.Printf("Entered %s\n", funcname)
+func validateTiePeople(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, raFlowNonFieldsErrors *RAFlowNonFieldsErrors, a *rlib.RAFlowJSONData) {
 
-	var (
-		tiePeopleFieldsErrors []TiePeopleFieldsError
-		tieNonFieldsErrors    = []string{}
-		//err                     error
-		errCount int
-	)
-
-	tiePeopleFieldsErrors = make([]TiePeopleFieldsError, 0)
 	occupantCount := 0
 
 	for _, p := range a.Tie.People {
+		// call validation function
+		errs := rtags.ValidateStructFromTagRules(p)
 
-		// Init TiePeopleFieldsError
+		// Modify error count for the response
 		tiePeopleFieldsError := TiePeopleFieldsError{
+			Total:   len(errs),
 			TMPTCID: p.TMPTCID,
-			Total:   0,
-			Errors:  make(map[string][]string, 0),
+			Errors:  errs,
 		}
 
 		// ---------- Check rule no 1 ---------------
@@ -876,20 +775,16 @@ func validateTiePeopleBizLogic(ctx context.Context, a *rlib.RAFlowJSONData, g *V
 		}
 
 		if tiePeopleFieldsError.Total > 0 {
-			errCount += tiePeopleFieldsError.Total
-			tiePeopleFieldsErrors = append(tiePeopleFieldsErrors, tiePeopleFieldsError)
+			raFlowFieldsErrors.Tie.TiePeople.TiePeopleErrors = append(raFlowFieldsErrors.Tie.TiePeople.TiePeopleErrors, tiePeopleFieldsError)
+			// Modify Total Error
+			raFlowFieldsErrors.Tie.TiePeople.Total += tiePeopleFieldsError.Total
 		}
 	}
 
 	if !(occupantCount > 0) {
 		err := fmt.Errorf("must have at least one occupant")
-		tieNonFieldsErrors = append(tieNonFieldsErrors, err.Error())
+		raFlowNonFieldsErrors.Tie = append(raFlowNonFieldsErrors.Tie, err.Error())
 	}
-
-	g.Errors.Tie.TiePeople.Total += errCount
-	g.Errors.Tie.TiePeople.TiePeopleErrors = tiePeopleFieldsErrors
-	g.NonFieldsErrors.Tie = tieNonFieldsErrors
-	g.Total += errCount + len(tieNonFieldsErrors)
 }
 
 // isPersonOccupant Check provided TMPTCID refered person is occupant status
