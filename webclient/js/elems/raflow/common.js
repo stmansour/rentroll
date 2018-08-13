@@ -6,7 +6,7 @@
     dispalyRARentablesGridError, dispalyRAVehiclesGridError, dispalyRAParentChildGridError, dispalyRATiePeopleGridError,
     GetCurrentFlowID, ReassignPeopleGridRecords, AssignPetsGridRecords, AssignVehiclesGridRecords, AssignRentableGridRecords,
     GetGridToolbarAddButtonID, HideRAFlowLoader, toggleNonFieldsErrorDisplay, displayErrorSummary, submitActionForm, displayGreenCircle,
-    modifyFieldErrorMessage,ChangeRAFlowVersionToolbar
+    modifyFieldErrorMessage,ChangeRAFlowVersionToolbar, displayRADatesFormError
 */
 
 "use strict";
@@ -676,6 +676,7 @@ window.displayActiveComponentError = function () {
 
     switch (active_comp_id) {
         case "dates":
+            displayRADatesFormError();
             break;
         case "people":
             ReassignPeopleGridRecords();
