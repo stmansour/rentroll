@@ -38,7 +38,8 @@ startRentRollServer
 #------------------------------------------------------------------------------
 
 # Send the command to change the flow to Active:
-echo "%7B%22UserRefNo%22%3A%22G4OT34LK1266DWUQ765I%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
+#echo "%7B%22UserRefNo%22%3A%22G4OT34LK1266DWUQ765I%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
+echo "%7B%22UserRefNo%22%3A%225MRYE3FC82N637EW2Q56%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
 dojsonPOST "http://localhost:8270/v1/raactions/1/" "request" "a0"  "WebService--Action-setTo-ACTIVE"
 
 docsvtest "a1" "-G ${BUD} -g 8/1/18,10/1/18 -L 11,${BUD}" "Assessments-2018-AUG"
