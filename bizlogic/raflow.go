@@ -43,6 +43,7 @@ type PetFieldsError struct {
 	FeesError FeesError           `json:"fees"`
 }
 
+// FeesError is struct to hold total and error list of fees
 type FeesError struct {
 	Total      int           `json:"total"`
 	FeesErrors []RAFeesError `json:"errors"`
@@ -149,7 +150,7 @@ type RAFlowNonFieldsErrors struct {
 	Tie         []string `json:"tie"`
 }
 
-// ValidateRAFlowParts
+// ValidateRAFlowParts It checks for basic and biz rules for raflow data
 func ValidateRAFlowParts(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, raFlowNonFieldsErrors *RAFlowNonFieldsErrors, a *rlib.RAFlowJSONData, RAID int64) {
 
 	//----------------------------------------------

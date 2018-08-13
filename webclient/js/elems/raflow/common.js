@@ -894,6 +894,7 @@ window.displayErrorSummary = function (comp) {
             $(non_field_error_content_sel).append("<ul>" + errorString + "</ul>");
         }else{
             $(non_field_error_dd_sel).css('display', 'none');
+            $(non_field_error_content_sel).empty();
         }
 
     }
