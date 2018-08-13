@@ -327,6 +327,7 @@ window.GetFeeGridColumns = function(feesGrid) {
         }
     ];
 
+    // PREPEND ERROR COLUMN
     columns.unshift(haveErrorCol);
 
     // RETURN the clone
@@ -363,6 +364,7 @@ window.FeeFormOnRefreshHandler = function(feeForm) {
     feeForm.get("ARID").options.items.forEach(function(item) {
         if (item.id == feeForm.record.ARID) {
             ARIDSel = {id: item.id, text: item.text};
+            return true;
         }
     });
     feeForm.get("ARID").options.selected = ARIDSel;
@@ -374,19 +376,13 @@ window.FeeFormOnRefreshHandler = function(feeForm) {
     feeForm.record.RentCycleText = RentCycleTextSel;
 
     // -- PRORATION CYCLE -- //
-    var selectedProrationCycle, ProrationCycleTextSel;
     if (feeForm.record.RentCycle === 0) { // IF ZERO THEN RESET
         feeForm.record.ProrationCycle = 0;
-        selectedProrationCycle = app.cycleFreq[feeForm.record.ProrationCycle];
-        ProrationCycleTextSel = { id: selectedProrationCycle, text: selectedProrationCycle };
-        feeForm.get("ProrationCycleText").options.selected = ProrationCycleTextSel;
-        feeForm.record.ProrationCycleText = ProrationCycleTextSel;
-    } else {
-        selectedProrationCycle = app.cycleFreq[feeForm.record.ProrationCycle];
-        ProrationCycleTextSel = { id: selectedProrationCycle, text: selectedProrationCycle };
-        feeForm.get("ProrationCycleText").options.selected = ProrationCycleTextSel;
-        feeForm.record.ProrationCycleText = ProrationCycleTextSel;
     }
+    var selectedProrationCycle = app.cycleFreq[feeForm.record.ProrationCycle];
+    var ProrationCycleTextSel = { id: selectedProrationCycle, text: selectedProrationCycle };
+    feeForm.get("ProrationCycleText").options.selected = ProrationCycleTextSel;
+    feeForm.record.ProrationCycleText = ProrationCycleTextSel;
 
     setTimeout(function() {
 
@@ -400,16 +396,10 @@ window.FeeFormOnRefreshHandler = function(feeForm) {
             // if RentCycle is 0=nonrecur then disable Stop date field
             // and value should be same as Start
             if (feeForm.record.RentCycle === 0) {
-                // $(feeForm.box).find("input[name=RentCycleText]").prop("disabled", true);
-                // $(feeForm.box).find("input[name=ProrationCycleText]").prop("disabled", true);
-
-                // stop date
                 $(feeForm.box).find("input[name=Stop]").prop("disabled", true);
                 $(feeForm.box).find("input[name=Stop]").w2field().set(feeForm.record.Start);
                 feeForm.record.Stop = feeForm.record.Start;
             } else {
-                // $(feeForm.box).find("input[name=RentCycleText]").prop("disabled", false);
-                // $(feeForm.box).find("input[name=ProrationCycleText]").prop("disabled", false);
                 $(feeForm.box).find("input[name=Stop]").prop("disabled", false);
             }
 
@@ -443,6 +433,7 @@ window.FeeFormOnChangeHandler = function(feeForm, field, newValue) {
                 }
             });
             feeForm.refresh();
+            feeForm.refresh();
         }
         break;
     case "ProrationCycleText":
@@ -453,6 +444,7 @@ window.FeeFormOnChangeHandler = function(feeForm, field, newValue) {
                     return false;
                 }
             });
+            feeForm.refresh();
             feeForm.refresh();
         }
         break;
@@ -483,7 +475,6 @@ window.FeeFormOnChangeHandler = function(feeForm, field, newValue) {
                 var RID = app.raflow.last.RID,
                     localRData = GetRentableLocalData(RID);
 
-                // feeForm.record.RentCycleText = app.cycleFreq[localRData.RentCycle];
                 feeForm.record.RentCycle = localRData.RentCycle;
                 feeForm.record.ProrationCycle = localRData.ProrationCycle;
             }
@@ -501,12 +492,13 @@ window.FeeFormOnChangeHandler = function(feeForm, field, newValue) {
             feeForm.record.ProrationCycleText = prorationCycleW2UISel;
 
             feeForm.refresh();
-            feeForm.refresh();
 
             // When RentCycle is Norecur then disable the RentCycle list field.
             var isDisabled = feeForm.record.RentCycleText.text === app.cycleFreq[0];
             $(feeForm.box).find("#RentCycleText").prop("disabled", isDisabled);
             $(feeForm.box).find("#ProrationCycleText").prop("disabled", isDisabled);
+
+            feeForm.refresh();
         }
         break;
     }
