@@ -332,21 +332,6 @@ window.loadRARentablesGrid = function () {
 
                                 // show slider content
                                 ShowSliderContentW2UIComp(w2ui.RARentableFeesGrid, RACompConfig.rentables.sliderWidth);
-                            } else {
-                                // pull fees in case it's empty
-                                SaveRAFlowRentableAJAX(rec.RID)
-                                .done(function(data) {
-                                    if (data.status === "success") {
-                                        // re-render fees grid records
-                                        AssignRentableFeesGridRecords(rec.RID);
-
-                                        // show the slider content
-                                        ShowSliderContentW2UIComp(w2ui.RARentableFeesGrid, RACompConfig.rentables.sliderWidth);
-                                    }
-                                })
-                                .fail(function(data) {
-                                    console.log("ERROR from fees data: " + data);
-                                });
                             }
                         };
 
