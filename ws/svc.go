@@ -707,7 +707,7 @@ func SvcWriteResponse(BID int64, g interface{}, w http.ResponseWriter) {
 	rlib.HandleInterfaceEDI(g, BID)
 	b, err := json.Marshal(g)
 	if err != nil {
-		e := fmt.Errorf("Error marshaling json data: %s", err.Error())
+		e := fmt.Errorf("error marshaling json data: %s", err.Error())
 		rlib.Ulog("SvcWriteResponse: %s\n", err.Error())
 		SvcErrorReturn(w, e, "SvcWriteResponse")
 		return

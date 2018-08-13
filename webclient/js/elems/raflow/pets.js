@@ -1259,9 +1259,9 @@ window.displayRAPetFeeFormError = function(TMPPETID){
     // get index of pet for whom form is opened
     var petIndex = getPetIndex(TMPPETID, pets);
 
-    var index = getFeeIndex(record.TMPASMID, pets[petIndex].fees);
+    var index = getFeeIndex(record.TMPASMID, pets[petIndex].fees.errors);
 
     if(index > -1){
-        displayFormFieldsError(index, pets[petIndex].fees, "RAPetFeeForm");
+        displayFormFieldsError(index, pets[petIndex].fees.errors, "RAPetFeeForm");
     }
 };

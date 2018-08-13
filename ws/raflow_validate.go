@@ -37,23 +37,24 @@ func SvcValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		ValidateRAFlow(w, r, d)
 		break
 	default:
-		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
+		err = fmt.Errorf("unhandled command: %s", d.wsSearchReq.Cmd)
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
 }
 
 // ValidateRAFlow validate RAFlow's fields section wise
-//-------------------------------------------------------------------------
 func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "ValidateRAFlow"
 	fmt.Printf("Entered %s\n", funcname)
 
 	var (
-		err        error
-		foo        RAFlowDetailRequest
-		raFlowData rlib.RAFlowJSONData
-		g          bizlogic.ValidateRAFlowResponse
+		err                   error
+		foo                   RAFlowDetailRequest
+		raFlowData            rlib.RAFlowJSONData
+		raFlowFieldsErrors    bizlogic.RAFlowFieldsErrors
+		raFlowNonFieldsErrors bizlogic.RAFlowNonFieldsErrors
+		g                     bizlogic.ValidateRAFlowResponse
 	)
 
 	// http method check
@@ -88,27 +89,65 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	// ---------------------------------------
-	// Perform basic validation on RAFlow
-	// ---------------------------------------
-	bizlogic.ValidateRAFlowBasic(r.Context(), &raFlowData, &g)
+	// init raFlowFieldsErrors
+	initRAFlowFieldsErrors(&raFlowFieldsErrors)
 
-	// If RAFlow structure have more than 1 basic validation error than it return with the list of basic validation errors
-	if g.Total > 0 {
-		SvcWriteResponse(d.BID, &g, w)
-		return
-	}
+	initRAFlowNonFieldsErrors(&raFlowNonFieldsErrors)
 
-	// --------------------------------------------
-	// Perform Bizlogic check validation on RAFlow
-	// --------------------------------------------
-	bizlogic.ValidateRAFlowBizLogic(r.Context(), &raFlowData, &g, flow.ID)
+	bizlogic.ValidateRAFlowParts(r.Context(), &raFlowFieldsErrors, &raFlowNonFieldsErrors, &raFlowData, flow.ID)
 
-	// If RAFlow structure have more than 1 biz logic check validation error than it return with the list of biz logic validation errors
-	if g.Total > 0 {
-		SvcWriteResponse(d.BID, &g, w)
-		return
-	}
-
+	totalFieldsError := raFlowFieldsErrors.Dates.Total + raFlowFieldsErrors.People.Total + raFlowFieldsErrors.Pets.Total + raFlowFieldsErrors.Vehicle.Total + raFlowFieldsErrors.Rentables.Total + raFlowFieldsErrors.ParentChild.Total + raFlowFieldsErrors.Tie.TiePeople.Total
+	totalNonFieldsError := len(raFlowNonFieldsErrors.Dates) + len(raFlowNonFieldsErrors.People) + len(raFlowNonFieldsErrors.Pets) + len(raFlowNonFieldsErrors.Rentables) + len(raFlowNonFieldsErrors.Vehicle) + len(raFlowNonFieldsErrors.ParentChild) + len(raFlowNonFieldsErrors.Tie)
+	g.Total += totalFieldsError + totalNonFieldsError
+	g.Errors = raFlowFieldsErrors
+	g.NonFieldsErrors = raFlowNonFieldsErrors
+	g.Status = "success"
 	SvcWriteResponse(d.BID, &g, w)
+}
+
+func initRAFlowFieldsErrors(raFlowFieldsErrors *bizlogic.RAFlowFieldsErrors) {
+	*raFlowFieldsErrors = bizlogic.RAFlowFieldsErrors{
+		Dates: bizlogic.DatesFieldsError{
+			Errors: make(map[string][]string, 0),
+		},
+		People: bizlogic.PeopleError{
+			Total:        0,
+			PeopleErrors: []bizlogic.PeopleFieldsError{},
+		},
+		Pets: bizlogic.PetsError{
+			Total:     0,
+			PetErrors: []bizlogic.PetFieldsError{},
+		},
+		Vehicle: bizlogic.VehiclesError{
+			Total:         0,
+			VehicleErrors: []bizlogic.VehicleFieldsError{},
+		},
+		Rentables: bizlogic.RentablesError{
+			Total:          0,
+			RentableErrors: []bizlogic.RentablesFieldsError{},
+		},
+		ParentChild: bizlogic.ParentChildrenError{
+			Total:             0,
+			ParentChildErrors: []bizlogic.ParentChildFieldsError{},
+		},
+		Tie: bizlogic.TieFieldsError{
+			TiePeople: bizlogic.TiePeopleError{
+				Total:           0,
+				TiePeopleErrors: []bizlogic.TiePeopleFieldsError{},
+			},
+		},
+	}
+}
+
+func initRAFlowNonFieldsErrors(raFlowNonFieldsErrors *bizlogic.RAFlowNonFieldsErrors) {
+	// Initialize non fields errors
+	*raFlowNonFieldsErrors = bizlogic.RAFlowNonFieldsErrors{
+		Dates:       make([]string, 0),
+		People:      make([]string, 0),
+		Pets:        make([]string, 0),
+		Vehicle:     make([]string, 0),
+		Rentables:   make([]string, 0),
+		ParentChild: make([]string, 0),
+		Tie:         make([]string, 0),
+	}
 }
