@@ -3,7 +3,7 @@ BINDIR=${TOP}/tmp/rentroll
 COUNTOL=${TOP}/tools/bashtools/countol.sh
 THISDIR="validateraflow"
 
-validateflow:
+validateraflow:
 	@echo "*** Completed in ${THISDIR} ***"
 
 clean:
@@ -15,7 +15,7 @@ config.json:
 	# ensure that we use UTC as the timezone
 	@grep -v Timezone confdev.json >config.json
 
-test: validateflow
+test: validateraflow
 	touch fail
 	./functest.sh
 	@echo "*** TEST completed in ${THISDIR} ***"
