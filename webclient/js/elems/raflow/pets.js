@@ -1114,10 +1114,10 @@ window.AssignPetFeesGridRecords = function(TMPPETID) {
 
         // assign recid again
         reassignGridRecids(grid.name);
-
-        // highlight row with light red color if it have error
-        displayRAPetFeesGridError();
     });
+
+    // highlight row with light red color if it have error
+    displayRAPetFeesGridError();
 
     // render pet fees grid summary
     RenderPetFeesGridSummary(TMPPETID);
@@ -1180,9 +1180,9 @@ window.displayRAPetFeesGridError = function () {
     if (app.raflow.validationErrors.pets) {
         var pets = app.raflow.validationCheck.errors.pets.errors;
         for (i = 0; i < pets.length; i++) {
-            for (var j = 0; j < pets[i].fees.length; j++) {
-                if (pets[i].fees[j].total > 0) {
-                    var recid = getRecIDFromTMPASMID(g, pets[i].fees[j].TMPASMID);
+            for (var j = 0; j < pets[i].fees.errors.length; j++) {
+                if (pets[i].fees.errors[j].total > 0) {
+                    var recid = getRecIDFromTMPASMID(g, pets[i].fees.errors[j].TMPASMID);
                     g.get(recid).w2ui.style = "background-color: #EEB4B4";
                     g.refreshRow(recid);
                 }

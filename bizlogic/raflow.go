@@ -909,34 +909,9 @@ func DataFulfilledRAFlow(ctx context.Context, a *rlib.RAFlowJSONData, d *rlib.RA
 	// -----------------------------
 	// Check for tie section
 	// -----------------------------
-	//    ==============================================================//
-	//     ****************** VALIDATION SCENARIOS *********************//
-	//    ==============================================================//
-	//    1.   There must be at least one parent rentables in rentables
-	//         section. People come to stay at rooms/apartments, so it
-	//         doesn't make sense of not having any parent rentables.
-	//
-	//    2.   There must be at least one person with role of user.
-	//         It doesn't make sense of not having any people at rooms/
-	//         aprtments. At least one user must exists.
-	//
-	//    3.   If any user(occupant) listed in people section then
-	//         it must be associated with parent rentables.
-	//    ==============================================================//
-	//
-
 	// There must be at least one person
-	if len(a.Tie.People) > 1 {
+	if len(a.Tie.People) > 0 {
 		d.Tie = true
-	}
-
-	for _, p := range a.Tie.People {
-		if !(p.PRID > 0) {
-			d.Tie = false
-			break
-		} else {
-			d.Tie = true
-		}
 	}
 
 }
