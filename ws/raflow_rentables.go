@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net/http"
 	"reflect"
-	"rentroll/bizlogic"
 	"rentroll/rlib"
 	"sort"
 	"time"
@@ -194,7 +193,7 @@ func SaveRAFlowRentableDetails(w http.ResponseWriter, r *http.Request, d *Servic
 	//-------------------------------------------------------
 	// get all auto populated to new RA marked account rules by integer representation
 	var m []rlib.AR
-	arFLAGVal := 1 << uint64(bizlogic.ARFLAGS["AutoPopulateToNewRA"])
+	arFLAGVal := 1 << rlib.ARAutoPopulateToNewRA
 	m, err = rlib.GetARsByFLAGS(ctx, d.BID, uint64(arFLAGVal))
 	if err != nil {
 		return
@@ -202,9 +201,9 @@ func SaveRAFlowRentableDetails(w http.ResponseWriter, r *http.Request, d *Servic
 
 	// append feesRecords in ascending order
 	for _, ar := range m {
-		if ar.FLAGS&(1<<uint64(bizlogic.ARFLAGS["IsRentASM"])) != 0 { /*|| // if it's rent asm then continue
-			ar.FLAGS&(1<<uint64(bizlogic.ARFLAGS["PETIDReq"])) != 0 || // if it's pet related AR
-			ar.FLAGS&(1<<uint64(bizlogic.ARFLAGS["VIDReq"])) != 0 { */ // if it's vehicle related AR
+		if ar.FLAGS&(1<<rlib.ARIsRentASM) != 0 { /* || // if it's rent asm then continue
+			ar.FLAGS&(1<<rlib.ARPETIDReq) != 0 || // if it's pet related AR
+			ar.FLAGS&(1<<rlib.ARVIDReq) != 0 { // if it's vehicle related AR*/
 			continue
 		}
 

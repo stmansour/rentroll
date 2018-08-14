@@ -37,7 +37,7 @@ func GetRAFlowInitialPetFees(ctx context.Context,
 
 	// GET PET FEES FROM BUSINESS PROPERTIES
 	var petBizFees []BizPropsFee
-	petBizFees, err = GetBizPropPetFees(ctx, BID, bizPropName)
+	petBizFees, err = GetBizPropPetFees(ctx, BID, bizPropName, rStart, rStop)
 	if err != nil {
 		return
 	}
@@ -55,7 +55,7 @@ func GetRAFlowInitialPetFees(ctx context.Context,
 	}
 
 	// GET CALCULATED FEES FROM THIS BIZ CONIGURED FEES
-	fees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName, rStart, rStop, petFees, false)
+	fees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName, rStart, rStop, petFees)
 	if err != nil {
 		return
 	}
@@ -100,7 +100,7 @@ func GetRAFlowInitialVehicleFees(ctx context.Context,
 
 	// GET VEHICLE FEES FROM BUSINESS PROPERTIES
 	var vehicleBizFees []BizPropsFee
-	vehicleBizFees, err = GetBizPropVehicleFees(ctx, BID, bizPropName)
+	vehicleBizFees, err = GetBizPropVehicleFees(ctx, BID, bizPropName, rStart, rStop)
 	if err != nil {
 		return
 	}
@@ -118,7 +118,7 @@ func GetRAFlowInitialVehicleFees(ctx context.Context,
 	}
 
 	// GET CALCULATED FEES FROM THIS BIZ CONIGURED FEES
-	fees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName, rStart, rStop, vehicleFees, false)
+	fees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName, rStart, rStop, vehicleFees)
 	if err != nil {
 		return
 	}
@@ -137,13 +137,10 @@ func GetRAFlowInitialVehicleFees(ctx context.Context,
 func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName string,
 	rStart, rStop time.Time,
 	baseFees []RAFeesData,
-	removeOneTimeCharge bool,
 ) (fees []RAFeesData, err error) {
 
 	const funcname = "GetCalculatedFeesFromBaseFees"
 	fmt.Printf("Entered in %s, \n", funcname)
-	// fmt.Printf("%s: removeOneTimeCharge: %t, rStart: %s, rStop: %s\n", funcname,
-	// 	removeOneTimeCharge, rStart.Format(RRDATEFMT3), rStop.Format(RRDATEFMT3))
 
 	// INITIALIZE FEES
 	fees = []RAFeesData{}
@@ -151,12 +148,30 @@ func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName s
 	// FOR EACH FEE FROM BASE FEES
 	for _, baseFee := range baseFees {
 
+		// if it doesn't overlap with given rent dates range
+		feeStart := (time.Time)(baseFee.Start)
+		feeStop := (time.Time)(baseFee.Stop)
+
+		// SINCE WE'RE LOOKING FOR RECURRING CHARGE, THE DEGREE OF OVERLAP CONDITION
+		// IS TO IGNORE STOP DATE AS SAME AS START DATE, IT COULD BE NOT APPLICABLE TO
+		// HOTEL ROOM CHARGES
+		// TODO(Steve): NEED CONFIRMATION ON THIS
+		// Console("%s: ARID: %d\n", funcname, baseFee.ARID)
+		if !DateRangeOverlap(&feeStart, &feeStop, &rStart, &rStop) {
+			// Console("does not overlap, continue.... ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n")
+			/*Console("feeStart: %s, feeStop: %s, rStart: %s, rStop: %s\n",
+			feeStart.Format(RRDATEFMT3), feeStop.Format(RRDATEFMT3),
+			rStart.Format(RRDATEFMT3), rStop.Format(RRDATEFMT3))*/
+			continue
+		}
+
 		// GET AR FROM ARID IN FEES
 		var ar AR
 		ar, err = GetAR(ctx, baseFee.ARID)
 		if err != nil {
 			return
 		}
+		// Console("%s: ARName: %s\n", funcname, ar.Name)
 
 		// GET RENT, PRORATION CYCLE
 		RentCycle := baseFee.RentCycle
@@ -183,10 +198,10 @@ func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName s
 		//     1<<8 -  VID required
 		//--------------------------------------------------------------
 		// IF IT IS NON-RECUR CHARGE THEN
-		oneTimeCharge := (ar.FLAGS & (1 << 6)) != 0
-		rentAsmCharge := (ar.FLAGS & (1 << 4)) != 0
+		oneTimeCharge := (ar.FLAGS & (1 << ARIsNonRecurCharge)) != 0
+		rentAsmCharge := (ar.FLAGS & (1 << ARIsRentASM)) != 0
 
-		if oneTimeCharge && !removeOneTimeCharge {
+		if oneTimeCharge {
 			// ADD FEE IN LIST
 			raFee := RAFeesData{
 				TMPASMID:        0,
@@ -196,14 +211,21 @@ func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName s
 				ContractAmount:  baseFee.ContractAmount,
 				RentCycle:       RECURNONE,
 				ProrationCycle:  RECURNONE,
-				Start:           JSONDate(rStart),
-				Stop:            JSONDate(rStart),
+				Start:           baseFee.Start,
+				Stop:            baseFee.Stop,
 				AtSigningPreTax: baseFee.AtSigningPreTax,
 				SalesTax:        baseFee.SalesTax,
 				TransOccTax:     baseFee.TransOccTax,
 				Comment:         baseFee.Comment,
 			}
+
+			// ONLY IF FEES START HAS NOT BEEN SET
+			if feeStart.Equal(earliestDate) || feeStart.Before(earliestDate) {
+				raFee.Start = JSONDate(rStart)
+				raFee.Stop = JSONDate(rStart)
+			}
 			fees = append(fees, raFee)
+
 		} else if rentAsmCharge { // IT MUST BE RENT ASM ONE
 
 			// CHECK FOR PRORATED AMOUNT REQUIRED

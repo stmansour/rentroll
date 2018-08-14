@@ -786,27 +786,10 @@ func rentDateChangeRAFlowUpdates(ctx context.Context, BID int64, rStart, rStop t
 	// LOOP OVER PET FEES IN RAFLOW
 	for pi := range raFlowData.Pets {
 
-		// GET FEES COPY
-		fees := []RAFeesData{}
-
-		// REMOVE PRORATED FEES FROM THE LIST
-		for i := range raFlowData.Pets[pi].Fees {
-			var ar AR
-			ar, err = GetAR(ctx, raFlowData.Pets[pi].Fees[i].ARID)
-			if err != nil {
-				return
-			}
-
-			// IF NOT (RENT ASM && START == STOP) THEN APPEND
-			if !(ar.FLAGS&(1<<4) != 0 &&
-				(time.Time)(raFlowData.Pets[pi].Fees[i].Start).Equal((time.Time)(raFlowData.Pets[pi].Fees[i].Stop))) {
-				fees = append(fees, raFlowData.Pets[pi].Fees[i])
-			}
-		}
-
 		// GET MODIFIED PET FEES FROM THIS FLOW DATA PET FEES AND RENT DATES
 		var modPetFees []RAFeesData
-		modPetFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName, rStart, rStop, fees, true)
+		modPetFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName,
+			rStart, rStop, raFlowData.Pets[pi].Fees)
 		if err != nil {
 			return
 		}
@@ -825,29 +808,12 @@ func rentDateChangeRAFlowUpdates(ctx context.Context, BID int64, rStart, rStop t
 	// VEHICLE FEES MODIFICATION
 	// -----------------------------------------------
 	// LOOP OVER VEHICLE FEES IN RAFLOW
-	for pi := range raFlowData.Vehicles {
-
-		// GET FEES COPY
-		fees := []RAFeesData{}
-
-		// REMOVE PRORATED FEES FROM THE LIST
-		for i := range raFlowData.Vehicles[pi].Fees {
-			var ar AR
-			ar, err = GetAR(ctx, raFlowData.Vehicles[pi].Fees[i].ARID)
-			if err != nil {
-				return
-			}
-
-			// IF NOT (RENT ASM && START == STOP) THEN APPEND
-			if !(ar.FLAGS&(1<<4) != 0 &&
-				(time.Time)(raFlowData.Vehicles[pi].Fees[i].Start).Equal((time.Time)(raFlowData.Vehicles[pi].Fees[i].Stop))) {
-				fees = append(fees, raFlowData.Vehicles[pi].Fees[i])
-			}
-		}
+	for vi := range raFlowData.Vehicles {
 
 		// GET MODIFIED VEHICLE FEES FROM THIS FLOW DATA VEHICLE FEES AND RENT DATES
 		var modVehicleFees []RAFeesData
-		modVehicleFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName, rStart, rStop, fees, true)
+		modVehicleFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName,
+			rStart, rStop, raFlowData.Vehicles[vi].Fees)
 		if err != nil {
 			return
 		}
@@ -859,37 +825,19 @@ func rentDateChangeRAFlowUpdates(ctx context.Context, BID int64, rStart, rStop t
 		}
 
 		// RE-ASSIGN FEES
-		raFlowData.Vehicles[pi].Fees = modVehicleFees
+		raFlowData.Vehicles[vi].Fees = modVehicleFees
 	}
 
 	// -----------------------------------------------
 	// RENTABLE FEES MODIFICATION
 	// -----------------------------------------------
 	// LOOP OVER RENTABLE FEES IN RAFLOW
-	for pi := range raFlowData.Rentables {
-
-		// GET FEES COPY
-		fees := []RAFeesData{}
-
-		// REMOVE PRORATED FEES FROM THE LIST
-		for i := range raFlowData.Rentables[pi].Fees {
-			var ar AR
-			ar, err = GetAR(ctx, raFlowData.Rentables[pi].Fees[i].ARID)
-			if err != nil {
-				return
-			}
-
-			// IF NOT (RENT ASM && START == STOP) THEN APPEND
-			// i.e, NOT (PRORATED ONE)
-			if !(ar.FLAGS&(1<<4) != 0 &&
-				(time.Time)(raFlowData.Rentables[pi].Fees[i].Start).Equal((time.Time)(raFlowData.Rentables[pi].Fees[i].Stop))) {
-				fees = append(fees, raFlowData.Rentables[pi].Fees[i])
-			}
-		}
+	for ri := range raFlowData.Rentables {
 
 		// GET MODIFIED RENTABLE FEES FROM THIS FLOW DATA RENTABLE FEES AND RENT DATES
 		var modRentableFees []RAFeesData
-		modRentableFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName, rStart, rStop, fees, true)
+		modRentableFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName,
+			rStart, rStop, raFlowData.Rentables[ri].Fees)
 		if err != nil {
 			return
 		}
@@ -901,7 +849,7 @@ func rentDateChangeRAFlowUpdates(ctx context.Context, BID int64, rStart, rStop t
 		}
 
 		// RE-ASSIGN FEES
-		raFlowData.Rentables[pi].Fees = modRentableFees
+		raFlowData.Rentables[ri].Fees = modRentableFees
 	}
 
 	return

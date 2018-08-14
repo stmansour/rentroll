@@ -11,6 +11,14 @@
 
 "use strict";
 
+// FUNCTION FOR ELEMENT TO GIVE FLASH EFFECT
+window.ElementFlash = function(el) {
+    $(el).addClass("flash");
+    setTimeout(function() {
+        $(el).removeClass("flash");
+    }, 500);
+};
+
 //-----------------------------------------------------------------------------
 // RAFlowAJAX - A command ajax caller for all raflow related APIs
 //              It will show loader before any request starts and
@@ -890,10 +898,12 @@ window.displayErrorSummary = function (comp) {
             }
 
             // non fields error content
+            $(non_field_error_content_sel).css('display', 'block');
             $(non_field_error_content_sel).empty();
             $(non_field_error_content_sel).append("<ul>" + errorString + "</ul>");
         }else{
             $(non_field_error_dd_sel).css('display', 'none');
+            $(non_field_error_content_sel).css('display', 'none');
             $(non_field_error_content_sel).empty();
         }
 
