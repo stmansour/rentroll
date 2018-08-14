@@ -296,7 +296,7 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 	var err error
 	var nraid int64
 
-	if err = rlib.InitBizInternals(x.raf.Dates.BID, &x.xbiz); err != nil {
+	if err = rlib.InitBizInternals(x.raf.Meta.BID, &x.xbiz); err != nil {
 		return nraid, err
 	}
 
@@ -310,6 +310,10 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 		if err != nil {
 			return nraid, err
 		}
+
+		// if err = rlib.InitBizInternals(x.raOrig.BID, &x.xbiz); err != nil {
+		// 	return nraid, err
+		// }
 		// saveFlags := x.raOrig.FLAGS
 		chgs := 0
 		AStart := time.Time(x.raf.Dates.AgreementStart)
@@ -427,7 +431,7 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 func initRA(ctx context.Context, x *WriteHandlerContext) {
 	x.ra.PRAID = int64(0)
 	x.ra.ORIGIN = int64(0)
-	x.ra.BID = x.raf.Dates.BID
+	x.ra.BID = x.raf.Meta.BID
 	x.ra.AgreementStart = time.Time(x.raf.Dates.AgreementStart)
 	x.ra.AgreementStop = time.Time(x.raf.Dates.AgreementStop)
 	x.ra.RentStart = time.Time(x.raf.Dates.RentStart)
@@ -597,7 +601,7 @@ func F2RAUpdatePets(ctx context.Context, x *WriteHandlerContext) error {
 			}
 			rlib.MigrateStructVals(&x.raf.Pets[i], &pet)
 		} else {
-			pet.BID = x.raf.Dates.BID
+			pet.BID = x.raf.Meta.BID
 			pet.RAID = x.ra.RAID
 			pet.TCID = GetTCIDForTMPTCID(x, x.raf.Pets[i].TMPTCID)
 			pet.Type = x.raf.Pets[i].Type

@@ -36,6 +36,9 @@ func UpdateAssessment(ctx context.Context, anew *rlib.Assessment, mode int, dt *
 		return errlist
 	}
 
+	//------------------------------------------------
+	// make sure we're not editing a reversed entry
+	//------------------------------------------------
 	if anew.FLAGS&0x4 != 0 {
 		errlist = append(errlist, BizErrors[EditReversal])
 		return errlist
@@ -73,14 +76,25 @@ func UpdateAssessment(ctx context.Context, anew *rlib.Assessment, mode int, dt *
 		(!aold.Start.Equal(anew.Start)) ||
 		(!aold.Stop.Equal(anew.Stop))
 	if reverse {
+		// rlib.Console("HAVE TO REVERSE ASMID = %d\n", aold.ASMID)
 		errlist = ReverseAssessment(ctx, &aold, mode, dt) // reverse the assessment itself
 		if errlist != nil {
 			return errlist
 		}
+		//---------------------------------------------------------------------------
+		// This is going to be a new assessment that replaces an assessment which
+		// has just been reversed. So it is NOT reversed, and it is NOT paid in
+		// any part. So, we need to reset the flags.  Bits 0:1 define payment and
+		// bit 2 defines reversal.  So clear bits 0:2...
+		//---------------------------------------------------------------------------
+		anew.FLAGS &= ^uint64(7) // clears the first 3 bits
+		// rlib.Console("ANEW.FLAGS = %d\n", anew.FLAGS)
+
 		errlist = InsertAssessment(ctx, anew, exp) // Finally, insert the new assessment...
-		if err != nil {
+		if errlist != nil {
 			return errlist
 		}
+		return nil
 	}
 
 	err = rlib.UpdateAssessment(ctx, anew) // reversal not needed, just update the assessment
@@ -139,7 +153,7 @@ func UpdateAssessmentEndDate(ctx context.Context, a *rlib.Assessment, dt *time.T
 		if ai.ASMID == 0 {
 			return nil // we're done, there was no instance found
 		}
-		// found an instance, we need to prorate this instance
+		// found an instance, we need to prorate it
 		rlib.Console("Found instance to prorate: ASMID = %d\n", ai.ASMID)
 		amount, n, p := rlib.SimpleProrateAmount(ai.Amount, ai.RentCycle, ai.ProrationCycle, &ai.Start, dt, &ai.Start)
 		ai.Amount = amount
@@ -539,6 +553,11 @@ func DeallocateAppliedFunds(ctx context.Context, a *rlib.Assessment, asmtRevID i
 		}
 
 		for k := 0; k < len(m); k++ {
+			// if this allocation does not reference a.ASMID, then skip it
+			// also, if it's already reversed, skip it
+			if m[k].ASMID != a.ASMID || m[k].FLAGS&4 != 0 {
+				continue
+			}
 			m[k].FLAGS |= 0x4 // set bit 2 to indicate that this is a voided entry
 			vra := m[k]
 			vra.Amount = -vra.Amount

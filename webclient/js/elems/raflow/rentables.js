@@ -168,10 +168,6 @@ window.loadRARentablesGrid = function () {
                     hidden: true
                 },
                 {
-                    field: 'BID',
-                    hidden: true
-                },
-                {
                     field: 'RTID',
                     hidden: true
                 },
@@ -333,26 +329,10 @@ window.loadRARentablesGrid = function () {
                             if(localRData.hasOwnProperty("Fees") && localRData.Fees.length > 0) {
                                 // set fees grid records
                                 AssignRentableFeesGridRecords(rec.RID);
-
-                                // show slider content
-                                ShowSliderContentW2UIComp(w2ui.RARentableFeesGrid, RACompConfig.rentables.sliderWidth);
-                            } else {
-                                // pull fees in case it's empty
-                                var BID = getCurrentBID();
-                                SaveRAFlowRentableAJAX(rec.RID)
-                                .done(function(data) {
-                                    if (data.status === "success") {
-                                        // re-render fees grid records
-                                        AssignRentableFeesGridRecords(rec.RID);
-
-                                        // show the slider content
-                                        ShowSliderContentW2UIComp(w2ui.RARentableFeesGrid, RACompConfig.rentables.sliderWidth);
-                                    }
-                                })
-                                .fail(function(data) {
-                                    console.log("ERROR from fees data: " + data);
-                                });
                             }
+
+                            // show slider content
+                            ShowSliderContentW2UIComp(w2ui.RARentableFeesGrid, RACompConfig.rentables.sliderWidth);
                         };
 
                     // warn user if content has been changed
@@ -893,8 +873,7 @@ window.AcceptRentable = function () {
         w2ui.RARentablesGrid.select(gridRecIndex); // highlight the existing record
         w2ui.RARentableSearchForm.clear(); // clear the search rentable form
     } else {
-        var BID     = getCurrentBID(),
-            fRec    = w2ui.RARentableSearchForm.record;
+        var fRec    = w2ui.RARentableSearchForm.record;
 
         SaveRAFlowRentableAJAX(fRec.RID)
         .done(function(data) {
@@ -1145,9 +1124,9 @@ window.displayRARentableFeesGridError = function () {
     if (app.raflow.validationErrors.rentables) {
         var rentables = app.raflow.validationCheck.errors.rentables.errors;
         for (i = 0; i < rentables.length; i++) {
-            for (var j = 0; j < rentables[i].fees.length; j++) {
-                if (rentables[i].fees[j].total > 0) {
-                    var recid = getRecIDFromTMPASMID(g, rentables[i].fees[j].TMPASMID);
+            for (var j = 0; j < rentables[i].fees.errors.length; j++) {
+                if (rentables[i].fees.errors[j].total > 0) {
+                    var recid = getRecIDFromTMPASMID(g, rentables[i].fees.errors[j].TMPASMID);
                     g.get(recid).w2ui.style = "background-color: #EEB4B4";
                     g.refreshRow(recid);
                 }
@@ -1185,10 +1164,10 @@ window.displayRARentableFeeFormError = function(RID){
     // get index of vehicle for whom form is opened
     var rentableIndex = getRentableIndex(RID, rentables);
 
-    var index = getFeeIndex(record.TMPASMID, rentables[rentableIndex].fees);
+    var index = getFeeIndex(record.TMPASMID, rentables[rentableIndex].fees.errors);
 
     if(index > -1){
-        displayFormFieldsError(index, rentables[rentableIndex].fees, "RARentableFeeForm");
+        displayFormFieldsError(index, rentables[rentableIndex].fees.errors, "RARentableFeeForm");
     }
 };
 

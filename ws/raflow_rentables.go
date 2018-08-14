@@ -62,7 +62,6 @@ func SvcRAFlowRentableHandler(w http.ResponseWriter, r *http.Request, d *Service
 func SaveRAFlowRentableDetails(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "SaveRAFlowRentableDetails"
 	var (
-		rfd         rlib.RARentablesFlowData
 		raFlowData  rlib.RAFlowJSONData
 		foo         RARentableDetailsRequest
 		feesRecords = []rlib.RAFeesData{}
@@ -247,13 +246,14 @@ func SaveRAFlowRentableDetails(w http.ResponseWriter, r *http.Request, d *Servic
 	sort.Slice(feesRecords, func(i, j int) bool { return feesRecords[i].ARName < feesRecords[j].ARName })
 
 	// assign calculated data in rentable data
-	rfd.BID = d.BID
-	rfd.RID = rentable.RID
-	rfd.RentableName = rentable.RentableName
-	rfd.RTID = rt.RTID
-	rfd.RTFLAGS = rt.FLAGS
-	rfd.RentCycle = rt.RentCycle
-	rfd.Fees = feesRecords
+	rfd := rlib.RARentablesFlowData{
+		RID:          rentable.RID,
+		RentableName: rentable.RentableName,
+		RTID:         rt.RTID,
+		RTFLAGS:      rt.FLAGS,
+		RentCycle:    rt.RentCycle,
+		Fees:         feesRecords,
+	}
 
 	// find this RID in flow data rentable list
 	var rIndex = -1

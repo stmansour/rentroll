@@ -63,10 +63,6 @@ window.loadRATieSection = function () {
                     hidden: true
                 },
                 {
-                    field: 'BID',
-                    hidden: true
-                },
-                {
                     field: 'TMPTCID',
                     hidden: true
                 },
@@ -228,7 +224,6 @@ window.SetTiePeopleLocalData = function(TMPTCID, data) {
 //                            from "people" comp data
 // -------------------------------------------------------------------------------
 window.AssignTiePeopleGridRecords = function() {
-    var BID = getCurrentBID();
     var peopleCompData = getRAFlowCompData("people") || [];
     var grid = w2ui.RATiePeopleGrid,
         tieGridRecords = [];
@@ -265,7 +260,6 @@ window.AssignTiePeopleGridRecords = function() {
 
         var record = {
             recid:              0,
-            BID:                BID,
             TMPTCID:           peopleData.TMPTCID,
             PRID:               PRID,
             ParentRentableName: PRID,
@@ -343,11 +337,10 @@ window.SaveTiePeopleData = function() {
 
     // if have to save the data then update the local copy
     if (dataToSaveFlag) {
-        var BID = getCurrentBID(),
-            modTiePeopleData = [];
+        var modTiePeopleData = [];
 
         gridRecords.forEach(function(rec) {
-            modTiePeopleData.push({BID: BID, TMPTCID: rec.TMPTCID, PRID: rec.PRID});
+            modTiePeopleData.push({TMPTCID: rec.TMPTCID, PRID: rec.PRID});
         });
 
         // set this to it's position

@@ -82,6 +82,7 @@ type RAFlowJSONData struct {
 
 // RAFlowMetaInfo holds meta info about a rental agreement flow data
 type RAFlowMetaInfo struct {
+	BID                    int64
 	RAID                   int64 // 0 = it's new, >0 = existing one
 	LastTMPPETID           int64
 	LastTMPVID             int64
@@ -120,7 +121,6 @@ type RAFlowMetaInfo struct {
 
 // RADatesFlowData contains data in the dates part of RA flow
 type RADatesFlowData struct {
-	BID             int64    `validate:"number,min=0"`
 	AgreementStart  JSONDate `validate:"date"` // TermStart
 	AgreementStop   JSONDate `validate:"date"` // TermStop
 	RentStart       JSONDate `validate:"date"`
@@ -133,7 +133,6 @@ type RADatesFlowData struct {
 // RAPeopleFlowData contains data in the background-info part of RA flow
 type RAPeopleFlowData struct {
 	TMPTCID int64 `validate:"number,min=1"`
-	BID     int64 `validate:"number,min=0"`
 	TCID    int64 `validate:"number,min=0"`
 
 	// Role
@@ -209,20 +208,19 @@ type RAPeopleFlowData struct {
 	Points      int64    `validate:"number,min=1,omitempty"`
 	DateofBirth JSONDate `validate:"-"`
 	// Emergency contact information
-	EmergencyContactName      string `validate:"string,min=1,max=100"`
-	EmergencyContactAddress   string `validate:"string,min=1,max=100"`
-	EmergencyContactTelephone string `validate:"string,min=1,max=100"`
+	EmergencyContactName      string `validate:"string,min=1,max=100,omitempty"`
+	EmergencyContactAddress   string `validate:"string,min=1,max=100,omitempty"`
+	EmergencyContactTelephone string `validate:"string,min=1,max=100,omitempty"`
 	EmergencyContactEmail     string `validate:"email"`
 	AlternateEmailAddress     string `validate:"string,min=1,max=100,omitempty"`
 	EligibleFutureUser        bool   `validate:"-"`
 	Industry                  int64  `validate:"number,min=0,omitempty"`
-	SourceSLSID               int64  `validate:"number,min=1"` // It is compulsory when role is set to renter or user. It'll be check via bizlogic.
+	SourceSLSID               int64  `validate:"number,min=0,omitempty"` // It is compulsory when role is set to renter or user. It'll be check via bizlogic.
 }
 
 // RAPetsFlowData contains data in the pets part of RA flow
 type RAPetsFlowData struct {
 	TMPPETID int64        `validate:"number,min=1"`
-	BID      int64        `validate:"number,min=0"`
 	PETID    int64        `validate:"number,min=0"`
 	TMPTCID  int64        `validate:"number,min=0"`
 	Name     string       `validate:"string,min=1,max=100"`
@@ -238,7 +236,6 @@ type RAPetsFlowData struct {
 // RAVehiclesFlowData contains data in the vehicles part of RA flow
 type RAVehiclesFlowData struct {
 	TMPVID              int64        `validate:"number,min=1"`
-	BID                 int64        `validate:"number,min=0"`
 	VID                 int64        `validate:"number,min=0"`
 	TMPTCID             int64        `validate:"number,min=0"`
 	VIN                 string       `validate:"string,min=1,omitempty"`
@@ -257,7 +254,6 @@ type RAVehiclesFlowData struct {
 
 // RARentablesFlowData contains data in the rentables part of RA flow
 type RARentablesFlowData struct {
-	BID             int64 `validate:"number,min=0"`
 	RID             int64 `validate:"number,min=0"`
 	RTID            int64 `validate:"number,min=0"`
 	RTFLAGS         uint64
@@ -292,7 +288,6 @@ type RAFeesData struct {
 
 // RAParentChildFlowData contains data in the Parent/Child part of RA flow
 type RAParentChildFlowData struct {
-	BID  int64 `validate:"number,min=0"`
 	PRID int64 `validate:"number,min=0"` // parent rentable ID
 	CRID int64 `validate:"number,min=0"` // child rentable ID
 }
@@ -304,7 +299,6 @@ type RATieFlowData struct {
 
 // RATiePeopleData holds data from tie section for a payor to a rentable
 type RATiePeopleData struct {
-	BID     int64 `validate:"number,min=0"`
 	PRID    int64 `validate:"number,min=0"`
 	TMPTCID int64 `validate:"number,min=0"` // user's temp json record reference id
 }
@@ -378,7 +372,6 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 			currentDateTime := time.Now()
 			nextYearDateTime := currentDateTime.AddDate(1, 0, 0)
 
-			a.BID = BID
 			a.RentStart = JSONDate(currentDateTime)
 			a.RentStop = JSONDate(nextYearDateTime)
 			a.AgreementStart = JSONDate(currentDateTime)
@@ -653,7 +646,6 @@ func SyncParentChildRecords(raFlowData *RAFlowJSONData) {
 		// IF ENTRY NOT FOUND THEN APPEND
 		if !found {
 			n := RAParentChildFlowData{
-				BID:  0, // WILL BE REMOVED
 				PRID: 0,
 				CRID: childRentables[i].RID,
 			}
@@ -734,7 +726,6 @@ func SyncTieRecords(raFlowData *RAFlowJSONData) {
 		// IF PERSON NOT FOUND THEN ADD ENTRY IN TIE
 		if !personFound {
 			tiePerson := RATiePeopleData{
-				BID:     0, // WILL BE REMOVED
 				TMPTCID: occupants[i].TMPTCID,
 				PRID:    0,
 			}
@@ -924,7 +915,6 @@ func InsertInitialRAFlow(ctx context.Context, BID, UID int64) (int64, error) {
 	// rental agreement flow data
 	initialRAFlow := RAFlowJSONData{
 		Dates: RADatesFlowData{
-			BID:             BID,
 			RentStart:       JSONDate(currentDateTime),
 			RentStop:        JSONDate(nextYearDateTime),
 			AgreementStart:  JSONDate(currentDateTime),
@@ -1057,7 +1047,6 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement, EditFlag bool) (RA
 
 	var raf = RAFlowJSONData{
 		Dates: RADatesFlowData{
-			BID:             ra.BID,
 			RentStart:       JSONDate(ra.RentStart),
 			RentStop:        JSONDate(ra.RentStop),
 			AgreementStart:  JSONDate(ra.AgreementStart),
@@ -1075,6 +1064,7 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement, EditFlag bool) (RA
 			People: []RATiePeopleData{},
 		},
 		Meta: RAFlowMetaInfo{
+			BID:                    ra.BID,
 			RAID:                   ra.RAID,
 			RAFLAGS:                ra.FLAGS,
 			ApplicationReadyUID:    ra.ApplicationReadyUID,
@@ -1168,7 +1158,6 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement, EditFlag bool) (RA
 			return raf, nil
 		}
 		var rfd = RARentablesFlowData{
-			BID:          o[i].BID,
 			RID:          o[i].RID,
 			RTID:         rtr.RTID,
 			RTFLAGS:      rt.FLAGS,
@@ -1186,7 +1175,7 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement, EditFlag bool) (RA
 		if EditFlag {
 
 		} else {
-			asms, err = GetAssessmentsByRAIDRID(ctx, rfd.BID, ra.RAID, rfd.RID)
+			asms, err = GetAssessmentsByRAIDRID(ctx, o[i].BID, ra.RAID, rfd.RID)
 			if err != nil {
 				return raf, nil
 			}
@@ -1346,7 +1335,6 @@ func addRAPtoFlow(ctx context.Context, tcid, rid int64, raf *RAFlowJSONData, chk
 
 		// only tie occupants to rentable
 		var t RATiePeopleData
-		t.BID = rap.BID
 		t.TMPTCID = rap.TMPTCID
 		if rid > 0 {
 			t.PRID = rid

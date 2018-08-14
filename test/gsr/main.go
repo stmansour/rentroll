@@ -266,7 +266,11 @@ func doTest(ctx context.Context) {
 	rlib.Errcheck(err)
 
 	// print remaining unpaid assessments, and remaining receipts with unallocated funds
-	m := bizlogic.GetAllUnpaidAssessmentsForPayor(ctx, bid, tcid, &dt)
+	m, err := bizlogic.GetAllUnpaidAssessmentsForPayor(ctx, bid, tcid, &dt)
+	if err != nil {
+		fmt.Printf("Error from GetAllUnpaidAssessmentsForPayor: %s\n", err.Error())
+		os.Exit(2)
+	}
 	fmt.Printf("\n\nRemaining unpaid assessments for payor %d:  %d\n", tcid, len(m))
 	for i := 0; i < len(m); i++ {
 		fmt.Printf("%d. Assessment %d, amount still owed: %.2f\n", i, m[i].ASMID, bizlogic.AssessmentUnpaidPortion(ctx, &m[i]))
