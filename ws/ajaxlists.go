@@ -185,7 +185,7 @@ func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	appData["rrFLAGS"] = rrFLAGS
 
 	// --------------- LIST DOWN account rules FLAGS --------------
-	appData["arFLAGS"] = bizlogic.ARFLAGS
+	appData["arFLAGS"] = rlib.ARFLAGS
 
 	// --------------- LIST DOWN rentable type FLAGS --------------
 	appData["rtFLAGS"] = bizlogic.RTFLAGS

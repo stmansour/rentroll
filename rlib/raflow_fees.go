@@ -198,8 +198,8 @@ func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName s
 		//     1<<8 -  VID required
 		//--------------------------------------------------------------
 		// IF IT IS NON-RECUR CHARGE THEN
-		oneTimeCharge := (ar.FLAGS & (1 << 6)) != 0
-		rentAsmCharge := (ar.FLAGS & (1 << 4)) != 0
+		oneTimeCharge := (ar.FLAGS & (1 << ARIsNonRecurCharge)) != 0
+		rentAsmCharge := (ar.FLAGS & (1 << ARIsRentASM)) != 0
 
 		if oneTimeCharge {
 			// ADD FEE IN LIST

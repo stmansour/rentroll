@@ -6,19 +6,6 @@ import (
 	"rentroll/rlib"
 )
 
-// ARFLAGS account rules FLAGS
-var ARFLAGS = rlib.Str2Int64Map{
-	"ApplyFundsToReceiveAccts": 0,
-	"AutoPopulateToNewRA":      1,
-	"RAIDRequired":             2,
-	"SubARIDsOnly":             3,
-	"IsRentASM":                4,
-	"IsSecDepASM":              5,
-	"IsNonRecurCharge":         6,
-	"PETIDReq":                 7,
-	"VIDReq":                   8,
-}
-
 // ARType user defined type of account rule
 type ARType int64
 
@@ -59,7 +46,7 @@ func (ar ARType) String() string {
 func IsValidARFlag(FLAGS uint64) bool {
 
 	maxFLAGVal := 0
-	for _, v := range ARFLAGS {
+	for _, v := range rlib.ARFLAGS {
 		maxFLAGVal += 1 << uint(v)
 	}
 
