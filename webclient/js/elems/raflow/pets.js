@@ -1114,10 +1114,10 @@ window.AssignPetFeesGridRecords = function(TMPPETID) {
 
         // assign recid again
         reassignGridRecids(grid.name);
-
-        // highlight row with light red color if it have error
-        displayRAPetFeesGridError();
     });
+
+    // highlight row with light red color if it have error
+    displayRAPetFeesGridError();
 
     // render pet fees grid summary
     RenderPetFeesGridSummary(TMPPETID);
