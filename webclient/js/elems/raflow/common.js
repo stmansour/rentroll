@@ -11,6 +11,14 @@
 
 "use strict";
 
+// FUNCTION FOR ELEMENT TO GIVE FLASH EFFECT
+window.ElementFlash = function(el) {
+    $(el).addClass("flash");
+    setTimeout(function() {
+        $(el).removeClass("flash");
+    }, 500);
+};
+
 //-----------------------------------------------------------------------------
 // RAFlowAJAX - A command ajax caller for all raflow related APIs
 //              It will show loader before any request starts and

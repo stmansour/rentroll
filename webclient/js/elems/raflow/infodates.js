@@ -2,10 +2,45 @@
     getRAFlowCompData, EnableDisableRAFlowVersionInputs,
     HideAllSliderContent, SetlocalDataFromRADatesFormRecord,
     SetRADatesFormRecordFromLocalData, setRAFlowCompData,
-    SetFormRecordFromData, SetDataFromFormRecord, SaveDatesCompData, displayRADatesFormError
+    SetFormRecordFromData, SetDataFromFormRecord, SaveDatesCompData, displayRADatesFormError,
+    ElementFlash
 */
 
 "use strict";
+
+// REFLECT START DATES CLICK HANDLER
+$(document).on("click", "button#reflect_start_dates", function(e) {
+    var form = w2ui.RADatesForm;
+
+    // REFLECT AGREEMENT START IN RENT, POSSESSION DATES
+    form.record.RentStart = form.record.PossessionStart = form.record.AgreementStart;
+
+    // REFRESH THE FORM
+    form.refresh();
+
+    // FLASH THE ELEMENT
+    var rs = $(form.box).find("input[name=RentStart]"),
+        ps = $(form.box).find("input[name=PossessionStart]");
+    ElementFlash(rs);
+    ElementFlash(ps);
+});
+
+// REFLECT STOP DATES CLICK HANDLER
+$(document).on("click", "button#reflect_stop_dates", function(e) {
+    var form = w2ui.RADatesForm;
+
+    // REFLECT AGREEMENT STOP IN RENT, POSSESSION DATES
+    form.record.RentStop = form.record.PossessionStop = form.record.AgreementStop;
+
+    // REFRESH THE FORM
+    form.refresh();
+
+    // FLASH THE ELEMENT
+    var rs = $(form.box).find("input[name=RentStop]"),
+        ps = $(form.box).find("input[name=PossessionStop]");
+    ElementFlash(rs);
+    ElementFlash(ps);
+});
 
 // -------------------------------------------------------------------------------
 // Rental Agreement - Info Dates form
