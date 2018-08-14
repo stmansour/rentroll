@@ -6485,7 +6485,7 @@ func GetRentalAgreementPayorsByRAID(ctx context.Context, raid int64) ([]RentalAg
 
 // GetRentalAgreementsByPayor returns an array of RentalAgreementPayor where the supplied
 // TCID is a payor on the specified date
-func GetRentalAgreementsByPayor(ctx context.Context, bid, tcid int64, dt *time.Time) ([]RentalAgreementPayor, error) {
+func GetRentalAgreementsByPayor(ctx context.Context, bid, tcid int64) ([]RentalAgreementPayor, error) {
 	var t []RentalAgreementPayor
 	var err error
 	if _, ok := sessionCheck(ctx); !ok {
