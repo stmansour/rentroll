@@ -46,6 +46,7 @@ var ediKnownStructMap = map[string]bool{
 	"rlib.RentableStatus":          true,
 	"rlib.XRentable":               true,
 	"rlib.JournalMarker":           true,
+	"rlib.RAFlowJSONData":          true,
 	"ws.ARSendForm":                true,
 	"ws.PrARGrid":                  true,
 	"ws.AssessmentSendForm":        true,
