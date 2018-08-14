@@ -6,7 +6,7 @@ WEBDOC=${WEBDOCDIR}/webdoc
 WEBCSS=${WEBDOCDIR}/doc.css
 THISDIR="ws"
 
-ws: *.go webdoc
+ws: *.go
 	@touch fail
 	@${COUNTOL} "go vet"
 	@${COUNTOL} golint
