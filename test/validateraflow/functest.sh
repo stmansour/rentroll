@@ -6,7 +6,7 @@ DBGEN=../../tools/dbgen
 CREATENEWDB=0
 
 echo "Create new database..."
-mysql --no-defaults rentroll < validateflow.sql
+mysql --no-defaults rentroll < validateraflow.sql
 
 source ../share/base.sh
 

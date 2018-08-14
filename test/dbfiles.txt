@@ -16,4 +16,4 @@ webclient/webclientTest.sql
 websvc1/asmtest.sql
 websvc3/tasks.sql
 workerasm/rr.sql
-validateflow/validateflow.sql
+validateflow/validateraflow.sql

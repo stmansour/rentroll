@@ -1,7 +1,7 @@
 TOP=..
 BINDIR=${TOP}/tmp/rentroll
 COUNTOL=${TOP}/tools/bashtools/countol.sh
-THISDIR="validateflow"
+THISDIR="validateraflow"
 
 validateflow:
 	@echo "*** Completed in ${THISDIR} ***"

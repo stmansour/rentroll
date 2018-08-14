@@ -1,5 +1,5 @@
-# DIRS=setup newbiz crypto workerasm mrr rrr rr1 rr rr_use_cases jm1 gsr notes ccc upd acctbal gap importers bizdelete testdb bizlogic ws websvc1 websvc2 websvc3 payorstmt roller tws tws3 receipts validateflow flow2ra strlist webclient
-DIRS=setup newbiz crypto workerasm mrr rrr rr1 rr rr_use_cases jm1 gsr notes ccc upd acctbal gap importers bizdelete testdb bizlogic ws websvc1 websvc2 websvc3 payorstmt roller tws tws3 receipts validateflow flow2ra strlist
+# DIRS=setup newbiz crypto workerasm mrr rrr rr1 rr rr_use_cases jm1 gsr notes ccc upd acctbal gap importers bizdelete testdb bizlogic ws websvc1 websvc2 websvc3 payorstmt roller tws tws3 receipts validateraflow flow2ra strlist webclient
+DIRS=setup newbiz crypto workerasm mrr rrr rr1 rr rr_use_cases jm1 gsr notes ccc upd acctbal gap importers bizdelete testdb bizlogic ws websvc1 websvc2 websvc3 payorstmt roller tws tws3 receipts validateraflow flow2ra strlist
 TESTREPORT="testreport.txt"
 
 db:
