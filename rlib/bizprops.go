@@ -16,6 +16,8 @@ type BizPropsFee struct {
 	Amount           float64
 	ARRentCycle      int64
 	ARProrationCycle int64
+	Start            JSONDate
+	Stop             JSONDate
 }
 
 // BizPropsEpochs defines the default trigger due times for recurring
@@ -49,7 +51,7 @@ func GetDataFromBusinessPropertyName(ctx context.Context, name string, BID int64
 
 // GetBizPropPetFees returns pet fees with detailed data
 // defined in BizPropsFee
-func GetBizPropPetFees(ctx context.Context, BID int64, bizPropName string) (fees []BizPropsFee, err error) {
+func GetBizPropPetFees(ctx context.Context, BID int64, bizPropName string, rStart, rStop time.Time) (fees []BizPropsFee, err error) {
 	const funcname = "GetBizPropPetFees"
 	var (
 		bizPropJSON BizProps
@@ -67,7 +69,6 @@ func GetBizPropPetFees(ctx context.Context, BID int64, bizPropName string) (fees
 
 	// get pet Fees
 	for _, n := range bizPropJSON.PetFees {
-		var pf BizPropsFee
 		var ar AR
 		ar, err = GetARByName(ctx, BID, n)
 		if err != nil {
@@ -75,12 +76,23 @@ func GetBizPropPetFees(ctx context.Context, BID int64, bizPropName string) (fees
 		}
 
 		// migrate values from ar to pf
-		pf.BID = ar.BID
-		pf.ARID = ar.ARID
-		pf.ARName = ar.Name
-		pf.Amount = ar.DefaultAmount
-		pf.ARRentCycle = ar.DefaultRentCycle
-		pf.ARProrationCycle = ar.DefaultProrationCycle
+		pf := BizPropsFee{
+			BID:              ar.BID,
+			ARID:             ar.ARID,
+			ARName:           ar.Name,
+			Amount:           ar.DefaultAmount,
+			ARRentCycle:      ar.DefaultRentCycle,
+			ARProrationCycle: ar.DefaultProrationCycle,
+		}
+
+		oneTimeCharge := (ar.FLAGS & (1 << ARIsNonRecurCharge)) != 0
+		if oneTimeCharge {
+			pf.Start = JSONDate(rStart)
+			pf.Stop = JSONDate(rStart)
+		} else {
+			pf.Start = JSONDate(rStart)
+			pf.Stop = JSONDate(rStop)
+		}
 
 		// append in the list
 		fees = append(fees, pf)
@@ -92,7 +104,7 @@ func GetBizPropPetFees(ctx context.Context, BID int64, bizPropName string) (fees
 
 // GetBizPropVehicleFees returns vehicle fees with detailed data
 // defined in BizPropsFee
-func GetBizPropVehicleFees(ctx context.Context, BID int64, bizPropName string) (fees []BizPropsFee, err error) {
+func GetBizPropVehicleFees(ctx context.Context, BID int64, bizPropName string, rStart, rStop time.Time) (fees []BizPropsFee, err error) {
 	const funcname = "GetBizPropVehicleFees"
 	var (
 		bizPropJSON BizProps
@@ -110,7 +122,6 @@ func GetBizPropVehicleFees(ctx context.Context, BID int64, bizPropName string) (
 
 	// get pet Fees
 	for _, n := range bizPropJSON.VehicleFees {
-		var vf BizPropsFee
 		var ar AR
 		ar, err = GetARByName(ctx, BID, n)
 		if err != nil {
@@ -118,12 +129,23 @@ func GetBizPropVehicleFees(ctx context.Context, BID int64, bizPropName string) (
 		}
 
 		// migrate values from ar to vf
-		vf.BID = ar.BID
-		vf.ARID = ar.ARID
-		vf.ARName = ar.Name
-		vf.Amount = ar.DefaultAmount
-		vf.ARRentCycle = ar.DefaultRentCycle
-		vf.ARProrationCycle = ar.DefaultProrationCycle
+		vf := BizPropsFee{
+			BID:              ar.BID,
+			ARID:             ar.ARID,
+			ARName:           ar.Name,
+			Amount:           ar.DefaultAmount,
+			ARRentCycle:      ar.DefaultRentCycle,
+			ARProrationCycle: ar.DefaultProrationCycle,
+		}
+
+		oneTimeCharge := (ar.FLAGS & (1 << ARIsNonRecurCharge)) != 0
+		if oneTimeCharge {
+			vf.Start = JSONDate(rStart)
+			vf.Stop = JSONDate(rStart)
+		} else {
+			vf.Start = JSONDate(rStart)
+			vf.Stop = JSONDate(rStop)
+		}
 
 		// append in the list
 		fees = append(fees, vf)

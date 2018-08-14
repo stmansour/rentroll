@@ -37,7 +37,7 @@ func GetRAFlowInitialPetFees(ctx context.Context,
 
 	// GET PET FEES FROM BUSINESS PROPERTIES
 	var petBizFees []BizPropsFee
-	petBizFees, err = GetBizPropPetFees(ctx, BID, bizPropName)
+	petBizFees, err = GetBizPropPetFees(ctx, BID, bizPropName, rStart, rStop)
 	if err != nil {
 		return
 	}
@@ -100,7 +100,7 @@ func GetRAFlowInitialVehicleFees(ctx context.Context,
 
 	// GET VEHICLE FEES FROM BUSINESS PROPERTIES
 	var vehicleBizFees []BizPropsFee
-	vehicleBizFees, err = GetBizPropVehicleFees(ctx, BID, bizPropName)
+	vehicleBizFees, err = GetBizPropVehicleFees(ctx, BID, bizPropName, rStart, rStop)
 	if err != nil {
 		return
 	}
@@ -211,14 +211,21 @@ func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName s
 				ContractAmount:  baseFee.ContractAmount,
 				RentCycle:       RECURNONE,
 				ProrationCycle:  RECURNONE,
-				Start:           JSONDate(rStart),
-				Stop:            JSONDate(rStart),
+				Start:           baseFee.Start,
+				Stop:            baseFee.Stop,
 				AtSigningPreTax: baseFee.AtSigningPreTax,
 				SalesTax:        baseFee.SalesTax,
 				TransOccTax:     baseFee.TransOccTax,
 				Comment:         baseFee.Comment,
 			}
+
+			// ONLY IF FEES START HAS NOT BEEN SET
+			if feeStart.Equal(earliestDate) || feeStart.Before(earliestDate) {
+				raFee.Start = JSONDate(rStart)
+				raFee.Stop = JSONDate(rStart)
+			}
 			fees = append(fees, raFee)
+
 		} else if rentAsmCharge { // IT MUST BE RENT ASM ONE
 
 			// CHECK FOR PRORATED AMOUNT REQUIRED
