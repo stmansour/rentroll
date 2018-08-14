@@ -1034,6 +1034,7 @@ func RAFlowDataDiff(ctx context.Context, RAID int64) (isDiff bool, err error) {
 func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement, EditFlag bool) (RAFlowJSONData, error) {
 	const funcname = "ConvertRA2Flow"
 
+	Console("Entered %s\n", funcname)
 	//-------------------------------------------------------------
 	// This is the datastructure we need to fill out and save...
 	//-------------------------------------------------------------
@@ -1172,33 +1173,37 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement, EditFlag bool) (RA
 		// recurring fees.
 		//---------------------------------------------------------
 		var asms []Assessment
-		if EditFlag {
-
-		} else {
-			asms, err = GetAssessmentsByRAIDRID(ctx, o[i].BID, ra.RAID, rfd.RID)
-			if err != nil {
-				return raf, nil
-			}
+		asms, err = GetAssessmentsByRAIDRID(ctx, o[i].BID, ra.RAID, rfd.RID)
+		if err != nil {
+			return raf, nil
 		}
 		for j := 0; j < len(asms); j++ {
 			//----------------------------------------------------------
 			// do any quick rejection needed
 			//----------------------------------------------------------
+			// Console("******************\n\nChecking ASMID %d\n", asms[j].ASMID)
 			if EditFlag {
+				// Console("Checking for EDIT AMENDING\n")
 				if asms[j].FLAGS&4 > 0 || asms[j].FLAGS&3 > 0 { // reversed or partially or fully paid
+					// Console("Rejected: reversed or partially or fully paid\n")
 					continue
 				}
 				if !DateRangeOverlap(&now, &ra.AgreementStop, &asms[j].Start, &asms[j].Stop) {
+					// Console("Rejected: no overlap: %s - %s  with  %s - %s\n", now.Format(RRDATEREPORTFMT), ra.AgreementStop.Format(RRDATEREPORTFMT), asms[j].Start.Format(RRDATEREPORTFMT), asms[j].Stop.Format(RRDATEREPORTFMT))
 					continue
 				}
 				if asms[j].RentCycle == RECURNONE && !DateRangeOverlap(&now, &ra.AgreementStop, &asms[j].Start, &asms[j].Stop) {
+					// Console("Rejected: norecur and no overlap: %s - %s  with  %s - %s\n", now.Format(RRDATEREPORTFMT), ra.AgreementStop.Format(RRDATEREPORTFMT), asms[j].Start.Format(RRDATEREPORTFMT), asms[j].Stop.Format(RRDATEREPORTFMT))
 					continue
 				}
 			} else {
+				// Console("Checking for VIEWING\n")
 				if asms[j].FLAGS&4 > 0 { // reversed
+					// Console("Rejected: reversed\n")
 					continue
 				}
 			}
+			// Console("Adding ASMID %d\n", asms[j].ASMID)
 
 			//----------------------------------------------------------
 			// Get the account rule for this assessment...
