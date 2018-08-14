@@ -898,10 +898,12 @@ window.displayErrorSummary = function (comp) {
             }
 
             // non fields error content
+            $(non_field_error_content_sel).css('display', 'block');
             $(non_field_error_content_sel).empty();
             $(non_field_error_content_sel).append("<ul>" + errorString + "</ul>");
         }else{
             $(non_field_error_dd_sel).css('display', 'none');
+            $(non_field_error_content_sel).css('display', 'none');
             $(non_field_error_content_sel).empty();
         }
 
