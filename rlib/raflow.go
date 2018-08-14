@@ -772,33 +772,6 @@ func possessDateChangeRAFlowUpdates(ctx context.Context, pStart, pStop time.Time
 	}
 }
 
-// getRAFlowNewRentDatesBaseFees removes one time charge fees only
-// those don't fall in the new rent dates range. It will keep
-// recurring rent based fees.
-// It will return new modified fees list.
-func getRAFlowNewRentDatesBaseFees(ctx context.Context, Fees []RAFeesData, rStart, rStop time.Time) (fees []RAFeesData, err error) {
-
-	// INIT FEES COPY
-	fees = []RAFeesData{}
-
-	// REMOVE PRORATED FEES FROM THE LIST THAT DOES NOT FALL IN THE NEW RENT DATES
-	for i := range Fees {
-		var ar AR
-		ar, err = GetAR(ctx, Fees[i].ARID)
-		if err != nil {
-			return
-		}
-
-		// IF NOT (RENT ASM && START == STOP) THEN APPEND
-		if !(ar.FLAGS&(1<<4) != 0 &&
-			(time.Time)(Fees[i].Start).Equal((time.Time)(Fees[i].Stop))) {
-			fees = append(fees, Fees[i])
-		}
-	}
-
-	return
-}
-
 // rentDateChangeRAFlowUpdates updates raflow json with required
 // modification if rent dates are changed
 func rentDateChangeRAFlowUpdates(ctx context.Context, BID int64, rStart, rStop time.Time, raFlowData *RAFlowJSONData) (err error) {
@@ -813,16 +786,10 @@ func rentDateChangeRAFlowUpdates(ctx context.Context, BID int64, rStart, rStop t
 	// LOOP OVER PET FEES IN RAFLOW
 	for pi := range raFlowData.Pets {
 
-		// GET BASE FEES IN AFFECT OF RENT DATES
-		var fees []RAFeesData
-		fees, err = getRAFlowNewRentDatesBaseFees(ctx, raFlowData.Pets[pi].Fees, rStart, rStop)
-		if err != nil {
-			return
-		}
-
 		// GET MODIFIED PET FEES FROM THIS FLOW DATA PET FEES AND RENT DATES
 		var modPetFees []RAFeesData
-		modPetFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName, rStart, rStop, fees, true)
+		modPetFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName,
+			rStart, rStop, raFlowData.Pets[pi].Fees)
 		if err != nil {
 			return
 		}
@@ -843,16 +810,10 @@ func rentDateChangeRAFlowUpdates(ctx context.Context, BID int64, rStart, rStop t
 	// LOOP OVER VEHICLE FEES IN RAFLOW
 	for vi := range raFlowData.Vehicles {
 
-		// GET BASE FEES IN AFFECT OF RENT DATES
-		var fees []RAFeesData
-		fees, err = getRAFlowNewRentDatesBaseFees(ctx, raFlowData.Vehicles[vi].Fees, rStart, rStop)
-		if err != nil {
-			return
-		}
-
 		// GET MODIFIED VEHICLE FEES FROM THIS FLOW DATA VEHICLE FEES AND RENT DATES
 		var modVehicleFees []RAFeesData
-		modVehicleFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName, rStart, rStop, fees, true)
+		modVehicleFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName,
+			rStart, rStop, raFlowData.Vehicles[vi].Fees)
 		if err != nil {
 			return
 		}
@@ -873,16 +834,10 @@ func rentDateChangeRAFlowUpdates(ctx context.Context, BID int64, rStart, rStop t
 	// LOOP OVER RENTABLE FEES IN RAFLOW
 	for ri := range raFlowData.Rentables {
 
-		// GET BASE FEES IN AFFECT OF RENT DATES
-		var fees []RAFeesData
-		fees, err = getRAFlowNewRentDatesBaseFees(ctx, raFlowData.Rentables[ri].Fees, rStart, rStop)
-		if err != nil {
-			return
-		}
-
 		// GET MODIFIED RENTABLE FEES FROM THIS FLOW DATA RENTABLE FEES AND RENT DATES
 		var modRentableFees []RAFeesData
-		modRentableFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName, rStart, rStop, fees, true)
+		modRentableFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName,
+			rStart, rStop, raFlowData.Rentables[ri].Fees)
 		if err != nil {
 			return
 		}
