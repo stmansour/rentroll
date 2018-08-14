@@ -159,9 +159,9 @@ func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName s
 		// Console("%s: ARID: %d\n", funcname, baseFee.ARID)
 		if !DateRangeOverlap(&feeStart, &feeStop, &rStart, &rStop) {
 			// Console("does not overlap, continue.... ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n")
-			// Console("feeStart: %s, feeStop: %s, rStart: %s, rStop: %s\n",
-			// 	feeStart.Format(RRDATEFMT3), feeStop.Format(RRDATEFMT3),
-			// 	rStart.Format(RRDATEFMT3), rStop.Format(RRDATEFMT3))
+			/*Console("feeStart: %s, feeStop: %s, rStart: %s, rStop: %s\n",
+			feeStart.Format(RRDATEFMT3), feeStop.Format(RRDATEFMT3),
+			rStart.Format(RRDATEFMT3), rStop.Format(RRDATEFMT3))*/
 			continue
 		}
 
