@@ -136,7 +136,8 @@ func UpdateAssessmentEndDate(ctx context.Context, a *rlib.Assessment, dt *time.T
 	rlib.Console("e = %s, a.Start = %s, Stop = %s\n", e.Format(rlib.RRDATEREPORTFMT), a.Start.Format(rlib.RRDATEREPORTFMT), origStopDate.Format(rlib.RRDATEREPORTFMT))
 	ok, epoch := rlib.GetEpochFromBaseDate(a.Start, e, origStopDate, a.RentCycle)
 	if !ok {
-		return fmt.Errorf("UpdateAssessmentEndDate for ASMID=%d, received ok=false from GetEpochFromBaseDate", a.ASMID)
+		return nil // we're done, the instance we were looking for does not exist
+		// return fmt.Errorf("UpdateAssessmentEndDate for ASMID=%d, received ok=false from GetEpochFromBaseDate", a.ASMID)
 	}
 	rlib.Console("UpdateAssessmentEndDate: dt = %s, epoch = %s\n", dt.Format(rlib.RRDATEREPORTFMT), epoch.Format(rlib.RRDATEREPORTFMT))
 	if epoch.Equal(e) {

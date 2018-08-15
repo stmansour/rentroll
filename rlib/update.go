@@ -383,6 +383,7 @@ func UpdateRAFlowWithInitState(ctx context.Context, a *Flow) error {
 	//  IF DATA HAS BEEN CHANGED, RESET META AND SET STATE TO APP BEING COMPLETED
 	resetMeta := RAFlowMetaInfo{
 		RAID:         flowData.Meta.RAID,
+		BID:          flowData.Meta.BID,
 		LastTMPPETID: flowData.Meta.LastTMPPETID,
 		LastTMPVID:   flowData.Meta.LastTMPVID,
 		LastTMPTCID:  flowData.Meta.LastTMPTCID,

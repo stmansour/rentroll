@@ -91,6 +91,9 @@ func GetEpochFromBaseDate(b, d1, d2 time.Time, cycle int64) (ok bool, epoch time
 	// THEN MARK "OK" FLAG AS TRUE
 	if epoch.Before(d2) {
 		ok = true
+	} else {
+		Console("\n\n\nGetEpochFromBaseDate: base = %s, d1 = %s, d2 = %s\n", b.Format(RRDATETIMERPTFMT), d1.Format(RRDATETIMERPTFMT), d2.Format(RRDATETIMERPTFMT))
+		Console("                      epoch = %s, ok = %t\n\n\n\n", epoch.Format(RRDATETIMERPTFMT), ok)
 	}
 
 	return
