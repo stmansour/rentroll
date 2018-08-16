@@ -138,6 +138,19 @@ dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p6"  "Valida
 echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A10%7D" > request
 dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p7"  "Validate RAFlow -- SourceSLSID"
 
+#------------------------------------------------------------------------------
+#  TEST p8
+#  Validate raflow : People section
+#
+#  Scenario:
+#  Brand new RA application must have have current address.
+#
+#  Expected Results:
+#  1. Error: "current" address related information required
+#------------------------------------------------------------------------------
+echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A11%7D" > request
+dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p8"  "Validate RAFlow -- Current Address"
+
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
 
