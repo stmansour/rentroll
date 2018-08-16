@@ -111,6 +111,19 @@ dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p4"  "Valida
 echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A8%7D" > request
 dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p5"  "Validate RAFlow -- workphone or cell phone is compulsory"
 
+#------------------------------------------------------------------------------
+#  TEST p6
+#  Validate raflow : People section
+#
+#  Scenario:
+#  Do not provide EmergencyContactName, EmergencyContactAddress, EmergencyContactTelephone, EmergencyEmail.
+#
+#  Expected Results:
+#  1. Error: EmergencyContactName, EmergencyContactAddress, EmergencyContactTelephone, EmergencyEmail are required when IsCompany flag is false.
+#------------------------------------------------------------------------------
+echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A9%7D" > request
+dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p6"  "Validate RAFlow -- emergency contact information required"
+
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
 
