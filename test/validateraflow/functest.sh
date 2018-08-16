@@ -98,6 +98,19 @@ dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p3"  "Valida
 echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A7%7D" > request
 dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p4"  "Validate RAFlow -- Must require gross income provided"
 
+#------------------------------------------------------------------------------
+#  TEST p5
+#  Validate raflow : People section
+#
+#  Scenario:
+#  Do not provide workphone and cellphone
+#
+#  Expected Results:
+#  1. Error: Either Workphone or CellPhone is compulsory.
+#------------------------------------------------------------------------------
+echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A8%7D" > request
+dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p5"  "Validate RAFlow -- workphone or cell phone is compulsory"
+
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
 
