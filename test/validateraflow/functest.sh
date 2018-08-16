@@ -187,9 +187,27 @@ dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "d0"  "Valida
 #
 #  Expected Results:
 #  1. Error: Can not be blank basic information
+#  2. Error: Start dates must be prior to stop dates
+#  3. Error: Start dates must be prior or equal to stop dates for fees
 #------------------------------------------------------------------------------
 echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A14%7D" > request
 dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "pt0"  "Validate RAFlow -- Pet -- Basic Info"
+
+#------------------------------------------------------------------------------
+#  TEST v0
+#  Validate raflow : Vehicle Section
+#
+#  Scenario:
+#  Only provide vehicle type
+#  Fees with wrong dates
+#
+#  Expected Results:
+#  1. Error: Can not be blank basic information
+#  2. Error: Start dates must be prior to stop dates
+#  3. Error: Start dates must be prior or equal to stop dates for fees
+#------------------------------------------------------------------------------
+echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A15%7D" > request
+dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "v0"  "Validate RAFlow -- Vehicle -- Basic Info"
 
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
