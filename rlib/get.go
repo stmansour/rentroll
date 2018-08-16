@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// NoAuthEnabled tells whether auth is enabled or not
+// NoAuthEnabled tells whether noauth is enabled or not
 func NoAuthEnabled() bool {
 
 	// IF ENV IS PRODUCTION THEN APP SHOULD NOT ALLOW

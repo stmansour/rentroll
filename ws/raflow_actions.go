@@ -404,10 +404,10 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 	// safeguard for dereferencing d.sess which may not exist if we're testing
 	//--------------------------------------------------------------------------
 	UID := int64(-99)
-	if !rlib.NoAuthEnabled() {
-		if d.sess != nil {
-			UID = d.sess.UID
-		} else {
+	if d.sess != nil {
+		UID = d.sess.UID
+	} else {
+		if !rlib.NoAuthEnabled() {
 			return raflowRespData, rlib.ErrSessionRequired
 		}
 	}
@@ -744,10 +744,10 @@ func SetActionMetaData(ctx context.Context, d *ServiceData, Action int64, modRAF
 	// safeguard for dereferencing d.sess which may not exist if we're testing
 	//--------------------------------------------------------------------------
 	UID := int64(-99)
-	if !rlib.NoAuthEnabled() {
-		if d.sess != nil {
-			UID = d.sess.UID
-		} else {
+	if d.sess != nil {
+		UID = d.sess.UID
+	} else {
+		if !rlib.NoAuthEnabled() {
 			return rlib.ErrSessionRequired
 		}
 	}
