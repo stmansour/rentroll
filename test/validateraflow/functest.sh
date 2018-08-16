@@ -27,6 +27,16 @@ startRentRollServer
 echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A1%7D" > request
 dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "a0"  "Validate RAFlow -- Initiated RAFlow"
 
+#------------------------------------------------------------------------------
+#  TEST a1
+#  Validate raflow which have no error
+#
+#  Expected Results:
+#  1. Error count must be 0
+#------------------------------------------------------------------------------
+echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A2%7D" > request
+dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "a1"  "Validate RAFlow -- Error free RAFlow"
+
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
 
