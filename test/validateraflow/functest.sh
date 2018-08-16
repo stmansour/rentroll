@@ -178,6 +178,19 @@ dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p9"  "Valida
 echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A13%7D" > request
 dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "d0"  "Validate RAFlow -- Dates"
 
+#------------------------------------------------------------------------------
+#  TEST pt0
+#  Validate raflow : Pet Section
+#
+#  Scenario:
+#  Only provide pet name
+#
+#  Expected Results:
+#  1. Error: Can not be blank basic information
+#------------------------------------------------------------------------------
+echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A14%7D" > request
+dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "pt0"  "Validate RAFlow -- Pet -- Basic Info"
+
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
 
