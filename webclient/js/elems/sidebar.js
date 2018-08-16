@@ -29,7 +29,7 @@ window.buildSidebar = function(flag) {
                 },
                 { id: 'rentagr', text: plural(app.sRentalAgreement), img: 'icon-folder', expanded: true, group: true,
                     nodes: [
-                            { id: 'raflows',      text: plural(app.sRentalAgreement),    icon: 'fas fa-certificate', hint: 'Rental Agreements' },
+                            { id: 'raflows',   text: plural(app.sRentalAgreement),          icon: 'fas fa-certificate', hint: 'Rental Agreements' },
                             { id: 'transactants', text: plural(app.sTransactant),        icon: 'fas fa-users' },
                             // { id: 'assignrnt',    text: 'Assign A ' + app.sRentable,     icon: 'far fa-check-square' },
                             // { id: 'movein',       text: app.sTransactant + ' Arrival',   icon: 'fas fa-sign-in-alt' },
@@ -176,7 +176,6 @@ window.buildSidebar = function(flag) {
                         case 'tls':
                         case 'tlds':
                         case 'rr':
-                        case 'raflows':
                         case 'ra2flow':
                             switchToGrid(target);
                             break;
