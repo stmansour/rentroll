@@ -102,12 +102,12 @@ window.LoadRAFlowTemplate = function(bid, raFlowVersion) {
     });
 };
 
-window.buildRAApplicantElements = function() {
+window.buildRAFlowElements = function() {
     // ------------------------------------------------------
-    // applicants grid
+    // raflows grid
     // ------------------------------------------------------
     $().w2grid({
-        name: 'applicantsGrid',
+        name: 'raflowsGrid',
         multiSelect: false,
         show: {
             toolbar: true,
@@ -320,7 +320,7 @@ window.buildRAApplicantElements = function() {
     });
 
     // add date navigation toolbar for new rental agreement form
-    addDateNavToToolbar('applicants');
+    addDateNavToToolbar('raflows');
 
     //------------------------------------------------------------------------
     //          Rental Agreement Details
@@ -584,7 +584,7 @@ window.CloseRAFlowLayout = function() {
     w2ui.newraLayout.content('right', '');
     w2ui.newraLayout.hide('right', true);
     w2ui.toplayout.hide('right', true);
-    w2ui.applicantsGrid.render();
+    w2ui.raflowsGrid.render();
 };
 
 //-----------------------------------------------------------------------------

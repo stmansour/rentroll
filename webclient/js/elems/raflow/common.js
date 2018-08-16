@@ -64,11 +64,11 @@ window.RAFlowAJAX = function(URL, METHOD, REQDATA, updateLocalData) {
 };
 
 //-----------------------------------------------------------------------------
-// GetRefNoByRAIDFromGrid returns UserRefNo By RAID from applicantsGrid RECORDS
+// GetRefNoByRAIDFromGrid returns UserRefNo By RAID from raflowsGrid RECORDS
 //-----------------------------------------------------------------------------
 window.GetRefNoByRAIDFromGrid = function(RAID) {
     var RefNo = "";
-    w2ui.applicantsGrid.records.forEach(function(gridRec) {
+    w2ui.raflowsGrid.records.forEach(function(gridRec) {
         if (gridRec.RAID == RAID) {
             RefNo = gridRec.UserRefNo;
             return;
@@ -78,11 +78,11 @@ window.GetRefNoByRAIDFromGrid = function(RAID) {
 };
 
 //-----------------------------------------------------------------------------
-// GetRAIDByRefNoFromGrid returns RAID By UserRefNo from applicantsGrid RECORDS
+// GetRAIDByRefNoFromGrid returns RAID By UserRefNo from raflowsGrid RECORDS
 //-----------------------------------------------------------------------------
 window.GetRAIDByRefNoFromGrid = function(RefNo) {
     var RAID = -1;
-    w2ui.applicantsGrid.records.forEach(function(gridRec) {
+    w2ui.raflowsGrid.records.forEach(function(gridRec) {
         if (gridRec.UserRefNo == RefNo) {
             RAID = gridRec.RAID;
             return;
@@ -411,7 +411,7 @@ window.UpdateRAFlowLocalData = function(data){
     app.raflow.FlowFilledData = data.record.DataFulfilled;
 
     // ALSO UPDATE THIS RAFLOW DATA(RAID/USERREFNO) IN THE MAIN GRID
-    w2ui.applicantsGrid.records.forEach(function(gridRec) {
+    w2ui.raflowsGrid.records.forEach(function(gridRec) {
         if (gridRec.UserRefNo === app.raflow.Flow.UserRefNo || gridRec.RAID === app.raflow.Flow.ID) {
             if (app.raflow.Flow.UserRefNo) { // IF AVAILABLE THEN ONLY SET
                 gridRec.UserRefNo = app.raflow.Flow.UserRefNo;
@@ -421,7 +421,7 @@ window.UpdateRAFlowLocalData = function(data){
             }
 
             // ONCE THE RECORD UPDATE THEN ONLY REFRESH AND BREAK
-            w2ui.applicantsGrid.refresh();
+            w2ui.raflowsGrid.refresh();
             return;
         }
     });
