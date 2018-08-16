@@ -48,6 +48,7 @@ window.RAFlowAJAX = function(URL, METHOD, REQDATA, updateLocalData) {
                     UpdateRAFlowLocalData(data);
                 }
             } else {
+                alert(data.message);
                 console.error(data.message);
             }
         },
