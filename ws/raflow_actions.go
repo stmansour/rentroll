@@ -80,7 +80,7 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	// HTTP METHOD CHECK
 	if r.Method != "POST" {
-		err = fmt.Errorf("Only POST method is allowed")
+		err = fmt.Errorf("only POST method is allowed")
 		return
 	}
 
@@ -169,7 +169,7 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 			return flow, err
 		}
 		if ra.RAID == 0 {
-			err = fmt.Errorf("Rental Agreement not found with given RAID: %d", RAID)
+			err = fmt.Errorf("rental Agreement not found with given RAID: %d", RAID)
 			return flow, err
 		}
 
@@ -269,7 +269,7 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 			return flow, err
 		}
 		if ra.RAID == 0 {
-			err = fmt.Errorf("Rental Agreement not found with given RAID: %d", RAID)
+			err = fmt.Errorf("rental Agreement not found with given RAID: %d", RAID)
 			return flow, err
 		}
 
@@ -283,6 +283,7 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 
 		// get meta in modRAFlowMeta, we're going to modify it
 		modRAFlowMeta := rlib.RAFlowMetaInfo{
+			BID:                    ra.BID,
 			RAID:                   ra.RAID,
 			RAFLAGS:                ra.FLAGS,
 			ApplicationReadyUID:    ra.ApplicationReadyUID,
@@ -387,10 +388,6 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 }
 
 func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequest, raFlowData rlib.RAFlowJSONData) (RAFlowResponse, error) {
-	var (
-		raFlowFieldsErrors    bizlogic.RAFlowFieldsErrors
-		raFlowNonFieldsErrors bizlogic.RAFlowNonFieldsErrors
-	)
 
 	UserRefNo := foo.UserRefNo
 	Action := foo.Action
@@ -402,6 +399,18 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 	var raflowRespData RAFlowResponse
 
 	migrateData := false
+
+	//--------------------------------------------------------------------------
+	// safeguard for dereferencing d.sess which may not exist if we're testing
+	//--------------------------------------------------------------------------
+	UID := int64(-99)
+	if d.sess != nil {
+		UID = d.sess.UID
+	} else {
+		if !rlib.NoAuthEnabled() {
+			return raflowRespData, rlib.ErrSessionRequired
+		}
+	}
 
 	// GET FLOW BY REFNO
 	flow, err = rlib.GetFlowByUserRefNo(ctx, d.BID, UserRefNo)
@@ -419,21 +428,9 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 		return raflowRespData, err
 	}
 
-	///////////////////////////////////////////////////////////////////////////////////////
-
 	raflowRespData.Flow = flow
 
-	// init raFlowFieldsErrors
-	initRAFlowFieldsErrors(&raFlowFieldsErrors)
-
-	initRAFlowNonFieldsErrors(&raFlowNonFieldsErrors)
-
-	bizlogic.ValidateRAFlowParts(ctx, &raFlowFieldsErrors, &raFlowNonFieldsErrors, &raFlowData, flow.ID)
-
-	raflowRespData.ValidationCheck.Errors = raFlowFieldsErrors
-	raflowRespData.ValidationCheck.NonFieldsErrors = raFlowNonFieldsErrors
-	raflowRespData.ValidationCheck.Total += raFlowFieldsErrors.Pets.Total
-	raflowRespData.ValidationCheck.Status = "success"
+	ValidateRAFlowAndAssignValidatedRAFlow(ctx, &raFlowData, flow, &raflowRespData)
 
 	// CHECK DATA FULFILLED
 	bizlogic.DataFulfilledRAFlow(ctx, &raFlowData, &raflowRespData.DataFulfilled)
@@ -445,8 +442,6 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 			raflowRespData.DataFulfilled.Tie) {
 		return raflowRespData, nil
 	}
-
-	///////////////////////////////////////////////////////////////////////////////////////
 
 	// get meta in modRAFlowMeta, we're going to modify it
 	modRAFlowMeta := raFlowData.Meta
@@ -478,7 +473,7 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 			}
 
 		default:
-			err = fmt.Errorf("Invalid Action Taken")
+			err = fmt.Errorf("invalid Action Taken")
 			return raflowRespData, err
 		}
 	case "State":
@@ -504,7 +499,7 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 			}
 
 			var fullName string
-			fullName, err = getUserFullName(ctx, d.sess.UID)
+			fullName, err = getUserFullName(ctx, UID)
 			if err != nil {
 				return raflowRespData, err
 			}
@@ -521,7 +516,7 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 				modRAFlowMeta.RAFLAGS = modRAFlowMeta.RAFLAGS & ^uint64(1<<4)
 				modRAFlowMeta.DeclineReason1 = data.DeclineReason1
 
-				modRAFlowMeta.TerminatorUID = d.sess.UID
+				modRAFlowMeta.TerminatorUID = UID
 				modRAFlowMeta.TerminatorName = fullName
 				modRAFlowMeta.TerminationDate = rlib.JSONDateTime(today)
 
@@ -544,7 +539,7 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 				return raflowRespData, err
 			}
 
-			modRAFlowMeta.Approver1 = d.sess.UID
+			modRAFlowMeta.Approver1 = UID
 			modRAFlowMeta.Approver1Name = fullName
 			modRAFlowMeta.DecisionDate1 = rlib.JSONDateTime(today)
 
@@ -555,13 +550,13 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 			}
 
 			var fullName string
-			fullName, err = getUserFullName(ctx, d.sess.UID)
+			fullName, err = getUserFullName(ctx, UID)
 			if err != nil {
 				return raflowRespData, err
 			}
 
 			if data.Decision2 == 1 { // Approved
-				modRAFlowMeta.MoveInUID = d.sess.UID
+				modRAFlowMeta.MoveInUID = UID
 				modRAFlowMeta.MoveInName = fullName
 				modRAFlowMeta.MoveInDate = rlib.JSONDateTime(today)
 
@@ -576,7 +571,7 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 				modRAFlowMeta.RAFLAGS = modRAFlowMeta.RAFLAGS & ^uint64(1<<5)
 				modRAFlowMeta.DeclineReason2 = data.DeclineReason2
 
-				modRAFlowMeta.TerminatorUID = d.sess.UID
+				modRAFlowMeta.TerminatorUID = UID
 				modRAFlowMeta.TerminatorName = fullName
 				modRAFlowMeta.TerminationDate = rlib.JSONDateTime(today)
 
@@ -599,7 +594,7 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 				return raflowRespData, err
 			}
 
-			modRAFlowMeta.Approver2 = d.sess.UID
+			modRAFlowMeta.Approver2 = UID
 			modRAFlowMeta.Approver2Name = fullName
 			modRAFlowMeta.DecisionDate2 = rlib.JSONDateTime(today)
 
@@ -610,12 +605,12 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 			}
 
 			var fullName string
-			fullName, err = getUserFullName(ctx, d.sess.UID)
+			fullName, err = getUserFullName(ctx, UID)
 			if err != nil {
 				return raflowRespData, err
 			}
 
-			modRAFlowMeta.MoveInUID = d.sess.UID
+			modRAFlowMeta.MoveInUID = UID
 			modRAFlowMeta.MoveInName = fullName
 			modRAFlowMeta.MoveInDate = rlib.JSONDateTime(today)
 
@@ -752,7 +747,7 @@ func SetActionMetaData(ctx context.Context, d *ServiceData, Action int64, modRAF
 	if d.sess != nil {
 		UID = d.sess.UID
 	} else {
-		if !SvcCtx.NoAuth {
+		if !rlib.NoAuthEnabled() {
 			return rlib.ErrSessionRequired
 		}
 	}

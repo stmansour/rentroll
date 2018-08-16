@@ -9,6 +9,18 @@ import (
 	"time"
 )
 
+// NoAuthEnabled tells whether noauth is enabled or not
+func NoAuthEnabled() bool {
+
+	// IF ENV IS PRODUCTION THEN APP SHOULD NOT ALLOW
+	// NOAUTH FEATURE
+	if AppConfig.Env == extres.APPENVPROD {
+		return false
+	}
+
+	return RRdb.noAuth
+}
+
 // sessionCheck encapsulates 6 lines of code that was repeated in every call
 //
 // INPUTS
@@ -21,13 +33,8 @@ import (
 //-----------------------------------------------------------------------------
 func sessionCheck(ctx context.Context) (*Session, bool) {
 
-	// IF ENV IS PRODUCTION THEN WE MUST CHECK THE SESSION
-	if AppConfig.Env == extres.APPENVPROD {
-		return SessionFromContext(ctx)
-	}
-
-	// IF NOAUTH IS DISABLED THEN WE SHOULD CHECK THE SESSION
-	if !RRdb.noAuth {
+	// IF NOAUTH IS DISABLED THEN WE MUST CHECK SESSION FROM CONTEXT
+	if !NoAuthEnabled() {
 		return SessionFromContext(ctx)
 	}
 

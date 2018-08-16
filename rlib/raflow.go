@@ -886,6 +886,9 @@ func InsertInitialRAFlow(ctx context.Context, BID, UID int64) (int64, error) {
 		Tie: RATieFlowData{
 			People: []RATiePeopleData{},
 		},
+		Meta: RAFlowMetaInfo{
+			BID: BID,
+		},
 	}
 
 	// get json marshelled byte data for above struct

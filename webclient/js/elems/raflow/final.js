@@ -1,5 +1,5 @@
 /* global
-    GetFeeGridColumns, getRAFlowCompData,
+    GetFeeGridColumns, GetRAFlowCompLocalData,
     BuildRAFinalRentablesFeesGrid,
     BuildRAFinalPetsFeesGrid,
     BuildRAFinalVehiclesFeesGrid,
@@ -51,7 +51,7 @@ window.BuildRAFinalRentablesFeesGrid = function() {
             footer:     false,
         },
         multiSelect: false,
-        style: 'border: 2px solid silver; display: block; background-color: transparent;',
+        style: 'display: block; background-color: transparent;',
         columns: gridCols,
         onSelect: function (event) {
             event.preventDefault(); // Prevent selection of row
@@ -98,7 +98,7 @@ window.BuildRAFinalPetsFeesGrid = function() {
             footer:     false
         },
         multiSelect: false,
-        style: 'border: 2px solid silver; display: block;',
+        style: 'display: block;',
         columns: gridCols,
         onSelect: function (event) {
             event.preventDefault(); // Prevent selection of row
@@ -145,7 +145,7 @@ window.BuildRAFinalVehiclesFeesGrid = function() {
             footer:     false
         },
         multiSelect: false,
-        style: 'border: 2px solid silver; display: block;',
+        style: 'display: block;',
         columns: gridCols,
         onSelect: function (event) {
             event.preventDefault(); // Prevent selection of row
@@ -188,7 +188,7 @@ window.AssignRAFinalRentablesFeesGridRecords = function() {
     grid.clear();
 
     // get rentables local data
-    var compData = getRAFlowCompData("rentables") || [];
+    var compData = GetRAFlowCompLocalData("rentables") || [];
 
     // loop over all rentable and collect fees
     compData.forEach(function(rentable) {
@@ -222,7 +222,7 @@ window.AssignRAFinalPetsFeesGridRecords = function() {
     grid.clear();
 
     // get pets local data
-    var compData = getRAFlowCompData("pets") || [];
+    var compData = GetRAFlowCompLocalData("pets") || [];
 
     // loop over all pets and collect fees
     compData.forEach(function(pet) {
@@ -256,7 +256,7 @@ window.AssignRAFinalVehiclesFeesGridRecords = function() {
     grid.clear();
 
     // get vehicles local data
-    var compData = getRAFlowCompData("vehicles") || [];
+    var compData = GetRAFlowCompLocalData("vehicles") || [];
 
     // loop over all vehicles and collect fees
     compData.forEach(function(vehicle) {

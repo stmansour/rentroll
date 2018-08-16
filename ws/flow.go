@@ -303,12 +303,10 @@ func SaveFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 func SvcWriteFlowResponse(ctx context.Context, BID int64, flow rlib.Flow, w http.ResponseWriter) {
 	const funcname = "SvcWriteFlowResponse"
 	var (
-		err                   error
-		raFlowData            rlib.RAFlowJSONData
-		resp                  FlowResponse
-		raFlowFieldsErrors    bizlogic.RAFlowFieldsErrors
-		raFlowNonFieldsErrors bizlogic.RAFlowNonFieldsErrors
-		raflowRespData        = RAFlowResponse{Flow: flow}
+		err            error
+		raFlowData     rlib.RAFlowJSONData
+		resp           FlowResponse
+		raflowRespData = RAFlowResponse{Flow: flow}
 	)
 	fmt.Printf("Entered in %s\n", funcname)
 
@@ -322,18 +320,7 @@ func SvcWriteFlowResponse(ctx context.Context, BID int64, flow rlib.Flow, w http
 	// CHECK DATA FULFILLED
 	bizlogic.DataFulfilledRAFlow(ctx, &raFlowData, &raflowRespData.DataFulfilled)
 
-	// TODO(Akshay): Wrap it by method
-	// init raFlowFieldsErrors
-	initRAFlowFieldsErrors(&raFlowFieldsErrors)
-
-	initRAFlowNonFieldsErrors(&raFlowNonFieldsErrors)
-
-	bizlogic.ValidateRAFlowParts(ctx, &raFlowFieldsErrors, &raFlowNonFieldsErrors, &raFlowData, flow.ID)
-
-	raflowRespData.ValidationCheck.Errors = raFlowFieldsErrors
-	raflowRespData.ValidationCheck.NonFieldsErrors = raFlowNonFieldsErrors
-	raflowRespData.ValidationCheck.Total += raFlowFieldsErrors.Pets.Total
-	raflowRespData.ValidationCheck.Status = "success"
+	ValidateRAFlowAndAssignValidatedRAFlow(ctx, &raFlowData, flow, &raflowRespData)
 
 	resp.Record = raflowRespData
 	resp.Status = "success"
