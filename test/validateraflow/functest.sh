@@ -235,6 +235,19 @@ dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "r0"  "Valida
 echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A17%7D" > request
 dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "pc0"  "Validate RAFlow -- Parent child"
 
+#------------------------------------------------------------------------------
+#  TEST t0
+#  Validate raflow : Tie section
+#
+#  Scenario:
+#  Person isn't occupant
+#
+#  Expected Results:
+#  1. Error: Person must be occupant under tie section
+#------------------------------------------------------------------------------
+echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A18%7D" > request
+dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "t0"  "Validate RAFlow -- Tie"
+
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
 
