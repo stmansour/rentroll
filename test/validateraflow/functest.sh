@@ -165,6 +165,19 @@ dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p8"  "Valida
 echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A12%7D" > request
 dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p9"  "Validate RAFlow -- TaxpayorID"
 
+#------------------------------------------------------------------------------
+#  TEST d0
+#  Validate raflow : Date section
+#
+#  Scenario:
+#  Stop dates are not prior to Start dates
+#
+#  Expected Results:
+#  1. Error: Start dates must be prior to stop dates
+#------------------------------------------------------------------------------
+echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A13%7D" > request
+dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "d0"  "Validate RAFlow -- Dates"
+
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
 
