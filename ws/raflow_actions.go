@@ -283,6 +283,7 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 
 		// get meta in modRAFlowMeta, we're going to modify it
 		modRAFlowMeta := rlib.RAFlowMetaInfo{
+			BID:                    ra.BID,
 			RAID:                   ra.RAID,
 			RAFLAGS:                ra.FLAGS,
 			ApplicationReadyUID:    ra.ApplicationReadyUID,
@@ -403,6 +404,18 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 
 	migrateData := false
 
+	//--------------------------------------------------------------------------
+	// safeguard for dereferencing d.sess which may not exist if we're testing
+	//--------------------------------------------------------------------------
+	UID := int64(-99)
+	if !rlib.NoAuthEnabled() {
+		if d.sess != nil {
+			UID = d.sess.UID
+		} else {
+			return raflowRespData, rlib.ErrSessionRequired
+		}
+	}
+
 	// GET FLOW BY REFNO
 	flow, err = rlib.GetFlowByUserRefNo(ctx, d.BID, UserRefNo)
 	if err != nil {
@@ -503,7 +516,7 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 			}
 
 			var fullName string
-			fullName, err = getUserFullName(ctx, d.sess.UID)
+			fullName, err = getUserFullName(ctx, UID)
 			if err != nil {
 				return raflowRespData, err
 			}
@@ -520,7 +533,7 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 				modRAFlowMeta.RAFLAGS = modRAFlowMeta.RAFLAGS & ^uint64(1<<4)
 				modRAFlowMeta.DeclineReason1 = data.DeclineReason1
 
-				modRAFlowMeta.TerminatorUID = d.sess.UID
+				modRAFlowMeta.TerminatorUID = UID
 				modRAFlowMeta.TerminatorName = fullName
 				modRAFlowMeta.TerminationDate = rlib.JSONDateTime(today)
 
@@ -543,7 +556,7 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 				return raflowRespData, err
 			}
 
-			modRAFlowMeta.Approver1 = d.sess.UID
+			modRAFlowMeta.Approver1 = UID
 			modRAFlowMeta.Approver1Name = fullName
 			modRAFlowMeta.DecisionDate1 = rlib.JSONDateTime(today)
 
@@ -554,13 +567,13 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 			}
 
 			var fullName string
-			fullName, err = getUserFullName(ctx, d.sess.UID)
+			fullName, err = getUserFullName(ctx, UID)
 			if err != nil {
 				return raflowRespData, err
 			}
 
 			if data.Decision2 == 1 { // Approved
-				modRAFlowMeta.MoveInUID = d.sess.UID
+				modRAFlowMeta.MoveInUID = UID
 				modRAFlowMeta.MoveInName = fullName
 				modRAFlowMeta.MoveInDate = rlib.JSONDateTime(today)
 
@@ -575,7 +588,7 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 				modRAFlowMeta.RAFLAGS = modRAFlowMeta.RAFLAGS & ^uint64(1<<5)
 				modRAFlowMeta.DeclineReason2 = data.DeclineReason2
 
-				modRAFlowMeta.TerminatorUID = d.sess.UID
+				modRAFlowMeta.TerminatorUID = UID
 				modRAFlowMeta.TerminatorName = fullName
 				modRAFlowMeta.TerminationDate = rlib.JSONDateTime(today)
 
@@ -598,7 +611,7 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 				return raflowRespData, err
 			}
 
-			modRAFlowMeta.Approver2 = d.sess.UID
+			modRAFlowMeta.Approver2 = UID
 			modRAFlowMeta.Approver2Name = fullName
 			modRAFlowMeta.DecisionDate2 = rlib.JSONDateTime(today)
 
@@ -609,12 +622,12 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 			}
 
 			var fullName string
-			fullName, err = getUserFullName(ctx, d.sess.UID)
+			fullName, err = getUserFullName(ctx, UID)
 			if err != nil {
 				return raflowRespData, err
 			}
 
-			modRAFlowMeta.MoveInUID = d.sess.UID
+			modRAFlowMeta.MoveInUID = UID
 			modRAFlowMeta.MoveInName = fullName
 			modRAFlowMeta.MoveInDate = rlib.JSONDateTime(today)
 
@@ -748,10 +761,10 @@ func SetActionMetaData(ctx context.Context, d *ServiceData, Action int64, modRAF
 	// safeguard for dereferencing d.sess which may not exist if we're testing
 	//--------------------------------------------------------------------------
 	UID := int64(-99)
-	if d.sess != nil {
-		UID = d.sess.UID
-	} else {
-		if !SvcCtx.NoAuth {
+	if !rlib.NoAuthEnabled() {
+		if d.sess != nil {
+			UID = d.sess.UID
+		} else {
 			return rlib.ErrSessionRequired
 		}
 	}
