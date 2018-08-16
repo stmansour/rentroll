@@ -1,5 +1,5 @@
 /* global
-    GetFeeGridColumns, getRAFlowCompData,
+    GetFeeGridColumns, GetRAFlowCompLocalData,
     BuildRAFinalRentablesFeesGrid,
     BuildRAFinalPetsFeesGrid,
     BuildRAFinalVehiclesFeesGrid,
@@ -188,7 +188,7 @@ window.AssignRAFinalRentablesFeesGridRecords = function() {
     grid.clear();
 
     // get rentables local data
-    var compData = getRAFlowCompData("rentables") || [];
+    var compData = GetRAFlowCompLocalData("rentables") || [];
 
     // loop over all rentable and collect fees
     compData.forEach(function(rentable) {
@@ -222,7 +222,7 @@ window.AssignRAFinalPetsFeesGridRecords = function() {
     grid.clear();
 
     // get pets local data
-    var compData = getRAFlowCompData("pets") || [];
+    var compData = GetRAFlowCompLocalData("pets") || [];
 
     // loop over all pets and collect fees
     compData.forEach(function(pet) {
@@ -256,7 +256,7 @@ window.AssignRAFinalVehiclesFeesGridRecords = function() {
     grid.clear();
 
     // get vehicles local data
-    var compData = getRAFlowCompData("vehicles") || [];
+    var compData = GetRAFlowCompLocalData("vehicles") || [];
 
     // loop over all vehicles and collect fees
     compData.forEach(function(vehicle) {

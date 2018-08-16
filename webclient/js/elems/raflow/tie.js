@@ -1,5 +1,5 @@
 /* global
-    getRAFlowCompData, reassignGridRecids,
+    GetRAFlowCompLocalData, reassignGridRecids, SaveCompDataAJAX,
     GetTiePeopleLocalData, SetTiePeopleLocalData, AssignTiePeopleGridRecords, SaveTiePeopleData,
     getFullName, dispalyRATiePeopleGridError, getRecIDFromTMPTCID,
     EnableDisableRAFlowVersionGrid, SaveTieCompData
@@ -175,7 +175,7 @@ window.GetTiePeopleLocalData = function(TMPTCID, returnIndex) {
     var cloneData = {};
     var foundIndex = -1;
 
-    var compData = getRAFlowCompData("tie");
+    var compData = GetRAFlowCompLocalData("tie");
     var tiePeopleData = compData.people || [];
 
     tiePeopleData.forEach(function(item, index) {
@@ -199,7 +199,7 @@ window.GetTiePeopleLocalData = function(TMPTCID, returnIndex) {
 //                      for requested TMPTCID by matching TMPTCID
 //-----------------------------------------------------------------------------
 window.SetTiePeopleLocalData = function(TMPTCID, data) {
-    var compData = getRAFlowCompData("tie");
+    var compData = GetRAFlowCompLocalData("tie");
     var tiePeopleData = compData.people || [];
 
     var dataIndex = -1;
@@ -224,7 +224,7 @@ window.SetTiePeopleLocalData = function(TMPTCID, data) {
 //                            from "people" comp data
 // -------------------------------------------------------------------------------
 window.AssignTiePeopleGridRecords = function() {
-    var peopleCompData = getRAFlowCompData("people") || [];
+    var peopleCompData = GetRAFlowCompLocalData("people") || [];
     var grid = w2ui.RATiePeopleGrid,
         tieGridRecords = [];
 
@@ -310,7 +310,7 @@ window.AssignTiePeopleGridRecords = function() {
 //                       modified data on the server via API
 //-----------------------------------------------------------------------------
 window.SaveTiePeopleData = function() {
-    var compData = getRAFlowCompData("tie"),
+    var compData = GetRAFlowCompLocalData("tie"),
         tiePeopleData = compData.people || [],
         dataToSaveFlag = false,
         gridRecords = w2ui.RATiePeopleGrid.records || [];
@@ -347,7 +347,7 @@ window.SaveTiePeopleData = function() {
         compData.people = modTiePeopleData;
 
         // now hit the server API to save
-        saveActiveCompData(compData, "tie");
+        SaveCompDataAJAX(compData, "tie");
     }
 };
 
@@ -399,6 +399,6 @@ window.getRecIDFromTMPTCID = function(grid, TMPTCID){
 // SaveTieCompData - saves the data on server side
 //------------------------------------------------------------------------------
 window.SaveTieCompData = function() {
-    var compData = getRAFlowCompData("tie");
-    return saveActiveCompData(compData, "tie");
+    var compData = GetRAFlowCompLocalData("tie");
+    return SaveCompDataAJAX(compData, "tie");
 };

@@ -1,7 +1,7 @@
 /* global
-    RACompConfig, reassignGridRecids,
+    RACompConfig, reassignGridRecids, RAFlowAJAX,
     HideSliderContent, ShowSliderContentW2UIComp,
-    saveActiveCompData, getRAFlowCompData,
+    SaveCompDataAJAX, GetRAFlowCompLocalData,
     lockOnGrid, displayRAVehicleFeesGridError,
     GetVehicleFormInitRecord, SetVehicleLocalData, GetVehicleLocalData,
     AssignVehiclesGridRecords, SaveVehiclesCompData,
@@ -20,7 +20,7 @@
     displayFormFieldsError, getVehicleIndex,
     RenderVehicleFeesGridSummary, RAFlowNewVehicleAJAX,
     GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary,
-    GetVehicleIdentity, updateFlowData, GetTiePeopleLocalData,
+    GetVehicleIdentity, UpdateRAFlowLocalData, GetTiePeopleLocalData,
     getRecIDFromTMPVID, dispalyRAVehiclesGridError, GetCurrentFlowID,
     EnableDisableRAFlowVersionInputs, ShowHideGridToolbarAddButton,
     HideAllSliderContent
@@ -34,20 +34,16 @@
 window.RAFlowNewVehicleAJAX = function() {
     var BID = getCurrentBID();
     var FlowID = GetCurrentFlowID();
-    var data = {"cmd": "new", "FlowID": FlowID};
 
-    return $.ajax({
-        url: '/v1/raflow-vehicles/' + BID.toString() + "/" + FlowID.toString() + "/",
-        method: "POST",
-        data: JSON.stringify(data),
-        contentType: "application/json",
-        dataType: "json"
-    })
+    var url = "/v1/raflow-vehicles/" + BID.toString() + "/" + FlowID.toString() + "/";
+    var data = {
+        "cmd": "new",
+        "FlowID": FlowID
+    };
+
+    return RAFlowAJAX(url, "POST", data, true)
     .done(function(data) {
-        if (data.status === "success") {
-            // Update flow local copy and green checks
-            updateFlowData(data);
-
+        if (data.status !== "error") {
             // reassign records
             AssignVehiclesGridRecords();
 
@@ -575,7 +571,7 @@ window.loadRAVehiclesGrid = function () {
                     var f = w2ui.RAVehicleForm;
 
                     // get local data from TMPVID
-                    var compData = getRAFlowCompData("vehicles") || [];
+                    var compData = GetRAFlowCompLocalData("vehicles") || [];
                     var itemIndex = GetVehicleLocalData(f.record.TMPVID, true);
 
                     // if it exists then
@@ -964,7 +960,7 @@ window.SetRAVehicleLayoutContent = function(TMPVID) {
 window.GetVehicleLocalData = function(TMPVID, returnIndex) {
     var cloneData = {};
     var foundIndex = -1;
-    var compData = getRAFlowCompData("vehicles") || [];
+    var compData = GetRAFlowCompLocalData("vehicles") || [];
     compData.forEach(function(item, index) {
         if (item.TMPVID == TMPVID) {
             if (returnIndex) {
@@ -986,7 +982,7 @@ window.GetVehicleLocalData = function(TMPVID, returnIndex) {
 // SetVehicleLocalData - save the data for requested a TMPVID in local data
 //-----------------------------------------------------------------------------
 window.SetVehicleLocalData = function(TMPVID, vehicleData) {
-    var compData = getRAFlowCompData("vehicles") || [];
+    var compData = GetRAFlowCompLocalData("vehicles") || [];
     var dataIndex = -1;
     compData.forEach(function(item, index) {
         if (item.TMPVID == TMPVID) {
@@ -1006,7 +1002,7 @@ window.SetVehicleLocalData = function(TMPVID, vehicleData) {
 //                               copy of flow data again
 //-----------------------------------------------------------------------------
 window.AssignVehiclesGridRecords = function() {
-    var compData = getRAFlowCompData("vehicles");
+    var compData = GetRAFlowCompLocalData("vehicles");
     var grid = w2ui.RAVehiclesGrid;
 
     // reset last sel recid
@@ -1041,8 +1037,8 @@ window.AssignVehiclesGridRecords = function() {
 // SaveVehiclesCompData - saves the data on server side
 //------------------------------------------------------------------------------
 window.SaveVehiclesCompData = function() {
-    var compData = getRAFlowCompData("vehicles");
-    return saveActiveCompData(compData, "vehicles");
+    var compData = GetRAFlowCompLocalData("vehicles");
+    return SaveCompDataAJAX(compData, "vehicles");
 };
 
 //-----------------------------------------------------------------------------
@@ -1052,7 +1048,7 @@ window.SaveVehiclesCompData = function() {
 window.GetVehicleFeeLocalData = function(TMPVID, TMPASMID, returnIndex) {
     var cloneData = {};
     var foundIndex = -1;
-    var compData = getRAFlowCompData("vehicles") || [];
+    var compData = GetRAFlowCompLocalData("vehicles") || [];
     compData.forEach(function(item, index) {
         if (item.TMPVID == TMPVID) {
             var feesData = item.Fees || [];
@@ -1080,7 +1076,7 @@ window.GetVehicleFeeLocalData = function(TMPVID, TMPASMID, returnIndex) {
 //                          in local data
 //-----------------------------------------------------------------------------
 window.SetVehicleFeeLocalData = function(TMPVID, TMPASMID, vehicleFeeData) {
-    var compData = getRAFlowCompData("vehicles");
+    var compData = GetRAFlowCompLocalData("vehicles");
     var pIndex = -1,
         fIndex = -1;
 

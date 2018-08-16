@@ -1,7 +1,7 @@
 /* global
-    getRAFlowCompData, EnableDisableRAFlowVersionInputs,
+    GetRAFlowCompLocalData, EnableDisableRAFlowVersionInputs, SaveCompDataAJAX,
     HideAllSliderContent, SetlocalDataFromRADatesFormRecord,
-    SetRADatesFormRecordFromLocalData, setRAFlowCompData,
+    SetRADatesFormRecordFromLocalData, SetRAFlowCompLocalData,
     SetFormRecordFromData, SetDataFromFormRecord, SaveDatesCompData, displayRADatesFormError,
     ElementFlash
 */
@@ -160,14 +160,14 @@ window.SetlocalDataFromRADatesFormRecord = function() {
     var form            = w2ui.RADatesForm;
 
     // get local data
-    var localDatesData = getRAFlowCompData("dates");
+    var localDatesData = GetRAFlowCompLocalData("dates");
 
     // set data from form
     // keep ID is 1 to set only records in defined fields
     var datesData = SetDataFromFormRecord(1, form, localDatesData);
 
     // set this modified data back
-    setRAFlowCompData("dates", datesData);
+    SetRAFlowCompLocalData("dates", datesData);
 };
 
 // -------------------------------------------------------------
@@ -180,7 +180,7 @@ window.SetRADatesFormRecordFromLocalData = function() {
     var form = w2ui.RADatesForm;
 
     // get local data
-    var localDatesData = getRAFlowCompData("dates");
+    var localDatesData = GetRAFlowCompLocalData("dates");
 
     // set form record from data
     SetFormRecordFromData(form, localDatesData);
@@ -194,7 +194,7 @@ window.SetRADatesFormRecordFromLocalData = function() {
 // SaveDatesCompData - saves the data on server side
 //------------------------------------------------------------------------------
 window.SaveDatesCompData = function() {
-    var compData = getRAFlowCompData("dates");
-    return saveActiveCompData(compData, "dates");
+    var compData = GetRAFlowCompLocalData("dates");
+    return SaveCompDataAJAX(compData, "dates");
 };
 

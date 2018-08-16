@@ -1,5 +1,5 @@
 /*global
-    initRAFlowAjax,
+    InitRAFlowAjax,
     RACompConfig, w2ui,
     GetRAFlowDataAjax,
     manageParentRentableW2UIItems, managePeopleW2UIItems,
@@ -270,7 +270,7 @@ window.buildRAApplicantElements = function() {
                     return false;
                 },
                 yes_callBack = function(grid, recid) {
-                    initRAFlowAjax()
+                    InitRAFlowAjax()
                     .done(function(data, textStatus, jqXHR) {
                         if (data.status === "success") {
                             var bid = getCurrentBID(),
