@@ -330,9 +330,12 @@ func SvcWriteFlowResponse(ctx context.Context, BID int64, flow rlib.Flow, w http
 
 	bizlogic.ValidateRAFlowParts(ctx, &raFlowFieldsErrors, &raFlowNonFieldsErrors, &raFlowData, flow.ID)
 
+	totalFieldsError := raFlowFieldsErrors.Dates.Total + raFlowFieldsErrors.People.Total + raFlowFieldsErrors.Pets.Total + raFlowFieldsErrors.Vehicle.Total + raFlowFieldsErrors.Rentables.Total + raFlowFieldsErrors.ParentChild.Total + raFlowFieldsErrors.Tie.TiePeople.Total
+	totalNonFieldsError := len(raFlowNonFieldsErrors.Dates) + len(raFlowNonFieldsErrors.People) + len(raFlowNonFieldsErrors.Pets) + len(raFlowNonFieldsErrors.Rentables) + len(raFlowNonFieldsErrors.Vehicle) + len(raFlowNonFieldsErrors.ParentChild) + len(raFlowNonFieldsErrors.Tie)
+
 	raflowRespData.ValidationCheck.Errors = raFlowFieldsErrors
 	raflowRespData.ValidationCheck.NonFieldsErrors = raFlowNonFieldsErrors
-	raflowRespData.ValidationCheck.Total += raFlowFieldsErrors.Pets.Total
+	raflowRespData.ValidationCheck.Total += totalFieldsError + totalNonFieldsError
 	raflowRespData.ValidationCheck.Status = "success"
 
 	resp.Record = raflowRespData

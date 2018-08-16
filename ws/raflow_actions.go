@@ -419,8 +419,6 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 		return raflowRespData, err
 	}
 
-	///////////////////////////////////////////////////////////////////////////////////////
-
 	raflowRespData.Flow = flow
 
 	// init raFlowFieldsErrors
@@ -430,9 +428,12 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 
 	bizlogic.ValidateRAFlowParts(ctx, &raFlowFieldsErrors, &raFlowNonFieldsErrors, &raFlowData, flow.ID)
 
+	totalFieldsError := raFlowFieldsErrors.Dates.Total + raFlowFieldsErrors.People.Total + raFlowFieldsErrors.Pets.Total + raFlowFieldsErrors.Vehicle.Total + raFlowFieldsErrors.Rentables.Total + raFlowFieldsErrors.ParentChild.Total + raFlowFieldsErrors.Tie.TiePeople.Total
+	totalNonFieldsError := len(raFlowNonFieldsErrors.Dates) + len(raFlowNonFieldsErrors.People) + len(raFlowNonFieldsErrors.Pets) + len(raFlowNonFieldsErrors.Rentables) + len(raFlowNonFieldsErrors.Vehicle) + len(raFlowNonFieldsErrors.ParentChild) + len(raFlowNonFieldsErrors.Tie)
+
 	raflowRespData.ValidationCheck.Errors = raFlowFieldsErrors
 	raflowRespData.ValidationCheck.NonFieldsErrors = raFlowNonFieldsErrors
-	raflowRespData.ValidationCheck.Total += raFlowFieldsErrors.Pets.Total
+	raflowRespData.ValidationCheck.Total = totalFieldsError + totalNonFieldsError
 	raflowRespData.ValidationCheck.Status = "success"
 
 	// CHECK DATA FULFILLED
@@ -445,8 +446,6 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 			raflowRespData.DataFulfilled.Tie) {
 		return raflowRespData, nil
 	}
-
-	///////////////////////////////////////////////////////////////////////////////////////
 
 	// get meta in modRAFlowMeta, we're going to modify it
 	modRAFlowMeta := raFlowData.Meta
