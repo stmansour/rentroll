@@ -59,6 +59,32 @@ dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p0"  "Valida
 echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A4%7D" > request
 dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p1"  "Validate RAFlow -- Transactant must fill basic detail"
 
+#------------------------------------------------------------------------------
+#  TEST p2
+#  Validate raflow : People section
+#
+#  Scenario:
+#  isCompany flag is true but Company Name isn't provided
+#
+#  Expected Results:
+#  1. Error: Company name is must require.
+#------------------------------------------------------------------------------
+echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A5%7D" > request
+dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p2"  "Validate RAFlow -- Must require company name"
+
+#------------------------------------------------------------------------------
+#  TEST p3
+#  Validate raflow : People section
+#
+#  Scenario:
+#  isCompany flag is false but Firstname and lastname isn't provided
+#
+#  Expected Results:
+#  1. Error: Firstname and lastnanme are must require.
+#------------------------------------------------------------------------------
+echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A6%7D" > request
+dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p3"  "Validate RAFlow -- Must require firstname and lastname"
+
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
 
