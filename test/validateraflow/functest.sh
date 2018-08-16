@@ -124,6 +124,20 @@ dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p5"  "Valida
 echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A9%7D" > request
 dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p6"  "Validate RAFlow -- emergency contact information required"
 
+#------------------------------------------------------------------------------
+#  TEST p7
+#  Validate raflow : People section
+#
+#  Scenario:
+#  There are two transanctant. One have role: Renter, User Another have role: Gurantor
+#  Do not provide sourceSLSID for each.
+#
+#  Expected Results:
+#  1. Error: SourceSLSID must be greater than 0 when role is set to Renter, User
+#------------------------------------------------------------------------------
+echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A10%7D" > request
+dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p7"  "Validate RAFlow -- SourceSLSID"
+
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
 
