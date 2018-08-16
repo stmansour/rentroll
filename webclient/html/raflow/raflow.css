@@ -97,6 +97,14 @@
     border-left: 2px solid rgb(207, 207, 207);
 }
 
+#ra-form {
+    width: 100%;
+    height: 100%;
+    margin: 0 auto;
+    text-align: center;
+    position: relative;
+}
+
 /* ----------- */
 /* PROGRESSBAR */
 /* ----------- */
@@ -109,8 +117,9 @@
 #progressbar {
     width: 100%;
     height: 110px;
-    padding: 15px 0px 5px 0px;
+    padding: 15px 10px 5px 10px;
     margin: 0;
+    background-color: white;
 }
 
 #progressbar #steps-list {
@@ -254,25 +263,25 @@
 /* RA FLOW PARTS */
 /* ------------- */
 
-#ra-form {
-    width: 100%;
-    height: 100%;
-    margin: 0 auto;
-    padding: 0 40px;
-    text-align: center;
-    position: relative;
-}
-
 #section-wrapper {
-    height: calc(100% - (100px + 70px));
-    height: -webkit-calc(100% - (100px + 70px));
-    height: -moz-calc(100% - (100px + 70px));
+    /* height = 100% - (progressbar height + footer height) */
+    height: calc(100% - (110px + 60px));
+    height: -webkit-calc(100% - (110px + 60px));
+    height: -moz-calc(100% - (110px + 60px));
+    max-height: calc(100% - (110px + 60px));
+    max-height: -webkit-calc(100% - (110px + 60px));
+    max-height: -moz-calc(100% - (110px + 60px));
+    overflow: auto;
+    box-sizing: border-box;
+    padding: 10px 30px;
+    border-top: 1px silver solid;
+    border-bottom: 1px silver solid;
 }
 
 .ra-form-component {
     margin: 0 auto;
     height: 100%;
-    border: 1px #555 solid;
+    border: 1px #999 solid;
     position: relative;
 }
 
@@ -356,68 +365,12 @@
     height: calc(100% - 90px);
 }
 
-#people-type-containers {
-    width: 100%;
-    display: block;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    top: 190px;
-}
-
-#people-type-containers .people-type {
-    width: 30%;
-    margin: 0 1.5%;
-    float: left;
-    height: 100%;
-    display: block;
-}
-
-.people-type > label {
-    line-height: 30px;
-}
-
-.people-type .people-listing {
-    height: calc(100% - 45px);
-    display: block;
-    border: 1px black solid;
-    background-color: #F2F2F2;
-    overflow-y: auto;
-}
-
-.people-listing li {
-    padding: 3px 5px;
-    text-align: left;
-    position: relative;
-    cursor: pointer;
-}
-
-.people-listing li div {
-    font-size: 12px;
-}
-
-i.remove-item {
-    cursor: pointer;
-    position: absolute;
-    right: 5px;
-    top: 8px;
-    color: red;
-}
-
 section[name="RATransactantForm"] .w2ui-form-box .w2ui-field > label, div[name="transactantForm"] .w2ui-form-box .w2ui-field > label {
     width: 160px;
 }
 
 section[name="RATransactantForm"] .w2ui-form-box .w2ui-field > div, div[name="transactantForm"] .w2ui-form-box .w2ui-field > div {
     margin-left: 168px;
-}
-
-#bginfo {
-    text-align: left;
-}
-
-.ra-form-component#bginfo .w2ui-field > div {
-    margin-left: 128px;
 }
 
 .bgInfoCheckboxes input[type="checkbox"] {
@@ -537,8 +490,9 @@ section[name="RATransactantForm"] .w2ui-form-box .w2ui-field > div, div[name="tr
     width: 100%;
     margin: 0px auto;
     position: relative;
-    padding: 20px 10px 10px;
-    height: 70px;
+    padding: 15px 30px;
+    height: 60px;
+    background-color: white;
 }
 
 #ra-form footer button#previous {
@@ -623,4 +577,8 @@ div #error-info {
 
 #error-info .fa-caret-down {
     display: none;
+}
+
+i#non-field-expandable-errors {
+    cursor: pointer;
 }
