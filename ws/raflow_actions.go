@@ -80,7 +80,7 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	// HTTP METHOD CHECK
 	if r.Method != "POST" {
-		err = fmt.Errorf("Only POST method is allowed")
+		err = fmt.Errorf("only POST method is allowed")
 		return
 	}
 
@@ -169,7 +169,7 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 			return flow, err
 		}
 		if ra.RAID == 0 {
-			err = fmt.Errorf("Rental Agreement not found with given RAID: %d", RAID)
+			err = fmt.Errorf("rental Agreement not found with given RAID: %d", RAID)
 			return flow, err
 		}
 
@@ -269,7 +269,7 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 			return flow, err
 		}
 		if ra.RAID == 0 {
-			err = fmt.Errorf("Rental Agreement not found with given RAID: %d", RAID)
+			err = fmt.Errorf("rental Agreement not found with given RAID: %d", RAID)
 			return flow, err
 		}
 
@@ -387,10 +387,6 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 }
 
 func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequest, raFlowData rlib.RAFlowJSONData) (RAFlowResponse, error) {
-	var (
-		raFlowFieldsErrors    bizlogic.RAFlowFieldsErrors
-		raFlowNonFieldsErrors bizlogic.RAFlowNonFieldsErrors
-	)
 
 	UserRefNo := foo.UserRefNo
 	Action := foo.Action
@@ -419,21 +415,9 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 		return raflowRespData, err
 	}
 
-	///////////////////////////////////////////////////////////////////////////////////////
-
 	raflowRespData.Flow = flow
 
-	// init raFlowFieldsErrors
-	initRAFlowFieldsErrors(&raFlowFieldsErrors)
-
-	initRAFlowNonFieldsErrors(&raFlowNonFieldsErrors)
-
-	bizlogic.ValidateRAFlowParts(ctx, &raFlowFieldsErrors, &raFlowNonFieldsErrors, &raFlowData, flow.ID)
-
-	raflowRespData.ValidationCheck.Errors = raFlowFieldsErrors
-	raflowRespData.ValidationCheck.NonFieldsErrors = raFlowNonFieldsErrors
-	raflowRespData.ValidationCheck.Total += raFlowFieldsErrors.Pets.Total
-	raflowRespData.ValidationCheck.Status = "success"
+	ValidateRAFlowAndAssignValidatedRAFlow(ctx, &raFlowData, flow, &raflowRespData)
 
 	// CHECK DATA FULFILLED
 	bizlogic.DataFulfilledRAFlow(ctx, &raFlowData, &raflowRespData.DataFulfilled)
@@ -445,8 +429,6 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 			raflowRespData.DataFulfilled.Tie) {
 		return raflowRespData, nil
 	}
-
-	///////////////////////////////////////////////////////////////////////////////////////
 
 	// get meta in modRAFlowMeta, we're going to modify it
 	modRAFlowMeta := raFlowData.Meta
@@ -478,7 +460,7 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 			}
 
 		default:
-			err = fmt.Errorf("Invalid Action Taken")
+			err = fmt.Errorf("invalid Action Taken")
 			return raflowRespData, err
 		}
 	case "State":
