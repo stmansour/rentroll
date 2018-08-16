@@ -222,6 +222,19 @@ dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "v0"  "Valida
 echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A16%7D" > request
 dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "r0"  "Validate RAFlow -- Rentables"
 
+#------------------------------------------------------------------------------
+#  TEST pc0
+#  Validate raflow : Parent child section
+#
+#  Scenario:
+#  There is no rentables exists in the flow
+#
+#  Expected Results:
+#  1. Error: Child rentable must be associated with Parent rentables. Parent rentable must exists
+#------------------------------------------------------------------------------
+echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A17%7D" > request
+dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "pc0"  "Validate RAFlow -- Parent child"
+
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
 
