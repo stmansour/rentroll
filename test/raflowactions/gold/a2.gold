@@ -1,0 +1,274 @@
+{
+    "record": {
+        "DataFulfilled": {
+            "dates": true,
+            "parentchild": true,
+            "people": true,
+            "pets": true,
+            "rentables": true,
+            "tie": true,
+            "vehicles": true
+        },
+        "Flow": {
+            "BID": 1,
+            "CreateBy": 269,
+            "CreateTS": "2018-08-16T13:50:24Z",
+            "Data": {
+                "dates": {
+                    "AgreementStart": "2/13/2018",
+                    "AgreementStop": "3/1/2020",
+                    "CSAgent": 221,
+                    "PossessionStart": "2/13/2018",
+                    "PossessionStop": "3/1/2020",
+                    "RentStart": "2/13/2018",
+                    "RentStop": "3/1/2020"
+                },
+                "meta": {
+                    "ActiveDate": "1900-01-01 00:00:00 UTC",
+                    "ActiveName": "",
+                    "ActiveUID": 0,
+                    "ApplicationReadyDate": "2018-08-16 10:42:00 UTC",
+                    "ApplicationReadyName": "UID-0",
+                    "ApplicationReadyUID": -99,
+                    "Approver1": 0,
+                    "Approver1Name": "",
+                    "Approver2": 0,
+                    "Approver2Name": "",
+                    "BID": 1,
+                    "DecisionDate1": "1900-01-01 00:00:00 UTC",
+                    "DecisionDate2": "1900-01-01 00:00:00 UTC",
+                    "DeclineReason1": 0,
+                    "DeclineReason2": 0,
+                    "DocumentDate": "1900-01-01 00:00:00 UTC",
+                    "HavePets": false,
+                    "HaveVehicles": false,
+                    "LastTMPASMID": 2,
+                    "LastTMPPETID": 1,
+                    "LastTMPTCID": 1,
+                    "LastTMPVID": 1,
+                    "LeaseTerminationReason": 0,
+                    "MoveInDate": "1900-01-01 00:00:00 UTC",
+                    "MoveInName": "",
+                    "MoveInUID": 0,
+                    "NoticeToMoveDate": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveName": "UID-0",
+                    "NoticeToMoveReported": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveUID": 0,
+                    "RAFLAGS": 1,
+                    "RAID": 1,
+                    "TerminationDate": "1900-01-01 00:00:00 UTC",
+                    "TerminatorName": "UID-0",
+                    "TerminatorUID": 0
+                },
+                "parentchild": [],
+                "people": [
+                    {
+                        "Address": "68240 Mesquite",
+                        "Address2": "",
+                        "AlternateEmailAddress": "25840 Narragansett,Virginia Beach,OK 31847",
+                        "Bankruptcy": false,
+                        "BankruptcyDes": "",
+                        "CellPhone": "(876) 939-8605",
+                        "City": "Orlando",
+                        "Comment": "",
+                        "CompanyAddress": "71982 Washington",
+                        "CompanyCity": "WestValleyCity",
+                        "CompanyEmail": "ComfortSystemsUSAIncW3002@abiz.com",
+                        "CompanyName": "Comfort Systems USA Inc.",
+                        "CompanyPhone": "(238) 549-7527",
+                        "CompanyPostalCode": "84059",
+                        "CompanyState": "OH",
+                        "Convicted": false,
+                        "ConvictedDes": "",
+                        "Country": "USA",
+                        "CreditLimit": 28993,
+                        "CurrentAddress": "76760 Tenth, Columbus, DC 02081",
+                        "CurrentLandLordName": "Chong Bartlett",
+                        "CurrentLandLordPhoneNo": "(815) 808-8427",
+                        "CurrentLengthOfResidency": "3 years 4 months",
+                        "CurrentReasonForMoving": 120,
+                        "DateofBirth": "12/10/1986",
+                        "DriversLicense": "Y1652594",
+                        "EligibleFuturePayor": true,
+                        "EligibleFutureUser": false,
+                        "EmergencyContactAddress": "97631 Canyon,Wilmington,AL 27887",
+                        "EmergencyContactEmail": "LKnox7807@gmail.com",
+                        "EmergencyContactName": "Lewis Knox",
+                        "EmergencyContactTelephone": "(396) 954-0131",
+                        "Evicted": false,
+                        "EvictedDes": "",
+                        "FirstName": "Lakiesha",
+                        "GrossIncome": 144385,
+                        "Industry": 338,
+                        "IsCompany": false,
+                        "IsGuarantor": false,
+                        "IsOccupant": true,
+                        "IsRenter": true,
+                        "LastName": "Avila",
+                        "MiddleName": "Brande",
+                        "Occupation": "craft ceramicist",
+                        "OtherPreferences": "",
+                        "Points": 0,
+                        "PostalCode": "98081",
+                        "PreferredName": "Mallory",
+                        "PrimaryEmail": "LakieshaAvila917@yahoo.com",
+                        "PriorAddress": "22136 Park, El Paso, WI 41318",
+                        "PriorLandLordName": "Geri Gibbs",
+                        "PriorLandLordPhoneNo": "(483) 159-8883",
+                        "PriorLengthOfResidency": "8 months",
+                        "PriorReasonForMoving": 119,
+                        "SecondaryEmail": "LAvila15@gmail.com",
+                        "SourceSLSID": 1,
+                        "SpecialNeeds": "",
+                        "State": "CO",
+                        "TCID": 1,
+                        "TMPTCID": 1,
+                        "TaxpayorID": "03833700",
+                        "ThirdPartySource": "Jules Craig",
+                        "Website": "",
+                        "WorkPhone": "(846) 594-1512"
+                    }
+                ],
+                "pets": [
+                    {
+                        "Breed": "Serrade petit cat",
+                        "Color": "Dilute",
+                        "DtStart": "2/13/2018",
+                        "DtStop": "3/1/2020",
+                        "Fees": [
+                            {
+                                "ARID": 24,
+                                "ARName": "Pet Rent",
+                                "ASMID": 9,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 10,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "3/1/2018",
+                                "Stop": "3/1/2020",
+                                "TMPASMID": 2,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "Name": "Fluffy ",
+                        "PETID": 1,
+                        "TMPPETID": 1,
+                        "TMPTCID": 1,
+                        "Type": "cat",
+                        "Weight": 7
+                    }
+                ],
+                "rentables": [
+                    {
+                        "AtSigningPreTax": 0,
+                        "Fees": [
+                            {
+                                "ARID": 26,
+                                "ARName": "Rent Non-Taxable",
+                                "ASMID": 1,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 1000,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "3/1/2018",
+                                "Stop": "3/1/2020",
+                                "TMPASMID": 1,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "RID": 1,
+                        "RTFLAGS": 4,
+                        "RTID": 1,
+                        "RentCycle": 6,
+                        "RentableName": "Rentable001",
+                        "SalesTax": 0,
+                        "TransOccTax": 0
+                    }
+                ],
+                "tie": {
+                    "people": [
+                        {
+                            "PRID": 1,
+                            "TMPTCID": 1
+                        }
+                    ]
+                },
+                "vehicles": [
+                    {
+                        "DtStart": "2/13/2018",
+                        "DtStop": "3/1/2020",
+                        "Fees": [],
+                        "LicensePlateNumber": "MO00P63",
+                        "LicensePlateState": "MA",
+                        "ParkingPermitNumber": "7558837",
+                        "TMPTCID": 1,
+                        "TMPVID": 1,
+                        "VID": 1,
+                        "VIN": "NMBG6N3T3G8QM8A9",
+                        "VehicleColor": "Turquoise",
+                        "VehicleMake": "HUMMER",
+                        "VehicleModel": "H1",
+                        "VehicleType": "car",
+                        "VehicleYear": 2004
+                    }
+                ]
+            },
+            "FlowID": 1,
+            "FlowType": "RA",
+            "ID": 1,
+            "LastModBy": 269,
+            "LastModTime": "2018-08-16T16:12:21Z",
+            "UserRefNo": "FU1T222ATL6HWFS61388"
+        },
+        "ValidationCheck": {
+            "errors": {
+                "dates": {
+                    "errors": {},
+                    "total": 0
+                },
+                "parentchild": {
+                    "errors": [],
+                    "total": 0
+                },
+                "people": {
+                    "errors": [],
+                    "total": 0
+                },
+                "pets": {
+                    "errors": [],
+                    "total": 0
+                },
+                "rentables": {
+                    "errors": [],
+                    "total": 0
+                },
+                "tie": {
+                    "people": {
+                        "errors": [],
+                        "total": 0
+                    }
+                },
+                "vehicles": {
+                    "errors": [],
+                    "total": 0
+                }
+            },
+            "nonFieldsErrors": {
+                "dates": [],
+                "parentchild": [],
+                "people": [],
+                "pets": [],
+                "rentables": [],
+                "tie": [],
+                "vehicles": []
+            },
+            "status": "success",
+            "total": 0
+        }
+    },
+    "status": "success"
+}
