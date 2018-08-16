@@ -840,6 +840,10 @@ dojsonPOST () {
 			's/(^[ \t]+"LastModTime":).*/$1 TIMESTAMP/'
 			's/(^[ \t]+"CreateTS":).*/$1 TIMESTAMP/'
 			's/(^[ \t]+"ActiveDate":).*/$1 TIMESTAMP/'
+			's/(^[ \t]+"ApplicationReadyDate":).*/$1 TIMESTAMP/'
+			's/(^[ \t]+"DecisionDate1":).*/$1 TIMESTAMP/'
+			's/(^[ \t]+"DecisionDate2":).*/$1 TIMESTAMP/'
+			's/(^[ \t]+"MoveInDate":).*/$1 TIMESTAMP/'
 		)
 		cp gold/${3}.gold qqx
 		cp ${3} qqy
