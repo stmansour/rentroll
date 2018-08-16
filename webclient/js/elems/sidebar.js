@@ -176,10 +176,9 @@ window.buildSidebar = function(flag) {
                         case 'tls':
                         case 'tlds':
                         case 'rr':
-                        case 'ra2flow':
                             switchToGrid(target);
                             break;
-                        case 'applicants':
+                        case 'raflows':
                             switchToGrid(target, "flow");
                             break;
                         case 'closePeriod':
