@@ -35,7 +35,7 @@ dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "a0"  "Valida
 #  1. Error count must be 0
 #------------------------------------------------------------------------------
 echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A2%7D" > request
-dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "a1"  "Validate RAFlow -- Error free RAFlow"
+dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "a1"  "Validate RAFlow -- NoError"
 
 # People section related functional tests
 #------------------------------------------------------------------------------
@@ -46,7 +46,7 @@ dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "a1"  "Valida
 #  1. Error: must one renter exists
 #------------------------------------------------------------------------------
 echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A3%7D" > request
-dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p0"  "Validate RAFlow -- One renter must exists"
+dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p0"  "Validate RAFlow -- Renter"
 
 #------------------------------------------------------------------------------
 #  TEST p1
@@ -57,7 +57,7 @@ dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p0"  "Valida
 #  Emergency contact, Source field have respective error message.
 #------------------------------------------------------------------------------
 echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A4%7D" > request
-dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p1"  "Validate RAFlow -- Transactant must fill basic detail"
+dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p1"  "Validate RAFlow -- Basic Detail"
 
 #------------------------------------------------------------------------------
 #  TEST p2
@@ -70,7 +70,7 @@ dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p1"  "Valida
 #  1. Error: Company name is must require.
 #------------------------------------------------------------------------------
 echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A5%7D" > request
-dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p2"  "Validate RAFlow -- Must require company name"
+dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p2"  "Validate RAFlow -- CompanyName"
 
 #------------------------------------------------------------------------------
 #  TEST p3
@@ -83,7 +83,7 @@ dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p2"  "Valida
 #  1. Error: Firstname and lastnanme are must require.
 #------------------------------------------------------------------------------
 echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A6%7D" > request
-dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p3"  "Validate RAFlow -- Must require firstname and lastname"
+dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p3"  "Validate RAFlow -- FirstName and LastName"
 
 #------------------------------------------------------------------------------
 #  TEST p4
@@ -96,7 +96,7 @@ dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p3"  "Valida
 #  1. Error: Gross income must have error
 #------------------------------------------------------------------------------
 echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A7%7D" > request
-dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p4"  "Validate RAFlow -- Must require gross income provided"
+dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p4"  "Validate RAFlow -- Gross Income"
 
 #------------------------------------------------------------------------------
 #  TEST p5
@@ -109,7 +109,7 @@ dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p4"  "Valida
 #  1. Error: Either Workphone or CellPhone is compulsory.
 #------------------------------------------------------------------------------
 echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A8%7D" > request
-dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p5"  "Validate RAFlow -- workphone or cell phone is compulsory"
+dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p5"  "Validate RAFlow -- Workphone or Cell phone"
 
 #------------------------------------------------------------------------------
 #  TEST p6
@@ -122,7 +122,7 @@ dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p5"  "Valida
 #  1. Error: EmergencyContactName, EmergencyContactAddress, EmergencyContactTelephone, EmergencyEmail are required when IsCompany flag is false.
 #------------------------------------------------------------------------------
 echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A9%7D" > request
-dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p6"  "Validate RAFlow -- emergency contact information required"
+dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p6"  "Validate RAFlow -- Emergency contact information"
 
 #------------------------------------------------------------------------------
 #  TEST p7
@@ -150,6 +150,20 @@ dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p7"  "Valida
 #------------------------------------------------------------------------------
 echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A11%7D" > request
 dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p8"  "Validate RAFlow -- Current Address"
+
+#------------------------------------------------------------------------------
+#  TEST p9
+#  Validate raflow : People section
+#
+#  Scenario:
+#  TaxpayorID is only require when role is set to Renter or Guarantor.
+#  Here, 3 transanct of each role. Each role have TaxpayorID blank.
+#
+#  Expected Results:
+#  1. Error: TaxpayorID must be require for the transanctant who have role renter or gurantor
+#------------------------------------------------------------------------------
+echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A12%7D" > request
+dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p9"  "Validate RAFlow -- TaxpayorID"
 
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
