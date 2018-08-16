@@ -209,6 +209,19 @@ dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "pt0"  "Valid
 echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A15%7D" > request
 dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "v0"  "Validate RAFlow -- Vehicle -- Basic Info"
 
+#------------------------------------------------------------------------------
+#  TEST r0
+#  Validate raflow : Rentable section
+#
+#  Scenario:
+#  There is no rentables exists in the flow
+#
+#  Expected Results:
+#  1. Error: must be one rentable exists
+#------------------------------------------------------------------------------
+echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A16%7D" > request
+dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "r0"  "Validate RAFlow -- Rentables"
+
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
 
