@@ -516,7 +516,7 @@ window.loadTargetSection = function (target, previousActiveCompID) {
             break;
         case "people":
             w2ui.RAPeopleGrid.clear();
-            w2ui.RAPeopleForm.actions.reset();
+            w2ui.RAPeopleSearchForm.actions.reset();
             break;
         case "pets":
             w2ui.RAPetsGrid.clear();
@@ -850,16 +850,20 @@ window.DeleteRAFlowAJAX = function (UserRefNo) {
 };
 
 //----------------------------------------------------------------------------------
-// toggleNonFieldsErrorDisplay - It exapand/collapse non-field error summary section
+// It exapand/collapse non-field error summary section
 //----------------------------------------------------------------------------------
-window.toggleNonFieldsErrorDisplay = function () {
+$(document).on("click", "i#non-field-expandable-errors", function(event) {
+    var target = event.target;
+
     var content = $("#non-fields-error-content");
     if (content[0].style.display === "block") {
         content[0].style.display = "none";
+        $(target).removeClass("fa-caret-up").addClass("fa-caret-down");
     } else {
         content[0].style.display = "block";
+        $(target).removeClass("fa-caret-down").addClass("fa-caret-up");
     }
-};
+});
 
 //-----------------------------------------------------------------------------
 // displayErrorSummary - It display error summary for active section.
@@ -867,7 +871,7 @@ window.toggleNonFieldsErrorDisplay = function () {
 window.displayErrorSummary = function (comp) {
 
     var error_summary_sel = "#error-summary";
-    var non_field_error_dd_sel = "#error-info .fa-caret-down";
+    var non_field_error_dd_sel = "#error-info #non-field-expandable-errors";
     var non_field_error_content_sel = "#non-fields-error-content";
 
 

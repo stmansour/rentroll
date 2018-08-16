@@ -632,7 +632,7 @@ window.loadRAVehiclesGrid = function () {
                 footer:         false,
             },
             multiSelect: false,
-            style: 'border: 1px solid silver;',
+            style: 'border-color: silver; border-style: solid; border-width: 1px 0 1px 0;',
             columns: GetFeeGridColumns('RAVehicleFeesGrid'),
             onClick: function(event) {
                 event.onComplete = function() {
@@ -745,7 +745,7 @@ window.loadRAVehiclesGrid = function () {
         $().w2form({
             name: 'RAVehicleFeeForm',
             header: 'Add New Vehicle Fee',
-            style: 'display: block;',
+            style: 'display: block; border: none;',
             formURL: '/webclient/html/raflow/formra-fee.html',
             focus: -1,
             fields: GetFeeFormFields(),

@@ -157,7 +157,7 @@ window.loadRAPetsGrid = function () {
                 footer: true,
             },
             multiSelect: false,
-            style: 'border: 0px solid black; display: block;',
+            style: 'border: none; display: block;',
             columns: [
                 {
                     field: 'recid',
@@ -596,7 +596,7 @@ window.loadRAPetsGrid = function () {
                 footer:         false
             },
             multiSelect: false,
-            style: 'border: 1px solid silver;',
+            style: 'border-color: silver; border-style: solid; border-width: 1px 0 1px 0;',
             columns: GetFeeGridColumns('RAPetFeesGrid'),
             onClick: function(event) {
                 event.onComplete = function() {
@@ -710,7 +710,7 @@ window.loadRAPetsGrid = function () {
         $().w2form({
             name: 'RAPetFeeForm',
             header: 'Add New Pet Fee',
-            style: 'display: block;',
+            style: 'border: none; display: block;',
             formURL: '/webclient/html/raflow/formra-fee.html',
             focus: -1,
             fields: GetFeeFormFields(),

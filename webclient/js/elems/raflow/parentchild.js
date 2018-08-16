@@ -22,7 +22,7 @@ window.loadRAPeopleChildSection = function () {
                 footer:     true,
             },
             multiSelect: false,
-            style: 'display: block;',
+            style: 'border: none; display: block;',
             columns: [
                 {
                     field: 'recid',

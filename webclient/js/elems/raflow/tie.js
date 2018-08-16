@@ -23,7 +23,7 @@ window.loadRATieSection = function () {
                 {
                     type: 'main',
                     overflow: "hidden",
-                    style: 'background-color: white; border: 1px solid silver; padding: 0px;',
+                    style: 'border: none; background-color: white; padding: 0px;',
                     tabs: {
                         style: "padding-top: 10px;",
                         tabs: [
@@ -56,7 +56,7 @@ window.loadRATieSection = function () {
                 footer:     true
             },
             multiSelect: false,
-            style: 'display: block;',
+            style: 'border: none; display: block;',
             columns: [
                 {
                     field: 'recid',
