@@ -1,7 +1,7 @@
 /* global
-    RACompConfig, reassignGridRecids,
+    RACompConfig, reassignGridRecids, RAFlowAJAX,
     HideSliderContent, ShowSliderContentW2UIComp,
-    saveActiveCompData, getRAFlowCompData,
+    SaveCompDataAJAX, GetRAFlowCompLocalData,
     lockOnGrid,
     GetPetFormInitRecord, GetPetLocalData, SetPetLocalData,
     AssignPetsGridRecords, SavePetsCompData,
@@ -16,7 +16,7 @@
     GetFeeFormInitRecord,
     FeeFormOnChangeHandler, FeeFormOnRefreshHandler,
     SliderContentDivLength, SetFeeFormRecordFromFeeData,
-    RenderPetFeesGridSummary, RAFlowNewPetAJAX, updateFlowData,
+    RenderPetFeesGridSummary, RAFlowNewPetAJAX, UpdateRAFlowLocalData,
     GetFeeAccountRulesW2UIListItems, RenderFeesGridSummary, getRecIDFromTMPASMID,
     displayRAPetFormError, getPetIndex, displayFormFieldsError, displayRAPetFeeFormError, getFeeIndex,
     GetTiePeopleLocalData, displayRAPetsGridError, getRecIDFromTMPPETID, displayRAPetFeesGridError,
@@ -32,20 +32,16 @@
 window.RAFlowNewPetAJAX = function() {
     var BID = getCurrentBID();
     var FlowID = GetCurrentFlowID();
-    var data = {"cmd": "new", "FlowID": FlowID};
 
-    return $.ajax({
-        url: '/v1/raflow-pets/' + BID.toString() + "/" + FlowID.toString() + "/",
-        method: "POST",
-        data: JSON.stringify(data),
-        contentType: "application/json",
-        dataType: "json"
-    })
+    var url = '/v1/raflow-pets/' + BID.toString() + "/" + FlowID.toString() + "/";
+    var data = {
+        "cmd": "new",
+        "FlowID": FlowID
+    };
+
+    return RAFlowAJAX(url, "POST", data, true)
     .done(function(data) {
-        if (data.status === "success") {
-            // Update flow local copy and green checks
-            updateFlowData(data);
-
+        if (data.status !== "error") {
             // reassign records
             AssignPetsGridRecords();
 
@@ -157,7 +153,7 @@ window.loadRAPetsGrid = function () {
                 footer: true,
             },
             multiSelect: false,
-            style: 'border: 0px solid black; display: block;',
+            style: 'border: none; display: block;',
             columns: [
                 {
                     field: 'recid',
@@ -536,7 +532,7 @@ window.loadRAPetsGrid = function () {
                     var f = w2ui.RAPetForm;
 
                     // get local data from TMPPETID
-                    var compData = getRAFlowCompData("pets") || [];
+                    var compData = GetRAFlowCompLocalData("pets") || [];
                     var itemIndex = GetPetLocalData(f.record.TMPPETID, true);
 
                     // if it exists then
@@ -596,7 +592,7 @@ window.loadRAPetsGrid = function () {
                 footer:         false
             },
             multiSelect: false,
-            style: 'border: 1px solid silver;',
+            style: 'border-color: silver; border-style: solid; border-width: 1px 0 1px 0;',
             columns: GetFeeGridColumns('RAPetFeesGrid'),
             onClick: function(event) {
                 event.onComplete = function() {
@@ -710,7 +706,7 @@ window.loadRAPetsGrid = function () {
         $().w2form({
             name: 'RAPetFeeForm',
             header: 'Add New Pet Fee',
-            style: 'display: block;',
+            style: 'border: none; display: block;',
             formURL: '/webclient/html/raflow/formra-fee.html',
             focus: -1,
             fields: GetFeeFormFields(),
@@ -929,7 +925,7 @@ window.SetRAPetLayoutContent = function(TMPPETID) {
 window.GetPetLocalData = function(TMPPETID, returnIndex) {
     var cloneData = {};
     var foundIndex = -1;
-    var compData = getRAFlowCompData("pets") || [];
+    var compData = GetRAFlowCompLocalData("pets") || [];
     compData.forEach(function(item, index) {
         if (item.TMPPETID == TMPPETID) {
             if (returnIndex) {
@@ -951,7 +947,7 @@ window.GetPetLocalData = function(TMPPETID, returnIndex) {
 // SetPetLocalData - save the data for requested a TMPPETID in local data
 //-----------------------------------------------------------------------------
 window.SetPetLocalData = function(TMPPETID, petData) {
-    var compData = getRAFlowCompData("pets") || [];
+    var compData = GetRAFlowCompLocalData("pets") || [];
     var dataIndex = -1;
     compData.forEach(function(item, index) {
         if (item.TMPPETID == TMPPETID) {
@@ -971,7 +967,7 @@ window.SetPetLocalData = function(TMPPETID, petData) {
 //                               copy of flow data again
 //-----------------------------------------------------------------------------
 window.AssignPetsGridRecords = function() {
-    var compData = getRAFlowCompData("pets");
+    var compData = GetRAFlowCompLocalData("pets");
     var grid = w2ui.RAPetsGrid;
 
     // reset last sel recid
@@ -1006,8 +1002,8 @@ window.AssignPetsGridRecords = function() {
 // SavePetsCompData - saves the data on server side
 //------------------------------------------------------------------------------
 window.SavePetsCompData = function() {
-    var compData = getRAFlowCompData("pets");
-    return saveActiveCompData(compData, "pets");
+    var compData = GetRAFlowCompLocalData("pets");
+    return SaveCompDataAJAX(compData, "pets");
 };
 
 //-----------------------------------------------------------------------------
@@ -1017,7 +1013,7 @@ window.SavePetsCompData = function() {
 window.GetPetFeeLocalData = function(TMPPETID, TMPASMID, returnIndex) {
     var cloneData = {};
     var foundIndex = -1;
-    var compData = getRAFlowCompData("pets") || [];
+    var compData = GetRAFlowCompLocalData("pets") || [];
     compData.forEach(function(item, index) {
         if (item.TMPPETID == TMPPETID) {
             var feesData = item.Fees || [];
@@ -1044,7 +1040,7 @@ window.GetPetFeeLocalData = function(TMPPETID, TMPASMID, returnIndex) {
 //                   in local data
 //-----------------------------------------------------------------------------
 window.SetPetFeeLocalData = function(TMPPETID, TMPASMID, petFeeData) {
-    var compData = getRAFlowCompData("pets");
+    var compData = GetRAFlowCompLocalData("pets");
     var pIndex = -1,
         fIndex = -1;
 

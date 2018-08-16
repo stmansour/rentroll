@@ -11,8 +11,8 @@ var RACompConfig = {
         sliderWidth: 0
     },
     "people": {
-        loader: "loadRAPeopleForm",
-        w2uiComp: "RAPeopleForm",
+        loader: "loadRAPeopleGrid",
+        w2uiComp: "RAPeopleGrid",
         sliderWidth: 600
     },
     "pets": {

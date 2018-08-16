@@ -62,21 +62,25 @@
             <div class="clearfix"></div>
         </nav>
 
-        <!-- Non fields error section -->
-        <div id="error-summary">
-            <div id="error-info">
-                <i class="fas fa-exclamation-triangle"></i>
-                <strong>Errors</strong> &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;
-                <strong id="field-errors-count">0</strong>&nbsp;Form Errors &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;
-                <strong id="non-field-errors-count">0</strong>&nbsp;Other Errors&nbsp;&nbsp;
-                <i class="fas fa-caret-down" onclick="toggleNonFieldsErrorDisplay()"></i>
-            </div>
-            <div class="non-fields-error-content" id="non-fields-error-content">
-            </div>
-        </div>
-
         <!-- info dates section -->
         <div id="section-wrapper">
+            <!-- Non fields error section -->
+            <div id="error-summary">
+                <div id="error-info">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong style="padding: 0 0 0 5px;">Errors</strong>
+                    <span style="padding: 0 10px;">|</span>
+                    <strong id="field-errors-count">0</strong>
+                    <span style="padding: 0 5px;">Form Errors</span>
+                    <span style="padding: 0 10px;">|</span>
+                    <strong id="non-field-errors-count">0</strong>
+                    <span style="padding: 0 5px;">Other Errors</span>
+                    <i id="non-field-expandable-errors" class="fas fa-caret-up"></i>
+                </div>
+                <div class="non-fields-error-content" id="non-fields-error-content">
+                </div>
+            </div>
+
             <section class="ra-form-component" id="dates">
                 <div class="form-container">Dates Form</div>
             </section>

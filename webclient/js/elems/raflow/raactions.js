@@ -8,7 +8,7 @@
     GetVehicleIdentity,
     dtFormatISOToW2ui,
     localtimeToUTC,
-    updateFlowData,
+    UpdateRAFlowLocalData,
     GetCurrentFlowID, CloseRAFlowLayout,
     ChangeRAFlowVersionToolbar,
     displayErrorDot,
@@ -75,7 +75,7 @@ window.submitActionForm = function(data) {
                 ChangeRAFlowVersionToolbar(version, ID, RefNo, FLAGS);
 
                 // Update flow local copy and green checks
-                updateFlowData(data);
+                UpdateRAFlowLocalData(data);
             }
 
             if (data.record.Flow.FlowID === 0) {
@@ -94,7 +94,7 @@ window.submitActionForm = function(data) {
                 }
 
                 // Update flow local copy and green checks
-                updateFlowData(data);
+                UpdateRAFlowLocalData(data);
             }
 
             if("raActionLayout" in w2ui){

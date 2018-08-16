@@ -1,12 +1,12 @@
 /* global
     RACompConfig, HideSliderContent, appendNewSlider, ShowSliderContentW2UIComp, displayFormFieldsError,
-    loadTargetSection, requiredFieldsFulFilled, initRAFlowAjax, getRecIDFromTMPASMID, getFeeIndex,
-    saveActiveCompData, getRAFlowCompData, displayActiveComponentError, displayRAPetsGridError, dispalyRAPeopleGridError,
-    lockOnGrid, getApprovals, updateFlowData, updateFlowCopy, displayErrorDot, initBizErrors,
+    loadTargetSection, requiredFieldsFulFilled, InitRAFlowAjax, getRecIDFromTMPASMID, getFeeIndex,
+    SaveCompDataAJAX, GetRAFlowCompLocalData, displayActiveComponentError, displayRAPetsGridError, dispalyRAPeopleGridError,
+    lockOnGrid, GetApprovalsAJAX, UpdateRAFlowLocalData, displayErrorDot, initBizErrors,
     dispalyRARentablesGridError, dispalyRAVehiclesGridError, dispalyRAParentChildGridError, dispalyRATiePeopleGridError,
     GetCurrentFlowID, ReassignPeopleGridRecords, AssignPetsGridRecords, AssignVehiclesGridRecords, AssignRentableGridRecords,
     GetGridToolbarAddButtonID, HideRAFlowLoader, toggleNonFieldsErrorDisplay, displayErrorSummary, submitActionForm, displayGreenCircle,
-    modifyFieldErrorMessage,ChangeRAFlowVersionToolbar, displayRADatesFormError
+    modifyFieldErrorMessage,ChangeRAFlowVersionToolbar, displayRADatesFormError, RAFlowAJAX
 */
 
 "use strict";
@@ -24,7 +24,7 @@ window.ElementFlash = function(el) {
 //              It will show loader before any request starts and
 //              hides the loader when request is served
 //-----------------------------------------------------------------------------
-window.RAFlowAJAX = function(URL, METHOD, REQDATA) {
+window.RAFlowAJAX = function(URL, METHOD, REQDATA, updateLocalData) {
 
     var DATA = null;
     if (METHOD === "POST") {
@@ -44,25 +44,32 @@ window.RAFlowAJAX = function(URL, METHOD, REQDATA) {
         },
         success: function (data) {
             if (data.status !== "error") {
-                updateFlowData(data);
+                if (updateLocalData) {
+                    UpdateRAFlowLocalData(data);
+                }
+            } else {
+                alert(data.message);
+                console.error(data.message);
             }
         },
         error: function (data) {
-            console.log(data);
+            console.error(data);
         },
         complete: function() {
-            // hide the loader
-            HideRAFlowLoader(true);
+            // hide the loader. GIVE UI SOME TIME TO RENDER
+            setTimeout(function() {
+                HideRAFlowLoader(true);
+            }, 500);
         }
     });
 };
 
 //-----------------------------------------------------------------------------
-// GetRefNoByRAIDFromGrid returns UserRefNo By RAID from applicantsGrid RECORDS
+// GetRefNoByRAIDFromGrid returns UserRefNo By RAID from raflowsGrid RECORDS
 //-----------------------------------------------------------------------------
 window.GetRefNoByRAIDFromGrid = function(RAID) {
     var RefNo = "";
-    w2ui.applicantsGrid.records.forEach(function(gridRec) {
+    w2ui.raflowsGrid.records.forEach(function(gridRec) {
         if (gridRec.RAID == RAID) {
             RefNo = gridRec.UserRefNo;
             return;
@@ -72,11 +79,11 @@ window.GetRefNoByRAIDFromGrid = function(RAID) {
 };
 
 //-----------------------------------------------------------------------------
-// GetRAIDByRefNoFromGrid returns RAID By UserRefNo from applicantsGrid RECORDS
+// GetRAIDByRefNoFromGrid returns RAID By UserRefNo from raflowsGrid RECORDS
 //-----------------------------------------------------------------------------
 window.GetRAIDByRefNoFromGrid = function(RefNo) {
     var RAID = -1;
-    w2ui.applicantsGrid.records.forEach(function(gridRec) {
+    w2ui.raflowsGrid.records.forEach(function(gridRec) {
         if (gridRec.UserRefNo == RefNo) {
             RAID = gridRec.RAID;
             return;
@@ -138,7 +145,7 @@ $(document).on('click', '#ra-form #previous', function () {
 // Get Approvals BUTTON CLICK EVENT HANDLER
 //-----------------------------------------------------------------------------
 $(document).on('click', '#ra-form #save-ra-flow-btn', function () {
-    getApprovals().done(function (data) {
+    GetApprovalsAJAX().done(function (data) {
 
         if(data.status !== "success"){
             return;
@@ -198,32 +205,27 @@ window.displayErrorDot = function(){
     }
 };
 
-window.getApprovals = function(){
+//-----------------------------------------------------------------------------
+// Get Approvals API AJAX CALL
+//-----------------------------------------------------------------------------
+window.GetApprovalsAJAX = function(){
 
-    var bid = getCurrentBID();
+    var BID = getCurrentBID();
     var FlowID = GetCurrentFlowID();
+
+    var url = "/v1/validate-raflow/" + BID.toString() + "/" + FlowID.toString() + "/";
     var data = {
         "cmd": "get",
         "FlowID": FlowID
     };
 
-    return $.ajax({
-        url: "/v1/validate-raflow/" + bid.toString(),
-        method: "POST",
-        contentType: "application/json",
-        dataType: "json",
-        data: JSON.stringify(data),
-        success: function (data) {
-            console.info(data);
-            if(data.status === "success"){
-                // Update validationCheck error local copy
-                app.raflow.validationCheck = data;
-            }else{
-                console.error("something went wrong");
-            }
-        },
-        error: function (data) {
-            console.error(data);
+    return RAFlowAJAX(url, "POST", data, false)
+    .done(function(data) {
+        if(data.status === "success"){
+            // Update validationCheck error local copy
+            app.raflow.validationCheck = data;
+        }else{
+            console.error(data.message);
         }
     });
 };
@@ -269,13 +271,13 @@ window.lockOnGrid = function (gridName) {
 };
 
 //-----------------------------------------------------------------------------
-// getRAFlowCompData - get the flow component data stored locally in app.raflow
+// GetRAFlowCompLocalData - get the flow component data stored locally in app.raflow
 //
 // @params
 //   key    = flow component key
 //   FlowID = for which FlowID's component
 //-----------------------------------------------------------------------------
-window.getRAFlowCompData = function (compKey) {
+window.GetRAFlowCompLocalData = function (compKey) {
 
     var flowJSON = app.raflow.Flow;
     if (flowJSON.Data) {
@@ -286,13 +288,13 @@ window.getRAFlowCompData = function (compKey) {
 };
 
 //-----------------------------------------------------------------------------
-// setRAFlowCompData - set the flow component data locally in app.raflow
+// SetRAFlowCompLocalData - set the flow component data locally in app.raflow
 //
 // @params
 //   key    = flow component key
 //   data   = data to set in the component
 //-----------------------------------------------------------------------------
-window.setRAFlowCompData = function (compKey, data) {
+window.SetRAFlowCompLocalData = function (compKey, data) {
 
     var flowJSON = app.raflow.Flow;
     if (flowJSON.Data) {
@@ -301,75 +303,54 @@ window.setRAFlowCompData = function (compKey, data) {
 };
 
 //-----------------------------------------------------------------------------
-// saveActiveCompData - save component modified data on the server
+// SaveCompDataAJAX - save component modified data on the server
 //
 // @params
 //   compData   = modified latest component data
 //   compID     = component key id
 //-----------------------------------------------------------------------------
-window.saveActiveCompData = function (compData, compID) {
+window.SaveCompDataAJAX = function (compData, compID) {
 
     // IF RAID VERSION THEN DON"T DO ANYTHING
     if (app.raflow.version === "raid") {
         return;
     }
 
-    var bid = getCurrentBID();
+    var BID = getCurrentBID();
     var FlowID = GetCurrentFlowID();
 
-    // temporary data
+    var url = "/v1/flow/" + BID.toString() + "/" + FlowID.toString() + "/";
     var data = {
         "cmd": "save",
         "FlowType": app.raflow.name,
         "FlowID": FlowID,
         "FlowPartKey": compID,
-        "BID": bid,
+        "BID": BID,
         "Data": compData
     };
 
-    return $.ajax({
-        url: "/v1/flow/" + bid.toString() + "/" + FlowID.toString(),
-        method: "POST",
-        contentType: "application/json",
-        dataType: "json",
-        data: JSON.stringify(data),
-        success: function (data) {
-            if (data.status != "error") {
-                console.log("data has been saved for: ", FlowID, ", compID: ", compID);
-                // Update flow local copy and green checks
-                updateFlowData(data);
-            } else {
-                console.error(data.message);
-            }
-        },
-        error: function (data) {
-            console.error(data);
-        }
-    });
+    return RAFlowAJAX(url, "POST", data, true);
 };
 
 //-----------------------------------------------------------------------------
-// initRAFlowAjax - will initiate new rental agreement flow and returns ajax
+// InitRAFlowAjax - will initiate new rental agreement flow and returns ajax
 //                  promise
 //-----------------------------------------------------------------------------
-window.initRAFlowAjax = function () {
-    var bid = getCurrentBID();
+window.InitRAFlowAjax = function () {
+    var BID = getCurrentBID();
 
-    return $.ajax({
-        url: "/v1/flow/" + bid.toString() + "/0",
-        method: "POST",
-        contentType: "application/json",
-        dataType: "json",
-        data: JSON.stringify({"cmd": "init", "FlowType": app.raflow.name}),
-        success: function (data) {
-            if (data.status != "error") {
-                app.raflow.version = "refno";
-                // Update flow local copy and green checks
-                updateFlowData(data);
-            }
-        },
-        error: function (data) {
-            console.log(data);
+    var url = "/v1/flow/" + BID.toString() + "/0/";
+    var data = {
+        "cmd": "init",
+        "FlowType": app.raflow.name
+    };
+
+    return RAFlowAJAX(url, "POST", data, true)
+    .done(function(data) {
+        if (data.status != "error") {
+            // SINCE, WE'VE CREATED A BRAND NEW FLOW
+            // RAFLOW VERSION MUST BE "REFNO"
+            app.raflow.version = "refno";
         }
     });
 };
@@ -383,39 +364,22 @@ window.initRAFlowAjax = function () {
 //   version    = which version of raflow
 //-----------------------------------------------------------------------------
 window.GetRAFlowDataAjax = function(UserRefNo, RAID, version) {
-    var bid = getCurrentBID();
+    var BID = getCurrentBID();
+    var FlowID = GetCurrentFlowID();
 
-    var reqData = {
+    var url = "/v1/flow/" + BID.toString() + "/" + FlowID.toString() + "/";
+    var data = {
         "cmd":          "get",
         "UserRefNo":    UserRefNo,
         "RAID":         RAID,
         "Version":      version,
-        "FlowType":     "RA"
+        "FlowType":     app.raflow.name
     };
 
-    return $.ajax({
-        url: "/v1/flow/" + bid.toString() + "/",
-        method: "POST",
-        contentType: "application/json",
-        dataType: "json",
-        data: JSON.stringify(reqData),
-        beforeSend: function() {
-            // show the loader
-            HideRAFlowLoader(false);
-            $("#raflow-container .loader").css("display", "flex");
-        },
-        success: function (data) {
-            if (data.status !== "error") {
-                app.raflow.version = version;
-                updateFlowData(data);
-            }
-        },
-        error: function (data) {
-            console.log(data);
-        },
-        complete: function() {
-            // hide the loader
-            HideRAFlowLoader(true);
+    return RAFlowAJAX(url, "POST", data, true)
+    .done(function(data) {
+        if (data.status !== "error") {
+            app.raflow.version = version;
         }
     });
 };
@@ -426,20 +390,20 @@ window.HideRAFlowLoader = function(hide) {
     app.raflow.loading = !hide;
     if (hide) {
         if (w2ui.newraLayout) {
-            $(w2ui.newraLayout.get("main").toolbar.box).find("button").prop('disabled', true);
+            $(w2ui.newraLayout.get("main").toolbar.box).find("button").prop('disabled', false);
         }
         $("#raflow-container .loader").hide();
     } else {
         if (w2ui.newraLayout) {
-            $(w2ui.newraLayout.get("main").toolbar.box).find("button").prop('disabled', false);
+            $(w2ui.newraLayout.get("main").toolbar.box).find("button").prop('disabled', true);
         }
         $("#raflow-container .loader").show();
     }
 };
 
-// updateFlowData
-window.updateFlowData = function(data){
-    updateFlowCopy(data.record.Flow);
+// UpdateRAFlowLocalData updates the local data from the API response
+window.UpdateRAFlowLocalData = function(data){
+    app.raflow.Flow = data.record.Flow;
 
     // Update local copy of validation check
     app.raflow.validationCheck = data.record.ValidationCheck;
@@ -447,7 +411,23 @@ window.updateFlowData = function(data){
     // Update local copy of FlowFilledData
     app.raflow.FlowFilledData = data.record.DataFulfilled;
 
+    // ALSO UPDATE THIS RAFLOW DATA(RAID/USERREFNO) IN THE MAIN GRID
+    w2ui.raflowsGrid.records.forEach(function(gridRec) {
+        if (gridRec.UserRefNo === app.raflow.Flow.UserRefNo || gridRec.RAID === app.raflow.Flow.ID) {
+            if (app.raflow.Flow.UserRefNo) { // IF AVAILABLE THEN ONLY SET
+                gridRec.UserRefNo = app.raflow.Flow.UserRefNo;
+            }
+            if (app.raflow.Flow.ID) { // IF AVAILABLE THEN ONLY SET
+                gridRec.RAID = app.raflow.Flow.ID;
+            }
 
+            // ONCE THE RECORD UPDATE THEN ONLY REFRESH AND BREAK
+            w2ui.raflowsGrid.refresh();
+            return;
+        }
+    });
+
+    // UPDATE TOOLBAR
     if(!jQuery.isEmptyObject(app.raflow.Flow)) {
         // get info from local copy and refresh toolbar
         var VERSION = app.raflow.version,
@@ -464,26 +444,6 @@ window.updateFlowData = function(data){
         // Update error summary
         displayActiveComponentError();
     }, 500);
-};
-
-// updateFlowCopy
-window.updateFlowCopy = function(flow){
-    app.raflow.Flow = flow;
-
-    // ALSO UPDATE THE LOCAL RECORDS IN GRID
-    w2ui.applicantsGrid.records.forEach(function(gridRec) {
-        if (gridRec.UserRefNo === flow.UserRefNo || gridRec.RAID === flow.ID) {
-            if (flow.UserRefNo) { // IF AVAILABLE THEN ONLY SET
-                gridRec.UserRefNo = flow.UserRefNo;
-            }
-            if (flow.ID) { // IF AVAILABLE THEN ONLY SET
-                gridRec.RAID = flow.ID;
-            }
-
-            w2ui.applicantsGrid.refresh();
-            return;
-        }
-    });
 };
 
 // -----------------------------------------------------
@@ -516,7 +476,7 @@ window.loadTargetSection = function (target, previousActiveCompID) {
             break;
         case "people":
             w2ui.RAPeopleGrid.clear();
-            w2ui.RAPeopleForm.actions.reset();
+            w2ui.RAPeopleSearchForm.actions.reset();
             break;
         case "pets":
             w2ui.RAPetsGrid.clear();
@@ -648,28 +608,6 @@ window.appendNewSlider = function(sliderID) {
     recentAddedSlider.after(newSlider);
     newSlider.css("z-index", parseInt(recentAddedSlider.css("z-index")) + 10);
     newSlider.find(".slider-content").empty().width(0);
-};
-
-//-----------------------------------------------------------------------------
-// getVehicleFees - will list down vehicle fees for a business
-//-----------------------------------------------------------------------------
-window.getVehicleFees = function () {
-    var bid = getCurrentBID();
-
-    return $.ajax({
-        url: "/v1/vehiclefees/" + bid.toString() + "/0",
-        method: "GET",
-        contentType: "application/json",
-        dataType: "json",
-        success: function (data) {
-            if (data.status != "error") {
-                app.vehicleFees[bid] = data.records;
-            }
-        },
-        error: function (data) {
-            console.log(data);
-        }
-    });
 };
 
 //-----------------------------------------------------------------------------
@@ -835,31 +773,38 @@ window.ShowHideGridToolbarAddButton = function(gridName) {
 // DeleteRAFlowAJAX - will request to remove ref.no version raflow
 //-----------------------------------------------------------------------------
 window.DeleteRAFlowAJAX = function (UserRefNo) {
-    var bid = getCurrentBID();
+    if (!UserRefNo) {
+        alert("no such flow exists to delete");
+        return;
+    }
 
-    return $.ajax({
-        url: "/v1/flow/" + bid.toString() + "/0",
-        method: "POST",
-        contentType: "application/json",
-        dataType: "json",
-        data: JSON.stringify({"cmd": "delete", "UserRefNo": UserRefNo}),
-        error: function (data) {
-            console.log(data);
-        }
-    });
+    var BID = getCurrentBID();
+    var FlowID = GetCurrentFlowID();
+
+    var url = "/v1/flow/" + BID.toString() + "/" + FlowID.toString() + "/";
+    var data= {
+        "cmd": "delete",
+        "UserRefNo": UserRefNo
+    };
+
+    return RAFlowAJAX(url, "POST", data, false);
 };
 
 //----------------------------------------------------------------------------------
-// toggleNonFieldsErrorDisplay - It exapand/collapse non-field error summary section
+// It exapand/collapse non-field error summary section
 //----------------------------------------------------------------------------------
-window.toggleNonFieldsErrorDisplay = function () {
+$(document).on("click", "i#non-field-expandable-errors", function(event) {
+    var target = event.target;
+
     var content = $("#non-fields-error-content");
     if (content[0].style.display === "block") {
         content[0].style.display = "none";
+        $(target).removeClass("fa-caret-up").addClass("fa-caret-down");
     } else {
         content[0].style.display = "block";
+        $(target).removeClass("fa-caret-down").addClass("fa-caret-up");
     }
-};
+});
 
 //-----------------------------------------------------------------------------
 // displayErrorSummary - It display error summary for active section.
@@ -867,7 +812,7 @@ window.toggleNonFieldsErrorDisplay = function () {
 window.displayErrorSummary = function (comp) {
 
     var error_summary_sel = "#error-summary";
-    var non_field_error_dd_sel = "#error-info .fa-caret-down";
+    var non_field_error_dd_sel = "#error-info #non-field-expandable-errors";
     var non_field_error_content_sel = "#non-fields-error-content";
 
 

@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -402,4 +403,22 @@ func GetRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		err = fmt.Errorf("Invalid version: (%s) to get raflow for RAID: %d", req.Version, req.RAID)
 		return
 	}
+}
+
+// ValidateRAFlowAndAssignValidatedRAFlow validate raflow and assign it to the response
+func ValidateRAFlowAndAssignValidatedRAFlow(ctx context.Context, raFlowData *rlib.RAFlowJSONData, flow rlib.Flow, raflowRespData *RAFlowResponse) {
+	var (
+		raFlowFieldsErrors    bizlogic.RAFlowFieldsErrors
+		raFlowNonFieldsErrors bizlogic.RAFlowNonFieldsErrors
+	)
+	// init raFlowFieldsErrors
+	initRAFlowFieldsErrors(&raFlowFieldsErrors)
+	initRAFlowNonFieldsErrors(&raFlowNonFieldsErrors)
+	bizlogic.ValidateRAFlowParts(ctx, &raFlowFieldsErrors, &raFlowNonFieldsErrors, raFlowData, flow.ID)
+	totalFieldsError := raFlowFieldsErrors.Dates.Total + raFlowFieldsErrors.People.Total + raFlowFieldsErrors.Pets.Total + raFlowFieldsErrors.Vehicle.Total + raFlowFieldsErrors.Rentables.Total + raFlowFieldsErrors.ParentChild.Total + raFlowFieldsErrors.Tie.TiePeople.Total
+	totalNonFieldsError := len(raFlowNonFieldsErrors.Dates) + len(raFlowNonFieldsErrors.People) + len(raFlowNonFieldsErrors.Pets) + len(raFlowNonFieldsErrors.Rentables) + len(raFlowNonFieldsErrors.Vehicle) + len(raFlowNonFieldsErrors.ParentChild) + len(raFlowNonFieldsErrors.Tie)
+	raflowRespData.ValidationCheck.Errors = raFlowFieldsErrors
+	raflowRespData.ValidationCheck.NonFieldsErrors = raFlowNonFieldsErrors
+	raflowRespData.ValidationCheck.Total += totalFieldsError + totalNonFieldsError
+	raflowRespData.ValidationCheck.Status = "success"
 }
