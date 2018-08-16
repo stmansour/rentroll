@@ -53,7 +53,7 @@ window.loadRADatesForm = function () {
         $().w2form({
             name: 'RADatesForm',
             header: 'Dates',
-            style: 'border: 1px black solid; display: block;',
+            style: 'border: none; display: block;',
             focus: -1,
             formURL: '/webclient/html/raflow/formra-dates.html',
             fields: [

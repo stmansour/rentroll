@@ -93,7 +93,7 @@ window.loadRARentablesGrid = function () {
             name: 'RARentableSearchForm',
             header: 'Rentable',
             style: 'display: block; border: none;',
-            formURL: '/webclient/html/raflow/formra-rentable.html',
+            formURL: '/webclient/html/raflow/formra-rentablesearch.html',
             focus: -1,
             fields: [
                 {name: 'Rentable',      type: 'enum',   required: true,
@@ -157,7 +157,7 @@ window.loadRARentablesGrid = function () {
                 footer:     true,
             },
             multiSelect: false,
-            style: 'display: block;',
+            style: 'border-color: silver; border-style: solid; border-width: 1px 0 0 0; display: block;',
             columns: [
                 {
                     field: 'recid',
@@ -357,7 +357,7 @@ window.loadRARentablesGrid = function () {
                 toolbarColumns: false,
                 footer:         false
             },
-            style: 'border: 2px solid white; display: block;',
+            style: 'border: none; display: block;',
             columns: GetFeeGridColumns('RARentableFeesGrid'),
             toolbar: {
                 items: [
@@ -487,7 +487,7 @@ window.loadRARentablesGrid = function () {
         $().w2form({
             name: 'RARentableFeeForm',
             header: 'Add New Rentable Fee',
-            style: 'display: block;',
+            style: 'border: none; display: block;',
             formURL: '/webclient/html/raflow/formra-fee.html',
             focus: -1,
             fields: GetFeeFormFields(),

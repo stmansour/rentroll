@@ -3,16 +3,16 @@
     getFullName, getTCIDName,
     HideSliderContent, ShowSliderContentW2UIComp,
     saveActiveCompData, getRAFlowCompData,
-    openNewTransactantForm, acceptTransactant, loadRAPeopleForm,
+    openNewTransactantForm, acceptTransactant, loadRAPeopleSearchForm,
     setRATransactantFormHeader, showHideRATransactantFormFields,
     setNotRequiredFields, getRAPeopleGridRecord, ReassignPeopleGridRecords,
     manageBGInfoFormFields, addDummyBackgroundInfo, savePeopleCompData, getPeopleLocalData, setPeopleLocalData,
     getPeopleLocalDataByTCID, setTransactantDefaultRole,
     getStringListData, getSLStringList, updateRATransactantFormCheckboxes, updateFlowData,
     managePeopleW2UIItems, removeRAFlowPersonAJAX, saveRAFlowPersonAJAX, onCheckboxesChange, getRecIDFromTMPTCID, dispalyRAPeopleGridError,
-    displayRAPeopleFormError, getPeopleIndex, displayFormFieldsError,
+    displayRAPeopleSearchFormError, getPeopleIndex, displayFormFieldsError,
     GetCurrentFlowID, EnableDisableRAFlowVersionInputs, ShowHideGridToolbarAddButton,
-    HideAllSliderContent, displayRAPeopleFormTabErrorDot
+    HideAllSliderContent, displayRAPeopleSearchFormTabErrorDot
 */
 
 "use strict";
@@ -24,17 +24,19 @@
 // -------------------------------------------------------------------------------
 // Rental Agreement - People form, People Grid, Background information form
 // -------------------------------------------------------------------------------
-window.loadRAPeopleForm = function () {
+window.loadRAPeopleGrid = function () {
 
     // if form is loaded then return
-    if (!("RAPeopleForm" in w2ui)) {
+    if (!("RAPeopleGrid" in w2ui)) {
 
-        // people form
+        // ------------------------------------
+        // PEOPLE SEARCH FORM
+        // ------------------------------------
         $().w2form({
-            name: 'RAPeopleForm',
+            name: 'RAPeopleSearchForm',
             header: 'People',
             style: 'display: block; border: none;',
-            formURL: '/webclient/html/raflow/formra-people.html',
+            formURL: '/webclient/html/raflow/formra-peoplesearch.html',
             focus: -1,
             fields: [
                 {name: 'Transactant',   type: 'enum',       required: true,     html: {caption: "Transactant"},
@@ -44,15 +46,15 @@ window.loadRAPeopleForm = function () {
                         renderItem: function (item) {
 
                             // Enable Accept button
-                            $(w2ui.RAPeopleForm.box).find("button[name=accept]").prop("disabled", false);
+                            $(w2ui.RAPeopleSearchForm.box).find("button[name=accept]").prop("disabled", false);
 
                             var s = getTCIDName(item);
-                            w2ui.RAPeopleForm.record.TCID = item.TCID;
-                            w2ui.RAPeopleForm.record.FirstName = item.FirstName;
-                            w2ui.RAPeopleForm.record.LastName = item.LastName;
-                            w2ui.RAPeopleForm.record.MiddleName = item.MiddleName;
-                            w2ui.RAPeopleForm.record.CompanyName = item.CompanyName;
-                            w2ui.RAPeopleForm.record.IsCompany = item.IsCompany;
+                            w2ui.RAPeopleSearchForm.record.TCID = item.TCID;
+                            w2ui.RAPeopleSearchForm.record.FirstName = item.FirstName;
+                            w2ui.RAPeopleSearchForm.record.LastName = item.LastName;
+                            w2ui.RAPeopleSearchForm.record.MiddleName = item.MiddleName;
+                            w2ui.RAPeopleSearchForm.record.CompanyName = item.CompanyName;
+                            w2ui.RAPeopleSearchForm.record.IsCompany = item.IsCompany;
                             return s;
                         },
                         renderDrop: function (item) {
@@ -67,7 +69,7 @@ window.loadRAPeopleForm = function () {
                         },
                         onRemove: function(event) {
                             event.onComplete = function() {
-                                w2ui.RAPeopleForm.actions.reset();
+                                w2ui.RAPeopleSearchForm.actions.reset();
                             };
                         }
                     }
@@ -82,8 +84,8 @@ window.loadRAPeopleForm = function () {
             ],
             actions: {
                 reset: function () {
-                    w2ui.RAPeopleForm.clear();
-                    $(w2ui.RAPeopleForm.box).find("button[name=accept]").prop("disabled", true);
+                    w2ui.RAPeopleSearchForm.clear();
+                    $(w2ui.RAPeopleSearchForm.box).find("button[name=accept]").prop("disabled", true);
                 }
             },
             onRefresh: function (event) {
@@ -113,7 +115,7 @@ window.loadRAPeopleForm = function () {
                 toolbarColumns: false,
                 footer: true
             },
-            style: 'border: 0px solid black; display: block;',
+            style: 'border-color: silver; border-style: solid; border-width: 1px 0 0 0; display: block;',
             multiSelect: false,
             columns: [
                 {
@@ -247,9 +249,9 @@ window.loadRAPeopleForm = function () {
 
                                 form.refresh(); // need to refresh for form changes
 
-                                displayRAPeopleFormError();
+                                displayRAPeopleSearchFormError();
 
-                                displayRAPeopleFormTabErrorDot();
+                                displayRAPeopleSearchFormTabErrorDot();
                             }).fail(function (data) {
                                 form.message(data.message);
                             });
@@ -264,11 +266,13 @@ window.loadRAPeopleForm = function () {
             }
         });
 
-        // background info form
+        // ------------------------------------
+        // BACKGROUND INFORMATION DETAILED FORM
+        // ------------------------------------
         $().w2form({
             name: 'RATransactantForm',
             header: 'Background Information',
-            style: 'border: 0px; background-color: transparent; display: block;',
+            style: 'border: none; background-color: transparent; display: block;',
             // This is using the transactant template same as used by
             // "Transactants" sidebar node
             formURL: '/webclient/html/formtc.html',
@@ -416,7 +420,7 @@ window.loadRAPeopleForm = function () {
                     EnableDisableRAFlowVersionInputs(form);
 
                     // Display error dot for the tabs
-                    displayRAPeopleFormTabErrorDot();
+                    displayRAPeopleSearchFormTabErrorDot();
                 };
             },
             onValidate: function (event) {
@@ -444,7 +448,7 @@ window.loadRAPeopleForm = function () {
 
     // load form in div
     $('#ra-form #people .grid-container').w2render(w2ui.RAPeopleGrid);
-    $('#ra-form #people .form-container').w2render(w2ui.RAPeopleForm);
+    $('#ra-form #people .form-container').w2render(w2ui.RAPeopleSearchForm);
     HideAllSliderContent();
 
     // load existing info in PeopleForm and PeopleGrid
@@ -610,15 +614,15 @@ window.ReassignPeopleGridRecords = function () {
         grid.records = compData;
         reassignGridRecids(grid.name);
 
-        // Operation on RAPeopleForm
-        w2ui.RAPeopleForm.refresh();
+        // Operation on RAPeopleSearchForm
+        w2ui.RAPeopleSearchForm.refresh();
 
         // manage people w2ui items list
         managePeopleW2UIItems();
 
     } else {
-        // Operation on RAPeopleForm
-        w2ui.RAPeopleForm.actions.reset();
+        // Operation on RAPeopleSearchForm
+        w2ui.RAPeopleSearchForm.actions.reset();
 
         // Operation on RAPeopleGrid
         grid.clear();
@@ -661,7 +665,7 @@ window.acceptTransactant = function () {
 
     var compData = getRAFlowCompData("people") || [];
 
-    var peopleForm = w2ui.RAPeopleForm;
+    var peopleForm = w2ui.RAPeopleSearchForm;
 
     var transactantRec = $.extend(true, {}, peopleForm.record);
     delete transactantRec.Transactant;
@@ -682,7 +686,7 @@ window.acceptTransactant = function () {
                 ReassignPeopleGridRecords();
 
                 // clear the form
-                w2ui.RAPeopleForm.actions.reset();
+                w2ui.RAPeopleSearchForm.actions.reset();
 
             } else {
                 console.error(data.message);
@@ -698,7 +702,7 @@ window.acceptTransactant = function () {
         w2ui.RAPeopleGrid.select(recid);
 
         // clear the form
-        w2ui.RAPeopleForm.actions.reset();
+        w2ui.RAPeopleSearchForm.actions.reset();
     }
 
 };
@@ -913,8 +917,8 @@ window.getRecIDFromTMPTCID = function(grid, TMPTCID){
     return recid;
 };
 
-// displayRAPeopleFormError If form field have error than it highlight with red border and
-window.displayRAPeopleFormError = function(){
+// displayRAPeopleSearchFormError If form field have error than it highlight with red border and
+window.displayRAPeopleSearchFormError = function(){
 
     // if pet section doesn't have error than return
     if(!app.raflow.validationErrors.people){
@@ -951,8 +955,8 @@ window.getPeopleIndex = function (TMPTCID, people) {
     return index;
 };
 
-// displayRAPeopleFormTabErrorDot
-window.displayRAPeopleFormTabErrorDot = function () {
+// displayRAPeopleSearchFormTabErrorDot
+window.displayRAPeopleSearchFormTabErrorDot = function () {
 
     // Basic Info tab
     if ($(".w2ui-page.page-0").find(".error").length > 0){

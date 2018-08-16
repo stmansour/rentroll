@@ -51,7 +51,7 @@ window.BuildRAFinalRentablesFeesGrid = function() {
             footer:     false,
         },
         multiSelect: false,
-        style: 'border: 2px solid silver; display: block; background-color: transparent;',
+        style: 'display: block; background-color: transparent;',
         columns: gridCols,
         onSelect: function (event) {
             event.preventDefault(); // Prevent selection of row
@@ -98,7 +98,7 @@ window.BuildRAFinalPetsFeesGrid = function() {
             footer:     false
         },
         multiSelect: false,
-        style: 'border: 2px solid silver; display: block;',
+        style: 'display: block;',
         columns: gridCols,
         onSelect: function (event) {
             event.preventDefault(); // Prevent selection of row
@@ -145,7 +145,7 @@ window.BuildRAFinalVehiclesFeesGrid = function() {
             footer:     false
         },
         multiSelect: false,
-        style: 'border: 2px solid silver; display: block;',
+        style: 'display: block;',
         columns: gridCols,
         onSelect: function (event) {
             event.preventDefault(); // Prevent selection of row
