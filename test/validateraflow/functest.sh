@@ -37,6 +37,28 @@ dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "a0"  "Valida
 echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A2%7D" > request
 dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "a1"  "Validate RAFlow -- Error free RAFlow"
 
+# People section related functional tests
+#------------------------------------------------------------------------------
+#  TEST p0
+#  Validate raflow which have no renter
+#
+#  Expected Results:
+#  1. Error: must one renter exists
+#------------------------------------------------------------------------------
+echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A3%7D" > request
+dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p0"  "Validate RAFlow -- One renter must exists"
+
+#------------------------------------------------------------------------------
+#  TEST p1
+#  Validate raflow which have one transanctant with not sufficient required information to get approval
+#
+#  Expected Results:
+#  1. Error: Primary Email, Workphone, Occupation, Current Information, Taxpayer ID, Gross Income, Drivers Lic,
+#  Emergency contact, Source field have respective error message.
+#------------------------------------------------------------------------------
+echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A4%7D" > request
+dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p1"  "Validate RAFlow -- Transactant must fill basic detail"
+
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
 
