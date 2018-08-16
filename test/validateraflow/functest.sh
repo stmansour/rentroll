@@ -85,6 +85,19 @@ dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p2"  "Valida
 echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A6%7D" > request
 dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p3"  "Validate RAFlow -- Must require firstname and lastname"
 
+#------------------------------------------------------------------------------
+#  TEST p4
+#  Validate raflow : People section
+#
+#  Scenario:
+#  If role is set to Renter or guarantor than it must have mentioned GrossIncome
+#
+#  Expected Results:
+#  1. Error: Gross income must have error
+#------------------------------------------------------------------------------
+echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A7%7D" > request
+dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p4"  "Validate RAFlow -- Must require gross income provided"
+
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
 
