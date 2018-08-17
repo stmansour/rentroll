@@ -315,9 +315,11 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 		// 	return nraid, err
 		// }
 		// saveFlags := x.raOrig.FLAGS
-		x.raOrig.AgreementStop = time.Now().UTC()
-		x.raOrig.RentStop = time.Now().UTC()
-		x.raOrig.PossessionStop = time.Now().UTC()
+		// TODO(Steve & Sudip): SHOULDN"T WE SET OLD RA STOP DATES HERE?
+		x.raOrig.AgreementStop = rlib.GetTodayUTCRoundingDate()
+		x.raOrig.RentStop = rlib.GetTodayUTCRoundingDate()
+		x.raOrig.PossessionStop = rlib.GetTodayUTCRoundingDate()
+
 		//------------------------------------------------------------------
 		// If there are changes, then we stop the old Rental Agreement and
 		// create a new one linked to x.raOrig
