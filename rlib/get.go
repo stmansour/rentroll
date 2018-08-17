@@ -7357,40 +7357,6 @@ func GetPayor(ctx context.Context, pid int64, p *Payor) error {
 	return ReadPayor(row, p)
 }
 
-/*// GetRentalAgreementGridInfo returns the array of rental agreement for grid
-func GetRentalAgreementGridInfo(ctx context.Context, raid int64, d1, d2 *time.Time) ([]RentalAgreementGrid, error) {
-
-	var (
-		err error
-		m   []RentalAgreementGrid
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return m, ErrSessionRequired
-		}
-	}
-
-	rows, err :=RRdb.Prepstmt.UIRAGrid(raid, d1, d2)
-	if err != nil {
-		return m, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var t RentalAgreementGrid
-		err = ReadRentalAgreementGrids(rows, &t)
-		if err != nil {
-			return m, err
-		}
-		m = append(m, &t)
-	}
-
-	return m, rows.Err()
-}*/
-
 // GetVehicle reads a Vehicle structure based on the supplied Vehicle id
 func GetVehicle(ctx context.Context, vid int64, t *Vehicle) error {
 
