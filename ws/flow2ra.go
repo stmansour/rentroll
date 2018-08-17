@@ -315,36 +315,50 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 		// 	return nraid, err
 		// }
 		// saveFlags := x.raOrig.FLAGS
-		// TODO(Steve & Sudip): SHOULDN"T WE SET OLD RA STOP DATES HERE?
-		x.raOrig.AgreementStop = rlib.GetTodayUTCRoundingDate()
-		x.raOrig.RentStop = rlib.GetTodayUTCRoundingDate()
-		x.raOrig.PossessionStop = rlib.GetTodayUTCRoundingDate()
+		chgs := 0
+		AStart := time.Time(x.raf.Dates.AgreementStart)
+		RStart := time.Time(x.raf.Dates.RentStart)
+		PStart := time.Time(x.raf.Dates.PossessionStart)
+		if x.raOrig.AgreementStop.After(AStart) {
+			x.raOrig.AgreementStop = AStart
+			chgs++
+		}
+		if x.raOrig.RentStop.After(RStart) {
+			x.raOrig.RentStop = RStart
+			chgs++
+		}
+		if x.raOrig.PossessionStop.After(PStart) {
+			x.raOrig.PossessionStop = PStart
+			chgs++
+		}
 
 		//------------------------------------------------------------------
 		// If there are changes, then we stop the old Rental Agreement and
 		// create a new one linked to x.raOrig
 		//------------------------------------------------------------------
-		x.raOrig.FLAGS &= ^uint64(0x7) // clear the status
-		x.raOrig.FLAGS |= 5            // set the state to Terminated
-		x.raOrig.LeaseTerminationReason =
-			rlib.RRdb.BizTypes[x.raOrig.BID].Msgs.S[rlib.MSGRAUPDATED].SLSID // "Rental Agreement was updated"
+		if chgs > 0 {
+			x.raOrig.FLAGS &= ^uint64(0x7) // clear the status
+			x.raOrig.FLAGS |= 5            // set the state to Terminated
+			x.raOrig.LeaseTerminationReason =
+				rlib.RRdb.BizTypes[x.raOrig.BID].Msgs.S[rlib.MSGRAUPDATED].SLSID // "Rental Agreement was updated"
 
-		// support noauth testing
-		UID := int64(-99999)
-		if !SvcCtx.NoAuth {
-			sess, ok := rlib.SessionFromContext(ctx)
-			if !ok {
-				return nraid, rlib.ErrSessionRequired
+			// support noauth testing
+			UID := int64(-99999)
+			if !SvcCtx.NoAuth {
+				sess, ok := rlib.SessionFromContext(ctx)
+				if !ok {
+					return nraid, rlib.ErrSessionRequired
+				}
+				UID = sess.UID
 			}
-			UID = sess.UID
-		}
 
-		x.raOrig.TerminatorUID = UID
-		x.raOrig.TerminationDate = time.Now()
+			x.raOrig.TerminatorUID = UID
+			x.raOrig.TerminationDate = time.Now()
 
-		err = rlib.UpdateRentalAgreement(ctx, &x.raOrig)
-		if err != nil {
-			return nraid, err
+			err = rlib.UpdateRentalAgreement(ctx, &x.raOrig)
+			if err != nil {
+				return nraid, err
+			}
 		}
 
 		//------------------------------------------------------------
