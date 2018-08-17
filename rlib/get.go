@@ -9,46 +9,13 @@ import (
 	"time"
 )
 
-// NoAuthEnabled tells whether noauth is enabled or not
-func NoAuthEnabled() bool {
-
-	// IF ENV IS PRODUCTION THEN APP SHOULD NOT ALLOW
-	// NOAUTH FEATURE
-	if AppConfig.Env == extres.APPENVPROD {
-		return false
-	}
-
-	return RRdb.noAuth
-}
-
-// sessionCheck encapsulates 6 lines of code that was repeated in every call
-//
-// INPUTS
-//  ctx  the context, which should have session
-//
-// RETURNS
-//  the session
-//  ok == true - session was required but not found
-//        false - session was found or session not required
-//-----------------------------------------------------------------------------
-func sessionCheck(ctx context.Context) (*Session, bool) {
-
-	// IF NOAUTH IS DISABLED THEN WE MUST CHECK SESSION FROM CONTEXT
-	if !NoAuthEnabled() {
-		return SessionFromContext(ctx)
-	}
-
-	// OTHERWISE RETURN TRUE
-	return &Session{}, true
-}
-
 // GetCountByTableName returns the count of records in table t
 // that belong to business bid
 //------------------------------------------------------------------
 func GetCountByTableName(ctx context.Context, t string, bid int64) (int, error) {
 	var err error
 	var count int
-	if _, ok := sessionCheck(ctx); !ok {
+	if _, ok := SessionCheck(ctx); !ok {
 		return count, ErrSessionRequired
 	}
 
@@ -70,7 +37,7 @@ func GetAR(ctx context.Context, id int64) (AR, error) {
 	var a AR
 
 	// session... context
-	if _, ok := sessionCheck(ctx); !ok {
+	if _, ok := SessionCheck(ctx); !ok {
 		return a, ErrSessionRequired
 	}
 
@@ -307,7 +274,7 @@ func GetPetsByTransactant(ctx context.Context, TCID int64) ([]RentalAgreementPet
 		t   []RentalAgreementPet
 	)
 
-	if _, ok := sessionCheck(ctx); !ok {
+	if _, ok := SessionCheck(ctx); !ok {
 		return t, ErrSessionRequired
 	}
 
@@ -416,7 +383,7 @@ func GetAllRentalAgreementPets(ctx context.Context, raid int64) ([]RentalAgreeme
 // FindAgreementByRentable reads a Prospect structure based on the supplied Transactant id
 func FindAgreementByRentable(ctx context.Context, rid int64, d1, d2 *time.Time) (RentalAgreementRentable, error) {
 	var a RentalAgreementRentable
-	if _, ok := sessionCheck(ctx); !ok {
+	if _, ok := SessionCheck(ctx); !ok {
 		return a, ErrSessionRequired
 	}
 
@@ -442,7 +409,7 @@ func FindAgreementByRentable(ctx context.Context, rid int64, d1, d2 *time.Time) 
 func GetAllRentableAssessments(ctx context.Context, RID int64, d1, d2 *time.Time) ([]Assessment, error) {
 	var err error
 	var t []Assessment
-	if _, ok := sessionCheck(ctx); !ok {
+	if _, ok := SessionCheck(ctx); !ok {
 		return t, ErrSessionRequired
 	}
 
@@ -466,7 +433,7 @@ func GetAllRentableAssessments(ctx context.Context, RID int64, d1, d2 *time.Time
 func GetUnpaidAssessmentsByRAID(ctx context.Context, RAID int64) ([]Assessment, error) {
 	var err error
 	var t []Assessment
-	if _, ok := sessionCheck(ctx); !ok {
+	if _, ok := SessionCheck(ctx); !ok {
 		return t, ErrSessionRequired
 	}
 
@@ -500,7 +467,7 @@ func GetUnpaidAssessmentsByRAID(ctx context.Context, RAID int64) ([]Assessment, 
 func GetAssessmentInstancesByRAID(ctx context.Context, RAID int64, d1, d2 *time.Time) ([]Assessment, error) {
 	var err error
 	var t []Assessment
-	if _, ok := sessionCheck(ctx); !ok {
+	if _, ok := SessionCheck(ctx); !ok {
 		return t, ErrSessionRequired
 	}
 
@@ -534,7 +501,7 @@ func GetAssessmentInstancesByRAID(ctx context.Context, RAID int64, d1, d2 *time.
 func GetRecurringAssessmentDefsByRAID(ctx context.Context, RAID int64, d1, d2 *time.Time) ([]Assessment, error) {
 	var err error
 	var t []Assessment
-	if _, ok := sessionCheck(ctx); !ok {
+	if _, ok := SessionCheck(ctx); !ok {
 		return t, ErrSessionRequired
 	}
 
@@ -568,7 +535,7 @@ func GetRecurringAssessmentDefsByRAID(ctx context.Context, RAID int64, d1, d2 *t
 func GetEpochAssessmentsByRentalAgreement(ctx context.Context, RAID int64) ([]Assessment, error) {
 	var err error
 	var t []Assessment
-	if _, ok := sessionCheck(ctx); !ok {
+	if _, ok := SessionCheck(ctx); !ok {
 		return t, ErrSessionRequired
 	}
 
@@ -602,7 +569,7 @@ func GetEpochAssessmentsByRentalAgreement(ctx context.Context, RAID int64) ([]As
 func GetNorecurAssessmentsByRAIDRange(ctx context.Context, RAID int64, d1, d2 *time.Time) ([]Assessment, error) {
 	var err error
 	var t []Assessment
-	if _, ok := sessionCheck(ctx); !ok {
+	if _, ok := SessionCheck(ctx); !ok {
 		return t, ErrSessionRequired
 	}
 
@@ -639,7 +606,7 @@ func GetNorecurAssessmentsByRAIDRange(ctx context.Context, RAID int64, d1, d2 *t
 func GetAssessmentsByRAIDRID(ctx context.Context, bid, raid, rid int64) ([]Assessment, error) {
 	var err error
 	var t []Assessment
-	if _, ok := sessionCheck(ctx); !ok {
+	if _, ok := SessionCheck(ctx); !ok {
 		return t, ErrSessionRequired
 	}
 
@@ -669,7 +636,7 @@ func GetAssessmentsByRAIDRID(ctx context.Context, bid, raid, rid int64) ([]Asses
 func GetAssessmentInstancesByParent(ctx context.Context, id int64, d1, d2 *time.Time) ([]Assessment, error) {
 	var err error
 	var t []Assessment
-	if _, ok := sessionCheck(ctx); !ok {
+	if _, ok := SessionCheck(ctx); !ok {
 		return t, ErrSessionRequired
 	}
 
@@ -693,7 +660,7 @@ func GetAssessmentInstancesByParent(ctx context.Context, id int64, d1, d2 *time.
 func getAssessmentsByRows(ctx context.Context, rows *sql.Rows) ([]Assessment, error) {
 	var err error
 	var t []Assessment
-	if _, ok := sessionCheck(ctx); !ok {
+	if _, ok := SessionCheck(ctx); !ok {
 		return t, ErrSessionRequired
 	}
 
@@ -1070,7 +1037,7 @@ func GetBusinessProperties(ctx context.Context, BPID int64) (bizProp BusinessPro
 	)
 
 	// session check
-	if _, ok := sessionCheck(ctx); !ok {
+	if _, ok := SessionCheck(ctx); !ok {
 		return
 	}
 
@@ -1099,7 +1066,7 @@ func GetBusinessPropertiesByName(ctx context.Context, Name string, BID int64) (b
 	)
 
 	// session check
-	if _, ok := sessionCheck(ctx); !ok {
+	if _, ok := SessionCheck(ctx); !ok {
 		return
 	}
 
@@ -5962,7 +5929,7 @@ func GetRentableUsersInRange(ctx context.Context, rid int64, d1, d2 *time.Time) 
 	var err error
 	var t []RentableUser
 
-	if _, ok := sessionCheck(ctx); !ok {
+	if _, ok := SessionCheck(ctx); !ok {
 		return t, ErrSessionRequired
 	}
 
@@ -6470,7 +6437,7 @@ func GetRentalAgreementPayorsInRange(ctx context.Context, raid int64, d1, d2 *ti
 func GetRentalAgreementPayorsByRAID(ctx context.Context, raid int64) ([]RentalAgreementPayor, error) {
 	var t []RentalAgreementPayor
 	var err error
-	if _, ok := sessionCheck(ctx); !ok {
+	if _, ok := SessionCheck(ctx); !ok {
 		return t, ErrSessionRequired
 	}
 
@@ -6495,7 +6462,7 @@ func GetRentalAgreementPayorsByRAID(ctx context.Context, raid int64) ([]RentalAg
 func GetRentalAgreementsByPayor(ctx context.Context, bid, tcid int64) ([]RentalAgreementPayor, error) {
 	var t []RentalAgreementPayor
 	var err error
-	if _, ok := sessionCheck(ctx); !ok {
+	if _, ok := SessionCheck(ctx); !ok {
 		return t, ErrSessionRequired
 	}
 
@@ -6520,7 +6487,7 @@ func GetRentalAgreementsByPayor(ctx context.Context, bid, tcid int64) ([]RentalA
 func GetRentalAgreementsByPayorRange(ctx context.Context, bid, tcid int64, d1, d2 *time.Time) ([]RentalAgreementPayor, error) {
 	var t []RentalAgreementPayor
 	var err error
-	if _, ok := sessionCheck(ctx); !ok {
+	if _, ok := SessionCheck(ctx); !ok {
 		return t, ErrSessionRequired
 	}
 
@@ -6869,7 +6836,7 @@ func GetSubARs(ctx context.Context, id int64) ([]SubAR, error) {
 // GetTask returns the task with the supplied id
 func GetTask(ctx context.Context, id int64) (Task, error) {
 	var a Task
-	if _, ok := sessionCheck(ctx); !ok {
+	if _, ok := SessionCheck(ctx); !ok {
 		return a, ErrSessionRequired
 	}
 	var row *sql.Row
@@ -6888,7 +6855,7 @@ func GetTask(ctx context.Context, id int64) (Task, error) {
 // with the parent or epoch equal to id
 func GetLatestCompletedTaskList(ctx context.Context, id int64) (TaskList, error) {
 	var a TaskList
-	if _, ok := sessionCheck(ctx); !ok {
+	if _, ok := SessionCheck(ctx); !ok {
 		return a, ErrSessionRequired
 	}
 	var row *sql.Row
@@ -6907,7 +6874,7 @@ func GetLatestCompletedTaskList(ctx context.Context, id int64) (TaskList, error)
 func GetTasks(ctx context.Context, id int64) ([]Task, error) {
 	var m []Task
 	var err error
-	if _, ok := sessionCheck(ctx); !ok {
+	if _, ok := SessionCheck(ctx); !ok {
 		return m, ErrSessionRequired
 	}
 	var rows *sql.Rows
@@ -6936,7 +6903,7 @@ func GetTasks(ctx context.Context, id int64) ([]Task, error) {
 // GetTaskList returns the tasklist with the supplied id
 func GetTaskList(ctx context.Context, id int64) (TaskList, error) {
 	var a TaskList
-	if _, ok := sessionCheck(ctx); !ok {
+	if _, ok := SessionCheck(ctx); !ok {
 		return a, ErrSessionRequired
 	}
 	var row *sql.Row
@@ -6965,7 +6932,7 @@ func GetTaskList(ctx context.Context, id int64) (TaskList, error) {
 //-----------------------------------------------------------------------------
 func GetTaskListInstanceInRange(ctx context.Context, id int64, dt1, dt2 *time.Time) (TaskList, error) {
 	var a TaskList
-	if _, ok := sessionCheck(ctx); !ok {
+	if _, ok := SessionCheck(ctx); !ok {
 		return a, ErrSessionRequired
 	}
 	var row *sql.Row
@@ -6983,7 +6950,7 @@ func GetTaskListInstanceInRange(ctx context.Context, id int64, dt1, dt2 *time.Ti
 // GetTaskDescriptor returns the tasklist with the supplied id
 func GetTaskDescriptor(ctx context.Context, id int64) (TaskDescriptor, error) {
 	var a TaskDescriptor
-	if _, ok := sessionCheck(ctx); !ok {
+	if _, ok := SessionCheck(ctx); !ok {
 		return a, ErrSessionRequired
 	}
 	var row *sql.Row
@@ -7004,7 +6971,7 @@ func GetTaskDescriptor(ctx context.Context, id int64) (TaskDescriptor, error) {
 func GetTaskListDescriptors(ctx context.Context, id int64) ([]TaskDescriptor, error) {
 	var err error
 	var m []TaskDescriptor
-	if _, ok := sessionCheck(ctx); !ok {
+	if _, ok := SessionCheck(ctx); !ok {
 		return m, ErrSessionRequired
 	}
 
@@ -7048,7 +7015,7 @@ func GetAllTaskListDefinitions(ctx context.Context, id int64) ([]TaskListDefinit
 	var m []TaskListDefinition
 	var err error
 
-	if _, ok := sessionCheck(ctx); !ok {
+	if _, ok := SessionCheck(ctx); !ok {
 		return m, ErrSessionRequired
 	}
 
@@ -7082,7 +7049,7 @@ func GetAllTaskListDefinitions(ctx context.Context, id int64) ([]TaskListDefinit
 // GetTaskListDefinition returns the tasklist with the supplied id
 func GetTaskListDefinition(ctx context.Context, id int64) (TaskListDefinition, error) {
 	var a TaskListDefinition
-	if _, ok := sessionCheck(ctx); !ok {
+	if _, ok := SessionCheck(ctx); !ok {
 		return a, ErrSessionRequired
 	}
 	var row *sql.Row
@@ -7100,7 +7067,7 @@ func GetTaskListDefinition(ctx context.Context, id int64) (TaskListDefinition, e
 // GetTaskListDefinitionByName returns the tasklist with the supplied namd in the BID
 func GetTaskListDefinitionByName(ctx context.Context, bid int64, name string) (TaskListDefinition, error) {
 	var a TaskListDefinition
-	if _, ok := sessionCheck(ctx); !ok {
+	if _, ok := SessionCheck(ctx); !ok {
 		return a, ErrSessionRequired
 	}
 	var row *sql.Row
@@ -7833,7 +7800,7 @@ func GetCountBusinessRentalAgreements(ctx context.Context, bid int64) (int, erro
 // GetFlow reads a Flow structure based on the supplied flowId
 func GetFlow(ctx context.Context, flowID int64) (Flow, error) {
 	var a Flow
-	if _, ok := sessionCheck(ctx); !ok {
+	if _, ok := SessionCheck(ctx); !ok {
 		return a, ErrSessionRequired
 	}
 
@@ -7864,7 +7831,7 @@ func GetFlow(ctx context.Context, flowID int64) (Flow, error) {
 func GetFlowForRAID(ctx context.Context, flowtype string, ID int64) (Flow, error) {
 	var a Flow
 
-	if _, ok := sessionCheck(ctx); !ok {
+	if _, ok := SessionCheck(ctx); !ok {
 		return a, ErrSessionRequired
 	}
 
@@ -7976,7 +7943,7 @@ func GetFlowIDsByUser(ctx context.Context) ([]int64, error) {
 //     any error encountered
 //-----------------------------------------------------------------------------
 func GetFlowByUserRefNo(ctx context.Context, BID int64, UserRefNo string) (a Flow, err error) {
-	if _, ok := sessionCheck(ctx); !ok {
+	if _, ok := SessionCheck(ctx); !ok {
 		return a, ErrSessionRequired
 	}
 
