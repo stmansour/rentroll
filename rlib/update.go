@@ -3,6 +3,7 @@ package rlib
 import (
 	"context"
 	"encoding/hex"
+	"encoding/json"
 	"extres"
 )
 
@@ -350,6 +351,66 @@ func UpdateExpense(ctx context.Context, a *Expense) error {
 	return updateError(err, "Expense", *a)
 }
 
+// UpdateRAFlowWithInitState updates the flow record with resetting it's state
+// to application being complete
+func UpdateRAFlowWithInitState(ctx context.Context, a *Flow) error {
+	var err error
+
+	// session... context
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+		// user from session, CreateBy, LastModBy
+		a.LastModBy = sess.UID
+	}
+
+	// make sure that json is valid before inserting it in database
+	if !(IsByteDataValidJSON(a.Data)) {
+		return ErrFlowInvalidJSONData
+	}
+
+	// -------------------------------------------------------------------------
+	// RESET META - CHANGE STATE TO APPLICATION BEING COMPLETED
+	// -------------------------------------------------------------------------
+	flowData := RAFlowJSONData{}
+	err = json.Unmarshal([]byte(a.Data), &flowData)
+	if err != nil {
+		return err
+	}
+
+	//  IF DATA HAS BEEN CHANGED, RESET META AND SET STATE TO APP BEING COMPLETED
+	resetMeta := RAFlowMetaInfo{
+		RAID:         flowData.Meta.RAID,
+		BID:          flowData.Meta.BID,
+		LastTMPPETID: flowData.Meta.LastTMPPETID,
+		LastTMPVID:   flowData.Meta.LastTMPVID,
+		LastTMPTCID:  flowData.Meta.LastTMPTCID,
+		LastTMPASMID: flowData.Meta.LastTMPASMID,
+		HavePets:     flowData.Meta.HavePets,
+		HaveVehicles: flowData.Meta.HaveVehicles,
+	}
+	flowData.Meta = resetMeta
+
+	var modFlowJSONData []byte
+	modFlowJSONData, err = json.Marshal(&flowData)
+	if err != nil {
+		return err
+	}
+	// -------------------------------------------------------------------------
+
+	fields := []interface{}{a.BID, a.UserRefNo, a.FlowType, a.ID, modFlowJSONData, a.LastModBy, a.FlowID}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.UpdateFlow)
+		defer stmt.Close()
+		_, err = stmt.Exec(fields...)
+	} else {
+		_, err = RRdb.Prepstmt.UpdateFlow.Exec(fields...)
+	}
+	return updateError(err, "Flow", *a)
+}
+
 // UpdateFlow updates the flow record
 func UpdateFlow(ctx context.Context, a *Flow) error {
 	var err error
@@ -380,8 +441,8 @@ func UpdateFlow(ctx context.Context, a *Flow) error {
 	return updateError(err, "Flow", *a)
 }
 
-// UpdateFlowData updates the flow Data json column
-func UpdateFlowData(ctx context.Context, jsonDataKey string, jsonData []byte, a *Flow) error {
+// UpdateFlowPartData updates the flow Data json column
+func UpdateFlowPartData(ctx context.Context, jsonDataKey string, jsonData []byte, a *Flow) error {
 	var err error
 
 	// session... context
@@ -403,13 +464,13 @@ func UpdateFlowData(ctx context.Context, jsonDataKey string, jsonData []byte, a 
 	// in mysql `json` type column
 	fields := []interface{}{jsonDataKey, jsonData, a.FlowID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.UpdateFlowData)
+		stmt := tx.Stmt(RRdb.Prepstmt.UpdateFlowPartData)
 		defer stmt.Close()
 		_, err = stmt.Exec(fields...)
 	} else {
-		_, err = RRdb.Prepstmt.UpdateFlowData.Exec(fields...)
+		_, err = RRdb.Prepstmt.UpdateFlowPartData.Exec(fields...)
 	}
-	return updateError(err, "FlowData", *a)
+	return updateError(err, "FlowPartData", *a)
 }
 
 // UpdateInvoice updates a Invoice record

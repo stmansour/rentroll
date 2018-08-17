@@ -103,10 +103,11 @@ func UpdateReceipt(ctx context.Context, rnew *rlib.Receipt, dt *time.Time) error
 //-------------------------------------------------------------------------------
 func ReverseReceipt(ctx context.Context, r *rlib.Receipt, dt *time.Time) error {
 	var err error
-
+	rlib.Console("Entered ReverseReceipt\n")
 	if r.FLAGS&0x04 != 0 {
 		return nil // it's already reversed
 	}
+	rlib.Console("ReverseReceipt processing RCPTID = %d\n", r.RCPTID)
 
 	//----------------------------------------------------------------------
 	// The old receipt may have been allocated. Load its ReceiptAllocations

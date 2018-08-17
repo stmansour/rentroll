@@ -86,6 +86,11 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
+
+		// COMMIT TRANSACTION
+		if tx != nil {
+			err = tx.Commit()
+		}
 	}()
 
 	// http method check
@@ -162,7 +167,6 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 		if xp.Trn.TCID > 0 {
 			rlib.MigrateStructVals(&xp.Trn, &newRAFlowPerson)
 		}
-		newRAFlowPerson.BID = d.BID
 
 		// check for additional flags IsRenter, IsOccupant
 		newRAFlowPerson.IsOccupant = true
@@ -310,7 +314,7 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 		flow.Data = modFlowData
 
 		// NOW UPDATE THE WHOLE FLOW
-		err = rlib.UpdateFlow(ctx, &flow)
+		err = rlib.UpdateRAFlowWithInitState(ctx, &flow)
 		if err != nil {
 			return
 		}
@@ -320,13 +324,6 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 		if err != nil {
 			return
 		}
-	}
-
-	// ------------------
-	// COMMIT TRANSACTION
-	// ------------------
-	if err = tx.Commit(); err != nil {
-		return
 	}
 
 	// -------------------
@@ -368,6 +365,11 @@ func DeleteRAFlowPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 			}
 			SvcErrorReturn(w, err, funcname)
 			return
+		}
+
+		// COMMIT TRANSACTION
+		if tx != nil {
+			err = tx.Commit()
 		}
 	}()
 
@@ -447,6 +449,12 @@ func DeleteRAFlowPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 	}
 	raFlowData.Vehicles = vehicles
 
+	// ----------------------------------------------
+	// SYNC RECORDS IN OTHER SECTIONS
+	// ----------------------------------------------
+	// SYNC TIE RECORDS ON CHANGE OF PEOPLE
+	rlib.SyncTieRecords(&raFlowData)
+
 	// LOOK FOR DATA CHANGES
 	var originData rlib.RAFlowJSONData
 	err = json.Unmarshal(flow.Data, &originData)
@@ -467,7 +475,7 @@ func DeleteRAFlowPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 		flow.Data = modFlowData
 
 		// NOW UPDATE THE WHOLE FLOW
-		err = rlib.UpdateFlow(ctx, &flow)
+		err = rlib.UpdateRAFlowWithInitState(ctx, &flow)
 		if err != nil {
 			return
 		}
@@ -477,13 +485,6 @@ func DeleteRAFlowPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 		if err != nil {
 			return
 		}
-	}
-
-	// ------------------
-	// COMMIT TRANSACTION
-	// ------------------
-	if err = tx.Commit(); err != nil {
-		return
 	}
 
 	// -------------------

@@ -9,24 +9,32 @@ import (
 	"time"
 )
 
+// NoAuthEnabled tells whether noauth is enabled or not
+func NoAuthEnabled() bool {
+
+	// IF ENV IS PRODUCTION THEN APP SHOULD NOT ALLOW
+	// NOAUTH FEATURE
+	if AppConfig.Env == extres.APPENVPROD {
+		return false
+	}
+
+	return RRdb.noAuth
+}
+
 // sessionCheck encapsulates 6 lines of code that was repeated in every call
 //
 // INPUTS
 //  ctx  the context, which should have session
 //
 // RETURNS
-//  true - session was required but not found
-//  false - session was found or session not required
+//  the session
+//  ok == true - session was required but not found
+//        false - session was found or session not required
 //-----------------------------------------------------------------------------
 func sessionCheck(ctx context.Context) (*Session, bool) {
 
-	// IF ENV IS PRODUCTION THEN WE MUST CHECK THE SESSION
-	if AppConfig.Env == extres.APPENVPROD {
-		return SessionFromContext(ctx)
-	}
-
-	// IF NOAUTH IS DISABLED THEN WE SHOULD CHECK THE SESSION
-	if !RRdb.noAuth {
+	// IF NOAUTH IS DISABLED THEN WE MUST CHECK SESSION FROM CONTEXT
+	if !NoAuthEnabled() {
 		return SessionFromContext(ctx)
 	}
 
@@ -407,18 +415,9 @@ func GetAllRentalAgreementPets(ctx context.Context, raid int64) ([]RentalAgreeme
 
 // FindAgreementByRentable reads a Prospect structure based on the supplied Transactant id
 func FindAgreementByRentable(ctx context.Context, rid int64, d1, d2 *time.Time) (RentalAgreementRentable, error) {
-
-	var (
-		// err error
-		a RentalAgreementRentable
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return a, ErrSessionRequired
-		}
+	var a RentalAgreementRentable
+	if _, ok := sessionCheck(ctx); !ok {
+		return a, ErrSessionRequired
 	}
 
 	// SELECT RAID,BID,RID,DtStart,DtStop from RentalAgreementRentables where RID=? and DtStop>=? and DtStart<=?
@@ -441,18 +440,10 @@ func FindAgreementByRentable(ctx context.Context, rid int64, d1, d2 *time.Time) 
 
 // GetAllRentableAssessments for the supplied RID and date range
 func GetAllRentableAssessments(ctx context.Context, RID int64, d1, d2 *time.Time) ([]Assessment, error) {
-
-	var (
-		err error
-		t   []Assessment
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return t, ErrSessionRequired
-		}
+	var err error
+	var t []Assessment
+	if _, ok := sessionCheck(ctx); !ok {
+		return t, ErrSessionRequired
 	}
 
 	var rows *sql.Rows
@@ -473,18 +464,10 @@ func GetAllRentableAssessments(ctx context.Context, RID int64, d1, d2 *time.Time
 
 // GetUnpaidAssessmentsByRAID for the supplied RAID
 func GetUnpaidAssessmentsByRAID(ctx context.Context, RAID int64) ([]Assessment, error) {
-
-	var (
-		err error
-		t   []Assessment
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return t, ErrSessionRequired
-		}
+	var err error
+	var t []Assessment
+	if _, ok := sessionCheck(ctx); !ok {
+		return t, ErrSessionRequired
 	}
 
 	var rows *sql.Rows
@@ -503,21 +486,88 @@ func GetUnpaidAssessmentsByRAID(ctx context.Context, RAID int64) ([]Assessment, 
 	return getAssessmentsByRows(ctx, rows)
 }
 
-// GetEpochAssessmentsByRentalAgreement for the supplied RAID
+// GetAssessmentInstancesByRAID returns a list of the recurring assessment
+// instances for the supplied RAID that happen in the supplied time range
 // INPUTS
-// ctx  - context
-// RAID - Rental Agreement id of interest
+//    ctx   - context
+//    RAID  - Rental Agreement id of interest
+//    d1,d2 - Define the time period of interest, d1 = start, d2 = stop
+//
+// RETURNS
+//    array of assessment instances that occur between d1 / d2
+//    error = any error encountered
+//-----------------------------------------------------------------------------
+func GetAssessmentInstancesByRAID(ctx context.Context, RAID int64, d1, d2 *time.Time) ([]Assessment, error) {
+	var err error
+	var t []Assessment
+	if _, ok := sessionCheck(ctx); !ok {
+		return t, ErrSessionRequired
+	}
+
+	var rows *sql.Rows
+	fields := []interface{}{RAID, d1, d2}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAssessmentInstancesByRAID)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetAssessmentInstancesByRAID.Query(fields...)
+	}
+
+	if err != nil {
+		return t, err
+	}
+	return getAssessmentsByRows(ctx, rows)
+}
+
+// GetRecurringAssessmentDefsByRAID returns a list of the recurring assessment
+// definitions for the supplied RAID that happen in the supplied time range
+// INPUTS
+//    ctx   - context
+//    RAID  - Rental Agreement id of interest
+//    d1,d2 - Define the time period of interest, d1 = start, d2 = stop
+//
+// RETURNS
+//    array of recurring assessment definitions that overlap d1/d2
+//    error = any error encountered
+//-----------------------------------------------------------------------------
+func GetRecurringAssessmentDefsByRAID(ctx context.Context, RAID int64, d1, d2 *time.Time) ([]Assessment, error) {
+	var err error
+	var t []Assessment
+	if _, ok := sessionCheck(ctx); !ok {
+		return t, ErrSessionRequired
+	}
+
+	var rows *sql.Rows
+	fields := []interface{}{RAID, d1, d2}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRecurringAssessmentDefsByRAID)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetRecurringAssessmentDefsByRAID.Query(fields...)
+	}
+
+	if err != nil {
+		return t, err
+	}
+	return getAssessmentsByRows(ctx, rows)
+}
+
+// GetEpochAssessmentsByRentalAgreement gets the definition assessments for
+// the supplied RAID
+//
+// INPUTS
+//    ctx  - context
+//    RAID - Rental Agreement id of interest
 //
 // RETURNS
 //    array of recurring assessment definitions and non-recurring single instances
 //    which are not part of a recurring series
 //-----------------------------------------------------------------------------
 func GetEpochAssessmentsByRentalAgreement(ctx context.Context, RAID int64) ([]Assessment, error) {
-
-	var (
-		err error
-		t   []Assessment
-	)
+	var err error
+	var t []Assessment
 	if _, ok := sessionCheck(ctx); !ok {
 		return t, ErrSessionRequired
 	}
@@ -530,6 +580,40 @@ func GetEpochAssessmentsByRentalAgreement(ctx context.Context, RAID int64) ([]As
 		rows, err = stmt.Query(fields...)
 	} else {
 		rows, err = RRdb.Prepstmt.GetEpochAssessmentsByRentalAgreement.Query(fields...)
+	}
+
+	if err != nil {
+		return t, err
+	}
+	return getAssessmentsByRows(ctx, rows)
+}
+
+// GetNorecurAssessmentsByRAIDRange returns the non-recurring assessments for
+// the supplied RAID that are also not part of a recurring series.
+//
+// INPUTS
+//    ctx  - context
+//    RAID - Rental Agreement id of interest
+//
+// RETURNS
+//    slice of assessment assessments
+//    any error encountered
+//-----------------------------------------------------------------------------
+func GetNorecurAssessmentsByRAIDRange(ctx context.Context, RAID int64, d1, d2 *time.Time) ([]Assessment, error) {
+	var err error
+	var t []Assessment
+	if _, ok := sessionCheck(ctx); !ok {
+		return t, ErrSessionRequired
+	}
+
+	var rows *sql.Rows
+	fields := []interface{}{RAID, d1, d2}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetNorecurAssessmentsByRAIDRange)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetNorecurAssessmentsByRAIDRange.Query(fields...)
 	}
 
 	if err != nil {
@@ -583,18 +667,10 @@ func GetAssessmentsByRAIDRID(ctx context.Context, bid, raid, rid int64) ([]Asses
 //    array of matching assessments
 //-----------------------------------------------------------------------------
 func GetAssessmentInstancesByParent(ctx context.Context, id int64, d1, d2 *time.Time) ([]Assessment, error) {
-
-	var (
-		err error
-		t   []Assessment
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return t, ErrSessionRequired
-		}
+	var err error
+	var t []Assessment
+	if _, ok := sessionCheck(ctx); !ok {
+		return t, ErrSessionRequired
 	}
 
 	var rows *sql.Rows
@@ -615,18 +691,10 @@ func GetAssessmentInstancesByParent(ctx context.Context, id int64, d1, d2 *time.
 
 // getAssessmentsByRows for the supplied sql.Rows
 func getAssessmentsByRows(ctx context.Context, rows *sql.Rows) ([]Assessment, error) {
-
-	var (
-		err error
-		t   []Assessment
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return t, ErrSessionRequired
-		}
+	var err error
+	var t []Assessment
+	if _, ok := sessionCheck(ctx); !ok {
+		return t, ErrSessionRequired
 	}
 
 	defer rows.Close()
@@ -6424,7 +6492,7 @@ func GetRentalAgreementPayorsByRAID(ctx context.Context, raid int64) ([]RentalAg
 
 // GetRentalAgreementsByPayor returns an array of RentalAgreementPayor where the supplied
 // TCID is a payor on the specified date
-func GetRentalAgreementsByPayor(ctx context.Context, bid, tcid int64, dt *time.Time) ([]RentalAgreementPayor, error) {
+func GetRentalAgreementsByPayor(ctx context.Context, bid, tcid int64) ([]RentalAgreementPayor, error) {
 	var t []RentalAgreementPayor
 	var err error
 	if _, ok := sessionCheck(ctx); !ok {

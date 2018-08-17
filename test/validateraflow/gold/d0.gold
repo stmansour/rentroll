@@ -1,0 +1,55 @@
+{
+    "errors": {
+        "dates": {
+            "errors": {
+                "AgreementStart": [
+                    "agreement start date must be prior to agreement stop date"
+                ],
+                "PossessionStart": [
+                    "possessions start date must be prior to possessions stop date"
+                ],
+                "RentStart": [
+                    "rent start date must be prior to rent stop date"
+                ]
+            },
+            "total": 3
+        },
+        "parentchild": {
+            "errors": [],
+            "total": 0
+        },
+        "people": {
+            "errors": [],
+            "total": 0
+        },
+        "pets": {
+            "errors": [],
+            "total": 0
+        },
+        "rentables": {
+            "errors": [],
+            "total": 0
+        },
+        "tie": {
+            "people": {
+                "errors": [],
+                "total": 0
+            }
+        },
+        "vehicles": {
+            "errors": [],
+            "total": 0
+        }
+    },
+    "nonFieldsErrors": {
+        "dates": [],
+        "parentchild": [],
+        "people": [],
+        "pets": [],
+        "rentables": [],
+        "tie": [],
+        "vehicles": []
+    },
+    "status": "success",
+    "total": 3
+}

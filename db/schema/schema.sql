@@ -1,34 +1,6 @@
 --     Field names are camel case
 --     Money values are all stored as DECIMAL(19,4)
 
--- ********************************
--- *********  UNIQUE IDS  *********
--- ********************************
--- ASMID = Assessment id
--- ATypeLID = assessment type id
--- AVAILID = availability id
--- BID = Business id
--- BLDGID = Building id
--- CID = custom attribute id
--- DISBID = disbursement id
--- JAID = Journal allocation id
--- JID = Journal id
--- JMID = Journal marker id
--- LEID = LedgerEntry id
--- LMID = LedgerMarker id
--- OFSID = offset id
--- PID = Payor id
--- PMTID = payment type id
--- PRSPID = Prospect id
--- RAID = rental agreement / occupancy agreement
--- RATID = rental agreement template id
--- RCPTID = Receipt id
--- RID = Rentable id
--- RSPID = unit specialty id
--- RTID = Rentable type id
--- TCID = Transactant id
--- USERID = User id
-
 DROP DATABASE IF EXISTS rentroll;
 CREATE DATABASE rentroll;
 USE rentroll;
@@ -262,7 +234,7 @@ CREATE TABLE RentalAgreement (
     MoveInUID BIGINT NOT NULL DEFAULT 0,                               -- UID of person who sets RA to Move In state
     MoveInDate DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',        -- datetime when RA was set to Move In state
     ActiveUID BIGINT NOT NULL DEFAULT 0,                               -- UID of person who sets RA to Active state
-    ActiveDate DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',        -- datetime when RA was set to Active state 
+    ActiveDate DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',        -- datetime when RA was set to Active state
     Outcome BIGINT NOT NULL DEFAULT 0,                                 -- Only valid if state == Appl Elect(6), this is the SLSID of string from a list of WhyLeaving
     NoticeToMoveUID BIGINT NOT NULL DEFAULT 0,                         -- if > 0 it is the UID of the person who set this RA to state Notice To Move
     NoticeToMoveDate DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- datetime RA was set to Terminated, valid only if TerminatorUID >0

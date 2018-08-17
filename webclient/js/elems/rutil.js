@@ -1202,6 +1202,8 @@ window.prepareW2UIStuff = function prepareW2UIStuff(app) {
 //   gridName = w2ui grid component name
 //-----------------------------------------------------------------------------
 window.reassignGridRecids = function(gridName) {
+    app.last.grid_sel_recid = -1;
+
     if (gridName in w2ui) {
         var grid = w2ui[gridName];
         for (var j = 0; j < grid.records.length; j++) {

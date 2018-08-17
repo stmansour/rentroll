@@ -82,6 +82,7 @@ type RAFlowJSONData struct {
 
 // RAFlowMetaInfo holds meta info about a rental agreement flow data
 type RAFlowMetaInfo struct {
+	BID                    int64
 	RAID                   int64 // 0 = it's new, >0 = existing one
 	LastTMPPETID           int64
 	LastTMPVID             int64
@@ -120,7 +121,6 @@ type RAFlowMetaInfo struct {
 
 // RADatesFlowData contains data in the dates part of RA flow
 type RADatesFlowData struct {
-	BID             int64    `validate:"number,min=0"`
 	AgreementStart  JSONDate `validate:"date"` // TermStart
 	AgreementStop   JSONDate `validate:"date"` // TermStop
 	RentStart       JSONDate `validate:"date"`
@@ -133,7 +133,6 @@ type RADatesFlowData struct {
 // RAPeopleFlowData contains data in the background-info part of RA flow
 type RAPeopleFlowData struct {
 	TMPTCID int64 `validate:"number,min=1"`
-	BID     int64 `validate:"number,min=0"`
 	TCID    int64 `validate:"number,min=0"`
 
 	// Role
@@ -209,20 +208,19 @@ type RAPeopleFlowData struct {
 	Points      int64    `validate:"number,min=1,omitempty"`
 	DateofBirth JSONDate `validate:"-"`
 	// Emergency contact information
-	EmergencyContactName      string `validate:"string,min=1,max=100"`
-	EmergencyContactAddress   string `validate:"string,min=1,max=100"`
-	EmergencyContactTelephone string `validate:"string,min=1,max=100"`
+	EmergencyContactName      string `validate:"string,min=1,max=100,omitempty"`
+	EmergencyContactAddress   string `validate:"string,min=1,max=100,omitempty"`
+	EmergencyContactTelephone string `validate:"string,min=1,max=100,omitempty"`
 	EmergencyContactEmail     string `validate:"email"`
 	AlternateEmailAddress     string `validate:"string,min=1,max=100,omitempty"`
 	EligibleFutureUser        bool   `validate:"-"`
 	Industry                  int64  `validate:"number,min=0,omitempty"`
-	SourceSLSID               int64  `validate:"number,min=1"` // It is compulsory when role is set to renter or user. It'll be check via bizlogic.
+	SourceSLSID               int64  `validate:"number,min=0,omitempty"` // It is compulsory when role is set to renter or user. It'll be check via bizlogic.
 }
 
 // RAPetsFlowData contains data in the pets part of RA flow
 type RAPetsFlowData struct {
 	TMPPETID int64        `validate:"number,min=1"`
-	BID      int64        `validate:"number,min=0"`
 	PETID    int64        `validate:"number,min=0"`
 	TMPTCID  int64        `validate:"number,min=0"`
 	Name     string       `validate:"string,min=1,max=100"`
@@ -238,7 +236,6 @@ type RAPetsFlowData struct {
 // RAVehiclesFlowData contains data in the vehicles part of RA flow
 type RAVehiclesFlowData struct {
 	TMPVID              int64        `validate:"number,min=1"`
-	BID                 int64        `validate:"number,min=0"`
 	VID                 int64        `validate:"number,min=0"`
 	TMPTCID             int64        `validate:"number,min=0"`
 	VIN                 string       `validate:"string,min=1,omitempty"`
@@ -257,7 +254,6 @@ type RAVehiclesFlowData struct {
 
 // RARentablesFlowData contains data in the rentables part of RA flow
 type RARentablesFlowData struct {
-	BID             int64 `validate:"number,min=0"`
 	RID             int64 `validate:"number,min=0"`
 	RTID            int64 `validate:"number,min=0"`
 	RTFLAGS         uint64
@@ -279,6 +275,7 @@ type RAFeesData struct {
 	ARName          string   `validate:"string,min=1,max=100"`
 	ContractAmount  float64  `validate:"number:float,min=0.00"`
 	RentCycle       int64    `validate:"number,min=0"`
+	ProrationCycle  int64    `validate:"number,min=0"`
 	Start           JSONDate `validate:"date"`
 	Stop            JSONDate `validate:"date"`
 	AtSigningPreTax float64  `validate:"number:float,min=0.00"`
@@ -291,7 +288,6 @@ type RAFeesData struct {
 
 // RAParentChildFlowData contains data in the Parent/Child part of RA flow
 type RAParentChildFlowData struct {
-	BID  int64 `validate:"number,min=0"`
 	PRID int64 `validate:"number,min=0"` // parent rentable ID
 	CRID int64 `validate:"number,min=0"` // child rentable ID
 }
@@ -303,7 +299,6 @@ type RATieFlowData struct {
 
 // RATiePeopleData holds data from tie section for a payor to a rentable
 type RATiePeopleData struct {
-	BID     int64 `validate:"number,min=0"`
 	PRID    int64 `validate:"number,min=0"`
 	TMPTCID int64 `validate:"number,min=0"` // user's temp json record reference id
 }
@@ -377,7 +372,6 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 			currentDateTime := time.Now()
 			nextYearDateTime := currentDateTime.AddDate(1, 0, 0)
 
-			a.BID = BID
 			a.RentStart = JSONDate(currentDateTime)
 			a.RentStop = JSONDate(nextYearDateTime)
 			a.AgreementStart = JSONDate(currentDateTime)
@@ -585,19 +579,6 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 		return
 	}
 
-	//  IF DATA HAS BEEN CHANGED, RESET META AND SET STATE TO APP BEING COMPLETED
-
-	resetMeta := RAFlowMetaInfo{
-		RAID:         raFlowData.Meta.RAID,
-		LastTMPPETID: raFlowData.Meta.LastTMPPETID,
-		LastTMPVID:   raFlowData.Meta.LastTMPVID,
-		LastTMPTCID:  raFlowData.Meta.LastTMPTCID,
-		LastTMPASMID: raFlowData.Meta.LastTMPASMID,
-		HavePets:     raFlowData.Meta.HavePets,
-		HaveVehicles: raFlowData.Meta.HaveVehicles,
-	}
-	raFlowData.Meta = resetMeta
-
 	// GET JSON DATA FROM THE STRUCT
 	var modFlowData []byte
 	modFlowData, err = json.Marshal(&raFlowData)
@@ -609,7 +590,7 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 	flow.Data = modFlowData
 
 	// NOW UPDATE THE WHOLE FLOW
-	return UpdateFlow(ctx, flow)
+	return UpdateRAFlowWithInitState(ctx, flow)
 }
 
 // SyncParentChildRecords modifies parent-child list cause of on change of rentable records
@@ -631,6 +612,14 @@ func SyncParentChildRecords(raFlowData *RAFlowJSONData) {
 		}
 	}
 
+	// GET ALL CHILD RENTABLES FIRST
+	childRentables := []RARentablesFlowData{}
+	for i := range raFlowData.Rentables {
+		if raFlowData.Rentables[i].RTFLAGS&(1<<childRentableBit) != 0 {
+			childRentables = append(childRentables, raFlowData.Rentables[i])
+		}
+	}
+
 	// IF ONLY ONE RENTABLE THEN ASSIGN IT'S RID IN ALL TIE PEOPLE ENTRIES
 	reAssignRID := int64(0)
 	shouldReAssignRID := len(parentRentables) <= 1
@@ -639,38 +628,49 @@ func SyncParentChildRecords(raFlowData *RAFlowJSONData) {
 	}
 
 	// CHILD RENTABLES
-	for i := range raFlowData.Rentables {
-		if raFlowData.Rentables[i].RTFLAGS&(1<<childRentableBit) != 0 {
-			found := false
-			for k := range raFlowData.ParentChild {
-				if raFlowData.ParentChild[k].CRID == raFlowData.Rentables[i].RID {
-					found = true
-
-					// IF ONLY ONE RENTABLE THEN ASSIGN IT'S RID IN ALL TIE PEOPLE ENTRIES
-					if shouldReAssignRID {
-						raFlowData.ParentChild[k].PRID = reAssignRID
-					}
-				}
-			}
-
-			// IF ENTRY NOT FOUND THEN APPEND
-			if !found {
-				n := RAParentChildFlowData{
-					BID:  0, // WILL BE REMOVED
-					PRID: 0,
-					CRID: raFlowData.Rentables[i].RID,
-				}
+	for i := range childRentables {
+		found := false
+		for k := range raFlowData.ParentChild {
+			if raFlowData.ParentChild[k].CRID == childRentables[i].RID {
+				found = true
 
 				// IF ONLY ONE RENTABLE THEN ASSIGN IT'S RID IN ALL TIE PEOPLE ENTRIES
 				if shouldReAssignRID {
-					n.PRID = reAssignRID
+					raFlowData.ParentChild[k].PRID = reAssignRID
 				}
 
-				// APPEND
-				raFlowData.ParentChild = append(raFlowData.ParentChild, n)
+				break
+			}
+		}
+
+		// IF ENTRY NOT FOUND THEN APPEND
+		if !found {
+			n := RAParentChildFlowData{
+				PRID: 0,
+				CRID: childRentables[i].RID,
+			}
+
+			// IF ONLY ONE RENTABLE THEN ASSIGN IT'S RID IN ALL TIE PEOPLE ENTRIES
+			if shouldReAssignRID {
+				n.PRID = reAssignRID
+			}
+
+			// APPEND
+			raFlowData.ParentChild = append(raFlowData.ParentChild, n)
+		}
+	}
+
+	// REMOVE ENTRY FROM PARENT CHILD WHICH ARE NOT IN CHILD RENTALBE LIST
+	modParentChild := []RAParentChildFlowData{}
+	for i := range raFlowData.ParentChild {
+		for k := range childRentables {
+			if raFlowData.ParentChild[i].CRID == childRentables[k].RID {
+				modParentChild = append(modParentChild, raFlowData.ParentChild[i])
+				break
 			}
 		}
 	}
+	raFlowData.ParentChild = modParentChild
 }
 
 // SyncTieRecords modifies tie records cause of on change of people or rentable records
@@ -692,6 +692,14 @@ func SyncTieRecords(raFlowData *RAFlowJSONData) {
 		}
 	}
 
+	// GET ALL OCCUPANTS
+	occupants := []RAPeopleFlowData{}
+	for i := range raFlowData.People {
+		if raFlowData.People[i].IsOccupant {
+			occupants = append(occupants, raFlowData.People[i])
+		}
+	}
+
 	// IF ONLY ONE RENTABLE THEN ASSIGN IT'S RID IN ALL TIE PEOPLE ENTRIES
 	reAssignRID := int64(0)
 	shouldReAssignRID := len(parentRentables) <= 1
@@ -699,40 +707,49 @@ func SyncTieRecords(raFlowData *RAFlowJSONData) {
 		reAssignRID = parentRentables[0].RID
 	}
 
-	for i := range raFlowData.People {
+	for i := range occupants {
 		// TIE RECORD SYNC FOR OCCUPANTS
-		if raFlowData.People[i].IsOccupant {
-			personFound := false
-			for k := range raFlowData.Tie.People {
-				if raFlowData.Tie.People[k].TMPTCID == raFlowData.People[i].TMPTCID {
-					personFound = true
-
-					// IF ONLY ONE RENTABLE THEN ASSIGN IT'S RID IN ALL TIE PEOPLE ENTRIES
-					if shouldReAssignRID {
-						raFlowData.Tie.People[k].PRID = reAssignRID
-					}
-
-					break
-				}
-			}
-
-			// IF PERSON NOT FOUND THEN ADD ENTRY IN TIE
-			if !personFound {
-				tiePerson := RATiePeopleData{
-					BID:     0, // WILL BE REMOVED
-					TMPTCID: raFlowData.People[i].TMPTCID,
-					PRID:    0,
-				}
+		personFound := false
+		for k := range raFlowData.Tie.People {
+			if raFlowData.Tie.People[k].TMPTCID == occupants[i].TMPTCID {
+				personFound = true
 
 				// IF ONLY ONE RENTABLE THEN ASSIGN IT'S RID IN ALL TIE PEOPLE ENTRIES
 				if shouldReAssignRID {
-					tiePerson.PRID = reAssignRID
+					raFlowData.Tie.People[k].PRID = reAssignRID
 				}
 
-				raFlowData.Tie.People = append(raFlowData.Tie.People, tiePerson)
+				break
+			}
+		}
+
+		// IF PERSON NOT FOUND THEN ADD ENTRY IN TIE
+		if !personFound {
+			tiePerson := RATiePeopleData{
+				TMPTCID: occupants[i].TMPTCID,
+				PRID:    0,
+			}
+
+			// IF ONLY ONE RENTABLE THEN ASSIGN IT'S RID IN ALL TIE PEOPLE ENTRIES
+			if shouldReAssignRID {
+				tiePerson.PRID = reAssignRID
+			}
+
+			raFlowData.Tie.People = append(raFlowData.Tie.People, tiePerson)
+		}
+	}
+
+	// REMOVE ENTRY FROM PARENT CHILD WHICH ARE NOT IN CHILD RENTALBE LIST
+	modTiePeople := []RATiePeopleData{}
+	for i := range raFlowData.Tie.People {
+		for k := range occupants {
+			if raFlowData.Tie.People[i].TMPTCID == occupants[k].TMPTCID {
+				modTiePeople = append(modTiePeople, raFlowData.Tie.People[i])
+				break
 			}
 		}
 	}
+	raFlowData.Tie.People = modTiePeople
 }
 
 // possessDateChangeRAFlowUpdates updates raflow json with required
@@ -769,27 +786,10 @@ func rentDateChangeRAFlowUpdates(ctx context.Context, BID int64, rStart, rStop t
 	// LOOP OVER PET FEES IN RAFLOW
 	for pi := range raFlowData.Pets {
 
-		// GET FEES COPY
-		fees := []RAFeesData{}
-
-		// REMOVE PRORATED FEES FROM THE LIST
-		for i := range raFlowData.Pets[pi].Fees {
-			var ar AR
-			ar, err = GetAR(ctx, raFlowData.Pets[pi].Fees[i].ARID)
-			if err != nil {
-				return
-			}
-
-			// IF NOT (RENT ASM && START == STOP) THEN APPEND
-			if !(ar.FLAGS&(1<<4) != 0 &&
-				(time.Time)(raFlowData.Pets[pi].Fees[i].Start).Equal((time.Time)(raFlowData.Pets[pi].Fees[i].Stop))) {
-				fees = append(fees, raFlowData.Pets[pi].Fees[i])
-			}
-		}
-
 		// GET MODIFIED PET FEES FROM THIS FLOW DATA PET FEES AND RENT DATES
 		var modPetFees []RAFeesData
-		modPetFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName, rStart, rStop, fees)
+		modPetFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName,
+			rStart, rStop, raFlowData.Pets[pi].Fees)
 		if err != nil {
 			return
 		}
@@ -808,29 +808,12 @@ func rentDateChangeRAFlowUpdates(ctx context.Context, BID int64, rStart, rStop t
 	// VEHICLE FEES MODIFICATION
 	// -----------------------------------------------
 	// LOOP OVER VEHICLE FEES IN RAFLOW
-	for pi := range raFlowData.Vehicles {
-
-		// GET FEES COPY
-		fees := []RAFeesData{}
-
-		// REMOVE PRORATED FEES FROM THE LIST
-		for i := range raFlowData.Vehicles[pi].Fees {
-			var ar AR
-			ar, err = GetAR(ctx, raFlowData.Vehicles[pi].Fees[i].ARID)
-			if err != nil {
-				return
-			}
-
-			// IF NOT (RENT ASM && START == STOP) THEN APPEND
-			if !(ar.FLAGS&(1<<4) != 0 &&
-				(time.Time)(raFlowData.Vehicles[pi].Fees[i].Start).Equal((time.Time)(raFlowData.Vehicles[pi].Fees[i].Stop))) {
-				fees = append(fees, raFlowData.Vehicles[pi].Fees[i])
-			}
-		}
+	for vi := range raFlowData.Vehicles {
 
 		// GET MODIFIED VEHICLE FEES FROM THIS FLOW DATA VEHICLE FEES AND RENT DATES
 		var modVehicleFees []RAFeesData
-		modVehicleFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName, rStart, rStop, fees)
+		modVehicleFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName,
+			rStart, rStop, raFlowData.Vehicles[vi].Fees)
 		if err != nil {
 			return
 		}
@@ -842,37 +825,19 @@ func rentDateChangeRAFlowUpdates(ctx context.Context, BID int64, rStart, rStop t
 		}
 
 		// RE-ASSIGN FEES
-		raFlowData.Vehicles[pi].Fees = modVehicleFees
+		raFlowData.Vehicles[vi].Fees = modVehicleFees
 	}
 
 	// -----------------------------------------------
 	// RENTABLE FEES MODIFICATION
 	// -----------------------------------------------
 	// LOOP OVER RENTABLE FEES IN RAFLOW
-	for pi := range raFlowData.Rentables {
-
-		// GET FEES COPY
-		fees := []RAFeesData{}
-
-		// REMOVE PRORATED FEES FROM THE LIST
-		for i := range raFlowData.Rentables[pi].Fees {
-			var ar AR
-			ar, err = GetAR(ctx, raFlowData.Rentables[pi].Fees[i].ARID)
-			if err != nil {
-				return
-			}
-
-			// IF NOT (RENT ASM && START == STOP) THEN APPEND
-			// i.e, NOT (PRORATED ONE)
-			if !(ar.FLAGS&(1<<4) != 0 &&
-				(time.Time)(raFlowData.Rentables[pi].Fees[i].Start).Equal((time.Time)(raFlowData.Rentables[pi].Fees[i].Stop))) {
-				fees = append(fees, raFlowData.Rentables[pi].Fees[i])
-			}
-		}
+	for ri := range raFlowData.Rentables {
 
 		// GET MODIFIED RENTABLE FEES FROM THIS FLOW DATA RENTABLE FEES AND RENT DATES
 		var modRentableFees []RAFeesData
-		modRentableFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName, rStart, rStop, fees)
+		modRentableFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName,
+			rStart, rStop, raFlowData.Rentables[ri].Fees)
 		if err != nil {
 			return
 		}
@@ -884,7 +849,7 @@ func rentDateChangeRAFlowUpdates(ctx context.Context, BID int64, rStart, rStop t
 		}
 
 		// RE-ASSIGN FEES
-		raFlowData.Rentables[pi].Fees = modRentableFees
+		raFlowData.Rentables[ri].Fees = modRentableFees
 	}
 
 	return
@@ -905,7 +870,6 @@ func InsertInitialRAFlow(ctx context.Context, BID, UID int64) (int64, error) {
 	// rental agreement flow data
 	initialRAFlow := RAFlowJSONData{
 		Dates: RADatesFlowData{
-			BID:             BID,
 			RentStart:       JSONDate(currentDateTime),
 			RentStop:        JSONDate(nextYearDateTime),
 			AgreementStart:  JSONDate(currentDateTime),
@@ -921,6 +885,9 @@ func InsertInitialRAFlow(ctx context.Context, BID, UID int64) (int64, error) {
 		ParentChild: []RAParentChildFlowData{},
 		Tie: RATieFlowData{
 			People: []RATiePeopleData{},
+		},
+		Meta: RAFlowMetaInfo{
+			BID: BID,
 		},
 	}
 
@@ -988,7 +955,8 @@ func RAFlowDataDiff(ctx context.Context, RAID int64) (isDiff bool, err error) {
 	}
 
 	// convert permanent ra to flow data and get it
-	permanentData, err = ConvertRA2Flow(ctx, &ra)
+	EditFlag := false // this flag should be set to true only when requesting fees for an amended RA
+	permanentData, err = ConvertRA2Flow(ctx, &ra, EditFlag)
 	if err != nil {
 		return
 	}
@@ -1009,16 +977,22 @@ func RAFlowDataDiff(ctx context.Context, RAID int64) (isDiff bool, err error) {
 // rental agreement data to raflow data
 //
 // INPUTS:
-//     ctx    database context for transactions
-//     ra     the rental agreement to move into a flow
+//     ctx       database context for transactions
+//     ra        the rental agreement to move into a flow
+//     EditFlag  false: add all unpaid and/or recurring assessments (that have
+//               not been reversed) as fees
+//               true: only add recurring asms that overlap the new agreement
+//               term and nonrecurring asms that have not been paid or reversed
+//               and that are scheduled during the new agreement term.
 //
 // RETURNS:
 //     the RAFlowJSONData
 //     any error encountered
 //-------------------------------------------------------------------------
-func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement) (RAFlowJSONData, error) {
+func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement, EditFlag bool) (RAFlowJSONData, error) {
 	const funcname = "ConvertRA2Flow"
 
+	Console("Entered %s\n", funcname)
 	//-------------------------------------------------------------
 	// This is the datastructure we need to fill out and save...
 	//-------------------------------------------------------------
@@ -1032,7 +1006,6 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement) (RAFlowJSONData, e
 
 	var raf = RAFlowJSONData{
 		Dates: RADatesFlowData{
-			BID:             ra.BID,
 			RentStart:       JSONDate(ra.RentStart),
 			RentStop:        JSONDate(ra.RentStop),
 			AgreementStart:  JSONDate(ra.AgreementStart),
@@ -1050,6 +1023,7 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement) (RAFlowJSONData, e
 			People: []RATiePeopleData{},
 		},
 		Meta: RAFlowMetaInfo{
+			BID:                    ra.BID,
 			RAID:                   ra.RAID,
 			RAFLAGS:                ra.FLAGS,
 			ApplicationReadyUID:    ra.ApplicationReadyUID,
@@ -1143,7 +1117,6 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement) (RAFlowJSONData, e
 			return raf, nil
 		}
 		var rfd = RARentablesFlowData{
-			BID:          o[i].BID,
 			RID:          o[i].RID,
 			RTID:         rtr.RTID,
 			RTFLAGS:      rt.FLAGS,
@@ -1157,11 +1130,38 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement) (RAFlowJSONData, e
 		// For this we want to load all 1-time fees and all
 		// recurring fees.
 		//---------------------------------------------------------
-		asms, err := GetAssessmentsByRAIDRID(ctx, rfd.BID, ra.RAID, rfd.RID)
+		var asms []Assessment
+		asms, err = GetAssessmentsByRAIDRID(ctx, o[i].BID, ra.RAID, rfd.RID)
 		if err != nil {
 			return raf, nil
 		}
 		for j := 0; j < len(asms); j++ {
+			//----------------------------------------------------------
+			// do any quick rejection needed
+			//----------------------------------------------------------
+			// Console("******************\n\nChecking ASMID %d\n", asms[j].ASMID)
+			if EditFlag {
+				// Console("Checking for EDIT AMENDING\n")
+				if asms[j].FLAGS&4 > 0 || asms[j].FLAGS&3 > 0 { // reversed or partially or fully paid
+					// Console("Rejected: reversed or partially or fully paid\n")
+					continue
+				}
+				if !DateRangeOverlap(&now, &ra.AgreementStop, &asms[j].Start, &asms[j].Stop) {
+					// Console("Rejected: no overlap: %s - %s  with  %s - %s\n", now.Format(RRDATEREPORTFMT), ra.AgreementStop.Format(RRDATEREPORTFMT), asms[j].Start.Format(RRDATEREPORTFMT), asms[j].Stop.Format(RRDATEREPORTFMT))
+					continue
+				}
+				if asms[j].RentCycle == RECURNONE && !DateRangeOverlap(&now, &ra.AgreementStop, &asms[j].Start, &asms[j].Stop) {
+					// Console("Rejected: norecur and no overlap: %s - %s  with  %s - %s\n", now.Format(RRDATEREPORTFMT), ra.AgreementStop.Format(RRDATEREPORTFMT), asms[j].Start.Format(RRDATEREPORTFMT), asms[j].Stop.Format(RRDATEREPORTFMT))
+					continue
+				}
+			} else {
+				// Console("Checking for VIEWING\n")
+				if asms[j].FLAGS&4 > 0 { // reversed
+					// Console("Rejected: reversed\n")
+					continue
+				}
+			}
+			// Console("Adding ASMID %d\n", asms[j].ASMID)
 
 			//----------------------------------------------------------
 			// Get the account rule for this assessment...
@@ -1183,6 +1183,7 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement) (RAFlowJSONData, e
 					ARName:         ar.Name,
 					ContractAmount: asms[j].Amount,
 					RentCycle:      asms[j].RentCycle,
+					ProrationCycle: asms[j].ProrationCycle,
 					Start:          JSONDate(asms[j].Start),
 					Stop:           JSONDate(asms[j].Stop),
 					Comment:        asms[j].Comment,
@@ -1193,16 +1194,6 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement) (RAFlowJSONData, e
 			//----------------------------------------------------------
 			// Handle PET Fees
 			//----------------------------------------------------------
-			// TMPASMID        int64 // unique ID to manage fees uniquely across all fees in raflow json data
-			// ASMID           int64 // the permanent table assessment id if it is an existing RAID
-			// ARID            int64
-			// ARName          string
-			// ContractAmount  float64
-			// RentCycle       int64
-			// Start           JSONDate
-			// Stop            JSONDate
-			// AtSigningPreTax float64
-			// SalesTax        float64
 			if ar.FLAGS&(128) != 0 { // Is it a pet fee?
 				petid := asms[j].AssocElemID // find the pet...
 				for k := 0; k < len(raf.Pets); k++ {
@@ -1214,6 +1205,7 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement) (RAFlowJSONData, e
 							ASMID:          asms[j].ASMID,
 							ARName:         ar.Name,
 							RentCycle:      asms[j].RentCycle,
+							ProrationCycle: asms[j].ProrationCycle,
 							Start:          JSONDate(asms[j].Start),
 							Stop:           JSONDate(asms[j].Stop),
 							ContractAmount: asms[j].Amount,
@@ -1239,6 +1231,7 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement) (RAFlowJSONData, e
 							ARName:         ar.Name,
 							ContractAmount: asms[j].Amount,
 							RentCycle:      asms[j].RentCycle,
+							ProrationCycle: asms[j].ProrationCycle,
 							Start:          JSONDate(asms[j].Start),
 							Stop:           JSONDate(asms[j].Stop),
 							Comment:        asms[j].Comment,
@@ -1305,7 +1298,6 @@ func addRAPtoFlow(ctx context.Context, tcid, rid int64, raf *RAFlowJSONData, chk
 
 		// only tie occupants to rentable
 		var t RATiePeopleData
-		t.BID = rap.BID
 		t.TMPTCID = rap.TMPTCID
 		if rid > 0 {
 			t.PRID = rid

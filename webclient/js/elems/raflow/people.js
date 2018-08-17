@@ -1,18 +1,18 @@
 /* global
-    RACompConfig, reassignGridRecids,
+    RACompConfig, reassignGridRecids, RAFlowAJAX,
     getFullName, getTCIDName,
     HideSliderContent, ShowSliderContentW2UIComp,
-    saveActiveCompData, getRAFlowCompData,
-    openNewTransactantForm, acceptTransactant, loadRAPeopleForm,
+    SaveCompDataAJAX, GetRAFlowCompLocalData,
+    openNewTransactantForm, acceptTransactant, loadRAPeopleSearchForm,
     setRATransactantFormHeader, showHideRATransactantFormFields,
     setNotRequiredFields, getRAPeopleGridRecord, ReassignPeopleGridRecords,
-    manageBGInfoFormFields, addDummyBackgroundInfo, savePeopleCompData, getPeopleLocalData, setPeopleLocalData,
+    manageBGInfoFormFields, addDummyBackgroundInfo, SavePeopleCompDataAJAX, getPeopleLocalData, setPeopleLocalData,
     getPeopleLocalDataByTCID, setTransactantDefaultRole,
-    getStringListData, getSLStringList, updateRATransactantFormCheckboxes, updateFlowData,
-    managePeopleW2UIItems, removeRAFlowPersonAJAX, saveRAFlowPersonAJAX, onCheckboxesChange, getRecIDFromTMPTCID, dispalyRAPeopleGridError,
-    displayRAPeopleFormError, getPeopleIndex, displayFormFieldsError,
+    getStringListData, getSLStringList, updateRATransactantFormCheckboxes, UpdateRAFlowLocalData,
+    managePeopleW2UIItems, DeleteRAFlowPersonAJAX, SaveRAFlowPersonAJAX, onCheckboxesChange, getRecIDFromTMPTCID, dispalyRAPeopleGridError,
+    displayRAPeopleSearchFormError, getPeopleIndex, displayFormFieldsError,
     GetCurrentFlowID, EnableDisableRAFlowVersionInputs, ShowHideGridToolbarAddButton,
-    HideAllSliderContent, displayRAPeopleFormTabErrorDot
+    HideAllSliderContent, displayRAPeopleSearchFormTabErrorDot
 */
 
 "use strict";
@@ -24,17 +24,19 @@
 // -------------------------------------------------------------------------------
 // Rental Agreement - People form, People Grid, Background information form
 // -------------------------------------------------------------------------------
-window.loadRAPeopleForm = function () {
+window.loadRAPeopleGrid = function () {
 
     // if form is loaded then return
-    if (!("RAPeopleForm" in w2ui)) {
+    if (!("RAPeopleGrid" in w2ui)) {
 
-        // people form
+        // ------------------------------------
+        // PEOPLE SEARCH FORM
+        // ------------------------------------
         $().w2form({
-            name: 'RAPeopleForm',
+            name: 'RAPeopleSearchForm',
             header: 'People',
             style: 'display: block; border: none;',
-            formURL: '/webclient/html/raflow/formra-people.html',
+            formURL: '/webclient/html/raflow/formra-peoplesearch.html',
             focus: -1,
             fields: [
                 {name: 'Transactant',   type: 'enum',       required: true,     html: {caption: "Transactant"},
@@ -44,15 +46,15 @@ window.loadRAPeopleForm = function () {
                         renderItem: function (item) {
 
                             // Enable Accept button
-                            $(w2ui.RAPeopleForm.box).find("button[name=accept]").prop("disabled", false);
+                            $(w2ui.RAPeopleSearchForm.box).find("button[name=accept]").prop("disabled", false);
 
                             var s = getTCIDName(item);
-                            w2ui.RAPeopleForm.record.TCID = item.TCID;
-                            w2ui.RAPeopleForm.record.FirstName = item.FirstName;
-                            w2ui.RAPeopleForm.record.LastName = item.LastName;
-                            w2ui.RAPeopleForm.record.MiddleName = item.MiddleName;
-                            w2ui.RAPeopleForm.record.CompanyName = item.CompanyName;
-                            w2ui.RAPeopleForm.record.IsCompany = item.IsCompany;
+                            w2ui.RAPeopleSearchForm.record.TCID = item.TCID;
+                            w2ui.RAPeopleSearchForm.record.FirstName = item.FirstName;
+                            w2ui.RAPeopleSearchForm.record.LastName = item.LastName;
+                            w2ui.RAPeopleSearchForm.record.MiddleName = item.MiddleName;
+                            w2ui.RAPeopleSearchForm.record.CompanyName = item.CompanyName;
+                            w2ui.RAPeopleSearchForm.record.IsCompany = item.IsCompany;
                             return s;
                         },
                         renderDrop: function (item) {
@@ -67,7 +69,7 @@ window.loadRAPeopleForm = function () {
                         },
                         onRemove: function(event) {
                             event.onComplete = function() {
-                                w2ui.RAPeopleForm.actions.reset();
+                                w2ui.RAPeopleSearchForm.actions.reset();
                             };
                         }
                     }
@@ -82,8 +84,8 @@ window.loadRAPeopleForm = function () {
             ],
             actions: {
                 reset: function () {
-                    w2ui.RAPeopleForm.clear();
-                    $(w2ui.RAPeopleForm.box).find("button[name=accept]").prop("disabled", true);
+                    w2ui.RAPeopleSearchForm.clear();
+                    $(w2ui.RAPeopleSearchForm.box).find("button[name=accept]").prop("disabled", true);
                 }
             },
             onRefresh: function (event) {
@@ -113,7 +115,7 @@ window.loadRAPeopleForm = function () {
                 toolbarColumns: false,
                 footer: true
             },
-            style: 'border: 0px solid black; display: block;',
+            style: 'border-color: silver; border-style: solid; border-width: 1px 0 0 0; display: block;',
             multiSelect: false,
             columns: [
                 {
@@ -135,7 +137,7 @@ window.loadRAPeopleForm = function () {
                     render: function (record) {
                         var haveError = false;
                         if (app.raflow.validationErrors.people) {
-                            var people = app.raflow.validationCheck.errors.people;
+                            var people = app.raflow.validationCheck.errors.people.errors;
                             for (var i = 0; i < people.length; i++) {
                                 if (people[i].TMPTCID === record.TMPTCID && people[i].total > 0) {
                                     haveError = true;
@@ -247,9 +249,9 @@ window.loadRAPeopleForm = function () {
 
                                 form.refresh(); // need to refresh for form changes
 
-                                displayRAPeopleFormError();
+                                displayRAPeopleSearchFormError();
 
-                                displayRAPeopleFormTabErrorDot();
+                                displayRAPeopleSearchFormTabErrorDot();
                             }).fail(function (data) {
                                 form.message(data.message);
                             });
@@ -264,11 +266,13 @@ window.loadRAPeopleForm = function () {
             }
         });
 
-        // background info form
+        // ------------------------------------
+        // BACKGROUND INFORMATION DETAILED FORM
+        // ------------------------------------
         $().w2form({
             name: 'RATransactantForm',
             header: 'Background Information',
-            style: 'border: 0px; background-color: transparent; display: block;',
+            style: 'border: none; background-color: transparent; display: block;',
             // This is using the transactant template same as used by
             // "Transactants" sidebar node
             formURL: '/webclient/html/formtc.html',
@@ -318,7 +322,7 @@ window.loadRAPeopleForm = function () {
                     app.form_is_dirty = false;
 
                     // save this records in json Data
-                    savePeopleCompData()
+                    SavePeopleCompDataAJAX()
                     .done(function (data) {
                         if (data.status === 'success') {
 
@@ -341,7 +345,7 @@ window.loadRAPeopleForm = function () {
                     var form = this;
                     var TMPTCID = form.record.TMPTCID;
 
-                    removeRAFlowPersonAJAX(TMPTCID)
+                    DeleteRAFlowPersonAJAX(TMPTCID)
                     .done(function(data) {
                         if (data.status === 'success') {
                             // clear the form
@@ -349,6 +353,9 @@ window.loadRAPeopleForm = function () {
 
                             // close the form
                             HideSliderContent();
+
+                            // unselect all selected record
+                            w2ui.RAPeopleGrid.selectNone();
 
                             // update RAPeopleGrid
                             ReassignPeopleGridRecords();
@@ -413,7 +420,7 @@ window.loadRAPeopleForm = function () {
                     EnableDisableRAFlowVersionInputs(form);
 
                     // Display error dot for the tabs
-                    displayRAPeopleFormTabErrorDot();
+                    displayRAPeopleSearchFormTabErrorDot();
                 };
             },
             onValidate: function (event) {
@@ -441,7 +448,7 @@ window.loadRAPeopleForm = function () {
 
     // load form in div
     $('#ra-form #people .grid-container').w2render(w2ui.RAPeopleGrid);
-    $('#ra-form #people .form-container').w2render(w2ui.RAPeopleForm);
+    $('#ra-form #people .form-container').w2render(w2ui.RAPeopleSearchForm);
     HideAllSliderContent();
 
     // load existing info in PeopleForm and PeopleGrid
@@ -484,7 +491,7 @@ window.dispalyRAPeopleGridError = function (){
 
     // If biz error than highlight grid row
     if (app.raflow.validationErrors.people) {
-        var people = app.raflow.validationCheck.errors.people;
+        var people = app.raflow.validationCheck.errors.people.errors;
         for (i = 0; i < people.length; i++) {
             if (people[i].total > 0) {
                 var recid = getRecIDFromTMPTCID(g, people[i].TMPTCID);
@@ -520,67 +527,33 @@ window.setNotRequiredFields = function (listOfNotRequiredFields, required) {
 };
 
 // remove person with associated pets, vehicles from json data via Ajax
-window.removeRAFlowPersonAJAX = function (TMPTCID) {
-    var bid = getCurrentBID();
+window.DeleteRAFlowPersonAJAX = function (TMPTCID) {
+    var BID = getCurrentBID();
     var FlowID = GetCurrentFlowID();
 
-    // temporary data
+    var url = "/v1/raflow-person/" + BID.toString() + "/" + FlowID.toString() + "/";
     var data = {
         "cmd": "delete",
         "TMPTCID": TMPTCID,
         "FlowID": FlowID
     };
 
-    return $.ajax({
-        url: "/v1/raflow-person/" + bid.toString() + "/" + FlowID.toString(),
-        method: "POST",
-        contentType: "application/json",
-        dataType: "json",
-        data: JSON.stringify(data),
-        success: function (data) {
-            if (data.status != "error") {
-                // Update flow local copy and green checks
-                updateFlowData(data);
-            } else {
-                console.error(data.message);
-            }
-        },
-        error: function () {
-            console.error("Error:" + JSON.stringify(data));
-        }
-    });
+    return RAFlowAJAX(url, "POST", data, true);
 };
 
 // save Transanctant in raflow
-window.saveRAFlowPersonAJAX = function (TCID) {
-    var bid = getCurrentBID();
+window.SaveRAFlowPersonAJAX = function (TCID) {
+    var BID = getCurrentBID();
     var FlowID = GetCurrentFlowID();
 
-    // temporary data
+    var url = "/v1/raflow-person/" + BID.toString() + "/" + FlowID.toString() + "/";
     var data = {
         "cmd": "save",
         "TCID": TCID,
         "FlowID": FlowID
     };
 
-    return $.ajax({
-        url: "/v1/raflow-person/" + bid.toString() + "/" + FlowID.toString(),
-        method: "POST",
-        contentType: "application/json",
-        dataType: "json",
-        data: JSON.stringify(data),
-        success: function (data) {
-            if (data.status !== "error") {
-                // Update flow local copy and green checks
-                updateFlowData(data);
-            } else {
-                console.error(data.message);
-            }
-        },
-        error: function () {
-            console.error("Error:" + JSON.stringify(data));
-        }
-    });
+    return RAFlowAJAX(url, "POST", data, true);
 };
 
 // getRAPeopleGridRecord
@@ -600,22 +573,22 @@ window.getRAPeopleGridRecord = function (records, TCID) {
 // ReassignPeopleGridRecords
 //--------------------------------------------------------------------
 window.ReassignPeopleGridRecords = function () {
-    var compData = getRAFlowCompData("people");
+    var compData = GetRAFlowCompLocalData("people");
     var grid = w2ui.RAPeopleGrid;
 
     if (compData) {
         grid.records = compData;
         reassignGridRecids(grid.name);
 
-        // Operation on RAPeopleForm
-        w2ui.RAPeopleForm.refresh();
+        // Operation on RAPeopleSearchForm
+        w2ui.RAPeopleSearchForm.refresh();
 
         // manage people w2ui items list
         managePeopleW2UIItems();
 
     } else {
-        // Operation on RAPeopleForm
-        w2ui.RAPeopleForm.actions.reset();
+        // Operation on RAPeopleSearchForm
+        w2ui.RAPeopleSearchForm.actions.reset();
 
         // Operation on RAPeopleGrid
         grid.clear();
@@ -656,9 +629,9 @@ window.openNewTransactantForm = function () {
 //-----------------------------------------------------------------------------
 window.acceptTransactant = function () {
 
-    var compData = getRAFlowCompData("people") || [];
+    var compData = GetRAFlowCompLocalData("people") || [];
 
-    var peopleForm = w2ui.RAPeopleForm;
+    var peopleForm = w2ui.RAPeopleSearchForm;
 
     var transactantRec = $.extend(true, {}, peopleForm.record);
     delete transactantRec.Transactant;
@@ -670,7 +643,7 @@ window.acceptTransactant = function () {
     if (tcidIndex < 0) {
 
         // save transanctant information in raflow json
-        saveRAFlowPersonAJAX(TCID)
+        SaveRAFlowPersonAJAX(TCID)
         .done(function (data) {
 
             if (data.status === 'success') {
@@ -679,7 +652,7 @@ window.acceptTransactant = function () {
                 ReassignPeopleGridRecords();
 
                 // clear the form
-                w2ui.RAPeopleForm.actions.reset();
+                w2ui.RAPeopleSearchForm.actions.reset();
 
             } else {
                 console.error(data.message);
@@ -695,7 +668,7 @@ window.acceptTransactant = function () {
         w2ui.RAPeopleGrid.select(recid);
 
         // clear the form
-        w2ui.RAPeopleForm.actions.reset();
+        w2ui.RAPeopleSearchForm.actions.reset();
     }
 
 };
@@ -746,11 +719,11 @@ window.addDummyBackgroundInfo = function () {
 };
 
 //------------------------------------------------------------------------------
-// savePeopleCompData - saves the data on server side
+// SavePeopleCompDataAJAX - saves the data on server side
 //------------------------------------------------------------------------------
-window.savePeopleCompData = function() {
-	var compData = getRAFlowCompData("people");
-	return saveActiveCompData(compData, "people");
+window.SavePeopleCompDataAJAX = function() {
+	var compData = GetRAFlowCompLocalData("people");
+	return SaveCompDataAJAX(compData, "people");
 };
 
 //-----------------------------------------------------------------------------
@@ -760,7 +733,7 @@ window.savePeopleCompData = function() {
 window.getPeopleLocalDataByTCID = function(TCID, returnIndex) {
     var cloneData = {};
     var foundIndex = -1;
-    var compData = getRAFlowCompData("people") || [];
+    var compData = GetRAFlowCompLocalData("people") || [];
     compData.forEach(function(item, index) {
         if (item.TCID === TCID) {
             if (returnIndex) {
@@ -783,7 +756,7 @@ window.getPeopleLocalDataByTCID = function(TCID, returnIndex) {
 window.getPeopleLocalData = function(TMPTCID, returnIndex) {
 	var cloneData = {};
 	var foundIndex = -1;
-	var compData = getRAFlowCompData("people") || [];
+	var compData = GetRAFlowCompLocalData("people") || [];
 	compData.forEach(function(item, index) {
 		if (item.TMPTCID === TMPTCID) {
 			if (returnIndex) {
@@ -804,7 +777,7 @@ window.getPeopleLocalData = function(TMPTCID, returnIndex) {
 // setPeopleLocalData - save the data for requested a TMPTCID in local data
 //-----------------------------------------------------------------------------
 window.setPeopleLocalData = function(TMPTCID, peopleData) {
-	var compData = getRAFlowCompData("people") || [];
+	var compData = GetRAFlowCompLocalData("people") || [];
 	var dataIndex = -1;
 	compData.forEach(function(item, index) {
 		if (item.TMPTCID === TMPTCID) {
@@ -823,7 +796,7 @@ window.setPeopleLocalData = function(TMPTCID, peopleData) {
 // setTransactantDefaultRole - Assign default role for new transanctant.
 //-----------------------------------------------------------------------------
 window.setTransactantDefaultRole = function (transactantRec) {
-	var compData = getRAFlowCompData("people") || [];
+	var compData = GetRAFlowCompLocalData("people") || [];
 	// If first record in the grid than transanctant will be renter by default
 	if (compData.length === 0) {
 		transactantRec.IsRenter = true;
@@ -860,7 +833,7 @@ window.managePeopleW2UIItems = function() {
     };
 
     // get comp data
-    var peopleCompData = getRAFlowCompData("people") || [];
+    var peopleCompData = GetRAFlowCompLocalData("people") || [];
 
     // first build the list of rentables and sort it out in asc order of TMPTCID
     peopleCompData.forEach(function(peopleItem) {
@@ -910,8 +883,8 @@ window.getRecIDFromTMPTCID = function(grid, TMPTCID){
     return recid;
 };
 
-// displayRAPeopleFormError If form field have error than it highlight with red border and
-window.displayRAPeopleFormError = function(){
+// displayRAPeopleSearchFormError If form field have error than it highlight with red border and
+window.displayRAPeopleSearchFormError = function(){
 
     // if pet section doesn't have error than return
     if(!app.raflow.validationErrors.people){
@@ -922,7 +895,7 @@ window.displayRAPeopleFormError = function(){
     var record = form.record;
 
     // get list of pets
-    var people = app.raflow.validationCheck.errors.people;
+    var people = app.raflow.validationCheck.errors.people.errors;
 
     // get index of pet for whom form is opened
     var index = getPeopleIndex(record.TMPTCID, people);
@@ -948,8 +921,8 @@ window.getPeopleIndex = function (TMPTCID, people) {
     return index;
 };
 
-// displayRAPeopleFormTabErrorDot
-window.displayRAPeopleFormTabErrorDot = function () {
+// displayRAPeopleSearchFormTabErrorDot
+window.displayRAPeopleSearchFormTabErrorDot = function () {
 
     // Basic Info tab
     if ($(".w2ui-page.page-0").find(".error").length > 0){

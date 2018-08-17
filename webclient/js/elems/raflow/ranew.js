@@ -1,5 +1,5 @@
 /*global
-    initRAFlowAjax,
+    InitRAFlowAjax,
     RACompConfig, w2ui,
     GetRAFlowDataAjax,
     manageParentRentableW2UIItems, managePeopleW2UIItems,
@@ -20,6 +20,14 @@
 //   FlowID = Id of the Flow
 //-----------------------------------------------------------------------------
 window.LoadRAFlowTemplate = function(bid, raFlowVersion) {
+    if("RAActionForm" in w2ui){
+        w2ui.RAActionForm.destroy();
+    }
+    if("raActionLayout" in w2ui){
+        w2ui.raActionLayout.destroy();
+        w2ui.newraLayout.get('right').content = "";
+        w2ui.newraLayout.hide('right');
+    }
 
     // show the loader
     HideRAFlowLoader(false);
@@ -94,12 +102,12 @@ window.LoadRAFlowTemplate = function(bid, raFlowVersion) {
     });
 };
 
-window.buildRAApplicantElements = function() {
+window.buildRAFlowElements = function() {
     // ------------------------------------------------------
-    // applicants grid
+    // raflows grid
     // ------------------------------------------------------
     $().w2grid({
-        name: 'applicantsGrid',
+        name: 'raflowsGrid',
         multiSelect: false,
         show: {
             toolbar: true,
@@ -242,6 +250,7 @@ window.buildRAApplicantElements = function() {
                                 var BID = getCurrentBID();
                                 var BUD = getBUDfromBID(BID);
                                 getStringListData(BID, BUD);
+                                initBizErrors();
                             }
                         })
                         .fail(function() {
@@ -261,7 +270,7 @@ window.buildRAApplicantElements = function() {
                     return false;
                 },
                 yes_callBack = function(grid, recid) {
-                    initRAFlowAjax()
+                    InitRAFlowAjax()
                     .done(function(data, textStatus, jqXHR) {
                         if (data.status === "success") {
                             var bid = getCurrentBID(),
@@ -311,7 +320,7 @@ window.buildRAApplicantElements = function() {
     });
 
     // add date navigation toolbar for new rental agreement form
-    addDateNavToToolbar('applicants');
+    addDateNavToToolbar('raflows');
 
     //------------------------------------------------------------------------
     //          Rental Agreement Details
@@ -575,13 +584,15 @@ window.CloseRAFlowLayout = function() {
     w2ui.newraLayout.content('right', '');
     w2ui.newraLayout.hide('right', true);
     w2ui.toplayout.hide('right', true);
-    w2ui.applicantsGrid.render();
+    w2ui.raflowsGrid.render();
 };
 
 //-----------------------------------------------------------------------------
 // REMOVE FLOW BUTTON CLICK EVENT HANDLER
 //-----------------------------------------------------------------------------
 $(document).on("click", "button#remove_raflow", function(e) {
+    e.preventDefault();
+
     var version = app.raflow.version,
         RefNo   = app.raflow.Flow.UserRefNo;
 

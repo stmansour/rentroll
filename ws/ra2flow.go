@@ -10,21 +10,22 @@ import (
 // RentalAgreement
 //
 // INPUTS:
-//     ctx    database context for transactions
-//     ra     the rental agreement to move into a flow
-//     uid    uid of the person creating this flow.  Typically it
-//            will be the uid in the session.
+//     ctx       database context for transactions
+//     ra        the rental agreement to move into a flow
+//     uid       uid of the person creating this flow.  Typically it
+//               will be the uid in the session.
+//     EditFlag  true -> get a version to edit,  false -> view existing
 //
 // RETURNS:
 //     the new flowID
 //     any error encountered
 //     service data
 //-------------------------------------------------------------------------
-func GetRA2FlowCore(ctx context.Context, ra *rlib.RentalAgreement, d *ServiceData) (int64, error) {
+func GetRA2FlowCore(ctx context.Context, ra *rlib.RentalAgreement, d *ServiceData, EditFlag bool) (int64, error) {
 	var flowID int64
 
 	// convert permanent ra to flow data and get it
-	raf, err := rlib.ConvertRA2Flow(ctx, ra)
+	raf, err := rlib.ConvertRA2Flow(ctx, ra, EditFlag)
 	if err != nil {
 		return flowID, err
 	}
@@ -122,7 +123,6 @@ func addRAPtoFlow(ctx context.Context, tcid, rid int64, raf *rlib.RAFlowJSONData
 
 		// only tie occupants to rentable
 		var t rlib.RATiePeopleData
-		t.BID = rap.BID
 		t.TMPTCID = rap.TMPTCID
 		if rid > 0 {
 			t.PRID = rid

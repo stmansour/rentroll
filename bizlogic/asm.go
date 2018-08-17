@@ -11,9 +11,15 @@ import (
 // if necessary
 //
 // INPUTS
-//    a = the assessment to insert
-//  exp = if it is a recurring assessment and the start date is in the past, should
-//        past entries be created?  true = yes
+//    ctx  = database context
+//    anew = the assessment to update
+//    mode = how to handle recurring assessments:
+//           0: just reverse this instance
+//           1: reverse this and future instances
+//           2: reverse all instances
+//    dt   = date of modification
+//    exp  = if it is a recurring assessment and the start date is in the past,
+//           should past entries be created?  true = yes
 //
 // RETURNS
 //    a slice of BizErrors
@@ -30,6 +36,9 @@ func UpdateAssessment(ctx context.Context, anew *rlib.Assessment, mode int, dt *
 		return errlist
 	}
 
+	//------------------------------------------------
+	// make sure we're not editing a reversed entry
+	//------------------------------------------------
 	if anew.FLAGS&0x4 != 0 {
 		errlist = append(errlist, BizErrors[EditReversal])
 		return errlist
@@ -67,19 +76,93 @@ func UpdateAssessment(ctx context.Context, anew *rlib.Assessment, mode int, dt *
 		(!aold.Start.Equal(anew.Start)) ||
 		(!aold.Stop.Equal(anew.Stop))
 	if reverse {
+		// rlib.Console("HAVE TO REVERSE ASMID = %d\n", aold.ASMID)
 		errlist = ReverseAssessment(ctx, &aold, mode, dt) // reverse the assessment itself
 		if errlist != nil {
 			return errlist
 		}
+		//---------------------------------------------------------------------------
+		// This is going to be a new assessment that replaces an assessment which
+		// has just been reversed. So it is NOT reversed, and it is NOT paid in
+		// any part. So, we need to reset the flags.  Bits 0:1 define payment and
+		// bit 2 defines reversal.  So clear bits 0:2...
+		//---------------------------------------------------------------------------
+		anew.FLAGS &= ^uint64(7) // clears the first 3 bits
+		// rlib.Console("ANEW.FLAGS = %d\n", anew.FLAGS)
+
 		errlist = InsertAssessment(ctx, anew, exp) // Finally, insert the new assessment...
-		if err != nil {
+		if errlist != nil {
 			return errlist
 		}
+		return nil
 	}
 
 	err = rlib.UpdateAssessment(ctx, anew) // reversal not needed, just update the assessment
 	if err != nil {
 		return bizErrSys(&err)
+	}
+	return nil
+}
+
+// UpdateAssessmentEndDate updates the stop date of the supplied assessment,
+// which must be the recurring series definition. It will not modify instances
+// that ocurred prior to dt. If an instance occurs during the period containing
+// dt, then that instance will be adjusted (prorated) accordingly.
+//
+// INPUTS
+//    ctx  = database context
+//    a    = the recurring assessment definition to adjust
+//    dt   = new stop date for definition
+//
+// RETURNS
+//    any error encountered
+//-------------------------------------------------------------------------------------
+func UpdateAssessmentEndDate(ctx context.Context, a *rlib.Assessment, dt *time.Time) error {
+	rlib.Console("Entered UpdateAssessmentEndDate\n")
+	//--------------------------------------------------------------------------
+	// First, the easy part... change the stop date of the recurring definition
+	//--------------------------------------------------------------------------
+	origStopDate := a.Stop
+	a.Stop = *dt
+	err := rlib.UpdateAssessment(ctx, a)
+	if err != nil {
+		return err
+	}
+
+	//--------------------------------------------------------------------------
+	// Now, check to see if there is an instance for the period containing dt
+	//--------------------------------------------------------------------------
+	e := time.Date(dt.Year(), dt.Month(), dt.Day(), 0, 0, 0, 0, time.UTC)
+	rlib.Console("e = %s, a.Start = %s, Stop = %s\n", e.Format(rlib.RRDATEREPORTFMT), a.Start.Format(rlib.RRDATEREPORTFMT), origStopDate.Format(rlib.RRDATEREPORTFMT))
+	ok, epoch := rlib.GetEpochFromBaseDate(a.Start, e, origStopDate, a.RentCycle)
+	if !ok {
+		return nil // we're done, the instance we were looking for does not exist
+		// return fmt.Errorf("UpdateAssessmentEndDate for ASMID=%d, received ok=false from GetEpochFromBaseDate", a.ASMID)
+	}
+	rlib.Console("UpdateAssessmentEndDate: dt = %s, epoch = %s\n", dt.Format(rlib.RRDATEREPORTFMT), epoch.Format(rlib.RRDATEREPORTFMT))
+	if epoch.Equal(e) {
+		// TODO: validate this case
+	} else {
+		// epoch is the end datetime of the next cycle, get the start date/time
+		d1 := rlib.GetPreviousInstance(epoch, a.RentCycle)
+		rlib.Console("d1 = %s\n", d1.Format(rlib.RRDATEREPORTFMT))
+		// do we have an instance of assessment a in the time range [d1,epoch)
+		ai, err := rlib.GetAssessmentInstance(ctx, &d1, a.ASMID)
+		if err != nil {
+			return err
+		}
+		if ai.ASMID == 0 {
+			return nil // we're done, there was no instance found
+		}
+		// found an instance, we need to prorate it
+		rlib.Console("Found instance to prorate: ASMID = %d\n", ai.ASMID)
+		amount, n, p := rlib.SimpleProrateAmount(ai.Amount, ai.RentCycle, ai.ProrationCycle, &ai.Start, dt, &ai.Start)
+		ai.Amount = amount
+		ai.AppendComment(fmt.Sprintf("prorated for %d of %d %s", n, p, rlib.ProrationUnits(ai.ProrationCycle)))
+		be := UpdateAssessment(ctx, &ai, 0, dt, 0)
+		if len(be) > 0 {
+			return BizErrorListToError(be)
+		}
 	}
 	return nil
 }
@@ -100,7 +183,7 @@ func UpdateAssessment(ctx context.Context, anew *rlib.Assessment, mode int, dt *
 func ReverseAssessment(ctx context.Context, aold *rlib.Assessment, mode int, dt *time.Time) []BizError {
 	funcname := "bizlogic.ReverseAssessment"
 	var errlist []BizError
-	rlib.Console("Entered ReverseAssessment.  mode = %d,  dt = %s\n", mode, dt.Format(rlib.RRDATEFMTSQL))
+	rlib.Console("#####>>>>>>>>> Entered ReverseAssessment. ASMID = %d, mode = %d,  dt = %s\n", aold.ASMID, mode, dt.Format(rlib.RRDATEFMTSQL))
 	if aold.PASMID == 0 && aold.RentCycle > 0 {
 		mode = 2 // force behavior on the epoch
 	}
@@ -230,18 +313,19 @@ func ReverseAssessmentInstance(ctx context.Context, aold *rlib.Assessment, dt *t
 	}
 
 	anew := *aold
+	anew.Comment = ""
 	anew.ASMID = 0
 	anew.Amount = -anew.Amount
 	anew.RPASMID = aold.ASMID
 	anew.FLAGS |= 0x4 // set bit 2 to mark that this assessment is void
-	anew.Comment = fmt.Sprintf("Reversal of %s", aold.IDtoString())
+	anew.AppendComment(fmt.Sprintf("Reversal of %s", aold.IDtoString()))
 
 	errlist := InsertAssessment(ctx, &anew, 1)
 	if len(errlist) > 0 {
 		return errlist
 	}
 
-	aold.Comment = fmt.Sprintf("Reversed by %s", anew.IDtoString())
+	aold.AppendComment(fmt.Sprintf("Reversed by %s", anew.IDtoString()))
 	aold.FLAGS |= 0x4 // set bit 2 to mark that this assessment is void
 	err := rlib.UpdateAssessment(ctx, aold)
 	if err != nil {
@@ -470,6 +554,11 @@ func DeallocateAppliedFunds(ctx context.Context, a *rlib.Assessment, asmtRevID i
 		}
 
 		for k := 0; k < len(m); k++ {
+			// if this allocation does not reference a.ASMID, then skip it
+			// also, if it's already reversed, skip it
+			if m[k].ASMID != a.ASMID || m[k].FLAGS&4 != 0 {
+				continue
+			}
 			m[k].FLAGS |= 0x4 // set bit 2 to indicate that this is a voided entry
 			vra := m[k]
 			vra.Amount = -vra.Amount

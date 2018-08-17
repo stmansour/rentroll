@@ -1,8 +1,8 @@
 /* global
-    getRAFlowCompData, reassignGridRecids,
+    GetRAFlowCompLocalData, reassignGridRecids, SaveCompDataAJAX,
     GetTiePeopleLocalData, SetTiePeopleLocalData, AssignTiePeopleGridRecords, SaveTiePeopleData,
     getFullName, dispalyRATiePeopleGridError, getRecIDFromTMPTCID,
-    EnableDisableRAFlowVersionGrid
+    EnableDisableRAFlowVersionGrid, SaveTieCompData
 */
 
 "use strict";
@@ -23,7 +23,7 @@ window.loadRATieSection = function () {
                 {
                     type: 'main',
                     overflow: "hidden",
-                    style: 'background-color: white; border: 1px solid silver; padding: 0px;',
+                    style: 'border: none; background-color: white; padding: 0px;',
                     tabs: {
                         style: "padding-top: 10px;",
                         tabs: [
@@ -56,14 +56,10 @@ window.loadRATieSection = function () {
                 footer:     true
             },
             multiSelect: false,
-            style: 'display: block;',
+            style: 'border: none; display: block;',
             columns: [
                 {
                     field: 'recid',
-                    hidden: true
-                },
-                {
-                    field: 'BID',
                     hidden: true
                 },
                 {
@@ -81,7 +77,7 @@ window.loadRATieSection = function () {
                     render: function (record) {
                         var haveError = false;
                         if (app.raflow.validationErrors.tie) {
-                            var tiePeople = app.raflow.validationCheck.errors.tie.people;
+                            var tiePeople = app.raflow.validationCheck.errors.tie.people.errors;
                             for (var i = 0; i < tiePeople.length; i++) {
                                 if (tiePeople[i].TMPTCID === record.TMPTCID && tiePeople[i].total > 0) {
                                     haveError = true;
@@ -143,10 +139,21 @@ window.loadRATieSection = function () {
                         // set data
                         grid.set(event.recid, record);
                         SetTiePeopleLocalData(record.TMPTCID, localTiePeopleData);
-                    }
 
-                    // save grid changes
-                    this.save();
+                        // SAVE DATA ON SERVER SIDE
+                        SaveTieCompData()
+                        .done(function(data) {
+                            if (data.status === 'success') {
+                                // save grid changes
+                                grid.save();
+                            } else {
+                                grid.message(data.message);
+                            }
+                        })
+                        .fail(function(data) {
+                            console.log("failure " + data);
+                        });
+                    }
                 };
             }
         });
@@ -168,7 +175,7 @@ window.GetTiePeopleLocalData = function(TMPTCID, returnIndex) {
     var cloneData = {};
     var foundIndex = -1;
 
-    var compData = getRAFlowCompData("tie");
+    var compData = GetRAFlowCompLocalData("tie");
     var tiePeopleData = compData.people || [];
 
     tiePeopleData.forEach(function(item, index) {
@@ -192,7 +199,7 @@ window.GetTiePeopleLocalData = function(TMPTCID, returnIndex) {
 //                      for requested TMPTCID by matching TMPTCID
 //-----------------------------------------------------------------------------
 window.SetTiePeopleLocalData = function(TMPTCID, data) {
-    var compData = getRAFlowCompData("tie");
+    var compData = GetRAFlowCompLocalData("tie");
     var tiePeopleData = compData.people || [];
 
     var dataIndex = -1;
@@ -217,8 +224,7 @@ window.SetTiePeopleLocalData = function(TMPTCID, data) {
 //                            from "people" comp data
 // -------------------------------------------------------------------------------
 window.AssignTiePeopleGridRecords = function() {
-    var BID = getCurrentBID();
-    var peopleCompData = getRAFlowCompData("people") || [];
+    var peopleCompData = GetRAFlowCompLocalData("people") || [];
     var grid = w2ui.RATiePeopleGrid,
         tieGridRecords = [];
 
@@ -254,7 +260,6 @@ window.AssignTiePeopleGridRecords = function() {
 
         var record = {
             recid:              0,
-            BID:                BID,
             TMPTCID:           peopleData.TMPTCID,
             PRID:               PRID,
             ParentRentableName: PRID,
@@ -305,7 +310,7 @@ window.AssignTiePeopleGridRecords = function() {
 //                       modified data on the server via API
 //-----------------------------------------------------------------------------
 window.SaveTiePeopleData = function() {
-    var compData = getRAFlowCompData("tie"),
+    var compData = GetRAFlowCompLocalData("tie"),
         tiePeopleData = compData.people || [],
         dataToSaveFlag = false,
         gridRecords = w2ui.RATiePeopleGrid.records || [];
@@ -332,18 +337,17 @@ window.SaveTiePeopleData = function() {
 
     // if have to save the data then update the local copy
     if (dataToSaveFlag) {
-        var BID = getCurrentBID(),
-            modTiePeopleData = [];
+        var modTiePeopleData = [];
 
         gridRecords.forEach(function(rec) {
-            modTiePeopleData.push({BID: BID, TMPTCID: rec.TMPTCID, PRID: rec.PRID});
+            modTiePeopleData.push({TMPTCID: rec.TMPTCID, PRID: rec.PRID});
         });
 
         // set this to it's position
         compData.people = modTiePeopleData;
 
         // now hit the server API to save
-        saveActiveCompData(compData, "tie");
+        SaveCompDataAJAX(compData, "tie");
     }
 };
 
@@ -369,7 +373,7 @@ window.dispalyRATiePeopleGridError = function (){
     }
 
     if (app.raflow.validationErrors.tie) {
-        var tie = app.raflow.validationCheck.errors.tie.people;
+        var tie = app.raflow.validationCheck.errors.tie.people.errors;
         for (i = 0; i < tie.length; i++) {
             if (tie[i].total > 0) {
                 var recid = getRecIDFromTMPTCID(g, tie[i].TMPTCID);
@@ -389,4 +393,12 @@ window.getRecIDFromTMPTCID = function(grid, TMPTCID){
         }
     }
     return recid;
+};
+
+//------------------------------------------------------------------------------
+// SaveTieCompData - saves the data on server side
+//------------------------------------------------------------------------------
+window.SaveTieCompData = function() {
+    var compData = GetRAFlowCompLocalData("tie");
+    return SaveCompDataAJAX(compData, "tie");
 };

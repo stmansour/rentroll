@@ -375,6 +375,8 @@ func createRentableTypesAndRentables(ctx context.Context, dbConf *GenDBConf) err
 		ar.CreditLID = 18                          // Acct# 41001 - Gross Scheduled Rent non-taxable
 		ar.DefaultAmount = dbConf.RT[i].MarketRate // default rent amount
 		ar.FLAGS = (1 << 2) | (1 << 4)             // RAID rqd, is Rent
+		ar.DefaultRentCycle = rlib.RECURMONTHLY    // monthly rent cycle
+		ar.DefaultProrationCycle = rlib.RECURDAILY // daily proration
 		ar.DtStart = rlib.TIME0                    // make this rule "forever"
 		ar.DtStop = rlib.ENDOFTIME                 // make this rule "forever"
 		_, err = rlib.InsertAR(ctx, &ar)

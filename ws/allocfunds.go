@@ -78,8 +78,8 @@ func SvcSearchHandlerAllocFunds(w http.ResponseWriter, r *http.Request, d *Servi
 
 	const funcname = "SvcSearchHandlerAllocFunds"
 
-	fmt.Printf("Entered %s\n", funcname)
-	fmt.Printf("Request: %s:  BID = %d\n", d.wsSearchReq.Cmd, d.BID)
+	rlib.Console("Entered %s\n", funcname)
+	rlib.Console("Request: %s:  BID = %d\n", d.wsSearchReq.Cmd, d.BID)
 
 	switch d.wsSearchReq.Cmd {
 	case "get":
@@ -225,7 +225,11 @@ func allocatePayorFund(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// dt := time.Now()
 
 	// get receipts for payor
-	n, _ := rlib.GetUnallocatedReceiptsByPayor(r.Context(), foo.BID, foo.TCID)
+	n, err := rlib.GetUnallocatedReceiptsByPayor(r.Context(), foo.BID, foo.TCID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
 	rlib.Console("number of unallocated receipts: %d\n", len(n))
 
 	for _, asmRec := range foo.Records {
@@ -283,16 +287,18 @@ func allocatePayorFund(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 // wsdoc }
 func SvcHandlerGetUnpaidAsms(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "SvcHandlerGetUnpaidAsms"
-	var (
-		res PayorUnpaidAsmsResponse
-	)
+	var res PayorUnpaidAsmsResponse
 
-	fmt.Printf("Entered %s\n", funcname)
+	rlib.Console("Entered %s\n", funcname)
 
 	TCID := d.ID
 	dt := time.Now()
 	// res.Time = rlib.JSONDate(dt) // let's keep it here as of now
-	m := bizlogic.GetAllUnpaidAssessmentsForPayor(r.Context(), d.BID, TCID, &dt)
+
+	m, err := bizlogic.GetAllUnpaidAssessmentsForPayor(r.Context(), d.BID, TCID, &dt)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+	}
 
 	for i, asm := range m {
 		var rec UnpaidAsm
@@ -303,7 +309,7 @@ func SvcHandlerGetUnpaidAsms(w http.ResponseWriter, r *http.Request, d *ServiceD
 		rec.AmountPaid = rec.Amount - rec.AmountOwed
 		ar, err := rlib.GetAR(r.Context(), asm.ARID)
 		if err != nil {
-			fmt.Printf("%s: Error while getting AR (ARID=%d) for Assessment: %d, error=<%s>\n", funcname, asm.ARID, asm.ASMID, err.Error())
+			rlib.Console("%s: Error while getting AR (ARID=%d) for Assessment: %d, error=<%s>\n", funcname, asm.ARID, asm.ASMID, err.Error())
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
@@ -332,14 +338,16 @@ func SvcHandlerGetUnpaidAsms(w http.ResponseWriter, r *http.Request, d *ServiceD
 // wsdoc }
 func SvcHandlerTotalUnallocFund(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "SvcHandlerGetUnpaidAsms"
-	var (
-		res PayorFundResponse
-	)
+	var res PayorFundResponse
 
-	fmt.Printf("Entered %s\n", funcname)
+	rlib.Console("Entered %s\n", funcname)
 
 	TCID := d.ID
-	m, _ := rlib.GetUnallocatedReceiptsByPayor(r.Context(), d.BID, TCID)
+	m, err := rlib.GetUnallocatedReceiptsByPayor(r.Context(), d.BID, TCID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
 
 	for _, rcpt := range m {
 		if rcpt.FLAGS&3 == 2 { // if there are no funds left in this receipt...

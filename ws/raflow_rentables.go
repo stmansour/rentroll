@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net/http"
 	"reflect"
-	"rentroll/bizlogic"
 	"rentroll/rlib"
 	"sort"
 	"time"
@@ -62,7 +61,6 @@ func SvcRAFlowRentableHandler(w http.ResponseWriter, r *http.Request, d *Service
 func SaveRAFlowRentableDetails(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "SaveRAFlowRentableDetails"
 	var (
-		rfd         rlib.RARentablesFlowData
 		raFlowData  rlib.RAFlowJSONData
 		foo         RARentableDetailsRequest
 		feesRecords = []rlib.RAFeesData{}
@@ -84,6 +82,11 @@ func SaveRAFlowRentableDetails(w http.ResponseWriter, r *http.Request, d *Servic
 			}
 			SvcErrorReturn(w, err, funcname)
 			return
+		}
+
+		// COMMIT TRANSACTION
+		if tx != nil {
+			err = tx.Commit()
 		}
 	}()
 
@@ -169,9 +172,14 @@ func SaveRAFlowRentableDetails(w http.ResponseWriter, r *http.Request, d *Servic
 
 			// If it have is non recur charge true
 			if ar.FLAGS&0x40 != 0 {
-				rec.RentCycle = 0 // norecur: index 0 in app.cycleFreq
+				rec.RentCycle = rlib.RECURNONE // norecur: index 0 in app.cycleFreq
+				rec.ProrationCycle = rlib.RECURNONE
 			} else {
-				rec.RentCycle = rt.RentCycle
+				// TODO(Steve & Sudip): SHOULD WE SET CYCLES FROM AR OR RENTABLE TYPES?
+				// rec.RentCycle = rt.RentCycle
+				// rec.ProrationCycle = rt.ProrationCycle
+				rec.RentCycle = ar.DefaultRentCycle
+				rec.ProrationCycle = ar.DefaultProrationCycle
 			}
 
 			feesRecords = append(feesRecords, rec)
@@ -185,7 +193,7 @@ func SaveRAFlowRentableDetails(w http.ResponseWriter, r *http.Request, d *Servic
 	//-------------------------------------------------------
 	// get all auto populated to new RA marked account rules by integer representation
 	var m []rlib.AR
-	arFLAGVal := 1 << uint64(bizlogic.ARFLAGS["AutoPopulateToNewRA"])
+	arFLAGVal := 1 << rlib.ARAutoPopulateToNewRA
 	m, err = rlib.GetARsByFLAGS(ctx, d.BID, uint64(arFLAGVal))
 	if err != nil {
 		return
@@ -193,9 +201,9 @@ func SaveRAFlowRentableDetails(w http.ResponseWriter, r *http.Request, d *Servic
 
 	// append feesRecords in ascending order
 	for _, ar := range m {
-		if ar.FLAGS&(1<<uint64(bizlogic.ARFLAGS["IsRentASM"])) != 0 { /*|| // if it's rent asm then continue
-			ar.FLAGS&(1<<uint64(bizlogic.ARFLAGS["PETIDReq"])) != 0 || // if it's pet related AR
-			ar.FLAGS&(1<<uint64(bizlogic.ARFLAGS["VIDReq"])) != 0 { */ // if it's vehicle related AR
+		if ar.FLAGS&(1<<rlib.ARIsRentASM) != 0 { /* || // if it's rent asm then continue
+			ar.FLAGS&(1<<rlib.ARPETIDReq) != 0 || // if it's pet related AR
+			ar.FLAGS&(1<<rlib.ARVIDReq) != 0 { // if it's vehicle related AR*/
 			continue
 		}
 
@@ -211,9 +219,14 @@ func SaveRAFlowRentableDetails(w http.ResponseWriter, r *http.Request, d *Servic
 
 		// If it have is non recur charge  flag true
 		if ar.FLAGS&0x40 != 0 {
-			rec.RentCycle = 0 // norecur: index 0 in app.cycleFreq
+			rec.RentCycle = rlib.RECURNONE // norecur: index 0 in app.cycleFreq
+			rec.ProrationCycle = rlib.RECURNONE
 		} else {
-			rec.RentCycle = rt.RentCycle
+			// TODO(Steve & Sudip): SHOULD WE SET CYCLES FROM AR OR RENTABLE TYPES?
+			// rec.RentCycle = rt.RentCycle
+			// rec.ProrationCycle = rt.ProrationCycle
+			rec.RentCycle = ar.DefaultRentCycle
+			rec.ProrationCycle = ar.DefaultProrationCycle
 		}
 
 		/*if ar.FLAGS&0x20 != 0 { // same will be applied to Security Deposit ASM
@@ -232,13 +245,14 @@ func SaveRAFlowRentableDetails(w http.ResponseWriter, r *http.Request, d *Servic
 	sort.Slice(feesRecords, func(i, j int) bool { return feesRecords[i].ARName < feesRecords[j].ARName })
 
 	// assign calculated data in rentable data
-	rfd.BID = d.BID
-	rfd.RID = rentable.RID
-	rfd.RentableName = rentable.RentableName
-	rfd.RTID = rt.RTID
-	rfd.RTFLAGS = rt.FLAGS
-	rfd.RentCycle = rt.RentCycle
-	rfd.Fees = feesRecords
+	rfd := rlib.RARentablesFlowData{
+		RID:          rentable.RID,
+		RentableName: rentable.RentableName,
+		RTID:         rt.RTID,
+		RTFLAGS:      rt.FLAGS,
+		RentCycle:    rt.RentCycle,
+		Fees:         feesRecords,
+	}
 
 	// find this RID in flow data rentable list
 	var rIndex = -1
@@ -284,7 +298,7 @@ func SaveRAFlowRentableDetails(w http.ResponseWriter, r *http.Request, d *Servic
 		flow.Data = modFlowData
 
 		// NOW UPDATE THE WHOLE FLOW
-		err = rlib.UpdateFlow(ctx, &flow)
+		err = rlib.UpdateRAFlowWithInitState(ctx, &flow)
 		if err != nil {
 			return
 		}
@@ -294,13 +308,6 @@ func SaveRAFlowRentableDetails(w http.ResponseWriter, r *http.Request, d *Servic
 		if err != nil {
 			return
 		}
-	}
-
-	// ------------------
-	// COMMIT TRANSACTION
-	// ------------------
-	if err = tx.Commit(); err != nil {
-		return
 	}
 
 	// -------------------
@@ -347,6 +354,11 @@ func DeleteRAFlowRentable(w http.ResponseWriter, r *http.Request, d *ServiceData
 			}
 			SvcErrorReturn(w, err, funcname)
 			return
+		}
+
+		// COMMIT TRANSACTION
+		if tx != nil {
+			err = tx.Commit()
 		}
 	}()
 
@@ -423,7 +435,7 @@ func DeleteRAFlowRentable(w http.ResponseWriter, r *http.Request, d *ServiceData
 		flow.Data = modFlowData
 
 		// NOW UPDATE THE WHOLE FLOW
-		err = rlib.UpdateFlow(ctx, &flow)
+		err = rlib.UpdateRAFlowWithInitState(ctx, &flow)
 		if err != nil {
 			return
 		}
@@ -433,13 +445,6 @@ func DeleteRAFlowRentable(w http.ResponseWriter, r *http.Request, d *ServiceData
 		if err != nil {
 			return
 		}
-	}
-
-	// ------------------
-	// COMMIT TRANSACTION
-	// ------------------
-	if err = tx.Commit(); err != nil {
-		return
 	}
 
 	// -------------------

@@ -37,7 +37,7 @@ func GetRAFlowInitialPetFees(ctx context.Context,
 
 	// GET PET FEES FROM BUSINESS PROPERTIES
 	var petBizFees []BizPropsFee
-	petBizFees, err = GetBizPropPetFees(ctx, BID, bizPropName)
+	petBizFees, err = GetBizPropPetFees(ctx, BID, bizPropName, rStart, rStop)
 	if err != nil {
 		return
 	}
@@ -45,7 +45,11 @@ func GetRAFlowInitialPetFees(ctx context.Context,
 	// PREPARE THE PET BASE FEES FROM BIZ FEES
 	var petFees = []RAFeesData{}
 	for i := range petBizFees {
-		raFee := RAFeesData{ContractAmount: petBizFees[i].Amount}
+		raFee := RAFeesData{
+			ContractAmount: petBizFees[i].Amount,
+			RentCycle:      petBizFees[i].ARRentCycle,
+			ProrationCycle: petBizFees[i].ARProrationCycle,
+		}
 		MigrateStructVals(&petBizFees[i], &raFee)
 		petFees = append(petFees, raFee)
 	}
@@ -96,7 +100,7 @@ func GetRAFlowInitialVehicleFees(ctx context.Context,
 
 	// GET VEHICLE FEES FROM BUSINESS PROPERTIES
 	var vehicleBizFees []BizPropsFee
-	vehicleBizFees, err = GetBizPropVehicleFees(ctx, BID, bizPropName)
+	vehicleBizFees, err = GetBizPropVehicleFees(ctx, BID, bizPropName, rStart, rStop)
 	if err != nil {
 		return
 	}
@@ -104,7 +108,11 @@ func GetRAFlowInitialVehicleFees(ctx context.Context,
 	// PREPARE THE VEHICLE BASE FEES FROM BIZ FEES
 	var vehicleFees = []RAFeesData{}
 	for i := range vehicleBizFees {
-		raFee := RAFeesData{ContractAmount: vehicleBizFees[i].Amount}
+		raFee := RAFeesData{
+			ContractAmount: vehicleBizFees[i].Amount,
+			RentCycle:      vehicleBizFees[i].ARRentCycle,
+			ProrationCycle: vehicleBizFees[i].ARProrationCycle,
+		}
 		MigrateStructVals(&vehicleBizFees[i], &raFee)
 		vehicleFees = append(vehicleFees, raFee)
 	}
@@ -132,7 +140,7 @@ func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName s
 ) (fees []RAFeesData, err error) {
 
 	const funcname = "GetCalculatedFeesFromBaseFees"
-	fmt.Printf("Entered in %s\n", funcname)
+	fmt.Printf("Entered in %s, \n", funcname)
 
 	// INITIALIZE FEES
 	fees = []RAFeesData{}
@@ -140,17 +148,34 @@ func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName s
 	// FOR EACH FEE FROM BASE FEES
 	for _, baseFee := range baseFees {
 
+		// if it doesn't overlap with given rent dates range
+		feeStart := (time.Time)(baseFee.Start)
+		feeStop := (time.Time)(baseFee.Stop)
+
+		// SINCE WE'RE LOOKING FOR RECURRING CHARGE, THE DEGREE OF OVERLAP CONDITION
+		// IS TO IGNORE STOP DATE AS SAME AS START DATE, IT COULD BE NOT APPLICABLE TO
+		// HOTEL ROOM CHARGES
+		// TODO(Steve): NEED CONFIRMATION ON THIS
+		// Console("%s: ARID: %d\n", funcname, baseFee.ARID)
+		if !DateRangeOverlap(&feeStart, &feeStop, &rStart, &rStop) {
+			// Console("does not overlap, continue.... ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n")
+			/*Console("feeStart: %s, feeStop: %s, rStart: %s, rStop: %s\n",
+			feeStart.Format(RRDATEFMT3), feeStop.Format(RRDATEFMT3),
+			rStart.Format(RRDATEFMT3), rStop.Format(RRDATEFMT3))*/
+			continue
+		}
+
 		// GET AR FROM ARID IN FEES
 		var ar AR
 		ar, err = GetAR(ctx, baseFee.ARID)
 		if err != nil {
 			return
 		}
+		// Console("%s: ARName: %s\n", funcname, ar.Name)
 
 		// GET RENT, PRORATION CYCLE
 		RentCycle := baseFee.RentCycle
-		// TODO(Sudip): IF PRORATIONCYCLE WILL BE ADDED IN FEES THEN TAKE THAT
-		ProrationCycle := ar.DefaultProrationCycle
+		ProrationCycle := baseFee.ProrationCycle
 
 		// ========================================================================
 		// GET EPOCH BASED ON RENTCYCLE FOR THIS BASE FEE
@@ -173,24 +198,31 @@ func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName s
 		//     1<<8 -  VID required
 		//--------------------------------------------------------------
 		// IF IT IS NON-RECUR CHARGE THEN
-		oneTimeCharge := (ar.FLAGS & (1 << 6)) != 0
-		rentAsmCharge := (ar.FLAGS & (1 << 4)) != 0
+		oneTimeCharge := (ar.FLAGS & (1 << ARIsNonRecurCharge)) != 0
+		rentAsmCharge := (ar.FLAGS & (1 << ARIsRentASM)) != 0
 
 		if oneTimeCharge {
 			// ADD FEE IN LIST
 			raFee := RAFeesData{
 				TMPASMID:        0,
-				ASMID:           0,
+				ASMID:           baseFee.ASMID,
 				ARID:            baseFee.ARID,
 				ARName:          baseFee.ARName,
 				ContractAmount:  baseFee.ContractAmount,
 				RentCycle:       RECURNONE,
-				Start:           JSONDate(rStart),
-				Stop:            JSONDate(rStart),
-				AtSigningPreTax: 0.00,
-				SalesTax:        0.00,
-				TransOccTax:     0.00,
-				Comment:         "",
+				ProrationCycle:  RECURNONE,
+				Start:           baseFee.Start,
+				Stop:            baseFee.Stop,
+				AtSigningPreTax: baseFee.AtSigningPreTax,
+				SalesTax:        baseFee.SalesTax,
+				TransOccTax:     baseFee.TransOccTax,
+				Comment:         baseFee.Comment,
+			}
+
+			// ONLY IF FEES START HAS NOT BEEN SET
+			if feeStart.Equal(earliestDate) || feeStart.Before(earliestDate) {
+				raFee.Start = JSONDate(rStart)
+				raFee.Stop = JSONDate(rStart)
 			}
 			fees = append(fees, raFee)
 
@@ -213,16 +245,17 @@ func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName s
 				// ADD FEE IN LIST
 				raFee := RAFeesData{
 					TMPASMID:        0,
-					ASMID:           0,
+					ASMID:           baseFee.ASMID,
 					ARID:            baseFee.ARID,
 					ARName:          baseFee.ARName,
 					ContractAmount:  tot,
 					RentCycle:       RECURNONE,
+					ProrationCycle:  RECURNONE,
 					Start:           JSONDate(rStart),
 					Stop:            JSONDate(rStart),
-					AtSigningPreTax: 0.00,
-					SalesTax:        0.00,
-					TransOccTax:     0.00,
+					AtSigningPreTax: baseFee.AtSigningPreTax,
+					SalesTax:        baseFee.SalesTax,
+					TransOccTax:     baseFee.TransOccTax,
 					Comment:         cmt,
 				}
 				fees = append(fees, raFee)
@@ -232,17 +265,18 @@ func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName s
 			// ADD FEE IN LIST
 			raFee := RAFeesData{
 				TMPASMID:        0,
-				ASMID:           0,
+				ASMID:           baseFee.ASMID,
 				ARID:            baseFee.ARID,
 				ARName:          baseFee.ARName,
 				ContractAmount:  baseFee.ContractAmount,
 				RentCycle:       RentCycle,
+				ProrationCycle:  ProrationCycle,
 				Start:           JSONDate(epoch),
 				Stop:            JSONDate(rStop),
-				AtSigningPreTax: 0.00,
-				SalesTax:        0.00,
-				TransOccTax:     0.00,
-				Comment:         "",
+				AtSigningPreTax: baseFee.AtSigningPreTax,
+				SalesTax:        baseFee.SalesTax,
+				TransOccTax:     baseFee.TransOccTax,
+				Comment:         baseFee.Comment,
 			}
 			fees = append(fees, raFee)
 		}

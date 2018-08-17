@@ -243,6 +243,11 @@ func SaveFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
+
+		// COMMIT TRANSACTION
+		if tx != nil {
+			err = tx.Commit()
+		}
 	}()
 
 	// ------- unmarshal the request data  ---------------
@@ -287,13 +292,6 @@ func SaveFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	// ------------------
-	// COMMIT TRANSACTION
-	// ------------------
-	if err = tx.Commit(); err != nil {
-		return
-	}
-
 	// -------------------
 	// WRITE FLOW RESPONSE
 	// -------------------
@@ -319,11 +317,10 @@ func SvcWriteFlowResponse(ctx context.Context, BID int64, flow rlib.Flow, w http
 		return
 	}
 
-	// PERFORM BASIC VALIDATION ON FLOW DATA
-	bizlogic.ValidateRAFlowBasic(ctx, &raFlowData, &raflowRespData.BasicCheck)
-
 	// CHECK DATA FULFILLED
 	bizlogic.DataFulfilledRAFlow(ctx, &raFlowData, &raflowRespData.DataFulfilled)
+
+	ValidateRAFlowAndAssignValidatedRAFlow(ctx, &raFlowData, flow, &raflowRespData)
 
 	resp.Record = raflowRespData
 	resp.Status = "success"

@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"reflect"
 	"rentroll/rlib"
 )
 
@@ -53,12 +54,11 @@ type RAFlowNewPetRequest struct {
 func CreateNewRAFlowPet(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "CreateNewRAFlowPet"
 	var (
-		foo           RAFlowNewPetRequest
-		raFlowData    rlib.RAFlowJSONData
-		err           error
-		tx            *sql.Tx
-		ctx           context.Context
-		modRAFlowMeta rlib.RAFlowMetaInfo
+		foo        RAFlowNewPetRequest
+		raFlowData rlib.RAFlowJSONData
+		err        error
+		tx         *sql.Tx
+		ctx        context.Context
 	)
 	fmt.Printf("Entered in %s\n", funcname)
 
@@ -72,6 +72,11 @@ func CreateNewRAFlowPet(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 			}
 			SvcErrorReturn(w, err, funcname)
 			return
+		}
+
+		// COMMIT TRANSACTION
+		if tx != nil {
+			err = tx.Commit()
 		}
 	}()
 
@@ -106,7 +111,6 @@ func CreateNewRAFlowPet(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 	if err != nil {
 		return
 	}
-	modRAFlowMeta = raFlowData.Meta
 
 	// --------------------------------------------------------
 	// APPEND FEES FOR PETS
@@ -117,7 +121,7 @@ func CreateNewRAFlowPet(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 	newRAFlowPet, err = rlib.NewRAFlowPet(ctx, d.BID,
 		raFlowData.Dates.RentStart, raFlowData.Dates.RentStop,
 		raFlowData.Dates.PossessionStart, raFlowData.Dates.PossessionStop,
-		&modRAFlowMeta)
+		&raFlowData.Meta)
 	if err != nil {
 		return
 	}
@@ -125,58 +129,39 @@ func CreateNewRAFlowPet(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 	// append in pets list
 	raFlowData.Pets = append(raFlowData.Pets, newRAFlowPet)
 
-	// --------------------------------------------------------
-	// UPDATE JSON DOC WITH NEW PET DATA (BLANK)
-	// --------------------------------------------------------
-	var modPetsData []byte
-	modPetsData, err = json.Marshal(&raFlowData.Pets)
+	// Update HavePets Flag in meta information of flow
+	raFlowData.Meta.HavePets = len(raFlowData.Pets) > 0
+
+	// LOOK FOR DATA CHANGES
+	var originData rlib.RAFlowJSONData
+	err = json.Unmarshal(flow.Data, &originData)
 	if err != nil {
 		return
 	}
 
-	// update flow with this modified pets part
-	err = rlib.UpdateFlowData(ctx, "pets", modPetsData, &flow)
-	if err != nil {
-		return
-	}
-
-	// --------------------------------------------------------
-	// UPDATE JSON DOC WITH NEW META DATA IF APPLICABLE
-	// --------------------------------------------------------
-	if raFlowData.Meta.LastTMPASMID < modRAFlowMeta.LastTMPASMID {
-
-		// Update HavePets Flag in meta information of flow
-		modRAFlowMeta.HavePets = len(raFlowData.Pets) > 0
-
-		// get marshalled data
-		var modMetaData []byte
-		modMetaData, err = json.Marshal(&modRAFlowMeta)
+	// IF THERE ARE DATA CHANGES THEN ONLY UPDATE THE FLOW
+	if !reflect.DeepEqual(originData, raFlowData) {
+		// GET JSON DATA FROM THE STRUCT
+		var modFlowData []byte
+		modFlowData, err = json.Marshal(&raFlowData)
 		if err != nil {
 			return
 		}
 
-		// update flow with this modified meta part
-		err = rlib.UpdateFlowData(ctx, "meta", modMetaData, &flow)
+		// ASSIGN JSON MARSHALLED MODIFIED DATA
+		flow.Data = modFlowData
+
+		// NOW UPDATE THE WHOLE FLOW
+		err = rlib.UpdateRAFlowWithInitState(ctx, &flow)
 		if err != nil {
 			return
 		}
-	}
 
-	// ----------------------------------------------
-	// RETURN RESPONSE
-	// ----------------------------------------------
-
-	// get the modified flow
-	flow, err = rlib.GetFlow(ctx, flow.FlowID)
-	if err != nil {
-		return
-	}
-
-	// ------------------
-	// COMMIT TRANSACTION
-	// ------------------
-	if err = tx.Commit(); err != nil {
-		return
+		// get the modified flow
+		flow, err = rlib.GetFlow(ctx, flow.FlowID)
+		if err != nil {
+			return
+		}
 	}
 
 	// -------------------

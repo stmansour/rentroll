@@ -4,6 +4,7 @@ package ws
 import (
 	"context"
 	"fmt"
+	"rentroll/bizlogic"
 	"rentroll/rlib"
 	"time"
 )
@@ -54,6 +55,74 @@ func Fees2RA(ctx context.Context, x *WriteHandlerContext) error {
 			}
 		}
 	}
+
+	//--------------------------------------------------------------------------
+	// Now clean up any assessments that are associated with the old RAID but
+	// that have not been updated as part of any fee in the new RAID.
+	//--------------------------------------------------------------------------
+	if err = CleanUpRemainingAssessments(ctx, x); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// CleanUpRemainingAssessments handles all the assessments associated with the
+// original RAID that were not found while handling the amended RAID.
+//
+//
+// INPUTS
+//     ctx  - db context for transactions
+//     x    - all the contextual info we need for performing this operation
+//
+// RETURNS
+//     Any errors encountered
+//-----------------------------------------------------------------------------
+func CleanUpRemainingAssessments(ctx context.Context, x *WriteHandlerContext) error {
+	rlib.Console("Entered CleanUpRemainingAssessments")
+	if x.raf.Meta.RAID == 0 {
+		rlib.Console("No cleanup necessary. x.raf.Meta.RAID is 0\n")
+		return nil // nothing to do, no old RAID
+	}
+	//--------------------------------------------------------------------------
+	// Get the list of any recurring assessments associated with the old rental
+	// agreement that overlap the time range of the new rental agreement.
+	//--------------------------------------------------------------------------
+	m, err := rlib.GetRecurringAssessmentDefsByRAID(ctx, x.raOrig.RAID, &x.ra.RentStart, &x.ra.RentStop)
+	if err != nil {
+		return err
+	}
+	rlib.Console("Found %d recurring assessment definitions to review\n", len(m))
+	for _, v := range m {
+		rlib.Console("ASMID = %d\n", v.ASMID)
+		if v.RentCycle == rlib.RECURNONE {
+			// If it is a non-recurring assessment, reverse it.
+			be := bizlogic.ReverseAssessment(ctx, &v, 0, &x.ra.RentStart)
+			if len(be) > 0 {
+				return bizlogic.BizErrorListToError(be)
+			}
+		} else {
+			// If it is a recurring assessment, stop it.
+			if err = bizlogic.UpdateAssessmentEndDate(ctx, &v, &x.ra.RentStart); err != nil {
+				return err
+			}
+		}
+	}
+	rlib.Console("*** Completed processing recurring assessment definitions\n")
+	//--------------------------------------------------------------------------
+	// Anything non-recurring that happens as of the start date of the amended
+	// agreement must be deleted (reversed).
+	//--------------------------------------------------------------------------
+	m, err = rlib.GetNorecurAssessmentsByRAIDRange(ctx, x.raOrig.RAID, &x.ra.RentStart, &x.ra.RentStop)
+	if err != nil {
+		return err
+	}
+	rlib.Console("Found %d non-recurring assessments to reverse\n", len(m))
+	for _, v := range m {
+		v.AppendComment(fmt.Sprintf("Reversing due to amended RAID %d", x.ra.RAID))
+		bizlogic.ReverseAssessment(ctx, &v, 0, &x.ra.RentStart)
+	}
+	rlib.Console("*** Completed processing non-recurring\n")
 	return nil
 }
 
@@ -72,6 +141,7 @@ func Fees2RA(ctx context.Context, x *WriteHandlerContext) error {
 //     Any errors encountered
 //-----------------------------------------------------------------------------
 func F2RASaveFee(ctx context.Context, x *WriteHandlerContext, fee *rlib.RAFeesData, eltype, id, tmptcid int64) error {
+	rlib.Console("F2RASaveFee processing fee = %d, ASMID = %d\n", fee.TMPASMID, fee.ASMID)
 	if 0 < fee.ASMID {
 		return F2RAUpdateExistingAssessment(ctx, x, fee, eltype, id, tmptcid)
 	}
@@ -80,7 +150,7 @@ func F2RASaveFee(ctx context.Context, x *WriteHandlerContext, fee *rlib.RAFeesDa
 }
 
 // F2RASaveNewFee handles all the updates necessary to move the
-// supplied field into the permanent tables.
+// supplied fee into the permanent tables.
 //
 // INPUTS
 //     ctx  - db context for transactions
@@ -101,14 +171,14 @@ func F2RASaveNewFee(ctx context.Context, x *WriteHandlerContext, fee *rlib.RAFee
 	var b rlib.Assessment
 	dt := time.Time(x.raf.Dates.AgreementStart)
 	if fee.ASMID > 0 {
-		b.Comment = fmt.Sprintf("Continuation of ASMID %d from RAID %d", fee.ASMID, x.raf.Meta.RAID)
+		b.AppendComment(fmt.Sprintf("Continuation of ASMID %d from RAID %d", fee.ASMID, x.raf.Meta.RAID))
 	}
 	Start := time.Time(fee.Start) // the start time will be either the fee start
 	if Start.Before(dt) {         // or the start of the new rental agreement
 		Start = dt // whichever is later
 	}
 	b.Stop = time.Time(fee.Stop)
-	b.BID = x.raf.Dates.BID
+	b.BID = x.raf.Meta.BID
 
 	//-------------------------------------------------------------------
 	// Set the Element Type and ID if necessary
@@ -168,7 +238,7 @@ func F2RASaveNewFee(ctx context.Context, x *WriteHandlerContext, fee *rlib.RAFee
 }
 
 // F2RAUpdateExistingAssessment handles all the updates necessary to move the
-// supplied field into the permanent tables.
+// supplied fee into the permanent tables.
 //
 // INPUTS
 //     ctx  - db context for transactions
@@ -182,7 +252,7 @@ func F2RASaveNewFee(ctx context.Context, x *WriteHandlerContext, fee *rlib.RAFee
 //     Any errors encountered
 //-----------------------------------------------------------------------------
 func F2RAUpdateExistingAssessment(ctx context.Context, x *WriteHandlerContext, fee *rlib.RAFeesData, eltype, id, tmptcid int64) error {
-	// rlib.Console("Entered F2RAUpdateExistingAssessment\n")
+	rlib.Console("Entered F2RAUpdateExistingAssessment\n")
 	if fee.ASMID == int64(0) {
 		return fmt.Errorf("fee.ASMID must be > 0")
 	}
@@ -211,9 +281,15 @@ func F2RAUpdateExistingAssessment(ctx context.Context, x *WriteHandlerContext, f
 	// If it's recurring we'll just stop it on the start date of the new
 	// rental agreement
 	//-------------------------------------------------------------------
-	a.Stop = dt
-	if err = rlib.UpdateAssessment(ctx, &a); err != nil {
-		return err
+	if a.RentCycle > rlib.RECURNONE {
+		err = bizlogic.UpdateAssessmentEndDate(ctx, &a, &dt)
+		if err != nil {
+			return err
+		}
+		// a.Stop = dt
+		// if err = rlib.UpdateAssessment(ctx, &a); err != nil {
+		// 	return err
+		// }
 	}
 
 	err = F2RASaveNewFee(ctx, x, fee, eltype, id, tmptcid)

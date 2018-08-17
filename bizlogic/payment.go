@@ -34,25 +34,30 @@ import (
 const ROUNDINGERR = float64(0.000999)
 
 // GetAllUnpaidAssessmentsForPayor determines all the Rental Agreements for
-// which the supplied Transactant is Payor at time dt, then returns a list
-// of all unpaid assessments associated with these Rental Agreements.
+// which the supplied Transactant is Payor, then returns a list
+// of all unpaid assessments associated with any of those Rental Agreements.
 //-----------------------------------------------------------------------------
-func GetAllUnpaidAssessmentsForPayor(ctx context.Context, bid, tcid int64, dt *time.Time) []rlib.Assessment {
-	var (
-		a []rlib.Assessment
-		// err error
-	)
+func GetAllUnpaidAssessmentsForPayor(ctx context.Context, bid, tcid int64, dt *time.Time) ([]rlib.Assessment, error) {
+	var a []rlib.Assessment
+	var err error
 
-	// TODO(Steve): should we ignore error?
-	m, _ := rlib.GetRentalAgreementsByPayor(ctx, bid, tcid, dt) // Determine which Rental Agreements the Payor is responsible for...
-	// rlib.Console("GetAllUnpaidAssessmentsForPayor: date = %s, len(m) = %d\n", dt.Format(rlib.RRDATEFMTSQL), len(m))
+	m, err := rlib.GetRentalAgreementsByPayor(ctx, bid, tcid) // Determine which Rental Agreements the Payor is responsible for...
+	if err != nil {
+		return a, err
+	}
+	// rlib.Console("*****************\n\n   GetAllUnpaidAssessmentsForPayor: date = %s, len(m) = %d\n\n****************\n", dt.Format(rlib.RRDATEFMTSQL), len(m))
+	for i := 0; i < len(m); i++ {
+		// rlib.Console("%d. RAID = %d\n", i, m[i].RAID)
+	}
 	for i := 0; i < len(m); i++ { // build the list of unpaid assessments
-		// TODO(Steve): should we ignore error?
-		n, _ := rlib.GetUnpaidAssessmentsByRAID(ctx, m[i].RAID) // the list is presorted by Start date ascending
-		// rlib.Console("Unpaid assessment count for RA-%d: %d\n", m[i].RAID, len(n))
+		n, err := rlib.GetUnpaidAssessmentsByRAID(ctx, m[i].RAID) // the list is presorted by Start date ascending
+		if err != nil {
+			return a, err
+		}
+		// rlib.Console("Unpaid assessment count for RAID %d: %d\n", m[i].RAID, len(n))
 		a = append(a, n...)
 	}
-	return a
+	return a, nil
 }
 
 // RemainingReceiptFunds returns the amount of funds left to be allocated on
@@ -327,7 +332,10 @@ func AutoAllocatePayorReceipts(ctx context.Context, tcid int64, dt *time.Time) e
 		return err
 	}
 
-	m := GetAllUnpaidAssessmentsForPayor(ctx, t.BID, tcid, dt)
+	m, err := GetAllUnpaidAssessmentsForPayor(ctx, t.BID, tcid, dt)
+	if err != nil {
+		return err
+	}
 
 	n, err := rlib.GetUnallocatedReceiptsByPayor(ctx, t.BID, tcid)
 	if err != nil {

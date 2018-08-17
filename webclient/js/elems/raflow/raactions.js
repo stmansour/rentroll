@@ -8,7 +8,7 @@
     GetVehicleIdentity,
     dtFormatISOToW2ui,
     localtimeToUTC,
-    updateFlowData,
+    UpdateRAFlowLocalData,
     GetCurrentFlowID, CloseRAFlowLayout,
     ChangeRAFlowVersionToolbar,
     displayErrorDot,
@@ -45,12 +45,12 @@ window.submitActionForm = function(data) {
                 var resErr = data.record.BasicCheck;
                 app.raflow.validationErrors = {
                     dates: resErr.errors.dates.total > 0 || resErr.nonFieldsErrors.dates.length > 0,
-                    people: resErr.errors.people.length > 0 || resErr.nonFieldsErrors.people.length > 0,
-                    pets: resErr.errors.pets.length > 0 || resErr.nonFieldsErrors.pets.length > 0,
-                    vehicles: resErr.errors.vehicles.length > 0 || resErr.nonFieldsErrors.vehicles.length > 0,
-                    rentables: resErr.errors.rentables.length > 0 || resErr.nonFieldsErrors.rentables.length > 0,
-                    parentchild: resErr.errors.parentchild.length > 0 || resErr.nonFieldsErrors.parentchild.length > 0,
-                    tie: resErr.errors.tie.people.length > 0 || resErr.nonFieldsErrors.tie.length > 0
+                    people: resErr.errors.people.total > 0 || resErr.nonFieldsErrors.people.length > 0,
+                    pets: resErr.errors.pets.total > 0 || resErr.nonFieldsErrors.pets.length > 0,
+                    vehicles: resErr.errors.vehicles.total > 0 || resErr.nonFieldsErrors.vehicles.length > 0,
+                    rentables: resErr.errors.rentables.total > 0 || resErr.nonFieldsErrors.rentables.length > 0,
+                    parentchild: resErr.errors.parentchild.total > 0 || resErr.nonFieldsErrors.parentchild.length > 0,
+                    tie: resErr.errors.tie.people.total > 0 || resErr.nonFieldsErrors.tie.length > 0
                 };
 
                 // Update validationCheck error local copy
@@ -75,7 +75,7 @@ window.submitActionForm = function(data) {
                 ChangeRAFlowVersionToolbar(version, ID, RefNo, FLAGS);
 
                 // Update flow local copy and green checks
-                updateFlowData(data);
+                UpdateRAFlowLocalData(data);
             }
 
             if (data.record.Flow.FlowID === 0) {
@@ -94,7 +94,7 @@ window.submitActionForm = function(data) {
                 }
 
                 // Update flow local copy and green checks
-                updateFlowData(data);
+                UpdateRAFlowLocalData(data);
             }
 
             if("raActionLayout" in w2ui){
@@ -575,6 +575,12 @@ window.loadRAActionTemplate = function() {
                                         w2ui.raActionLayout.get('main').content.destroy();
                                         w2ui.newraLayout.unlock('main');
                                         w2ui.newraLayout.get('main').toolbar.refresh();
+
+                                        // get the current component of raflow interface (to be previous one)
+                                        var active_comp = $(".ra-form-component:visible");
+
+                                        // load target section (for refresh purpose)
+                                        loadTargetSection(active_comp.attr("id"), active_comp.attr("id"));
                                     };
                                 form_dirty_alert(yes_callBack, no_callBack);
                                 break;

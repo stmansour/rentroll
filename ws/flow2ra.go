@@ -79,7 +79,7 @@ func Flow2RA(ctx context.Context, flowid int64) (int64, error) {
 			return nraid, err
 		}
 
-		rlib.Console("\tData changes found = %d\n", changes)
+		rlib.Console("\tData changes found = %t\n", changes)
 		//-----------------------------------------------------------------------
 		// If there were changes to the data, create an amended Rental Agreement
 		//-----------------------------------------------------------------------
@@ -296,7 +296,7 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 	var err error
 	var nraid int64
 
-	if err = rlib.InitBizInternals(x.raf.Dates.BID, &x.xbiz); err != nil {
+	if err = rlib.InitBizInternals(x.raf.Meta.BID, &x.xbiz); err != nil {
 		return nraid, err
 	}
 
@@ -310,6 +310,10 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 		if err != nil {
 			return nraid, err
 		}
+
+		// if err = rlib.InitBizInternals(x.raOrig.BID, &x.xbiz); err != nil {
+		// 	return nraid, err
+		// }
 		// saveFlags := x.raOrig.FLAGS
 		chgs := 0
 		AStart := time.Time(x.raf.Dates.AgreementStart)
@@ -336,11 +340,18 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 			x.raOrig.FLAGS |= 5            // set the state to Terminated
 			x.raOrig.LeaseTerminationReason =
 				rlib.RRdb.BizTypes[x.raOrig.BID].Msgs.S[rlib.MSGRAUPDATED].SLSID // "Rental Agreement was updated"
-			sess, ok := rlib.SessionFromContext(ctx)
-			if !ok {
-				return nraid, rlib.ErrSessionRequired
+
+			// support noauth testing
+			UID := int64(-99)
+			if !SvcCtx.NoAuth {
+				sess, ok := rlib.SessionFromContext(ctx)
+				if !ok {
+					return nraid, rlib.ErrSessionRequired
+				}
+				UID = sess.UID
 			}
-			x.raOrig.TerminatorUID = sess.UID
+
+			x.raOrig.TerminatorUID = UID
 			x.raOrig.TerminationDate = time.Now()
 
 			err = rlib.UpdateRentalAgreement(ctx, &x.raOrig)
@@ -374,6 +385,21 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 		return nraid, err
 	}
 	x.newRAID = nraid
+	//-----------------------------------------------------
+	// Create a RentalAgreement Ledger marker
+	//-----------------------------------------------------
+	var lm = rlib.LedgerMarker{
+		BID:     x.ra.BID,
+		RAID:    x.newRAID,
+		RID:     0,
+		Dt:      x.ra.AgreementStart,
+		Balance: float64(0),
+		State:   rlib.LMINITIAL,
+	}
+	_, err = rlib.InsertLedgerMarker(ctx, &lm)
+	if err != nil {
+		return nraid, err
+	}
 
 	//---------------------------------------------------------------
 	// Now spin through the series of handlers that move the data
@@ -382,7 +408,7 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 	for i := 0; i < len(ehandlers); i++ {
 		// rlib.Console("FlowSaveRA: running handler %s\n", ehandlers[i].Name)
 		if err = ehandlers[i].Handler(ctx, x); err != nil {
-			fmt.Printf("error returned from handler %s: %s\n", ehandlers[i].Name, err.Error())
+			rlib.Console("error returned from handler %s: %s\n", ehandlers[i].Name, err.Error())
 			return nraid, err
 		}
 	}
@@ -405,7 +431,7 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 func initRA(ctx context.Context, x *WriteHandlerContext) {
 	x.ra.PRAID = int64(0)
 	x.ra.ORIGIN = int64(0)
-	x.ra.BID = x.raf.Dates.BID
+	x.ra.BID = x.raf.Meta.BID
 	x.ra.AgreementStart = time.Time(x.raf.Dates.AgreementStart)
 	x.ra.AgreementStop = time.Time(x.raf.Dates.AgreementStop)
 	x.ra.RentStart = time.Time(x.raf.Dates.RentStart)
@@ -575,7 +601,7 @@ func F2RAUpdatePets(ctx context.Context, x *WriteHandlerContext) error {
 			}
 			rlib.MigrateStructVals(&x.raf.Pets[i], &pet)
 		} else {
-			pet.BID = x.raf.Dates.BID
+			pet.BID = x.raf.Meta.BID
 			pet.RAID = x.ra.RAID
 			pet.TCID = GetTCIDForTMPTCID(x, x.raf.Pets[i].TMPTCID)
 			pet.Type = x.raf.Pets[i].Type

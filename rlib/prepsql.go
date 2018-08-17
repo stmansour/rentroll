@@ -145,10 +145,24 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetAssessmentFirstInstance, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE PASMID=? ORDER BY Start LIMIT 1")
 	Errcheck(err)
+	//    description -------->>>                                                                                 old RAID   it's recurring      an instance      happens in this period
+	RRdb.Prepstmt.GetAssessmentInstancesByRAID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE RAID=? AND RentCycle > 0 AND PASMID != 0 AND ? <= Start AND Start < ?")
+	Errcheck(err)
+	//    description -------->>>                                                                                     old RAID   it's recurring    not an instance     overlaps new RAID range
+	RRdb.Prepstmt.GetRecurringAssessmentDefsByRAID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE RAID=? AND RentCycle > 0 AND PASMID=0 AND ? < Stop AND Start < ?")
+	Errcheck(err)
+	//    description -------->>>                                                                                      not recurring  not an instance  overlaps new RAID range         not a reversal   unpaid
+	RRdb.Prepstmt.GetNorecurAssessmentsByRAIDRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE RentCycle=0 AND PASMID=0 AND RAID=? AND Stop>=? AND Start<? AND FLAGS&4=0 AND FLAGS&3=0")
+	Errcheck(err)
+
+	//--------------------------------------------------------------------------
 	// FLAGS bits 0-1 mean: 0 = unpaid, 1 = partially paid, 2 = fully paid.
-	// So, FLAGS & 3 gives us the values of bits 0-1.  if the value is 0 or 1 then the assessment is not yet paid.
-	// So (FLAGS & 3) < 2 means that the assessment is not yet paid
-	// Note that if FLAGS & 0x3 == 3 then the assessment is an offset and should not be considered for payment
+	// FLAGS & 3 gives us the values of bits 0-1.  If the value is 0 or 1
+	//    then the assessment is not yet paid.
+	// (FLAGS & 3) < 2 means that the assessment is not yet paid
+	// Note that if FLAGS & 0x3 == 3 then the assessment is an offset and should
+	//    not be considered for payment
+	//--------------------------------------------------------------------------
 	RRdb.Prepstmt.GetUnpaidAssessmentsByRAID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE RAID=? AND (FLAGS & 3)<2 AND (FLAGS & 4)=0 AND (PASMID!=0 OR RentCycle=0) ORDER BY Start ASC")
 	Errcheck(err)
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
@@ -383,7 +397,7 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.UpdateFlow, err = RRdb.Dbrr.Prepare("UPDATE Flow SET " + s3 + " WHERE FlowID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.UpdateFlowData, err = RRdb.Dbrr.Prepare("UPDATE Flow SET Data = JSON_REPLACE(Data, CONCAT('$.', ?), CAST(? AS JSON)) where FlowID=?")
+	RRdb.Prepstmt.UpdateFlowPartData, err = RRdb.Dbrr.Prepare("UPDATE Flow SET Data = JSON_REPLACE(Data, CONCAT('$.', ?), CAST(? AS JSON)) where FlowID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.DeleteFlow, err = RRdb.Dbrr.Prepare("DELETE from Flow WHERE FlowID=?")
 	Errcheck(err)

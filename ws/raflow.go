@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -246,7 +247,7 @@ func GetRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		tx   *sql.Tx
 		ctx  = r.Context()
 	)
-	fmt.Printf("Entered in %s\n", funcname)
+	fmt.Printf("Entered %s, \n", funcname)
 
 	// ===============================================
 	// defer function to handle transactaion rollback
@@ -259,12 +260,31 @@ func GetRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
+
+		// COMMIT TRANSACTION
+		if tx != nil {
+			err = tx.Commit()
+		}
 	}()
 
 	// ------- unmarshal the request data  ---------------
 	if err := json.Unmarshal([]byte(d.data), &req); err != nil {
 		return
 	}
+
+	rlib.Console("req.Version = %s\n", req.Version)
+
+	//-------------------------------------------------------
+	// GET THE NEW `tx`, UPDATED CTX FROM THE REQUEST CONTEXT
+	//-------------------------------------------------------
+	tx, ctx, err = rlib.NewTransactionWithContext(r.Context())
+	if err != nil {
+		return
+	}
+
+	// EditFlag should be set to true only when we're creating a Flow that
+	// becomes a RefNo (an amended RentalAgreement)
+	EditFlag := false // assume we're asking for the view version
 
 	// BASED ON MODE DO OPERATION
 	switch req.Version {
@@ -282,7 +302,7 @@ func GetRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 		// convert permanent ra to flow data and get it
 		var raf rlib.RAFlowJSONData
-		raf, err = rlib.ConvertRA2Flow(ctx, &ra)
+		raf, err = rlib.ConvertRA2Flow(ctx, &ra, EditFlag)
 		if err != nil {
 			return
 		}
@@ -317,9 +337,10 @@ func GetRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 
 	case "refno":
-
-		// IF CREATE ONE ONLY WHEN REF.NO IS BLANK
+		// CREATE ONE ONLY WHEN REF.NO IS BLANK
+		rlib.Console("req.UserRefNo = %s\n", req.UserRefNo)
 		if req.UserRefNo == "" {
+			rlib.Console("Generating new flow %s\n", req.UserRefNo)
 			// IF NOT FOUND THEN TRY TO CREATE NEW ONE FROM RAID
 			// GET RENTAL AGREEMENT
 			var ra rlib.RentalAgreement
@@ -328,13 +349,14 @@ func GetRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				return
 			}
 			if ra.RAID == 0 {
-				err = fmt.Errorf("Rental Agreement not found with given RAID: %d", req.RAID)
+				err = fmt.Errorf("rental Agreement not found with given RAID: %d", req.RAID)
 				return
 			}
 
 			// GET THE NEW FLOW ID CREATED USING PERMANENT DATA
 			var flowID int64
-			flowID, err = GetRA2FlowCore(ctx, &ra, d)
+			EditFlag = true
+			flowID, err = GetRA2FlowCore(ctx, &ra, d, EditFlag)
 			if err != nil {
 				return
 			}
@@ -352,6 +374,7 @@ func GetRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			return
 		}
 
+		rlib.Console("Using existing flow\n")
 		// GIVEN REF.NO SHOULD BE VALID
 		if len(req.UserRefNo) != rlib.UserRefNoLength {
 			err = fmt.Errorf("given refno is not valid: %s ", req.UserRefNo)
@@ -380,4 +403,22 @@ func GetRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		err = fmt.Errorf("Invalid version: (%s) to get raflow for RAID: %d", req.Version, req.RAID)
 		return
 	}
+}
+
+// ValidateRAFlowAndAssignValidatedRAFlow validate raflow and assign it to the response
+func ValidateRAFlowAndAssignValidatedRAFlow(ctx context.Context, raFlowData *rlib.RAFlowJSONData, flow rlib.Flow, raflowRespData *RAFlowResponse) {
+	var (
+		raFlowFieldsErrors    bizlogic.RAFlowFieldsErrors
+		raFlowNonFieldsErrors bizlogic.RAFlowNonFieldsErrors
+	)
+	// init raFlowFieldsErrors
+	initRAFlowFieldsErrors(&raFlowFieldsErrors)
+	initRAFlowNonFieldsErrors(&raFlowNonFieldsErrors)
+	bizlogic.ValidateRAFlowParts(ctx, &raFlowFieldsErrors, &raFlowNonFieldsErrors, raFlowData, flow.ID)
+	totalFieldsError := raFlowFieldsErrors.Dates.Total + raFlowFieldsErrors.People.Total + raFlowFieldsErrors.Pets.Total + raFlowFieldsErrors.Vehicle.Total + raFlowFieldsErrors.Rentables.Total + raFlowFieldsErrors.ParentChild.Total + raFlowFieldsErrors.Tie.TiePeople.Total
+	totalNonFieldsError := len(raFlowNonFieldsErrors.Dates) + len(raFlowNonFieldsErrors.People) + len(raFlowNonFieldsErrors.Pets) + len(raFlowNonFieldsErrors.Rentables) + len(raFlowNonFieldsErrors.Vehicle) + len(raFlowNonFieldsErrors.ParentChild) + len(raFlowNonFieldsErrors.Tie)
+	raflowRespData.ValidationCheck.Errors = raFlowFieldsErrors
+	raflowRespData.ValidationCheck.NonFieldsErrors = raFlowNonFieldsErrors
+	raflowRespData.ValidationCheck.Total += totalFieldsError + totalNonFieldsError
+	raflowRespData.ValidationCheck.Status = "success"
 }

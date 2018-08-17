@@ -1,7 +1,7 @@
 /* global
-    saveActiveCompData, getRAFlowCompData, getRecIDFromCRID, dispalyRAParentChildGridError,
-    getChildRentableLocalData, setChildRentableLocalData, saveParentChildCompData,
-    EnableDisableRAFlowVersionGrid
+    SaveCompDataAJAX, GetRAFlowCompLocalData, getRecIDFromCRID, dispalyRAParentChildGridError,
+    getChildRentableLocalData, SetChildRentableLocalData, saveParentChildCompData,
+    EnableDisableRAFlowVersionGrid, SaveParentChildCompData
 */
 
 "use strict";
@@ -22,7 +22,7 @@ window.loadRAPeopleChildSection = function () {
                 footer:     true,
             },
             multiSelect: false,
-            style: 'display: block;',
+            style: 'border: none; display: block;',
             columns: [
                 {
                     field: 'recid',
@@ -47,7 +47,7 @@ window.loadRAPeopleChildSection = function () {
                     render: function (record) {
                         var haveError = false;
                         if (app.raflow.validationErrors.parentchild) {
-                            var parentchild = app.raflow.validationCheck.errors.parentchild;
+                            var parentchild = app.raflow.validationCheck.errors.parentchild.errors;
                             for (var i = 0; i < parentchild.length; i++) {
                                 if (parentchild[i].PRID === record.PRID && parentchild[i].CRID === record.CRID && parentchild[i].total > 0) {
                                     haveError = true;
@@ -109,19 +109,30 @@ window.loadRAPeopleChildSection = function () {
 
                         // set modified data in grid and locally
                         grid.set(event.recid, record);
-                        setChildRentableLocalData(record.CRID, localData);
-                    }
+                        SetChildRentableLocalData(record.CRID, localData);
 
-                    // save grid changes
-                    this.save();
+                        // SAVE DATA ON SERVER SIDE
+                        SaveParentChildCompData()
+                        .done(function(data) {
+                            if (data.status === 'success') {
+                                // save grid changes
+                                grid.save();
+                            } else {
+                                grid.message(data.message);
+                            }
+                        })
+                        .fail(function(data) {
+                            console.log("failure " + data);
+                        });
+                    }
                 };
             }
         });
     }
 
     // prepare parent and child rentable list based on rentables section data
-    var rentableCompData = getRAFlowCompData("rentables") || [],
-        compData = getRAFlowCompData("parentchild") || [],
+    var rentableCompData = GetRAFlowCompLocalData("rentables") || [],
+        compData = GetRAFlowCompLocalData("parentchild") || [],
         recidCounter = 1, // always starts with 1
         BID = getCurrentBID(),
         gridRecords = [];
@@ -211,7 +222,7 @@ window.loadRAPeopleChildSection = function () {
 //                           modified data on the server via API
 //-----------------------------------------------------------------------------
 window.saveParentChildCompData = function() {
-    var compData = getRAFlowCompData("parentchild") || [],
+    var compData = GetRAFlowCompLocalData("parentchild") || [],
         dataToSaveFlag = false,
         gridRecords = w2ui.RAParentChildGrid.records || [];
 
@@ -248,7 +259,7 @@ window.saveParentChildCompData = function() {
         app.raflow.Flow.parentchild = modCompData;
 
         // now hit the server API to save
-        saveActiveCompData(modCompData, "parentchild");
+        SaveCompDataAJAX(modCompData, "parentchild");
     }
 };
 
@@ -259,7 +270,7 @@ window.saveParentChildCompData = function() {
 window.getChildRentableLocalData = function(RID, returnIndex) {
     var cloneData = {};
     var foundIndex = -1;
-    var compData = getRAFlowCompData("parentchild");
+    var compData = GetRAFlowCompLocalData("parentchild");
     compData.forEach(function(item, index) {
         if (item.CRID == RID) {
             if (returnIndex) {
@@ -277,11 +288,11 @@ window.getChildRentableLocalData = function(RID, returnIndex) {
 };
 
 //-----------------------------------------------------------------------------
-// setChildRentableLocalData - set the modified rentable data locally
+// SetChildRentableLocalData - set the modified rentable data locally
 //                              for requested RID by matching CRID
 //-----------------------------------------------------------------------------
-window.setChildRentableLocalData = function(RID, data) {
-    var compData = getRAFlowCompData("parentchild");
+window.SetChildRentableLocalData = function(RID, data) {
+    var compData = GetRAFlowCompLocalData("parentchild");
     var dataIndex = -1;
     compData.forEach(function(item, index) {
         if (item.CRID == RID) {
@@ -318,7 +329,7 @@ window.dispalyRAParentChildGridError = function (){
     }
 
     if (app.raflow.validationErrors.parentchild) {
-        var parentchild = app.raflow.validationCheck.errors.parentchild;
+        var parentchild = app.raflow.validationCheck.errors.parentchild.errors;
         for (i = 0; i < parentchild.length; i++) {
             if (parentchild[i].total > 0) {
                 var recid = getRecIDFromCRID(g, parentchild[i].CRID);
@@ -338,4 +349,12 @@ window.getRecIDFromCRID = function(grid, CRID){
         }
     }
     return recid;
+};
+
+//------------------------------------------------------------------------------
+// SaveParentChildCompData - saves the data on server side
+//------------------------------------------------------------------------------
+window.SaveParentChildCompData = function() {
+    var compData = GetRAFlowCompLocalData("parentchild");
+    return SaveCompDataAJAX(compData, "parentchild");
 };
