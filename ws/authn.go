@@ -50,7 +50,7 @@ func SvcAuthenticate(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	var b rlib.AIRAuthenticateResponse
-	if SvcCtx.NoAuth { // test mode
+	if rlib.NoAuthEnabled() { // test mode
 		b.Status = "success"
 		b.Username = "noauth"
 		b.Name = "NoAuth"

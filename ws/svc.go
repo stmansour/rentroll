@@ -393,7 +393,7 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			// if !SvcCtx.NoAuth && Svcs[i].NeedSession && d.sess == nil || (d.sess != nil && d.sess.UID == 0) {
-			if !SvcCtx.NoAuth && Svcs[i].NeedSession {
+			if !rlib.NoAuthEnabled() && Svcs[i].NeedSession {
 				if err = findSession(w, &r, &d); err != nil {
 					e := fmt.Errorf("Could not find session: %s", err)
 					rlib.Console("%s\n", e.Error())
