@@ -349,9 +349,8 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 			if !ok {
 				return nraid, rlib.ErrSessionRequired
 			}
-			UID = sess.UID
 
-			x.raOrig.TerminatorUID = UID
+			x.raOrig.TerminatorUID = sess.UID
 			x.raOrig.TerminationDate = time.Now()
 
 			err = rlib.UpdateRentalAgreement(ctx, &x.raOrig)
