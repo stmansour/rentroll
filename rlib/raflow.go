@@ -353,7 +353,7 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 			newPStop := (time.Time)(a.PossessionStop)
 			if !((time.Time)(raFlowData.Dates.PossessionStart).Equal(newPStart) &&
 				(time.Time)(raFlowData.Dates.PossessionStop).Equal(newPStop)) {
-				possessDateChangeRAFlowUpdates(ctx, newPStart, newPStop, &raFlowData)
+				PossessDateChangeRAFlowUpdates(ctx, newPStart, newPStop, &raFlowData)
 			}
 
 			// ----- RENT DATES CHANGED CHECK ----- //
@@ -361,7 +361,7 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 			newRStop := (time.Time)(a.RentStop)
 			if !((time.Time)(raFlowData.Dates.RentStart).Equal(newRStart) &&
 				(time.Time)(raFlowData.Dates.RentStop).Equal(newRStop)) {
-				err = rentDateChangeRAFlowUpdates(ctx, BID, newRStart, newRStop, &raFlowData)
+				err = RentDateChangeRAFlowUpdates(ctx, BID, newRStart, newRStop, &raFlowData)
 				if err != nil {
 					return
 				}
@@ -752,9 +752,9 @@ func SyncTieRecords(raFlowData *RAFlowJSONData) {
 	raFlowData.Tie.People = modTiePeople
 }
 
-// possessDateChangeRAFlowUpdates updates raflow json with required
+// PossessDateChangeRAFlowUpdates updates raflow json with required
 // modification if possession dates are changed
-func possessDateChangeRAFlowUpdates(ctx context.Context, pStart, pStop time.Time, raFlowData *RAFlowJSONData) {
+func PossessDateChangeRAFlowUpdates(ctx context.Context, pStart, pStop time.Time, raFlowData *RAFlowJSONData) {
 
 	start := JSONDate(pStart)
 	stop := JSONDate(pStop)
@@ -772,9 +772,9 @@ func possessDateChangeRAFlowUpdates(ctx context.Context, pStart, pStop time.Time
 	}
 }
 
-// rentDateChangeRAFlowUpdates updates raflow json with required
+// RentDateChangeRAFlowUpdates updates raflow json with required
 // modification if rent dates are changed
-func rentDateChangeRAFlowUpdates(ctx context.Context, BID int64, rStart, rStop time.Time, raFlowData *RAFlowJSONData) (err error) {
+func RentDateChangeRAFlowUpdates(ctx context.Context, BID int64, rStart, rStop time.Time, raFlowData *RAFlowJSONData) (err error) {
 
 	const (
 		bizPropName = "general"
