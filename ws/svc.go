@@ -229,7 +229,7 @@ var SvcCtx struct {
 // SvcInit initializes the service subsystem
 func SvcInit(noauth bool) {
 	SvcCtx.NoAuth = noauth
-	rlib.SetAuthFlag(noauth)
+	rlib.SetNoAuthFlag(noauth)
 }
 
 func findSession(w http.ResponseWriter, r **http.Request, d *ServiceData) error {

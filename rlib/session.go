@@ -13,9 +13,9 @@ import (
 	"time"
 )
 
-// SetAuthFlag enable/disable authentication in RRdb
+// SetNoAuthFlag enable/disable authentication in RRdb
 // ON production we should not allow this flag to set
-func SetAuthFlag(noauth bool) {
+func SetNoAuthFlag(noauth bool) {
 	if AppConfig.Env != extres.APPENVPROD { // NOT only applicable for PROD Environment
 		RRdb.noAuth = noauth
 	}
