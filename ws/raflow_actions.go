@@ -401,16 +401,9 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 	migrateData := false
 
 	//--------------------------------------------------------------------------
-	// safeguard for dereferencing d.sess which may not exist if we're testing
+	// In noauth mode, it still have tester session
 	//--------------------------------------------------------------------------
-	UID := int64(-99)
-	if d.sess != nil {
-		UID = d.sess.UID
-	} else {
-		if !rlib.NoAuthEnabled() {
-			return raflowRespData, rlib.ErrSessionRequired
-		}
-	}
+	UID = d.sess.UID
 
 	// GET FLOW BY REFNO
 	flow, err = rlib.GetFlowByUserRefNo(ctx, d.BID, UserRefNo)
@@ -741,16 +734,9 @@ func SetActionMetaData(ctx context.Context, d *ServiceData, Action int64, modRAF
 	today = time.Now().In(location)
 
 	//--------------------------------------------------------------------------
-	// safeguard for dereferencing d.sess which may not exist if we're testing
+	// In noauth mode, it still have tester session
 	//--------------------------------------------------------------------------
-	UID := int64(-99)
-	if d.sess != nil {
-		UID = d.sess.UID
-	} else {
-		if !rlib.NoAuthEnabled() {
-			return rlib.ErrSessionRequired
-		}
-	}
+	UID = d.sess.UID
 
 	// take latest RAFLAGS value at this point(in case flag bits are reset)
 	clearedState := modRAFlowMeta.RAFLAGS & ^uint64(0xF)

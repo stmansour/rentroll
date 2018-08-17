@@ -342,15 +342,14 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 			x.raOrig.LeaseTerminationReason =
 				rlib.RRdb.BizTypes[x.raOrig.BID].Msgs.S[rlib.MSGRAUPDATED].SLSID // "Rental Agreement was updated"
 
-			// support noauth testing
-			UID := int64(-99999)
-			if !SvcCtx.NoAuth {
-				sess, ok := rlib.SessionFromContext(ctx)
-				if !ok {
-					return nraid, rlib.ErrSessionRequired
-				}
-				UID = sess.UID
+			//--------------------------------------------------------------------------
+			// In noauth mode, it still have tester session, get it from the context
+			//--------------------------------------------------------------------------
+			sess, ok := rlib.SessionFromContext(ctx)
+			if !ok {
+				return nraid, rlib.ErrSessionRequired
 			}
+			UID = sess.UID
 
 			x.raOrig.TerminatorUID = UID
 			x.raOrig.TerminationDate = time.Now()
