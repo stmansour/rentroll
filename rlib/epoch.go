@@ -2,6 +2,19 @@ package rlib
 
 import "time"
 
+// GetRoundingDate returns the date with rounding
+func GetRoundingDate(t time.Time) (n time.Time) {
+	n = time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
+	return
+}
+
+// GetTodayUTCRoundingDate returns Today's date with rounding in UTC timezone
+func GetTodayUTCRoundingDate() (t time.Time) {
+	now := time.Now().UTC()
+	t = GetRoundingDate(now)
+	return
+}
+
 // GetEpochFromBaseDate returns the epoch date based on cycle,
 // start date and pre-configured base epochs
 //

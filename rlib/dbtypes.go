@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"extres"
 	"fmt"
 	"math/rand"
 	"strings"
@@ -1997,13 +1996,6 @@ var RRdb struct {
 	noAuth   bool                         // if enable that means auth is not required, (should be moved in some common app struct!)
 	Rand     *rand.Rand                   // for generating Reference Numbers or other UniqueIDs
 	// TODO(sudip): NoAuth will be moved to something internal pkg app struct
-}
-
-// SetAuthFlag enable/disable authentication in RRdb
-func SetAuthFlag(noauth bool) {
-	if AppConfig.Env != extres.APPENVPROD { // NOT only applicable for PROD Environment
-		RRdb.noAuth = noauth
-	}
 }
 
 // BuildBusinessDesignationMap builds a map of biz designations to BIDs

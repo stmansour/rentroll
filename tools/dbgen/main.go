@@ -103,7 +103,7 @@ func main() {
 
 	rlib.RpnInit()
 	rlib.InitDBHelpers(App.dbrr, App.dbdir)
-	rlib.SetAuthFlag(App.NoAuth)
+	rlib.SetNoAuthFlag(App.NoAuth)
 
 	// create background context
 	ctx := context.Background()

@@ -220,7 +220,7 @@ func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName s
 			}
 
 			// ONLY IF FEES START HAS NOT BEEN SET
-			if feeStart.Equal(earliestDate) || feeStart.Before(earliestDate) {
+			if feeStart.Equal(rStart) || feeStart.Before(rStart) {
 				raFee.Start = JSONDate(rStart)
 				raFee.Stop = JSONDate(rStart)
 			}

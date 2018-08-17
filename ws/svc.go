@@ -229,13 +229,15 @@ var SvcCtx struct {
 // SvcInit initializes the service subsystem
 func SvcInit(noauth bool) {
 	SvcCtx.NoAuth = noauth
-	rlib.SetAuthFlag(noauth)
+	rlib.SetNoAuthFlag(noauth)
 }
 
 func findSession(w http.ResponseWriter, r **http.Request, d *ServiceData) error {
 	var err error
 	// rlib.Console("A\n")
-	if !SvcCtx.NoAuth {
+
+	// IF NOAUTH IS SET TO FALSE, THAT MEAN WE MUST DO AUTHENTICATION
+	if !rlib.NoAuthEnabled() {
 		// rlib.Console("B\n")
 		rlib.Console("calling GetSession\n")
 		d.sess, err = rlib.GetSession((*r).Context(), w, (*r))
@@ -276,6 +278,22 @@ func findSession(w http.ResponseWriter, r **http.Request, d *ServiceData) error 
 			d.sess.Refresh(w, (*r)) // they actively tried to use the session, extend timeout
 		}
 		// rlib.Console("J\n")
+		// get session in the request context
+		ctx := rlib.SetSessionContextKey((*r).Context(), d.sess)
+		(*r) = (*r).WithContext(ctx)
+	} else {
+		// IF NOAUTH IS ENABLED IT MUST BE FOR TESTING PURPOSE, SET BLANK SESSION
+		rlib.Console("setting fake session in the service data")
+		d.sess = &rlib.Session{
+			Token:    "TESTER_TOKEN",
+			Username: "TESTER",
+			Name:     "TESTER",
+			UID:      -99999,
+			CoCode:   -1,
+			ImageURL: "",
+			Expire:   time.Now().Add(1 * time.Minute), // ONE MINUTE WOULD BE ENOUGH FOR TESTING
+			RoleID:   -1,
+		}
 		// get session in the request context
 		ctx := rlib.SetSessionContextKey((*r).Context(), d.sess)
 		(*r) = (*r).WithContext(ctx)

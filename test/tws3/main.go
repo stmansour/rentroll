@@ -98,7 +98,7 @@ func main() {
 	bizlogic.InitBizLogic()
 	rlib.SessionInit(10) // must be called before calling InitBizInternals
 	ws.InitReports()
-	rlib.SetAuthFlag(App.NoAuth)
+	rlib.SetNoAuthFlag(App.NoAuth)
 	ws.SvcInit(App.NoAuth) // currently needed for testing
 	// tws.Init(App.dbrr, App.dbdir) //
 	// worker.Init()              // don't init these, it introduces randomness

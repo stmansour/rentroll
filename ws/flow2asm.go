@@ -321,22 +321,3 @@ func GetRIDForTMPTCID(ctx context.Context, x *WriteHandlerContext, tmptcid int64
 	}
 	return -1
 }
-
-// GetTCIDForTMPTCID finds the TCID associated with the supplied tmptcid.
-//
-// INPUTS
-//     ctx     - db context for transactions
-//     x       - all the contextual info we need for performing this operation
-//     tmptcid - tmptcid for person we want the associated RID
-//
-// RETURNS
-//     TCID of associated Transactant, or -1 if not found
-//-----------------------------------------------------------------------------
-func GetTCIDForTMPTCID(x *WriteHandlerContext, tmptcid int64) int64 {
-	for i := 0; i < len(x.raf.People); i++ {
-		if x.raf.People[i].TMPTCID == tmptcid {
-			return x.raf.People[i].TCID
-		}
-	}
-	return -1
-}
