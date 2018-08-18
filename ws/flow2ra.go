@@ -585,7 +585,6 @@ func F2RAUpdatePets(ctx context.Context, x *WriteHandlerContext) (err error) {
 	// rlib.Console("Entered F2RAUpdatePets\n")
 
 	for i := 0; i < len(x.raf.Pets); i++ {
-
 		// get contact person
 		var petTCID int64
 		petTCID, err = GetTCIDForTMPTCID(x, x.raf.Pets[i].TMPTCID)
@@ -603,20 +602,48 @@ func F2RAUpdatePets(ctx context.Context, x *WriteHandlerContext) (err error) {
 				return err
 			}
 
-			rlib.MigrateStructVals(&x.raf.Pets[i], &pet)
-			pet.TCID = petTCID
-			pet.BID = x.raf.Meta.BID
-			pet.RAID = x.ra.RAID
+			newpet := pet
+			rlib.MigrateStructVals(&x.raf.Pets[i], &newpet)
+			newpet.TCID = petTCID
+			newpet.BID = x.raf.Meta.BID
+			newpet.RAID = x.ra.RAID
 
-			if err = rlib.UpdateRentalAgreementPet(ctx, &pet); err != nil {
-				return err
+			//----------------------------------------------------------
+			// Is the new Agreement period AFTER the current period?
+			//----------------------------------------------------------
+			newStart := time.Time(x.raf.Pets[i].DtStart)
+			//newStop := time.Time(x.raf.Pets[i].DtStop)
+			if pet.DtStart.Before(newStart) {
+				//----------------------------------------------------------
+				// stop the current RentalAgreementPet when the RA begins...
+				//----------------------------------------------------------
+				pet.DtStop = newStart
+				if pet.DtStop.Before(pet.DtStart) { // yes, this can happen
+					pet.DtStop = pet.DtStart
+				}
+				if err = rlib.UpdateRentalAgreementPet(ctx, &pet); err != nil {
+					return err
+				}
+				//----------------------------------------------------------
+				// now create the new one...
+				//----------------------------------------------------------
+				x.raf.Pets[i].PETID, err = rlib.InsertRentalAgreementPet(ctx, &newpet)
+				if err != nil {
+					return err
+				}
+			} else {
+				// if dates are the same or newpet range precedes old pet range,
+				// then newpet overwrites pet
+				newpet.PETID = x.raf.Pets[i].PETID
+				if err = rlib.UpdateRentalAgreementPet(ctx, &newpet); err != nil {
+					return err
+				}
 			}
 		} else {
 			rlib.MigrateStructVals(&x.raf.Pets[i], &pet)
 			pet.TCID = petTCID
 			pet.BID = x.raf.Meta.BID
 			pet.RAID = x.ra.RAID
-
 			x.raf.Pets[i].PETID, err = rlib.InsertRentalAgreementPet(ctx, &pet)
 			if err != nil {
 				return err
