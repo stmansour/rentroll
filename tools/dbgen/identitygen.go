@@ -11,6 +11,7 @@ import (
 	"os"
 	"rentroll/rlib"
 	"strconv"
+	"strings"
 )
 
 // Alphabet contains caps of the alphabet
@@ -413,20 +414,60 @@ func GenerateRandomCompany() string {
 //-----------------------------------------------------------------------------
 func GenerateRandomEmail(lastname string, firstname string) string {
 	var providers = []string{"gmail.com", "yahoo.com", "comcast.net", "aol.com", "bdiddy.com", "hotmail.com", "abiz.com"}
+	var s string
 	np := len(providers)
 	n := IG.Rand.Intn(10)
 	switch {
 	case n < 4:
-		return fmt.Sprintf("%s%s%d@%s", firstname[0:1], lastname, IG.Rand.Intn(10000), providers[IG.Rand.Intn(np)])
+		s = fmt.Sprintf("%s%s%d@%s", firstname[0:1], lastname, IG.Rand.Intn(10000), providers[IG.Rand.Intn(np)])
 	case n > 6:
-		return fmt.Sprintf("%s%s%d@%s", firstname, lastname[0:1], IG.Rand.Intn(10000), providers[IG.Rand.Intn(np)])
+		s = fmt.Sprintf("%s%s%d@%s", firstname, lastname[0:1], IG.Rand.Intn(10000), providers[IG.Rand.Intn(np)])
 	default:
-		return fmt.Sprintf("%s%s%d@%s", firstname, lastname, IG.Rand.Intn(1000), providers[IG.Rand.Intn(np)])
+		s = fmt.Sprintf("%s%s%d@%s", firstname, lastname, IG.Rand.Intn(1000), providers[IG.Rand.Intn(np)])
 	}
+	return ScrubEmailAddr(s)
 }
 
 // GenerateRandomAddress returns a string with a random address
 //-----------------------------------------------------------------------------
 func GenerateRandomAddress() string {
 	return fmt.Sprintf("%d %s", IG.Rand.Intn(99999), IG.Streets[IG.Rand.Intn(len(IG.Streets))])
+}
+
+// ScrubEmailAddr removes characters that are not allowed in an email address
+// from the provided string and returns the updated string.
+// It also removes some of the illegal character combinations I have encountered
+// when doing large email blasts with Mojo
+func ScrubEmailAddr(ss string) string {
+	s1 := rlib.Stripchars(ss, " ,\"():;<>")
+
+	// Fix addresses of the form: Dennis.E..Echelberry@faa.gov
+	j := strings.Index(s1, "..")
+	if j >= 0 {
+		s := s1[:j+1]
+		if len(s1) > j+2 {
+			s += s1[j+2:]
+		}
+		s1 = s
+	}
+
+	// Fix addresses of the form: Richard.D.AndersonJr.@faa.gov
+	if j = strings.Index(s1, ".@"); j >= 0 {
+		s := s1[:j]
+		if len(s1) > j+1 {
+			s += s1[j+1:]
+		}
+		s1 = s
+	}
+
+	// Fix addresses of the form: I@mw@lkingw1th477@ng3ls.M.McDonald@faa.gov
+	// save the rightmost @, just remove all other @ characters
+	if strings.Count(s1, "@") > 1 {
+		i := strings.LastIndex(s1, "@")
+		sa := rlib.Stripchars(s1[:i], "@")
+		sb := s1[i:]
+		s1 = sa + sb
+	}
+
+	return s1
 }
