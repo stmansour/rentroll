@@ -11,8 +11,8 @@ ASMID        RAID        Rentable     Rent Cycle     Cycle              Amount  
 -----------  ----------  -----------  -------------  -------------  ----------  -------  ---------------------------
 ASM00000007  RA00000001  Rentable001  monthly        daily            1,000.00           Rent Non-Taxable           
 ASM00000011  RA00000001  Rentable001  non-recurring  non-recurring    4,000.00           Security Deposit Assessment
-ASM00000013  RA00000002  Rentable001  non-recurring  non-recurring    1,000.00           Rent ST000                 
-ASM00000014  RA00000001  Rentable001  monthly        daily           -1,000.00           Rent Non-Taxable           
-ASM00000015  RA00000001  Rentable001  monthly        daily              225.81           Rent Non-Taxable           
+ASM00000012  RA00000001  Rentable001  monthly        daily           -1,000.00           Rent Non-Taxable           
+ASM00000013  RA00000001  Rentable001  non-recurring  non-recurring      612.90           Rent Non-Taxable           
+ASM00000014  RA00000002  Rentable001  non-recurring  daily              387.10           Rent Non-Taxable           
 ASM00000016  RA00000001  Rentable001  non-recurring  non-recurring   -4,000.00           Security Deposit Assessment
 
