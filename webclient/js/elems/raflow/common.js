@@ -40,7 +40,6 @@ window.RAFlowAJAX = function(URL, METHOD, REQDATA, updateLocalData) {
         beforeSend: function() {
             // show the loader
             HideRAFlowLoader(false);
-            $("#raflow-container .loader").css("display", "flex");
         },
         success: function (data) {
             if (data.status !== "error") {
@@ -164,19 +163,6 @@ $(document).on('click', '#ra-form #save-ra-flow-btn', function () {
         displayErrorDot();
 
         displayActiveComponentError();
-
-        // Change its state to pending first approval.
-        if(data.total === 0){
-
-            var reqData = {
-                "UserRefNo": app.raflow.Flow.UserRefNo,
-                "RAID": app.raflow.Flow.ID,
-                "Version": app.raflow.version,
-                "Action": 1, // 1 indicates that pending first approval
-                "Mode": "Action"
-            };
-            submitActionForm(reqData);
-        }
 
     });
 });
@@ -392,17 +378,22 @@ window.HideRAFlowLoader = function(hide) {
         if (w2ui.newraLayout) {
             $(w2ui.newraLayout.get("main").toolbar.box).find("button").prop('disabled', false);
         }
-        $("#raflow-container .loader").hide();
+        $("#raflow-container .blocker").hide();
+        $("#raactionform .blocker").hide();
     } else {
         if (w2ui.newraLayout) {
             $(w2ui.newraLayout.get("main").toolbar.box).find("button").prop('disabled', true);
         }
-        $("#raflow-container .loader").show();
+        $("#raflow-container .blocker").css("display", "flex");
+        $("#raactionform .blocker").css("display", "flex");
+        $("#raflow-container .blocker").show();
+        $("#raactionform .blocker").show();
     }
 };
 
 // UpdateRAFlowLocalData updates the local data from the API response
 window.UpdateRAFlowLocalData = function(data){
+
     app.raflow.Flow = data.record.Flow;
 
     // Update local copy of validation check
