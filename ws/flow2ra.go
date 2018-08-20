@@ -585,7 +585,6 @@ func F2RAUpdatePets(ctx context.Context, x *WriteHandlerContext) (err error) {
 	// rlib.Console("Entered F2RAUpdatePets\n")
 
 	for i := 0; i < len(x.raf.Pets); i++ {
-
 		// get contact person
 		var petTCID int64
 		petTCID, err = GetTCIDForTMPTCID(x, x.raf.Pets[i].TMPTCID)
@@ -603,20 +602,57 @@ func F2RAUpdatePets(ctx context.Context, x *WriteHandlerContext) (err error) {
 				return err
 			}
 
-			rlib.MigrateStructVals(&x.raf.Pets[i], &pet)
-			pet.TCID = petTCID
-			pet.BID = x.raf.Meta.BID
-			pet.RAID = x.ra.RAID
+			newpet := pet
+			rlib.MigrateStructVals(&x.raf.Pets[i], &newpet)
+			newpet.TCID = petTCID
+			newpet.BID = x.raf.Meta.BID
+			newpet.RAID = x.ra.RAID
 
-			if err = rlib.UpdateRentalAgreementPet(ctx, &pet); err != nil {
-				return err
+			//----------------------------------------------------------
+			// Is the new Agreement period AFTER the current period?
+			//----------------------------------------------------------
+			newStart := time.Time(x.raf.Pets[i].DtStart)
+			//newStop := time.Time(x.raf.Pets[i].DtStop)
+			if pet.DtStart.Before(newStart) {
+				//----------------------------------------------------------
+				// stop the current RentalAgreementPet when the RA begins...
+				//----------------------------------------------------------
+				pet.DtStop = newStart
+				if pet.DtStop.Before(pet.DtStart) { // yes, this can happen
+					pet.DtStop = pet.DtStart
+				}
+				if err = rlib.UpdateRentalAgreementPet(ctx, &pet); err != nil {
+					return err
+				}
+				//----------------------------------------------------------
+				// now create the new one...
+				//----------------------------------------------------------
+				x.raf.Pets[i].PETID, err = rlib.InsertRentalAgreementPet(ctx, &newpet)
+				if err != nil {
+					return err
+				}
+			} else {
+				//---------------------------------------------------------------
+				// if dates are the same or newpet range precedes old pet range,
+				// then newpet overwrites pet.  Set the old one to no time...
+				//---------------------------------------------------------------
+				pet.DtStop = pet.DtStart // essentially sets it to no time
+				if err = rlib.UpdateRentalAgreementPet(ctx, &pet); err != nil {
+					return err
+				}
+				//---------------------------------------------------------------
+				// now create the new one...
+				//---------------------------------------------------------------
+				x.raf.Pets[i].PETID, err = rlib.InsertRentalAgreementPet(ctx, &newpet)
+				if err != nil {
+					return err
+				}
 			}
 		} else {
 			rlib.MigrateStructVals(&x.raf.Pets[i], &pet)
 			pet.TCID = petTCID
 			pet.BID = x.raf.Meta.BID
 			pet.RAID = x.ra.RAID
-
 			x.raf.Pets[i].PETID, err = rlib.InsertRentalAgreementPet(ctx, &pet)
 			if err != nil {
 				return err
@@ -645,7 +681,6 @@ func F2RAUpdateVehicles(ctx context.Context, x *WriteHandlerContext) error {
 			return err
 		}
 
-		// VEHICLE ENTRY
 		var vehicle rlib.Vehicle
 
 		//-------------------------------
@@ -657,15 +692,56 @@ func F2RAUpdateVehicles(ctx context.Context, x *WriteHandlerContext) error {
 				return err
 			}
 
-			rlib.MigrateStructVals(&x.raf.Vehicles[i], &vehicle)
-			vehicle.TCID = vehicleTCID
-			vehicle.BID = x.raf.Meta.BID
-			// vehicle.RAID = x.ra.RAID
+			newvehicle := vehicle
+
+			rlib.MigrateStructVals(&x.raf.Vehicles[i], &newvehicle)
+			newvehicle.TCID = vehicleTCID
+			newvehicle.BID = x.raf.Meta.BID
+
+			newStart := time.Time(x.raf.Vehicles[i].DtStart)
+			//newStop := time.Time(x.raf.Pets[i].DtStop)
+			if vehicle.DtStart.Before(newStart) {
+				//----------------------------------------------------------
+				// stop the current Vehicle when the RA begins...
+				//----------------------------------------------------------
+				vehicle.DtStop = newStart
+				if vehicle.DtStop.Before(vehicle.DtStart) { // yes, this can happen
+					vehicle.DtStop = vehicle.DtStart
+				}
+				if err = rlib.UpdateVehicle(ctx, &vehicle); err != nil {
+					return err
+				}
+				//----------------------------------------------------------
+				// now create the new one...
+				//----------------------------------------------------------
+				x.raf.Vehicles[i].VID, err = rlib.InsertVehicle(ctx, &newvehicle)
+				if err != nil {
+					return err
+				}
+			} else {
+				//---------------------------------------------------------------
+				// if dates are the same or newvehicle range precedes old vehicle range,
+				// then newvehicle overwrites vehicle.  Set the old one to no time...
+				//---------------------------------------------------------------
+				vehicle.DtStop = vehicle.DtStart // essentially sets it to no time
+				if err = rlib.UpdateVehicle(ctx, &vehicle); err != nil {
+					return err
+				}
+				//---------------------------------------------------------------
+				// now create the new one...
+				//---------------------------------------------------------------
+				x.raf.Vehicles[i].VID, err = rlib.InsertVehicle(ctx, &newvehicle)
+				if err != nil {
+					return err
+				}
+			}
 
 			// rlib.Console("Just before UpdateVehicle: vehicles[j] = %#v\n", vehicles[j])
 			if err = rlib.UpdateVehicle(ctx, &vehicle); err != nil {
 				return err
 			}
+			//---------------------------------
+
 		} else {
 			//-------------------------------
 			// handle new vehicles...

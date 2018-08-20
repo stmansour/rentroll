@@ -46,22 +46,22 @@ window.getDepositInitRecord = function (BID, BUD, previousFormRecord){
 //-----------------------------------------------------------------------------
 // getBusinessDepMethods - return the promise object of request to get latest
 //                         deposit methods for given BID
-//                         It updates the "app.DepMethods" variable for requested BUD
+//                         It updates the "app.depmeth" variable for requested BUD
 // @params  - BID : Business ID (expected current one)
 //          - BUD : Business Unit Designation
 // @return  - promise object from $.get
 //-----------------------------------------------------------------------------
 window.getBusinessDepMethods = function (BID, BUD) {
-    // if not BUD in app.DepMethods then initialize it with blank list
-    if (!(BUD in app.DepMethods)) {
-        app.DepMethods[BUD] = [];
+    // if not BUD in app.depmeth then initialize it with blank list
+    if (!(BUD in app.depmeth)) {
+        app.depmeth[BUD] = [];
     }
 
     // return promise
     return $.get("/v1/uival/" + BID + "/app.DepMethods", null, null, "json").done(function(data) {
             // if it doesn't meet this condition, then save the data
             if (!('status' in data && data.status !== "success")) {
-                app.DepMethods[BUD] = data[BUD];
+                app.depmeth[BUD] = data[BUD];
             }
         });
 };
@@ -168,7 +168,7 @@ window.buildDepositElements = function () {
                             if ('status' in dpmResp[0] && depResp[0].status !== 'success') {
                                 f.message(dpmResp[0].message);
                             } else {
-                                f.get('DPMName').options.items = app.DepMethods[BUD];
+                                f.get('DPMName').options.items = app.depmeth[BUD];
                             }
 
                             // depositories
@@ -221,7 +221,7 @@ window.buildDepositElements = function () {
                     if ('status' in dpmResp[0] && depResp[0].status !== 'success') {
                         f.message(dpmResp[0].message);
                     } else {
-                        f.get('DPMName').options.items = app.DepMethods[BUD];
+                        f.get('DPMName').options.items = app.depmeth[BUD];
                     }
 
                     // depositories
