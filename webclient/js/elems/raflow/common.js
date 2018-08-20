@@ -6,7 +6,7 @@
     dispalyRARentablesGridError, dispalyRAVehiclesGridError, dispalyRAParentChildGridError, dispalyRATiePeopleGridError,
     GetCurrentFlowID, ReassignPeopleGridRecords, AssignPetsGridRecords, AssignVehiclesGridRecords, AssignRentableGridRecords,
     GetGridToolbarAddButtonID, HideRAFlowLoader, toggleNonFieldsErrorDisplay, displayErrorSummary, submitActionForm, displayGreenCircle,
-    modifyFieldErrorMessage,ChangeRAFlowVersionToolbar, displayRADatesFormError, RAFlowAJAX
+    modifyFieldErrorMessage,ChangeRAFlowVersionToolbar, displayRADatesFormError, RAFlowAJAX, cleanFormError
 */
 
 "use strict";
@@ -658,6 +658,9 @@ window.getRecIDFromTMPASMID = function(grid, TMPASMID){
 
 // displayFormFieldsError It display form fields error  for record
 window.displayFormFieldsError = function(index, records, formName){
+
+    cleanFormError();
+
     // Iterate through fields with errors
     for(var key in records[index].errors){
         var field = $("[name=" + formName + "] input#" + key);
@@ -848,4 +851,10 @@ window.displayErrorSummary = function (comp) {
         // Hide error summary
         $(error_summary_sel).css('display', 'none');
     }
+};
+
+// cleanFormError It remove error small tag of current opened form if it have any
+window.cleanFormError = function () {
+    // Clean error
+    $(".w2ui-form-box small.error").remove();
 };
