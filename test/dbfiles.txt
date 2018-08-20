@@ -2,7 +2,6 @@ sqlschema/fixrr.sql
 sqlschema/fixrcpts.sql
 ../tools/dbgen/empty.sql
 acctbal/baltest.sql
-flow2ra/rr.sql
 closeperiod/rr.sql
 payorstmt/pstmt.sql
 rfix/rcptfixed.sql
@@ -16,4 +15,6 @@ webclient/webclientTest.sql
 websvc1/asmtest.sql
 websvc3/tasks.sql
 workerasm/rr.sql
-validateraflow/validateraflow.sql
+raflow/actions/raflowactions.sql
+raflow/validation/validateraflow.sql
+raflow/flow2ra/rr.sql
