@@ -337,8 +337,8 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 		// create a new one linked to x.raOrig
 		//------------------------------------------------------------------
 		if chgs > 0 {
-			x.raOrig.FLAGS &= ^uint64(0x7) // clear the status
-			x.raOrig.FLAGS |= 5            // set the state to Terminated
+			x.raOrig.FLAGS &= ^uint64(0x7)           // clear the status
+			x.raOrig.FLAGS |= rlib.RAActionTerminate // set the state to Terminated
 			x.raOrig.LeaseTerminationReason =
 				rlib.RRdb.BizTypes[x.raOrig.BID].Msgs.S[rlib.MSGRAUPDATED].SLSID // "Rental Agreement was updated"
 

@@ -839,11 +839,20 @@ dojsonPOST () {
 		declare -a out_filters=(
 			's/(^[ \t]+"LastModTime":).*/$1 TIMESTAMP/'
 			's/(^[ \t]+"CreateTS":).*/$1 TIMESTAMP/'
-			's/(^[ \t]+"ActiveDate":).*/$1 TIMESTAMP/'
 			's/(^[ \t]+"ApplicationReadyDate":).*/$1 TIMESTAMP/'
 			's/(^[ \t]+"DecisionDate1":).*/$1 TIMESTAMP/'
 			's/(^[ \t]+"DecisionDate2":).*/$1 TIMESTAMP/'
 			's/(^[ \t]+"MoveInDate":).*/$1 TIMESTAMP/'
+			's/(^[ \t]+"ActiveDate":).*/$1 TIMESTAMP/'
+			's/(^[ \t]+"NoticeToMoveReported":).*/$1 TIMESTAMP/'
+			's/(^[ \t]+"TerminationDate":).*/$1 TIMESTAMP/'
+			's/(^[ \t]+"UserRefNo":).*/$1 USEREFNO/'
+			's/(^[ \t]+"AgreementStart":).*/$1 TIMESTAMP/'
+			's/(^[ \t]+"AgreementStop":).*/$1 TIMESTAMP/'
+			's/(^[ \t]+"RentStart":).*/$1 TIMESTAMP/'
+			's/(^[ \t]+"RentStop":).*/$1 TIMESTAMP/'
+			's/(^[ \t]+"PossessionStart":).*/$1 TIMESTAMP/'
+			's/(^[ \t]+"PossessionStop":).*/$1 TIMESTAMP/'
 		)
 		cp gold/${3}.gold qqx
 		cp ${3} qqy

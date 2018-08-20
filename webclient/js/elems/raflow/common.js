@@ -6,7 +6,7 @@
     dispalyRARentablesGridError, dispalyRAVehiclesGridError, dispalyRAParentChildGridError, dispalyRATiePeopleGridError,
     GetCurrentFlowID, ReassignPeopleGridRecords, AssignPetsGridRecords, AssignVehiclesGridRecords, AssignRentableGridRecords,
     GetGridToolbarAddButtonID, HideRAFlowLoader, toggleNonFieldsErrorDisplay, displayErrorSummary, submitActionForm, displayGreenCircle,
-    modifyFieldErrorMessage,ChangeRAFlowVersionToolbar, displayRADatesFormError, RAFlowAJAX
+    modifyFieldErrorMessage,ChangeRAFlowVersionToolbar, displayRADatesFormError, RAFlowAJAX, cleanFormError
 */
 
 "use strict";
@@ -40,7 +40,6 @@ window.RAFlowAJAX = function(URL, METHOD, REQDATA, updateLocalData) {
         beforeSend: function() {
             // show the loader
             HideRAFlowLoader(false);
-            $("#raflow-container .loader").css("display", "flex");
         },
         success: function (data) {
             if (data.status !== "error") {
@@ -164,19 +163,6 @@ $(document).on('click', '#ra-form #save-ra-flow-btn', function () {
         displayErrorDot();
 
         displayActiveComponentError();
-
-        // Change its state to pending first approval.
-        if(data.total === 0){
-
-            var reqData = {
-                "UserRefNo": app.raflow.Flow.UserRefNo,
-                "RAID": app.raflow.Flow.ID,
-                "Version": app.raflow.version,
-                "Action": 1, // 1 indicates that pending first approval
-                "Mode": "Action"
-            };
-            submitActionForm(reqData);
-        }
 
     });
 });
@@ -392,17 +378,22 @@ window.HideRAFlowLoader = function(hide) {
         if (w2ui.newraLayout) {
             $(w2ui.newraLayout.get("main").toolbar.box).find("button").prop('disabled', false);
         }
-        $("#raflow-container .loader").hide();
+        $("#raflow-container .blocker").hide();
+        $("#raactionform .blocker").hide();
     } else {
         if (w2ui.newraLayout) {
             $(w2ui.newraLayout.get("main").toolbar.box).find("button").prop('disabled', true);
         }
-        $("#raflow-container .loader").show();
+        $("#raflow-container .blocker").css("display", "flex");
+        $("#raactionform .blocker").css("display", "flex");
+        $("#raflow-container .blocker").show();
+        $("#raactionform .blocker").show();
     }
 };
 
 // UpdateRAFlowLocalData updates the local data from the API response
 window.UpdateRAFlowLocalData = function(data){
+
     app.raflow.Flow = data.record.Flow;
 
     // Update local copy of validation check
@@ -667,6 +658,9 @@ window.getRecIDFromTMPASMID = function(grid, TMPASMID){
 
 // displayFormFieldsError It display form fields error  for record
 window.displayFormFieldsError = function(index, records, formName){
+
+    cleanFormError();
+
     // Iterate through fields with errors
     for(var key in records[index].errors){
         var field = $("[name=" + formName + "] input#" + key);
@@ -857,4 +851,10 @@ window.displayErrorSummary = function (comp) {
         // Hide error summary
         $(error_summary_sel).css('display', 'none');
     }
+};
+
+// cleanFormError It remove error small tag of current opened form if it have any
+window.cleanFormError = function () {
+    // Clean error
+    $(".w2ui-form-box small.error").remove();
 };

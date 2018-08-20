@@ -2,13 +2,14 @@
 
 TESTNAME="Flow2RA"
 TESTSUMMARY="Test Flow data to permanent tables"
-DBGEN=../../tools/dbgen
+DBGEN=../../../tools/dbgen
 CREATENEWDB=0
+RRBIN="../../../tmp/rentroll"
 
 echo "Create new database..."
 mysql --no-defaults rentroll < rr.sql
 
-source ../share/base.sh
+source ../../share/base.sh
 
 echo "STARTING RENTROLL SERVER"
 RENTROLLSERVERAUTH="-noauth"
