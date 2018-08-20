@@ -2,13 +2,14 @@
 
 TESTNAME="raflow Actions"
 TESTSUMMARY="Test Different Actions taken on Flow"
-DBGEN=../../tools/dbgen
+DBGEN=../../../tools/dbgen
 CREATENEWDB=0
+RRBIN="../../../tmp/rentroll"
 
 # echo "Create new database..."
 mysql --no-defaults rentroll < raflowactions.sql
 
-source ../share/base.sh
+source ../../share/base.sh
 
 echo "STARTING RENTROLL SERVER"
 RENTROLLSERVERAUTH="-noauth"
@@ -22,7 +23,7 @@ startRentRollServer
 #  1. Error: must have at least one occupant
 #------------------------------------------------------------------------------
 
-# hit api to take "Set Pending First Approval" for flow with incomplete data of Existing RA 
+# hit api to take "Set Pending First Approval" for flow with incomplete data of Existing RA
 echo "%7B%0A%20%20%20%20%22UserRefNo%22%3A%20%22VJFC558GW9MM625CT176%22%2C%0A%20%20%20%20%22RAID%22%3A%202%2C%0A%20%20%20%20%22Version%22%3A%20%22refno%22%2C%0A%20%20%20%20%22Action%22%3A%201%2C%0A%20%20%20%20%22Mode%22%3A%20%22Action%22%0A%7D" > request
 dojsonPOST "http://localhost:8270/v1/raactions/1/" "request" "a0"  "RAFlowActions -- Invalid_Flow_Of_Existing_RA_Submit"
 
