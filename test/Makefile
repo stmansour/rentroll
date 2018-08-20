@@ -14,6 +14,9 @@ clean:
 	cd ./tws2;make clean
 	cd ./webclient;make clean
 	@cd ./sqlschema;make clean
+	# clean "rrlog" and "serverreply" files recursively entirely from this root dir
+	find . -type l -name rrlog -delete # note that only symbolic links to RRBIN/rrlog (-type l option)
+	find . -type f -name serverreply -delete # note that only files (-type f option)
 	@echo "*** CLEAN completed in test ***"
 
 test: validate functest
