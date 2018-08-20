@@ -11,17 +11,17 @@
         },
         "Flow": {
             "BID": 1,
-            "CreateBy": 269,
-            "CreateTS": "2018-08-16T13:52:19Z",
+            "CreateBy": -99999,
+            "CreateTS": "2018-08-20T19:46:28Z",
             "Data": {
                 "dates": {
-                    "AgreementStart": "8/16/2018",
-                    "AgreementStop": "8/16/2019",
-                    "CSAgent": 269,
-                    "PossessionStart": "8/16/2018",
-                    "PossessionStop": "8/16/2019",
-                    "RentStart": "8/16/2018",
-                    "RentStop": "8/16/2019"
+                    "AgreementStart": "8/20/2018",
+                    "AgreementStop": "8/20/2019",
+                    "CSAgent": -99999,
+                    "PossessionStart": "8/20/2018",
+                    "PossessionStop": "8/20/2019",
+                    "RentStart": "8/20/2018",
+                    "RentStop": "8/20/2019"
                 },
                 "meta": {
                     "ActiveDate": "1900-01-01 00:00:00 UTC",
@@ -69,18 +69,22 @@
                 },
                 "vehicles": []
             },
-            "FlowID": 4,
+            "FlowID": 1,
             "FlowType": "RA",
             "ID": 0,
-            "LastModBy": 269,
-            "LastModTime": "2018-08-16T14:44:46Z",
-            "UserRefNo": "YCE20N8G44N45TIW1M95"
+            "LastModBy": -99999,
+            "LastModTime": "2018-08-20T19:46:28Z",
+            "UserRefNo": "6LZ09JUH5MV5159B3A2B"
         },
         "ValidationCheck": {
             "errors": {
                 "dates": {
-                    "errors": {},
-                    "total": 0
+                    "errors": {
+                        "CSAgent": [
+                            "must be greater than 0"
+                        ]
+                    },
+                    "total": 1
                 },
                 "parentchild": {
                     "errors": [],
@@ -123,7 +127,7 @@
                 "vehicles": []
             },
             "status": "success",
-            "total": 2
+            "total": 3
         }
     },
     "status": "success"

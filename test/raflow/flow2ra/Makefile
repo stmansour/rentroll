@@ -1,4 +1,4 @@
-TOP=..
+TOP=../..
 BINDIR=${TOP}/tmp/rentroll
 COUNTOL=${TOP}/tools/bashtools/countol.sh
 THISDIR="flow2ra"

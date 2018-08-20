@@ -229,6 +229,8 @@ func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName s
 		} else if rentAsmCharge { // IT MUST BE RENT ASM ONE
 
 			// CHECK FOR PRORATED AMOUNT REQUIRED
+			// TODO(Sudip & Steve): WHAT ABOUT OTHER TYPE OF EPOCHS MODE (WEEKLY, QUARTERLY)
+			//                      WHAT SHOULD WE CONSIDER HERE FOR PRORATION IS NEEDY?
 			needProratedRent := rStart.Day() != epoch.Day()
 
 			// START DAY IS NOT SAME AS EPOCH THEN CALCULATE PRORATED AMOUNT

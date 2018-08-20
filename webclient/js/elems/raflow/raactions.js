@@ -13,7 +13,7 @@
     ChangeRAFlowVersionToolbar,
     displayErrorDot,
     displayActiveComponentError,
-    w2uiUTCDateControlString
+    w2uiUTCDateControlString, RAFlowAJAX
 */
 "use strict";
 
@@ -28,20 +28,34 @@ var actionsUI = {
 // -------------------------------------------------------------------------------
 window.submitActionForm = function(data) {
     var BID = getCurrentBID();
+    var FlowID = GetCurrentFlowID();
 
-    return $.ajax({
-        url: "/v1/raactions/" + BID.toString() + "/",
-        method: "POST",
-        contentType: "application/json",
-        data: JSON.stringify(data)
-    }).done(function(data) {
-        if (data.status === "success") {
+    var url = "/v1/raactions/" + BID.toString() + "/" + FlowID.toString() + "/";
 
-            if (data.record.Flow.FlowID === -1) {
+    return RAFlowAJAX(url, "POST", data, false)
+    .done(function(data) {
+        if (data.status !== "success") {
+            console.error(data.message);
+            alert(data.message);
+            return;
+        }
+
+        switch(true) {
+            case (data.record.Flow.FlowID === -1):
                 alert("Flow Already Exists");
-            }
+                break;
+            case (data.record.Flow.FlowID === 0):
+                if (app.raflow.version === 'refno') {
+                    // load ActionForm and Toolbar for raid version
+                    w2ui.newraLayout.content('right', '');
+                    w2ui.newraLayout.hide('right', true);
+                    app.raflow.version = 'raid'; // AS IT WAS MIGRATED
+                }
 
-            if (data.record.Flow.FlowID > 0) {
+                // Update flow local copy and green checks
+                UpdateRAFlowLocalData(data);
+                break;
+            case (data.record.Flow.FlowID > 0):
                 var resErr = data.record.ValidationCheck;
                 app.raflow.validationErrors = {
                     dates: resErr.errors.dates.total > 0 || resErr.nonFieldsErrors.dates.length > 0,
@@ -67,48 +81,25 @@ window.submitActionForm = function(data) {
 
                 app.raflow.version = 'refno';
 
-                var version = app.raflow.version;
-                var ID = data.record.Flow.ID;
-                var RefNo = data.record.Flow.UserRefNo;
-                var FLAGS = data.record.Flow.Data.meta.RAFLAGS;
-
-                ChangeRAFlowVersionToolbar(version, ID, RefNo, FLAGS);
-
                 // Update flow local copy and green checks
                 UpdateRAFlowLocalData(data);
-            }
 
-            if (data.record.Flow.FlowID === 0) {
-                if (app.raflow.version === 'refno') {
-                    // load ActionForm and Toolbar for raid version
-                    w2ui.newraLayout.content('right', '');
-                    w2ui.newraLayout.hide('right', true);
-
-                    app.raflow.version = 'raid';
-                    var ver = app.raflow.version;
-                    var id = data.record.Flow.ID;
-                    var refno = data.record.Flow.UserRefNo;
-                    var flags = data.record.Flow.Data.meta.RAFLAGS;
-
-                    ChangeRAFlowVersionToolbar(ver, id, refno, flags);
-                }
-
-                // Update flow local copy and green checks
-                UpdateRAFlowLocalData(data);
-            }
-
-            if("raActionLayout" in w2ui){
-                w2ui.raActionLayout.get('main').content = "";
-            }
-
-            loadRAActionTemplate();
-            setTimeout(function() {
-                reloadActionForm();
-            },200);
-        } else {
-            //Display Error
-            alert(data.message);
+                break;
         }
+
+        if("raActionLayout" in w2ui){
+            w2ui.raActionLayout.get('main').content = "";
+        }
+
+        loadRAActionTemplate();
+        setTimeout(function() {
+            reloadActionForm();
+        },200);
+
+    })
+    .fail(function(data) {
+        console.error(data);
+        alert(data);
     });
 };
 
@@ -154,25 +145,10 @@ window.reloadActionForm = function() {
     switch (state) {
         // "Application Being Completed"
         case 0:
-            $('#ApplicationFilledByRow')[0].style.display = '';  //'none';
-            $('#Approver1Row')[0].style.display = '';  //'none';
-            $('#Approver2Row')[0].style.display = '';  //'none';
-            $('#MoveInRow')[0].style.display = ''; //'none';
-            $('#ActiveRow')[0].style.display = ''; //'none';
-            $('#NoticeToMoveRow')[0].style.display = ''; //'none';
-            $('#TerminateRow')[0].style.display = ''; //'none';
             break;
 
         // "Pending First Approval"
         case 1:
-            $('#ApplicationFilledByRow')[0].style.display = '';
-            $('#Approver1Row')[0].style.display = '';  //'none';
-            $('#Approver2Row')[0].style.display = '';  //'none';
-            $('#MoveInRow')[0].style.display = '';  //'none';
-            $('#ActiveRow')[0].style.display = '';  //'none';
-            $('#NoticeToMoveRow')[0].style.display = '';  //'none';
-            $('#TerminateRow')[0].style.display = '';  //'none';
-
             w2ui.RAActionForm.get('RAApprovalDecision1').hidden = false;
             $('button[name=save]').show();
             $('button[name=save]').attr('disabled',true);
@@ -180,14 +156,6 @@ window.reloadActionForm = function() {
 
         // "Pending Second Approval"
         case 2:
-            $('#ApplicationFilledByRow')[0].style.display = '';
-            $('#Approver1Row')[0].style.display = '';
-            $('#Approver2Row')[0].style.display = '';  //'none';
-            $('#MoveInRow')[0].style.display = '';  //'none';
-            $('#ActiveRow')[0].style.display = '';  //'none';
-            $('#NoticeToMoveRow')[0].style.display = '';  //'none';
-            $('#TerminateRow')[0].style.display = '';  //'none';
-
             w2ui.RAActionForm.get('RAApprovalDecision2').hidden = false;
             $('button[name=save]').show();
             $('button[name=save]').attr('disabled',true);
@@ -195,14 +163,6 @@ window.reloadActionForm = function() {
 
         // "Move-In / Execute Modification"
         case 3:
-            $('#ApplicationFilledByRow')[0].style.display = '';
-            $('#Approver1Row')[0].style.display = '';
-            $('#Approver2Row')[0].style.display = '';
-            $('#MoveInRow')[0].style.display = '';
-            $('#ActiveRow')[0].style.display = '';  //'none';
-            $('#NoticeToMoveRow')[0].style.display = '';  //'none';
-            $('#TerminateRow')[0].style.display = '';  //'none';
-
             // auto load date in component if it is present in meta
             if (data.meta.DocumentDate != "1900-01-01 00:00:00 UTC"){
                 var documentDate = w2uiUTCDateControlString(new Date(data.meta.DocumentDate));
@@ -217,40 +177,16 @@ window.reloadActionForm = function() {
 
         // "Active"
         case 4:
-            $('#ApplicationFilledByRow')[0].style.display = '';
-            $('#Approver1Row')[0].style.display = '';
-            $('#Approver2Row')[0].style.display = '';
-            $('#MoveInRow')[0].style.display = '';
-            $('#ActiveRow')[0].style.display = '';
-            $('#NoticeToMoveRow')[0].style.display = '';  //'none';
-            $('#TerminateRow')[0].style.display = '';  //'none';
-
             $('#RAActionRAInfo').show();
             break;
 
         // "Notice To Move"
         case 5:
-            $('#ApplicationFilledByRow')[0].style.display = '';
-            $('#Approver1Row')[0].style.display = '';
-            $('#Approver2Row')[0].style.display = '';
-            $('#MoveInRow')[0].style.display = '';
-            $('#ActiveRow')[0].style.display = '';
-            $('#NoticeToMoveRow')[0].style.display = '';
-            $('#TerminateRow')[0].style.display = '';  //'none';
-
             $('#RAActionNoticeToMoveInfo').show();
             break;
 
         // "Terminated"
         case 6:
-            $('#ApplicationFilledByRow')[0].style.display = '';
-            $('#Approver1Row')[0].style.display = '';
-            $('#Approver2Row')[0].style.display = '';
-            $('#MoveInRow')[0].style.display = '';
-            $('#ActiveRow')[0].style.display = '';
-            $('#NoticeToMoveRow')[0].style.display = '';
-            $('#TerminateRow')[0].style.display = '';
-
             $('#RAActionTerminatedRAInfo').show();
             $('button[name=RAGenerateRAForm]').show();
             break;
