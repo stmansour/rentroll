@@ -4,6 +4,7 @@ COUNTOL=${TOP}/tools/bashtools/countol.sh
 THISDIR="actions"
 
 actions:
+	go build
 	@echo "*** Completed in ${THISDIR} ***"
 
 clean:
