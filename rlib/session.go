@@ -5,12 +5,57 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"extres"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
 )
+
+// SetNoAuthFlag enable/disable authentication in RRdb
+// ON production we should not allow this flag to set
+func SetNoAuthFlag(noauth bool) {
+	if AppConfig.Env != extres.APPENVPROD { // NOT only applicable for PROD Environment
+		RRdb.noAuth = noauth
+	}
+}
+
+// ErrSessionRequired session required error
+var ErrSessionRequired = errors.New("Session Required, Please Login")
+
+// NoAuthEnabled tells whether noauth is enabled or not
+func NoAuthEnabled() bool {
+
+	// IF ENV IS PRODUCTION THEN APP SHOULD NOT ALLOW
+	// NOAUTH FEATURE
+	if AppConfig.Env == extres.APPENVPROD {
+		return false
+	}
+
+	return RRdb.noAuth
+}
+
+// SessionCheck encapsulates 6 lines of code that was repeated in every call
+//
+// INPUTS
+//  ctx  the context, which should have session
+//
+// RETURNS
+//  the session
+//  ok == true - session was required but not found
+//        false - session was found or session not required
+//-----------------------------------------------------------------------------
+func SessionCheck(ctx context.Context) (*Session, bool) {
+
+	// IF NOAUTH IS DISABLED THEN WE MUST CHECK SESSION FROM CONTEXT
+	if !NoAuthEnabled() {
+		return SessionFromContext(ctx)
+	}
+
+	// OTHERWISE RETURN TRUE
+	return &Session{}, true
+}
 
 // ValidateCookie describes what the auth server wants to
 // validate the cookie value
@@ -504,6 +549,3 @@ func SessionDelete(s *Session, w http.ResponseWriter, r *http.Request) {
 	Console("sessions after delete:\n")
 	DumpSessions()
 }
-
-// ErrSessionRequired session required error
-var ErrSessionRequired = errors.New("Session Required, Please Login")

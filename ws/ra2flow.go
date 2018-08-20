@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"rentroll/rlib"
+	"time"
 )
 
 // GetRA2FlowCore does all the heavy lifting to create a Flow from a
@@ -21,13 +22,35 @@ import (
 //     any error encountered
 //     service data
 //-------------------------------------------------------------------------
-func GetRA2FlowCore(ctx context.Context, ra *rlib.RentalAgreement, d *ServiceData, EditFlag bool) (int64, error) {
-	var flowID int64
+func GetRA2FlowCore(ctx context.Context, ra *rlib.RentalAgreement, d *ServiceData, EditFlag bool) (FlowID int64, err error) {
 
 	// convert permanent ra to flow data and get it
-	raf, err := rlib.ConvertRA2Flow(ctx, ra, EditFlag)
+	var raf rlib.RAFlowJSONData
+	raf, err = rlib.ConvertRA2Flow(ctx, ra, EditFlag)
 	if err != nil {
-		return flowID, err
+		return
+	}
+
+	// CHANGE THE START DATES AS OF TODAY
+	raf.Dates.AgreementStart = rlib.JSONDate(rlib.GetTodayUTCRoundingDate())
+	raf.Dates.RentStart = rlib.JSONDate(rlib.GetTodayUTCRoundingDate())
+	raf.Dates.PossessionStart = rlib.JSONDate(rlib.GetTodayUTCRoundingDate())
+
+	// ----- POSSESSION DATES CHANGED CHECK ----- //
+	newPStart := (time.Time)(raf.Dates.PossessionStart)
+	newPStop := (time.Time)(raf.Dates.PossessionStop)
+	if !ra.PossessionStart.Equal(newPStart) { // SINCE WE CHANGED ONLY START DATE
+		rlib.PossessDateChangeRAFlowUpdates(ctx, newPStart, newPStop, &raf)
+	}
+
+	// ----- RENT DATES CHANGED CHECK ----- //
+	newRStart := (time.Time)(raf.Dates.RentStart)
+	newRStop := (time.Time)(raf.Dates.RentStop)
+	if !ra.RentStart.Equal(newRStart) { // SINCE WE CHANGED ONLY START DATE
+		err = rlib.RentDateChangeRAFlowUpdates(ctx, raf.Meta.BID, newRStart, newRStop, &raf)
+		if err != nil {
+			return
+		}
 	}
 
 	// CHANGE THE STATE TO APPLICATION BEING COMPLETED
@@ -41,15 +64,16 @@ func GetRA2FlowCore(ctx context.Context, ra *rlib.RentalAgreement, d *ServiceDat
 	// set data in meta based on Action
 	err = SetActionMetaData(ctx, d, action, &raf.Meta)
 	if err != nil {
-		return flowID, err
+		return
 	}
 
 	//-------------------------------------------------------------------------
 	// Save the flow to the db
 	//-------------------------------------------------------------------------
-	raflowJSONData, err := json.Marshal(&raf)
+	var raflowJSONData []byte
+	raflowJSONData, err = json.Marshal(&raf)
 	if err != nil {
-		return flowID, err
+		return
 	}
 
 	//-------------------------------------------------------------------------
@@ -68,11 +92,11 @@ func GetRA2FlowCore(ctx context.Context, ra *rlib.RentalAgreement, d *ServiceDat
 	}
 
 	// insert new flow
-	flowID, err = rlib.InsertFlow(ctx, &a)
+	FlowID, err = rlib.InsertFlow(ctx, &a)
 	if err != nil {
-		return flowID, err
+		return
 	}
-	return flowID, nil
+	return
 }
 
 // addRAPtoFlow adds a new person to raf.People.  The renter/occupant flags

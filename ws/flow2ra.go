@@ -331,6 +331,7 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 			x.raOrig.PossessionStop = PStart
 			chgs++
 		}
+
 		//------------------------------------------------------------------
 		// If there are changes, then we stop the old Rental Agreement and
 		// create a new one linked to x.raOrig
@@ -341,17 +342,15 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 			x.raOrig.LeaseTerminationReason =
 				rlib.RRdb.BizTypes[x.raOrig.BID].Msgs.S[rlib.MSGRAUPDATED].SLSID // "Rental Agreement was updated"
 
-			// support noauth testing
-			UID := int64(-99)
-			if !SvcCtx.NoAuth {
-				sess, ok := rlib.SessionFromContext(ctx)
-				if !ok {
-					return nraid, rlib.ErrSessionRequired
-				}
-				UID = sess.UID
+			//--------------------------------------------------------------------------
+			// In noauth mode, it still have tester session, get it from the context
+			//--------------------------------------------------------------------------
+			sess, ok := rlib.SessionFromContext(ctx)
+			if !ok {
+				return nraid, rlib.ErrSessionRequired
 			}
 
-			x.raOrig.TerminatorUID = UID
+			x.raOrig.TerminatorUID = sess.UID
 			x.raOrig.TerminationDate = time.Now()
 
 			err = rlib.UpdateRentalAgreement(ctx, &x.raOrig)
@@ -582,40 +581,82 @@ func FlowSaveRentables(ctx context.Context, x *WriteHandlerContext) error {
 // RETURNS
 //     Any errors encountered
 //-----------------------------------------------------------------------------
-func F2RAUpdatePets(ctx context.Context, x *WriteHandlerContext) error {
+func F2RAUpdatePets(ctx context.Context, x *WriteHandlerContext) (err error) {
 	// rlib.Console("Entered F2RAUpdatePets\n")
-	var err error
+
 	for i := 0; i < len(x.raf.Pets); i++ {
+		// get contact person
+		var petTCID int64
+		petTCID, err = GetTCIDForTMPTCID(x, x.raf.Pets[i].TMPTCID)
+		if err != nil {
+			return err
+		}
+
+		// PET ENTRY
 		var pet rlib.RentalAgreementPet
-		if x.isNewOriginRaid {
-			if x.raf.Pets[i].PETID > 0 {
-				pet, err = rlib.GetRentalAgreementPet(ctx, x.raf.Pets[i].PETID)
-				if err != nil {
-					return err
+
+		// IF PET exists then just update it
+		if x.raf.Pets[i].PETID > 0 {
+			pet, err = rlib.GetRentalAgreementPet(ctx, x.raf.Pets[i].PETID)
+			if err != nil {
+				return err
+			}
+
+			newpet := pet
+			rlib.MigrateStructVals(&x.raf.Pets[i], &newpet)
+			newpet.TCID = petTCID
+			newpet.BID = x.raf.Meta.BID
+			newpet.RAID = x.ra.RAID
+
+			//----------------------------------------------------------
+			// Is the new Agreement period AFTER the current period?
+			//----------------------------------------------------------
+			newStart := time.Time(x.raf.Pets[i].DtStart)
+			//newStop := time.Time(x.raf.Pets[i].DtStop)
+			if pet.DtStart.Before(newStart) {
+				//----------------------------------------------------------
+				// stop the current RentalAgreementPet when the RA begins...
+				//----------------------------------------------------------
+				pet.DtStop = newStart
+				if pet.DtStop.Before(pet.DtStart) { // yes, this can happen
+					pet.DtStop = pet.DtStart
 				}
-				rlib.MigrateStructVals(&x.raf.Pets[i], &pet)
 				if err = rlib.UpdateRentalAgreementPet(ctx, &pet); err != nil {
 					return err
 				}
-				continue // all done, move on to the next pet
+				//----------------------------------------------------------
+				// now create the new one...
+				//----------------------------------------------------------
+				x.raf.Pets[i].PETID, err = rlib.InsertRentalAgreementPet(ctx, &newpet)
+				if err != nil {
+					return err
+				}
+			} else {
+				//---------------------------------------------------------------
+				// if dates are the same or newpet range precedes old pet range,
+				// then newpet overwrites pet.  Set the old one to no time...
+				//---------------------------------------------------------------
+				pet.DtStop = pet.DtStart // essentially sets it to no time
+				if err = rlib.UpdateRentalAgreementPet(ctx, &pet); err != nil {
+					return err
+				}
+				//---------------------------------------------------------------
+				// now create the new one...
+				//---------------------------------------------------------------
+				x.raf.Pets[i].PETID, err = rlib.InsertRentalAgreementPet(ctx, &newpet)
+				if err != nil {
+					return err
+				}
 			}
-			rlib.MigrateStructVals(&x.raf.Pets[i], &pet)
 		} else {
+			rlib.MigrateStructVals(&x.raf.Pets[i], &pet)
+			pet.TCID = petTCID
 			pet.BID = x.raf.Meta.BID
 			pet.RAID = x.ra.RAID
-			pet.TCID = GetTCIDForTMPTCID(x, x.raf.Pets[i].TMPTCID)
-			pet.Type = x.raf.Pets[i].Type
-			pet.Breed = x.raf.Pets[i].Breed
-			pet.Color = x.raf.Pets[i].Color
-			pet.Weight = x.raf.Pets[i].Weight
-			pet.Name = x.raf.Pets[i].Name
-			pet.DtStart = time.Time(x.raf.Pets[i].DtStart)
-			pet.DtStop = time.Time(x.raf.Pets[i].DtStop)
-		}
-		pet.RAID = x.ra.RAID
-		x.raf.Pets[i].PETID, err = rlib.InsertRentalAgreementPet(ctx, &pet)
-		if err != nil {
-			return err
+			x.raf.Pets[i].PETID, err = rlib.InsertRentalAgreementPet(ctx, &pet)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -633,59 +674,115 @@ func F2RAUpdatePets(ctx context.Context, x *WriteHandlerContext) error {
 func F2RAUpdateVehicles(ctx context.Context, x *WriteHandlerContext) error {
 	// rlib.Console("Entered F2RAUpdateVehicles\n")
 	for i := 0; i < len(x.raf.Vehicles); i++ {
-		tcid, err := findVehiclePointPerson(x, x.raf.Vehicles[i].TMPTCID, x.raf.Vehicles[i].TMPVID)
+
+		// get contact person
+		vehicleTCID, err := GetTCIDForTMPTCID(x, x.raf.Vehicles[i].TMPTCID)
 		if err != nil {
 			return err
 		}
+
+		var vehicle rlib.Vehicle
+
 		//-------------------------------
 		// handle existing vehicles...
 		//-------------------------------
-		if x.isNewOriginRaid && x.raf.Vehicles[i].VID > 0 {
-			vehicles, err := rlib.GetVehiclesByTransactant(ctx, tcid)
+		if x.raf.Vehicles[i].VID > 0 {
+			err := rlib.GetVehicle(ctx, x.raf.Vehicles[i].VID, &vehicle)
 			if err != nil {
 				return err
 			}
-			for j := 0; j < len(vehicles); j++ {
-				rlib.MigrateStructVals(&x.raf.Vehicles[i], &vehicles[j])
-				vehicles[j].TCID = tcid
-				// rlib.Console("Just before UpdateVehicle: vehicles[j] = %#v\n", vehicles[j])
-				if err = rlib.UpdateVehicle(ctx, &vehicles[j]); err != nil {
+
+			newvehicle := vehicle
+
+			rlib.MigrateStructVals(&x.raf.Vehicles[i], &newvehicle)
+			newvehicle.TCID = vehicleTCID
+			newvehicle.BID = x.raf.Meta.BID
+
+			newStart := time.Time(x.raf.Vehicles[i].DtStart)
+			//newStop := time.Time(x.raf.Pets[i].DtStop)
+			if vehicle.DtStart.Before(newStart) {
+				//----------------------------------------------------------
+				// stop the current Vehicle when the RA begins...
+				//----------------------------------------------------------
+				vehicle.DtStop = newStart
+				if vehicle.DtStop.Before(vehicle.DtStart) { // yes, this can happen
+					vehicle.DtStop = vehicle.DtStart
+				}
+				if err = rlib.UpdateVehicle(ctx, &vehicle); err != nil {
+					return err
+				}
+				//----------------------------------------------------------
+				// now create the new one...
+				//----------------------------------------------------------
+				x.raf.Vehicles[i].VID, err = rlib.InsertVehicle(ctx, &newvehicle)
+				if err != nil {
+					return err
+				}
+			} else {
+				//---------------------------------------------------------------
+				// if dates are the same or newvehicle range precedes old vehicle range,
+				// then newvehicle overwrites vehicle.  Set the old one to no time...
+				//---------------------------------------------------------------
+				vehicle.DtStop = vehicle.DtStart // essentially sets it to no time
+				if err = rlib.UpdateVehicle(ctx, &vehicle); err != nil {
+					return err
+				}
+				//---------------------------------------------------------------
+				// now create the new one...
+				//---------------------------------------------------------------
+				x.raf.Vehicles[i].VID, err = rlib.InsertVehicle(ctx, &newvehicle)
+				if err != nil {
 					return err
 				}
 			}
-			continue // all done, move on to the next vehicle
-		}
 
-		//-------------------------------
-		// handle new vehicles...
-		//-------------------------------
-		var vehicle rlib.Vehicle
-		rlib.MigrateStructVals(&x.raf.Vehicles[i], &vehicle)
-		vehicle.TCID = tcid
-		x.raf.Vehicles[i].VID, err = rlib.InsertVehicle(ctx, &vehicle)
-		if err != nil {
-			return err
+			// rlib.Console("Just before UpdateVehicle: vehicles[j] = %#v\n", vehicles[j])
+			if err = rlib.UpdateVehicle(ctx, &vehicle); err != nil {
+				return err
+			}
+			//---------------------------------
+
+		} else {
+			//-------------------------------
+			// handle new vehicles...
+			//-------------------------------
+			rlib.MigrateStructVals(&x.raf.Vehicles[i], &vehicle)
+			vehicle.TCID = vehicleTCID
+			vehicle.BID = x.raf.Meta.BID
+			// vehicle.RAID = x.ra.RAID
+
+			x.raf.Vehicles[i].VID, err = rlib.InsertVehicle(ctx, &vehicle)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
 }
 
-// findVehiclePointPerson returns the TCID of the person associated with
-// vehicle TMPVID
-//--------------------------------------------------------------------------------
-func findVehiclePointPerson(x *WriteHandlerContext, t, tmpvid int64) (int64, error) {
-	tcid := int64(0)
-	// find the point person
-	for j := 0; j < len(x.raf.People); j++ {
-		if t == x.raf.People[j].TMPTCID {
-			tcid = x.raf.People[j].TCID
+// GetTCIDForTMPTCID finds the TCID associated with the supplied tmptcid.
+//
+// INPUTS
+//     ctx     - db context for transactions
+//     x       - all the contextual info we need for performing this operation
+//     TMPTCID - TMPTCID for person we want the associated RID
+//
+// RETURNS
+//     TCID of associated Transactant, or -1 if not found
+//-----------------------------------------------------------------------------
+func GetTCIDForTMPTCID(x *WriteHandlerContext, TMPTCID int64) (TCID int64, err error) {
+
+	for i := 0; i < len(x.raf.People); i++ {
+		if x.raf.People[i].TMPTCID == TMPTCID {
+			TCID = x.raf.People[i].TCID
 			break
 		}
 	}
-	if 0 == tcid {
-		return tcid, fmt.Errorf("No TCID found for Vehicle VID=%d", tmpvid)
+
+	if 0 == TCID {
+		return TCID, fmt.Errorf("No TCID found for TMPTCID = %d", TMPTCID)
 	}
-	return tcid, nil
+	return TCID, nil
 }
 
 // F2RAUpdatePeople adds or updates all people information.
