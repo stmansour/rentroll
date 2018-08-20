@@ -114,14 +114,6 @@
     margin: 0;
 }
 
-#ra-progressbar{
-    position: sticky;
-    position: -webkit-sticky; /* safari */
-    top: 0;
-    background-color: #fafafa;
-    z-index: 100;
-}
-
 #progressbar {
     width: 100%;
     height: 110px;
@@ -494,13 +486,7 @@ section[name="RATransactantForm"] .w2ui-form-box .w2ui-field > div, div[name="tr
 /* ----------- */
 /* FOOTER PART */
 /* ----------- */
-#ra-footer {
-    position: sticky;
-    bottom: 0;
-    background-color: #FAFAFA;
-}
-
-#ra-footer footer {
+#ra-form footer {
     width: 100%;
     margin: 0px auto;
     position: relative;
@@ -509,11 +495,11 @@ section[name="RATransactantForm"] .w2ui-form-box .w2ui-field > div, div[name="tr
     background-color: white;
 }
 
-#ra-footer footer button#previous {
+#ra-form footer button#previous {
     float: left;
 }
 
-#ra-footer footer button#next {
+#ra-form footer button#next {
     float: right;
 }
 

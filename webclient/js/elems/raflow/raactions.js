@@ -19,7 +19,7 @@
 
 var actionsUI = {
     hdrHeight: 122,
-    ftrHeight: 150,
+    ftrHeight: 150
 };
 
 // -------------------------------------------------------------------------------
@@ -42,7 +42,7 @@ window.submitActionForm = function(data) {
             }
 
             if (data.record.Flow.FlowID > 0) {
-                var resErr = data.record.BasicCheck;
+                var resErr = data.record.ValidationCheck;
                 app.raflow.validationErrors = {
                     dates: resErr.errors.dates.total > 0 || resErr.nonFieldsErrors.dates.length > 0,
                     people: resErr.errors.people.total > 0 || resErr.nonFieldsErrors.people.length > 0,
