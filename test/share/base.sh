@@ -847,6 +847,12 @@ dojsonPOST () {
 			's/(^[ \t]+"NoticeToMoveReported":).*/$1 TIMESTAMP/'
 			's/(^[ \t]+"TerminationDate":).*/$1 TIMESTAMP/'
 			's/(^[ \t]+"UserRefNo":).*/$1 USEREFNO/'
+			's/(^[ \t]+"AgreementStart":).*/$1 TIMESTAMP/'
+			's/(^[ \t]+"AgreementStop":).*/$1 TIMESTAMP/'
+			's/(^[ \t]+"RentStart":).*/$1 TIMESTAMP/'
+			's/(^[ \t]+"RentStop":).*/$1 TIMESTAMP/'
+			's/(^[ \t]+"PossessionStart":).*/$1 TIMESTAMP/'
+			's/(^[ \t]+"PossessionStop":).*/$1 TIMESTAMP/'
 		)
 		cp gold/${3}.gold qqx
 		cp ${3} qqy
