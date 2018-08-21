@@ -1,2 +1,5 @@
-test1 passed
-test2 passed
+test1: action "set pending first approval" on flow with invalid data ....PASSED
+test2: action "set pending first approval" on flow with valid data ....PASSED
+test3: approve and set "pending second approval" on flow with valid data ....PASSED
+test4: approve and set "move-in / execute modification" on flow with valid data ....PASSED
+test5: set document date of flow with valid data ....PASSED
