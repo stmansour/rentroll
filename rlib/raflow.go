@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"strings"
 	"time"
 )
 
@@ -786,10 +787,21 @@ func RentDateChangeRAFlowUpdates(ctx context.Context, BID int64, rStart, rStop t
 	// LOOP OVER PET FEES IN RAFLOW
 	for pi := range raFlowData.Pets {
 
+		// REMOVE PRORATED FEES
+		baseFees := []RAFeesData{}
+		for fi := range raFlowData.Pets[pi].Fees {
+			// IF FEE IS PRORATED THEN IGNORE IT CHECK OUT THE NEXT ONE
+			// SINCE IT'S ALREADY HANDLED BY RENT ASM CHARGE
+			if strings.Contains(raFlowData.Pets[pi].Fees[fi].Comment, "prorated") {
+				continue
+			}
+			baseFees = append(baseFees, raFlowData.Pets[pi].Fees[fi])
+		}
+
 		// GET MODIFIED PET FEES FROM THIS FLOW DATA PET FEES AND RENT DATES
 		var modPetFees []RAFeesData
 		modPetFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName,
-			rStart, rStop, raFlowData.Pets[pi].Fees)
+			rStart, rStop, baseFees)
 		if err != nil {
 			return
 		}
@@ -810,10 +822,21 @@ func RentDateChangeRAFlowUpdates(ctx context.Context, BID int64, rStart, rStop t
 	// LOOP OVER VEHICLE FEES IN RAFLOW
 	for vi := range raFlowData.Vehicles {
 
+		// REMOVE PRORATED FEES
+		baseFees := []RAFeesData{}
+		for fi := range raFlowData.Vehicles[vi].Fees {
+			// IF FEE IS PRORATED THEN IGNORE IT CHECK OUT THE NEXT ONE
+			// SINCE IT'S ALREADY HANDLED BY RENT ASM CHARGE
+			if strings.Contains(raFlowData.Vehicles[vi].Fees[fi].Comment, "prorated") {
+				continue
+			}
+			baseFees = append(baseFees, raFlowData.Vehicles[vi].Fees[fi])
+		}
+
 		// GET MODIFIED VEHICLE FEES FROM THIS FLOW DATA VEHICLE FEES AND RENT DATES
 		var modVehicleFees []RAFeesData
 		modVehicleFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName,
-			rStart, rStop, raFlowData.Vehicles[vi].Fees)
+			rStart, rStop, baseFees)
 		if err != nil {
 			return
 		}
@@ -834,10 +857,21 @@ func RentDateChangeRAFlowUpdates(ctx context.Context, BID int64, rStart, rStop t
 	// LOOP OVER RENTABLE FEES IN RAFLOW
 	for ri := range raFlowData.Rentables {
 
+		// REMOVE PRORATED FEES
+		baseFees := []RAFeesData{}
+		for fi := range raFlowData.Rentables[ri].Fees {
+			// IF FEE IS PRORATED THEN IGNORE IT CHECK OUT THE NEXT ONE
+			// SINCE IT'S ALREADY HANDLED BY RENT ASM CHARGE
+			if strings.Contains(raFlowData.Rentables[ri].Fees[fi].Comment, "prorated") {
+				continue
+			}
+			baseFees = append(baseFees, raFlowData.Rentables[ri].Fees[fi])
+		}
+
 		// GET MODIFIED RENTABLE FEES FROM THIS FLOW DATA RENTABLE FEES AND RENT DATES
 		var modRentableFees []RAFeesData
 		modRentableFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName,
-			rStart, rStop, raFlowData.Rentables[ri].Fees)
+			rStart, rStop, baseFees)
 		if err != nil {
 			return
 		}
