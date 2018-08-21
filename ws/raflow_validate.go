@@ -55,6 +55,8 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		raFlowData            rlib.RAFlowJSONData
 		raFlowFieldsErrors    bizlogic.RAFlowFieldsErrors
 		raFlowNonFieldsErrors bizlogic.RAFlowNonFieldsErrors
+		raflowRespData        RAFlowResponse
+		resp                  FlowResponse
 		g                     bizlogic.ValidateRAFlowResponse
 		ctx                   = r.Context()
 		tx                    *sql.Tx
@@ -104,6 +106,8 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if err != nil {
 		return
 	}
+	// update flow
+	raflowRespData.Flow = flow
 
 	// When flowId doesn't exists in database return and give error that flowId doesn't exists
 	if flow.FlowID == 0 {
@@ -116,6 +120,9 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if err != nil {
 		return
 	}
+
+	// CHECK DATA FULFILLED
+	bizlogic.DataFulfilledRAFlow(ctx, &raFlowData, &raflowRespData.DataFulfilled)
 
 	// init raFlowFieldsErrors
 	initRAFlowFieldsErrors(&raFlowFieldsErrors)
@@ -132,7 +139,6 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	g.Total += totalFieldsError + totalNonFieldsError
 	g.Errors = raFlowFieldsErrors
 	g.NonFieldsErrors = raFlowNonFieldsErrors
-	g.Status = "success"
 
 	if g.Total == 0 {
 		// SET STATE OF THIS FLOW TO PENDING FIRST APPROVAL
@@ -167,7 +173,11 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 	}
 
-	SvcWriteResponse(d.BID, &g, w)
+	raflowRespData.ValidationCheck = g
+	resp.Status = "success"
+	resp.Record = raflowRespData
+
+	SvcWriteResponse(d.BID, &resp, w)
 }
 
 func initRAFlowFieldsErrors(raFlowFieldsErrors *bizlogic.RAFlowFieldsErrors) {

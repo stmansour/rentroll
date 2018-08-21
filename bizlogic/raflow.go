@@ -16,7 +16,6 @@ type RAFlowDetailRequest struct {
 
 // ValidateRAFlowResponse is struct to hold ErrorList for Flow
 type ValidateRAFlowResponse struct {
-	Status          string                `json:"status"`
 	Total           int                   `json:"total"`
 	Errors          RAFlowFieldsErrors    `json:"errors"`
 	NonFieldsErrors RAFlowNonFieldsErrors `json:"nonFieldsErrors"`
