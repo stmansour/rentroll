@@ -116,8 +116,12 @@ mysql --no-defaults rentroll < rr.sql
 echo "%7B%22cmd%22%3A%22get%22%2C%22FlowType%22%3A%22RA%22%2C%22RAID%22%3A3%2C%22UserRefNo%22%3Anull%2C%22Version%22%3A%22refno%22%7D" > request
 dojsonPOST "http://localhost:8270/v1/flow/1/0" "request" "z0" "Rental Agreement--Edit--RAID:3"
 
-echo "" > request
-dojsonPOST "http://localhost:8270/v1/flow/1/0" "request" "z1" "Rental Agreement--RAID:3--Update Flow Information"
+# edit pets information
+echo "%7B%22cmd%22%3A%22save%22%2C%22FlowType%22%3A%22RA%22%2C%22FlowID%22%3A3%2C%22FlowPartKey%22%3A%22pets%22%2C%22BID%22%3A1%2C%22Data%22%3A%5B%7B%22Fees%22%3A%5B%7B%22recid%22%3A1%2C%22TMPASMID%22%3A3%2C%22ARID%22%3A24%2C%22ASMID%22%3A38%2C%22ARName%22%3A%22Pet%20Rent%22%2C%22ContractAmount%22%3A3.55%2C%22RentCycle%22%3A0%2C%22ProrationCycle%22%3A0%2C%22Start%22%3A%228%2F21%2F2018%22%2C%22Stop%22%3A%228%2F21%2F2018%22%2C%22AtSigningPreTax%22%3A0%2C%22SalesTax%22%3A0%2C%22TransOccTax%22%3A0%2C%22Comment%22%3A%22prorated%20for%2011%20of%2031%20days%22%2C%22w2ui%22%3A%7B%22class%22%3A%22%22%2C%22style%22%3A%7B%7D%7D%7D%2C%7B%22recid%22%3A2%2C%22TMPASMID%22%3A4%2C%22ARID%22%3A24%2C%22ASMID%22%3A38%2C%22ARName%22%3A%22Pet%20Rent%22%2C%22ContractAmount%22%3A10%2C%22RentCycle%22%3A6%2C%22ProrationCycle%22%3A4%2C%22Start%22%3A%229%2F1%2F2018%22%2C%22Stop%22%3A%223%2F1%2F2020%22%2C%22AtSigningPreTax%22%3A0%2C%22SalesTax%22%3A0%2C%22TransOccTax%22%3A0%2C%22Comment%22%3A%22%22%2C%22w2ui%22%3A%7B%22class%22%3A%22%22%2C%22style%22%3A%7B%7D%7D%7D%5D%2C%22Name%22%3A%22Bosky%22%2C%22Type%22%3A%22Cat%22%2C%22Breed%22%3A%22Neapolitan%20Mastiff%22%2C%22Color%22%3A%22Black%22%2C%22PETID%22%3A2%2C%22DtStop%22%3A%223%2F1%2F2020%22%2C%22Weight%22%3A11%2C%22DtStart%22%3A%228%2F21%2F2018%22%2C%22TMPTCID%22%3A1%2C%22TMPPETID%22%3A1%7D%5D%7D" > request
+dojsonPOST "http://localhost:8270/v1/flow/1/3/" "request" "z1" "Rental Agreement--RAID:3--Update Flow Information"
+
+
+
 
 
 stopRentRollServer
