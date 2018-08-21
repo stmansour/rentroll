@@ -6,7 +6,8 @@
     dispalyRARentablesGridError, dispalyRAVehiclesGridError, dispalyRAParentChildGridError, dispalyRATiePeopleGridError,
     GetCurrentFlowID, ReassignPeopleGridRecords, AssignPetsGridRecords, AssignVehiclesGridRecords, AssignRentableGridRecords,
     GetGridToolbarAddButtonID, HideRAFlowLoader, toggleNonFieldsErrorDisplay, displayErrorSummary, submitActionForm, displayGreenCircle,
-    modifyFieldErrorMessage,ChangeRAFlowVersionToolbar, displayRADatesFormError, RAFlowAJAX, cleanFormError
+    modifyFieldErrorMessage,ChangeRAFlowVersionToolbar, displayRADatesFormError, RAFlowAJAX, cleanFormError, loadRAActionTemplate,
+    reloadActionForm
 */
 
 "use strict";
@@ -151,18 +152,31 @@ $(document).on('click', '#ra-form #save-ra-flow-btn', function () {
         }
 
         app.raflow.validationErrors = {
-            dates: data.errors.dates.total > 0 || data.nonFieldsErrors.dates.length > 0,
-            people: data.errors.people.total > 0 || data.nonFieldsErrors.people.length > 0,
-            pets: data.errors.pets.total > 0 || data.nonFieldsErrors.pets.length > 0,
-            vehicles: data.errors.vehicles.total > 0 || data.nonFieldsErrors.vehicles.length > 0,
-            rentables: data.errors.rentables.total > 0 || data.nonFieldsErrors.rentables.length > 0,
-            parentchild: data.errors.parentchild.total > 0 || data.nonFieldsErrors.parentchild.length > 0,
-            tie: data.errors.tie.people.total > 0 || data.nonFieldsErrors.tie.length > 0
+            dates: data.record.ValidationCheck.errors.dates.total > 0 || data.record.ValidationCheck.nonFieldsErrors.dates.length > 0,
+            people: data.record.ValidationCheck.errors.people.total > 0 || data.record.ValidationCheck.nonFieldsErrors.people.length > 0,
+            pets: data.record.ValidationCheck.errors.pets.total > 0 || data.record.ValidationCheck.nonFieldsErrors.pets.length > 0,
+            vehicles: data.record.ValidationCheck.errors.vehicles.total > 0 || data.record.ValidationCheck.nonFieldsErrors.vehicles.length > 0,
+            rentables: data.record.ValidationCheck.errors.rentables.total > 0 || data.record.ValidationCheck.nonFieldsErrors.rentables.length > 0,
+            parentchild: data.record.ValidationCheck.errors.parentchild.total > 0 || data.record.ValidationCheck.nonFieldsErrors.parentchild.length > 0,
+            tie: data.record.ValidationCheck.errors.tie.people.total > 0 || data.record.ValidationCheck.nonFieldsErrors.tie.length > 0
         };
 
         displayErrorDot();
 
         displayActiveComponentError();
+
+        // Display RAActionForm
+        if(data.record.ValidationCheck.total === 0){
+
+            if("raActionLayout" in w2ui){
+                w2ui.raActionLayout.get('main').content = "";
+            }
+
+            loadRAActionTemplate();
+            setTimeout(function() {
+                reloadActionForm();
+            },200);
+        }
 
     });
 });
@@ -205,15 +219,7 @@ window.GetApprovalsAJAX = function(){
         "FlowID": FlowID
     };
 
-    return RAFlowAJAX(url, "POST", data, false)
-    .done(function(data) {
-        if(data.status === "success"){
-            // Update validationCheck error local copy
-            app.raflow.validationCheck = data;
-        }else{
-            console.error(data.message);
-        }
-    });
+    return RAFlowAJAX(url, "POST", data, true);
 };
 
 //-----------------------------------------------------------------------------
