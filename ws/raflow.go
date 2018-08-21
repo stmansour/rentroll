@@ -80,7 +80,7 @@ FROM (
             RentalAgreement.RAID AS RAID,
             RentalAgreement.AgreementStart AS AgreementStart,
             RentalAgreement.AgreementStop AS AgreementStop,
-            GROUP_CONCAT(DISTINCT CASE WHEN Payor.IsCompany > 0 THEN Payor.CompanyName ELSE CONCAT(Payor.FirstName, ' ', Payor.LastName) END ORDER BY Payor.TCID ASC SEPARATOR ', ') AS Payors,
+            GROUP_CONCAT(DISTINCT CASE WHEN Payor.IsCompany > 0 THEN Payor.CompanyName ELSE CONCAT(Payor.FirstName, ' ', Payor.LastName) END ORDER BY 1 SEPARATOR ', ') AS Payors,
             Flow.FlowID AS FlowID,
             Flow.UserRefNo AS UserRefNo
         FROM RentalAgreement
@@ -89,7 +89,7 @@ FROM (
         LEFT JOIN Flow ON Flow.ID=RentalAgreement.RAID
         WHERE RentalAgreement.BID={{.BID}} AND RentalAgreement.AgreementStart <= "{{.Stop}}" AND RentalAgreement.AgreementStop > "{{.Start}}"
         GROUP BY RentalAgreement.RAID
-        /*ORDER BY RentalAgreement.RAID ASC*/
+        ORDER BY Payors ASC, AgreementStart ASC
     )
     UNION ALL
     (
@@ -107,7 +107,7 @@ FROM (
             Flow.UserRefNo AS UserRefNo
         FROM Flow
         WHERE Flow.BID={{.BID}} AND Flow.ID=0 AND "{{.Start}}" <= Flow.CreateTS AND Flow.CreateTS < "{{.Stop}}"
-        /*ORDER BY Flow.FlowID ASC*/
+        ORDER BY Flow.FlowID ASC
     )
     /*- - - - - - - - - - - - - - - - -
     Rental Agreements (with or without flow)
@@ -126,8 +126,7 @@ var RAFlowQueryClause = rlib.QueryClause{
 	"Stop":         "",
 	"SelectClause": strings.Join(RAFlowQuerySelectFields, ","),
 	"WhereClause":  "",
-	// "OrderClause":  "- RA_CUM_FLOW.Payors ASC, - RA_CUM_FLOW.AgreementStart ASC",
-	"OrderClause": "- RA_CUM_FLOW.Payors ASC",
+	"OrderClause":  "RA_CUM_FLOW.Payors ASC, RA_CUM_FLOW.AgreementStart ASC",
 }
 
 // GetAllRAFlows returns all existing Rental Agreements and all Flows
