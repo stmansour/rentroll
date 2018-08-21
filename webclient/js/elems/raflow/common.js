@@ -6,7 +6,8 @@
     dispalyRARentablesGridError, dispalyRAVehiclesGridError, dispalyRAParentChildGridError, dispalyRATiePeopleGridError,
     GetCurrentFlowID, ReassignPeopleGridRecords, AssignPetsGridRecords, AssignVehiclesGridRecords, AssignRentableGridRecords,
     GetGridToolbarAddButtonID, HideRAFlowLoader, toggleNonFieldsErrorDisplay, displayErrorSummary, submitActionForm, displayGreenCircle,
-    modifyFieldErrorMessage,ChangeRAFlowVersionToolbar, displayRADatesFormError, RAFlowAJAX, cleanFormError
+    modifyFieldErrorMessage,ChangeRAFlowVersionToolbar, displayRADatesFormError, RAFlowAJAX, cleanFormError, loadRAActionTemplate,
+    reloadActionForm
 */
 
 "use strict";
@@ -164,6 +165,19 @@ $(document).on('click', '#ra-form #save-ra-flow-btn', function () {
 
         displayActiveComponentError();
 
+        // Display RAActionForm
+        if(data.record.ValidationCheck.total === 0){
+
+            if("raActionLayout" in w2ui){
+                w2ui.raActionLayout.get('main').content = "";
+            }
+
+            loadRAActionTemplate();
+            setTimeout(function() {
+                reloadActionForm();
+            },200);
+        }
+
     });
 });
 
@@ -205,15 +219,7 @@ window.GetApprovalsAJAX = function(){
         "FlowID": FlowID
     };
 
-    return RAFlowAJAX(url, "POST", data, false)
-    .done(function(data) {
-        if(data.status === "success"){
-            // Update validationCheck error local copy
-            app.raflow.validationCheck = data;
-        }else{
-            console.error(data.message);
-        }
-    });
+    return RAFlowAJAX(url, "POST", data, true);
 };
 
 //-----------------------------------------------------------------------------
