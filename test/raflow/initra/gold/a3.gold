@@ -1,0 +1,296 @@
+{
+    "record": {
+        "DataFulfilled": {
+            "dates": true,
+            "parentchild": true,
+            "people": true,
+            "pets": true,
+            "rentables": false,
+            "tie": true,
+            "vehicles": true
+        },
+        "Flow": {
+            "BID": 1,
+            "CreateBy": -99999,
+            "CreateTS": "2018-08-21T17:48:06Z",
+            "Data": {
+                "dates": {
+                    "AgreementStart": "1/11/2018",
+                    "AgreementStop": "1/1/2020",
+                    "CSAgent": 1,
+                    "PossessionStart": "1/11/2018",
+                    "PossessionStop": "1/1/2020",
+                    "RentStart": "1/11/2018",
+                    "RentStop": "1/1/2020"
+                },
+                "meta": {
+                    "ActiveDate": "1900-01-01 00:00:00 UTC",
+                    "ActiveName": "",
+                    "ActiveUID": 0,
+                    "ApplicationReadyDate": "1900-01-01 00:00:00 UTC",
+                    "ApplicationReadyName": "",
+                    "ApplicationReadyUID": 0,
+                    "Approver1": 0,
+                    "Approver1Name": "",
+                    "Approver2": 0,
+                    "Approver2Name": "",
+                    "BID": 1,
+                    "DecisionDate1": "1900-01-01 00:00:00 UTC",
+                    "DecisionDate2": "1900-01-01 00:00:00 UTC",
+                    "DeclineReason1": 0,
+                    "DeclineReason2": 0,
+                    "DocumentDate": "1900-01-01 00:00:00 UTC",
+                    "HavePets": true,
+                    "HaveVehicles": false,
+                    "LastTMPASMID": 3,
+                    "LastTMPPETID": 1,
+                    "LastTMPTCID": 1,
+                    "LastTMPVID": 0,
+                    "LeaseTerminationReason": 0,
+                    "MoveInDate": "1900-01-01 00:00:00 UTC",
+                    "MoveInName": "",
+                    "MoveInUID": 0,
+                    "NoticeToMoveDate": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveName": "",
+                    "NoticeToMoveReported": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveUID": 0,
+                    "RAFLAGS": 0,
+                    "RAID": 0,
+                    "TerminationDate": "1900-01-01 00:00:00 UTC",
+                    "TerminatorName": "",
+                    "TerminatorUID": 0
+                },
+                "parentchild": [],
+                "people": [
+                    {
+                        "Address": "3118  Doctors Drive",
+                        "Address2": "",
+                        "AlternateEmailAddress": "",
+                        "Bankruptcy": false,
+                        "BankruptcyDes": "",
+                        "CellPhone": "+1-999-000-9999",
+                        "City": "Los Angeles",
+                        "Comment": "",
+                        "CompanyAddress": "",
+                        "CompanyCity": "",
+                        "CompanyEmail": "",
+                        "CompanyName": "",
+                        "CompanyPhone": "",
+                        "CompanyPostalCode": "",
+                        "CompanyState": "",
+                        "Convicted": false,
+                        "ConvictedDes": "",
+                        "Country": "USA",
+                        "CreditLimit": 100,
+                        "CurrentAddress": "35942 Dogwood, Montgomery, IN 11211",
+                        "CurrentLandLordName": "Steve Roger",
+                        "CurrentLandLordPhoneNo": "+1-000-911-9000",
+                        "CurrentLengthOfResidency": "0 years 10 months",
+                        "CurrentReasonForMoving": 94,
+                        "DateofBirth": "6/1/1951",
+                        "DriversLicense": "G8XX9EXX",
+                        "EligibleFuturePayor": true,
+                        "EligibleFutureUser": true,
+                        "EmergencyContactAddress": "33391 Church,Canton,AR 55089",
+                        "EmergencyContactEmail": "friend@earth.world",
+                        "EmergencyContactName": "Earth Man",
+                        "EmergencyContactTelephone": "+1-099-000-9999",
+                        "Evicted": false,
+                        "EvictedDes": "",
+                        "FirstName": "John",
+                        "GrossIncome": 10012,
+                        "Industry": 0,
+                        "IsCompany": false,
+                        "IsGuarantor": false,
+                        "IsOccupant": true,
+                        "IsRenter": true,
+                        "LastName": "Doe",
+                        "MiddleName": "M",
+                        "Occupation": "free, jobless, happy man",
+                        "OtherPreferences": "",
+                        "Points": 0,
+                        "PostalCode": "90017",
+                        "PreferredName": "",
+                        "PrimaryEmail": "john.doe@earth.world",
+                        "PriorAddress": "",
+                        "PriorLandLordName": "",
+                        "PriorLandLordPhoneNo": "",
+                        "PriorLengthOfResidency": "",
+                        "PriorReasonForMoving": 0,
+                        "SecondaryEmail": "",
+                        "SourceSLSID": 11,
+                        "SpecialNeeds": "None",
+                        "State": "CA",
+                        "TCID": 0,
+                        "TMPTCID": 1,
+                        "TaxpayorID": "09090909",
+                        "ThirdPartySource": "",
+                        "Website": "",
+                        "WorkPhone": ""
+                    }
+                ],
+                "pets": [
+                    {
+                        "Breed": "",
+                        "Color": "",
+                        "DtStart": "1/11/2018",
+                        "DtStop": "1/1/2020",
+                        "Fees": [
+                            {
+                                "ARID": 23,
+                                "ARName": "Pet Fee",
+                                "ASMID": 0,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 50,
+                                "ProrationCycle": 0,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "1/11/2018",
+                                "Stop": "1/11/2018",
+                                "TMPASMID": 1,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 24,
+                                "ARName": "Pet Rent",
+                                "ASMID": 0,
+                                "AtSigningPreTax": 0,
+                                "Comment": "prorated for 21 of 31 days",
+                                "ContractAmount": 6.77,
+                                "ProrationCycle": 0,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "1/11/2018",
+                                "Stop": "1/11/2018",
+                                "TMPASMID": 2,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 24,
+                                "ARName": "Pet Rent",
+                                "ASMID": 0,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 10,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "2/1/2018",
+                                "Stop": "1/1/2020",
+                                "TMPASMID": 3,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "Name": "",
+                        "PETID": 0,
+                        "TMPPETID": 1,
+                        "TMPTCID": 0,
+                        "Type": "",
+                        "Weight": 0
+                    }
+                ],
+                "rentables": [],
+                "tie": {
+                    "people": [
+                        {
+                            "PRID": 0,
+                            "TMPTCID": 1
+                        }
+                    ]
+                },
+                "vehicles": []
+            },
+            "FlowID": 1,
+            "FlowType": "RA",
+            "ID": 0,
+            "LastModBy": -99999,
+            "LastModTime": "2018-08-21T17:48:06Z",
+            "UserRefNo": "Y5I08MJ4E61T33EKH57Z"
+        },
+        "ValidationCheck": {
+            "errors": {
+                "dates": {
+                    "errors": {},
+                    "total": 0
+                },
+                "parentchild": {
+                    "errors": [],
+                    "total": 0
+                },
+                "people": {
+                    "errors": [],
+                    "total": 0
+                },
+                "pets": {
+                    "errors": [
+                        {
+                            "TMPPETID": 1,
+                            "errors": {
+                                "Breed": [
+                                    "cannot be blank"
+                                ],
+                                "Color": [
+                                    "cannot be blank"
+                                ],
+                                "Name": [
+                                    "cannot be blank"
+                                ],
+                                "TMPTCID": [
+                                    "pet must be associated with a person"
+                                ],
+                                "Type": [
+                                    "cannot be blank"
+                                ]
+                            },
+                            "fees": {
+                                "errors": [],
+                                "total": 0
+                            },
+                            "total": 5
+                        }
+                    ],
+                    "total": 5
+                },
+                "rentables": {
+                    "errors": [],
+                    "total": 0
+                },
+                "tie": {
+                    "people": {
+                        "errors": [
+                            {
+                                "TMPTCID": 1,
+                                "errors": {
+                                    "PRID": [
+                                        "parent rentable must be tied"
+                                    ]
+                                },
+                                "total": 1
+                            }
+                        ],
+                        "total": 1
+                    }
+                },
+                "vehicles": {
+                    "errors": [],
+                    "total": 0
+                }
+            },
+            "nonFieldsErrors": {
+                "dates": [],
+                "parentchild": [],
+                "people": [],
+                "pets": [],
+                "rentables": [
+                    "must have at least one parent rentable"
+                ],
+                "tie": [],
+                "vehicles": []
+            },
+            "status": "success",
+            "total": 7
+        }
+    },
+    "status": "success"
+}
