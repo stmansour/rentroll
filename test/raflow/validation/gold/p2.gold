@@ -1,55 +1,284 @@
 {
-    "errors": {
-        "dates": {
-            "errors": {},
-            "total": 0
+    "record": {
+        "DataFulfilled": {
+            "dates": true,
+            "parentchild": true,
+            "people": true,
+            "pets": true,
+            "rentables": true,
+            "tie": true,
+            "vehicles": true
         },
-        "parentchild": {
-            "errors": [],
-            "total": 0
+        "Flow": {
+            "BID": 1,
+            "CreateBy": 269,
+            "CreateTS": "2018-08-16T11:02:20Z",
+            "Data": {
+                "dates": {
+                    "AgreementStart": "8/16/2018",
+                    "AgreementStop": "8/16/2019",
+                    "CSAgent": 269,
+                    "PossessionStart": "8/16/2018",
+                    "PossessionStop": "8/16/2019",
+                    "RentStart": "8/16/2018",
+                    "RentStop": "8/16/2019"
+                },
+                "meta": {
+                    "ActiveDate": "1900-01-01 00:00:00 UTC",
+                    "ActiveName": "",
+                    "ActiveUID": 0,
+                    "ApplicationReadyDate": "2018-08-16 05:38:00 UTC",
+                    "ApplicationReadyName": "Billy Tester",
+                    "ApplicationReadyUID": 269,
+                    "Approver1": 0,
+                    "Approver1Name": "",
+                    "Approver2": 0,
+                    "Approver2Name": "",
+                    "BID": 0,
+                    "DecisionDate1": "1900-01-01 00:00:00 UTC",
+                    "DecisionDate2": "1900-01-01 00:00:00 UTC",
+                    "DeclineReason1": 0,
+                    "DeclineReason2": 0,
+                    "DocumentDate": "1900-01-01 00:00:00 UTC",
+                    "HavePets": false,
+                    "HaveVehicles": true,
+                    "LastTMPASMID": 3,
+                    "LastTMPPETID": 0,
+                    "LastTMPTCID": 1,
+                    "LastTMPVID": 1,
+                    "LeaseTerminationReason": 0,
+                    "MoveInDate": "1900-01-01 00:00:00 UTC",
+                    "MoveInName": "",
+                    "MoveInUID": 0,
+                    "NoticeToMoveDate": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveName": "",
+                    "NoticeToMoveReported": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveUID": 0,
+                    "RAFLAGS": 1,
+                    "RAID": 0,
+                    "TerminationDate": "1900-01-01 00:00:00 UTC",
+                    "TerminatorName": "",
+                    "TerminatorUID": 0
+                },
+                "parentchild": [],
+                "people": [
+                    {
+                        "Address": "69924 Eighth",
+                        "Address2": "",
+                        "AlternateEmailAddress": "62822 Aloha,Louisville,CO 24728",
+                        "Bankruptcy": false,
+                        "BankruptcyDes": "",
+                        "CellPhone": "(550) 620-9058",
+                        "City": "Antioch",
+                        "Comment": "",
+                        "CompanyAddress": "96915 Palo Verde",
+                        "CompanyCity": "SaltLakeCity",
+                        "CompanyEmail": "SteinMartIncS8670@comcast.net",
+                        "CompanyName": "",
+                        "CompanyPhone": "(806) 302-1495",
+                        "CompanyPostalCode": "33274",
+                        "CompanyState": "NY",
+                        "Convicted": false,
+                        "ConvictedDes": "",
+                        "Country": "USA",
+                        "CreditLimit": 6906,
+                        "CurrentAddress": "25320 Cottonwood, Frederick, ID 11211",
+                        "CurrentLandLordName": "Dakota Kerr",
+                        "CurrentLandLordPhoneNo": "(913) 294-7022",
+                        "CurrentLengthOfResidency": "9 years 10 months",
+                        "CurrentReasonForMoving": 101,
+                        "DateofBirth": "2/15/1976",
+                        "DriversLicense": "E8254288",
+                        "EligibleFuturePayor": true,
+                        "EligibleFutureUser": false,
+                        "EmergencyContactAddress": "17823 Second,McHenry,WI 55089",
+                        "EmergencyContactEmail": "DaniaHutchinson996@aol.com",
+                        "EmergencyContactName": "Dania Hutchinson",
+                        "EmergencyContactTelephone": "(480) 516-1293",
+                        "Evicted": false,
+                        "EvictedDes": "",
+                        "FirstName": "Sherryl",
+                        "GrossIncome": 45724,
+                        "Industry": 224,
+                        "IsCompany": true,
+                        "IsGuarantor": false,
+                        "IsOccupant": true,
+                        "IsRenter": true,
+                        "LastName": "Harrison",
+                        "MiddleName": "Lachelle",
+                        "Occupation": "artificial flower maker",
+                        "OtherPreferences": "",
+                        "Points": 0,
+                        "PostalCode": "28162",
+                        "PreferredName": "Brain",
+                        "PrimaryEmail": "SherrylHarrison575@yahoo.com",
+                        "PriorAddress": "33158 New York, Poughkeepsie, RI 31445",
+                        "PriorLandLordName": "Felisa Holden",
+                        "PriorLandLordPhoneNo": "(665) 359-3010",
+                        "PriorLengthOfResidency": "5 months",
+                        "PriorReasonForMoving": 87,
+                        "SecondaryEmail": "SherrylHarrison972@abiz.com",
+                        "SourceSLSID": 12,
+                        "SpecialNeeds": "",
+                        "State": "VA",
+                        "TCID": 3,
+                        "TMPTCID": 1,
+                        "TaxpayorID": "02888286",
+                        "ThirdPartySource": "Charles Hayden",
+                        "Website": "",
+                        "WorkPhone": "(203) 778-8653"
+                    }
+                ],
+                "pets": [],
+                "rentables": [
+                    {
+                        "AtSigningPreTax": 0,
+                        "Fees": [
+                            {
+                                "ARID": 16,
+                                "ARName": "Gas Base Fee",
+                                "ASMID": 0,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 50,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "8/16/2018",
+                                "Stop": "8/16/2019",
+                                "TMPASMID": 3,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 40,
+                                "ARName": "Rent ST000",
+                                "ASMID": 0,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 1000,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "8/16/2018",
+                                "Stop": "8/16/2019",
+                                "TMPASMID": 2,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "RID": 1,
+                        "RTFLAGS": 4,
+                        "RTID": 1,
+                        "RentCycle": 6,
+                        "RentableName": "Rentable001",
+                        "SalesTax": 0,
+                        "TransOccTax": 0
+                    }
+                ],
+                "tie": {
+                    "people": [
+                        {
+                            "PRID": 1,
+                            "TMPTCID": 1
+                        }
+                    ]
+                },
+                "vehicles": [
+                    {
+                        "DtStart": "2/13/2018",
+                        "DtStop": "3/1/2020",
+                        "Fees": [
+                            {
+                                "ARID": 39,
+                                "ARName": "Vehicle Registration Fee",
+                                "ASMID": 0,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 10,
+                                "ProrationCycle": 0,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "8/16/2018",
+                                "Stop": "8/16/2018",
+                                "TMPASMID": 1,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "LicensePlateNumber": "7I6Q3K7",
+                        "LicensePlateState": "CT",
+                        "ParkingPermitNumber": "9665793",
+                        "TMPTCID": 1,
+                        "TMPVID": 1,
+                        "VID": 3,
+                        "VIN": "2GxK6ZYL8DSYQPYQ",
+                        "VehicleColor": "Tan",
+                        "VehicleMake": "Chevrolet",
+                        "VehicleModel": "Corvette",
+                        "VehicleType": "car",
+                        "VehicleYear": 1984
+                    }
+                ]
+            },
+            "FlowID": 5,
+            "FlowType": "RA",
+            "ID": 0,
+            "LastModBy": 269,
+            "LastModTime": "2018-08-16T11:12:30Z",
+            "UserRefNo": "9605QHBMQ347M4Q2IVK3"
         },
-        "people": {
-            "errors": [
-                {
-                    "TMPTCID": 1,
-                    "errors": {
-                        "CompanyName": [
-                            "must not be blank"
-                        ]
-                    },
+        "ValidationCheck": {
+            "errors": {
+                "dates": {
+                    "errors": {},
+                    "total": 0
+                },
+                "parentchild": {
+                    "errors": [],
+                    "total": 0
+                },
+                "people": {
+                    "errors": [
+                        {
+                            "TMPTCID": 1,
+                            "errors": {
+                                "CompanyName": [
+                                    "must not be blank"
+                                ]
+                            },
+                            "total": 1
+                        }
+                    ],
                     "total": 1
+                },
+                "pets": {
+                    "errors": [],
+                    "total": 0
+                },
+                "rentables": {
+                    "errors": [],
+                    "total": 0
+                },
+                "tie": {
+                    "people": {
+                        "errors": [],
+                        "total": 0
+                    }
+                },
+                "vehicles": {
+                    "errors": [],
+                    "total": 0
                 }
-            ],
+            },
+            "nonFieldsErrors": {
+                "dates": [],
+                "parentchild": [],
+                "people": [],
+                "pets": [],
+                "rentables": [],
+                "tie": [],
+                "vehicles": []
+            },
             "total": 1
-        },
-        "pets": {
-            "errors": [],
-            "total": 0
-        },
-        "rentables": {
-            "errors": [],
-            "total": 0
-        },
-        "tie": {
-            "people": {
-                "errors": [],
-                "total": 0
-            }
-        },
-        "vehicles": {
-            "errors": [],
-            "total": 0
         }
     },
-    "nonFieldsErrors": {
-        "dates": [],
-        "parentchild": [],
-        "people": [],
-        "pets": [],
-        "rentables": [],
-        "tie": [],
-        "vehicles": []
-    },
-    "status": "success",
-    "total": 1
+    "status": "success"
 }
