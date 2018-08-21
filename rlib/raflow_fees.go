@@ -3,6 +3,7 @@ package rlib
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -147,6 +148,12 @@ func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName s
 
 	// FOR EACH FEE FROM BASE FEES
 	for _, baseFee := range baseFees {
+
+		// IF FEE IS PRORATED THEN IGNORE IT CHECK OUT THE NEXT ONE
+		// SINCE IT'S ALREADY HANDLED BY RENT ASM CHARGE
+		if strings.Contains(baseFee.Comment, "prorated") {
+			continue
+		}
 
 		// if it doesn't overlap with given rent dates range
 		feeStart := (time.Time)(baseFee.Start)
