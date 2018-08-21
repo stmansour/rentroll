@@ -638,15 +638,46 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 			return raflowRespData, err
 		}
 
+		// GET RENTAL AGREEMENT
+		var ra rlib.RentalAgreement
+		ra, err = rlib.GetRentalAgreement(ctx, newRAID)
+		if err != nil {
+			return raflowRespData, err
+		}
+		if ra.RAID == 0 {
+			err = fmt.Errorf("Rental Agreement not found with given RAID: %d", newRAID)
+			return raflowRespData, err
+		}
+
+		// EditFlag should be set to true only when we're creating a Flow that
+		// becomes a RefNo (an amended RentalAgreement)
+		EditFlag := false // assume we're asking for the view version
+
+		// convert permanent ra to flow data and get it
+		var raf rlib.RAFlowJSONData
+		raf, err = rlib.ConvertRA2Flow(ctx, &ra, EditFlag)
+		if err != nil {
+			return raflowRespData, err
+		}
+
+		//-------------------------------------------------------------------------
+		// Save the flow to the db
+		//-------------------------------------------------------------------------
+		var raflowJSONData []byte
+		raflowJSONData, err = json.Marshal(&raf)
+		if err != nil {
+			return raflowRespData, err
+		}
+
 		// After Migration, flow will be deleted
 		// Hence we create a Flow structure and return it just for display purpose
 		flow = rlib.Flow{
-			BID:       flow.BID,
+			BID:       ra.BID,
 			FlowID:    0, // we're not creating any flow, just to see RA content
 			UserRefNo: "",
 			ID:        newRAID,
 			FlowType:  rlib.RAFlow,
-			Data:      flow.Data,
+			Data:      raflowJSONData,
 			CreateBy:  0,
 			LastModBy: 0,
 		}
