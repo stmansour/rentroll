@@ -359,6 +359,11 @@ window.refreshLabels = function () {
 
             } else {
                 termination = app.WhyLeaving.find(function(t){if(t.id == meta.LeaseTerminationReason){return t;}});
+                // If RA is updated then the reason id will not be in WhyLeaving
+                // hence we get it from RollerMsg
+                if (!termination) {
+                    termination = app.RollerMsgs.find(function(t){if(t.id == meta.LeaseTerminationReason){return t;}});
+                }
                 terminationReason = termination ? termination.text : "";
             }
             x.innerHTML = terminationReason;

@@ -9,12 +9,27 @@ import (
 	"reflect"
 	"rentroll/rlib"
 	"rentroll/ws"
+	"time"
 )
+
+const (
+	statusError = "error"
+)
+
+var testNames = map[int]string{
+	1: "action \"set pending first approval\" on flow with invalid data",
+	2: "action \"set pending first approval\" on flow with valid data",
+	3: "approve and set \"pending second approval\" on flow with valid data",
+	4: "approve and set \"move-in / execute modification\" on flow with valid data",
+	5: "set document date of flow with valid data",
+	6: "take action of \"complete move in\" on flow with valid data",
+}
 
 // FlowResponse is the response of returning updated flow with status
 type FlowResponse struct {
-	Record ws.RAFlowResponse `json:"record"`
-	Status string            `json:"status"`
+	Record  ws.RAFlowResponse `json:"record"`
+	Message string            `json:"message"`
+	Status  string            `json:"status"`
 }
 
 type Payload struct {
@@ -43,6 +58,16 @@ var goldDataFullFilled = rlib.RADataFulfilled{
 	Tie:         true,
 }
 
+var today = time.Now()
+var afterFiveDays = today.AddDate(0, 0, 5)
+var afterOneMonth = today.AddDate(0, 1, 0)
+
+var documentDate = afterFiveDays.Format(rlib.RRDATEFMT4)
+var notiveToMoveDate = afterOneMonth.Format(rlib.RRDATEFMT4)
+
+var goldDocumentDate = afterFiveDays.Format(rlib.RRDATEINPFMT) + " 00:00:00 UTC"
+var goldAfterOneMonth = afterOneMonth.Format(rlib.RRDATEINPFMT) + " 00:00:00 UTC"
+
 func main() {
 
 	var testPayloads []Payload
@@ -67,6 +92,48 @@ func main() {
 	}
 	testPayloads = append(testPayloads, payload)
 
+	// approve "pending first approval" by accepting and set "pending second approval" on flow with valid data
+	payload = Payload{
+		UserRefNo:      "FU1T222ATL6HWFS61388",
+		RAID:           1,
+		Version:        "refno",
+		Mode:           "State",
+		Decision1:      1,
+		DeclineReason1: 0,
+	}
+	testPayloads = append(testPayloads, payload)
+
+	// approve "pending second approval" by accepting and set "move-in / execute modification" on flow with valid data
+	payload = Payload{
+		UserRefNo:      "FU1T222ATL6HWFS61388",
+		RAID:           1,
+		Version:        "refno",
+		Mode:           "State",
+		Decision2:      1,
+		DeclineReason2: 0,
+	}
+	testPayloads = append(testPayloads, payload)
+
+	// set document date of flow with valid data
+	payload = Payload{
+		UserRefNo:    "FU1T222ATL6HWFS61388",
+		RAID:         1,
+		Version:      "refno",
+		Mode:         "State",
+		DocumentDate: documentDate,
+	}
+	testPayloads = append(testPayloads, payload)
+
+	// take action of "complete move in" on flow with valid data
+	payload = Payload{
+		UserRefNo: "FU1T222ATL6HWFS61388",
+		RAID:      1,
+		Version:   "refno",
+		Action:    4,
+		Mode:      "Action",
+	}
+	testPayloads = append(testPayloads, payload)
+
 	// fmt.Println(testPayloads)
 	// fmt.Println()
 
@@ -81,17 +148,20 @@ func main() {
 
 		req, err = buildRequest(value)
 		if err != nil {
-			err = fmt.Errorf("test%d failed: %s", testNo, err)
+			fmt.Println("Internal Error: ", err)
+			return
 		}
 
 		respBody, err = makeRequestAndReadResponseBody(req)
 		if err != nil {
-			err = fmt.Errorf("test%d failed: %s", testNo, err)
+			fmt.Println("Internal Error: ", err)
+			return
 		}
 
-		err = getDateFromResponseBody(respBody, &apiResponse, &raFlowData)
+		err = getDataFromResponseBody(respBody, &apiResponse, &raFlowData)
 		if err != nil {
-			err = fmt.Errorf("test%d failed: %s", testNo, err)
+			fmt.Println("Internal Error: ", err)
+			return
 		}
 
 		var issues []string
@@ -101,17 +171,25 @@ func main() {
 			issues = checkTestCase1(&apiResponse, &raFlowData)
 		case 2:
 			issues = checkTestCase2(&apiResponse, &raFlowData)
+		case 3:
+			issues = checkTestCase3(&apiResponse, &raFlowData)
+		case 4:
+			issues = checkTestCase4(&apiResponse, &raFlowData)
+		case 5:
+			issues = checkTestCase5(&apiResponse, &raFlowData)
+		case 6:
+			issues = checkTestCase6(&apiResponse, &raFlowData)
 		default:
 			fmt.Println("invalid testNo: ", testNo)
 		}
 
 		if len(issues) > 0 {
-			fmt.Printf("test%d failed:\n", testNo)
+			fmt.Printf("\ntest%d: %s ....FAILED:\n", testNo, testNames[testNo])
 			for issueNo, issueString := range issues {
 				fmt.Printf("\t%d - %s\n", (issueNo + 1), issueString)
 			}
 		} else {
-			fmt.Printf("test%d passed\n", testNo)
+			fmt.Printf("test%d: %s ....PASSED\n", testNo, testNames[testNo])
 		}
 	}
 }
@@ -161,17 +239,22 @@ func makeRequestAndReadResponseBody(req *http.Request) ([]byte, error) {
 		return respBody, err
 	}
 
-	// fmt.Printf("\nRESPONSE Body: %s\n\n", readd)
+	// fmt.Printf("\nRESPONSE Body: %s\n\n", respBody)
 	return respBody, nil
 }
 
-func getDateFromResponseBody(respBody []byte, apiResponse *FlowResponse, raFlowData *rlib.RAFlowJSONData) error {
+func getDataFromResponseBody(respBody []byte, apiResponse *FlowResponse, raFlowData *rlib.RAFlowJSONData) error {
 
 	var err error
 	err = json.Unmarshal(respBody, apiResponse)
 	if err != nil {
 		err = fmt.Errorf("unmarshal api response err: %s", err)
 		return err
+	}
+
+	// If status of response is error, then we we simply return nil
+	if apiResponse.Status == statusError {
+		return nil
 	}
 
 	// get raflow data from API response into struct
@@ -181,12 +264,19 @@ func getDateFromResponseBody(respBody []byte, apiResponse *FlowResponse, raFlowD
 		return err
 	}
 
-	// fmt.Printf("\nRESPONSE FLOW DATA: %+v\n\n", raFlowData.Meta)
+	// fmt.Printf("\nRESPONSE FLOW DATA: %+v\n\n", apiResponse)
 	return nil
 }
 
 func checkTestCase1(apiResponse *FlowResponse, raFlowData *rlib.RAFlowJSONData) []string {
 	var issues []string
+
+	// if server returns error than return from here
+	// setting server error message as issue
+	if apiResponse.Status == statusError {
+		issues = append(issues, apiResponse.Message)
+		return issues
+	}
 
 	meta := raFlowData.Meta
 	validationCheck := apiResponse.Record.ValidationCheck
@@ -230,6 +320,13 @@ func checkTestCase1(apiResponse *FlowResponse, raFlowData *rlib.RAFlowJSONData) 
 func checkTestCase2(apiResponse *FlowResponse, raFlowData *rlib.RAFlowJSONData) []string {
 	var issues []string
 
+	// if server returns error than return from here
+	// setting server error message as issue
+	if apiResponse.Status == statusError {
+		issues = append(issues, apiResponse.Message)
+		return issues
+	}
+
 	meta := raFlowData.Meta
 	validationCheck := apiResponse.Record.ValidationCheck
 	dataFullFilled := apiResponse.Record.DataFulfilled
@@ -251,6 +348,333 @@ func checkTestCase2(apiResponse *FlowResponse, raFlowData *rlib.RAFlowJSONData) 
 		issues = append(issues, issueString)
 	}
 
+	dataFullFilledCheck := false
+	dataFullFilledCheck = reflect.DeepEqual(dataFullFilled, goldDataFullFilled)
+
+	if !dataFullFilledCheck {
+		issueString := fmt.Sprintf("dataFullFilled is: %+v, should be: %+v", dataFullFilled, goldDataFullFilled)
+		issues = append(issues, issueString)
+	}
+
+	return issues
+}
+
+func checkTestCase3(apiResponse *FlowResponse, raFlowData *rlib.RAFlowJSONData) []string {
+	var issues []string
+
+	// if server returns error than return from here
+	// setting server error message as issue
+	if apiResponse.Status == statusError {
+		issues = append(issues, apiResponse.Message)
+		return issues
+	}
+
+	meta := raFlowData.Meta
+	validationCheck := apiResponse.Record.ValidationCheck
+	dataFullFilled := apiResponse.Record.DataFulfilled
+
+	currentState := meta.RAFLAGS & uint64(0xF)
+
+	if currentState != rlib.RASTATEPendingApproval2 {
+		issueString := fmt.Sprintf("state is: %s, should be: %s", rlib.RAStates[currentState], rlib.RAStates[rlib.RASTATEPendingApproval2])
+		issues = append(issues, issueString)
+	}
+
+	if meta.ApplicationReadyUID != int64(-99999) {
+		issueString := fmt.Sprintf("ApplicationReadyUID is: %d, should be: %d", meta.ApplicationReadyUID, int64(-99999))
+		issues = append(issues, issueString)
+	}
+
+	if meta.Approver1 != int64(-99999) {
+		issueString := fmt.Sprintf("Approver1 is: %d, should be: %d", meta.Approver1, int64(-99999))
+		issues = append(issues, issueString)
+	}
+
+	// check decision1 from 4th bit of flag
+	decision1 := uint64((meta.RAFLAGS >> 4) & 1)
+	if decision1 != uint64(1) {
+		issueString := fmt.Sprintf("Decision1 is: Declined, should be: Approved")
+		issues = append(issues, issueString)
+	}
+
+	if meta.DeclineReason1 != int64(0) {
+		issueString := fmt.Sprintf("DeclineReason1 is: %d, should be: %d", meta.DeclineReason1, int64(0))
+		issues = append(issues, issueString)
+	}
+
+	if validationCheck.Total > 0 {
+		issueString := fmt.Sprintf("error count is: %d, should be: %d", validationCheck.Total, 0)
+		issues = append(issues, issueString)
+	}
+
+	dataFullFilledCheck := false
+	dataFullFilledCheck = reflect.DeepEqual(dataFullFilled, goldDataFullFilled)
+
+	if !dataFullFilledCheck {
+		issueString := fmt.Sprintf("dataFullFilled is: %+v, should be: %+v", dataFullFilled, goldDataFullFilled)
+		issues = append(issues, issueString)
+	}
+
+	return issues
+}
+
+func checkTestCase4(apiResponse *FlowResponse, raFlowData *rlib.RAFlowJSONData) []string {
+	var issues []string
+
+	// if server returns error than return from here
+	// setting server error message as issue
+	if apiResponse.Status == statusError {
+		issues = append(issues, apiResponse.Message)
+		return issues
+	}
+
+	meta := raFlowData.Meta
+	validationCheck := apiResponse.Record.ValidationCheck
+	dataFullFilled := apiResponse.Record.DataFulfilled
+
+	currentState := meta.RAFLAGS & uint64(0xF)
+
+	// Check State
+	if currentState != rlib.RASTATEMoveIn {
+		issueString := fmt.Sprintf("state is: %s, should be: %s", rlib.RAStates[currentState], rlib.RAStates[rlib.RASTATEMoveIn])
+		issues = append(issues, issueString)
+	}
+
+	// Check info related to state 0
+	if meta.ApplicationReadyUID != int64(-99999) {
+		issueString := fmt.Sprintf("ApplicationReadyUID is: %d, should be: %d", meta.ApplicationReadyUID, int64(-99999))
+		issues = append(issues, issueString)
+	}
+
+	// Check info related to state 1
+	if meta.Approver1 != int64(-99999) {
+		issueString := fmt.Sprintf("Approver1 is: %d, should be: %d", meta.Approver1, int64(-99999))
+		issues = append(issues, issueString)
+	}
+
+	// check decision1 from 4th bit of flag
+	decision1 := uint64((meta.RAFLAGS >> 4) & 1)
+	if decision1 != uint64(1) {
+		issueString := fmt.Sprintf("Decision1 is: Declined, should be: Approved")
+		issues = append(issues, issueString)
+	}
+
+	if meta.DeclineReason1 != int64(0) {
+		issueString := fmt.Sprintf("DeclineReason1 is: %d, should be: %d", meta.DeclineReason1, int64(0))
+		issues = append(issues, issueString)
+	}
+
+	// Check info related to state 2
+	if meta.Approver2 != int64(-99999) {
+		issueString := fmt.Sprintf("Approver2 is: %d, should be: %d", meta.Approver2, int64(-99999))
+		issues = append(issues, issueString)
+	}
+
+	// check decision1 from 5th bit of flag
+	decision2 := uint64((meta.RAFLAGS >> 5) & 1)
+	if decision2 != uint64(1) {
+		issueString := fmt.Sprintf("Decision2 is: Declined, should be: Approved")
+		issues = append(issues, issueString)
+	}
+
+	if meta.DeclineReason2 != int64(0) {
+		issueString := fmt.Sprintf("DeclineReason2 is: %d, should be: %d", meta.DeclineReason2, int64(0))
+		issues = append(issues, issueString)
+	}
+
+	// Check Validation Error count
+	if validationCheck.Total > 0 {
+		issueString := fmt.Sprintf("error count is: %d, should be: %d", validationCheck.Total, 0)
+		issues = append(issues, issueString)
+	}
+
+	// Check data fullfilled or not
+	dataFullFilledCheck := false
+	dataFullFilledCheck = reflect.DeepEqual(dataFullFilled, goldDataFullFilled)
+
+	if !dataFullFilledCheck {
+		issueString := fmt.Sprintf("dataFullFilled is: %+v, should be: %+v", dataFullFilled, goldDataFullFilled)
+		issues = append(issues, issueString)
+	}
+
+	return issues
+}
+
+func checkTestCase5(apiResponse *FlowResponse, raFlowData *rlib.RAFlowJSONData) []string {
+	var issues []string
+
+	// if server returns error than return from here
+	// setting server error message as issue
+	if apiResponse.Status == statusError {
+		issues = append(issues, apiResponse.Message)
+		return issues
+	}
+
+	meta := raFlowData.Meta
+	validationCheck := apiResponse.Record.ValidationCheck
+	dataFullFilled := apiResponse.Record.DataFulfilled
+
+	currentState := meta.RAFLAGS & uint64(0xF)
+
+	// Check State
+	if currentState != rlib.RASTATEMoveIn {
+		issueString := fmt.Sprintf("state is: %s, should be: %s", rlib.RAStates[currentState], rlib.RAStates[rlib.RASTATEMoveIn])
+		issues = append(issues, issueString)
+	}
+
+	// Check info related to state 0
+	if meta.ApplicationReadyUID != int64(-99999) {
+		issueString := fmt.Sprintf("ApplicationReadyUID is: %d, should be: %d", meta.ApplicationReadyUID, int64(-99999))
+		issues = append(issues, issueString)
+	}
+
+	// Check info related to state 1
+	if meta.Approver1 != int64(-99999) {
+		issueString := fmt.Sprintf("Approver1 is: %d, should be: %d", meta.Approver1, int64(-99999))
+		issues = append(issues, issueString)
+	}
+
+	// check decision1 from 4th bit of flag
+	decision1 := uint64((meta.RAFLAGS >> 4) & 1)
+	if decision1 != uint64(1) {
+		issueString := fmt.Sprintf("Decision1 is: Declined, should be: Approved")
+		issues = append(issues, issueString)
+	}
+
+	if meta.DeclineReason1 != int64(0) {
+		issueString := fmt.Sprintf("DeclineReason1 is: %d, should be: %d", meta.DeclineReason1, int64(0))
+		issues = append(issues, issueString)
+	}
+
+	// Check info related to state 2
+	if meta.Approver2 != int64(-99999) {
+		issueString := fmt.Sprintf("Approver2 is: %d, should be: %d", meta.Approver2, int64(-99999))
+		issues = append(issues, issueString)
+	}
+
+	// check decision1 from 5th bit of flag
+	decision2 := uint64((meta.RAFLAGS >> 5) & 1)
+	if decision2 != uint64(1) {
+		issueString := fmt.Sprintf("Decision2 is: Declined, should be: Approved")
+		issues = append(issues, issueString)
+	}
+
+	if meta.DeclineReason2 != int64(0) {
+		issueString := fmt.Sprintf("DeclineReason2 is: %d, should be: %d", meta.DeclineReason2, int64(0))
+		issues = append(issues, issueString)
+	}
+
+	documentDateInMeta := time.Time(meta.DocumentDate).Format(rlib.RRDATETIMEINPFMT)
+
+	// Check Document Date
+	if documentDateInMeta != goldDocumentDate {
+		issueString := fmt.Sprintf("DocumentDate is: %s, should be: %s", documentDateInMeta, goldDocumentDate)
+		issues = append(issues, issueString)
+	}
+
+	// Check Validation Error count
+	if validationCheck.Total > 0 {
+		issueString := fmt.Sprintf("error count is: %d, should be: %d", validationCheck.Total, 0)
+		issues = append(issues, issueString)
+	}
+
+	// Check data fullfilled or not
+	dataFullFilledCheck := false
+	dataFullFilledCheck = reflect.DeepEqual(dataFullFilled, goldDataFullFilled)
+
+	if !dataFullFilledCheck {
+		issueString := fmt.Sprintf("dataFullFilled is: %+v, should be: %+v", dataFullFilled, goldDataFullFilled)
+		issues = append(issues, issueString)
+	}
+
+	return issues
+}
+
+func checkTestCase6(apiResponse *FlowResponse, raFlowData *rlib.RAFlowJSONData) []string {
+	var issues []string
+
+	// if server returns error than return from here
+	// setting server error message as issue
+	if apiResponse.Status == statusError {
+		issues = append(issues, apiResponse.Message)
+		return issues
+	}
+
+	meta := raFlowData.Meta
+	validationCheck := apiResponse.Record.ValidationCheck
+	dataFullFilled := apiResponse.Record.DataFulfilled
+
+	currentState := meta.RAFLAGS & uint64(0xF)
+
+	// Check State
+	if currentState != rlib.RASTATEActive {
+		issueString := fmt.Sprintf("state is: %s, should be: %s", rlib.RAStates[currentState], rlib.RAStates[rlib.RASTATEActive])
+		issues = append(issues, issueString)
+	}
+
+	// Check info related to state 0
+	if meta.ApplicationReadyUID != int64(-99999) {
+		issueString := fmt.Sprintf("ApplicationReadyUID is: %d, should be: %d", meta.ApplicationReadyUID, int64(-99999))
+		issues = append(issues, issueString)
+	}
+
+	// Check info related to state 1
+	if meta.Approver1 != int64(-99999) {
+		issueString := fmt.Sprintf("Approver1 is: %d, should be: %d", meta.Approver1, int64(-99999))
+		issues = append(issues, issueString)
+	}
+
+	// check decision1 from 4th bit of flag
+	decision1 := uint64((meta.RAFLAGS >> 4) & 1)
+	if decision1 != uint64(1) {
+		issueString := fmt.Sprintf("Decision1 is: Declined, should be: Approved")
+		issues = append(issues, issueString)
+	}
+
+	if meta.DeclineReason1 != int64(0) {
+		issueString := fmt.Sprintf("DeclineReason1 is: %d, should be: %d", meta.DeclineReason1, int64(0))
+		issues = append(issues, issueString)
+	}
+
+	// Check info related to state 2
+	if meta.Approver2 != int64(-99999) {
+		issueString := fmt.Sprintf("Approver2 is: %d, should be: %d", meta.Approver2, int64(-99999))
+		issues = append(issues, issueString)
+	}
+
+	// check decision1 from 5th bit of flag
+	decision2 := uint64((meta.RAFLAGS >> 5) & 1)
+	if decision2 != uint64(1) {
+		issueString := fmt.Sprintf("Decision2 is: Declined, should be: Approved")
+		issues = append(issues, issueString)
+	}
+
+	if meta.DeclineReason2 != int64(0) {
+		issueString := fmt.Sprintf("DeclineReason2 is: %d, should be: %d", meta.DeclineReason2, int64(0))
+		issues = append(issues, issueString)
+	}
+
+	documentDateInMeta := time.Time(meta.DocumentDate).Format(rlib.RRDATETIMEINPFMT)
+
+	// Check Document Date
+	if documentDateInMeta != goldDocumentDate {
+		issueString := fmt.Sprintf("DocumentDate is: %s, should be: %s", documentDateInMeta, goldDocumentDate)
+		issues = append(issues, issueString)
+	}
+
+	// check info related to state 4
+	if meta.RAID != int64(5) {
+		issueString := fmt.Sprintf("new RAID is: %d, should be: %d", meta.RAID, int64(5))
+		issues = append(issues, issueString)
+	}
+
+	// Check Validation Error count
+	if validationCheck.Total > 0 {
+		issueString := fmt.Sprintf("error count is: %d, should be: %d", validationCheck.Total, 0)
+		issues = append(issues, issueString)
+	}
+
+	// Check data fullfilled or not
 	dataFullFilledCheck := false
 	dataFullFilledCheck = reflect.DeepEqual(dataFullFilled, goldDataFullFilled)
 
