@@ -95,6 +95,30 @@ echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%
 dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "b1"  "PayorStatement--StmtInfo"
 
 
+# import rr.sql again to test update existing RA
+echo "Create new database..."
+mysql --no-defaults rentroll < rr.sql
+
+#----------------------------------------------------------------------------------
+# TEST z
+# This test is for verifying update RAflow of existing RAFlow
+#
+# Scenario:
+# Edit one existing RA Application from its view mode only.
+# Update Pet/Vehicle/People information fields value
+# After updating information, move RAApplication to state 'Complete Move-In'
+#
+# Expected Result:
+# Check same RA Application flow's data. It must be match with the updated information
+#---------------------------------------------------------------------------------
+
+# send command to Edit existing Rental Agreement with RAID: 3
+echo "%7B%22cmd%22%3A%22get%22%2C%22FlowType%22%3A%22RA%22%2C%22RAID%22%3A3%2C%22UserRefNo%22%3Anull%2C%22Version%22%3A%22refno%22%7D" > request
+dojsonPOST "http://localhost:8270/v1/flow/1/0" "request" "z0" "Rental Agreement--Edit--RAID:3"
+
+echo "" > request
+dojsonPOST "http://localhost:8270/v1/flow/1/0" "request" "z1" "Rental Agreement--RAID:3--Update Flow Information"
+
 
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
