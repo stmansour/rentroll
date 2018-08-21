@@ -514,16 +514,17 @@ small.no-error {
     display: none;
 }
 
-#raflow-container .loader {
+#raflow-container .blocker, #raactionform .blocker {
     position: absolute;
     width: 100%;
     height: 100%;
     color: white;
-    display: flex;
+    display: none;
     justify-content: center;
     align-items: center;
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 1000;
+    overflow: none;
 }
 
 /* Style the button that is used to open and close the collapsible content */

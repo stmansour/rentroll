@@ -126,7 +126,8 @@ var RAFlowQueryClause = rlib.QueryClause{
 	"Stop":         "",
 	"SelectClause": strings.Join(RAFlowQuerySelectFields, ","),
 	"WhereClause":  "",
-	"OrderClause":  "- RA_CUM_FLOW.RAID DESC, - RA_CUM_FLOW.FlowID DESC",
+	// "OrderClause":  "- RA_CUM_FLOW.Payors ASC, - RA_CUM_FLOW.AgreementStart ASC",
+	"OrderClause": "- RA_CUM_FLOW.Payors ASC",
 }
 
 // GetAllRAFlows returns all existing Rental Agreements and all Flows

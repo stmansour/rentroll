@@ -2,13 +2,14 @@
 
 TESTNAME="Validate RAFlow"
 TESTSUMMARY="Test for validating RAFlow business check and basic check"
-DBGEN=../../tools/dbgen
+DBGEN=../../../tools/dbgen
 CREATENEWDB=0
+RRBIN="../../../tmp/rentroll"
 
 echo "Create new database..."
 mysql --no-defaults rentroll < validateraflow.sql
 
-source ../share/base.sh
+source ../../share/base.sh
 
 echo "STARTING RENTROLL SERVER"
 RENTROLLSERVERAUTH="-noauth"

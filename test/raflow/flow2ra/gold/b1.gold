@@ -22,8 +22,8 @@
             "Assessment": 0,
             "Balance": 1000,
             "Date": "8/1/2018",
-            "Description": "Receipt 784443",
-            "Payor": "Ardelia Mikki Patel",
+            "Description": "Receipt 909786",
+            "Payor": "Louann Lezlie Mejia",
             "RAID": "",
             "RCPTID": "RCPT-6",
             "RentableName": "",
@@ -118,8 +118,8 @@
             "Assessment": 1000,
             "Balance": 0,
             "Date": "8/1/2018",
-            "Description": "REVERSAL: Rent Non-Taxable (Reversed by ASM00000014)",
-            "Payor": "Ardelia Mikki Patel",
+            "Description": "REVERSAL: Rent Non-Taxable (Reversed by ASM00000403)",
+            "Payor": "Louann Lezlie Mejia",
             "RAID": "RA-1",
             "RCPTID": "",
             "RentableName": "Rentable001",
@@ -129,13 +129,13 @@
             "recid": 7
         },
         {
-            "ASMID": "ASM-14",
+            "ASMID": "ASM-403",
             "AppliedAmount": 0,
             "Assessment": -1000,
             "Balance": 0,
             "Date": "8/1/2018",
             "Description": "REVERSAL: Rent Non-Taxable (Reversal of ASM00000007)",
-            "Payor": "Ardelia Mikki Patel",
+            "Payor": "Louann Lezlie Mejia",
             "RAID": "RA-1",
             "RCPTID": "",
             "RentableName": "Rentable001",
@@ -145,13 +145,13 @@
             "recid": 8
         },
         {
-            "ASMID": "ASM-15",
+            "ASMID": "ASM-404",
             "AppliedAmount": 0,
-            "Assessment": 225.81,
-            "Balance": 225.81,
+            "Assessment": 612.9,
+            "Balance": 612.9,
             "Date": "8/1/2018",
             "Description": "Rent Non-Taxable",
-            "Payor": "Ardelia Mikki Patel",
+            "Payor": "Louann Lezlie Mejia",
             "RAID": "RA-1",
             "RCPTID": "",
             "RentableName": "Rentable001",
@@ -164,10 +164,10 @@
             "ASMID": "ASM-7",
             "AppliedAmount": 1000,
             "Assessment": 0,
-            "Balance": 225.81,
+            "Balance": 612.9,
             "Date": "8/1/2018",
             "Description": "REVERSAL: Receipt allocation (payment for ASM-7)",
-            "Payor": "Ardelia Mikki Patel",
+            "Payor": "Louann Lezlie Mejia",
             "RAID": "RA-1",
             "RCPTID": "RCPT-6",
             "RentableName": "",
@@ -180,10 +180,10 @@
             "ASMID": "ASM-7",
             "AppliedAmount": -1000,
             "Assessment": 0,
-            "Balance": 225.81,
-            "Date": "8/8/2018",
+            "Balance": 612.9,
+            "Date": "8/20/2018",
             "Description": "REVERSAL: Receipt allocation (payment for ASM-7)",
-            "Payor": "Ardelia Mikki Patel",
+            "Payor": "Louann Lezlie Mejia",
             "RAID": "RA-1",
             "RCPTID": "RCPT-6",
             "RentableName": "",
@@ -193,11 +193,43 @@
             "recid": 11
         },
         {
+            "ASMID": "ASM-401",
+            "AppliedAmount": 0,
+            "Assessment": 4000,
+            "Balance": 612.9,
+            "Date": "9/20/2018",
+            "Description": "REVERSAL: Security Deposit Assessment (Reversing due to amended RAID 24 | Reversed by ASM00000407)",
+            "Payor": "Louann Lezlie Mejia",
+            "RAID": "RA-1",
+            "RCPTID": "",
+            "RentableName": "Rentable001",
+            "Reverse": true,
+            "TCID": 0,
+            "UnappliedAmount": 0,
+            "recid": 12
+        },
+        {
+            "ASMID": "ASM-407",
+            "AppliedAmount": 0,
+            "Assessment": -4000,
+            "Balance": 612.9,
+            "Date": "9/20/2018",
+            "Description": "REVERSAL: Security Deposit Assessment (Reversal of ASM00000401)",
+            "Payor": "Louann Lezlie Mejia",
+            "RAID": "RA-1",
+            "RCPTID": "",
+            "RentableName": "Rentable001",
+            "Reverse": true,
+            "TCID": 0,
+            "UnappliedAmount": 0,
+            "recid": 13
+        },
+        {
             "ASMID": "",
             "AppliedAmount": 0,
-            "Assessment": 225.81,
-            "Balance": 225.81,
-            "Date": "9/1/2018",
+            "Assessment": 612.9,
+            "Balance": 612.9,
+            "Date": "10/1/2018",
             "Description": "Closing balance",
             "Payor": "",
             "RAID": "",
@@ -206,7 +238,7 @@
             "Reverse": false,
             "TCID": 0,
             "UnappliedAmount": 0,
-            "recid": 12
+            "recid": 14
         },
         {
             "ASMID": "",
@@ -222,7 +254,7 @@
             "Reverse": false,
             "TCID": 0,
             "UnappliedAmount": 0,
-            "recid": 13
+            "recid": 15
         },
         {
             "ASMID": "",
@@ -230,7 +262,7 @@
             "Assessment": 0,
             "Balance": 0,
             "Date": "1/1/1900",
-            "Description": "*** RENTAL AGREEMENT 2 ***",
+            "Description": "*** RENTAL AGREEMENT 24 ***",
             "Payor": "",
             "RAID": "",
             "RCPTID": "",
@@ -238,7 +270,7 @@
             "Reverse": false,
             "TCID": 0,
             "UnappliedAmount": 0,
-            "recid": 14
+            "recid": 16
         },
         {
             "ASMID": "",
@@ -254,30 +286,30 @@
             "Reverse": false,
             "TCID": 0,
             "UnappliedAmount": 0,
-            "recid": 15
+            "recid": 17
         },
         {
-            "ASMID": "ASM-13",
+            "ASMID": "ASM-405",
             "AppliedAmount": 0,
-            "Assessment": 1000,
-            "Balance": 1000,
-            "Date": "8/12/2018",
-            "Description": "Rent ST000",
-            "Payor": "Ardelia Mikki Patel",
-            "RAID": "RA-2",
+            "Assessment": 387.1,
+            "Balance": 387.1,
+            "Date": "8/20/2018",
+            "Description": "Rent Non-Taxable",
+            "Payor": "Louann Lezlie Mejia",
+            "RAID": "RA-24",
             "RCPTID": "",
             "RentableName": "Rentable001",
             "Reverse": false,
             "TCID": 0,
             "UnappliedAmount": 0,
-            "recid": 16
+            "recid": 18
         },
         {
             "ASMID": "",
             "AppliedAmount": 0,
-            "Assessment": 1000,
-            "Balance": 1000,
-            "Date": "9/1/2018",
+            "Assessment": 387.1,
+            "Balance": 387.1,
+            "Date": "10/1/2018",
             "Description": "Closing balance",
             "Payor": "",
             "RAID": "",
@@ -286,9 +318,9 @@
             "Reverse": false,
             "TCID": 0,
             "UnappliedAmount": 0,
-            "recid": 17
+            "recid": 19
         }
     ],
     "status": "success",
-    "total": 17
+    "total": 19
 }
