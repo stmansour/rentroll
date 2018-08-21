@@ -22,6 +22,7 @@ var testNames = map[int]string{
 	3: "approve and set \"pending second approval\" on flow with valid data",
 	4: "approve and set \"move-in / execute modification\" on flow with valid data",
 	5: "set document date of flow with valid data",
+	6: "take action of \"complete move in\" on flow with valid data",
 }
 
 // FlowResponse is the response of returning updated flow with status
@@ -123,6 +124,16 @@ func main() {
 	}
 	testPayloads = append(testPayloads, payload)
 
+	// take action of "complete move in" on flow with valid data
+	payload = Payload{
+		UserRefNo: "FU1T222ATL6HWFS61388",
+		RAID:      1,
+		Version:   "refno",
+		Action:    4,
+		Mode:      "Action",
+	}
+	testPayloads = append(testPayloads, payload)
+
 	// fmt.Println(testPayloads)
 	// fmt.Println()
 
@@ -166,6 +177,8 @@ func main() {
 			issues = checkTestCase4(&apiResponse, &raFlowData)
 		case 5:
 			issues = checkTestCase5(&apiResponse, &raFlowData)
+		case 6:
+			issues = checkTestCase6(&apiResponse, &raFlowData)
 		default:
 			fmt.Println("invalid testNo: ", testNo)
 		}
@@ -555,7 +568,103 @@ func checkTestCase5(apiResponse *FlowResponse, raFlowData *rlib.RAFlowJSONData) 
 
 	// Check Document Date
 	if documentDateInMeta != goldDocumentDate {
-		issueString := fmt.Sprintf("DocumentDate is: %d, should be: %d", meta.DocumentDate, goldDocumentDate)
+		issueString := fmt.Sprintf("DocumentDate is: %s, should be: %s", documentDateInMeta, goldDocumentDate)
+		issues = append(issues, issueString)
+	}
+
+	// Check Validation Error count
+	if validationCheck.Total > 0 {
+		issueString := fmt.Sprintf("error count is: %d, should be: %d", validationCheck.Total, 0)
+		issues = append(issues, issueString)
+	}
+
+	// Check data fullfilled or not
+	dataFullFilledCheck := false
+	dataFullFilledCheck = reflect.DeepEqual(dataFullFilled, goldDataFullFilled)
+
+	if !dataFullFilledCheck {
+		issueString := fmt.Sprintf("dataFullFilled is: %+v, should be: %+v", dataFullFilled, goldDataFullFilled)
+		issues = append(issues, issueString)
+	}
+
+	return issues
+}
+
+func checkTestCase6(apiResponse *FlowResponse, raFlowData *rlib.RAFlowJSONData) []string {
+	var issues []string
+
+	// if server returns error than return from here
+	// setting server error message as issue
+	if apiResponse.Status == statusError {
+		issues = append(issues, apiResponse.Message)
+		return issues
+	}
+
+	meta := raFlowData.Meta
+	validationCheck := apiResponse.Record.ValidationCheck
+	dataFullFilled := apiResponse.Record.DataFulfilled
+
+	currentState := meta.RAFLAGS & uint64(0xF)
+
+	// Check State
+	if currentState != rlib.RASTATEActive {
+		issueString := fmt.Sprintf("state is: %s, should be: %s", rlib.RAStates[currentState], rlib.RAStates[rlib.RASTATEActive])
+		issues = append(issues, issueString)
+	}
+
+	// Check info related to state 0
+	if meta.ApplicationReadyUID != int64(-99999) {
+		issueString := fmt.Sprintf("ApplicationReadyUID is: %d, should be: %d", meta.ApplicationReadyUID, int64(-99999))
+		issues = append(issues, issueString)
+	}
+
+	// Check info related to state 1
+	if meta.Approver1 != int64(-99999) {
+		issueString := fmt.Sprintf("Approver1 is: %d, should be: %d", meta.Approver1, int64(-99999))
+		issues = append(issues, issueString)
+	}
+
+	// check decision1 from 4th bit of flag
+	decision1 := uint64((meta.RAFLAGS >> 4) & 1)
+	if decision1 != uint64(1) {
+		issueString := fmt.Sprintf("Decision1 is: Declined, should be: Approved")
+		issues = append(issues, issueString)
+	}
+
+	if meta.DeclineReason1 != int64(0) {
+		issueString := fmt.Sprintf("DeclineReason1 is: %d, should be: %d", meta.DeclineReason1, int64(0))
+		issues = append(issues, issueString)
+	}
+
+	// Check info related to state 2
+	if meta.Approver2 != int64(-99999) {
+		issueString := fmt.Sprintf("Approver2 is: %d, should be: %d", meta.Approver2, int64(-99999))
+		issues = append(issues, issueString)
+	}
+
+	// check decision1 from 5th bit of flag
+	decision2 := uint64((meta.RAFLAGS >> 5) & 1)
+	if decision2 != uint64(1) {
+		issueString := fmt.Sprintf("Decision2 is: Declined, should be: Approved")
+		issues = append(issues, issueString)
+	}
+
+	if meta.DeclineReason2 != int64(0) {
+		issueString := fmt.Sprintf("DeclineReason2 is: %d, should be: %d", meta.DeclineReason2, int64(0))
+		issues = append(issues, issueString)
+	}
+
+	documentDateInMeta := time.Time(meta.DocumentDate).Format(rlib.RRDATETIMEINPFMT)
+
+	// Check Document Date
+	if documentDateInMeta != goldDocumentDate {
+		issueString := fmt.Sprintf("DocumentDate is: %s, should be: %s", documentDateInMeta, goldDocumentDate)
+		issues = append(issues, issueString)
+	}
+
+	// check info related to state 4
+	if meta.RAID != int64(5) {
+		issueString := fmt.Sprintf("new RAID is: %d, should be: %d", meta.RAID, int64(5))
 		issues = append(issues, issueString)
 	}
 
