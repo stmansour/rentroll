@@ -420,5 +420,4 @@ func ValidateRAFlowAndAssignValidatedRAFlow(ctx context.Context, raFlowData *rli
 	raflowRespData.ValidationCheck.Errors = raFlowFieldsErrors
 	raflowRespData.ValidationCheck.NonFieldsErrors = raFlowNonFieldsErrors
 	raflowRespData.ValidationCheck.Total += totalFieldsError + totalNonFieldsError
-	raflowRespData.ValidationCheck.Status = "success"
 }
