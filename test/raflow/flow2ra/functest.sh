@@ -83,7 +83,7 @@ dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "a2"  "PayorStatem
 #       should be reversed
 #------------------------------------------------------------------------------
 RAID1REFNO="NZXY8FS6NHJ34N383950"
-RAIDAMENDEDID="24"
+RAIDAMENDEDID="25"
 
 # Send the command to change the RefNo to Active:
 echo "%7B%22UserRefNo%22%3A%22${RAID1REFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
