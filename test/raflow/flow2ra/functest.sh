@@ -26,7 +26,7 @@ startRentRollServer
 #
 #  Scenario:
 #  RAID 1 - AgreementStart = 2/13/2018,  AgreementStop = 3/1/2020
-#  RAID 2 - AgreementStart = 8/8/2018,   AgreementStop = 3/1/2020
+#  RAID 2 - AgreementStart = 8/20/2018,  AgreementStop = 3/1/2020
 #           The flow used to create RAID 2 has no links between its fees and
 #           the assessments in RAID 1. So, the handling tests how "unlinked"
 #           assessments are handled when amending a rental agreement.
@@ -41,11 +41,12 @@ startRentRollServer
 #       old rental agreement. It is not in the fees list for the RefNo, so it
 #       should be reversed
 #------------------------------------------------------------------------------
+RAID1REFNO="T7LYN5K18Z7F756KE64C"
+RAIDAMENDEDID="24"
 
 # Send the command to change the flow to Active:
-#echo "%7B%22UserRefNo%22%3A%22G4OT34LK1266DWUQ765I%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
 
-echo "%7B%22UserRefNo%22%3A%22K3GO9UEJE0UJ010F7382%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
+echo "%7B%22UserRefNo%22%3A%22${RAID1REFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
 dojsonPOST "http://localhost:8270/v1/raactions/1/" "request" "a0"  "WebService--Action-setTo-ACTIVE"
 
 docsvtest "a1" "-G ${BUD} -g 8/1/18,10/1/18 -L 11,${BUD}" "Assessments-2018-AUG"
