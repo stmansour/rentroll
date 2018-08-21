@@ -106,8 +106,6 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if err != nil {
 		return
 	}
-	// update flow
-	raflowRespData.Flow = flow
 
 	// When flowId doesn't exists in database return and give error that flowId doesn't exists
 	if flow.FlowID == 0 {
@@ -172,6 +170,9 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			}
 		}
 	}
+
+	// update flow
+	raflowRespData.Flow = flow
 
 	raflowRespData.ValidationCheck = g
 	resp.Status = "success"
