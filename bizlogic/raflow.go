@@ -193,10 +193,10 @@ func ValidateRAFlowParts(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsEr
 // BizCheck
 // ---------------------------------------------
 // 1. Start dates must be prior to End/Stop date
-// 2. If RAID > 0 then the all Start Dates on the Dates/Agent flow part must be >= Start dates on the RAID TODO: Enable this rule if require
+// 2. If RAID > 0 then the all Start Dates on the Dates/Agent flow part must be >= Start dates on the RAID
 // ---------------------------------------------
 func validateDates(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, raFlowNonFieldsErrors *RAFlowNonFieldsErrors, a *rlib.RAFlowJSONData, RAID int64) {
-	//funcName := "validateDates"
+	funcName := "validateDates"
 
 	var (
 		err error
@@ -262,52 +262,53 @@ func validateDates(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, 
 		datesFieldsErrors.Total++
 	}
 
-	// TODO: Enable below condition code after getting confirmation. Also, after add functional test for this scenario
 	// --------------------------------------------------
 	// 2. If RAID > 0 then the all Start Dates on the Dates/Agent flow part must be >= Start dates on the RAID
 	// --------------------------------------------------
-	//if RAID > 0 {
-	//
-	//	ra, err := rlib.GetRentalAgreement(ctx, RAID)
-	//	if err != nil {
-	//		// TODO(Akshay): Handle Error and return
-	//		// ws.SvcErrorReturn(, err, funcName)
-	//	}
-	//
-	//	raAgreementStartDate := time.Time(ra.AgreementStart)
-	//	raRentStartDate := time.Time(ra.RentStart)
-	//	raPossessionStartDate := time.Time(ra.PossessionStart)
-	//
-	//	if !(agreementStartDate.Equal(raAgreementStartDate) || agreementStartDate.After(raAgreementStartDate)) {
-	//		// define and assign error
-	//		err = fmt.Errorf("agreement start date must be after or equal to RAID: %d agreement start date", RAID)
-	//		datesFieldsErrors.Errors["AgreementStart"] = append(datesFieldsErrors.Errors["AgreementStart"], err.Error())
-	//
-	//		// Modify date section error count
-	//		datesFieldsErrors.Total++
-	//	}
-	//
-	//	if !(rentStartDate.Equal(raRentStartDate) || rentStartDate.After(raRentStartDate)) {
-	//
-	//		// define and assign error
-	//		err = fmt.Errorf("rent start date must be after or equal to RAID: %d rent start date", RAID)
-	//		datesFieldsErrors.Errors["RentStart"] = append(datesFieldsErrors.Errors["RentStart"], err.Error())
-	//
-	//		// Modify date section error count
-	//		datesFieldsErrors.Total++
-	//	}
-	//
-	//	if !(possessionStartDate.Equal(raPossessionStartDate) || possessionStartDate.After(raPossessionStartDate)) {
-	//
-	//		// define and assign error
-	//		err = fmt.Errorf("possession start date must be after or equal to RAID: %d possession start date", RAID)
-	//		datesFieldsErrors.Errors["PossessionStart"] = append(datesFieldsErrors.Errors["PossessionStart"], err.Error())
-	//
-	//		// Modify date section error count
-	//		datesFieldsErrors.Total++
-	//	}
-	//
-	//}
+	if RAID > 0 {
+
+		ra, err := rlib.GetRentalAgreement(ctx, RAID)
+		if err != nil {
+			// TODO(Akshay): Handle Error and return
+			rlib.Console("something went wrong in %s", funcName)
+			return
+			// ws.SvcErrorReturn(, err, funcName)
+		}
+
+		raAgreementStartDate := time.Time(ra.AgreementStart)
+		raRentStartDate := time.Time(ra.RentStart)
+		raPossessionStartDate := time.Time(ra.PossessionStart)
+
+		if !(agreementStartDate.Equal(raAgreementStartDate) || agreementStartDate.After(raAgreementStartDate)) {
+			// define and assign error
+			err = fmt.Errorf("agreement start date must be after or equal to RAID: %d agreement start date", RAID)
+			datesFieldsErrors.Errors["AgreementStart"] = append(datesFieldsErrors.Errors["AgreementStart"], err.Error())
+
+			// Modify date section error count
+			datesFieldsErrors.Total++
+		}
+
+		if !(rentStartDate.Equal(raRentStartDate) || rentStartDate.After(raRentStartDate)) {
+
+			// define and assign error
+			err = fmt.Errorf("rent start date must be after or equal to RAID: %d rent start date", RAID)
+			datesFieldsErrors.Errors["RentStart"] = append(datesFieldsErrors.Errors["RentStart"], err.Error())
+
+			// Modify date section error count
+			datesFieldsErrors.Total++
+		}
+
+		if !(possessionStartDate.Equal(raPossessionStartDate) || possessionStartDate.After(raPossessionStartDate)) {
+
+			// define and assign error
+			err = fmt.Errorf("possession start date must be after or equal to RAID: %d possession start date", RAID)
+			datesFieldsErrors.Errors["PossessionStart"] = append(datesFieldsErrors.Errors["PossessionStart"], err.Error())
+
+			// Modify date section error count
+			datesFieldsErrors.Total++
+		}
+
+	}
 
 	raFlowFieldsErrors.Dates = datesFieldsErrors
 
