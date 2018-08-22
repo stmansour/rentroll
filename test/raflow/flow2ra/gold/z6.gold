@@ -1,0 +1,393 @@
+{
+    "record": {
+        "DataFulfilled": {
+            "dates": true,
+            "parentchild": true,
+            "people": true,
+            "pets": true,
+            "rentables": true,
+            "tie": true,
+            "vehicles": true
+        },
+        "Flow": {
+            "BID": 1,
+            "CreateBy": 0,
+            "CreateTS": "0001-01-01T00:00:00Z",
+            "Data": {
+                "dates": {
+                    "AgreementStart": "2/13/2018",
+                    "AgreementStop": "8/22/2018",
+                    "CSAgent": 181,
+                    "PossessionStart": "2/13/2018",
+                    "PossessionStop": "8/22/2018",
+                    "RentStart": "2/13/2018",
+                    "RentStop": "8/22/2018"
+                },
+                "meta": {
+                    "ActiveDate": "2018-02-13 00:00:00 UTC",
+                    "ActiveName": "Rachel Newman",
+                    "ActiveUID": 284,
+                    "ApplicationReadyDate": "2018-02-13 00:00:00 UTC",
+                    "ApplicationReadyName": "Richard O'Connor",
+                    "ApplicationReadyUID": 122,
+                    "Approver1": 222,
+                    "Approver1Name": "UID-0",
+                    "Approver2": 72,
+                    "Approver2Name": "Yolanda Hernandez",
+                    "BID": 1,
+                    "DecisionDate1": "2018-02-13 00:00:00 UTC",
+                    "DecisionDate2": "2018-02-13 00:00:00 UTC",
+                    "DeclineReason1": 0,
+                    "DeclineReason2": 0,
+                    "DocumentDate": "1900-01-01 00:00:00 UTC",
+                    "HavePets": false,
+                    "HaveVehicles": false,
+                    "LastTMPASMID": 7,
+                    "LastTMPPETID": 2,
+                    "LastTMPTCID": 1,
+                    "LastTMPVID": 2,
+                    "LeaseTerminationReason": 172,
+                    "MoveInDate": "2018-02-13 00:00:00 UTC",
+                    "MoveInName": "Sean Snow",
+                    "MoveInUID": 157,
+                    "NoticeToMoveDate": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveName": "UID-0",
+                    "NoticeToMoveReported": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveUID": 0,
+                    "RAFLAGS": 54,
+                    "RAID": 3,
+                    "TerminationDate": "2018-08-22 08:34:00 UTC",
+                    "TerminatorName": "UID-0",
+                    "TerminatorUID": -99999
+                },
+                "parentchild": [],
+                "people": [
+                    {
+                        "Address": "66789 Shore",
+                        "Address2": "",
+                        "AlternateEmailAddress": "14557 Lakeview,Jefferson,GA 24728",
+                        "Bankruptcy": false,
+                        "BankruptcyDes": "",
+                        "CellPhone": "(314) 860-0587",
+                        "City": "Denton",
+                        "Comment": "",
+                        "CompanyAddress": "71590 Fifth",
+                        "CompanyCity": "Elizabeth",
+                        "CompanyEmail": "WElizabeth7089@aol.com",
+                        "CompanyName": "Western Digital Inc",
+                        "CompanyPhone": "(255) 339-0248",
+                        "CompanyPostalCode": "33274",
+                        "CompanyState": "VA",
+                        "Convicted": false,
+                        "ConvictedDes": "",
+                        "Country": "USA",
+                        "CreditLimit": 15343,
+                        "CurrentAddress": "81062 Wood, Santa Rosa, FL 11211",
+                        "CurrentLandLordName": "Eugenia Dunn",
+                        "CurrentLandLordPhoneNo": "(510) 858-4871",
+                        "CurrentLengthOfResidency": "2 years 7 months",
+                        "CurrentReasonForMoving": 129,
+                        "DateofBirth": "2/15/1957",
+                        "DriversLicense": "D7626933",
+                        "EligibleFuturePayor": true,
+                        "EligibleFutureUser": false,
+                        "EmergencyContactAddress": "84390 Rhode Island,Durham,AK 55089",
+                        "EmergencyContactEmail": "RRamirez8989@bdiddy.com",
+                        "EmergencyContactName": "Reyna Ramirez",
+                        "EmergencyContactTelephone": "(506) 681-2584",
+                        "Evicted": false,
+                        "EvictedDes": "",
+                        "FirstName": "Akshay",
+                        "GrossIncome": 22028,
+                        "Industry": 344,
+                        "IsCompany": false,
+                        "IsGuarantor": false,
+                        "IsOccupant": true,
+                        "IsRenter": true,
+                        "LastName": "Bosamiya",
+                        "MiddleName": "",
+                        "Occupation": "the hygiene service assistant (hygiene service assistant)",
+                        "OtherPreferences": "",
+                        "Points": 0,
+                        "PostalCode": "28162",
+                        "PreferredName": "Denisha",
+                        "PrimaryEmail": "akshay@yopmail.com",
+                        "PriorAddress": "66787 Hampton, Cambridge, NC 31445",
+                        "PriorLandLordName": "Kali Graves",
+                        "PriorLandLordPhoneNo": "(823) 260-2871",
+                        "PriorLengthOfResidency": "8 years 6 months",
+                        "PriorReasonForMoving": 117,
+                        "SecondaryEmail": "akshay@yopmail.com",
+                        "SourceSLSID": 17,
+                        "SpecialNeeds": "None",
+                        "State": "ME",
+                        "TCID": 3,
+                        "TMPTCID": 1,
+                        "TaxpayorID": "08114320",
+                        "ThirdPartySource": "Stacia Robertson",
+                        "Website": "",
+                        "WorkPhone": "(607) 954-3966"
+                    }
+                ],
+                "pets": [
+                    {
+                        "Breed": "Neapolitan Mastiff",
+                        "Color": "Black",
+                        "DtStart": "2/13/2018",
+                        "DtStop": "8/21/2018",
+                        "Fees": [
+                            {
+                                "ARID": 24,
+                                "ARName": "Pet Rent",
+                                "ASMID": 38,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 10,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "3/1/2018",
+                                "Stop": "8/22/2018",
+                                "TMPASMID": 3,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 23,
+                                "ARName": "Pet Fee",
+                                "ASMID": 46,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 50,
+                                "ProrationCycle": 0,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "2/13/2018",
+                                "Stop": "2/13/2018",
+                                "TMPASMID": 5,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 24,
+                                "ARName": "Pet Rent",
+                                "ASMID": 47,
+                                "AtSigningPreTax": 0,
+                                "Comment": "prorated for 16 of 28 days",
+                                "ContractAmount": 5.71,
+                                "ProrationCycle": 0,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "2/13/2018",
+                                "Stop": "2/13/2018",
+                                "TMPASMID": 6,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "Name": "Scooter",
+                        "PETID": 2,
+                        "TMPPETID": 1,
+                        "TMPTCID": 1,
+                        "Type": "dog",
+                        "Weight": 11
+                    },
+                    {
+                        "Breed": "Neapolitan Mastiff",
+                        "Color": "Black",
+                        "DtStart": "8/21/2018",
+                        "DtStop": "3/1/2020",
+                        "Fees": [],
+                        "Name": "Bosky",
+                        "PETID": 22,
+                        "TMPPETID": 2,
+                        "TMPTCID": 1,
+                        "Type": "Cat",
+                        "Weight": 11
+                    }
+                ],
+                "rentables": [
+                    {
+                        "AtSigningPreTax": 0,
+                        "Fees": [
+                            {
+                                "ARID": 26,
+                                "ARName": "Rent Non-Taxable",
+                                "ASMID": 30,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 1000,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "3/1/2018",
+                                "Stop": "8/22/2018",
+                                "TMPASMID": 1,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 28,
+                                "ARName": "Security Deposit Assessment",
+                                "ASMID": 37,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 2000,
+                                "ProrationCycle": 0,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "2/13/2018",
+                                "Stop": "2/13/2018",
+                                "TMPASMID": 2,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 26,
+                                "ARName": "Rent Non-Taxable",
+                                "ASMID": 45,
+                                "AtSigningPreTax": 0,
+                                "Comment": "prorated for 16 of 28 days",
+                                "ContractAmount": 571.43,
+                                "ProrationCycle": 0,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "2/13/2018",
+                                "Stop": "2/13/2018",
+                                "TMPASMID": 4,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "RID": 3,
+                        "RTFLAGS": 4,
+                        "RTID": 1,
+                        "RentCycle": 6,
+                        "RentableName": "Rentable003",
+                        "SalesTax": 0,
+                        "TransOccTax": 0
+                    }
+                ],
+                "tie": {
+                    "people": [
+                        {
+                            "PRID": 3,
+                            "TMPTCID": 1
+                        }
+                    ]
+                },
+                "vehicles": [
+                    {
+                        "DtStart": "2/13/2018",
+                        "DtStop": "8/22/2018",
+                        "Fees": [
+                            {
+                                "ARID": 39,
+                                "ARName": "Vehicle Registration Fee",
+                                "ASMID": 48,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 10,
+                                "ProrationCycle": 0,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "2/13/2018",
+                                "Stop": "2/13/2018",
+                                "TMPASMID": 7,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "LicensePlateNumber": "1T9RW28",
+                        "LicensePlateState": "WA",
+                        "ParkingPermitNumber": "7916444",
+                        "TMPTCID": 1,
+                        "TMPVID": 1,
+                        "VID": 3,
+                        "VIN": "2008",
+                        "VehicleColor": "Rust",
+                        "VehicleMake": "Volvo",
+                        "VehicleModel": "V70",
+                        "VehicleType": "car",
+                        "VehicleYear": 2
+                    },
+                    {
+                        "DtStart": "8/22/2018",
+                        "DtStop": "3/1/2020",
+                        "Fees": [],
+                        "LicensePlateNumber": "1T9RW28",
+                        "LicensePlateState": "GJ",
+                        "ParkingPermitNumber": "7916444",
+                        "TMPTCID": 1,
+                        "TMPVID": 2,
+                        "VID": 31,
+                        "VIN": "2BPDY2OYZM4YMRTC",
+                        "VehicleColor": "White",
+                        "VehicleMake": "Suzuki",
+                        "VehicleModel": "12BBT",
+                        "VehicleType": "Bike",
+                        "VehicleYear": 2008
+                    }
+                ]
+            },
+            "FlowID": 0,
+            "FlowType": "RA",
+            "ID": 3,
+            "LastModBy": 0,
+            "LastModTime": "0001-01-01T00:00:00Z",
+            "UserRefNo": ""
+        },
+        "ValidationCheck": {
+            "errors": {
+                "dates": {
+                    "errors": {},
+                    "total": 0
+                },
+                "parentchild": {
+                    "errors": [],
+                    "total": 0
+                },
+                "people": {
+                    "errors": [],
+                    "total": 0
+                },
+                "pets": {
+                    "errors": [],
+                    "total": 0
+                },
+                "rentables": {
+                    "errors": [],
+                    "total": 0
+                },
+                "tie": {
+                    "people": {
+                        "errors": [],
+                        "total": 0
+                    }
+                },
+                "vehicles": {
+                    "errors": [
+                        {
+                            "TMPVID": 1,
+                            "errors": {
+                                "VehicleYear": [
+                                    "must be greater than 1900"
+                                ]
+                            },
+                            "fees": {
+                                "errors": [],
+                                "total": 0
+                            },
+                            "total": 1
+                        }
+                    ],
+                    "total": 1
+                }
+            },
+            "nonFieldsErrors": {
+                "dates": [],
+                "parentchild": [],
+                "people": [],
+                "pets": [],
+                "rentables": [],
+                "tie": [],
+                "vehicles": []
+            },
+            "total": 1
+        }
+    },
+    "status": "success"
+}
