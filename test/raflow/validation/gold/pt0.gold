@@ -369,9 +369,6 @@
                                 "Color": [
                                     "cannot be blank"
                                 ],
-                                "DtStart": [
-                                    "start date must be prior to stop date"
-                                ],
                                 "TMPTCID": [
                                     "pet must be associated with a person"
                                 ],
@@ -393,10 +390,10 @@
                                 ],
                                 "total": 1
                             },
-                            "total": 6
+                            "total": 5
                         }
                     ],
-                    "total": 6
+                    "total": 5
                 },
                 "rentables": {
                     "errors": [],
@@ -422,7 +419,7 @@
                 "tie": [],
                 "vehicles": []
             },
-            "total": 6
+            "total": 5
         }
     },
     "status": "success"

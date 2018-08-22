@@ -24,7 +24,7 @@
                     "RentStop": "3/1/2020"
                 },
                 "meta": {
-                    "ActiveDate": "2018-08-21 17:51:00 UTC",
+                    "ActiveDate": "2018-08-22 17:12:00 UTC",
                     "ActiveName": "UID-0",
                     "ActiveUID": -99999,
                     "ApplicationReadyDate": "2018-08-20 23:46:00 UTC",
@@ -45,7 +45,7 @@
                     "LastTMPASMID": 2,
                     "LastTMPPETID": 0,
                     "LastTMPTCID": 1,
-                    "LastTMPVID": 2,
+                    "LastTMPVID": 1,
                     "LeaseTerminationReason": 0,
                     "MoveInDate": "2018-08-20 23:46:00 UTC",
                     "MoveInName": "Steve Mansour",
@@ -184,8 +184,6 @@
                 },
                 "vehicles": [
                     {
-                        "DtStart": "2/13/2018",
-                        "DtStop": "8/20/2018",
                         "Fees": [],
                         "LicensePlateNumber": "166H6GG",
                         "LicensePlateState": "DC",
@@ -199,23 +197,6 @@
                         "VehicleModel": "Tribeca",
                         "VehicleType": "car",
                         "VehicleYear": 0
-                    },
-                    {
-                        "DtStart": "8/20/2018",
-                        "DtStop": "3/1/2020",
-                        "Fees": [],
-                        "LicensePlateNumber": "166H6GG",
-                        "LicensePlateState": "DC",
-                        "ParkingPermitNumber": "8952214",
-                        "TMPTCID": 1,
-                        "TMPVID": 2,
-                        "VID": 31,
-                        "VIN": "VNKAZ5TKXVJ9OW26",
-                        "VehicleColor": "Aluminum",
-                        "VehicleMake": "Subaru",
-                        "VehicleModel": "Tribeca",
-                        "VehicleType": "car",
-                        "VehicleYear": 2011
                     }
                 ]
             },

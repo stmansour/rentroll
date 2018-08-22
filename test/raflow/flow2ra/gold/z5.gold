@@ -24,10 +24,10 @@
                     "RentStop": "3/1/2020"
                 },
                 "meta": {
-                    "ActiveDate": "2018-08-22 08:33:00 UTC",
+                    "ActiveDate": "2018-08-22 17:12:00 UTC",
                     "ActiveName": "UID-0",
                     "ActiveUID": -99999,
-                    "ApplicationReadyDate": "2018-08-22 08:33:00 UTC",
+                    "ApplicationReadyDate": "2018-08-22 17:12:00 UTC",
                     "ApplicationReadyName": "UID-0",
                     "ApplicationReadyUID": -99999,
                     "Approver1": 0,
@@ -43,9 +43,9 @@
                     "HavePets": false,
                     "HaveVehicles": false,
                     "LastTMPASMID": 3,
-                    "LastTMPPETID": 2,
+                    "LastTMPPETID": 1,
                     "LastTMPTCID": 1,
-                    "LastTMPVID": 2,
+                    "LastTMPVID": 1,
                     "LeaseTerminationReason": 0,
                     "MoveInDate": "1900-01-01 00:00:00 UTC",
                     "MoveInName": "UID-0",
@@ -133,21 +133,6 @@
                     {
                         "Breed": "Neapolitan Mastiff",
                         "Color": "Black",
-                        "DtStart": "2/13/2018",
-                        "DtStop": "8/21/2018",
-                        "Fees": [],
-                        "Name": "Scooter",
-                        "PETID": 2,
-                        "TMPPETID": 1,
-                        "TMPTCID": 1,
-                        "Type": "dog",
-                        "Weight": 11
-                    },
-                    {
-                        "Breed": "Neapolitan Mastiff",
-                        "Color": "Black",
-                        "DtStart": "8/21/2018",
-                        "DtStop": "3/1/2020",
                         "Fees": [
                             {
                                 "ARID": 24,
@@ -166,8 +151,8 @@
                             }
                         ],
                         "Name": "Bosky",
-                        "PETID": 22,
-                        "TMPPETID": 2,
+                        "PETID": 2,
+                        "TMPPETID": 1,
                         "TMPTCID": 1,
                         "Type": "Cat",
                         "Weight": 11
@@ -227,38 +212,19 @@
                 },
                 "vehicles": [
                     {
-                        "DtStart": "2/13/2018",
-                        "DtStop": "8/22/2018",
-                        "Fees": [],
-                        "LicensePlateNumber": "1T9RW28",
-                        "LicensePlateState": "WA",
-                        "ParkingPermitNumber": "7916444",
-                        "TMPTCID": 1,
-                        "TMPVID": 1,
-                        "VID": 3,
-                        "VIN": "2008",
-                        "VehicleColor": "Rust",
-                        "VehicleMake": "Volvo",
-                        "VehicleModel": "V70",
-                        "VehicleType": "car",
-                        "VehicleYear": 2
-                    },
-                    {
-                        "DtStart": "8/22/2018",
-                        "DtStop": "3/1/2020",
                         "Fees": [],
                         "LicensePlateNumber": "1T9RW28",
                         "LicensePlateState": "GJ",
                         "ParkingPermitNumber": "7916444",
                         "TMPTCID": 1,
-                        "TMPVID": 2,
-                        "VID": 31,
-                        "VIN": "2BPDY2OYZM4YMRTC",
+                        "TMPVID": 1,
+                        "VID": 3,
+                        "VIN": "2008",
                         "VehicleColor": "White",
                         "VehicleMake": "Suzuki",
                         "VehicleModel": "12BBT",
                         "VehicleType": "Bike",
-                        "VehicleYear": 2008
+                        "VehicleYear": 2
                     }
                 ]
             },

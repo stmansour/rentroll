@@ -27,7 +27,7 @@
                     "ActiveDate": "1900-01-01 00:00:00 UTC",
                     "ActiveName": "",
                     "ActiveUID": 0,
-                    "ApplicationReadyDate": "2018-08-22 06:17:00 UTC",
+                    "ApplicationReadyDate": "2018-08-22 17:12:00 UTC",
                     "ApplicationReadyName": "UID-0",
                     "ApplicationReadyUID": -99999,
                     "Approver1": 0,
@@ -133,8 +133,6 @@
                     {
                         "Breed": "Neapolitan Mastiff",
                         "Color": "Black",
-                        "DtStart": "8/21/2018",
-                        "DtStop": "3/1/2020",
                         "Fees": [
                             {
                                 "ARID": 24,
@@ -229,8 +227,6 @@
                 },
                 "vehicles": [
                     {
-                        "DtStart": "8/22/2018",
-                        "DtStop": "3/1/2020",
                         "Fees": [],
                         "LicensePlateNumber": "1T9RW28",
                         "LicensePlateState": "GJ",
@@ -251,7 +247,7 @@
             "FlowType": "RA",
             "ID": 3,
             "LastModBy": 269,
-            "LastModTime": "2018-08-22T11:47:29Z",
+            "LastModTime": "2018-08-22T22:42:38Z",
             "UserRefNo": "A02QXP7Z2D5SC8U74Y79"
         },
         "ValidationCheck": {

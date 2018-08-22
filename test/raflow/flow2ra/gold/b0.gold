@@ -24,7 +24,7 @@
                     "RentStop": "3/1/2020"
                 },
                 "meta": {
-                    "ActiveDate": "2018-08-21 17:51:00 UTC",
+                    "ActiveDate": "2018-08-22 17:12:00 UTC",
                     "ActiveName": "UID-0",
                     "ActiveUID": -99999,
                     "ApplicationReadyDate": "1900-01-01 00:00:00 UTC",
@@ -43,9 +43,9 @@
                     "HavePets": false,
                     "HaveVehicles": false,
                     "LastTMPASMID": 5,
-                    "LastTMPPETID": 2,
+                    "LastTMPPETID": 1,
                     "LastTMPTCID": 1,
-                    "LastTMPVID": 2,
+                    "LastTMPVID": 1,
                     "LeaseTerminationReason": 0,
                     "MoveInDate": "1900-01-01 00:00:00 UTC",
                     "MoveInName": "UID-0",
@@ -133,21 +133,6 @@
                     {
                         "Breed": "Treeing Walker Coonhound",
                         "Color": "Yellow",
-                        "DtStart": "2/13/2018",
-                        "DtStop": "8/20/2018",
-                        "Fees": [],
-                        "Name": "Luke",
-                        "PETID": 1,
-                        "TMPPETID": 1,
-                        "TMPTCID": 1,
-                        "Type": "dog",
-                        "Weight": 31
-                    },
-                    {
-                        "Breed": "Treeing Walker Coonhound",
-                        "Color": "Yellow",
-                        "DtStart": "8/20/2018",
-                        "DtStop": "3/1/2020",
                         "Fees": [
                             {
                                 "ARID": 24,
@@ -181,8 +166,8 @@
                             }
                         ],
                         "Name": "Luke",
-                        "PETID": 22,
-                        "TMPPETID": 2,
+                        "PETID": 1,
+                        "TMPPETID": 1,
                         "TMPTCID": 1,
                         "Type": "dog",
                         "Weight": 31
@@ -257,8 +242,6 @@
                 },
                 "vehicles": [
                     {
-                        "DtStart": "2/13/2018",
-                        "DtStop": "8/20/2018",
                         "Fees": [],
                         "LicensePlateNumber": "KD5085O",
                         "LicensePlateState": "NV",
@@ -272,23 +255,6 @@
                         "VehicleModel": "MDX",
                         "VehicleType": "car",
                         "VehicleYear": 0
-                    },
-                    {
-                        "DtStart": "8/20/2018",
-                        "DtStop": "3/1/2020",
-                        "Fees": [],
-                        "LicensePlateNumber": "KD5085O",
-                        "LicensePlateState": "NV",
-                        "ParkingPermitNumber": "2364399",
-                        "TMPTCID": 1,
-                        "TMPVID": 2,
-                        "VID": 32,
-                        "VIN": "VSX47D7Q5CLSW0O1",
-                        "VehicleColor": "Pink",
-                        "VehicleMake": "Acura",
-                        "VehicleModel": "MDX",
-                        "VehicleType": "car",
-                        "VehicleYear": 2002
                     }
                 ]
             },
