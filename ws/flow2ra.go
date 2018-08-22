@@ -683,7 +683,7 @@ func F2RAUpdatePets(ctx context.Context, x *WriteHandlerContext) (err error) {
 				rlib.Console("E tb.TBID = %d\n", tb.TBID)
 				if rlib.DateInRange(&bind.DtStart, &tb.DtStart, &tb.DtStop) { // overlaps amended RAID ??
 					tb.DtStop = bind.DtStart // YES: update its stop date
-					rlib.Console("F update TBind\n", tb.TBID)
+					rlib.Console("F update TBind\n")
 					if err = rlib.UpdateTBind(ctx, &tb); err != nil {
 						return err
 					}
@@ -911,6 +911,7 @@ func F2RAUpdatePeople(ctx context.Context, x *WriteHandlerContext) error {
 			rlib.MigrateStructVals(&x.raf.People[i], &xp.Usr)
 			rlib.MigrateStructVals(&x.raf.People[i], &xp.Psp)
 			rlib.MigrateStructVals(&x.raf.People[i], &xp.Pay)
+			xp.Trn.BID = x.raf.Meta.BID
 			tcid, err := rlib.InsertTransactant(ctx, &xp.Trn)
 			if nil != err {
 				return err
