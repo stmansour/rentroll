@@ -110,6 +110,7 @@ mysql --no-defaults rentroll < rr.sql
 #
 # Expected Result:
 # Check same RA Application flow's data. It must be match with the updated information
+# Outdated RA Application must be terminated
 #---------------------------------------------------------------------------------
 
 RAID3REFNO="A02QXP7Z2D5SC8U74Y79"
@@ -138,9 +139,15 @@ dojsonPOST "http://localhost:8270/v1/validate-raflow/1/3/" "request" "z3" "Renta
 echo "%7B%22UserRefNo%22%3A%22${RAID3REFNO}%22%2C%22RAID%22%3A3%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
 dojsonPOST "http://localhost:8270/v1/raactions/1/3/" "request" "z4" "Rental Agreement--RAID:3--Complete Move In"
 
-# Get updated flow
-#echo "" > request
-#dojsonPOST "" "request" "z6" "Rental Agreement--RAID:3--Get updated flow"
+# Get updated flow: It'll have new RAID: 24
+# TODO: z5.gold must require to update after fixing bug in the code Bug: Duplicate entry of the pets/vehicles
+echo "%7B%22cmd%22%3A%22get%22%2C%22UserRefNo%22%3Anull%2C%22RAID%22%3A24%2C%22Version%22%3A%22raid%22%2C%22FlowType%22%3A%22RA%22%7D" > request
+dojsonPOST "http://localhost:8270/v1/flow/1/0/" "request" "z5" "Rental Agreement--RAID:24--Get updated flow"
+
+# Check old RAID:3 Rental agreement must be terminated due to update rental agreement
+# TODO: z6.gold must require to update after fixing bug in the code Bug: Duplicate entry of the pets/vehicles
+echo "%7B%22cmd%22%3A%22get%22%2C%22UserRefNo%22%3Anull%2C%22RAID%22%3A3%2C%22Version%22%3A%22raid%22%2C%22FlowType%22%3A%22RA%22%7D" > request
+dojsonPOST "http://localhost:8270/v1/flow/1/0/" "request" "z6" "Rental Agreement--RAID:3--Terminated"
 
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
