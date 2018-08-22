@@ -1452,7 +1452,7 @@ func UpdateTBind(ctx context.Context, a *TBind) error {
 	}
 	fields := []interface{}{
 		a.BID, a.SourceElemType, a.SourceElemID, a.AssocElemType, a.AssocElemID,
-		a.DtStart, a.DtStop, a.FLAGS, a.LastModTime, a.LastModBy, a.TBID}
+		a.DtStart, a.DtStop, a.FLAGS, a.LastModBy, a.TBID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateTBind)
 		defer stmt.Close()

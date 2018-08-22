@@ -582,7 +582,7 @@ func FlowSaveRentables(ctx context.Context, x *WriteHandlerContext) error {
 //     Any errors encountered
 //-----------------------------------------------------------------------------
 func F2RAUpdatePets(ctx context.Context, x *WriteHandlerContext) (err error) {
-	// rlib.Console("Entered F2RAUpdatePets\n")
+	rlib.Console("Entered F2RAUpdatePets\n")
 
 	for i := 0; i < len(x.raf.Pets); i++ {
 		// get contact person
@@ -591,6 +591,8 @@ func F2RAUpdatePets(ctx context.Context, x *WriteHandlerContext) (err error) {
 		if err != nil {
 			return err
 		}
+
+		rlib.Console("petTCID = %d\n", petTCID)
 
 		// PET ENTRY
 		var pet rlib.Pet
@@ -606,11 +608,12 @@ func F2RAUpdatePets(ctx context.Context, x *WriteHandlerContext) (err error) {
 
 		// If PET exists then update it
 		if x.raf.Pets[i].PETID > 0 {
+			rlib.Console("Found existing pet %d\n", x.raf.Pets[i].PETID)
 			pet, err = rlib.GetPet(ctx, x.raf.Pets[i].PETID)
 			if err != nil {
 				return err
 			}
-
+			rlib.Console("A\n")
 			//-----------------------------------------------------------------
 			// update it if necessary
 			//-----------------------------------------------------------------
@@ -640,55 +643,6 @@ func F2RAUpdatePets(ctx context.Context, x *WriteHandlerContext) (err error) {
 				chgs++
 			}
 
-			// TODO(Steve): ONCE WE HAVE THE WORKING FUNCTIONALITY OF "TBIND" TABLE
-			//              WITH DB QUERIES, UPDATE PET ACCORDINGLY
-			//
-			//              IF TCID IS CHANGED THEN MARK THE PET'S STOP DATE
-			//              AS CURRENT DATE IN "TBIND" ENTRY AND CREATE A NEW ENTRY
-			//              IN "TBIND" WITH EXISTING PET AND TCID ASSOCIATION WITH START
-			//              DATE SAME AS WE ASSIGNED IN STOP DATE (CURRENT DATE)
-			//
-			//              AS OF NOW, JUST UPDATE THE PET INFO, EVENTUALLY
-			//              THIS UPDATE PART WILL BE REMOVED AND NEXT BLOCK OF
-			//              COMMENTED CODE WILL BE MODIFIED.
-			// if err = rlib.UpdatePet(ctx, &newpet); err != nil {
-			// 	return err
-			// }
-
-			//----------------------------------------------------------
-			// Is the new Agreement period AFTER the current period?
-			//----------------------------------------------------------
-			// newStart := time.Time(x.raf.Pets[i].DtStart)
-			// //newStop := time.Time(x.raf.Pets[i].DtStop)
-			// if pet.DtStart.Before(newStart) {
-			// 	//----------------------------------------------------------
-			// 	// stop the current Pet when the RA begins...
-			// 	//----------------------------------------------------------
-			// 	pet.DtStop = newStart
-			// 	if pet.DtStop.Before(pet.DtStart) { // yes, this can happen
-			// 		pet.DtStop = pet.DtStart
-			// 	}
-			// 	if err = rlib.UpdatePet(ctx, &pet); err != nil {
-			// 		return err
-			// 	}
-			// 	//----------------------------------------------------------
-			// 	// now create the new one...
-			// 	//----------------------------------------------------------
-			// 	x.raf.Pets[i].PETID, err = rlib.InsertPet(ctx, &newpet)
-			// 	if err != nil {
-			// 		return err
-			// 	}
-			// } else {
-			// 	//---------------------------------------------------------------
-			// 	// if dates are the same or newpet range precedes old pet range,
-			// 	// then newpet overwrites pet.  Set the old one to no time...
-			// 	//---------------------------------------------------------------
-			// 	pet.DtStop = pet.DtStart // essentially sets it to no time
-			// 	if err = rlib.UpdatePet(ctx, &pet); err != nil {
-			// 		return err
-			// 	}
-			// }
-
 			//----------------------------------------------------------------
 			// 1. If the TCID did not change from the one in the TBind that
 			//    overlaps the amend RAID start time, then no action is taken
@@ -708,31 +662,45 @@ func F2RAUpdatePets(ctx context.Context, x *WriteHandlerContext) (err error) {
 			// Source type = PERSON,  Assoc type = PET
 			//----------------------------------------------------------
 			var tblist []rlib.TBind
-			tblist, err = rlib.GetTBindAssocsByRange(ctx, pet.BID, rlib.ELEMPET, petTCID, rlib.ELEMPERSON, &bind.DtStart, &bind.DtStop)
+			tblist, err = rlib.GetTBindAssocsByRange(ctx, pet.BID, rlib.ELEMPET, pet.PETID, rlib.ELEMPERSON, &bind.DtStart, &bind.DtStop)
 			if err != nil {
 				return err
 			}
+			rlib.Console("B  tblist size = %d, pet.BID = %d, pet.PETID =%d\n", len(tblist), pet.BID, pet.PETID)
 			//----------------------------------------------------
 			// if only 1 and person hasn't changed, we're done
 			//----------------------------------------------------
 			if len(tblist) == 1 && tblist[0].SourceElemType == rlib.ELEMPERSON && tblist[0].SourceElemID == petTCID {
+				rlib.Console("C\n")
 				return nil
 			}
+			rlib.Console("D\n")
 			//-------------------------------------------------------------
 			// Spin throught the records, update the overlapping record,
 			// and remove the rest.
 			//-------------------------------------------------------------
 			for _, tb := range tblist {
+				rlib.Console("E tb.TBID = %d\n", tb.TBID)
 				if rlib.DateInRange(&bind.DtStart, &tb.DtStart, &tb.DtStop) { // overlaps amended RAID ??
 					tb.DtStop = bind.DtStart // YES: update its stop date
+					rlib.Console("F update TBind\n", tb.TBID)
 					if err = rlib.UpdateTBind(ctx, &tb); err != nil {
 						return err
 					}
 				} else {
+					rlib.Console("F delete TBind\n")
 					if err = rlib.DeleteTBind(ctx, tb.TBID); err != nil { // NO: delete it
 						return err
 					}
 				}
+			}
+			rlib.Console("G done with for loop\n")
+			//-------------------------------------------------------------
+			// Now add the TBind...
+			//-------------------------------------------------------------
+			_, err = rlib.InsertTBind(ctx, &bind)
+			if err != nil {
+				return err
 			}
 		} else {
 			rlib.MigrateStructVals(&x.raf.Pets[i], &pet)
