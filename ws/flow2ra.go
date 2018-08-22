@@ -605,6 +605,7 @@ func F2RAUpdatePets(ctx context.Context, x *WriteHandlerContext) (err error) {
 		bind.AssocElemID = x.raf.Pets[i].PETID
 		bind.DtStart = x.ra.PossessionStart
 		bind.DtStop = rlib.ENDOFTIME
+		bind.BID = x.ra.BID
 
 		// If PET exists then update it
 		if x.raf.Pets[i].PETID > 0 {
