@@ -56,7 +56,7 @@ mysqlverify "l"  "${RRCTX}"		"RentableTypeRef"	    		"select RID,BID,RTID,Overri
 mysqlverify "m"  "${RRCTX}"		"RentableStatus"	            "select RID,UseStatus,LeaseStatus,DtStart,DtStop,LastModBy from RentableStatus;"
 mysqlverify "r"  "${RRCTX}"		"RentalAgreementTemplates"   	"select RATID,BID,RATemplateName,LastModBy from RentalAgreementTemplate;"
 mysqlverify "s"  "${RRCTX}"		"RentalAgreements"	    		"select RAID,RATID,BID,AgreementStart,AgreementStop,Renewal,SpecialProvisions,UnspecifiedAdults,UnspecifiedChildren,LastModBy from RentalAgreement;"
-mysqlverify "t"  "${RRCTX}"		"Pets"	                    	"select PETID,BID,RAID,Type,Breed,Color,Weight,Name,DtStart,DtStop,LastModBy from RentalAgreementPets;"
+mysqlverify "t"  "${RRCTX}"		"Pets"	                    	"select PETID,BID,RAID,Type,Breed,Color,Weight,Name,DtStart,DtStop,LastModBy from Pets;"
 mysqlverify "u"  "${RRCTX}"		"Notes"	                    	"select NID,PNID,Comment,LastModBy from Notes;"
 mysqlverify "v"  "${RRCTX}"		"AgreementRentables"	    	"select * from RentalAgreementRentables;"
 mysqlverify "w"  "${RRCTX}"		"AgreementPayors"	    		"select * from RentalAgreementPayors;"

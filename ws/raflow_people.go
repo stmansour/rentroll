@@ -194,7 +194,7 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 	// -------------------------------------------
 
 	// get the list of pets
-	var petList []rlib.RentalAgreementPet
+	var petList []rlib.Pet
 	petList, err = rlib.GetPetsByTransactant(ctx, foo.TCID)
 	if err != nil {
 		return

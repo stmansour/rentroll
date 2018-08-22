@@ -689,8 +689,8 @@ type RentableUser struct {
 	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
-// RentalAgreementPet describes a pet associated with a rental agreement. There can be as many as needed.
-type RentalAgreementPet struct {
+// Pet describes a pet associated with a rental agreement. There can be as many as needed.
+type Pet struct {
 	Recid       int64 `json:"recid"` // support w2ui grid
 	PETID       int64
 	BID         int64 // associated business
@@ -814,7 +814,7 @@ type User struct {
 	LastModBy                 int64
 	CreateTS                  time.Time            // when was this record created
 	CreateBy                  int64                // employee UID (from phonebook) that created it
-	Pets                      []RentalAgreementPet // array of pets assigned to this person, note: you must call LoadUserPets with this struct to get them, GetUser doesn't load them utomatically
+	Pets                      []Pet // array of pets assigned to this person, note: you must call LoadUserPets with this struct to get them, GetUser doesn't load them utomatically
 	Vehicles                  []Vehicle            // array of vehicles assigned to this person, note: you must call LoadUserVehicles with this struct to get them, GetUser doesn't load them utomatically
 }
 
@@ -1529,7 +1529,7 @@ type RRprepSQL struct {
 	CountBusinessRentableTypes              *sql.Stmt
 	CountBusinessRentalAgreements           *sql.Stmt
 	CountBusinessTransactants               *sql.Stmt
-	DeleteAllRentalAgreementPets            *sql.Stmt
+	DeleteAllPets            *sql.Stmt
 	DeleteAR                                *sql.Stmt
 	DeleteAssessment                        *sql.Stmt
 	DeleteCustomAttribute                   *sql.Stmt
@@ -1573,7 +1573,7 @@ type RRprepSQL struct {
 	DeleteRentalAgreementPayor              *sql.Stmt
 	DeleteAllRentalAgreementPayors          *sql.Stmt
 	DeleteRentalAgreementPayorByRBT         *sql.Stmt
-	DeleteRentalAgreementPet                *sql.Stmt
+	DeletePet                *sql.Stmt
 	DeleteRentalAgreementRentable           *sql.Stmt
 	DeleteAllRentalAgreementRentables       *sql.Stmt
 	DeleteRentalAgreementTax                *sql.Stmt
@@ -1615,7 +1615,7 @@ type RRprepSQL struct {
 	GetAllRentableAssessments               *sql.Stmt
 	GetAllRentablesByBusiness               *sql.Stmt
 	GetAllRentableSpecialtyRefs             *sql.Stmt
-	GetAllRentalAgreementPets               *sql.Stmt
+	GetAllPets               *sql.Stmt
 	GetPetsByTransactant                    *sql.Stmt
 	GetAllRentalAgreements                  *sql.Stmt
 	GetAllRentalAgreementsByRange           *sql.Stmt
@@ -1731,7 +1731,7 @@ type RRprepSQL struct {
 	GetRentalAgreementPayor                 *sql.Stmt
 	GetRentalAgreementPayorByRBT            *sql.Stmt
 	GetRentalAgreementPayorsInRange         *sql.Stmt
-	GetRentalAgreementPet                   *sql.Stmt
+	GetPet                   *sql.Stmt
 	GetRentalAgreementRentable              *sql.Stmt
 	GetRentalAgreementRentables             *sql.Stmt
 	GetRentalAgreementsByPayor              *sql.Stmt
@@ -1802,7 +1802,7 @@ type RRprepSQL struct {
 	InsertRentableUser                      *sql.Stmt
 	InsertRentalAgreement                   *sql.Stmt
 	InsertRentalAgreementPayor              *sql.Stmt
-	InsertRentalAgreementPet                *sql.Stmt
+	InsertPet                *sql.Stmt
 	InsertRentalAgreementRentable           *sql.Stmt
 	InsertRentalAgreementTax                *sql.Stmt
 	InsertRentalAgreementTemplate           *sql.Stmt
@@ -1851,7 +1851,7 @@ type RRprepSQL struct {
 	UpdateRentalAgreement                   *sql.Stmt
 	UpdateRentalAgreementPayor              *sql.Stmt
 	UpdateRentalAgreementPayorByRBT         *sql.Stmt
-	UpdateRentalAgreementPet                *sql.Stmt
+	UpdatePet                *sql.Stmt
 	UpdateRentalAgreementRentable           *sql.Stmt
 	UpdateRentalAgreementTax                *sql.Stmt
 	UpdateSLString                          *sql.Stmt

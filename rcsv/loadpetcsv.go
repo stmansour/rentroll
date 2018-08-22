@@ -11,12 +11,12 @@ import (
 // BUD,  RAID, Name,                 Type, Breed,    Color, Weight, DtStart, DtStop
 // REX,  8,    Santa's Little Helper,Dog,  Greyhound,gray,  34.5,  2014-01-01,
 
-// CreateRentalAgreementPetsFromCSV reads an assessment type string array and creates a database record for a pet
-func CreateRentalAgreementPetsFromCSV(ctx context.Context, sa []string, lineno int) (int, error) {
-	const funcname = "CreateRentalAgreementPetsFromCSV"
+// CreatePetsFromCSV reads an assessment type string array and creates a database record for a pet
+func CreatePetsFromCSV(ctx context.Context, sa []string, lineno int) (int, error) {
+	const funcname = "CreatePetsFromCSV"
 	var (
 		err    error
-		pet    rlib.RentalAgreementPet
+		pet    rlib.Pet
 		errmsg string
 	)
 
@@ -111,7 +111,7 @@ func CreateRentalAgreementPetsFromCSV(ctx context.Context, sa []string, lineno i
 	}
 	pet.DtStop = DtStop
 
-	_, err = rlib.InsertRentalAgreementPet(ctx, &pet)
+	_, err = rlib.InsertPet(ctx, &pet)
 	if nil != err {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not save pet, err = %v", funcname, lineno, err)
 	}
@@ -120,5 +120,5 @@ func CreateRentalAgreementPetsFromCSV(ctx context.Context, sa []string, lineno i
 
 // LoadPetsCSV loads a csv file with a chart of accounts and creates rlib.GLAccount markers for each
 func LoadPetsCSV(ctx context.Context, fname string) []error {
-	return LoadRentRollCSV(ctx, fname, CreateRentalAgreementPetsFromCSV)
+	return LoadRentRollCSV(ctx, fname, CreatePetsFromCSV)
 }

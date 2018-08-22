@@ -1781,8 +1781,8 @@ func InsertRentalAgreementPayor(ctx context.Context, a *RentalAgreementPayor) (i
 	return rid, err
 }
 
-// InsertRentalAgreementPet writes a new User record to the database
-func InsertRentalAgreementPet(ctx context.Context, a *RentalAgreementPet) (int64, error) {
+// InsertPet writes a new User record to the database
+func InsertPet(ctx context.Context, a *Pet) (int64, error) {
 
 	var (
 		rid = int64(0)
@@ -1805,11 +1805,11 @@ func InsertRentalAgreementPet(ctx context.Context, a *RentalAgreementPet) (int64
 	// transaction... context
 	fields := []interface{}{a.BID, a.RAID, a.TCID, a.Type, a.Breed, a.Color, a.Weight, a.Name, a.DtStart, a.DtStop, a.CreateBy, a.LastModBy}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.InsertRentalAgreementPet)
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertPet)
 		defer stmt.Close()
 		res, err = stmt.Exec(fields...)
 	} else {
-		res, err = RRdb.Prepstmt.InsertRentalAgreementPet.Exec(fields...)
+		res, err = RRdb.Prepstmt.InsertPet.Exec(fields...)
 	}
 
 	// After getting result...
@@ -1820,7 +1820,7 @@ func InsertRentalAgreementPet(ctx context.Context, a *RentalAgreementPet) (int64
 			a.PETID = rid
 		}
 	} else {
-		err = insertError(err, "RentalAgreementPet", *a)
+		err = insertError(err, "Pet", *a)
 	}
 	return rid, err
 }

@@ -15,8 +15,8 @@ MYSQLDUMP="mysqldump --no-defaults"
 DBNAME="receipts"
 FIXED="fixrcpts.sql"
 
-# f="rrprod.sql"
 f="receipts.sql"
+
 rm -f ${FIXED}
 echo "DROP DATABASE IF EXISTS ${DBNAME}; create database ${DBNAME}" | ${MYSQL}
 echo -n "${f}: loading... "

@@ -1013,22 +1013,22 @@ func buildPreparedStatements() {
 	//  Rental Agreement Pets
 	//===============================
 	flds = "PETID,BID,RAID,TCID,Type,Breed,Color,Weight,Name,DtStart,DtStop,CreateTS,CreateBy,LastModTime,LastModBy"
-	RRdb.DBFields["RentalAgreementPets"] = flds
-	RRdb.Prepstmt.GetRentalAgreementPet, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentalAgreementPets WHERE PETID=?")
+	RRdb.DBFields["Pets"] = flds
+	RRdb.Prepstmt.GetPet, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Pets WHERE PETID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAllRentalAgreementPets, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentalAgreementPets WHERE RAID=?")
+	RRdb.Prepstmt.GetAllPets, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Pets WHERE RAID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetPetsByTransactant, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentalAgreementPets WHERE TCID=?")
+	RRdb.Prepstmt.GetPetsByTransactant, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Pets WHERE TCID=?")
 	Errcheck(err)
 
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
-	RRdb.Prepstmt.InsertRentalAgreementPet, err = RRdb.Dbrr.Prepare("INSERT INTO RentalAgreementPets (" + s1 + ") VALUES(" + s2 + ")")
+	RRdb.Prepstmt.InsertPet, err = RRdb.Dbrr.Prepare("INSERT INTO Pets (" + s1 + ") VALUES(" + s2 + ")")
 	Errcheck(err)
-	RRdb.Prepstmt.UpdateRentalAgreementPet, err = RRdb.Dbrr.Prepare("UPDATE RentalAgreementPets SET " + s3 + " WHERE PETID=?")
+	RRdb.Prepstmt.UpdatePet, err = RRdb.Dbrr.Prepare("UPDATE Pets SET " + s3 + " WHERE PETID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.DeleteRentalAgreementPet, err = RRdb.Dbrr.Prepare("DELETE FROM RentalAgreementPets WHERE PETID=?")
+	RRdb.Prepstmt.DeletePet, err = RRdb.Dbrr.Prepare("DELETE FROM Pets WHERE PETID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.DeleteAllRentalAgreementPets, err = RRdb.Dbrr.Prepare("DELETE FROM RentalAgreementPets WHERE RAID=?")
+	RRdb.Prepstmt.DeleteAllPets, err = RRdb.Dbrr.Prepare("DELETE FROM Pets WHERE RAID=?")
 	Errcheck(err)
 
 	//===============================

@@ -15,7 +15,7 @@ MYSQLDUMP="mysqldump --no-defaults"
 DBNAME="rentroll"
 FIXED="fixrr.sql"
 
-f="rrprod.sql"
+f="rr.sql"
 
 rm -f ${FIXED}
 echo "DROP DATABASE IF EXISTS ${DBNAME}; create database ${DBNAME}" | ${MYSQL}

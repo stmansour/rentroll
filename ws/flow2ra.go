@@ -593,11 +593,11 @@ func F2RAUpdatePets(ctx context.Context, x *WriteHandlerContext) (err error) {
 		}
 
 		// PET ENTRY
-		var pet rlib.RentalAgreementPet
+		var pet rlib.Pet
 
 		// IF PET exists then just update it
 		if x.raf.Pets[i].PETID > 0 {
-			pet, err = rlib.GetRentalAgreementPet(ctx, x.raf.Pets[i].PETID)
+			pet, err = rlib.GetPet(ctx, x.raf.Pets[i].PETID)
 			if err != nil {
 				return err
 			}
@@ -615,19 +615,19 @@ func F2RAUpdatePets(ctx context.Context, x *WriteHandlerContext) (err error) {
 			//newStop := time.Time(x.raf.Pets[i].DtStop)
 			if pet.DtStart.Before(newStart) {
 				//----------------------------------------------------------
-				// stop the current RentalAgreementPet when the RA begins...
+				// stop the current Pet when the RA begins...
 				//----------------------------------------------------------
 				pet.DtStop = newStart
 				if pet.DtStop.Before(pet.DtStart) { // yes, this can happen
 					pet.DtStop = pet.DtStart
 				}
-				if err = rlib.UpdateRentalAgreementPet(ctx, &pet); err != nil {
+				if err = rlib.UpdatePet(ctx, &pet); err != nil {
 					return err
 				}
 				//----------------------------------------------------------
 				// now create the new one...
 				//----------------------------------------------------------
-				x.raf.Pets[i].PETID, err = rlib.InsertRentalAgreementPet(ctx, &newpet)
+				x.raf.Pets[i].PETID, err = rlib.InsertPet(ctx, &newpet)
 				if err != nil {
 					return err
 				}
@@ -637,13 +637,13 @@ func F2RAUpdatePets(ctx context.Context, x *WriteHandlerContext) (err error) {
 				// then newpet overwrites pet.  Set the old one to no time...
 				//---------------------------------------------------------------
 				pet.DtStop = pet.DtStart // essentially sets it to no time
-				if err = rlib.UpdateRentalAgreementPet(ctx, &pet); err != nil {
+				if err = rlib.UpdatePet(ctx, &pet); err != nil {
 					return err
 				}
 				//---------------------------------------------------------------
 				// now create the new one...
 				//---------------------------------------------------------------
-				x.raf.Pets[i].PETID, err = rlib.InsertRentalAgreementPet(ctx, &newpet)
+				x.raf.Pets[i].PETID, err = rlib.InsertPet(ctx, &newpet)
 				if err != nil {
 					return err
 				}
@@ -653,7 +653,7 @@ func F2RAUpdatePets(ctx context.Context, x *WriteHandlerContext) (err error) {
 			pet.TCID = petTCID
 			pet.BID = x.raf.Meta.BID
 			pet.RAID = x.ra.RAID
-			x.raf.Pets[i].PETID, err = rlib.InsertRentalAgreementPet(ctx, &pet)
+			x.raf.Pets[i].PETID, err = rlib.InsertPet(ctx, &pet)
 			if err != nil {
 				return err
 			}

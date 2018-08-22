@@ -267,11 +267,11 @@ func GetARsByFLAGS(ctx context.Context, bid int64, FLAGS uint64) ([]AR, error) {
 //=======================================================
 
 // GetPetsByTransactant reads all Pet records for the supplied TCID
-func GetPetsByTransactant(ctx context.Context, TCID int64) ([]RentalAgreementPet, error) {
+func GetPetsByTransactant(ctx context.Context, TCID int64) ([]Pet, error) {
 
 	var (
 		err error
-		t   []RentalAgreementPet
+		t   []Pet
 	)
 
 	if _, ok := SessionCheck(ctx); !ok {
@@ -294,8 +294,8 @@ func GetPetsByTransactant(ctx context.Context, TCID int64) ([]RentalAgreementPet
 	defer rows.Close()
 
 	for i := 0; rows.Next(); i++ {
-		var a RentalAgreementPet
-		err = ReadRentalAgreementPets(rows, &a)
+		var a Pet
+		err = ReadPets(rows, &a)
 		if err != nil {
 			return t, err
 		}
@@ -305,12 +305,12 @@ func GetPetsByTransactant(ctx context.Context, TCID int64) ([]RentalAgreementPet
 	return t, rows.Err()
 }
 
-// GetRentalAgreementPet reads a Pet the structure for the supplied PETID
-func GetRentalAgreementPet(ctx context.Context, petid int64) (RentalAgreementPet, error) {
+// GetPet reads a Pet the structure for the supplied PETID
+func GetPet(ctx context.Context, petid int64) (Pet, error) {
 
 	var (
 		// err error
-		a RentalAgreementPet
+		a Pet
 	)
 
 	// session... context
@@ -324,21 +324,21 @@ func GetRentalAgreementPet(ctx context.Context, petid int64) (RentalAgreementPet
 	var row *sql.Row
 	fields := []interface{}{petid}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.GetRentalAgreementPet)
+		stmt := tx.Stmt(RRdb.Prepstmt.GetPet)
 		defer stmt.Close()
 		row = stmt.QueryRow(fields...)
 	} else {
-		row = RRdb.Prepstmt.GetRentalAgreementPet.QueryRow(fields...)
+		row = RRdb.Prepstmt.GetPet.QueryRow(fields...)
 	}
-	return a, ReadRentalAgreementPet(row, &a)
+	return a, ReadPet(row, &a)
 }
 
-// GetAllRentalAgreementPets reads all Pet records for the supplied rental agreement id
-func GetAllRentalAgreementPets(ctx context.Context, raid int64) ([]RentalAgreementPet, error) {
+// GetAllPets reads all Pet records for the supplied rental agreement id
+func GetAllPets(ctx context.Context, raid int64) ([]Pet, error) {
 
 	var (
 		err error
-		t   []RentalAgreementPet
+		t   []Pet
 	)
 
 	// session... context
@@ -352,11 +352,11 @@ func GetAllRentalAgreementPets(ctx context.Context, raid int64) ([]RentalAgreeme
 	var rows *sql.Rows
 	fields := []interface{}{raid}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.GetAllRentalAgreementPets)
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAllPets)
 		defer stmt.Close()
 		rows, err = stmt.Query(fields...)
 	} else {
-		rows, err = RRdb.Prepstmt.GetAllRentalAgreementPets.Query(fields...)
+		rows, err = RRdb.Prepstmt.GetAllPets.Query(fields...)
 	}
 
 	if err != nil {
@@ -365,8 +365,8 @@ func GetAllRentalAgreementPets(ctx context.Context, raid int64) ([]RentalAgreeme
 	defer rows.Close()
 
 	for i := 0; rows.Next(); i++ {
-		var a RentalAgreementPet
-		err = ReadRentalAgreementPets(rows, &a)
+		var a Pet
+		err = ReadPets(rows, &a)
 		if err != nil {
 			return t, err
 		}

@@ -1027,8 +1027,8 @@ func UpdateRentalAgreementPayorByRBT(ctx context.Context, a *RentalAgreementPayo
 	return updateError(err, "UpdateRentalAgreementPayorByRBT", *a)
 }
 
-// UpdateRentalAgreementPet updates a RentalAgreementPet record in the database
-func UpdateRentalAgreementPet(ctx context.Context, a *RentalAgreementPet) error {
+// UpdatePet updates a Pet record in the database
+func UpdatePet(ctx context.Context, a *Pet) error {
 	var err error
 
 	// session... context
@@ -1043,13 +1043,13 @@ func UpdateRentalAgreementPet(ctx context.Context, a *RentalAgreementPet) error 
 
 	fields := []interface{}{a.BID, a.RAID, a.TCID, a.Type, a.Breed, a.Color, a.Weight, a.Name, a.DtStart, a.DtStop, a.LastModBy, a.PETID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.UpdateRentalAgreementPet)
+		stmt := tx.Stmt(RRdb.Prepstmt.UpdatePet)
 		defer stmt.Close()
 		_, err = stmt.Exec(fields...)
 	} else {
-		_, err = RRdb.Prepstmt.UpdateRentalAgreementPet.Exec(fields...)
+		_, err = RRdb.Prepstmt.UpdatePet.Exec(fields...)
 	}
-	return updateError(err, "UpdateRentalAgreementPet", *a)
+	return updateError(err, "UpdatePet", *a)
 }
 
 // UpdateRentalAgreementRentable updates a RentalAgreementRentable record in the database
