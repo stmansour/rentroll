@@ -1,0 +1,158 @@
+Test 1: action "set pending first approval" on flow with invalid data 
+Request( RAID: 2, UserRefNo: VJFC558GW9MM625CT176 )
+Response( RAID: 2, UserRefNo: VJFC558GW9MM625CT176 )
+{
+    "record": {
+        "Flow": {
+            "BID": 1,
+            "FlowID": 2,
+            "UserRefNo": "VJFC558GW9MM625CT176",
+            "FlowType": "RA",
+            "ID": 2,
+            "Data": {
+                "tie": {
+                    "people": []
+                },
+                "meta": {
+                    "BID": 1,
+                    "RAID": 2,
+                    "RAFLAGS": 0,
+                    "HavePets": false,
+                    "ActiveUID": 0,
+                    "Approver1": 0,
+                    "Approver2": 0,
+                    "MoveInUID": 0,
+                    "ActiveDate": "1900-01-01 00:00:00 UTC",
+                    "ActiveName": "",
+                    "LastTMPVID": 1,
+                    "MoveInDate": "1900-01-01 00:00:00 UTC",
+                    "MoveInName": "",
+                    "LastTMPTCID": 1,
+                    "DocumentDate": "1900-01-01 00:00:00 UTC",
+                    "HaveVehicles": false,
+                    "LastTMPASMID": 2,
+                    "LastTMPPETID": 1,
+                    "Approver1Name": "",
+                    "Approver2Name": "",
+                    "DecisionDate1": "1900-01-01 00:00:00 UTC",
+                    "DecisionDate2": "1900-01-01 00:00:00 UTC",
+                    "TerminatorUID": 0,
+                    "DeclineReason1": 0,
+                    "DeclineReason2": 0,
+                    "TerminatorName": "",
+                    "NoticeToMoveUID": 0,
+                    "TerminationDate": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveDate": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveName": "",
+                    "ApplicationReadyUID": 0,
+                    "ApplicationReadyDate": "1900-01-01 00:00:00 UTC",
+                    "ApplicationReadyName": "",
+                    "NoticeToMoveReported": "1900-01-01 00:00:00 UTC",
+                    "LeaseTerminationReason": 0
+                },
+                "pets": [],
+                "dates": {
+                    "CSAgent": 257,
+                    "RentStop": "3/1/2020",
+                    "RentStart": "2/13/2018",
+                    "AgreementStop": "3/1/2020",
+                    "AgreementStart": "2/13/2018",
+                    "PossessionStop": "3/1/2020",
+                    "PossessionStart": "2/13/2018"
+                },
+                "people": [],
+                "vehicles": [],
+                "rentables": [
+                    {
+                        "RID": 2,
+                        "Fees": [
+                            {
+                                "ARID": 26,
+                                "Stop": "3/1/2020",
+                                "ASMID": 20,
+                                "Start": "3/1/2018",
+                                "ARName": "Rent Non-Taxable",
+                                "Comment": "",
+                                "SalesTax": 0,
+                                "TMPASMID": 1,
+                                "RentCycle": 6,
+                                "TransOccTax": 0,
+                                "ContractAmount": 1000,
+                                "ProrationCycle": 4,
+                                "AtSigningPreTax": 0
+                            }
+                        ],
+                        "RTID": 1,
+                        "RTFLAGS": 4,
+                        "SalesTax": 0,
+                        "RentCycle": 6,
+                        "TransOccTax": 0,
+                        "RentableName": "Rentable002",
+                        "AtSigningPreTax": 0
+                    }
+                ],
+                "parentchild": []
+            },
+            "LastModTime": "2018-08-16T13:51:23Z",
+            "LastModBy": 269,
+            "CreateTS": "2018-08-16T13:51:19Z",
+            "CreateBy": 269
+        },
+        "ValidationCheck": {
+            "total": 1,
+            "errors": {
+                "dates": {
+                    "total": 0,
+                    "errors": {}
+                },
+                "people": {
+                    "total": 0,
+                    "errors": []
+                },
+                "pets": {
+                    "total": 0,
+                    "errors": []
+                },
+                "vehicles": {
+                    "total": 0,
+                    "errors": []
+                },
+                "rentables": {
+                    "total": 0,
+                    "errors": []
+                },
+                "parentchild": {
+                    "total": 0,
+                    "errors": []
+                },
+                "tie": {
+                    "people": {
+                        "total": 0,
+                        "errors": []
+                    }
+                }
+            },
+            "nonFieldsErrors": {
+                "dates": [],
+                "people": [],
+                "pets": [],
+                "vehicles": [],
+                "rentables": [],
+                "parentchild": [],
+                "tie": [
+                    "must have at least one occupant"
+                ]
+            }
+        },
+        "DataFulfilled": {
+            "dates": true,
+            "people": false,
+            "pets": true,
+            "vehicles": true,
+            "rentables": true,
+            "parentchild": true,
+            "tie": false
+        }
+    },
+    "status": "success"
+}
