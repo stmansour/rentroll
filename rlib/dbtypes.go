@@ -178,6 +178,24 @@ const (
 	RRDATERECEIPTFMT  = "January 2, 2006"
 )
 
+// TBind is a struct for the database TBind table. It allows one element to be
+// associated with another element for a period of time
+type TBind struct {
+	TBID           int64     // id
+	BID            int64     // business
+	SourceElemType int64     // Source element type, example: 14 = Pet, 15 = Vehicle. Values defined in dbtypes.go
+	SourceElemID   int64     // ID of the Source Element for the Associated Element.  Ex. if SourceElemType = 14, then SourceElemID is the PETID
+	AssocElemType  int64     // Associated element type, example: 14 = Pet, 15 = Vehicle. Values defined in dbtypes.go
+	AssocElemID    int64     // ID for the Associated Element.  Ex. if AssocElemType = 14, then AssocElemID is the PETID
+	DtStart        time.Time // epoch date for recurring assessments; the date/time of the assessment for instances
+	DtStop         time.Time // stop date for recurrent assessments; the date/time of the assessment for instances
+	FLAGS          int64     // nothing defined yet
+	LastModTime    time.Time // when was this record last written
+	LastModBy      int64     // employee UID (from phonebook) that modified it
+	CreateTS       time.Time // when was this record created
+	CreateBy       int64     // employee UID (from phonebook) that created this record
+}
+
 // ARTypesList is the readable, csv loadable names for the different rule types
 var ARTypesList = []string{"Assessment", "Receipt", "Expense", "Sub-Assessment"}
 
@@ -695,14 +713,14 @@ type Pet struct {
 	PETID       int64
 	BID         int64 // associated business
 	RAID        int64 // deprecated
-	TCID        int64 // contact person
+	TCID        int64 // deprecated
 	Type        string
 	Breed       string
 	Color       string
 	Weight      float64
 	Name        string
-	DtStart     time.Time
-	DtStop      time.Time
+	DtStart     time.Time // deprecated
+	DtStop      time.Time // deprecated
 	LastModTime time.Time
 	LastModBy   int64
 	CreateTS    time.Time // when was this record created
@@ -812,10 +830,10 @@ type User struct {
 	SourceSLSID               int64
 	LastModTime               time.Time
 	LastModBy                 int64
-	CreateTS                  time.Time            // when was this record created
-	CreateBy                  int64                // employee UID (from phonebook) that created it
-	Pets                      []Pet // array of pets assigned to this person, note: you must call LoadUserPets with this struct to get them, GetUser doesn't load them utomatically
-	Vehicles                  []Vehicle            // array of vehicles assigned to this person, note: you must call LoadUserVehicles with this struct to get them, GetUser doesn't load them utomatically
+	CreateTS                  time.Time // when was this record created
+	CreateBy                  int64     // employee UID (from phonebook) that created it
+	Pets                      []Pet     // array of pets assigned to this person, note: you must call LoadUserPets with this struct to get them, GetUser doesn't load them utomatically
+	Vehicles                  []Vehicle // array of vehicles assigned to this person, note: you must call LoadUserVehicles with this struct to get them, GetUser doesn't load them utomatically
 }
 
 // Payor is attributes of the person financially responsible
@@ -1529,7 +1547,7 @@ type RRprepSQL struct {
 	CountBusinessRentableTypes              *sql.Stmt
 	CountBusinessRentalAgreements           *sql.Stmt
 	CountBusinessTransactants               *sql.Stmt
-	DeleteAllPets            *sql.Stmt
+	DeleteAllPets                           *sql.Stmt
 	DeleteAR                                *sql.Stmt
 	DeleteAssessment                        *sql.Stmt
 	DeleteCustomAttribute                   *sql.Stmt
@@ -1573,7 +1591,7 @@ type RRprepSQL struct {
 	DeleteRentalAgreementPayor              *sql.Stmt
 	DeleteAllRentalAgreementPayors          *sql.Stmt
 	DeleteRentalAgreementPayorByRBT         *sql.Stmt
-	DeletePet                *sql.Stmt
+	DeletePet                               *sql.Stmt
 	DeleteRentalAgreementRentable           *sql.Stmt
 	DeleteAllRentalAgreementRentables       *sql.Stmt
 	DeleteRentalAgreementTax                *sql.Stmt
@@ -1615,7 +1633,7 @@ type RRprepSQL struct {
 	GetAllRentableAssessments               *sql.Stmt
 	GetAllRentablesByBusiness               *sql.Stmt
 	GetAllRentableSpecialtyRefs             *sql.Stmt
-	GetAllPets               *sql.Stmt
+	GetAllPets                              *sql.Stmt
 	GetPetsByTransactant                    *sql.Stmt
 	GetAllRentalAgreements                  *sql.Stmt
 	GetAllRentalAgreementsByRange           *sql.Stmt
@@ -1731,7 +1749,7 @@ type RRprepSQL struct {
 	GetRentalAgreementPayor                 *sql.Stmt
 	GetRentalAgreementPayorByRBT            *sql.Stmt
 	GetRentalAgreementPayorsInRange         *sql.Stmt
-	GetPet                   *sql.Stmt
+	GetPet                                  *sql.Stmt
 	GetRentalAgreementRentable              *sql.Stmt
 	GetRentalAgreementRentables             *sql.Stmt
 	GetRentalAgreementsByPayor              *sql.Stmt
@@ -1802,7 +1820,7 @@ type RRprepSQL struct {
 	InsertRentableUser                      *sql.Stmt
 	InsertRentalAgreement                   *sql.Stmt
 	InsertRentalAgreementPayor              *sql.Stmt
-	InsertPet                *sql.Stmt
+	InsertPet                               *sql.Stmt
 	InsertRentalAgreementRentable           *sql.Stmt
 	InsertRentalAgreementTax                *sql.Stmt
 	InsertRentalAgreementTemplate           *sql.Stmt
@@ -1851,7 +1869,7 @@ type RRprepSQL struct {
 	UpdateRentalAgreement                   *sql.Stmt
 	UpdateRentalAgreementPayor              *sql.Stmt
 	UpdateRentalAgreementPayorByRBT         *sql.Stmt
-	UpdatePet                *sql.Stmt
+	UpdatePet                               *sql.Stmt
 	UpdateRentalAgreementRentable           *sql.Stmt
 	UpdateRentalAgreementTax                *sql.Stmt
 	UpdateSLString                          *sql.Stmt
@@ -1939,6 +1957,12 @@ type RRprepSQL struct {
 	GetAssessmentInstancesByRAID            *sql.Stmt
 	GetNorecurAssessmentsByRAIDRange        *sql.Stmt
 	GetRecurringAssessmentDefsByRAID        *sql.Stmt
+	GetTBind                                *sql.Stmt
+	GetTBindsByRange                        *sql.Stmt
+	GetTBindAssocsByRange                   *sql.Stmt
+	InsertTBind                             *sql.Stmt
+	UpdateTBind                             *sql.Stmt
+	DeleteTBind                             *sql.Stmt
 }
 
 // DeleteBusinessFromDB deletes information from all tables if it is part of the supplied BID.

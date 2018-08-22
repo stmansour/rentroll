@@ -7,14 +7,6 @@ USE rentroll;
 GRANT ALL PRIVILEGES ON rentroll.* TO 'ec2-user'@'localhost';
 set GLOBAL sql_mode='ALLOW_INVALID_DATES';
 
--- ===========================================
---   ID COUNTERS
---  may not need this
--- ===========================================
--- CREATE TABLE IDCounters (
---     InvoiceNo BIGINT NOT NULL DEFAULT 0                     -- unique number for invoices
--- );
-
 -- **************************************
 -- ****                              ****
 -- ****           TBIND              ****
@@ -23,6 +15,7 @@ set GLOBAL sql_mode='ALLOW_INVALID_DATES';
 -- Associates one element with another over a period of time
 CREATE TABLE TBind (
     TBID BIGINT NOT NULL AUTO_INCREMENT,                    -- unique id
+    BID BIGINT NOT NULL DEFAULT 0,                          -- business
     SourceElemType BIGINT NOT NULL DEFAULT 0,               -- Source element type, example: 14 = Pet, 15 = Vehicle. Values defined in dbtypes.go
     SourceElemID BIGINT NOT NULL DEFAULT 0,                 -- ID of the Source Element for the Associated Element.  Ex. if SourceElemType = 14, then SourceElemID is the PETID
     AssocElemType BIGINT NOT NULL DEFAULT 0,                -- Associated element type, example: 14 = Pet, 15 = Vehicle. Values defined in dbtypes.go

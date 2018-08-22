@@ -6,6 +6,7 @@ cat > ${MODFILE} <<EOF
 RENAME TABLE RentalAgreementPets TO Pets;
 CREATE TABLE TBind (
     TBID BIGINT NOT NULL AUTO_INCREMENT,                    -- unique id
+    BID BIGINT NOT NULL DEFAULT 0,                          -- business
     SourceElemType BIGINT NOT NULL DEFAULT 0,               -- Source element type, example: 14 = Pet, 15 = Vehicle. Values defined in dbtypes.go
     SourceElemID BIGINT NOT NULL DEFAULT 0,                 -- ID of the Source Element for the Associated Element.  Ex. if SourceElemType = 14, then SourceElemID is the PETID
     AssocElemType BIGINT NOT NULL DEFAULT 0,                -- Associated element type, example: 14 = Pet, 15 = Vehicle. Values defined in dbtypes.go

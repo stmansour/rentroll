@@ -2522,6 +2522,51 @@ func InsertTaskListDefinition(ctx context.Context, a *TaskListDefinition) error 
 }
 
 //*****************************************************************************
+//  TBIND
+//*****************************************************************************
+
+// InsertTBind writes a new TBind record to the database
+func InsertTBind(ctx context.Context, a *TBind) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
+
+	// session... context
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	fields := []interface{}{
+		a.TBID, a.BID, a.SourceElemType, a.SourceElemID, a.AssocElemType, a.AssocElemID,
+		a.DtStart, a.DtStop, a.FLAGS, a.CreateTS, a.CreateBy, a.LastModTime, a.LastModBy}
+
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertTBind)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertTBind.Exec(fields...)
+	}
+
+	// After getting result...
+	if nil == err {
+		x, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(x)
+			a.TBID = rid
+		}
+	} else {
+		err = insertError(err, "TBind", *a)
+	}
+	return rid, err
+}
+
+//*****************************************************************************
 //  TRANSACTANT, PAYOR, USER, PROSPECT
 //*****************************************************************************
 

@@ -548,6 +548,7 @@ DBNAME="rentroll"
 #     CreateBy BIGINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that created this record
 #     PRIMARY KEY (TBID)
 # );
+# ALTER TABLE TBind ADD COLUMN BID BIGINT NOT NULL DEFAULT 0 AFTER TBID;
 
 #=====================================================
 #  Put modifications to schema in the lines below

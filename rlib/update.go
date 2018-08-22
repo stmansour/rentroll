@@ -1441,6 +1441,31 @@ func UpdateTaskListDefinition(ctx context.Context, a *TaskListDefinition) error 
 }
 
 //*****************************************************************************
+//    TBIND
+//*****************************************************************************
+
+// UpdateTBind updates a TBind record in the database
+func UpdateTBind(ctx context.Context, a *TBind) error {
+	var err error
+	if authProblem(ctx, &a.LastModBy) {
+		return ErrSessionRequired
+	}
+	fields := []interface{}{
+		a.BID, a.SourceElemType, a.SourceElemID, a.AssocElemType, a.AssocElemID,
+		a.DtStart, a.DtStop, a.FLAGS, a.LastModTime, a.LastModBy, a.TBID}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.UpdateTBind)
+		defer stmt.Close()
+		_, err = stmt.Exec(fields...)
+	} else {
+		_, err = RRdb.Prepstmt.UpdateTBind.Exec(fields...)
+	}
+	return updateError(err, "TBind", *a)
+}
+
+//*****************************************************************************
+//    TRANSACTANT
+//*****************************************************************************
 
 // UpdateTransactant updates a Transactant record in the database
 func UpdateTransactant(ctx context.Context, a *Transactant) error {

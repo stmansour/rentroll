@@ -1356,6 +1356,26 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.DeleteTaskListDefinition, err = RRdb.Dbrr.Prepare("DELETE from TaskListDefinition WHERE TLDID=?")
 	Errcheck(err)
 
+	//===============================
+	//  TBind
+	//===============================
+	flds = "TBID,BID,SourceElemType,SourceElemID,AssocElemType,AssocElemID,DtStart,DtStop,FLAGS,CreateTS,CreateBy,LastModTime,LastModBy"
+	RRdb.DBFields["TBind"] = flds
+	RRdb.Prepstmt.GetTBind, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM TBind WHERE TBID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetTBindsByRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM TBind WHERE BID=? AND SourceElemType=? AND SourceElemID=? AND AssocElemType=? AND ?<DtStop AND DtStart<?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetTBindAssocsByRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM TBind WHERE BID=? AND AssocElemType=? AND AssocElemID=? AND SourceElemType=? AND ?<DtStop AND DtStart<?")
+	Errcheck(err)
+
+	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
+	RRdb.Prepstmt.InsertTBind, err = RRdb.Dbrr.Prepare("INSERT INTO TBind (" + s1 + ") VALUES(" + s2 + ")")
+	Errcheck(err)
+	RRdb.Prepstmt.UpdateTBind, err = RRdb.Dbrr.Prepare("UPDATE TBind SET " + s3 + " WHERE TBID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteTBind, err = RRdb.Dbrr.Prepare("DELETE from TBind WHERE TBID=?")
+	Errcheck(err)
+
 	//==========================================
 	// TRANSACTANT
 	//==========================================
@@ -1370,7 +1390,7 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetAllTransactantsForBID, err = RRdb.Dbrr.Prepare("SELECT " + TRNSfields + " FROM Transactant WHERE BID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.FindTransactantByPhoneOrEmail, err = RRdb.Dbrr.Prepare("SELECT " + TRNSfields + " FROM Transactant where WorkPhone=? OR CellPhone=? or PrimaryEmail=? or SecondaryEmail=?")
+	RRdb.Prepstmt.FindTransactantByPhoneOrEmail, err = RRdb.Dbrr.Prepare("SELECT " + TRNSfields + " FROM Transactant WHERE WorkPhone=? OR CellPhone=? or PrimaryEmail=? or SecondaryEmail=?")
 	Errcheck(err)
 	RRdb.Prepstmt.FindTCIDByNote, err = RRdb.Dbrr.Prepare("SELECT t.TCID FROM Transactant t, Notes n WHERE t.NLID = n.NLID AND n.Comment=?")
 	Errcheck(err)
@@ -1394,13 +1414,13 @@ func buildPreparedStatements() {
 	//==========================================
 	flds = "VID,TCID,BID,VehicleType,VehicleMake,VehicleModel,VehicleColor,VehicleYear,VIN,LicensePlateState,LicensePlateNumber,ParkingPermitNumber,DtStart,DtStop,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["Vehicle"] = flds
-	RRdb.Prepstmt.GetVehicle, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Vehicle where VID=?")
+	RRdb.Prepstmt.GetVehicle, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Vehicle WHERE VID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetVehiclesByTransactant, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Vehicle where TCID=?")
+	RRdb.Prepstmt.GetVehiclesByTransactant, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Vehicle WHERE TCID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetVehiclesByBID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Vehicle where BID=?")
+	RRdb.Prepstmt.GetVehiclesByBID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Vehicle WHERE BID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetVehiclesByLicensePlate, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Vehicle where LicensePlateNumber=?")
+	RRdb.Prepstmt.GetVehiclesByLicensePlate, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Vehicle WHERE LicensePlateNumber=?")
 	Errcheck(err)
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.InsertVehicle, err = RRdb.Dbrr.Prepare("INSERT INTO Vehicle (" + s1 + ") VALUES(" + s2 + ")")

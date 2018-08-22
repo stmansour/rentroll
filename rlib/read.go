@@ -928,6 +928,22 @@ func ReadTaskListDefinitions(rows *sql.Rows, a *TaskListDefinition) error {
 }
 
 //---------------------
+//  TBIND
+//---------------------
+
+// ReadTBind reads a full TBind structure from the database based on the supplied row object
+func ReadTBind(row *sql.Row, a *TBind) error {
+	err := row.Scan(&a.TBID, &a.BID, &a.SourceElemType, &a.SourceElemID, &a.AssocElemType, &a.AssocElemID, &a.DtStart, &a.DtStop, &a.FLAGS, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	SkipSQLNoRowsError(&err)
+	return err
+}
+
+// ReadTBinds reads a full TBind structure from the database based on the supplied rows
+func ReadTBinds(rows *sql.Rows, a *TBind) error {
+	return rows.Scan(&a.TBID, &a.BID, &a.SourceElemType, &a.SourceElemID, &a.AssocElemType, &a.AssocElemID, &a.DtStart, &a.DtStop, &a.FLAGS, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+}
+
+//---------------------
 //  TRANSACTANT
 //---------------------
 

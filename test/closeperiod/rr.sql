@@ -2214,6 +2214,7 @@ DROP TABLE IF EXISTS `TBind`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `TBind` (
   `TBID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `BID` bigint(20) NOT NULL DEFAULT '0',
   `SourceElemType` bigint(20) NOT NULL DEFAULT '0',
   `SourceElemID` bigint(20) NOT NULL DEFAULT '0',
   `AssocElemType` bigint(20) NOT NULL DEFAULT '0',
@@ -2624,4 +2625,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-08-21 16:05:49
+-- Dump completed on 2018-08-21 20:29:29
