@@ -2,6 +2,7 @@
 MODFILE="dbqqqmods.sql"
 # Last updated on Aug 3, 2018
 cat > ${MODFILE} <<EOF
+-- Aug 21, 2018
 RENAME TABLE RentalAgreementPets TO Pets;
 CREATE TABLE TBind (
     TBID BIGINT NOT NULL AUTO_INCREMENT,                    -- unique id
