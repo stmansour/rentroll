@@ -318,6 +318,22 @@ func createTransactants(ctx context.Context, dbConf *GenDBConf) error {
 					rlib.LogAndPrintError(funcname, err)
 					return err
 				}
+				// now create the TBind for this vehicl...
+				var tb = rlib.TBind{
+					BID:            t.BID,
+					SourceElemType: rlib.ELEMPERSON,
+					SourceElemID:   t.TCID,
+					AssocElemType:  rlib.ELEMVEHICLE,
+					AssocElemID:    v.VID,
+					DtStart:        dbConf.DtStart,
+					DtStop:         rlib.ENDOFTIME,
+					FLAGS:          0,
+				}
+				_, err = rlib.InsertTBind(ctx, &tb)
+				if err != nil {
+					rlib.LogAndPrintError(funcname, err)
+					return err
+				}
 			}
 		}
 
@@ -337,6 +353,22 @@ func createTransactants(ctx context.Context, dbConf *GenDBConf) error {
 					p = createRandomCat(&t, dbConf)
 				}
 				_, err = rlib.InsertPet(ctx, &p)
+				if err != nil {
+					rlib.LogAndPrintError(funcname, err)
+					return err
+				}
+				// now create the TBind for this pet...
+				var tb = rlib.TBind{
+					BID:            t.BID,
+					SourceElemType: rlib.ELEMPERSON,
+					SourceElemID:   t.TCID,
+					AssocElemType:  rlib.ELEMPET,
+					AssocElemID:    p.PETID,
+					DtStart:        dbConf.DtStart,
+					DtStop:         rlib.ENDOFTIME,
+					FLAGS:          0,
+				}
+				_, err = rlib.InsertTBind(ctx, &tb)
 				if err != nil {
 					rlib.LogAndPrintError(funcname, err)
 					return err

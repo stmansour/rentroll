@@ -210,11 +210,7 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 			}
 		}
 
-		if foundIndex > -1 {
-			// change dates of pet according to possession dates
-			raFlowData.Pets[foundIndex].DtStart = raFlowData.Dates.PossessionStart
-			raFlowData.Pets[foundIndex].DtStop = raFlowData.Dates.PossessionStop
-		} else {
+		if foundIndex == -1 { // NOT FOUND IN JSON
 			// if does not exist then create new entry and add in json data
 			var newRAFlowPet rlib.RAPetsFlowData
 
@@ -232,8 +228,6 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 
 			// OVERWRITE FOLLOWING INFO
 			// TODO(Steve & Sudip): SHOULD WE OVERWRITE PETID?
-			newRAFlowPet.DtStart = raFlowData.Dates.PossessionStart
-			newRAFlowPet.DtStop = raFlowData.Dates.PossessionStop
 			newRAFlowPet.TMPTCID = personTMPTCID
 
 			// append in pets list
@@ -262,11 +256,7 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 			}
 		}
 
-		if foundIndex > -1 {
-			// change dates of pet according to possession dates
-			raFlowData.Vehicles[foundIndex].DtStart = raFlowData.Dates.PossessionStart
-			raFlowData.Vehicles[foundIndex].DtStop = raFlowData.Dates.PossessionStop
-		} else {
+		if foundIndex == -1 { // NOT FOUND IN JSON
 			// if does not exist then create new entry and add in json data
 			var newRAFlowVehicle rlib.RAVehiclesFlowData
 
@@ -284,8 +274,6 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 
 			// OVERWRITE FOLLOWING INFO
 			// TODO(Steve & Sudip): SHOULD WE OVERWRITE VID?
-			newRAFlowVehicle.DtStart = raFlowData.Dates.PossessionStart
-			newRAFlowVehicle.DtStop = raFlowData.Dates.PossessionStop
 			newRAFlowVehicle.TMPTCID = personTMPTCID
 
 			// append in vehicles list of json data

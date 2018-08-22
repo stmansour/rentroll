@@ -511,7 +511,6 @@ func validatePeople(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors,
 // BizCheck
 // ----------------------------------------------------------------------
 // 1. Every pet must be associated with a transactant
-// 2. DtStart must be prior to DtStop
 // ----------------------------------------------------------------------
 func validatePets(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, raFlowNonFieldsErrors *RAFlowNonFieldsErrors, a *rlib.RAFlowJSONData) error {
 	// ----------------------------------------------
@@ -542,22 +541,6 @@ func validatePets(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, r
 			petFieldsErrors.Total++
 		}
 
-		// -----------------------------------------------
-		// --------- Check for rule no 2 -----------------
-		// -----------------------------------------------
-		startDate := time.Time(pet.DtStart)
-		stopDate := time.Time(pet.DtStop)
-		// Start date must be prior to End/Stop date
-		if !(startDate.Equal(stopDate) || startDate.Before(stopDate)) {
-
-			// define and assign error
-			err := fmt.Errorf("start date must be prior to stop date")
-			petFieldsErrors.Errors["DtStart"] = append(petFieldsErrors.Errors["DtStart"], err.Error())
-
-			// Modify pet section error count
-			petFieldsErrors.Total++
-		}
-
 		// ----------------------------------------------
 		// validate RAPetFlowData.Fees structure
 		// ----------------------------------------------
@@ -583,7 +566,6 @@ func validatePets(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, r
 // BizCheck
 // ----------------------------------------------------------------------
 // 1. Every vehicle must be associated with a transactant
-// 2. DtStart must be prior to DtStop
 // ----------------------------------------------------------------------
 func validateVehicles(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, raFlowNonFieldsErrors *RAFlowNonFieldsErrors, a *rlib.RAFlowJSONData) error {
 	var (
@@ -615,22 +597,6 @@ func validateVehicles(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsError
 
 			// list error
 			vehicleFieldsError.Errors["TMPTCID"] = append(vehicleFieldsError.Errors["TMPTCID"], err.Error())
-		}
-
-		// -----------------------------------------------
-		// --------- Check for rule no 2 ---------------
-		// -----------------------------------------------
-		startDate := time.Time(vehicle.DtStart)
-		stopDate := time.Time(vehicle.DtStop)
-		// Start date must be prior to End/Stop date
-		if !(startDate.Equal(stopDate) || startDate.Before(stopDate)) {
-
-			// define and assign error
-			err = fmt.Errorf("start date must be prior to stop date")
-			vehicleFieldsError.Errors["DtStart"] = append(vehicleFieldsError.Errors["DtStart"], err.Error())
-
-			// Modify vehicle section error count
-			vehicleFieldsError.Total++
 		}
 
 		// ----------------------------------------------

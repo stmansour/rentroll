@@ -640,16 +640,54 @@ func F2RAUpdatePets(ctx context.Context, x *WriteHandlerContext) (err error) {
 				chgs++
 			}
 
-			// TODO: completely remove this when TBind is in place
-			pet.TCID = petTCID // deprecated -- we won't be storing this here anymore
-			pet.DtStart = bind.DtStart
-			pet.DtStop = bind.DtStop
+			// TODO(Steve): ONCE WE HAVE THE WORKING FUNCTIONALITY OF "TBIND" TABLE
+			//              WITH DB QUERIES, UPDATE PET ACCORDINGLY
+			//
+			//              IF TCID IS CHANGED THEN MARK THE PET'S STOP DATE
+			//              AS CURRENT DATE IN "TBIND" ENTRY AND CREATE A NEW ENTRY
+			//              IN "TBIND" WITH EXISTING PET AND TCID ASSOCIATION WITH START
+			//              DATE SAME AS WE ASSIGNED IN STOP DATE (CURRENT DATE)
+			//
+			//              AS OF NOW, JUST UPDATE THE PET INFO, EVENTUALLY
+			//              THIS UPDATE PART WILL BE REMOVED AND NEXT BLOCK OF
+			//              COMMENTED CODE WILL BE MODIFIED.
+			// if err = rlib.UpdatePet(ctx, &newpet); err != nil {
+			// 	return err
+			// }
 
-			if chgs > 0 {
-				if err = rlib.UpdatePet(ctx, &pet); err != nil {
-					return err
-				}
-			}
+			//----------------------------------------------------------
+			// Is the new Agreement period AFTER the current period?
+			//----------------------------------------------------------
+			// newStart := time.Time(x.raf.Pets[i].DtStart)
+			// //newStop := time.Time(x.raf.Pets[i].DtStop)
+			// if pet.DtStart.Before(newStart) {
+			// 	//----------------------------------------------------------
+			// 	// stop the current Pet when the RA begins...
+			// 	//----------------------------------------------------------
+			// 	pet.DtStop = newStart
+			// 	if pet.DtStop.Before(pet.DtStart) { // yes, this can happen
+			// 		pet.DtStop = pet.DtStart
+			// 	}
+			// 	if err = rlib.UpdatePet(ctx, &pet); err != nil {
+			// 		return err
+			// 	}
+			// 	//----------------------------------------------------------
+			// 	// now create the new one...
+			// 	//----------------------------------------------------------
+			// 	x.raf.Pets[i].PETID, err = rlib.InsertPet(ctx, &newpet)
+			// 	if err != nil {
+			// 		return err
+			// 	}
+			// } else {
+			// 	//---------------------------------------------------------------
+			// 	// if dates are the same or newpet range precedes old pet range,
+			// 	// then newpet overwrites pet.  Set the old one to no time...
+			// 	//---------------------------------------------------------------
+			// 	pet.DtStop = pet.DtStart // essentially sets it to no time
+			// 	if err = rlib.UpdatePet(ctx, &pet); err != nil {
+			// 		return err
+			// 	}
+			// }
 
 			//----------------------------------------------------------------
 			// 1. If the TCID did not change from the one in the TBind that
@@ -751,6 +789,22 @@ func F2RAUpdateVehicles(ctx context.Context, x *WriteHandlerContext) error {
 			newvehicle.TCID = vehicleTCID
 			newvehicle.BID = x.raf.Meta.BID
 
+			// TODO(Steve): ONCE WE HAVE THE WORKING FUNCTIONALITY OF "TBIND" TABLE
+			//              WITH DB QUERIES, UPDATE VEHICLE ACCORDINGLY
+			//
+			//              IF TCID IS CHANGED THEN MARK THE VEHICLE'S STOP DATE
+			//              AS CURRENT DATE IN "TBIND" ENTRY AND CREATE A NEW ENTRY
+			//              IN "TBIND" WITH EXISTING VEHICLE AND TCID ASSOCIATION WITH START
+			//              DATE SAME AS WE ASSIGNED IN STOP DATE (CURRENT DATE)
+			//
+			//              AS OF NOW, JUST UPDATE THE VEHICLE INFO, EVENTUALLY
+			//              THIS UPDATE PART WILL BE REMOVED AND NEXT BLOCK OF
+			//              COMMENTED CODE WILL BE MODIFIED.
+			if err = rlib.UpdateVehicle(ctx, &newvehicle); err != nil {
+				return err
+			}
+
+			/****** MODIFY CODE STARTS ******
 			newStart := time.Time(x.raf.Vehicles[i].DtStart)
 			//newStop := time.Time(x.raf.Pets[i].DtStop)
 			if vehicle.DtStart.Before(newStart) {
@@ -794,7 +848,7 @@ func F2RAUpdateVehicles(ctx context.Context, x *WriteHandlerContext) error {
 				return err
 			}
 			//---------------------------------
-
+			****** MODIFY CODE ENDS ******/
 		} else {
 			//-------------------------------
 			// handle new vehicles...

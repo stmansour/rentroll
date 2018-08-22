@@ -2500,7 +2500,8 @@ func InsertTaskListDefinition(ctx context.Context, a *TaskListDefinition) error 
 		return err
 	}
 
-	fields := []interface{}{a.BID, a.Name, a.Cycle, a.Epoch, a.EpochDue, a.EpochPreDue, a.FLAGS, a.EmailList, a.DurWait, a.Comment, a.LastModBy, a.TLDID}
+	fields := []interface{}{a.BID, a.Name, a.Cycle, a.Epoch, a.EpochDue, a.EpochPreDue,
+		a.FLAGS, a.EmailList, a.DurWait, a.Comment, a.LastModBy, a.TLDID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertTaskListDefinition)
 		defer stmt.Close()
@@ -2542,8 +2543,8 @@ func InsertTBind(ctx context.Context, a *TBind) (int64, error) {
 	}
 
 	fields := []interface{}{
-		a.TBID, a.BID, a.SourceElemType, a.SourceElemID, a.AssocElemType, a.AssocElemID,
-		a.DtStart, a.DtStop, a.FLAGS, a.CreateTS, a.CreateBy, a.LastModTime, a.LastModBy}
+		a.BID, a.SourceElemType, a.SourceElemID, a.AssocElemType, a.AssocElemID,
+		a.DtStart, a.DtStop, a.FLAGS, a.CreateBy, a.LastModBy}
 
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertTBind)

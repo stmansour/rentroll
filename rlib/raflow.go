@@ -229,8 +229,6 @@ type RAPetsFlowData struct {
 	Breed    string       `validate:"string,min=1,max=100"`
 	Color    string       `validate:"string,min=1,max=100"`
 	Weight   float64      `validate:"number:float,min=0.0"`
-	DtStart  JSONDate     `validate:"date"`
-	DtStop   JSONDate     `validate:"date"`
 	Fees     []RAFeesData `validate:"-"`
 }
 
@@ -248,8 +246,6 @@ type RAVehiclesFlowData struct {
 	LicensePlateState   string       `validate:"string,min=1,max=80"`
 	LicensePlateNumber  string       `validate:"string,min=1,max=80"`
 	ParkingPermitNumber string       `validate:"string,min=1,max=80,omitempty"`
-	DtStart             JSONDate     `validate:"date"`
-	DtStop              JSONDate     `validate:"date"`
 	Fees                []RAFeesData `validate:"-"`
 }
 
@@ -347,14 +343,6 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 			err = json.Unmarshal(dataToUpdate, &a)
 			if err != nil {
 				return
-			}
-
-			// ----- POSSESSION DATES CHANGED CHECK ----- //
-			newPStart := (time.Time)(a.PossessionStart)
-			newPStop := (time.Time)(a.PossessionStop)
-			if !((time.Time)(raFlowData.Dates.PossessionStart).Equal(newPStart) &&
-				(time.Time)(raFlowData.Dates.PossessionStop).Equal(newPStop)) {
-				PossessDateChangeRAFlowUpdates(ctx, newPStart, newPStop, &raFlowData)
 			}
 
 			// ----- RENT DATES CHANGED CHECK ----- //
@@ -751,26 +739,6 @@ func SyncTieRecords(raFlowData *RAFlowJSONData) {
 		}
 	}
 	raFlowData.Tie.People = modTiePeople
-}
-
-// PossessDateChangeRAFlowUpdates updates raflow json with required
-// modification if possession dates are changed
-func PossessDateChangeRAFlowUpdates(ctx context.Context, pStart, pStop time.Time, raFlowData *RAFlowJSONData) {
-
-	start := JSONDate(pStart)
-	stop := JSONDate(pStop)
-
-	// ----- UPDATE PETS DTSTART/DTSTOP WITH NEW DATES ----- //
-	for i := range raFlowData.Pets {
-		raFlowData.Pets[i].DtStart = start
-		raFlowData.Pets[i].DtStop = stop
-	}
-
-	// ----- UPDATE PETS DTSTART/DTSTOP WITH NEW DATES ----- //
-	for i := range raFlowData.Vehicles {
-		raFlowData.Vehicles[i].DtStart = start
-		raFlowData.Vehicles[i].DtStop = stop
-	}
 }
 
 // RentDateChangeRAFlowUpdates updates raflow json with required
@@ -1479,8 +1447,6 @@ func NewRAFlowPet(ctx context.Context, BID int64, rStart, rStop, pStart, pStop J
 	meta.LastTMPPETID++
 	pet = RAPetsFlowData{
 		TMPPETID: meta.LastTMPPETID,
-		DtStart:  pStart,
-		DtStop:   pStop,
 		Fees:     []RAFeesData{},
 	}
 
@@ -1512,10 +1478,8 @@ func NewRAFlowVehicle(ctx context.Context, BID int64, rStart, rStop, pStart, pSt
 	// assign new TMPVID & mark in meta info
 	meta.LastTMPVID++
 	vehicle = RAVehiclesFlowData{
-		TMPVID:  meta.LastTMPVID,
-		DtStart: pStart,
-		DtStop:  pStop,
-		Fees:    []RAFeesData{},
+		TMPVID: meta.LastTMPVID,
+		Fees:   []RAFeesData{},
 	}
 
 	// GET VEHICLE INITIAL FEES, META SHOULD BE UPDATED IN CALLER FUNCTION
