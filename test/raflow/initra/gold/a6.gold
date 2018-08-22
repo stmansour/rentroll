@@ -12,7 +12,7 @@
         "Flow": {
             "BID": 1,
             "CreateBy": -99999,
-            "CreateTS": "2018-08-21T17:48:06Z",
+            "CreateTS": "2018-08-22T22:33:17Z",
             "Data": {
                 "dates": {
                     "AgreementStart": "1/11/2018",
@@ -133,8 +133,6 @@
                     {
                         "Breed": "Rough Collie",
                         "Color": "brown",
-                        "DtStart": "1/11/2018",
-                        "DtStop": "1/1/2020",
                         "Fees": [
                             {
                                 "ARID": 23,
@@ -201,8 +199,6 @@
                 },
                 "vehicles": [
                     {
-                        "DtStart": "1/11/2018",
-                        "DtStop": "1/1/2020",
                         "Fees": [
                             {
                                 "ARID": 39,
@@ -239,8 +235,8 @@
             "FlowType": "RA",
             "ID": 0,
             "LastModBy": -99999,
-            "LastModTime": "2018-08-21T17:48:06Z",
-            "UserRefNo": "Y5I08MJ4E61T33EKH57Z"
+            "LastModTime": "2018-08-22T22:33:17Z",
+            "UserRefNo": "ZB9X6M54031J20NM1YKO"
         },
         "ValidationCheck": {
             "errors": {

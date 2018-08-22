@@ -608,6 +608,22 @@ func F2RAUpdatePets(ctx context.Context, x *WriteHandlerContext) (err error) {
 			newpet.BID = x.raf.Meta.BID
 			newpet.RAID = x.ra.RAID
 
+			// TODO(Steve): ONCE WE HAVE THE WORKING FUNCTIONALITY OF "TBIND" TABLE
+			//              WITH DB QUERIES, UPDATE PET ACCORDINGLY
+			//
+			//              IF TCID IS CHANGED THEN MARK THE PET'S STOP DATE
+			//              AS CURRENT DATE IN "TBIND" ENTRY AND CREATE A NEW ENTRY
+			//              IN "TBIND" WITH EXISTING PET AND TCID ASSOCIATION WITH START
+			//              DATE SAME AS WE ASSIGNED IN STOP DATE (CURRENT DATE)
+			//
+			//              AS OF NOW, JUST UPDATE THE PET INFO, EVENTUALLY
+			//              THIS UPDATE PART WILL BE REMOVED AND NEXT BLOCK OF
+			//              COMMENTED CODE WILL BE MODIFIED.
+			if err = rlib.UpdatePet(ctx, &newpet); err != nil {
+				return err
+			}
+
+			/****** MODIFY CODE STARTS ******
 			//----------------------------------------------------------
 			// Is the new Agreement period AFTER the current period?
 			//----------------------------------------------------------
@@ -648,6 +664,7 @@ func F2RAUpdatePets(ctx context.Context, x *WriteHandlerContext) (err error) {
 					return err
 				}
 			}
+			****** MODIFY CODE ENDS ******/
 		} else {
 			rlib.MigrateStructVals(&x.raf.Pets[i], &pet)
 			pet.TCID = petTCID
@@ -698,6 +715,22 @@ func F2RAUpdateVehicles(ctx context.Context, x *WriteHandlerContext) error {
 			newvehicle.TCID = vehicleTCID
 			newvehicle.BID = x.raf.Meta.BID
 
+			// TODO(Steve): ONCE WE HAVE THE WORKING FUNCTIONALITY OF "TBIND" TABLE
+			//              WITH DB QUERIES, UPDATE VEHICLE ACCORDINGLY
+			//
+			//              IF TCID IS CHANGED THEN MARK THE VEHICLE'S STOP DATE
+			//              AS CURRENT DATE IN "TBIND" ENTRY AND CREATE A NEW ENTRY
+			//              IN "TBIND" WITH EXISTING VEHICLE AND TCID ASSOCIATION WITH START
+			//              DATE SAME AS WE ASSIGNED IN STOP DATE (CURRENT DATE)
+			//
+			//              AS OF NOW, JUST UPDATE THE VEHICLE INFO, EVENTUALLY
+			//              THIS UPDATE PART WILL BE REMOVED AND NEXT BLOCK OF
+			//              COMMENTED CODE WILL BE MODIFIED.
+			if err = rlib.UpdateVehicle(ctx, &newvehicle); err != nil {
+				return err
+			}
+
+			/****** MODIFY CODE STARTS ******
 			newStart := time.Time(x.raf.Vehicles[i].DtStart)
 			//newStop := time.Time(x.raf.Pets[i].DtStop)
 			if vehicle.DtStart.Before(newStart) {
@@ -741,7 +774,7 @@ func F2RAUpdateVehicles(ctx context.Context, x *WriteHandlerContext) error {
 				return err
 			}
 			//---------------------------------
-
+			****** MODIFY CODE ENDS ******/
 		} else {
 			//-------------------------------
 			// handle new vehicles...
