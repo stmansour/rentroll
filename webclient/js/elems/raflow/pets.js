@@ -52,10 +52,6 @@ window.RAFlowNewPetAJAX = function() {
 };
 
 window.GetPetFormInitRecord = function (previousFormRecord){
-
-    var t = new Date(),
-        nyd = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
-
     var defaultFormData = {
         recid:                  w2ui.RAPetsGrid.records.length + 1,
         TMPPETID:               0,
@@ -66,10 +62,6 @@ window.GetPetFormInitRecord = function (previousFormRecord){
         Type:                   "",
         Color:                  "",
         Weight:                 0,
-        DtStart:                w2uiDateControlString(t),
-        DtStop:                 w2uiDateControlString(nyd),
-        LastModTime:            t.toISOString(),
-        LastModBy:              0,
     };
 
     // if it called after 'save and add another' action there previous form record is passed as Object
@@ -215,33 +207,23 @@ window.loadRAPetsGrid = function () {
                 {
                     field: 'Type',
                     caption: 'Type',
-                    size: '80px'
+                    size: '120px'
                 },
                 {
                     field: 'Breed',
                     caption: 'Breed',
-                    size: '80px'
+                    size: '150px'
                 },
                 {
                     field: 'Color',
                     caption: 'Color',
-                    size: '80px'
+                    size: '100px'
                 },
                 {
                     field: 'Weight',
                     caption: 'Weight<br>(pounds)',
-                    size: '80px'
-                },
-                {
-                    field: 'DtStart',
-                    caption: 'DtStart',
                     size: '100px'
                 },
-                {
-                    field: 'DtStop',
-                    caption: 'DtStop',
-                    size: '100px'
-                }
             ],
             onRefresh: function (event) {
                 var grid = this;
@@ -375,8 +357,6 @@ window.loadRAPetsGrid = function () {
                 { field: 'Type',                    type: 'text',   required: false  },
                 { field: 'Color',                   type: 'text',   required: false  },
                 { field: 'Weight',                  type: 'float',  required: false  },
-                { field: 'DtStart',                 type: 'date',   required: false,     html: { caption: 'DtStart', page: 0, column: 0 } },
-                { field: 'DtStop',                  type: 'date',   required: false,     html: { caption: 'DtStop', page: 0, column: 0 } }
             ],
             actions: {
                 reset: function() {

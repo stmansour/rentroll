@@ -57,9 +57,6 @@ window.RAFlowNewVehicleAJAX = function() {
 // Rental Agreement - Vehicles Grid
 // -------------------------------------------------------------------------------
 window.GetVehicleFormInitRecord = function (previousFormRecord) {
-    var t = new Date(),
-        nyd = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
-
     var defaultFormData = {
         recid:                  w2ui.RAVehiclesGrid.records.length + 1,
         TMPVID:                 0,
@@ -74,8 +71,6 @@ window.GetVehicleFormInitRecord = function (previousFormRecord) {
         LicensePlateState:      "",
         LicensePlateNumber:     "",
         ParkingPermitNumber:    "",
-        DtStart:                w2uiDateControlString(t),
-        DtStop:                 w2uiDateControlString(nyd)
     };
 
     // if it called after 'save and add another' action there previous form record is passed as Object
@@ -257,16 +252,6 @@ window.loadRAVehiclesGrid = function () {
                     field: 'ParkingPermitNumber',
                     caption: 'Parking Permit <br>Number',
                     size: '100px'
-                },
-                {
-                    field: 'DtStart',
-                    caption: 'DtStart',
-                    size: '100px'
-                },
-                {
-                    field: 'DtStop',
-                    caption: 'DtStop',
-                    size: '100px'
                 }
             ],
             onRefresh: function(event) {
@@ -403,8 +388,6 @@ window.loadRAVehiclesGrid = function () {
                 { field: 'LicensePlateNumber',  type: 'text',   required: false },
                 { field: 'VIN',                 type: 'text',   required: false },
                 { field: 'ParkingPermitNumber', type: 'text',   required: false },
-                { field: 'DtStart',             type: 'date',   required: false,    html: { caption: 'DtStart', page: 0, column: 0 } },
-                { field: 'DtStop',              type: 'date',   required: false,    html: { caption: 'DtStop',  page: 0, column: 0 } },
             ],
             actions: {
                 reset: function () {

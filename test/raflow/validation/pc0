@@ -12,7 +12,7 @@
         "Flow": {
             "BID": 1,
             "CreateBy": 269,
-            "CreateTS": "2018-08-16T02:05:02Z",
+            "CreateTS": "2018-08-16T14:35:02Z",
             "Data": {
                 "dates": {
                     "AgreementStart": "8/16/2018",
@@ -357,7 +357,7 @@
             "FlowType": "RA",
             "ID": 0,
             "LastModBy": 269,
-            "LastModTime": "2018-08-16T02:05:51Z",
+            "LastModTime": "2018-08-16T14:35:51Z",
             "UserRefNo": "UV7KWCS4Z1561ZL4O338"
         },
         "ValidationCheck": {

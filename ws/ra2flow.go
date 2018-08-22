@@ -36,13 +36,6 @@ func GetRA2FlowCore(ctx context.Context, ra *rlib.RentalAgreement, d *ServiceDat
 	raf.Dates.RentStart = rlib.JSONDate(rlib.GetTodayUTCRoundingDate())
 	raf.Dates.PossessionStart = rlib.JSONDate(rlib.GetTodayUTCRoundingDate())
 
-	// ----- POSSESSION DATES CHANGED CHECK ----- //
-	newPStart := (time.Time)(raf.Dates.PossessionStart)
-	newPStop := (time.Time)(raf.Dates.PossessionStop)
-	if !ra.PossessionStart.Equal(newPStart) { // SINCE WE CHANGED ONLY START DATE
-		rlib.PossessDateChangeRAFlowUpdates(ctx, newPStart, newPStop, &raf)
-	}
-
 	// ----- RENT DATES CHANGED CHECK ----- //
 	newRStart := (time.Time)(raf.Dates.RentStart)
 	newRStop := (time.Time)(raf.Dates.RentStop)
