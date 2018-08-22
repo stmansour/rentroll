@@ -4,3 +4,11 @@ test3: approve and set "pending second approval" on flow with valid data ....PAS
 test4: approve and set "move-in / execute modification" on flow with valid data ....PASSED
 test5: set document date of flow with valid data ....PASSED
 test6: take action of "complete move in" on flow with valid data ....PASSED
+test7: action "set pending first approval" on brand new flow with invalid data ....PASSED
+test8: action "set pending first approval" on brand new flow with valid data ....PASSED
+test9: approve and set "pending second approval" on brand new flow with valid data ....PASSED
+test10: approve and set "move-in / execute modification" on brand new flow with valid data ....PASSED
+test11: set document date of brand new flow with valid data ....PASSED
+test12: take action of "complete move in" on brand new flow with valid data ....PASSED
+test13: decline at "pending first approval" on flow with valid data ....PASSED
+test14: decline at "pending second approval" on flow with valid data ....PASSED
