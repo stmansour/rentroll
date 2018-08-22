@@ -703,9 +703,11 @@ func F2RAUpdatePets(ctx context.Context, x *WriteHandlerContext) (err error) {
 				return err
 			}
 		} else {
+			rlib.Console("NEW PET\n")
 			rlib.MigrateStructVals(&x.raf.Pets[i], &pet)
 			pet.TCID = petTCID
-			pet.BID = x.raf.Meta.BID
+			pet.BID = x.ra.BID
+			rlib.Console("NEW PET BID  = %d\n", pet.BID)
 
 			// TODO: remove these soon, they are deprecated
 			pet.DtStart = bind.DtStart
@@ -713,6 +715,11 @@ func F2RAUpdatePets(ctx context.Context, x *WriteHandlerContext) (err error) {
 			pet.RAID = x.ra.RAID
 
 			x.raf.Pets[i].PETID, err = rlib.InsertPet(ctx, &pet)
+			if err != nil {
+				return err
+			}
+			bind.AssocElemID = pet.PETID
+			_, err = rlib.InsertTBind(ctx, &bind)
 			if err != nil {
 				return err
 			}
