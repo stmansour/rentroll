@@ -55,6 +55,8 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		raFlowData            rlib.RAFlowJSONData
 		raFlowFieldsErrors    bizlogic.RAFlowFieldsErrors
 		raFlowNonFieldsErrors bizlogic.RAFlowNonFieldsErrors
+		raflowRespData        RAFlowResponse
+		resp                  FlowResponse
 		g                     bizlogic.ValidateRAFlowResponse
 		ctx                   = r.Context()
 		tx                    *sql.Tx
@@ -117,19 +119,24 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
+	// CHECK DATA FULFILLED
+	bizlogic.DataFulfilledRAFlow(ctx, &raFlowData, &raflowRespData.DataFulfilled)
+
 	// init raFlowFieldsErrors
 	initRAFlowFieldsErrors(&raFlowFieldsErrors)
 
 	initRAFlowNonFieldsErrors(&raFlowNonFieldsErrors)
 
-	bizlogic.ValidateRAFlowParts(ctx, &raFlowFieldsErrors, &raFlowNonFieldsErrors, &raFlowData, flow.ID)
+	err = bizlogic.ValidateRAFlowParts(ctx, &raFlowFieldsErrors, &raFlowNonFieldsErrors, &raFlowData, flow.ID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+	}
 
 	totalFieldsError := raFlowFieldsErrors.Dates.Total + raFlowFieldsErrors.People.Total + raFlowFieldsErrors.Pets.Total + raFlowFieldsErrors.Vehicle.Total + raFlowFieldsErrors.Rentables.Total + raFlowFieldsErrors.ParentChild.Total + raFlowFieldsErrors.Tie.TiePeople.Total
 	totalNonFieldsError := len(raFlowNonFieldsErrors.Dates) + len(raFlowNonFieldsErrors.People) + len(raFlowNonFieldsErrors.Pets) + len(raFlowNonFieldsErrors.Rentables) + len(raFlowNonFieldsErrors.Vehicle) + len(raFlowNonFieldsErrors.ParentChild) + len(raFlowNonFieldsErrors.Tie)
 	g.Total += totalFieldsError + totalNonFieldsError
 	g.Errors = raFlowFieldsErrors
 	g.NonFieldsErrors = raFlowNonFieldsErrors
-	g.Status = "success"
 
 	if g.Total == 0 {
 		// SET STATE OF THIS FLOW TO PENDING FIRST APPROVAL
@@ -164,7 +171,14 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 	}
 
-	SvcWriteResponse(d.BID, &g, w)
+	// update flow
+	raflowRespData.Flow = flow
+
+	raflowRespData.ValidationCheck = g
+	resp.Status = "success"
+	resp.Record = raflowRespData
+
+	SvcWriteResponse(d.BID, &resp, w)
 }
 
 func initRAFlowFieldsErrors(raFlowFieldsErrors *bizlogic.RAFlowFieldsErrors) {

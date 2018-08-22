@@ -194,7 +194,7 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 	// -------------------------------------------
 
 	// get the list of pets
-	var petList []rlib.RentalAgreementPet
+	var petList []rlib.Pet
 	petList, err = rlib.GetPetsByTransactant(ctx, foo.TCID)
 	if err != nil {
 		return
@@ -202,17 +202,20 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 
 	// find this RID in flow data rentable list
 	for i := range petList {
-		exist := false
+		foundIndex := -1
 		for k := range raFlowData.Pets {
 			if petList[i].PETID == raFlowData.Pets[k].PETID {
-				exist = true
+				foundIndex = k
 				break
 			}
 		}
 
-		// if does not exist then append in the raflow data
-		if !exist {
-			// create new pet info
+		if foundIndex > -1 {
+			// change dates of pet according to possession dates
+			raFlowData.Pets[foundIndex].DtStart = raFlowData.Dates.PossessionStart
+			raFlowData.Pets[foundIndex].DtStop = raFlowData.Dates.PossessionStop
+		} else {
+			// if does not exist then create new entry and add in json data
 			var newRAFlowPet rlib.RAPetsFlowData
 
 			// get new pet with some initial data
@@ -227,7 +230,10 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 			// migrate data
 			rlib.MigrateStructVals(&petList[i], &newRAFlowPet)
 
-			// TMPTCID
+			// OVERWRITE FOLLOWING INFO
+			// TODO(Steve & Sudip): SHOULD WE OVERWRITE PETID?
+			newRAFlowPet.DtStart = raFlowData.Dates.PossessionStart
+			newRAFlowPet.DtStop = raFlowData.Dates.PossessionStop
 			newRAFlowPet.TMPTCID = personTMPTCID
 
 			// append in pets list
@@ -248,17 +254,20 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 
 	// loop over list and append it in raflow data
 	for i := range vehicleList {
-		exist := false
+		foundIndex := -1
 		for k := range raFlowData.Vehicles {
 			if vehicleList[i].VID == raFlowData.Vehicles[k].VID {
-				exist = true
+				foundIndex = k
 				break
 			}
 		}
 
-		// if does not exist then append in the raflow data
-		if !exist {
-			// create new pet info
+		if foundIndex > -1 {
+			// change dates of pet according to possession dates
+			raFlowData.Vehicles[foundIndex].DtStart = raFlowData.Dates.PossessionStart
+			raFlowData.Vehicles[foundIndex].DtStop = raFlowData.Dates.PossessionStop
+		} else {
+			// if does not exist then create new entry and add in json data
 			var newRAFlowVehicle rlib.RAVehiclesFlowData
 
 			// get new vehicle with some initial data
@@ -273,7 +282,10 @@ func SaveRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceD
 			// migrate existing values
 			rlib.MigrateStructVals(&vehicleList[i], &newRAFlowVehicle)
 
-			// contact person
+			// OVERWRITE FOLLOWING INFO
+			// TODO(Steve & Sudip): SHOULD WE OVERWRITE VID?
+			newRAFlowVehicle.DtStart = raFlowData.Dates.PossessionStart
+			newRAFlowVehicle.DtStop = raFlowData.Dates.PossessionStop
 			newRAFlowVehicle.TMPTCID = personTMPTCID
 
 			// append in vehicles list of json data

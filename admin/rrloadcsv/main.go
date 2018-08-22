@@ -364,7 +364,7 @@ func main() {
 		{ReportNo: 13, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsID: false, NeedsDt: true, Handler: rrpt.RRreportReceipts},
 		{ReportNo: 14, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsID: false, NeedsDt: false, Handler: rrpt.RRreportCustomAttributes},
 		{ReportNo: 15, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsID: false, NeedsDt: false, Handler: rrpt.RRreportCustomAttributeRefs},
-		{ReportNo: 16, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: false, NeedsRAID: true, NeedsID: false, NeedsDt: false, Handler: rrpt.RRreportRentalAgreementPets},
+		{ReportNo: 16, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: false, NeedsRAID: true, NeedsID: false, NeedsDt: false, Handler: rrpt.RRreportPets},
 		{ReportNo: 17, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsID: false, NeedsDt: false, Handler: rrpt.RRreportNoteTypes},
 		{ReportNo: 18, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsID: false, NeedsDt: false, Handler: rrpt.RRreportDepository},
 		{ReportNo: 19, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsID: false, NeedsDt: true, Handler: rrpt.RRreportDeposits},

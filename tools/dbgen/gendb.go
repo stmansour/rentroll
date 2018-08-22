@@ -154,8 +154,8 @@ func createRandomCar(t *rlib.Transactant, dbConf *GenDBConf) rlib.Vehicle {
 	v.DtStop = dbConf.DtStop
 	return v
 }
-func createRandomDog(t *rlib.Transactant, dbConf *GenDBConf) rlib.RentalAgreementPet {
-	var p rlib.RentalAgreementPet
+func createRandomDog(t *rlib.Transactant, dbConf *GenDBConf) rlib.Pet {
+	var p rlib.Pet
 	p.TCID = t.TCID
 	p.BID = t.BID
 	p.Type = "dog"
@@ -168,8 +168,8 @@ func createRandomDog(t *rlib.Transactant, dbConf *GenDBConf) rlib.RentalAgreemen
 	return p
 }
 
-func createRandomCat(t *rlib.Transactant, dbConf *GenDBConf) rlib.RentalAgreementPet {
-	var p rlib.RentalAgreementPet
+func createRandomCat(t *rlib.Transactant, dbConf *GenDBConf) rlib.Pet {
+	var p rlib.Pet
 	p.TCID = t.TCID
 	p.BID = t.BID
 	p.Type = "cat"
@@ -330,13 +330,13 @@ func createTransactants(ctx context.Context, dbConf *GenDBConf) error {
 				vcount++
 			}
 			for j := 0; j < vcount; j++ {
-				var p rlib.RentalAgreementPet
+				var p rlib.Pet
 				if IG.Rand.Intn(70) < 40 {
 					p = createRandomDog(&t, dbConf)
 				} else {
 					p = createRandomCat(&t, dbConf)
 				}
-				_, err = rlib.InsertRentalAgreementPet(ctx, &p)
+				_, err = rlib.InsertPet(ctx, &p)
 				if err != nil {
 					rlib.LogAndPrintError(funcname, err)
 					return err
@@ -862,7 +862,7 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 		pl, err := rlib.GetPetsByTransactant(ctx, TCID)
 		for j := 0; j < len(pl); j++ {
 			pl[j].RAID = ra.RAID
-			if err = rlib.UpdateRentalAgreementPet(ctx, &pl[j]); err != nil {
+			if err = rlib.UpdatePet(ctx, &pl[j]); err != nil {
 				return err
 			}
 		}
