@@ -347,7 +347,7 @@ func GetRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				return
 			}
 			if flow.FlowID > 0 {
-				err = fmt.Errorf("flow already exists with given refno: %s\n", flow.UserRefNo)
+				err = fmt.Errorf("flow already exists with given refno: %s", flow.UserRefNo)
 				return
 			}
 
