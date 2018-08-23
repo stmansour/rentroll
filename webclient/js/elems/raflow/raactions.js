@@ -63,11 +63,22 @@ window.submitActionForm = function(data) {
                 // Update flow local copy and green checks
                 UpdateRAFlowLocalData(data, true);
 
+                // validation errors based on validation check
+                app.raflow.validationErrors = {
+                    dates: app.raflow.validationCheck.errors.dates.total > 0 || app.raflow.validationCheck.nonFieldsErrors.dates.length > 0,
+                    people: app.raflow.validationCheck.errors.people.total > 0 || app.raflow.validationCheck.nonFieldsErrors.people.length > 0,
+                    pets: app.raflow.validationCheck.errors.pets.total > 0 || app.raflow.validationCheck.nonFieldsErrors.pets.length > 0,
+                    vehicles: app.raflow.validationCheck.errors.vehicles.total > 0 || app.raflow.validationCheck.nonFieldsErrors.vehicles.length > 0,
+                    rentables: app.raflow.validationCheck.errors.rentables.total > 0 || app.raflow.validationCheck.nonFieldsErrors.rentables.length > 0,
+                    parentchild: app.raflow.validationCheck.errors.parentchild.total > 0 || app.raflow.validationCheck.nonFieldsErrors.parentchild.length > 0,
+                    tie: app.raflow.validationCheck.errors.tie.people.total > 0 || app.raflow.validationCheck.nonFieldsErrors.tie.length > 0
+                };
+
                 displayErrorDot();
 
                 displayActiveComponentError();
 
-                if(data.record.ValidationCheck.total > 0){
+                if(app.raflow.validationCheck.total > 0){
                     w2ui.raActionLayout.get('top').toolbar.click('btnBackToRA');
                     return false;
                 }
