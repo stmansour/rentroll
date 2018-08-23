@@ -27,8 +27,8 @@ var actionsUI = {
 // @params - data
 // -------------------------------------------------------------------------------
 window.submitActionForm = function(data) {
-    var BID = getCurrentBID();
-    var FlowID = GetCurrentFlowID();
+    var BID         = getCurrentBID(),
+        FlowID      = GetCurrentFlowID();
 
     var url = "/v1/raactions/" + BID.toString() + "/" + FlowID.toString() + "/";
 
@@ -43,7 +43,7 @@ window.submitActionForm = function(data) {
         switch(true) {
             case (data.record.Flow.FlowID === -1):
                 alert("Flow Already Exists");
-                break;
+                return false;
             case (data.record.Flow.FlowID === 0):
                 if (app.raflow.version === 'refno') {
                     // load ActionForm and Toolbar for raid version
@@ -53,36 +53,24 @@ window.submitActionForm = function(data) {
                 }
 
                 // Update flow local copy and green checks
-                UpdateRAFlowLocalData(data);
+                UpdateRAFlowLocalData(data, true);
                 break;
             case (data.record.Flow.FlowID > 0):
-                var resErr = data.record.ValidationCheck;
-                app.raflow.validationErrors = {
-                    dates: resErr.errors.dates.total > 0 || resErr.nonFieldsErrors.dates.length > 0,
-                    people: resErr.errors.people.total > 0 || resErr.nonFieldsErrors.people.length > 0,
-                    pets: resErr.errors.pets.total > 0 || resErr.nonFieldsErrors.pets.length > 0,
-                    vehicles: resErr.errors.vehicles.total > 0 || resErr.nonFieldsErrors.vehicles.length > 0,
-                    rentables: resErr.errors.rentables.total > 0 || resErr.nonFieldsErrors.rentables.length > 0,
-                    parentchild: resErr.errors.parentchild.total > 0 || resErr.nonFieldsErrors.parentchild.length > 0,
-                    tie: resErr.errors.tie.people.total > 0 || resErr.nonFieldsErrors.tie.length > 0
-                };
 
-                // Update validationCheck error local copy
-                app.raflow.validationCheck = resErr;
+                // FlowID > 0 that means it is refno version
+                app.raflow.version = 'refno';
+
+                // Update flow local copy and green checks
+                UpdateRAFlowLocalData(data, true);
 
                 displayErrorDot();
 
                 displayActiveComponentError();
 
-                if(resErr.total > 0){
+                if(data.record.ValidationCheck.total > 0){
                     w2ui.raActionLayout.get('top').toolbar.click('btnBackToRA');
-                    return;
+                    return false;
                 }
-
-                app.raflow.version = 'refno';
-
-                // Update flow local copy and green checks
-                UpdateRAFlowLocalData(data);
 
                 break;
         }

@@ -7,7 +7,7 @@
     loadRAActionTemplate,
     getStringListData, initBizErrors, displayErrorDot,
     ChangeRAFlowVersionToolbar, GetRefNoByRAIDFromGrid,
-    LoadRAFlowVersionData, CloseRAFlowLayout, DeleteRAFlowAJAX, HideRAFlowLoader
+    RenderRAFlowVersionData, CloseRAFlowLayout, DeleteRAFlowAJAX, HideRAFlowLoader
 */
 
 "use strict";
@@ -19,10 +19,11 @@
 // @params
 //   FlowID = Id of the Flow
 //-----------------------------------------------------------------------------
-window.LoadRAFlowTemplate = function(bid, raFlowVersion) {
+window.LoadRAFlowTemplate = function() {
     if("RAActionForm" in w2ui){
         w2ui.RAActionForm.destroy();
     }
+
     if("raActionLayout" in w2ui){
         w2ui.raActionLayout.destroy();
         w2ui.newraLayout.get('right').content = "";
@@ -49,52 +50,9 @@ window.LoadRAFlowTemplate = function(bid, raFlowVersion) {
         $("#progressbar #steps-list li").removeClass("active done"); // remove activeClass from all li
 
         setTimeout(function() {
-            $("#ra-form footer button#previous").prop("disabled", true);
-
-            // mark this flag as is this new record
-            // record created already
-            app.new_form_rec = false;
-
-            // as new content will be loaded for this form
-            // mark form dirty flag as false
-            app.form_is_dirty = false;
-
-            // set BID in raflow settings
-            app.raflow.BID = bid;
-
-            // calculate people items
-            managePeopleW2UIItems();
-
-            // calculate parent rentable items
-            manageParentRentableW2UIItems();
-
-            // get info from local copy
-            var FLAGS = app.raflow.Flow.Data.meta.RAFLAGS,
-                RAID = app.raflow.Flow.ID;
-
-            var RefNo;
-            // render the toolbar based on raflow version
-            if (RAID > 0) {
-                // EXISTING RA WON'T HAVE NY REF.NO SO IN FLOW VERSION DATA
-                RefNo = GetRefNoByRAIDFromGrid(RAID);
-            } else {
-                RefNo = app.raflow.Flow.UserRefNo;
-            }
-            ChangeRAFlowVersionToolbar(raFlowVersion, RAID, RefNo, FLAGS);
-
-            // clear grid, form if previously loaded in DOM
-            for (var comp in app.raFlowPartTypes) {
-                // reset w2ui component as well
-                if(RACompConfig[comp].w2uiComp in w2ui) {
-                    // clear inputs
-                    w2ui[RACompConfig[comp].w2uiComp].clear();
-                }
-            }
-
-            // mark first slide as active
-            $(".ra-form-component#dates").show();
-            $("#progressbar #steps-list li[data-target='#dates']").removeClass("done").addClass("active");
-            loadRADatesForm();
+            // RENDER THE VERSION DATA
+            var active_comp_id = "dates";
+            RenderRAFlowVersionData(active_comp_id);
 
             // hide the loader
             HideRAFlowLoader(true);
@@ -230,21 +188,14 @@ window.buildRAFlowElements = function() {
 
                         // get grid record
                         var rec = grid.get(recid);
-                        var version = "";
-
-                        // IF RAID IS AVAILABLE THEN WE'LL LOAD RAID VERSION
-                        if (rec.RAID > 0) {
-                            version = "raid";
-                        } else {
-                            version = "refno";
-                        }
+                        var version = (rec.RAID > 0) ? "raid" : "refno";
 
                         GetRAFlowDataAjax(rec.UserRefNo, rec.RAID, version)
                         .done(function(data) {
                             if (data.status != "success") {
                                 grid.message(data.message);
                             } else {
-                                LoadRAFlowTemplate(rec.BID, version);
+                                LoadRAFlowTemplate();
 
                                 // Update local copy of string list
                                 var BID = getCurrentBID();
@@ -302,7 +253,7 @@ window.buildRAFlowElements = function() {
                             grid.select(app.last.grid_sel_recid);
 
                             var rec = grid.get(newRecid);
-                            LoadRAFlowTemplate(rec.BID, "refno");
+                            LoadRAFlowTemplate();
 
                         } else {
                             grid.message(data.message);
@@ -389,11 +340,7 @@ window.buildRAFlowElements = function() {
         },
         onRefresh: function(event) {
             event.onComplete = function() {
-                if (app.raflow.version === "raid") {
-                    $("button#save-ra-flow-btn").prop("disabled", true);
-                } else if (app.raflow.version === "refno") {
-                    $("button#save-ra-flow-btn").prop("disabled", false);
-                }
+                $("button#save-ra-flow-btn").prop("disabled", (app.raflow.version === "raid"));
             };
         }
     });
@@ -488,75 +435,67 @@ window.ChangeRAFlowVersionToolbar = function(version, RAID, RefNo, FLAGS) {
 };
 
 //-----------------------------------------------------------------------
-// LoadRAFlowVersionData will load the RAID versioned data in the interface
-//
-// @params
-//   RAID       = Associated Rental Agreement ID if exists (optional)
-//   UserRefNo  = Flow Reference No
-//   version    = version of raflow
+// RenderRAFlowVersionData will load the RAID versioned data
+//        in the interface from local copy
 //-----------------------------------------------------------------------
-window.LoadRAFlowVersionData = function(RAID, UserRefNo, version) {
+window.RenderRAFlowVersionData = function(active_comp_id, prev_comp_id) {
 
-    GetRAFlowDataAjax(UserRefNo, RAID, version)
-    .done(function(data) {
-        if (data.status != "success") {
-            alert(data.message);
-        } else {
-            var FLAGS = app.raflow.Flow.Data.meta.RAFLAGS,
-                RAID = app.raflow.Flow.ID;
+    // mark this flag as is this new record
+    // record created already
+    app.new_form_rec = false;
 
-            var RefNo;
-            if (version === "raid") {
-                // EXISTING RA WON'T HAVE NY REF.NO SO IN FLOW VERSION DATA
-                RefNo = GetRefNoByRAIDFromGrid(RAID);
-                ChangeRAFlowVersionToolbar("raid", RAID, RefNo, FLAGS);
-                $("button#save-ra-flow-btn").prop("disabled", true);
-            } else if (version === "refno") {
-                RefNo = app.raflow.Flow.UserRefNo;
-                ChangeRAFlowVersionToolbar("refno", RAID, RefNo, FLAGS);
-                $("button#save-ra-flow-btn").prop("disabled", false);
-            }
-            // LoadRAFlowTemplate(rec.BID);
+    // as new content will be loaded for this form
+    // mark form dirty flag as false
+    app.form_is_dirty = false;
 
-            /*// REFRESH THE LAYOUT
-            w2ui.newraLayout.refresh();
-            REFRESH CAUSES THE INTERFACE JUMP BACK TO DATES SECTION ALWAYS
-            */
+    // calculate people items
+    managePeopleW2UIItems();
 
-            // LOAD THE CURRENT COMPONENT AGAIN
-            var active_comp = $(".ra-form-component:visible");
-            var active_comp_id = active_comp.attr("id");
-            loadTargetSection(active_comp_id, active_comp_id);
+    // calculate parent rentable items
+    manageParentRentableW2UIItems();
+
+    var FLAGS   = app.raflow.Flow.Data.meta.RAFLAGS,
+        RAID    = app.raflow.Flow.ID,
+        RefNo   = (RAID > 0) ? GetRefNoByRAIDFromGrid(RAID) : app.raflow.Flow.UserRefNo;
+
+    // change toolbar
+    ChangeRAFlowVersionToolbar(app.raflow.version, RAID, RefNo, FLAGS);
+    // hide save button
+    $("button#save-ra-flow-btn").prop("disabled", (app.raflow.version === "raid"));
+
+    // clear grid, form if previously loaded in DOM
+    for (var comp in app.raFlowPartTypes) {
+        // reset w2ui component as well
+        if(RACompConfig[comp].w2uiComp in w2ui) {
+            // clear inputs
+            w2ui[RACompConfig[comp].w2uiComp].clear();
         }
-    })
-    .fail(function() {
-        alert("Error while fetching data for selected record");
-    });
+    }
+
+    // LOAD THE CURRENT COMPONENT AGAIN
+    loadTargetSection(active_comp_id, prev_comp_id);
 };
 
 //-----------------------------------------------------------------------------
 // EDIT/VIEW RAFLOW BUTTON CLICK EVENT HANDLER
 //-----------------------------------------------------------------------------
 $(document).on("click", "button#edit_view_raflow", function(e) {
-    var version = app.raflow.version,
-        RAID    = app.raflow.Flow.ID,
-        RefNo   = "";
+    var RAID            = app.raflow.Flow.ID,
+        RefNo           = (RAID > 0) ? GetRefNoByRAIDFromGrid(RAID) : app.raflow.Flow.UserRefNo,
+        versionToRender = (app.raflow.version === "raid") ? "refno" : "raid";
 
-    if (RAID > 0) {
-        // EXISTING RA WON'T HAVE NY REF.NO SO IN FLOW VERSION DATA
-        RefNo = GetRefNoByRAIDFromGrid(RAID);
-    } else {
-        RAID = 0;
-        RefNo = app.raflow.Flow.UserRefNo;
-    }
-
-    if (version === "raid") { // IF RAID VERSION LOADED THEN
-        // LOAD REFERENCE NUMBER VERSION RAFLOW DATA
-        LoadRAFlowVersionData(RAID, RefNo, "refno");
-    } else if (version === "refno") { // IF REF.NO VERSION LOADED THEN
-        // LOAD RAID VERSION RAFLOW DATA
-        LoadRAFlowVersionData(RAID, RefNo, "raid");
-    }
+    // GET THE DATA FROM SERVER FOR VERSION TO RENDER THE DATA
+    GetRAFlowDataAjax(RefNo, RAID, versionToRender)
+    .done(function(data) {
+        if (data.status !== "error") {
+            var active_comp = $(".ra-form-component:visible");
+            var active_comp_id = active_comp.attr("id");
+            RenderRAFlowVersionData(active_comp_id);
+        }
+    })
+    .fail(function() {
+        alert("Error while fetching data for selected record");
+    });
 });
 
 //-----------------------------------------------------------------------------
