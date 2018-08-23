@@ -82,17 +82,44 @@ dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "a2"  "PayorStatem
 #       old rental agreement. It is not in the fees list for the RefNo, so it
 #       should be reversed
 #------------------------------------------------------------------------------
-RAID1REFNO="NZXY8FS6NHJ34N383950"
+RAIDREFNO="NZXY8FS6NHJ34N383950"
 RAIDAMENDEDID="25"
 
 # Send the command to change the RefNo to Active:
-echo "%7B%22UserRefNo%22%3A%22${RAID1REFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
+echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
 dojsonPOST "http://localhost:8270/v1/raactions/1/" "request" "b0"  "WebService--Action-setTo-ACTIVE"
 
 # Generate a payor statement -- ensure that 2 RAs are there and have correct
 # info.
 echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%228%2F1%2F2018%22%2C%22searchDtStop%22%3A%229%2F30%2F2018%22%2C%22Bool1%22%3Afalse%7D" > request
 dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "b1"  "PayorStatement--StmtInfo"
+
+#------------------------------------------------------------------------------
+#  TEST c
+#  Validate that a new owner of a pet is properly handled in the TBind
+#  records.  Also validate that new pets are handled properly for both
+#  TBind and newly created Occupant who becomes their contact point.
+#
+#  Scenario:
+#  RAID  1 - Add a new user, Sally. Add a new pet, Rocky.  Make Sally the
+#            contact for both pets going forward.
+#
+#  Expected Results:
+#   1.  TBind record for Pet 1 will be split at 8/22/2018.  TCID 1 was the
+#       contact person before the split.  TCID 2 is the contact going forward.
+#   2.  Pet 2 is created and TCID 2 is the contact.
+#------------------------------------------------------------------------------
+echo "Create new database..."
+mysql --no-defaults rentroll < rrsm1.sql
+
+RAIDREFNO="A686LT3TUPX1YZ961X91"
+
+# Send the command to change the RefNo to Active:
+echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
+dojsonPOST "http://localhost:8270/v1/raactions/1/" "request" "c0"  "WebService--Action-setTo-ACTIVE"
+
+mysqlverify "c1" "" "TBind-Pets" "SELECT TBID,BID,SourceElemType,SourceElemID,AssocElemType,AssocElemID,DtStart,DtStop,FLAGS FROM TBind WHERE AssocElemType=14;"
+mysqlverify "c2" "" "flow2ra-Transactants" "SELECT TCID,BID,PreferredName,LastName FROM Transactant;"
 
 
 # import rr.sql again to test update existing RA

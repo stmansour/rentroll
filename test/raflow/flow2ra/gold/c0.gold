@@ -1,0 +1,426 @@
+{
+    "record": {
+        "DataFulfilled": {
+            "dates": true,
+            "parentchild": true,
+            "people": true,
+            "pets": true,
+            "rentables": true,
+            "tie": true,
+            "vehicles": true
+        },
+        "Flow": {
+            "BID": 1,
+            "CreateBy": 0,
+            "CreateTS": "0001-01-01T00:00:00Z",
+            "Data": {
+                "dates": {
+                    "AgreementStart": "8/23/2018",
+                    "AgreementStop": "3/1/2020",
+                    "CSAgent": 254,
+                    "PossessionStart": "8/23/2018",
+                    "PossessionStop": "3/1/2020",
+                    "RentStart": "8/23/2018",
+                    "RentStop": "3/1/2020"
+                },
+                "meta": {
+                    "ActiveDate": "2018-08-23 01:54:00 UTC",
+                    "ActiveName": "UID-0",
+                    "ActiveUID": -99999,
+                    "ApplicationReadyDate": "2018-08-23 01:38:00 UTC",
+                    "ApplicationReadyName": "Steve Mansour",
+                    "ApplicationReadyUID": 211,
+                    "Approver1": 211,
+                    "Approver1Name": "Steve Mansour",
+                    "Approver2": 211,
+                    "Approver2Name": "Steve Mansour",
+                    "BID": 1,
+                    "DecisionDate1": "2018-08-23 01:38:00 UTC",
+                    "DecisionDate2": "2018-08-23 01:38:00 UTC",
+                    "DeclineReason1": 0,
+                    "DeclineReason2": 0,
+                    "DocumentDate": "2018-08-23 00:00:00 UTC",
+                    "HavePets": false,
+                    "HaveVehicles": false,
+                    "LastTMPASMID": 7,
+                    "LastTMPPETID": 2,
+                    "LastTMPTCID": 2,
+                    "LastTMPVID": 1,
+                    "LeaseTerminationReason": 0,
+                    "MoveInDate": "2018-08-23 01:38:00 UTC",
+                    "MoveInName": "Steve Mansour",
+                    "MoveInUID": 211,
+                    "NoticeToMoveDate": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveName": "UID-0",
+                    "NoticeToMoveReported": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveUID": 0,
+                    "RAFLAGS": 52,
+                    "RAID": 2,
+                    "TerminationDate": "1900-01-01 00:00:00 UTC",
+                    "TerminatorName": "UID-0",
+                    "TerminatorUID": 0
+                },
+                "parentchild": [],
+                "people": [
+                    {
+                        "Address": "30040 13th",
+                        "Address2": "",
+                        "AlternateEmailAddress": "55752 West Virginia,Gulfport-Biloxi,ME 31847",
+                        "Bankruptcy": false,
+                        "BankruptcyDes": "",
+                        "CellPhone": "(967) 819-9748",
+                        "City": "Norwalk",
+                        "Comment": "",
+                        "CompanyAddress": "89490 A",
+                        "CompanyCity": "PompanoBeach",
+                        "CompanyEmail": "BaxterInternationalIncP1099@aol.com",
+                        "CompanyName": "Baxter International Inc.",
+                        "CompanyPhone": "(583) 309-5020",
+                        "CompanyPostalCode": "84059",
+                        "CompanyState": "NE",
+                        "Convicted": false,
+                        "ConvictedDes": "",
+                        "Country": "USA",
+                        "CreditLimit": 8421,
+                        "CurrentAddress": "16382 West, Cathedral City, VA 02081",
+                        "CurrentLandLordName": "Charlyn Long",
+                        "CurrentLandLordPhoneNo": "(685) 174-2287",
+                        "CurrentLengthOfResidency": "8 years 8 months",
+                        "CurrentReasonForMoving": 115,
+                        "DateofBirth": "6/8/1982",
+                        "DriversLicense": "E8682364",
+                        "EligibleFuturePayor": true,
+                        "EligibleFutureUser": false,
+                        "EmergencyContactAddress": "19150 Juniper,Amarillo,MS 27887",
+                        "EmergencyContactEmail": "KayceeWeaver401@bdiddy.com",
+                        "EmergencyContactName": "Kaycee Weaver",
+                        "EmergencyContactTelephone": "(813) 534-5931",
+                        "Evicted": false,
+                        "EvictedDes": "",
+                        "FirstName": "Celina",
+                        "GrossIncome": 108777,
+                        "Industry": 197,
+                        "IsCompany": false,
+                        "IsGuarantor": false,
+                        "IsOccupant": true,
+                        "IsRenter": true,
+                        "LastName": "Mayer",
+                        "MiddleName": "Caren",
+                        "Occupation": "orthopaedic shoemaker (orthopaedic bootmaker)",
+                        "OtherPreferences": "",
+                        "Points": 0,
+                        "PostalCode": "98081",
+                        "PreferredName": "Lashawna",
+                        "PrimaryEmail": "CMayer6688@gmail.com",
+                        "PriorAddress": "71279 13th, Atlanta, HI 41318",
+                        "PriorLandLordName": "Janet Blanchard",
+                        "PriorLandLordPhoneNo": "(492) 760-2334",
+                        "PriorLengthOfResidency": "9 years 2 months",
+                        "PriorReasonForMoving": 105,
+                        "SecondaryEmail": "CelinaMayer514@yahoo.com",
+                        "SourceSLSID": 44,
+                        "SpecialNeeds": "None",
+                        "State": "MO",
+                        "TCID": 1,
+                        "TMPTCID": 1,
+                        "TaxpayorID": "02280606",
+                        "ThirdPartySource": "Candi Small",
+                        "Website": "",
+                        "WorkPhone": "(951) 766-8817"
+                    },
+                    {
+                        "Address": "",
+                        "Address2": "",
+                        "AlternateEmailAddress": "",
+                        "Bankruptcy": false,
+                        "BankruptcyDes": "",
+                        "CellPhone": "",
+                        "City": "",
+                        "Comment": "",
+                        "CompanyAddress": "",
+                        "CompanyCity": "",
+                        "CompanyEmail": "",
+                        "CompanyName": "",
+                        "CompanyPhone": "",
+                        "CompanyPostalCode": "",
+                        "CompanyState": "",
+                        "Convicted": false,
+                        "ConvictedDes": "",
+                        "Country": "",
+                        "CreditLimit": 0,
+                        "CurrentAddress": "",
+                        "CurrentLandLordName": "",
+                        "CurrentLandLordPhoneNo": "",
+                        "CurrentLengthOfResidency": "",
+                        "CurrentReasonForMoving": 0,
+                        "DateofBirth": "1/1/1900",
+                        "DriversLicense": "12345rty",
+                        "EligibleFuturePayor": true,
+                        "EligibleFutureUser": true,
+                        "EmergencyContactAddress": "123 Elm St.",
+                        "EmergencyContactEmail": "bb@cc.com",
+                        "EmergencyContactName": "Billy Bob Thorton",
+                        "EmergencyContactTelephone": "987-987=9872",
+                        "Evicted": false,
+                        "EvictedDes": "",
+                        "FirstName": "Sallie",
+                        "GrossIncome": 0,
+                        "Industry": 0,
+                        "IsCompany": false,
+                        "IsGuarantor": false,
+                        "IsOccupant": true,
+                        "IsRenter": true,
+                        "LastName": "Severson",
+                        "MiddleName": "Sue",
+                        "Occupation": "kid",
+                        "OtherPreferences": "",
+                        "Points": 0,
+                        "PostalCode": "",
+                        "PreferredName": "Sallysue",
+                        "PrimaryEmail": "a@b.com",
+                        "PriorAddress": "",
+                        "PriorLandLordName": "",
+                        "PriorLandLordPhoneNo": "",
+                        "PriorLengthOfResidency": "",
+                        "PriorReasonForMoving": 0,
+                        "SecondaryEmail": "",
+                        "SourceSLSID": 1,
+                        "SpecialNeeds": "None",
+                        "State": "",
+                        "TCID": 2,
+                        "TMPTCID": 2,
+                        "TaxpayorID": "",
+                        "ThirdPartySource": "",
+                        "Website": "",
+                        "WorkPhone": "123-456-1234"
+                    }
+                ],
+                "pets": [
+                    {
+                        "Breed": "English Springer Spaniel",
+                        "Color": "Cream",
+                        "Fees": [
+                            {
+                                "ARID": 24,
+                                "ARName": "Pet Rent",
+                                "ASMID": 26,
+                                "AtSigningPreTax": 0,
+                                "Comment": "Continuation of ASMID 9 from RAID 1",
+                                "ContractAmount": 2.9,
+                                "ProrationCycle": 4,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "8/23/2018",
+                                "Stop": "8/23/2018",
+                                "TMPASMID": 3,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 24,
+                                "ARName": "Pet Rent",
+                                "ASMID": 27,
+                                "AtSigningPreTax": 0,
+                                "Comment": "Continuation of ASMID 9 from RAID 1",
+                                "ContractAmount": 10,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "9/1/2018",
+                                "Stop": "3/1/2020",
+                                "TMPASMID": 4,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "Name": "Gus",
+                        "PETID": 1,
+                        "TMPPETID": 1,
+                        "TMPTCID": 1,
+                        "Type": "dog",
+                        "Weight": 32
+                    },
+                    {
+                        "Breed": "brown",
+                        "Color": "brown",
+                        "Fees": [
+                            {
+                                "ARID": 23,
+                                "ARName": "Pet Fee",
+                                "ASMID": 28,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 50,
+                                "ProrationCycle": 0,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "8/23/2018",
+                                "Stop": "8/23/2018",
+                                "TMPASMID": 5,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 24,
+                                "ARName": "Pet Rent",
+                                "ASMID": 29,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 2.9,
+                                "ProrationCycle": 4,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "8/23/2018",
+                                "Stop": "8/23/2018",
+                                "TMPASMID": 6,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 24,
+                                "ARName": "Pet Rent",
+                                "ASMID": 30,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 10,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "9/1/2018",
+                                "Stop": "3/1/2020",
+                                "TMPASMID": 7,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "Name": "Rocky",
+                        "PETID": 2,
+                        "TMPPETID": 2,
+                        "TMPTCID": 2,
+                        "Type": "Squirrel",
+                        "Weight": 2
+                    }
+                ],
+                "rentables": [
+                    {
+                        "AtSigningPreTax": 0,
+                        "Fees": [
+                            {
+                                "ARID": 26,
+                                "ARName": "Rent Non-Taxable",
+                                "ASMID": 22,
+                                "AtSigningPreTax": 0,
+                                "Comment": "Continuation of ASMID 1 from RAID 1",
+                                "ContractAmount": 290.32,
+                                "ProrationCycle": 4,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "8/23/2018",
+                                "Stop": "8/23/2018",
+                                "TMPASMID": 1,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 26,
+                                "ARName": "Rent Non-Taxable",
+                                "ASMID": 23,
+                                "AtSigningPreTax": 0,
+                                "Comment": "Continuation of ASMID 1 from RAID 1",
+                                "ContractAmount": 1000,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "9/1/2018",
+                                "Stop": "3/1/2020",
+                                "TMPASMID": 2,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "RID": 1,
+                        "RTFLAGS": 4,
+                        "RTID": 1,
+                        "RentCycle": 6,
+                        "RentableName": "Rentable001",
+                        "SalesTax": 0,
+                        "TransOccTax": 0
+                    }
+                ],
+                "tie": {
+                    "people": [
+                        {
+                            "PRID": 1,
+                            "TMPTCID": 1
+                        },
+                        {
+                            "PRID": 1,
+                            "TMPTCID": 2
+                        }
+                    ]
+                },
+                "vehicles": [
+                    {
+                        "Fees": [],
+                        "LicensePlateNumber": "RNB2680",
+                        "LicensePlateState": "TX",
+                        "ParkingPermitNumber": "3887738",
+                        "TMPTCID": 1,
+                        "TMPVID": 1,
+                        "VID": 1,
+                        "VIN": "1987",
+                        "VehicleColor": "Claret",
+                        "VehicleMake": "Pontiac",
+                        "VehicleModel": "Grand Am",
+                        "VehicleType": "car",
+                        "VehicleYear": 8
+                    }
+                ]
+            },
+            "FlowID": 0,
+            "FlowType": "RA",
+            "ID": 2,
+            "LastModBy": 0,
+            "LastModTime": "0001-01-01T00:00:00Z",
+            "UserRefNo": ""
+        },
+        "ValidationCheck": {
+            "errors": {
+                "dates": {
+                    "errors": {},
+                    "total": 0
+                },
+                "parentchild": {
+                    "errors": [],
+                    "total": 0
+                },
+                "people": {
+                    "errors": [],
+                    "total": 0
+                },
+                "pets": {
+                    "errors": [],
+                    "total": 0
+                },
+                "rentables": {
+                    "errors": [],
+                    "total": 0
+                },
+                "tie": {
+                    "people": {
+                        "errors": [],
+                        "total": 0
+                    }
+                },
+                "vehicles": {
+                    "errors": [],
+                    "total": 0
+                }
+            },
+            "nonFieldsErrors": {
+                "dates": [],
+                "parentchild": [],
+                "people": [],
+                "pets": [],
+                "rentables": [],
+                "tie": [],
+                "vehicles": []
+            },
+            "total": 0
+        }
+    },
+    "status": "success"
+}

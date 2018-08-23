@@ -7,7 +7,7 @@ flow2ra:
 	@echo "*** Completed in ${THISDIR} ***"
 
 clean:
-	rm -f rentroll.log log llog *.g ./gold/*.g err.txt [a-z] [a-z][a-z0-9] qq? ${THISDIR} fail conf*.json request serverreply svrresponse
+	rm -f rentroll.log log llog *.g ./gold/*.g err.txt [a-z] [a-z][a-z0-9] qq? ${THISDIR} fail conf*.json request serverreply svrresponse xxqq
 	@echo "*** CLEAN completed in ${THISDIR} ***"
 
 config.json:

@@ -598,7 +598,6 @@ ${4}
 EOF
 	TESTCOUNT=$((TESTCOUNT + 1))
 	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} $1 $3
-	#${CSVLOAD} $2 >>${LOGFILE} 2>&1
 	CMD1="mysql --no-defaults <xxqq >${1}"
 	mysql --no-defaults <xxqq >${1}
 
