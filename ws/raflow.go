@@ -340,6 +340,17 @@ func GetRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// CREATE ONE ONLY WHEN REF.NO IS BLANK
 		rlib.Console("req.UserRefNo = %s\n", req.UserRefNo)
 		if req.UserRefNo == "" {
+
+			// CHECK IF ANY FLOW EXIST WITH GIVEN RAID
+			flow, err = rlib.GetFlowForRAID(ctx, "RA", req.RAID)
+			if err != nil {
+				return
+			}
+			if flow.FlowID > 0 {
+				err = fmt.Errorf("flow already exists with given refno: %s\n", flow.UserRefNo)
+				return
+			}
+
 			rlib.Console("Generating new flow %s\n", req.UserRefNo)
 			// IF NOT FOUND THEN TRY TO CREATE NEW ONE FROM RAID
 			// GET RENTAL AGREEMENT
