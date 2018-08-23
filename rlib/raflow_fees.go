@@ -158,8 +158,8 @@ func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName s
 		// TODO(Steve): NEED CONFIRMATION ON THIS
 		// Console("%s: ARID: %d\n", funcname, baseFee.ARID)
 		if !DateRangeOverlap(&feeStart, &feeStop, &rStart, &rStop) {
-			// Console("does not overlap, continue.... ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n")
-			/*Console("feeStart: %s, feeStop: %s, rStart: %s, rStop: %s\n",
+			// Console("%s: does not overlap, ARID: %d\n", funcname, baseFee.ARID)
+			/*Console("%s: feeStart: %s, feeStop: %s, rStart: %s, rStop: %s\n", funcname,
 			feeStart.Format(RRDATEFMT3), feeStop.Format(RRDATEFMT3),
 			rStart.Format(RRDATEFMT3), rStop.Format(RRDATEFMT3))*/
 			continue
@@ -171,7 +171,7 @@ func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName s
 		if err != nil {
 			return
 		}
-		// Console("%s: ARName: %s\n", funcname, ar.Name)
+		// Console("%s: Fee.ARID: %d, ARName: %s\n", funcname, baseFee.ARID, ar.Name)
 
 		// GET RENT, PRORATION CYCLE
 		RentCycle := baseFee.RentCycle
@@ -199,7 +199,7 @@ func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName s
 		//--------------------------------------------------------------
 		// IF IT IS NON-RECUR CHARGE THEN
 		oneTimeCharge := (ar.FLAGS & (1 << ARIsNonRecurCharge)) != 0
-		rentAsmCharge := (ar.FLAGS & (1 << ARIsRentASM)) != 0
+		// rentAsmCharge := (ar.FLAGS & (1 << ARIsRentASM)) != 0
 
 		if oneTimeCharge {
 			// ADD FEE IN LIST
@@ -226,7 +226,7 @@ func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName s
 			}
 			fees = append(fees, raFee)
 
-		} else if rentAsmCharge { // IT MUST BE RENT ASM ONE
+		} else /*if rentAsmCharge*/ { // IT MUST BE RENT ASM ONE
 
 			// CHECK FOR PRORATED AMOUNT REQUIRED
 			// TODO(Sudip & Steve): WHAT ABOUT OTHER TYPE OF EPOCHS MODE (WEEKLY, QUARTERLY)
