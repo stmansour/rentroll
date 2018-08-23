@@ -167,6 +167,22 @@ echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A12%7D" > request
 dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p9"  "Validate RAFlow -- TaxpayorID"
 
 #------------------------------------------------------------------------------
+#  TEST p10
+#  Validate raflow : People section
+#
+#  Scenario:
+#  Occupation, PrimaryEmail, Workphone/CellPhone, Driving Lic is only require when role is set to Renter or Guarantor.
+#  Here, 2 transanct in the flow. Each have Occupation, PrimaryEmail, Workphone/CellPhone, Driving Lic are blank.
+#  1st Transanctant: Renter, Guarantor
+#  2nd Transanctant: Occupant
+#
+#  Expected Results:
+#  1. Error: Occupation, PrimaryEmail, Workphone/CellPhone, Driving Lic must not be blank for transanctant which have role renter and guarantor
+#------------------------------------------------------------------------------
+echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A19%7D" > request
+dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p10"  "Validate RAFlow -- Occupation, Primary Email, Workphone, DrivingLic"
+
+#------------------------------------------------------------------------------
 #  TEST d0
 #  Validate raflow : Date section
 #

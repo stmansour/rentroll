@@ -222,7 +222,7 @@
                                     "must provide reason"
                                 ],
                                 "DriversLicense": [
-                                    "cannot be blank"
+                                    "must not be blank"
                                 ],
                                 "EmergencyContactAddress": [
                                     "must not be blank"
@@ -241,10 +241,10 @@
                                     "gross income must be greater than 0.00"
                                 ],
                                 "Occupation": [
-                                    "cannot be blank"
+                                    "must not be blank"
                                 ],
                                 "PrimaryEmail": [
-                                    "is not a valid email address"
+                                    "must not be blank"
                                 ],
                                 "SourceSLSID": [
                                     "provide SourceSLSID"
