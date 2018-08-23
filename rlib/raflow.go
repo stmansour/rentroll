@@ -148,10 +148,10 @@ type RAPeopleFlowData struct {
 	PreferredName  string `validate:"string,min=1,max=100,omitempty"`
 	IsCompany      bool   `validate:"-"`
 	CompanyName    string `validate:"string,min=1,max=100,omitempty"` // It is required when IsCompany flag is true. It'll be checked in bizlogic validation.
-	PrimaryEmail   string `validate:"email"`
+	PrimaryEmail   string `validate:"email,omitempty"`                // It doesn't require compulsory when a transanctant is Occupant. It'll handled in bizlogic validation.
 	SecondaryEmail string `validate:"email,omitempty"`
-	WorkPhone      string `validate:"string,min=1,max=100,omitempty"` // Either Workphone or CellPhone is compulsory. It'll be checked in bizlogic validation
-	CellPhone      string `validate:"string,min=1,max=100,omitempty"` // Either Workphone or CellPhone is compulsory. It'll be checked in bizlogic validation
+	WorkPhone      string `validate:"string,min=1,max=100,omitempty"` // Either Workphone or CellPhone is compulsory when a transanctant isn't occupants. It'll be checked in bizlogic validation
+	CellPhone      string `validate:"string,min=1,max=100,omitempty"` // Either Workphone or CellPhone is compulsory when a transanctant isn't occupants. It'll be checked in bizlogic validation
 	Address        string `validate:"string,min=1,max=100,omitempty"`
 	Address2       string `validate:"string,min=0,max=100,omitempty"`
 	City           string `validate:"string,min=1,max=100,omitempty"`
@@ -168,7 +168,7 @@ type RAPeopleFlowData struct {
 	CompanyPostalCode string `validate:"string,min=1,max=100,omitempty"`
 	CompanyEmail      string `validate:"email,omitempty"`
 	CompanyPhone      string `validate:"string,min=1,max=100,omitempty"`
-	Occupation        string `validate:"string,min=1,max=100"`
+	Occupation        string `validate:"string,min=1,max=100,omitempty"` // It doesn't require compulsory when a transanctant is Occupant. It'll handled in bizlogic validation.
 
 	// Current Address information
 	CurrentAddress           string `validate:"string,min=1,max=100,omitempty"`
@@ -202,7 +202,7 @@ type RAPeopleFlowData struct {
 	CreditLimit         float64 `validate:"number:float,min=0.00,omitempty"`
 	TaxpayorID          string  `validate:"string,min=1,max=25,omitempty"`   // It requires when transanctant is renter or gurantor. It handles via business logic
 	GrossIncome         float64 `validate:"number:float,min=0.00,omitempty"` // When role is set to renter or guarantor than it is compulsory. It'll be check via bizlogic.
-	DriversLicense      string  `validate:"string,min=1,max=128"`
+	DriversLicense      string  `validate:"string,min=1,max=128,omitempty"`  // It doesn't require compulsory when a transanctant is Occupant. It'll handled in bizlogic validation.
 	EligibleFuturePayor bool    `validate:"-"`
 
 	// ---------- User -----------
@@ -216,7 +216,7 @@ type RAPeopleFlowData struct {
 	AlternateEmailAddress     string `validate:"string,min=1,max=100,omitempty"`
 	EligibleFutureUser        bool   `validate:"-"`
 	Industry                  int64  `validate:"number,min=0,omitempty"`
-	SourceSLSID               int64  `validate:"number,min=0,omitempty"` // It is compulsory when role is set to renter or user. It'll be check via bizlogic.
+	SourceSLSID               int64  `validate:"number,min=0,omitempty"` // It is compulsory when role is set to renter. It'll be check via bizlogic.
 }
 
 // RAPetsFlowData contains data in the pets part of RA flow
