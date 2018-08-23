@@ -49,8 +49,10 @@ outputCheck() {
 			's/(^[ \t]+"DecisionDate1":).*/$1 TIMESTAMP/'
 			's/(^[ \t]+"DecisionDate2":).*/$1 TIMESTAMP/'
 			's/(^[ \t]+"MoveInDate":).*/$1 TIMESTAMP/'
+			's/(^[ \t]+"DocumentDate":).*/$1 TIMESTAMP/' # will be removed
 			's/(^[ \t]+"ActiveDate":).*/$1 TIMESTAMP/'
 			's/(^[ \t]+"NoticeToMoveReported":).*/$1 TIMESTAMP/'
+			's/(^[ \t]+"NoticeToMoveDate":).*/$1 TIMESTAMP/' # will be removed
 			's/(^[ \t]+"TerminationDate":).*/$1 TIMESTAMP/'
 			's/(^[ \t]+"UserRefNo":).*/$1 USEREFNO/'
 			's/(^[ \t]+"AgreementStart":).*/$1 TIMESTAMP/'
