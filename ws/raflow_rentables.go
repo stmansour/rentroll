@@ -59,15 +59,18 @@ func SvcRAFlowRentableHandler(w http.ResponseWriter, r *http.Request, d *Service
 //  @Response FlowResponse
 // wsdoc }
 func SaveRAFlowRentableDetails(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	const funcname = "SaveRAFlowRentableDetails"
+	const (
+		funcname    = "SaveRAFlowRentableDetails"
+		bizPropName = "general"
+	)
 	var (
-		raFlowData  rlib.RAFlowJSONData
-		foo         RARentableDetailsRequest
-		feesRecords = []rlib.RAFeesData{}
-		today       = time.Now()
-		err         error
-		tx          *sql.Tx
-		ctx         context.Context
+		raFlowData rlib.RAFlowJSONData
+		foo        RARentableDetailsRequest
+		baseFees   = []rlib.RAFeesData{}
+		today      = time.Now()
+		err        error
+		tx         *sql.Tx
+		ctx        context.Context
 	)
 	fmt.Printf("Entered %s\n", funcname)
 
@@ -127,6 +130,10 @@ func SaveRAFlowRentableDetails(w http.ResponseWriter, r *http.Request, d *Servic
 		return
 	}
 
+	// GET RENT DATES FROM THE JSON DATA
+	rStart := raFlowData.Dates.RentStart
+	rStop := raFlowData.Dates.RentStop
+
 	//-------------------------------------------------------
 	// FIND RENTABLE AND RENTABLETYPE FROM REQUEST RID
 	//-------------------------------------------------------
@@ -159,30 +166,29 @@ func SaveRAFlowRentableDetails(w http.ResponseWriter, r *http.Request, d *Servic
 
 	if ar.ARID > 0 {
 		// make sure the IsRentASM is marked true
-		if ar.FLAGS&0x10 != 0 {
+		if ar.FLAGS&(1<<rlib.ARIsRentASM) != 0 {
 			raFlowData.Meta.LastTMPASMID++
-			rec := rlib.RAFeesData{
+			feeRec := rlib.RAFeesData{
 				TMPASMID:       raFlowData.Meta.LastTMPASMID,
 				ARID:           ar.ARID,
 				ARName:         ar.Name,
 				ContractAmount: ar.DefaultAmount,
-				Start:          rlib.JSONDate(today),
-				Stop:           rlib.JSONDate(today.AddDate(1, 0, 0)),
+				Start:          rStart,
+				Stop:           rStop,
 			}
 
 			// If it have is non recur charge true
-			if ar.FLAGS&0x40 != 0 {
-				rec.RentCycle = rlib.RECURNONE // norecur: index 0 in app.cycleFreq
-				rec.ProrationCycle = rlib.RECURNONE
+			if ar.FLAGS&(1<<rlib.ARIsNonRecurCharge) != 0 {
+				feeRec.RentCycle = rlib.RECURNONE
+				feeRec.ProrationCycle = rlib.RECURNONE
+				feeRec.Start = rStart
+				feeRec.Stop = rStart
 			} else {
-				// TODO(Steve & Sudip): SHOULD WE SET CYCLES FROM AR OR RENTABLE TYPES?
-				// rec.RentCycle = rt.RentCycle
-				// rec.ProrationCycle = rt.ProrationCycle
-				rec.RentCycle = ar.DefaultRentCycle
-				rec.ProrationCycle = ar.DefaultProrationCycle
+				feeRec.RentCycle = ar.DefaultRentCycle
+				feeRec.ProrationCycle = ar.DefaultProrationCycle
 			}
 
-			feesRecords = append(feesRecords, rec)
+			baseFees = append(baseFees, feeRec)
 		}
 	}
 
@@ -199,50 +205,54 @@ func SaveRAFlowRentableDetails(w http.ResponseWriter, r *http.Request, d *Servic
 		return
 	}
 
-	// append feesRecords in ascending order
+	// append baseFees in ascending order
 	for _, ar := range m {
-		if ar.FLAGS&(1<<rlib.ARIsRentASM) != 0 { /* || // if it's rent asm then continue
-			ar.FLAGS&(1<<rlib.ARPETIDReq) != 0 || // if it's pet related AR
-			ar.FLAGS&(1<<rlib.ARVIDReq) != 0 { // if it's vehicle related AR*/
+
+		isRentFee := ar.FLAGS&(1<<rlib.ARIsRentASM) != 0 // RENT ASM FEE IS COVERED BY RENTABLE TYPE, DON'T INCLUDE OTHER RENTABLE FEES HERE
+		isPetFee := ar.FLAGS&(1<<rlib.ARPETIDReq) != 0
+		isVehicleFee := ar.FLAGS&(1<<rlib.ARVIDReq) != 0
+
+		// IGNORE RENT ASM (IT'S COVERED ABOVE), PET, VEHICLE CHARGES
+		if isRentFee || isPetFee || isVehicleFee {
 			continue
 		}
 
 		raFlowData.Meta.LastTMPASMID++
-		rec := rlib.RAFeesData{
+		feeRec := rlib.RAFeesData{
 			TMPASMID:       raFlowData.Meta.LastTMPASMID,
 			ARID:           ar.ARID,
 			ARName:         ar.Name,
 			ContractAmount: ar.DefaultAmount,
-			Start:          rlib.JSONDate(today),
-			Stop:           rlib.JSONDate(today.AddDate(1, 0, 0)),
+			Start:          rStart,
+			Stop:           rStop,
 		}
 
 		// If it have is non recur charge  flag true
-		if ar.FLAGS&0x40 != 0 {
-			rec.RentCycle = rlib.RECURNONE // norecur: index 0 in app.cycleFreq
-			rec.ProrationCycle = rlib.RECURNONE
+		if ar.FLAGS&(1<<rlib.ARIsNonRecurCharge) != 0 {
+			feeRec.RentCycle = rlib.RECURNONE
+			feeRec.ProrationCycle = rlib.RECURNONE
+			feeRec.Start = rStart
+			feeRec.Stop = rStart
 		} else {
-			// TODO(Steve & Sudip): SHOULD WE SET CYCLES FROM AR OR RENTABLE TYPES?
-			// rec.RentCycle = rt.RentCycle
-			// rec.ProrationCycle = rt.ProrationCycle
-			rec.RentCycle = ar.DefaultRentCycle
-			rec.ProrationCycle = ar.DefaultProrationCycle
+			feeRec.RentCycle = ar.DefaultRentCycle
+			feeRec.ProrationCycle = ar.DefaultProrationCycle
 		}
 
-		/*if ar.FLAGS&0x20 != 0 { // same will be applied to Security Deposit ASM
-		    rec.Amount = ar.DefaultAmount
-		}*/
-
-		// now append rec in feesRecords
-		feesRecords = append(feesRecords, rec)
+		// now append feeRec in baseFees
+		baseFees = append(baseFees, feeRec)
 	}
+
+	// GET CALCULATED FEES INCLUDING PRORATED ONE
+	var rentableFees []rlib.RAFeesData
+	rentableFees, err = rlib.GetCalculatedFeesFromBaseFees(ctx, d.BID, bizPropName,
+		(time.Time)(rStart), (time.Time)(rStop),
+		baseFees)
 
 	//-------------------------------------------------------
 	// NOW SORT THE FEES LIST BASED ON ARNAME
-	// AND INSERT IT IN RENTABLE DATA
+	// AND INSERT IT IN RENTABLE DATA, GOLANG(1.8 OR LATER)
 	//-------------------------------------------------------
-	// sort based on name, needs version 1.8 later of golang
-	sort.Slice(feesRecords, func(i, j int) bool { return feesRecords[i].ARName < feesRecords[j].ARName })
+	sort.Slice(rentableFees, func(i, j int) bool { return rentableFees[i].ARName < rentableFees[j].ARName })
 
 	// assign calculated data in rentable data
 	rfd := rlib.RARentablesFlowData{
@@ -251,7 +261,7 @@ func SaveRAFlowRentableDetails(w http.ResponseWriter, r *http.Request, d *Servic
 		RTID:         rt.RTID,
 		RTFLAGS:      rt.FLAGS,
 		RentCycle:    rt.RentCycle,
-		Fees:         feesRecords,
+		Fees:         rentableFees,
 	}
 
 	// find this RID in flow data rentable list

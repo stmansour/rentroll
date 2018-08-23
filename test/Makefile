@@ -4,7 +4,7 @@ TESTREPORT="testreport.txt"
 
 db:
 	for dir in $(DIRS); do make -C $$dir;done
-	@echo "*** MAKE completed in test ***"
+	@echo "*** MAKE completed in testabag ***"
 
 clean:
 	rm -rf dbreport.txt testreport.txt dbqqqmods.sql cmds x y t refdb checkdb def1.sh def2.sh

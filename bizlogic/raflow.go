@@ -343,11 +343,13 @@ func validateDates(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, 
 // 2. If isCompany flag is false than FirstName and LastName are required
 // 3. If only one person exist in the list, then it should have isRenter role marked as true.
 // 4. If role is set to Renter or guarantor than it must have mentioned GrossIncome
-// 5. Either Workphone or CellPhone is compulsory
+// 5. Either Workphone or CellPhone is compulsory when a transanctant isn't occupant
 // 6. EmergencyContactName, EmergencyContactAddress, EmergencyContactTelephone, EmergencyEmail are required when IsCompany flag is false.
-// 7. SourceSLSID must be greater than 0 when role is set to Renter, User
+// 7. SourceSLSID must be greater than 0 when role is set to Renter
 // 8. When it is brand new RA Application(RAID==0) it require "current" address related information
 // 9. TaxpayorID is only require when role is set to Renter or Guarantor
+// 10. Occupantion is only require when role is set to Renter or Gurantor
+// 11. Primary email is only require when role is set to Renter or Gurantor
 // ----------------------------------------------------------------------
 func validatePeople(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, raFlowNonFieldsErrors *RAFlowNonFieldsErrors, a *rlib.RAFlowJSONData, RAID int64) error {
 
@@ -444,9 +446,9 @@ func validatePeople(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors,
 		}
 
 		// ----------- Check rule no. 5  ----------------
-		// Either Workphone or CellPhone is compulsory
+		// Either Workphone or CellPhone is compulsory when a transanctant isn't occupant
 		err = fmt.Errorf("provide workphone or cellphone number")
-		if p.WorkPhone == "" && p.CellPhone == "" {
+		if p.WorkPhone == "" && p.CellPhone == "" && (p.IsRenter || p.IsGuarantor) {
 			peopleFieldsError.Errors["WorkPhone"] = append(peopleFieldsError.Errors["WorkPhone"], err.Error())
 			peopleFieldsError.Total++
 		}
@@ -454,7 +456,7 @@ func validatePeople(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors,
 		// ----------- Check rule no. 7  ----------------
 		// SourceSLSID must be greater than 0 when role is set to Renter, User
 		err = fmt.Errorf("provide SourceSLSID")
-		if (p.IsRenter || p.IsOccupant) && !(p.SourceSLSID > 0) {
+		if p.IsRenter && !(p.SourceSLSID > 0) {
 			peopleFieldsError.Errors["SourceSLSID"] = append(peopleFieldsError.Errors["SourceSLSID"], err.Error())
 			peopleFieldsError.Total++
 		}
@@ -470,6 +472,28 @@ func validatePeople(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors,
 		err = fmt.Errorf("no taxpayer ID available")
 		if (p.IsRenter || p.IsGuarantor) && p.TaxpayorID == "" {
 			peopleFieldsError.Errors["TaxpayorID"] = append(peopleFieldsError.Errors["TaxpayorID"], err.Error())
+			peopleFieldsError.Total++
+		}
+
+		// ----------- Check rule no. 10  ----------------
+		// 10. Occupantion is only require when role is set to Renter or Guarantor
+		err = fmt.Errorf("must not be blank")
+		if (p.IsRenter || p.IsGuarantor) && p.Occupation == "" {
+			peopleFieldsError.Errors["Occupation"] = append(peopleFieldsError.Errors["Occupation"], err.Error())
+			peopleFieldsError.Total++
+		}
+
+		// ----------- Check rule no. 11  ----------------
+		// 11. Primary email is only require when role is set to Renter or Guarantor
+		if (p.IsRenter || p.IsGuarantor) && p.PrimaryEmail == "" {
+			peopleFieldsError.Errors["PrimaryEmail"] = append(peopleFieldsError.Errors["PrimaryEmail"], err.Error())
+			peopleFieldsError.Total++
+		}
+
+		// ----------- Check rule no. 12  ----------------
+		// 12. Driving Lic is only require when role is set to Renter or Guarantor
+		if (p.IsRenter || p.IsGuarantor) && p.DriversLicense == "" {
+			peopleFieldsError.Errors["DriversLicense"] = append(peopleFieldsError.Errors["DriversLicense"], err.Error())
 			peopleFieldsError.Total++
 		}
 
