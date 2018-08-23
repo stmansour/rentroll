@@ -265,6 +265,32 @@ dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "pc0"  "Valid
 echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A18%7D" > request
 dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "t0"  "Validate RAFlow -- Tie"
 
+#------------------------------------------------------------------------------
+# TEST ip0
+# Idiot proof fields: Dates Section
+#
+# Scenario:
+# Dates have blank string type value instead JSONDate type.
+#
+# Expected Results:
+# 1. It should give invalid format error: Date could not be decoded
+#------------------------------------------------------------------------------
+echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A20%7D" > request
+dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "ip0"  "Idiot proof fields -- Validate RAFlow -- Dates"
+
+#------------------------------------------------------------------------------
+# TEST ip1
+# Idiot proof fields: Dates Section
+#
+# Scenario:
+# CSAgent have string type value instead integer
+#
+# Expected Results:
+# 1. It should give invalid format error.
+#------------------------------------------------------------------------------
+echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A21%7D" > request
+dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "ip1"  "Idiot proof fields -- Validate RAFlow -- Dates -- CSAGent"
+
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
 
