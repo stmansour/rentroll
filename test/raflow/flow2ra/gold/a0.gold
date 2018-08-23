@@ -24,7 +24,7 @@
                     "RentStop": "3/1/2020"
                 },
                 "meta": {
-                    "ActiveDate": "2018-08-22 17:12:00 UTC",
+                    "ActiveDate": "2018-08-23 04:13:00 UTC",
                     "ActiveName": "UID-0",
                     "ActiveUID": -99999,
                     "ApplicationReadyDate": "2018-08-20 23:46:00 UTC",
@@ -191,12 +191,12 @@
                         "TMPTCID": 1,
                         "TMPVID": 1,
                         "VID": 1,
-                        "VIN": "2011",
+                        "VIN": "VNKAZ5TKXVJ9OW26",
                         "VehicleColor": "Aluminum",
                         "VehicleMake": "Subaru",
                         "VehicleModel": "Tribeca",
                         "VehicleType": "car",
-                        "VehicleYear": 0
+                        "VehicleYear": 2011
                     }
                 ]
             },

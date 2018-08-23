@@ -882,7 +882,7 @@ type RentableTypeDown struct {
 // Vehicle contains all the vehicle information for a User's vehicld
 type Vehicle struct {
 	VID                 int64
-	TCID                int64
+	TCID                int64 // deprecated
 	BID                 int64
 	VehicleType         string
 	VehicleMake         string
@@ -893,8 +893,8 @@ type Vehicle struct {
 	LicensePlateState   string
 	LicensePlateNumber  string
 	ParkingPermitNumber string
-	DtStart             time.Time
-	DtStop              time.Time
+	DtStart             time.Time // deprecated
+	DtStop              time.Time // deprecated
 	LastModTime         time.Time
 	LastModBy           int64
 	CreateTS            time.Time // when was this record created

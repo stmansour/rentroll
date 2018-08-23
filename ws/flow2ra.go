@@ -644,6 +644,12 @@ func F2RAUpdatePets(ctx context.Context, x *WriteHandlerContext) (err error) {
 				chgs++
 			}
 
+			if chgs > 0 {
+				if err = rlib.UpdatePet(ctx, &pet); err != nil {
+					return err
+				}
+			}
+
 			//----------------------------------------------------------------
 			// 1. If the TCID did not change from the one in the TBind that
 			//    overlaps the amend RAID start time, then no action is taken
@@ -729,112 +735,173 @@ func F2RAUpdatePets(ctx context.Context, x *WriteHandlerContext) (err error) {
 	return nil
 }
 
-// F2RAUpdateVehicles updates all pets
+// F2RAUpdateVehicles updates all vehicles from a flow. If the Vehicle already
+// exists then it just updates the vehicle. If the Vehicle is new it creats
+// it in the permanent tables.
 //
 // INPUTS
-//     ctx    - db context for transactions
-//     x - all the contextual info we need for performing this operation
+//     ctx - db context for transactions
+//     x   - all the contextual info we need for performing this operation
 //
 // RETURNS
 //     Any errors encountered
 //-----------------------------------------------------------------------------
-func F2RAUpdateVehicles(ctx context.Context, x *WriteHandlerContext) error {
-	// rlib.Console("Entered F2RAUpdateVehicles\n")
-	for i := 0; i < len(x.raf.Vehicles); i++ {
+func F2RAUpdateVehicles(ctx context.Context, x *WriteHandlerContext) (err error) {
+	rlib.Console("Entered F2RAUpdateVehicles\n")
 
+	for i := 0; i < len(x.raf.Vehicles); i++ {
 		// get contact person
-		vehicleTCID, err := GetTCIDForTMPTCID(x, x.raf.Vehicles[i].TMPTCID)
+		var VehicleTCID int64
+		VehicleTCID, err = GetTCIDForTMPTCID(x, x.raf.Vehicles[i].TMPTCID)
 		if err != nil {
 			return err
 		}
 
-		var vehicle rlib.Vehicle
+		rlib.Console("VehicleTCID = %d\n", VehicleTCID)
 
-		//-------------------------------
-		// handle existing vehicles...
-		//-------------------------------
+		// VEHICLE ENTRY
+		var v rlib.Vehicle
+		var bind rlib.TBind
+
+		// updated tbind will be from new raid start time and for all future time.
+		bind.SourceElemType = rlib.ELEMPERSON
+		bind.SourceElemID = VehicleTCID
+		bind.AssocElemType = rlib.ELEMVEHICLE
+		bind.AssocElemID = x.raf.Vehicles[i].VID
+		bind.DtStart = x.ra.PossessionStart
+		bind.DtStop = rlib.ENDOFTIME
+		bind.BID = x.ra.BID
+
+		// If VEHICLE exists then update it
 		if x.raf.Vehicles[i].VID > 0 {
-			err := rlib.GetVehicle(ctx, x.raf.Vehicles[i].VID, &vehicle)
+			rlib.Console("Found existing Vehicle %d\n", x.raf.Vehicles[i].VID)
+			err = rlib.GetVehicle(ctx, x.raf.Vehicles[i].VID, &v)
 			if err != nil {
 				return err
 			}
+			rlib.Console("VEHICLE A\n")
+			//-----------------------------------------------------------------
+			// update it if necessary
+			//-----------------------------------------------------------------
+			chgs := 0
+			if v.VehicleType != x.raf.Vehicles[i].VehicleType {
+				v.VehicleType = x.raf.Vehicles[i].VehicleType
+				chgs++
+			}
+			if v.VehicleMake != x.raf.Vehicles[i].VehicleMake {
+				v.VehicleMake = x.raf.Vehicles[i].VehicleMake
+				chgs++
+			}
+			if v.VehicleModel != x.raf.Vehicles[i].VehicleModel {
+				v.VehicleModel = x.raf.Vehicles[i].VehicleModel
+				chgs++
+			}
+			if v.VehicleColor != x.raf.Vehicles[i].VehicleColor {
+				v.VehicleColor = x.raf.Vehicles[i].VehicleColor
+				chgs++
+			}
+			if v.VehicleYear != x.raf.Vehicles[i].VehicleYear {
+				v.VehicleYear = x.raf.Vehicles[i].VehicleYear
+				chgs++
+			}
+			if v.VIN != x.raf.Vehicles[i].VIN {
+				v.VIN = x.raf.Vehicles[i].VIN
+				chgs++
+			}
+			if v.LicensePlateState != x.raf.Vehicles[i].LicensePlateState {
+				v.LicensePlateState = x.raf.Vehicles[i].LicensePlateState
+				chgs++
+			}
+			if v.LicensePlateNumber != x.raf.Vehicles[i].LicensePlateNumber {
+				v.LicensePlateNumber = x.raf.Vehicles[i].LicensePlateNumber
+				chgs++
+			}
+			if v.ParkingPermitNumber != x.raf.Vehicles[i].ParkingPermitNumber {
+				v.ParkingPermitNumber = x.raf.Vehicles[i].ParkingPermitNumber
+				chgs++
+			}
 
-			newvehicle := vehicle
-
-			rlib.MigrateStructVals(&x.raf.Vehicles[i], &newvehicle)
-			newvehicle.TCID = vehicleTCID
-			newvehicle.BID = x.raf.Meta.BID
-
-			// TODO(Steve): ONCE WE HAVE THE WORKING FUNCTIONALITY OF "TBIND" TABLE
-			//              WITH DB QUERIES, UPDATE VEHICLE ACCORDINGLY
+			if chgs > 0 {
+				if err = rlib.UpdateVehicle(ctx, &v); err != nil {
+					return err
+				}
+			}
+			//----------------------------------------------------------------
+			// 1. If the TCID did not change from the one in the TBind that
+			//    overlaps the amend RAID start time, then no action is taken
+			//    to the TBinds for this Vehicle.
 			//
-			//              IF TCID IS CHANGED THEN MARK THE VEHICLE'S STOP DATE
-			//              AS CURRENT DATE IN "TBIND" ENTRY AND CREATE A NEW ENTRY
-			//              IN "TBIND" WITH EXISTING VEHICLE AND TCID ASSOCIATION WITH START
-			//              DATE SAME AS WE ASSIGNED IN STOP DATE (CURRENT DATE)
+			// 2. For the TBind that overlaps the amended RAID start time,
+			//    update its DtStop to the start of the amended RAID.
 			//
-			//              AS OF NOW, JUST UPDATE THE VEHICLE INFO, EVENTUALLY
-			//              THIS UPDATE PART WILL BE REMOVED AND NEXT BLOCK OF
-			//              COMMENTED CODE WILL BE MODIFIED.
-			if err = rlib.UpdateVehicle(ctx, &newvehicle); err != nil {
+			// 3. Remove any other TBinds for this Vehicle in the future.
+			//
+			// 4. Create a new TBind for this Vehicle where DtStart = start of
+			//    the amended RAID and DtStop is set to EOT (end of time).
+			//----------------------------------------------------------------
+
+			//----------------------------------------------------------
+			// Get the TBinds for the Vehicles impacted by this amendment.
+			// Source type = PERSON,  Assoc type = VEHICLE
+			//----------------------------------------------------------
+			var tblist []rlib.TBind
+			tblist, err = rlib.GetTBindAssocsByRange(ctx, v.BID, rlib.ELEMVEHICLE, v.VID, rlib.ELEMPERSON, &bind.DtStart, &bind.DtStop)
+			if err != nil {
 				return err
 			}
-
-			/****** MODIFY CODE STARTS ******
-			newStart := time.Time(x.raf.Vehicles[i].DtStart)
-			//newStop := time.Time(x.raf.Pets[i].DtStop)
-			if vehicle.DtStart.Before(newStart) {
-				//----------------------------------------------------------
-				// stop the current Vehicle when the RA begins...
-				//----------------------------------------------------------
-				vehicle.DtStop = newStart
-				if vehicle.DtStop.Before(vehicle.DtStart) { // yes, this can happen
-					vehicle.DtStop = vehicle.DtStart
-				}
-				if err = rlib.UpdateVehicle(ctx, &vehicle); err != nil {
-					return err
-				}
-				//----------------------------------------------------------
-				// now create the new one...
-				//----------------------------------------------------------
-				x.raf.Vehicles[i].VID, err = rlib.InsertVehicle(ctx, &newvehicle)
-				if err != nil {
-					return err
-				}
-			} else {
-				//---------------------------------------------------------------
-				// if dates are the same or newvehicle range precedes old vehicle range,
-				// then newvehicle overwrites vehicle.  Set the old one to no time...
-				//---------------------------------------------------------------
-				vehicle.DtStop = vehicle.DtStart // essentially sets it to no time
-				if err = rlib.UpdateVehicle(ctx, &vehicle); err != nil {
-					return err
-				}
-				//---------------------------------------------------------------
-				// now create the new one...
-				//---------------------------------------------------------------
-				x.raf.Vehicles[i].VID, err = rlib.InsertVehicle(ctx, &newvehicle)
-				if err != nil {
-					return err
+			rlib.Console("VEHICLE B  tblist size = %d, v.BID = %d, v.VID =%d\n", len(tblist), v.BID, v.VID)
+			//----------------------------------------------------
+			// if only 1 and person hasn't changed, we're done
+			//----------------------------------------------------
+			if len(tblist) == 1 && tblist[0].SourceElemType == rlib.ELEMPERSON && tblist[0].SourceElemID == VehicleTCID {
+				rlib.Console("VEHICLE C\n")
+				return nil
+			}
+			rlib.Console("VEHICLE D\n")
+			//-------------------------------------------------------------
+			// Spin throught the records, update the overlapping record,
+			// and remove the rest.
+			//-------------------------------------------------------------
+			for _, tb := range tblist {
+				rlib.Console("VEHICLE E tb.TBID = %d\n", tb.TBID)
+				if rlib.DateInRange(&bind.DtStart, &tb.DtStart, &tb.DtStop) { // overlaps amended RAID ??
+					tb.DtStop = bind.DtStart // YES: update its stop date
+					rlib.Console("VEHICLE F update TBind\n")
+					if err = rlib.UpdateTBind(ctx, &tb); err != nil {
+						return err
+					}
+				} else {
+					rlib.Console("VEHICLE F delete TBind\n")
+					if err = rlib.DeleteTBind(ctx, tb.TBID); err != nil { // NO: delete it
+						return err
+					}
 				}
 			}
-
-			// rlib.Console("Just before UpdateVehicle: vehicles[j] = %#v\n", vehicles[j])
-			if err = rlib.UpdateVehicle(ctx, &vehicle); err != nil {
+			rlib.Console("VEHICLE G done with for loop\n")
+			//-------------------------------------------------------------
+			// Now add the TBind...
+			//-------------------------------------------------------------
+			_, err = rlib.InsertTBind(ctx, &bind)
+			if err != nil {
 				return err
 			}
-			//---------------------------------
-			****** MODIFY CODE ENDS ******/
 		} else {
-			//-------------------------------
-			// handle new vehicles...
-			//-------------------------------
-			rlib.MigrateStructVals(&x.raf.Vehicles[i], &vehicle)
-			vehicle.TCID = vehicleTCID
-			vehicle.BID = x.raf.Meta.BID
-			// vehicle.RAID = x.ra.RAID
+			rlib.Console("NEW VEHICLE\n")
+			rlib.MigrateStructVals(&x.raf.Vehicles[i], &v)
+			v.BID = x.ra.BID
+			rlib.Console("NEW VEHICLE BID  = %d\n", v.BID)
 
-			x.raf.Vehicles[i].VID, err = rlib.InsertVehicle(ctx, &vehicle)
+			// TODO: remove these soon, they are deprecated
+			v.TCID = VehicleTCID
+			v.DtStart = bind.DtStart
+			v.DtStop = bind.DtStop
+
+			x.raf.Vehicles[i].VID, err = rlib.InsertVehicle(ctx, &v)
+			if err != nil {
+				return err
+			}
+			bind.AssocElemID = v.VID
+			_, err = rlib.InsertTBind(ctx, &bind)
 			if err != nil {
 				return err
 			}

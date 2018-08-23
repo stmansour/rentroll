@@ -24,7 +24,7 @@
                     "RentStop": "3/1/2020"
                 },
                 "meta": {
-                    "ActiveDate": "2018-08-22 17:12:00 UTC",
+                    "ActiveDate": "2018-08-23 04:13:00 UTC",
                     "ActiveName": "UID-0",
                     "ActiveUID": -99999,
                     "ApplicationReadyDate": "1900-01-01 00:00:00 UTC",
@@ -249,12 +249,12 @@
                         "TMPTCID": 1,
                         "TMPVID": 1,
                         "VID": 2,
-                        "VIN": "2002",
+                        "VIN": "VSX47D7Q5CLSW0O1",
                         "VehicleColor": "Pink",
                         "VehicleMake": "Acura",
                         "VehicleModel": "MDX",
                         "VehicleType": "car",
-                        "VehicleYear": 0
+                        "VehicleYear": 2002
                     }
                 ]
             },

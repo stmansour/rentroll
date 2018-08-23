@@ -99,15 +99,20 @@ dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "b1"  "PayorStatem
 #  Validate that a new owner of a pet is properly handled in the TBind
 #  records.  Also validate that new pets are handled properly for both
 #  TBind and newly created Occupant who becomes their contact point.
+#  And do the same tests for new owners of a vehicle and a new vehicle
 #
 #  Scenario:
-#  RAID  1 - Add a new user, Sally. Add a new pet, Rocky.  Make Sally the
-#            contact for both pets going forward.
+#  RAID  1 - Add a new user, Sally. Add a new pet, Rocky. Add a new car.
+#            Make Sally the contact for both pets and both vehicles going
+#            forward.
 #
 #  Expected Results:
-#   1.  TBind record for Pet 1 will be split at 8/22/2018.  TCID 1 was the
+#   1.  Pet 2 is created and TCID 2 is the contact.
+#   2.  Vehicle 2 is created and TCID 2 is the contact.
+#   3.  TBind record for Pet 1 will be split at 8/23/2018.  TCID 1 was the
 #       contact person before the split.  TCID 2 is the contact going forward.
-#   2.  Pet 2 is created and TCID 2 is the contact.
+#   4.  TBind record for Vehicle 1 will be split at 8/23/2018. TCID 1 was the
+#       contact person before the split.  TCID 2 is the contact going forward.
 #------------------------------------------------------------------------------
 echo "Create new database..."
 mysql --no-defaults rentroll < rrsm1.sql
@@ -119,7 +124,7 @@ echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3
 dojsonPOST "http://localhost:8270/v1/raactions/1/" "request" "c0"  "WebService--Action-setTo-ACTIVE"
 
 # make sure the TBinds are correct
-mysqlverify "c1" "TBind-Pets" "SELECT TBID,BID,SourceElemType,SourceElemID,AssocElemType,AssocElemID,DtStart,DtStop,FLAGS FROM TBind WHERE AssocElemType=14;"
+mysqlverify "c1" "TBind-Pets" "SELECT TBID,BID,SourceElemType,SourceElemID,AssocElemType,AssocElemID,DtStart,DtStop,FLAGS FROM TBind;"
 
 # make sure the transactants are correct
 mysqlverify "c2" "flow2ra-Transactants" "SELECT TCID,BID,PreferredName,LastName FROM Transactant;"
