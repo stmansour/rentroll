@@ -12,7 +12,7 @@
         "Flow": {
             "BID": 1,
             "CreateBy": -99999,
-            "CreateTS": "2018-08-22T22:33:17Z",
+            "CreateTS": "2018-08-23T17:34:54Z",
             "Data": {
                 "dates": {
                     "AgreementStart": "1/11/2018",
@@ -41,11 +41,11 @@
                     "DeclineReason2": 0,
                     "DocumentDate": "1900-01-01 00:00:00 UTC",
                     "HavePets": true,
-                    "HaveVehicles": false,
-                    "LastTMPASMID": 3,
-                    "LastTMPPETID": 1,
-                    "LastTMPTCID": 1,
-                    "LastTMPVID": 0,
+                    "HaveVehicles": true,
+                    "LastTMPASMID": 7,
+                    "LastTMPPETID": 2,
+                    "LastTMPTCID": 2,
+                    "LastTMPVID": 1,
                     "LeaseTerminationReason": 0,
                     "MoveInDate": "1900-01-01 00:00:00 UTC",
                     "MoveInName": "",
@@ -62,6 +62,72 @@
                 },
                 "parentchild": [],
                 "people": [
+                    {
+                        "Address": "28658 Pioneer",
+                        "Address2": "",
+                        "AlternateEmailAddress": "75871 Navajo,Lexington,OH 24728",
+                        "Bankruptcy": false,
+                        "BankruptcyDes": "",
+                        "CellPhone": "(841) 877-5574",
+                        "City": "Akron",
+                        "Comment": "",
+                        "CompanyAddress": "34626 County Line",
+                        "CompanyCity": "FortWorth",
+                        "CompanyEmail": "Group1AutomotiveIncFortWorth569@abiz.com",
+                        "CompanyName": "Group 1 Automotive Inc.",
+                        "CompanyPhone": "(499) 551-5800",
+                        "CompanyPostalCode": "33274",
+                        "CompanyState": "PA",
+                        "Convicted": false,
+                        "ConvictedDes": "",
+                        "Country": "USA",
+                        "CreditLimit": 22755,
+                        "CurrentAddress": "35942 Dogwood, Montgomery, IN 11211",
+                        "CurrentLandLordName": "Mandi Jackson",
+                        "CurrentLandLordPhoneNo": "(163) 990-9639",
+                        "CurrentLengthOfResidency": "3 years 10 months",
+                        "CurrentReasonForMoving": 94,
+                        "DateofBirth": "6/7/1964",
+                        "DriversLicense": "G8252891",
+                        "EligibleFuturePayor": true,
+                        "EligibleFutureUser": false,
+                        "EmergencyContactAddress": "33391 Church,Canton,AR 55089",
+                        "EmergencyContactEmail": "SJensen3151@comcast.net",
+                        "EmergencyContactName": "Sherron Jensen",
+                        "EmergencyContactTelephone": "(853) 692-7008",
+                        "Evicted": false,
+                        "EvictedDes": "",
+                        "FirstName": "Elke",
+                        "GrossIncome": 67090,
+                        "Industry": 234,
+                        "IsCompany": false,
+                        "IsGuarantor": false,
+                        "IsOccupant": true,
+                        "IsRenter": true,
+                        "LastName": "Sanders",
+                        "MiddleName": "Dolly",
+                        "Occupation": "travel agency clerk",
+                        "OtherPreferences": "",
+                        "Points": 0,
+                        "PostalCode": "28162",
+                        "PreferredName": "Flo",
+                        "PrimaryEmail": "ElkeSanders551@aol.com",
+                        "PriorAddress": "31277 Magnolia, Shreveport, ME 31445",
+                        "PriorLandLordName": "Cheri Bentley",
+                        "PriorLandLordPhoneNo": "(606) 217-7001",
+                        "PriorLengthOfResidency": "4 years 7 months",
+                        "PriorReasonForMoving": 93,
+                        "SecondaryEmail": "ESanders9207@aol.com",
+                        "SourceSLSID": 11,
+                        "SpecialNeeds": "None",
+                        "State": "AL",
+                        "TCID": 3,
+                        "TMPTCID": 1,
+                        "TaxpayorID": "01428008",
+                        "ThirdPartySource": "Elois Erickson",
+                        "Website": "",
+                        "WorkPhone": "(675) 462-1665"
+                    },
                     {
                         "Address": "3118  Doctors Drive",
                         "Address2": "",
@@ -99,11 +165,11 @@
                         "EvictedDes": "",
                         "FirstName": "John",
                         "GrossIncome": 10012,
-                        "Industry": 0,
+                        "Industry": 183,
                         "IsCompany": false,
                         "IsGuarantor": false,
                         "IsOccupant": true,
-                        "IsRenter": true,
+                        "IsRenter": false,
                         "LastName": "Doe",
                         "MiddleName": "M",
                         "Occupation": "free, jobless, happy man",
@@ -111,7 +177,7 @@
                         "Points": 0,
                         "PostalCode": "90017",
                         "PreferredName": "",
-                        "PrimaryEmail": "john.doe@earth.world",
+                        "PrimaryEmail": "johndoe@earth.co",
                         "PriorAddress": "",
                         "PriorLandLordName": "",
                         "PriorLandLordPhoneNo": "",
@@ -122,7 +188,7 @@
                         "SpecialNeeds": "None",
                         "State": "CA",
                         "TCID": 0,
-                        "TMPTCID": 1,
+                        "TMPTCID": 2,
                         "TaxpayorID": "09090909",
                         "ThirdPartySource": "",
                         "Website": "",
@@ -131,8 +197,8 @@
                 ],
                 "pets": [
                     {
-                        "Breed": "Rough Collie",
-                        "Color": "brown",
+                        "Breed": "American Ringtail",
+                        "Color": "chocolate point",
                         "Fees": [
                             {
                                 "ARID": 23,
@@ -180,12 +246,69 @@
                                 "TransOccTax": 0
                             }
                         ],
-                        "Name": "Micky",
-                        "PETID": 0,
+                        "Name": "Gizmo ",
+                        "PETID": 1,
                         "TMPPETID": 1,
                         "TMPTCID": 1,
-                        "Type": "dog",
-                        "Weight": 45
+                        "Type": "cat",
+                        "Weight": 14
+                    },
+                    {
+                        "Breed": "",
+                        "Color": "",
+                        "Fees": [
+                            {
+                                "ARID": 23,
+                                "ARName": "Pet Fee",
+                                "ASMID": 0,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 50,
+                                "ProrationCycle": 0,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "1/11/2018",
+                                "Stop": "1/11/2018",
+                                "TMPASMID": 5,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 24,
+                                "ARName": "Pet Rent",
+                                "ASMID": 0,
+                                "AtSigningPreTax": 0,
+                                "Comment": "prorated for 21 of 31 days",
+                                "ContractAmount": 6.77,
+                                "ProrationCycle": 0,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "1/11/2018",
+                                "Stop": "1/11/2018",
+                                "TMPASMID": 6,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 24,
+                                "ARName": "Pet Rent",
+                                "ASMID": 0,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 10,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "2/1/2018",
+                                "Stop": "1/1/2020",
+                                "TMPASMID": 7,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "Name": "",
+                        "PETID": 0,
+                        "TMPPETID": 2,
+                        "TMPTCID": 0,
+                        "Type": "",
+                        "Weight": 0
                     }
                 ],
                 "rentables": [],
@@ -194,17 +317,53 @@
                         {
                             "PRID": 0,
                             "TMPTCID": 1
+                        },
+                        {
+                            "PRID": 0,
+                            "TMPTCID": 2
                         }
                     ]
                 },
-                "vehicles": []
+                "vehicles": [
+                    {
+                        "Fees": [
+                            {
+                                "ARID": 39,
+                                "ARName": "Vehicle Registration Fee",
+                                "ASMID": 0,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 10,
+                                "ProrationCycle": 0,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "1/11/2018",
+                                "Stop": "1/11/2018",
+                                "TMPASMID": 4,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "LicensePlateNumber": "GW1M627",
+                        "LicensePlateState": "CA",
+                        "ParkingPermitNumber": "3177786",
+                        "TMPTCID": 1,
+                        "TMPVID": 1,
+                        "VID": 3,
+                        "VIN": "SMT4S7HCVPX8CPL8",
+                        "VehicleColor": "Metallic",
+                        "VehicleMake": "Pontiac",
+                        "VehicleModel": "Firebird",
+                        "VehicleType": "car",
+                        "VehicleYear": 1995
+                    }
+                ]
             },
             "FlowID": 1,
             "FlowType": "RA",
             "ID": 0,
             "LastModBy": -99999,
-            "LastModTime": "2018-08-22T22:33:17Z",
-            "UserRefNo": "ZB9X6M54031J20NM1YKO"
+            "LastModTime": "2018-08-23T17:34:55Z",
+            "UserRefNo": "SK2TOOI2W575G7052CK9"
         },
         "ValidationCheck": {
             "errors": {
@@ -221,8 +380,34 @@
                     "total": 0
                 },
                 "pets": {
-                    "errors": [],
-                    "total": 0
+                    "errors": [
+                        {
+                            "TMPPETID": 2,
+                            "errors": {
+                                "Breed": [
+                                    "cannot be blank"
+                                ],
+                                "Color": [
+                                    "cannot be blank"
+                                ],
+                                "Name": [
+                                    "cannot be blank"
+                                ],
+                                "TMPTCID": [
+                                    "pet must be associated with a person"
+                                ],
+                                "Type": [
+                                    "cannot be blank"
+                                ]
+                            },
+                            "fees": {
+                                "errors": [],
+                                "total": 0
+                            },
+                            "total": 5
+                        }
+                    ],
+                    "total": 5
                 },
                 "rentables": {
                     "errors": [],
@@ -239,9 +424,18 @@
                                     ]
                                 },
                                 "total": 1
+                            },
+                            {
+                                "TMPTCID": 2,
+                                "errors": {
+                                    "PRID": [
+                                        "parent rentable must be tied"
+                                    ]
+                                },
+                                "total": 1
                             }
                         ],
-                        "total": 1
+                        "total": 2
                     }
                 },
                 "vehicles": {
@@ -260,7 +454,7 @@
                 "tie": [],
                 "vehicles": []
             },
-            "total": 2
+            "total": 8
         }
     },
     "status": "success"

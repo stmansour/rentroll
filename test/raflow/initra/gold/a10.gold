@@ -2,10 +2,10 @@
     "record": {
         "DataFulfilled": {
             "dates": true,
-            "parentchild": true,
+            "parentchild": false,
             "people": true,
             "pets": true,
-            "rentables": false,
+            "rentables": true,
             "tie": true,
             "vehicles": true
         },
@@ -42,7 +42,7 @@
                     "DocumentDate": "1900-01-01 00:00:00 UTC",
                     "HavePets": true,
                     "HaveVehicles": true,
-                    "LastTMPASMID": 8,
+                    "LastTMPASMID": 14,
                     "LastTMPPETID": 2,
                     "LastTMPTCID": 2,
                     "LastTMPVID": 2,
@@ -60,7 +60,12 @@
                     "TerminatorName": "",
                     "TerminatorUID": 0
                 },
-                "parentchild": [],
+                "parentchild": [
+                    {
+                        "CRID": 9,
+                        "PRID": 0
+                    }
+                ],
                 "people": [
                     {
                         "Address": "28658 Pioneer",
@@ -311,15 +316,217 @@
                         "Weight": 45
                     }
                 ],
-                "rentables": [],
+                "rentables": [
+                    {
+                        "AtSigningPreTax": 0,
+                        "Fees": [
+                            {
+                                "ARID": 16,
+                                "ARName": "Gas Base Fee",
+                                "ASMID": 0,
+                                "AtSigningPreTax": 0,
+                                "Comment": "prorated for 21 of 31 days",
+                                "ContractAmount": 33.87,
+                                "ProrationCycle": 0,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "1/11/2018",
+                                "Stop": "1/11/2018",
+                                "TMPASMID": 0,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 16,
+                                "ARName": "Gas Base Fee",
+                                "ASMID": 0,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 50,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "2/1/2018",
+                                "Stop": "1/1/2020",
+                                "TMPASMID": 0,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 45,
+                                "ARName": "Rent ST000",
+                                "ASMID": 0,
+                                "AtSigningPreTax": 0,
+                                "Comment": "prorated for 21 of 31 days",
+                                "ContractAmount": 677.42,
+                                "ProrationCycle": 0,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "1/11/2018",
+                                "Stop": "1/11/2018",
+                                "TMPASMID": 0,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 45,
+                                "ARName": "Rent ST000",
+                                "ASMID": 0,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 1000,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "2/1/2018",
+                                "Stop": "1/1/2020",
+                                "TMPASMID": 0,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "RID": 1,
+                        "RTFLAGS": 4,
+                        "RTID": 1,
+                        "RentCycle": 6,
+                        "RentableName": "Rentable001",
+                        "SalesTax": 0,
+                        "TransOccTax": 0
+                    },
+                    {
+                        "AtSigningPreTax": 0,
+                        "Fees": [
+                            {
+                                "ARID": 16,
+                                "ARName": "Gas Base Fee",
+                                "ASMID": 0,
+                                "AtSigningPreTax": 0,
+                                "Comment": "prorated for 21 of 31 days",
+                                "ContractAmount": 33.87,
+                                "ProrationCycle": 0,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "1/11/2018",
+                                "Stop": "1/11/2018",
+                                "TMPASMID": 0,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 16,
+                                "ARName": "Gas Base Fee",
+                                "ASMID": 0,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 50,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "2/1/2018",
+                                "Stop": "1/1/2020",
+                                "TMPASMID": 0,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 45,
+                                "ARName": "Rent ST000",
+                                "ASMID": 0,
+                                "AtSigningPreTax": 0,
+                                "Comment": "prorated for 21 of 31 days",
+                                "ContractAmount": 677.42,
+                                "ProrationCycle": 0,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "1/11/2018",
+                                "Stop": "1/11/2018",
+                                "TMPASMID": 0,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 45,
+                                "ARName": "Rent ST000",
+                                "ASMID": 0,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 1000,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "2/1/2018",
+                                "Stop": "1/1/2020",
+                                "TMPASMID": 0,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "RID": 2,
+                        "RTFLAGS": 4,
+                        "RTID": 1,
+                        "RentCycle": 6,
+                        "RentableName": "Rentable002",
+                        "SalesTax": 0,
+                        "TransOccTax": 0
+                    },
+                    {
+                        "AtSigningPreTax": 0,
+                        "Fees": [
+                            {
+                                "ARID": 16,
+                                "ARName": "Gas Base Fee",
+                                "ASMID": 0,
+                                "AtSigningPreTax": 0,
+                                "Comment": "prorated for 21 of 31 days",
+                                "ContractAmount": 33.87,
+                                "ProrationCycle": 0,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "1/11/2018",
+                                "Stop": "1/11/2018",
+                                "TMPASMID": 0,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 16,
+                                "ARName": "Gas Base Fee",
+                                "ASMID": 0,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 50,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "2/1/2018",
+                                "Stop": "1/1/2020",
+                                "TMPASMID": 0,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 49,
+                                "ARName": "Rent CP000",
+                                "ASMID": 0,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 35,
+                                "ProrationCycle": 0,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "1/11/2018",
+                                "Stop": "1/1/2020",
+                                "TMPASMID": 0,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "RID": 9,
+                        "RTFLAGS": 6,
+                        "RTID": 5,
+                        "RentCycle": 6,
+                        "RentableName": "CP001",
+                        "SalesTax": 0,
+                        "TransOccTax": 0
+                    }
+                ],
                 "tie": {
                     "people": [
                         {
-                            "PRID": 0,
+                            "PRID": 1,
                             "TMPTCID": 1
                         },
                         {
-                            "PRID": 0,
+                            "PRID": 1,
                             "TMPTCID": 2
                         }
                     ]
@@ -374,18 +581,18 @@
                                 "TransOccTax": 0
                             }
                         ],
-                        "LicensePlateNumber": "",
-                        "LicensePlateState": "",
+                        "LicensePlateNumber": "E9V9999",
+                        "LicensePlateState": "CA",
                         "ParkingPermitNumber": "",
-                        "TMPTCID": 0,
+                        "TMPTCID": 2,
                         "TMPVID": 2,
                         "VID": 0,
                         "VIN": "",
-                        "VehicleColor": "",
-                        "VehicleMake": "",
-                        "VehicleModel": "",
-                        "VehicleType": "",
-                        "VehicleYear": 0
+                        "VehicleColor": "black",
+                        "VehicleMake": "Tesla",
+                        "VehicleModel": "S",
+                        "VehicleType": "4 wheeler",
+                        "VehicleYear": 2018
                     }
                 ]
             },
@@ -403,8 +610,19 @@
                     "total": 0
                 },
                 "parentchild": {
-                    "errors": [],
-                    "total": 0
+                    "errors": [
+                        {
+                            "CRID": 9,
+                            "PRID": 0,
+                            "errors": {
+                                "PRID": [
+                                    "parent rentable must exists"
+                                ]
+                            },
+                            "total": 1
+                        }
+                    ],
+                    "total": 1
                 },
                 "people": {
                     "errors": [],
@@ -415,72 +633,148 @@
                     "total": 0
                 },
                 "rentables": {
-                    "errors": [],
-                    "total": 0
+                    "errors": [
+                        {
+                            "RID": 1,
+                            "errors": {},
+                            "fees": {
+                                "errors": [
+                                    {
+                                        "TMPASMID": 0,
+                                        "errors": {
+                                            "TMPASMID": [
+                                                "must be greater than 1"
+                                            ]
+                                        },
+                                        "total": 1
+                                    },
+                                    {
+                                        "TMPASMID": 0,
+                                        "errors": {
+                                            "TMPASMID": [
+                                                "must be greater than 1"
+                                            ]
+                                        },
+                                        "total": 1
+                                    },
+                                    {
+                                        "TMPASMID": 0,
+                                        "errors": {
+                                            "TMPASMID": [
+                                                "must be greater than 1"
+                                            ]
+                                        },
+                                        "total": 1
+                                    },
+                                    {
+                                        "TMPASMID": 0,
+                                        "errors": {
+                                            "TMPASMID": [
+                                                "must be greater than 1"
+                                            ]
+                                        },
+                                        "total": 1
+                                    }
+                                ],
+                                "total": 4
+                            },
+                            "total": 4
+                        },
+                        {
+                            "RID": 2,
+                            "errors": {},
+                            "fees": {
+                                "errors": [
+                                    {
+                                        "TMPASMID": 0,
+                                        "errors": {
+                                            "TMPASMID": [
+                                                "must be greater than 1"
+                                            ]
+                                        },
+                                        "total": 1
+                                    },
+                                    {
+                                        "TMPASMID": 0,
+                                        "errors": {
+                                            "TMPASMID": [
+                                                "must be greater than 1"
+                                            ]
+                                        },
+                                        "total": 1
+                                    },
+                                    {
+                                        "TMPASMID": 0,
+                                        "errors": {
+                                            "TMPASMID": [
+                                                "must be greater than 1"
+                                            ]
+                                        },
+                                        "total": 1
+                                    },
+                                    {
+                                        "TMPASMID": 0,
+                                        "errors": {
+                                            "TMPASMID": [
+                                                "must be greater than 1"
+                                            ]
+                                        },
+                                        "total": 1
+                                    }
+                                ],
+                                "total": 4
+                            },
+                            "total": 4
+                        },
+                        {
+                            "RID": 9,
+                            "errors": {},
+                            "fees": {
+                                "errors": [
+                                    {
+                                        "TMPASMID": 0,
+                                        "errors": {
+                                            "TMPASMID": [
+                                                "must be greater than 1"
+                                            ]
+                                        },
+                                        "total": 1
+                                    },
+                                    {
+                                        "TMPASMID": 0,
+                                        "errors": {
+                                            "TMPASMID": [
+                                                "must be greater than 1"
+                                            ]
+                                        },
+                                        "total": 1
+                                    },
+                                    {
+                                        "TMPASMID": 0,
+                                        "errors": {
+                                            "TMPASMID": [
+                                                "must be greater than 1"
+                                            ]
+                                        },
+                                        "total": 1
+                                    }
+                                ],
+                                "total": 3
+                            },
+                            "total": 3
+                        }
+                    ],
+                    "total": 11
                 },
                 "tie": {
                     "people": {
-                        "errors": [
-                            {
-                                "TMPTCID": 1,
-                                "errors": {
-                                    "PRID": [
-                                        "parent rentable must be tied"
-                                    ]
-                                },
-                                "total": 1
-                            },
-                            {
-                                "TMPTCID": 2,
-                                "errors": {
-                                    "PRID": [
-                                        "parent rentable must be tied"
-                                    ]
-                                },
-                                "total": 1
-                            }
-                        ],
-                        "total": 2
+                        "errors": [],
+                        "total": 0
                     }
                 },
                 "vehicles": {
-                    "errors": [
-                        {
-                            "TMPVID": 2,
-                            "errors": {
-                                "LicensePlateNumber": [
-                                    "cannot be blank"
-                                ],
-                                "LicensePlateState": [
-                                    "cannot be blank"
-                                ],
-                                "TMPTCID": [
-                                    "vehicle must be associated with a person"
-                                ],
-                                "VehicleColor": [
-                                    "cannot be blank"
-                                ],
-                                "VehicleMake": [
-                                    "cannot be blank"
-                                ],
-                                "VehicleModel": [
-                                    "cannot be blank"
-                                ],
-                                "VehicleType": [
-                                    "cannot be blank"
-                                ],
-                                "VehicleYear": [
-                                    "must be greater than 1900"
-                                ]
-                            },
-                            "fees": {
-                                "errors": [],
-                                "total": 0
-                            },
-                            "total": 8
-                        }
-                    ],
-                    "total": 8
+                    "errors": [],
+                    "total": 0
                 }
             },
             "nonFieldsErrors": {
@@ -488,13 +782,11 @@
                 "parentchild": [],
                 "people": [],
                 "pets": [],
-                "rentables": [
-                    "must have at least one parent rentable"
-                ],
+                "rentables": [],
                 "tie": [],
                 "vehicles": []
             },
-            "total": 11
+            "total": 12
         }
     },
     "status": "success"
