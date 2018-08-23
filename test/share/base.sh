@@ -586,18 +586,17 @@ doRoomKeyTest () {
 # mysqlverify()
 #	Parameters:
 # 		$1 = base file name
-#		$2 = app options to reproduce
-# 		$3 = title
-#       $4 = mysql validation query
+# 		$2 = title
+#       $3 = mysql validation query
 ########################################
 mysqlverify () {
 # Generate the mysql commands needed to validate...
 cat >xxqq <<EOF
 use rentroll;
-${4}
+${3}
 EOF
 	TESTCOUNT=$((TESTCOUNT + 1))
-	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} $1 $3
+	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} ${1} ${2}
 	CMD1="mysql --no-defaults <xxqq >${1}"
 	mysql --no-defaults <xxqq >${1}
 

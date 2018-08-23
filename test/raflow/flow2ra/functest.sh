@@ -118,8 +118,11 @@ RAIDREFNO="A686LT3TUPX1YZ961X91"
 echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
 dojsonPOST "http://localhost:8270/v1/raactions/1/" "request" "c0"  "WebService--Action-setTo-ACTIVE"
 
-mysqlverify "c1" "" "TBind-Pets" "SELECT TBID,BID,SourceElemType,SourceElemID,AssocElemType,AssocElemID,DtStart,DtStop,FLAGS FROM TBind WHERE AssocElemType=14;"
-mysqlverify "c2" "" "flow2ra-Transactants" "SELECT TCID,BID,PreferredName,LastName FROM Transactant;"
+# make sure the TBinds are correct
+mysqlverify "c1" "TBind-Pets" "SELECT TBID,BID,SourceElemType,SourceElemID,AssocElemType,AssocElemID,DtStart,DtStop,FLAGS FROM TBind WHERE AssocElemType=14;"
+
+# make sure the transactants are correct
+mysqlverify "c2" "flow2ra-Transactants" "SELECT TCID,BID,PreferredName,LastName FROM Transactant;"
 
 
 # import rr.sql again to test update existing RA

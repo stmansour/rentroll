@@ -60,7 +60,7 @@ stats:
 clean:
 	for dir in $(DIRS); do make -C $$dir clean;done
 	go clean
-	rm -f rentroll ver.go config.json rentroll.log *.out restore.sql rrbkup rrnewdb rrrestore example fail GoAnalyzerError.log *.json
+	rm -f rentroll .tags ver.go config.json rentroll.log *.out restore.sql rrbkup rrnewdb rrrestore example fail GoAnalyzerError.log *.json
 
 test: package
 	@find . -name "fail" -exec rm -r "{}" \;
