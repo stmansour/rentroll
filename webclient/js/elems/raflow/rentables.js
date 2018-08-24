@@ -85,7 +85,7 @@ window.loadRARentablesGrid = function () {
             fields: [
                 {name: 'Rentable',      type: 'enum',   required: true,
                     options: {
-                        url:           '/v1/rentablestd/' + app.raflow.BID,
+                        url:           '/v1/rentablestd/' + getCurrentBID().toString(),
                         max:           1,
                         cacheMax:      50,
                         maxDropHeight: 350,
