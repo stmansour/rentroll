@@ -11,13 +11,13 @@ import (
 // Regular expression to validate email address.
 var mailRe = regexp.MustCompile(`\A[\w+\-.]+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z`)
 
-// StringMin struct for string minimum length validation
+// EmailStringMin struct for string minimum length validation
 type EmailStringMin struct {
 	Value int
 	Skip  bool
 }
 
-// StringMax struct for string maximum length validation
+// EmailStringMax struct for string maximum length validation
 type EmailStringMax struct {
 	Value int
 	Skip  bool
