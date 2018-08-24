@@ -278,7 +278,7 @@
             "FlowType": "RA",
             "ID": 0,
             "LastModBy": 269,
-            "LastModTime": "2018-08-24T14:54:41Z",
+            "LastModTime": "2018-08-24T16:02:53Z",
             "UserRefNo": "3GO36ZNDV9Y7X623J4D9"
         },
         "ValidationCheck": {
@@ -324,7 +324,7 @@
                                     "must be less than 100 chars"
                                 ],
                                 "CompanyEmail": [
-                                    "is not a valid email address"
+                                    "must be less than 100 chars"
                                 ],
                                 "CompanyName": [
                                     "must be less than 100 chars"
@@ -363,7 +363,7 @@
                                     "must be less than 100 chars"
                                 ],
                                 "EmergencyContactEmail": [
-                                    "is not a valid email address"
+                                    "must be less than 100 chars"
                                 ],
                                 "EmergencyContactName": [
                                     "must be less than 100 chars"
@@ -396,7 +396,7 @@
                                     "must be less than 100 chars"
                                 ],
                                 "PrimaryEmail": [
-                                    "is not a valid email address"
+                                    "must be less than 100 chars"
                                 ],
                                 "PriorAddress": [
                                     "must be less than 100 chars"
@@ -411,7 +411,7 @@
                                     "must be less than 100 chars"
                                 ],
                                 "SecondaryEmail": [
-                                    "is not a valid email address"
+                                    "must be less than 100 chars"
                                 ],
                                 "SpecialNeeds": [
                                     "must be less than 1024 chars"
