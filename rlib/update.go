@@ -1027,8 +1027,8 @@ func UpdateRentalAgreementPayorByRBT(ctx context.Context, a *RentalAgreementPayo
 	return updateError(err, "UpdateRentalAgreementPayorByRBT", *a)
 }
 
-// UpdateRentalAgreementPet updates a RentalAgreementPet record in the database
-func UpdateRentalAgreementPet(ctx context.Context, a *RentalAgreementPet) error {
+// UpdatePet updates a Pet record in the database
+func UpdatePet(ctx context.Context, a *Pet) error {
 	var err error
 
 	// session... context
@@ -1043,13 +1043,13 @@ func UpdateRentalAgreementPet(ctx context.Context, a *RentalAgreementPet) error 
 
 	fields := []interface{}{a.BID, a.RAID, a.TCID, a.Type, a.Breed, a.Color, a.Weight, a.Name, a.DtStart, a.DtStop, a.LastModBy, a.PETID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.UpdateRentalAgreementPet)
+		stmt := tx.Stmt(RRdb.Prepstmt.UpdatePet)
 		defer stmt.Close()
 		_, err = stmt.Exec(fields...)
 	} else {
-		_, err = RRdb.Prepstmt.UpdateRentalAgreementPet.Exec(fields...)
+		_, err = RRdb.Prepstmt.UpdatePet.Exec(fields...)
 	}
-	return updateError(err, "UpdateRentalAgreementPet", *a)
+	return updateError(err, "UpdatePet", *a)
 }
 
 // UpdateRentalAgreementRentable updates a RentalAgreementRentable record in the database
@@ -1440,6 +1440,31 @@ func UpdateTaskListDefinition(ctx context.Context, a *TaskListDefinition) error 
 	return updateError(err, "TaskListDefinition", *a)
 }
 
+//*****************************************************************************
+//    TBIND
+//*****************************************************************************
+
+// UpdateTBind updates a TBind record in the database
+func UpdateTBind(ctx context.Context, a *TBind) error {
+	var err error
+	if authProblem(ctx, &a.LastModBy) {
+		return ErrSessionRequired
+	}
+	fields := []interface{}{
+		a.BID, a.SourceElemType, a.SourceElemID, a.AssocElemType, a.AssocElemID,
+		a.DtStart, a.DtStop, a.FLAGS, a.LastModBy, a.TBID}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.UpdateTBind)
+		defer stmt.Close()
+		_, err = stmt.Exec(fields...)
+	} else {
+		_, err = RRdb.Prepstmt.UpdateTBind.Exec(fields...)
+	}
+	return updateError(err, "TBind", *a)
+}
+
+//*****************************************************************************
+//    TRANSACTANT
 //*****************************************************************************
 
 // UpdateTransactant updates a Transactant record in the database

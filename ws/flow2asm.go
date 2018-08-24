@@ -25,7 +25,7 @@ func Fees2RA(ctx context.Context, x *WriteHandlerContext) error {
 	//--------------------------------------------------
 	// Handle Rentables first...
 	//--------------------------------------------------
-	rlib.Console("Rentables fees\n")
+	rlib.Console("Fees2RA: Rentables fees\n")
 	for i := 0; i < len(x.raf.Rentables); i++ {
 		for j := 0; j < len(x.raf.Rentables[i].Fees); j++ {
 			if err = F2RASaveFee(ctx, x, &x.raf.Rentables[i].Fees[j], rlib.ELEMRENTABLE, x.raf.Rentables[i].RID, 0); err != nil {
@@ -36,7 +36,7 @@ func Fees2RA(ctx context.Context, x *WriteHandlerContext) error {
 	//--------------------------------------------------
 	// Handle pet fees...
 	//--------------------------------------------------
-	rlib.Console("Pet fees\n")
+	rlib.Console("Fees2RA: Pet fees\n")
 	for i := 0; i < len(x.raf.Pets); i++ {
 		for j := 0; j < len(x.raf.Pets[i].Fees); j++ {
 			if err = F2RASaveFee(ctx, x, &x.raf.Pets[i].Fees[j], rlib.ELEMPET, x.raf.Pets[i].PETID, x.raf.Pets[i].TMPTCID); err != nil {
@@ -47,7 +47,7 @@ func Fees2RA(ctx context.Context, x *WriteHandlerContext) error {
 	//--------------------------------------------------
 	// Handle vehicle fees...
 	//--------------------------------------------------
-	rlib.Console("Vehicle fees\n")
+	rlib.Console("Fees2RA: Vehicle fees\n")
 	for i := 0; i < len(x.raf.Vehicles); i++ {
 		for j := 0; j < len(x.raf.Vehicles[i].Fees); j++ {
 			if err = F2RASaveFee(ctx, x, &x.raf.Vehicles[i].Fees[j], rlib.ELEMVEHICLE, x.raf.Vehicles[i].VID, x.raf.Vehicles[i].TMPTCID); err != nil {

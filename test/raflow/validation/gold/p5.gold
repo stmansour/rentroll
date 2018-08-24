@@ -1,0 +1,344 @@
+{
+    "record": {
+        "DataFulfilled": {
+            "dates": true,
+            "parentchild": true,
+            "people": true,
+            "pets": true,
+            "rentables": true,
+            "tie": true,
+            "vehicles": true
+        },
+        "Flow": {
+            "BID": 1,
+            "CreateBy": 269,
+            "CreateTS": "2018-08-16T11:54:05Z",
+            "Data": {
+                "dates": {
+                    "AgreementStart": "8/16/2018",
+                    "AgreementStop": "8/16/2019",
+                    "CSAgent": 269,
+                    "PossessionStart": "8/16/2018",
+                    "PossessionStop": "8/16/2019",
+                    "RentStart": "8/16/2018",
+                    "RentStop": "8/16/2019"
+                },
+                "meta": {
+                    "ActiveDate": "1900-01-01 00:00:00 UTC",
+                    "ActiveName": "",
+                    "ActiveUID": 0,
+                    "ApplicationReadyDate": "1900-01-01 00:00:00 UTC",
+                    "ApplicationReadyName": "",
+                    "ApplicationReadyUID": 0,
+                    "Approver1": 0,
+                    "Approver1Name": "",
+                    "Approver2": 0,
+                    "Approver2Name": "",
+                    "BID": 0,
+                    "DecisionDate1": "1900-01-01 00:00:00 UTC",
+                    "DecisionDate2": "1900-01-01 00:00:00 UTC",
+                    "DeclineReason1": 0,
+                    "DeclineReason2": 0,
+                    "DocumentDate": "1900-01-01 00:00:00 UTC",
+                    "HavePets": true,
+                    "HaveVehicles": true,
+                    "LastTMPASMID": 6,
+                    "LastTMPPETID": 1,
+                    "LastTMPTCID": 1,
+                    "LastTMPVID": 1,
+                    "LeaseTerminationReason": 0,
+                    "MoveInDate": "1900-01-01 00:00:00 UTC",
+                    "MoveInName": "",
+                    "MoveInUID": 0,
+                    "NoticeToMoveDate": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveName": "",
+                    "NoticeToMoveReported": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveUID": 0,
+                    "RAFLAGS": 0,
+                    "RAID": 0,
+                    "TerminationDate": "1900-01-01 00:00:00 UTC",
+                    "TerminatorName": "",
+                    "TerminatorUID": 0
+                },
+                "parentchild": [],
+                "people": [
+                    {
+                        "Address": "64651 West Virginia",
+                        "Address2": "",
+                        "AlternateEmailAddress": "32573 Main,Tempe,ND 40456",
+                        "Bankruptcy": false,
+                        "BankruptcyDes": "",
+                        "CellPhone": "",
+                        "City": "Round Lake Beach",
+                        "Comment": "",
+                        "CompanyAddress": "41718 9th",
+                        "CompanyCity": "Akron",
+                        "CompanyEmail": "TAkron9083@hotmail.com",
+                        "CompanyName": "Thermo Electron Corporation",
+                        "CompanyPhone": "(867) 728-4923",
+                        "CompanyPostalCode": "03300",
+                        "CompanyState": "CA",
+                        "Convicted": false,
+                        "ConvictedDes": "",
+                        "Country": "USA",
+                        "CreditLimit": 6556,
+                        "CurrentAddress": "68209 6th, Waco, NJ 10694",
+                        "CurrentLandLordName": "Maxine Dominguez",
+                        "CurrentLandLordPhoneNo": "(370) 985-5434",
+                        "CurrentLengthOfResidency": "2 years 8 months",
+                        "CurrentReasonForMoving": 123,
+                        "DateofBirth": "7/8/1956",
+                        "DriversLicense": "O9212728",
+                        "EligibleFuturePayor": true,
+                        "EligibleFutureUser": false,
+                        "EmergencyContactAddress": "24344 Johnson,Pasadena,WV 22540",
+                        "EmergencyContactEmail": "MorrisF6904@aol.com",
+                        "EmergencyContactName": "Morris Fernandez",
+                        "EmergencyContactTelephone": "(767) 901-1479",
+                        "Evicted": false,
+                        "EvictedDes": "",
+                        "FirstName": "Ahmed",
+                        "GrossIncome": 97798,
+                        "Industry": 269,
+                        "IsCompany": false,
+                        "IsGuarantor": false,
+                        "IsOccupant": true,
+                        "IsRenter": true,
+                        "LastName": "Weiss",
+                        "MiddleName": "Debroah",
+                        "Occupation": "flower, shrub or plant grower",
+                        "OtherPreferences": "",
+                        "Points": 0,
+                        "PostalCode": "54425",
+                        "PreferredName": "Dung",
+                        "PrimaryEmail": "AhmedWeiss815@bdiddy.com",
+                        "PriorAddress": "35039 North Carolina, Knoxville, NE 78511",
+                        "PriorLandLordName": "Kurt Gay",
+                        "PriorLandLordPhoneNo": "(139) 795-6136",
+                        "PriorLengthOfResidency": "10 months",
+                        "PriorReasonForMoving": 122,
+                        "SecondaryEmail": "AhmedW6032@yahoo.com",
+                        "SourceSLSID": 66,
+                        "SpecialNeeds": "None",
+                        "State": "WA",
+                        "TCID": 2,
+                        "TMPTCID": 1,
+                        "TaxpayorID": "02695434",
+                        "ThirdPartySource": "Alison Bright",
+                        "Website": "",
+                        "WorkPhone": ""
+                    }
+                ],
+                "pets": [
+                    {
+                        "Breed": "Tibetan Terrier",
+                        "Color": "Cream",
+                        "DtStart": "2/13/2018",
+                        "DtStop": "3/1/2020",
+                        "Fees": [
+                            {
+                                "ARID": 23,
+                                "ARName": "Pet Fee",
+                                "ASMID": 0,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 50,
+                                "ProrationCycle": 0,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "8/16/2018",
+                                "Stop": "8/16/2018",
+                                "TMPASMID": 1,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 24,
+                                "ARName": "Pet Rent",
+                                "ASMID": 0,
+                                "AtSigningPreTax": 0,
+                                "Comment": "prorated for 16 of 31 days",
+                                "ContractAmount": 5.16,
+                                "ProrationCycle": 0,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "8/16/2018",
+                                "Stop": "8/16/2018",
+                                "TMPASMID": 2,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 24,
+                                "ARName": "Pet Rent",
+                                "ASMID": 0,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 10,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "9/1/2018",
+                                "Stop": "8/16/2019",
+                                "TMPASMID": 3,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "Name": "Ace",
+                        "PETID": 2,
+                        "TMPPETID": 1,
+                        "TMPTCID": 1,
+                        "Type": "dog",
+                        "Weight": 36
+                    }
+                ],
+                "rentables": [
+                    {
+                        "AtSigningPreTax": 0,
+                        "Fees": [
+                            {
+                                "ARID": 16,
+                                "ARName": "Gas Base Fee",
+                                "ASMID": 0,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 50,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "8/16/2018",
+                                "Stop": "8/16/2019",
+                                "TMPASMID": 6,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 41,
+                                "ARName": "Rent ST001",
+                                "ASMID": 0,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 1500,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "8/16/2018",
+                                "Stop": "8/16/2019",
+                                "TMPASMID": 5,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "RID": 3,
+                        "RTFLAGS": 4,
+                        "RTID": 2,
+                        "RentCycle": 6,
+                        "RentableName": "Rentable003",
+                        "SalesTax": 0,
+                        "TransOccTax": 0
+                    }
+                ],
+                "tie": {
+                    "people": [
+                        {
+                            "PRID": 3,
+                            "TMPTCID": 1
+                        }
+                    ]
+                },
+                "vehicles": [
+                    {
+                        "DtStart": "2/13/2018",
+                        "DtStop": "3/1/2020",
+                        "Fees": [
+                            {
+                                "ARID": 39,
+                                "ARName": "Vehicle Registration Fee",
+                                "ASMID": 0,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 10,
+                                "ProrationCycle": 0,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "8/16/2018",
+                                "Stop": "8/16/2018",
+                                "TMPASMID": 4,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "LicensePlateNumber": "88TE02A",
+                        "LicensePlateState": "WI",
+                        "ParkingPermitNumber": "4497346",
+                        "TMPTCID": 1,
+                        "TMPVID": 1,
+                        "VID": 2,
+                        "VIN": "SWV6Q6C2GEK1L5UW",
+                        "VehicleColor": "Green",
+                        "VehicleMake": "Suzuki",
+                        "VehicleModel": "Aerio",
+                        "VehicleType": "car",
+                        "VehicleYear": 2004
+                    }
+                ]
+            },
+            "FlowID": 8,
+            "FlowType": "RA",
+            "ID": 0,
+            "LastModBy": 269,
+            "LastModTime": "2018-08-16T11:55:04Z",
+            "UserRefNo": "94L7EL7EU4QQ56139GAG"
+        },
+        "ValidationCheck": {
+            "errors": {
+                "dates": {
+                    "errors": {},
+                    "total": 0
+                },
+                "parentchild": {
+                    "errors": [],
+                    "total": 0
+                },
+                "people": {
+                    "errors": [
+                        {
+                            "TMPTCID": 1,
+                            "errors": {
+                                "WorkPhone": [
+                                    "provide workphone or cellphone number"
+                                ]
+                            },
+                            "total": 1
+                        }
+                    ],
+                    "total": 1
+                },
+                "pets": {
+                    "errors": [],
+                    "total": 0
+                },
+                "rentables": {
+                    "errors": [],
+                    "total": 0
+                },
+                "tie": {
+                    "people": {
+                        "errors": [],
+                        "total": 0
+                    }
+                },
+                "vehicles": {
+                    "errors": [],
+                    "total": 0
+                }
+            },
+            "nonFieldsErrors": {
+                "dates": [],
+                "parentchild": [],
+                "people": [],
+                "pets": [],
+                "rentables": [],
+                "tie": [],
+                "vehicles": []
+            },
+            "total": 1
+        }
+    },
+    "status": "success"
+}

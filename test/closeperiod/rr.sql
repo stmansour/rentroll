@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.22, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.22, for osx10.12 (x86_64)
 --
--- Host: 127.0.0.1    Database: rentroll
+-- Host: localhost    Database: rentroll
 -- ------------------------------------------------------
--- Server version	5.7.22-0ubuntu0.16.04.1
+-- Server version	5.7.22
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -1297,6 +1297,43 @@ LOCK TABLES `Payor` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `Pets`
+--
+
+DROP TABLE IF EXISTS `Pets`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `Pets` (
+  `PETID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `BID` bigint(20) NOT NULL DEFAULT '0',
+  `RAID` bigint(20) NOT NULL DEFAULT '0',
+  `TCID` bigint(20) NOT NULL DEFAULT '0',
+  `Type` varchar(100) NOT NULL DEFAULT '',
+  `Breed` varchar(100) NOT NULL DEFAULT '',
+  `Color` varchar(100) NOT NULL DEFAULT '',
+  `Weight` decimal(19,4) NOT NULL DEFAULT '0.0000',
+  `Name` varchar(100) NOT NULL DEFAULT '',
+  `DtStart` date NOT NULL DEFAULT '1970-01-01',
+  `DtStop` date NOT NULL DEFAULT '1970-01-01',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
+  `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`PETID`)
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `Pets`
+--
+
+LOCK TABLES `Pets` WRITE;
+/*!40000 ALTER TABLE `Pets` DISABLE KEYS */;
+INSERT INTO `Pets` VALUES (1,1,0,1,'dog','Pembroke Welsh Corgi','Fawn',30.0000,'Mac','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(2,1,0,2,'dog','St. Bernard','Chocolate',22.0000,'Kobe','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(3,1,0,3,'cat','Persian cat','Tabbie',21.0000,'Ziggy ','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(4,1,0,4,'cat','Asian Semi-longhair','Tabbie',16.0000,'Socks ','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(5,1,0,6,'cat','Ocicat','tortoiseshell',18.0000,'mittens ','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(6,1,0,7,'cat','Birman','Harlequin',10.0000,'Baby ','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(7,1,0,8,'dog','Poodle','Cream',20.0000,'George','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(8,1,0,9,'dog','Japanese Chin','Black',15.0000,'Buddy','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(9,1,0,10,'dog','Rat Terrier','Harlequin',36.0000,'Peanut','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(10,1,0,12,'cat','Manx cat','Smoke',6.0000,'George ','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(11,1,0,14,'dog','American English Coonhound','Harlequin',20.0000,'Bo','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(12,1,0,15,'cat','Turkish Van','calico',19.0000,'Peanut ','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(13,1,0,16,'dog','Bergamasco','Harlequin',52.0000,'Toby','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(14,1,0,17,'cat','Snowshoe cat','blue point',12.0000,'Oreo ','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(15,1,0,18,'dog','Bichon Frise','Cream',52.0000,'Romeo','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(16,1,0,19,'dog','Brittany','Brown',12.0000,'Baxter','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(17,1,0,21,'dog','Norwegian Elkhound','Harlequin',44.0000,'Riley','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(18,1,0,23,'cat','Arabian Mau','Tuxedo',6.0000,'Lola ','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(19,1,0,24,'cat','Ragdoll','seal point',12.0000,'Sweetie ','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(20,1,0,25,'cat','Ragamuffin cat','white',18.0000,'Midnight ','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(21,1,0,26,'cat','Maine Coon','Tuxedo',8.0000,'Patches ','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(22,1,0,27,'dog','West Highland White Terrier','Gold',29.0000,'Baxter','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(23,1,0,28,'dog','Irish Water Spaniel','Brown',56.0000,'Dexter','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(24,1,0,29,'cat','Burmese cat','white',12.0000,'Noodle ','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(25,1,0,30,'cat','Serrade petit cat','chocolate point',16.0000,'Luna ','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0);
+/*!40000 ALTER TABLE `Pets` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `Prospect`
 --
 
@@ -1989,43 +2026,6 @@ INSERT INTO `RentalAgreementPayors` VALUES (1,1,1,1,'2018-02-13','2020-03-01',0,
 UNLOCK TABLES;
 
 --
--- Table structure for table `RentalAgreementPets`
---
-
-DROP TABLE IF EXISTS `RentalAgreementPets`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `RentalAgreementPets` (
-  `PETID` bigint(20) NOT NULL AUTO_INCREMENT,
-  `BID` bigint(20) NOT NULL DEFAULT '0',
-  `RAID` bigint(20) NOT NULL DEFAULT '0',
-  `TCID` bigint(20) NOT NULL DEFAULT '0',
-  `Type` varchar(100) NOT NULL DEFAULT '',
-  `Breed` varchar(100) NOT NULL DEFAULT '',
-  `Color` varchar(100) NOT NULL DEFAULT '',
-  `Weight` decimal(19,4) NOT NULL DEFAULT '0.0000',
-  `Name` varchar(100) NOT NULL DEFAULT '',
-  `DtStart` date NOT NULL DEFAULT '1970-01-01',
-  `DtStop` date NOT NULL DEFAULT '1970-01-01',
-  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
-  `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`PETID`)
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `RentalAgreementPets`
---
-
-LOCK TABLES `RentalAgreementPets` WRITE;
-/*!40000 ALTER TABLE `RentalAgreementPets` DISABLE KEYS */;
-INSERT INTO `RentalAgreementPets` VALUES (1,1,0,1,'dog','Pembroke Welsh Corgi','Fawn',30.0000,'Mac','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(2,1,0,2,'dog','St. Bernard','Chocolate',22.0000,'Kobe','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(3,1,0,3,'cat','Persian cat','Tabbie',21.0000,'Ziggy ','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(4,1,0,4,'cat','Asian Semi-longhair','Tabbie',16.0000,'Socks ','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(5,1,0,6,'cat','Ocicat','tortoiseshell',18.0000,'mittens ','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(6,1,0,7,'cat','Birman','Harlequin',10.0000,'Baby ','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(7,1,0,8,'dog','Poodle','Cream',20.0000,'George','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(8,1,0,9,'dog','Japanese Chin','Black',15.0000,'Buddy','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(9,1,0,10,'dog','Rat Terrier','Harlequin',36.0000,'Peanut','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(10,1,0,12,'cat','Manx cat','Smoke',6.0000,'George ','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(11,1,0,14,'dog','American English Coonhound','Harlequin',20.0000,'Bo','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(12,1,0,15,'cat','Turkish Van','calico',19.0000,'Peanut ','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(13,1,0,16,'dog','Bergamasco','Harlequin',52.0000,'Toby','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(14,1,0,17,'cat','Snowshoe cat','blue point',12.0000,'Oreo ','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(15,1,0,18,'dog','Bichon Frise','Cream',52.0000,'Romeo','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(16,1,0,19,'dog','Brittany','Brown',12.0000,'Baxter','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(17,1,0,21,'dog','Norwegian Elkhound','Harlequin',44.0000,'Riley','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(18,1,0,23,'cat','Arabian Mau','Tuxedo',6.0000,'Lola ','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(19,1,0,24,'cat','Ragdoll','seal point',12.0000,'Sweetie ','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(20,1,0,25,'cat','Ragamuffin cat','white',18.0000,'Midnight ','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(21,1,0,26,'cat','Maine Coon','Tuxedo',8.0000,'Patches ','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(22,1,0,27,'dog','West Highland White Terrier','Gold',29.0000,'Baxter','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(23,1,0,28,'dog','Irish Water Spaniel','Brown',56.0000,'Dexter','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(24,1,0,29,'cat','Burmese cat','white',12.0000,'Noodle ','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0),(25,1,0,30,'cat','Serrade petit cat','chocolate point',16.0000,'Luna ','2018-02-13','2020-05-01','2018-06-07 03:09:38',0,'2018-06-07 03:09:38',0);
-/*!40000 ALTER TABLE `RentalAgreementPets` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `RentalAgreementRentables`
 --
 
@@ -2203,6 +2203,40 @@ LOCK TABLES `SubAR` WRITE;
 /*!40000 ALTER TABLE `SubAR` DISABLE KEYS */;
 INSERT INTO `SubAR` VALUES (1,15,14,1,'2017-11-10 23:24:23',0,'2017-11-10 23:24:23',0),(2,37,36,1,'2017-11-10 23:24:23',0,'2017-11-10 23:24:23',0);
 /*!40000 ALTER TABLE `SubAR` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `TBind`
+--
+
+DROP TABLE IF EXISTS `TBind`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `TBind` (
+  `TBID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `BID` bigint(20) NOT NULL DEFAULT '0',
+  `SourceElemType` bigint(20) NOT NULL DEFAULT '0',
+  `SourceElemID` bigint(20) NOT NULL DEFAULT '0',
+  `AssocElemType` bigint(20) NOT NULL DEFAULT '0',
+  `AssocElemID` bigint(20) NOT NULL DEFAULT '0',
+  `DtStart` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
+  `DtStop` datetime NOT NULL DEFAULT '2066-01-01 00:00:00',
+  `FLAGS` bigint(20) NOT NULL DEFAULT '0',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
+  `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`TBID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `TBind`
+--
+
+LOCK TABLES `TBind` WRITE;
+/*!40000 ALTER TABLE `TBind` DISABLE KEYS */;
+/*!40000 ALTER TABLE `TBind` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -2591,4 +2625,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-07-30 13:26:06
+-- Dump completed on 2018-08-21 20:29:29

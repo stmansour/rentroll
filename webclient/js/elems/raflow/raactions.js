@@ -13,7 +13,7 @@
     ChangeRAFlowVersionToolbar,
     displayErrorDot,
     displayActiveComponentError,
-    w2uiUTCDateControlString
+    w2uiUTCDateControlString, RAFlowAJAX
 */
 "use strict";
 
@@ -27,88 +27,78 @@ var actionsUI = {
 // @params - data
 // -------------------------------------------------------------------------------
 window.submitActionForm = function(data) {
-    var BID = getCurrentBID();
+    var BID         = getCurrentBID(),
+        FlowID      = GetCurrentFlowID();
 
-    return $.ajax({
-        url: "/v1/raactions/" + BID.toString() + "/",
-        method: "POST",
-        contentType: "application/json",
-        data: JSON.stringify(data)
-    }).done(function(data) {
-        if (data.status === "success") {
+    var url = "/v1/raactions/" + BID.toString() + "/" + FlowID.toString() + "/";
 
-            if (data.record.Flow.FlowID === -1) {
+    return RAFlowAJAX(url, "POST", data, false)
+    .done(function(data) {
+        if (data.status !== "success") {
+            console.error(data.message);
+            alert(data.message);
+            return;
+        }
+
+        switch(true) {
+            case (data.record.Flow.FlowID === -1):
                 alert("Flow Already Exists");
-            }
+                return false;
+            case (data.record.Flow.FlowID === 0):
+                if (app.raflow.version === 'refno') {
+                    // load ActionForm and Toolbar for raid version
+                    w2ui.newraLayout.content('right', '');
+                    w2ui.newraLayout.hide('right', true);
+                    app.raflow.version = 'raid'; // AS IT WAS MIGRATED
+                }
 
-            if (data.record.Flow.FlowID > 0) {
-                var resErr = data.record.ValidationCheck;
+                // Update flow local copy and green checks
+                UpdateRAFlowLocalData(data, true);
+                break;
+            case (data.record.Flow.FlowID > 0):
+
+                // FlowID > 0 that means it is refno version
+                app.raflow.version = 'refno';
+
+                // Update flow local copy and green checks
+                UpdateRAFlowLocalData(data, true);
+
+                // validation errors based on validation check
                 app.raflow.validationErrors = {
-                    dates: resErr.errors.dates.total > 0 || resErr.nonFieldsErrors.dates.length > 0,
-                    people: resErr.errors.people.total > 0 || resErr.nonFieldsErrors.people.length > 0,
-                    pets: resErr.errors.pets.total > 0 || resErr.nonFieldsErrors.pets.length > 0,
-                    vehicles: resErr.errors.vehicles.total > 0 || resErr.nonFieldsErrors.vehicles.length > 0,
-                    rentables: resErr.errors.rentables.total > 0 || resErr.nonFieldsErrors.rentables.length > 0,
-                    parentchild: resErr.errors.parentchild.total > 0 || resErr.nonFieldsErrors.parentchild.length > 0,
-                    tie: resErr.errors.tie.people.total > 0 || resErr.nonFieldsErrors.tie.length > 0
+                    dates: app.raflow.validationCheck.errors.dates.total > 0 || app.raflow.validationCheck.nonFieldsErrors.dates.length > 0,
+                    people: app.raflow.validationCheck.errors.people.total > 0 || app.raflow.validationCheck.nonFieldsErrors.people.length > 0,
+                    pets: app.raflow.validationCheck.errors.pets.total > 0 || app.raflow.validationCheck.nonFieldsErrors.pets.length > 0,
+                    vehicles: app.raflow.validationCheck.errors.vehicles.total > 0 || app.raflow.validationCheck.nonFieldsErrors.vehicles.length > 0,
+                    rentables: app.raflow.validationCheck.errors.rentables.total > 0 || app.raflow.validationCheck.nonFieldsErrors.rentables.length > 0,
+                    parentchild: app.raflow.validationCheck.errors.parentchild.total > 0 || app.raflow.validationCheck.nonFieldsErrors.parentchild.length > 0,
+                    tie: app.raflow.validationCheck.errors.tie.people.total > 0 || app.raflow.validationCheck.nonFieldsErrors.tie.length > 0
                 };
-
-                // Update validationCheck error local copy
-                app.raflow.validationCheck = resErr;
 
                 displayErrorDot();
 
                 displayActiveComponentError();
 
-                if(resErr.total > 0){
+                if(app.raflow.validationCheck.total > 0){
                     w2ui.raActionLayout.get('top').toolbar.click('btnBackToRA');
-                    return;
+                    return false;
                 }
 
-                app.raflow.version = 'refno';
-
-                var version = app.raflow.version;
-                var ID = data.record.Flow.ID;
-                var RefNo = data.record.Flow.UserRefNo;
-                var FLAGS = data.record.Flow.Data.meta.RAFLAGS;
-
-                ChangeRAFlowVersionToolbar(version, ID, RefNo, FLAGS);
-
-                // Update flow local copy and green checks
-                UpdateRAFlowLocalData(data);
-            }
-
-            if (data.record.Flow.FlowID === 0) {
-                if (app.raflow.version === 'refno') {
-                    // load ActionForm and Toolbar for raid version
-                    w2ui.newraLayout.content('right', '');
-                    w2ui.newraLayout.hide('right', true);
-
-                    app.raflow.version = 'raid';
-                    var ver = app.raflow.version;
-                    var id = data.record.Flow.ID;
-                    var refno = data.record.Flow.UserRefNo;
-                    var flags = data.record.Flow.Data.meta.RAFLAGS;
-
-                    ChangeRAFlowVersionToolbar(ver, id, refno, flags);
-                }
-
-                // Update flow local copy and green checks
-                UpdateRAFlowLocalData(data);
-            }
-
-            if("raActionLayout" in w2ui){
-                w2ui.raActionLayout.get('main').content = "";
-            }
-
-            loadRAActionTemplate();
-            setTimeout(function() {
-                reloadActionForm();
-            },200);
-        } else {
-            //Display Error
-            alert(data.message);
+                break;
         }
+
+        if("raActionLayout" in w2ui){
+            w2ui.raActionLayout.get('main').content = "";
+        }
+
+        loadRAActionTemplate();
+        setTimeout(function() {
+            reloadActionForm();
+        },200);
+
+    })
+    .fail(function(data) {
+        console.error(data);
+        alert(data);
     });
 };
 
@@ -154,25 +144,10 @@ window.reloadActionForm = function() {
     switch (state) {
         // "Application Being Completed"
         case 0:
-            $('#ApplicationFilledByRow')[0].style.display = '';  //'none';
-            $('#Approver1Row')[0].style.display = '';  //'none';
-            $('#Approver2Row')[0].style.display = '';  //'none';
-            $('#MoveInRow')[0].style.display = ''; //'none';
-            $('#ActiveRow')[0].style.display = ''; //'none';
-            $('#NoticeToMoveRow')[0].style.display = ''; //'none';
-            $('#TerminateRow')[0].style.display = ''; //'none';
             break;
 
         // "Pending First Approval"
         case 1:
-            $('#ApplicationFilledByRow')[0].style.display = '';
-            $('#Approver1Row')[0].style.display = '';  //'none';
-            $('#Approver2Row')[0].style.display = '';  //'none';
-            $('#MoveInRow')[0].style.display = '';  //'none';
-            $('#ActiveRow')[0].style.display = '';  //'none';
-            $('#NoticeToMoveRow')[0].style.display = '';  //'none';
-            $('#TerminateRow')[0].style.display = '';  //'none';
-
             w2ui.RAActionForm.get('RAApprovalDecision1').hidden = false;
             $('button[name=save]').show();
             $('button[name=save]').attr('disabled',true);
@@ -180,14 +155,6 @@ window.reloadActionForm = function() {
 
         // "Pending Second Approval"
         case 2:
-            $('#ApplicationFilledByRow')[0].style.display = '';
-            $('#Approver1Row')[0].style.display = '';
-            $('#Approver2Row')[0].style.display = '';  //'none';
-            $('#MoveInRow')[0].style.display = '';  //'none';
-            $('#ActiveRow')[0].style.display = '';  //'none';
-            $('#NoticeToMoveRow')[0].style.display = '';  //'none';
-            $('#TerminateRow')[0].style.display = '';  //'none';
-
             w2ui.RAActionForm.get('RAApprovalDecision2').hidden = false;
             $('button[name=save]').show();
             $('button[name=save]').attr('disabled',true);
@@ -195,14 +162,6 @@ window.reloadActionForm = function() {
 
         // "Move-In / Execute Modification"
         case 3:
-            $('#ApplicationFilledByRow')[0].style.display = '';
-            $('#Approver1Row')[0].style.display = '';
-            $('#Approver2Row')[0].style.display = '';
-            $('#MoveInRow')[0].style.display = '';
-            $('#ActiveRow')[0].style.display = '';  //'none';
-            $('#NoticeToMoveRow')[0].style.display = '';  //'none';
-            $('#TerminateRow')[0].style.display = '';  //'none';
-
             // auto load date in component if it is present in meta
             if (data.meta.DocumentDate != "1900-01-01 00:00:00 UTC"){
                 var documentDate = w2uiUTCDateControlString(new Date(data.meta.DocumentDate));
@@ -217,40 +176,16 @@ window.reloadActionForm = function() {
 
         // "Active"
         case 4:
-            $('#ApplicationFilledByRow')[0].style.display = '';
-            $('#Approver1Row')[0].style.display = '';
-            $('#Approver2Row')[0].style.display = '';
-            $('#MoveInRow')[0].style.display = '';
-            $('#ActiveRow')[0].style.display = '';
-            $('#NoticeToMoveRow')[0].style.display = '';  //'none';
-            $('#TerminateRow')[0].style.display = '';  //'none';
-
             $('#RAActionRAInfo').show();
             break;
 
         // "Notice To Move"
         case 5:
-            $('#ApplicationFilledByRow')[0].style.display = '';
-            $('#Approver1Row')[0].style.display = '';
-            $('#Approver2Row')[0].style.display = '';
-            $('#MoveInRow')[0].style.display = '';
-            $('#ActiveRow')[0].style.display = '';
-            $('#NoticeToMoveRow')[0].style.display = '';
-            $('#TerminateRow')[0].style.display = '';  //'none';
-
             $('#RAActionNoticeToMoveInfo').show();
             break;
 
         // "Terminated"
         case 6:
-            $('#ApplicationFilledByRow')[0].style.display = '';
-            $('#Approver1Row')[0].style.display = '';
-            $('#Approver2Row')[0].style.display = '';
-            $('#MoveInRow')[0].style.display = '';
-            $('#ActiveRow')[0].style.display = '';
-            $('#NoticeToMoveRow')[0].style.display = '';
-            $('#TerminateRow')[0].style.display = '';
-
             $('#RAActionTerminatedRAInfo').show();
             $('button[name=RAGenerateRAForm]').show();
             break;
@@ -423,6 +358,11 @@ window.refreshLabels = function () {
 
             } else {
                 termination = app.WhyLeaving.find(function(t){if(t.id == meta.LeaseTerminationReason){return t;}});
+                // If RA is updated then the reason id will not be in WhyLeaving
+                // hence we get it from RollerMsg
+                if (!termination) {
+                    termination = app.RollerMsgs.find(function(t){if(t.id == meta.LeaseTerminationReason){return t;}});
+                }
                 terminationReason = termination ? termination.text : "";
             }
             x.innerHTML = terminationReason;

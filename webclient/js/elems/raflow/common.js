@@ -6,7 +6,8 @@
     dispalyRARentablesGridError, dispalyRAVehiclesGridError, dispalyRAParentChildGridError, dispalyRATiePeopleGridError,
     GetCurrentFlowID, ReassignPeopleGridRecords, AssignPetsGridRecords, AssignVehiclesGridRecords, AssignRentableGridRecords,
     GetGridToolbarAddButtonID, HideRAFlowLoader, toggleNonFieldsErrorDisplay, displayErrorSummary, submitActionForm, displayGreenCircle,
-    modifyFieldErrorMessage,ChangeRAFlowVersionToolbar, displayRADatesFormError, RAFlowAJAX
+    modifyFieldErrorMessage,ChangeRAFlowVersionToolbar, displayRADatesFormError, RAFlowAJAX, cleanFormError, loadRAActionTemplate,
+    reloadActionForm, GetRefNoByRAIDFromGrid
 */
 
 "use strict";
@@ -40,7 +41,6 @@ window.RAFlowAJAX = function(URL, METHOD, REQDATA, updateLocalData) {
         beforeSend: function() {
             // show the loader
             HideRAFlowLoader(false);
-            $("#raflow-container .loader").css("display", "flex");
         },
         success: function (data) {
             if (data.status !== "error") {
@@ -152,30 +152,30 @@ $(document).on('click', '#ra-form #save-ra-flow-btn', function () {
         }
 
         app.raflow.validationErrors = {
-            dates: data.errors.dates.total > 0 || data.nonFieldsErrors.dates.length > 0,
-            people: data.errors.people.total > 0 || data.nonFieldsErrors.people.length > 0,
-            pets: data.errors.pets.total > 0 || data.nonFieldsErrors.pets.length > 0,
-            vehicles: data.errors.vehicles.total > 0 || data.nonFieldsErrors.vehicles.length > 0,
-            rentables: data.errors.rentables.total > 0 || data.nonFieldsErrors.rentables.length > 0,
-            parentchild: data.errors.parentchild.total > 0 || data.nonFieldsErrors.parentchild.length > 0,
-            tie: data.errors.tie.people.total > 0 || data.nonFieldsErrors.tie.length > 0
+            dates: data.record.ValidationCheck.errors.dates.total > 0 || data.record.ValidationCheck.nonFieldsErrors.dates.length > 0,
+            people: data.record.ValidationCheck.errors.people.total > 0 || data.record.ValidationCheck.nonFieldsErrors.people.length > 0,
+            pets: data.record.ValidationCheck.errors.pets.total > 0 || data.record.ValidationCheck.nonFieldsErrors.pets.length > 0,
+            vehicles: data.record.ValidationCheck.errors.vehicles.total > 0 || data.record.ValidationCheck.nonFieldsErrors.vehicles.length > 0,
+            rentables: data.record.ValidationCheck.errors.rentables.total > 0 || data.record.ValidationCheck.nonFieldsErrors.rentables.length > 0,
+            parentchild: data.record.ValidationCheck.errors.parentchild.total > 0 || data.record.ValidationCheck.nonFieldsErrors.parentchild.length > 0,
+            tie: data.record.ValidationCheck.errors.tie.people.total > 0 || data.record.ValidationCheck.nonFieldsErrors.tie.length > 0
         };
 
         displayErrorDot();
 
         displayActiveComponentError();
 
-        // Change its state to pending first approval.
-        if(data.total === 0){
+        // Display RAActionForm
+        if(data.record.ValidationCheck.total === 0){
 
-            var reqData = {
-                "UserRefNo": app.raflow.Flow.UserRefNo,
-                "RAID": app.raflow.Flow.ID,
-                "Version": app.raflow.version,
-                "Action": 1, // 1 indicates that pending first approval
-                "Mode": "Action"
-            };
-            submitActionForm(reqData);
+            if("raActionLayout" in w2ui){
+                w2ui.raActionLayout.get('main').content = "";
+            }
+
+            loadRAActionTemplate();
+            setTimeout(function() {
+                reloadActionForm();
+            },200);
         }
 
     });
@@ -219,15 +219,7 @@ window.GetApprovalsAJAX = function(){
         "FlowID": FlowID
     };
 
-    return RAFlowAJAX(url, "POST", data, false)
-    .done(function(data) {
-        if(data.status === "success"){
-            // Update validationCheck error local copy
-            app.raflow.validationCheck = data;
-        }else{
-            console.error(data.message);
-        }
-    });
+    return RAFlowAJAX(url, "POST", data, true);
 };
 
 //-----------------------------------------------------------------------------
@@ -392,17 +384,25 @@ window.HideRAFlowLoader = function(hide) {
         if (w2ui.newraLayout) {
             $(w2ui.newraLayout.get("main").toolbar.box).find("button").prop('disabled', false);
         }
-        $("#raflow-container .loader").hide();
+        $("#raflow-container .blocker").hide();
+        $("#raactionform .blocker").hide();
     } else {
         if (w2ui.newraLayout) {
             $(w2ui.newraLayout.get("main").toolbar.box).find("button").prop('disabled', true);
         }
-        $("#raflow-container .loader").show();
+        $("#raflow-container .blocker").css("display", "flex");
+        $("#raactionform .blocker").css("display", "flex");
+        $("#raflow-container .blocker").show();
+        $("#raactionform .blocker").show();
     }
 };
 
 // UpdateRAFlowLocalData updates the local data from the API response
-window.UpdateRAFlowLocalData = function(data){
+window.UpdateRAFlowLocalData = function(data, reloadRequired){
+    // catch RAID before app.raflow.Flow get updated
+    var oldRAID = app.raflow.Flow.ID,
+        newRAID = data.record.Flow.ID;
+
     app.raflow.Flow = data.record.Flow;
 
     // Update local copy of validation check
@@ -411,29 +411,34 @@ window.UpdateRAFlowLocalData = function(data){
     // Update local copy of FlowFilledData
     app.raflow.FlowFilledData = data.record.DataFulfilled;
 
-    // ALSO UPDATE THIS RAFLOW DATA(RAID/USERREFNO) IN THE MAIN GRID
-    w2ui.raflowsGrid.records.forEach(function(gridRec) {
-        if (gridRec.UserRefNo === app.raflow.Flow.UserRefNo || gridRec.RAID === app.raflow.Flow.ID) {
-            if (app.raflow.Flow.UserRefNo) { // IF AVAILABLE THEN ONLY SET
-                gridRec.UserRefNo = app.raflow.Flow.UserRefNo;
-            }
-            if (app.raflow.Flow.ID) { // IF AVAILABLE THEN ONLY SET
-                gridRec.RAID = app.raflow.Flow.ID;
-            }
+    // if RAID is not same the reload the grid listing
+    if (reloadRequired && oldRAID && newRAID && newRAID !== oldRAID) {
+        w2ui.raflowsGrid.reload();
+    } else {
+        // ALSO UPDATE THIS RAFLOW DATA(RAID/USERREFNO) IN THE MAIN GRID
+        w2ui.raflowsGrid.records.forEach(function(gridRec) {
+            if (gridRec.UserRefNo === app.raflow.Flow.UserRefNo || gridRec.RAID === app.raflow.Flow.ID) {
+                if (app.raflow.Flow.UserRefNo) { // IF AVAILABLE THEN ONLY SET
+                    gridRec.UserRefNo = app.raflow.Flow.UserRefNo;
+                }
+                if (app.raflow.Flow.ID) { // IF AVAILABLE THEN ONLY SET
+                    gridRec.RAID = app.raflow.Flow.ID;
+                }
 
-            // ONCE THE RECORD UPDATE THEN ONLY REFRESH AND BREAK
-            w2ui.raflowsGrid.refresh();
-            return;
-        }
-    });
+                // ONCE THE RECORD UPDATE THEN ONLY REFRESH AND BREAK
+                w2ui.raflowsGrid.refresh();
+                return;
+            }
+        });
+    }
 
     // UPDATE TOOLBAR
     if(!jQuery.isEmptyObject(app.raflow.Flow)) {
         // get info from local copy and refresh toolbar
         var VERSION = app.raflow.version,
-            RAID = app.raflow.Flow.ID,
-            REFNO = app.raflow.Flow.UserRefNo,
-            FLAGS = app.raflow.Flow.Data.meta.RAFLAGS;
+            RAID    = app.raflow.Flow.ID,
+            REFNO   = (RAID > 0) ? GetRefNoByRAIDFromGrid(RAID) : app.raflow.Flow.UserRefNo,
+            FLAGS   = app.raflow.Flow.Data.meta.RAFLAGS;
         ChangeRAFlowVersionToolbar(VERSION,RAID,REFNO,FLAGS);
     }
 
@@ -470,46 +475,53 @@ window.displayGreenCircle = function(){
 // load form according to target
 window.loadTargetSection = function (target, previousActiveCompID) {
 
-    switch (previousActiveCompID) {
-        case "dates":
-            w2ui.RADatesForm.actions.reset();
-            break;
-        case "people":
-            w2ui.RAPeopleGrid.clear();
-            w2ui.RAPeopleSearchForm.actions.reset();
-            break;
-        case "pets":
-            w2ui.RAPetsGrid.clear();
-            w2ui.RAPetForm.actions.reset();
-            break;
-        case "vehicles":
-            w2ui.RAVehiclesGrid.clear();
-            w2ui.RAVehicleForm.actions.reset();
-            break;
-        case "rentables":
-            w2ui.RARentablesGrid.clear();
-            w2ui.RARentableFeesGrid.clear();
-            w2ui.RARentableFeeForm.actions.reset();
-            break;
-        case "parentchild":
-            w2ui.RAParentChildGrid.clear();
-            break;
-        case "tie":
-            w2ui.RATiePeopleGrid.clear();
-            break;
-        case "final":
-            w2ui.RAFinalRentablesFeesGrid.clear();
-            w2ui.RAFinalPetsFeesGrid.clear();
-            w2ui.RAFinalVehiclesFeesGrid.clear();
-            break;
-        default:
-            alert("invalid active comp: " + previousActiveCompID);
-            return;
+    if (!target) {
+        alert("no target provided to load target screen in the raflow");
+        return false;
     }
 
-    // hide active component
-    $("#progressbar #steps-list li[data-target='#" + previousActiveCompID + "']").removeClass("active");
-    $(".ra-form-component#" + previousActiveCompID).hide();
+    if (previousActiveCompID && previousActiveCompID !== target) {
+        switch (previousActiveCompID) {
+            case "dates":
+                w2ui.RADatesForm.actions.reset();
+                break;
+            case "people":
+                w2ui.RAPeopleGrid.clear();
+                w2ui.RAPeopleSearchForm.actions.reset();
+                break;
+            case "pets":
+                w2ui.RAPetsGrid.clear();
+                w2ui.RAPetForm.actions.reset();
+                break;
+            case "vehicles":
+                w2ui.RAVehiclesGrid.clear();
+                w2ui.RAVehicleForm.actions.reset();
+                break;
+            case "rentables":
+                w2ui.RARentablesGrid.clear();
+                w2ui.RARentableFeesGrid.clear();
+                w2ui.RARentableFeeForm.actions.reset();
+                break;
+            case "parentchild":
+                w2ui.RAParentChildGrid.clear();
+                break;
+            case "tie":
+                w2ui.RATiePeopleGrid.clear();
+                break;
+            case "final":
+                w2ui.RAFinalRentablesFeesGrid.clear();
+                w2ui.RAFinalPetsFeesGrid.clear();
+                w2ui.RAFinalVehiclesFeesGrid.clear();
+                break;
+            default:
+                alert("invalid active comp: " + previousActiveCompID);
+                return;
+        }
+
+        // hide active component
+        $("#progressbar #steps-list li[data-target='#" + previousActiveCompID + "']").removeClass("active");
+        $(".ra-form-component#" + previousActiveCompID).hide();
+    }
 
     // show target component
     $("#progressbar #steps-list li[data-target='#" + target + "']").removeClass("done").addClass("active");
@@ -540,7 +552,8 @@ window.loadTargetSection = function (target, previousActiveCompID) {
     if (targetLoader.length > 0) {
         window[targetLoader]();
     } else {
-        console.log("unknown target from nav li: ", target);
+        console.error("unknown target from nav li: ", target);
+        return false;
     }
 };
 
@@ -667,6 +680,9 @@ window.getRecIDFromTMPASMID = function(grid, TMPASMID){
 
 // displayFormFieldsError It display form fields error  for record
 window.displayFormFieldsError = function(index, records, formName){
+
+    cleanFormError();
+
     // Iterate through fields with errors
     for(var key in records[index].errors){
         var field = $("[name=" + formName + "] input#" + key);
@@ -857,4 +873,10 @@ window.displayErrorSummary = function (comp) {
         // Hide error summary
         $(error_summary_sel).css('display', 'none');
     }
+};
+
+// cleanFormError It remove error small tag of current opened form if it have any
+window.cleanFormError = function () {
+    // Clean error
+    $(".w2ui-form-box small.error").remove();
 };

@@ -267,11 +267,11 @@ func GetARsByFLAGS(ctx context.Context, bid int64, FLAGS uint64) ([]AR, error) {
 //=======================================================
 
 // GetPetsByTransactant reads all Pet records for the supplied TCID
-func GetPetsByTransactant(ctx context.Context, TCID int64) ([]RentalAgreementPet, error) {
+func GetPetsByTransactant(ctx context.Context, TCID int64) ([]Pet, error) {
 
 	var (
 		err error
-		t   []RentalAgreementPet
+		t   []Pet
 	)
 
 	if _, ok := SessionCheck(ctx); !ok {
@@ -294,8 +294,8 @@ func GetPetsByTransactant(ctx context.Context, TCID int64) ([]RentalAgreementPet
 	defer rows.Close()
 
 	for i := 0; rows.Next(); i++ {
-		var a RentalAgreementPet
-		err = ReadRentalAgreementPets(rows, &a)
+		var a Pet
+		err = ReadPets(rows, &a)
 		if err != nil {
 			return t, err
 		}
@@ -305,12 +305,12 @@ func GetPetsByTransactant(ctx context.Context, TCID int64) ([]RentalAgreementPet
 	return t, rows.Err()
 }
 
-// GetRentalAgreementPet reads a Pet the structure for the supplied PETID
-func GetRentalAgreementPet(ctx context.Context, petid int64) (RentalAgreementPet, error) {
+// GetPet reads a Pet the structure for the supplied PETID
+func GetPet(ctx context.Context, petid int64) (Pet, error) {
 
 	var (
 		// err error
-		a RentalAgreementPet
+		a Pet
 	)
 
 	// session... context
@@ -324,21 +324,21 @@ func GetRentalAgreementPet(ctx context.Context, petid int64) (RentalAgreementPet
 	var row *sql.Row
 	fields := []interface{}{petid}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.GetRentalAgreementPet)
+		stmt := tx.Stmt(RRdb.Prepstmt.GetPet)
 		defer stmt.Close()
 		row = stmt.QueryRow(fields...)
 	} else {
-		row = RRdb.Prepstmt.GetRentalAgreementPet.QueryRow(fields...)
+		row = RRdb.Prepstmt.GetPet.QueryRow(fields...)
 	}
-	return a, ReadRentalAgreementPet(row, &a)
+	return a, ReadPet(row, &a)
 }
 
-// GetAllRentalAgreementPets reads all Pet records for the supplied rental agreement id
-func GetAllRentalAgreementPets(ctx context.Context, raid int64) ([]RentalAgreementPet, error) {
+// GetAllPets reads all Pet records for the supplied rental agreement id
+func GetAllPets(ctx context.Context, raid int64) ([]Pet, error) {
 
 	var (
 		err error
-		t   []RentalAgreementPet
+		t   []Pet
 	)
 
 	// session... context
@@ -352,11 +352,11 @@ func GetAllRentalAgreementPets(ctx context.Context, raid int64) ([]RentalAgreeme
 	var rows *sql.Rows
 	fields := []interface{}{raid}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.GetAllRentalAgreementPets)
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAllPets)
 		defer stmt.Close()
 		rows, err = stmt.Query(fields...)
 	} else {
-		rows, err = RRdb.Prepstmt.GetAllRentalAgreementPets.Query(fields...)
+		rows, err = RRdb.Prepstmt.GetAllPets.Query(fields...)
 	}
 
 	if err != nil {
@@ -365,8 +365,8 @@ func GetAllRentalAgreementPets(ctx context.Context, raid int64) ([]RentalAgreeme
 	defer rows.Close()
 
 	for i := 0; rows.Next(); i++ {
-		var a RentalAgreementPet
-		err = ReadRentalAgreementPets(rows, &a)
+		var a Pet
+		err = ReadPets(rows, &a)
 		if err != nil {
 			return t, err
 		}
@@ -1798,6 +1798,177 @@ func GetAllDepositMethods(ctx context.Context, bid int64) ([]DepositMethod, erro
 	}
 
 	return t, rows.Err()
+}
+
+//=======================================================
+//  FLOW
+//=======================================================
+
+// GetFlow reads a Flow structure based on the supplied flowId
+func GetFlow(ctx context.Context, flowID int64) (Flow, error) {
+	var a Flow
+	if _, ok := SessionCheck(ctx); !ok {
+		return a, ErrSessionRequired
+	}
+
+	var row *sql.Row
+	fields := []interface{}{flowID}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetFlow)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetFlow.QueryRow(fields...)
+	}
+	return a, ReadFlow(row, &a)
+}
+
+// GetFlowForRAID reads a Flow structure based on the supplied
+// FlowType and ID
+//
+// INPUTS:
+//     flowtype = type of flow. "RA" or whatever
+//           ID - the id that refers to a permanent table association.
+//                for FlowType "RA", ID is the RAID
+//
+// RETURNS
+//     The Flow struct
+//     Any error encountered
+//-----------------------------------------------------------------------------
+func GetFlowForRAID(ctx context.Context, flowtype string, ID int64) (Flow, error) {
+	var a Flow
+
+	if _, ok := SessionCheck(ctx); !ok {
+		return a, ErrSessionRequired
+	}
+
+	var row *sql.Row
+	fields := []interface{}{flowtype, ID}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetFlowForRAID)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetFlowForRAID.QueryRow(fields...)
+	}
+	return a, ReadFlow(row, &a)
+}
+
+// GetFlowsByFlowType reads all flowID for the current user
+func GetFlowsByFlowType(ctx context.Context, flowType string) ([]Flow, error) {
+
+	var (
+		err error
+		t   []Flow
+	)
+
+	// session... context
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
+	var rows *sql.Rows
+	fields := []interface{}{flowType}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetFlowsByFlowType)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetFlowsByFlowType.Query(fields...)
+	}
+
+	if err != nil {
+		return t, err
+	}
+	defer rows.Close()
+
+	for i := 0; rows.Next(); i++ {
+		var f Flow
+		err = ReadFlows(rows, &f)
+		if err != nil {
+			return t, err
+		}
+		t = append(t, f)
+	}
+	return t, rows.Err()
+}
+
+// GetFlowIDsByUser reads all flowID for the current user
+func GetFlowIDsByUser(ctx context.Context) ([]int64, error) {
+
+	var (
+		err error
+		t   []int64
+		UID = int64(0)
+	)
+
+	// session... context
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+		UID = sess.UID
+	}
+
+	var rows *sql.Rows
+	fields := []interface{}{UID}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetFlowIDsByUser)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetFlowIDsByUser.Query(fields...)
+	}
+
+	if err != nil {
+		return t, err
+	}
+	defer rows.Close()
+
+	for i := 0; rows.Next(); i++ {
+		var id int64
+		err = rows.Scan(&id)
+		if err != nil {
+			return t, err
+		}
+		t = append(t, id)
+	}
+	return t, rows.Err()
+}
+
+// GetFlowByUserRefNo reads all flows struct by supplied user ref no.
+//
+// INPUTS
+//     UserRefNo - string
+//
+// RETURNS
+//     a flow
+//     any error encountered
+//-----------------------------------------------------------------------------
+func GetFlowByUserRefNo(ctx context.Context, BID int64, UserRefNo string) (a Flow, err error) {
+	if _, ok := SessionCheck(ctx); !ok {
+		return a, ErrSessionRequired
+	}
+
+	var (
+		row      *sql.Row
+		prepStmt = RRdb.Prepstmt.GetFlowByUserRefNo
+		fields   = []interface{}{BID, UserRefNo}
+	)
+
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		tStmt := tx.Stmt(prepStmt)
+		defer tStmt.Close()
+		row = tStmt.QueryRow(fields...)
+	} else {
+		row = prepStmt.QueryRow(fields...)
+	}
+
+	return a, ReadFlow(row, &a)
 }
 
 //=======================================================
@@ -7116,6 +7287,100 @@ func CheckForTLDInstances(ctx context.Context, id int64) (bool, error) {
 }
 
 //=======================================================
+//  TBIND
+//=======================================================
+
+// GetTBind returns the tasklist with the supplied id
+func GetTBind(ctx context.Context, id int64) (TBind, error) {
+	var a TBind
+	if _, ok := SessionCheck(ctx); !ok {
+		return a, ErrSessionRequired
+	}
+	var row *sql.Row
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetTBind)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetTBind.QueryRow(fields...)
+	}
+	return a, ReadTBind(row, &a)
+}
+
+// GetTBindsByRange returns the TBind records that match source type and id
+// as well as the assoc type in the supplied time range
+func GetTBindsByRange(ctx context.Context, bid int64, srcType, srcID, assocType int64, d1, d2 *time.Time) ([]TBind, error) {
+	var a []TBind
+	var rows *sql.Rows
+	var err error
+	if _, ok := SessionCheck(ctx); !ok {
+		return a, ErrSessionRequired
+	}
+	fields := []interface{}{bid, srcType, srcID, assocType, d1, d2}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetTBindsByRange)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetTBindsByRange.Query(fields...)
+	}
+	if err != nil {
+		return a, err
+	}
+	return getTBindsForRows(ctx, rows)
+}
+
+// GetTBindAssocsByRange returns the TBind records that match assoc type and id
+// as well as the source type in the supplied time range
+func GetTBindAssocsByRange(ctx context.Context, bid int64, assocType, assocID, srcType int64, d1, d2 *time.Time) ([]TBind, error) {
+	var a []TBind
+	var rows *sql.Rows
+	var err error
+	if _, ok := SessionCheck(ctx); !ok {
+		return a, ErrSessionRequired
+	}
+	fields := []interface{}{bid, assocType, assocID, srcType, d1, d2}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetTBindAssocsByRange)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetTBindAssocsByRange.Query(fields...)
+	}
+	if err != nil {
+		return a, err
+	}
+	return getTBindsForRows(ctx, rows)
+}
+
+// getTBindsForRows uses the supplied rows param, gets all the TBind records
+// and returns them in a slice of TBind structs
+func getTBindsForRows(ctx context.Context, rows *sql.Rows) ([]TBind, error) {
+	var err error
+	var t []TBind
+
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+	defer rows.Close()
+
+	for i := 0; rows.Next(); i++ {
+		var a TBind
+		err = ReadTBinds(rows, &a)
+		if err != nil {
+			return t, err
+		}
+		t = append(t, a)
+	}
+
+	return t, rows.Err()
+}
+
+//=======================================================
 //  TRANSACTANT
 //  Transactant, Prospect, User, Payor, XPerson
 //=======================================================
@@ -7761,171 +8026,4 @@ func GetCountBusinessRentalAgreements(ctx context.Context, bid int64) (int, erro
 		row = RRdb.Prepstmt.CountBusinessRentalAgreements.QueryRow(fields...)
 	}
 	return count, row.Scan(&count)
-}
-
-// GetFlow reads a Flow structure based on the supplied flowId
-func GetFlow(ctx context.Context, flowID int64) (Flow, error) {
-	var a Flow
-	if _, ok := SessionCheck(ctx); !ok {
-		return a, ErrSessionRequired
-	}
-
-	var row *sql.Row
-	fields := []interface{}{flowID}
-	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.GetFlow)
-		defer stmt.Close()
-		row = stmt.QueryRow(fields...)
-	} else {
-		row = RRdb.Prepstmt.GetFlow.QueryRow(fields...)
-	}
-	return a, ReadFlow(row, &a)
-}
-
-// GetFlowForRAID reads a Flow structure based on the supplied
-// FlowType and ID
-//
-// INPUTS:
-//     flowtype = type of flow. "RA" or whatever
-//           ID - the id that refers to a permanent table association.
-//                for FlowType "RA", ID is the RAID
-//
-// RETURNS
-//     The Flow struct
-//     Any error encountered
-//-----------------------------------------------------------------------------
-func GetFlowForRAID(ctx context.Context, flowtype string, ID int64) (Flow, error) {
-	var a Flow
-
-	if _, ok := SessionCheck(ctx); !ok {
-		return a, ErrSessionRequired
-	}
-
-	var row *sql.Row
-	fields := []interface{}{flowtype, ID}
-	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.GetFlowForRAID)
-		defer stmt.Close()
-		row = stmt.QueryRow(fields...)
-	} else {
-		row = RRdb.Prepstmt.GetFlowForRAID.QueryRow(fields...)
-	}
-	return a, ReadFlow(row, &a)
-}
-
-// GetFlowsByFlowType reads all flowID for the current user
-func GetFlowsByFlowType(ctx context.Context, flowType string) ([]Flow, error) {
-
-	var (
-		err error
-		t   []Flow
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return t, ErrSessionRequired
-		}
-	}
-
-	var rows *sql.Rows
-	fields := []interface{}{flowType}
-	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.GetFlowsByFlowType)
-		defer stmt.Close()
-		rows, err = stmt.Query(fields...)
-	} else {
-		rows, err = RRdb.Prepstmt.GetFlowsByFlowType.Query(fields...)
-	}
-
-	if err != nil {
-		return t, err
-	}
-	defer rows.Close()
-
-	for i := 0; rows.Next(); i++ {
-		var f Flow
-		err = ReadFlows(rows, &f)
-		if err != nil {
-			return t, err
-		}
-		t = append(t, f)
-	}
-	return t, rows.Err()
-}
-
-// GetFlowIDsByUser reads all flowID for the current user
-func GetFlowIDsByUser(ctx context.Context) ([]int64, error) {
-
-	var (
-		err error
-		t   []int64
-		UID = int64(0)
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return t, ErrSessionRequired
-		}
-		UID = sess.UID
-	}
-
-	var rows *sql.Rows
-	fields := []interface{}{UID}
-	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.GetFlowIDsByUser)
-		defer stmt.Close()
-		rows, err = stmt.Query(fields...)
-	} else {
-		rows, err = RRdb.Prepstmt.GetFlowIDsByUser.Query(fields...)
-	}
-
-	if err != nil {
-		return t, err
-	}
-	defer rows.Close()
-
-	for i := 0; rows.Next(); i++ {
-		var id int64
-		err = rows.Scan(&id)
-		if err != nil {
-			return t, err
-		}
-		t = append(t, id)
-	}
-	return t, rows.Err()
-}
-
-// GetFlowByUserRefNo reads all flows struct by supplied user ref no.
-//
-// INPUTS
-//     UserRefNo - string
-//
-// RETURNS
-//     a flow
-//     any error encountered
-//-----------------------------------------------------------------------------
-func GetFlowByUserRefNo(ctx context.Context, BID int64, UserRefNo string) (a Flow, err error) {
-	if _, ok := SessionCheck(ctx); !ok {
-		return a, ErrSessionRequired
-	}
-
-	var (
-		row      *sql.Row
-		prepStmt = RRdb.Prepstmt.GetFlowByUserRefNo
-		fields   = []interface{}{BID, UserRefNo}
-	)
-
-	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		tStmt := tx.Stmt(prepStmt)
-		defer tStmt.Close()
-		row = tStmt.QueryRow(fields...)
-	} else {
-		row = prepStmt.QueryRow(fields...)
-	}
-
-	return a, ReadFlow(row, &a)
 }

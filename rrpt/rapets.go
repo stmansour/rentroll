@@ -7,8 +7,8 @@ import (
 	"rentroll/rlib"
 )
 
-// ReportRentalAgreementPetToText returns a string representation of the chart of accts
-func ReportRentalAgreementPetToText(p *rlib.RentalAgreementPet) string {
+// ReportPetToText returns a string representation of the chart of accts
+func ReportPetToText(p *rlib.Pet) string {
 	end := ""
 	if p.DtStop.Year() < rlib.YEARFOREVER {
 		end = p.DtStop.Format(rlib.RRDATEINPFMT)
@@ -17,9 +17,9 @@ func ReportRentalAgreementPetToText(p *rlib.RentalAgreementPet) string {
 		p.PETID, p.RAID, p.Name, p.Type, p.Breed, p.Color, p.Weight, p.DtStart.Format(rlib.RRDATEINPFMT), end)
 }
 
-// RRreportRentalAgreementPets generates a report of all rlib.GLAccount accounts
-func RRreportRentalAgreementPets(ctx context.Context, ri *ReporterInfo) string {
-	m, err := rlib.GetAllRentalAgreementPets(ctx, ri.Raid)
+// RRreportPets generates a report of all rlib.GLAccount accounts
+func RRreportPets(ctx context.Context, ri *ReporterInfo) string {
+	m, err := rlib.GetAllPets(ctx, ri.Raid)
 	if err != nil {
 		return err.Error()
 	}
@@ -32,11 +32,11 @@ func RRreportRentalAgreementPets(ctx context.Context, ri *ReporterInfo) string {
 
 		switch ri.OutputFormat {
 		case gotable.TABLEOUTTEXT:
-			s += ReportRentalAgreementPetToText(&m[i])
+			s += ReportPetToText(&m[i])
 		case gotable.TABLEOUTHTML:
 			fmt.Printf("UNIMPLEMENTED\n")
 		default:
-			fmt.Printf("RRreportRentalAgreementPets: unrecognized print format: %d\n", ri.OutputFormat)
+			fmt.Printf("RRreportPets: unrecognized print format: %d\n", ri.OutputFormat)
 			return ""
 		}
 	}

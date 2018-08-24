@@ -337,8 +337,8 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 		// create a new one linked to x.raOrig
 		//------------------------------------------------------------------
 		if chgs > 0 {
-			x.raOrig.FLAGS &= ^uint64(0x7) // clear the status
-			x.raOrig.FLAGS |= 5            // set the state to Terminated
+			x.raOrig.FLAGS &= ^uint64(0x7)           // clear the status
+			x.raOrig.FLAGS |= rlib.RAActionTerminate // set the state to Terminated
 			x.raOrig.LeaseTerminationReason =
 				rlib.RRdb.BizTypes[x.raOrig.BID].Msgs.S[rlib.MSGRAUPDATED].SLSID // "Rental Agreement was updated"
 
@@ -582,7 +582,7 @@ func FlowSaveRentables(ctx context.Context, x *WriteHandlerContext) error {
 //     Any errors encountered
 //-----------------------------------------------------------------------------
 func F2RAUpdatePets(ctx context.Context, x *WriteHandlerContext) (err error) {
-	// rlib.Console("Entered F2RAUpdatePets\n")
+	rlib.Console("Entered F2RAUpdatePets\n")
 
 	for i := 0; i < len(x.raf.Pets); i++ {
 		// get contact person
@@ -592,68 +592,141 @@ func F2RAUpdatePets(ctx context.Context, x *WriteHandlerContext) (err error) {
 			return err
 		}
 
-		// PET ENTRY
-		var pet rlib.RentalAgreementPet
+		rlib.Console("petTCID = %d\n", petTCID)
 
-		// IF PET exists then just update it
+		// PET ENTRY
+		var pet rlib.Pet
+		var bind rlib.TBind
+
+		// updated tbind will be from new raid start time and for all future time.
+		bind.SourceElemType = rlib.ELEMPERSON
+		bind.SourceElemID = petTCID
+		bind.AssocElemType = rlib.ELEMPET
+		bind.AssocElemID = x.raf.Pets[i].PETID
+		bind.DtStart = x.ra.PossessionStart
+		bind.DtStop = rlib.ENDOFTIME
+		bind.BID = x.ra.BID
+
+		// If PET exists then update it
 		if x.raf.Pets[i].PETID > 0 {
-			pet, err = rlib.GetRentalAgreementPet(ctx, x.raf.Pets[i].PETID)
+			rlib.Console("Found existing pet %d\n", x.raf.Pets[i].PETID)
+			pet, err = rlib.GetPet(ctx, x.raf.Pets[i].PETID)
 			if err != nil {
 				return err
 			}
+			rlib.Console("A\n")
+			//-----------------------------------------------------------------
+			// update it if necessary
+			//-----------------------------------------------------------------
+			chgs := 0
+			if pet.RAID != x.ra.RAID {
+				pet.RAID = x.ra.RAID
+				chgs++
+			}
+			if pet.Type != x.raf.Pets[i].Type {
+				pet.Type = x.raf.Pets[i].Type
+				chgs++
+			}
+			if pet.Breed != x.raf.Pets[i].Breed {
+				pet.Breed = x.raf.Pets[i].Breed
+				chgs++
+			}
+			if pet.Color != x.raf.Pets[i].Color {
+				pet.Color = x.raf.Pets[i].Color
+				chgs++
+			}
+			if pet.Weight != x.raf.Pets[i].Weight {
+				pet.Weight = x.raf.Pets[i].Weight
+				chgs++
+			}
+			if pet.Name != x.raf.Pets[i].Name {
+				pet.Name = x.raf.Pets[i].Name
+				chgs++
+			}
 
-			newpet := pet
-			rlib.MigrateStructVals(&x.raf.Pets[i], &newpet)
-			newpet.TCID = petTCID
-			newpet.BID = x.raf.Meta.BID
-			newpet.RAID = x.ra.RAID
-
-			//----------------------------------------------------------
-			// Is the new Agreement period AFTER the current period?
-			//----------------------------------------------------------
-			newStart := time.Time(x.raf.Pets[i].DtStart)
-			//newStop := time.Time(x.raf.Pets[i].DtStop)
-			if pet.DtStart.Before(newStart) {
-				//----------------------------------------------------------
-				// stop the current RentalAgreementPet when the RA begins...
-				//----------------------------------------------------------
-				pet.DtStop = newStart
-				if pet.DtStop.Before(pet.DtStart) { // yes, this can happen
-					pet.DtStop = pet.DtStart
-				}
-				if err = rlib.UpdateRentalAgreementPet(ctx, &pet); err != nil {
-					return err
-				}
-				//----------------------------------------------------------
-				// now create the new one...
-				//----------------------------------------------------------
-				x.raf.Pets[i].PETID, err = rlib.InsertRentalAgreementPet(ctx, &newpet)
-				if err != nil {
-					return err
-				}
-			} else {
-				//---------------------------------------------------------------
-				// if dates are the same or newpet range precedes old pet range,
-				// then newpet overwrites pet.  Set the old one to no time...
-				//---------------------------------------------------------------
-				pet.DtStop = pet.DtStart // essentially sets it to no time
-				if err = rlib.UpdateRentalAgreementPet(ctx, &pet); err != nil {
-					return err
-				}
-				//---------------------------------------------------------------
-				// now create the new one...
-				//---------------------------------------------------------------
-				x.raf.Pets[i].PETID, err = rlib.InsertRentalAgreementPet(ctx, &newpet)
-				if err != nil {
+			if chgs > 0 {
+				if err = rlib.UpdatePet(ctx, &pet); err != nil {
 					return err
 				}
 			}
+
+			//----------------------------------------------------------------
+			// 1. If the TCID did not change from the one in the TBind that
+			//    overlaps the amend RAID start time, then no action is taken
+			//    to the TBinds for this pet.
+			//
+			// 2. For the TBind that overlaps the amended RAID start time,
+			//    update its DtStop to the start of the amended RAID.
+			//
+			// 3. Remove any other TBinds for this pet in the future.
+			//
+			// 4. Create a new TBind for this pet where DtStart = start of
+			//    the amended RAID and DtStop is set to EOT (end of time).
+			//----------------------------------------------------------------
+
+			//----------------------------------------------------------
+			// Get the TBinds for the pets impacted by this amendment.
+			// Source type = PERSON,  Assoc type = PET
+			//----------------------------------------------------------
+			var tblist []rlib.TBind
+			tblist, err = rlib.GetTBindAssocsByRange(ctx, pet.BID, rlib.ELEMPET, pet.PETID, rlib.ELEMPERSON, &bind.DtStart, &bind.DtStop)
+			if err != nil {
+				return err
+			}
+			rlib.Console("B  tblist size = %d, pet.BID = %d, pet.PETID =%d\n", len(tblist), pet.BID, pet.PETID)
+			//----------------------------------------------------
+			// if only 1 and person hasn't changed, we're done
+			//----------------------------------------------------
+			if len(tblist) == 1 && tblist[0].SourceElemType == rlib.ELEMPERSON && tblist[0].SourceElemID == petTCID {
+				rlib.Console("C\n")
+				return nil
+			}
+			rlib.Console("D\n")
+			//-------------------------------------------------------------
+			// Spin throught the records, update the overlapping record,
+			// and remove the rest.
+			//-------------------------------------------------------------
+			for _, tb := range tblist {
+				rlib.Console("E tb.TBID = %d\n", tb.TBID)
+				if rlib.DateInRange(&bind.DtStart, &tb.DtStart, &tb.DtStop) { // overlaps amended RAID ??
+					tb.DtStop = bind.DtStart // YES: update its stop date
+					rlib.Console("F update TBind\n")
+					if err = rlib.UpdateTBind(ctx, &tb); err != nil {
+						return err
+					}
+				} else {
+					rlib.Console("F delete TBind\n")
+					if err = rlib.DeleteTBind(ctx, tb.TBID); err != nil { // NO: delete it
+						return err
+					}
+				}
+			}
+			rlib.Console("G done with for loop\n")
+			//-------------------------------------------------------------
+			// Now add the TBind...
+			//-------------------------------------------------------------
+			_, err = rlib.InsertTBind(ctx, &bind)
+			if err != nil {
+				return err
+			}
 		} else {
+			rlib.Console("NEW PET\n")
 			rlib.MigrateStructVals(&x.raf.Pets[i], &pet)
 			pet.TCID = petTCID
-			pet.BID = x.raf.Meta.BID
+			pet.BID = x.ra.BID
+			rlib.Console("NEW PET BID  = %d\n", pet.BID)
+
+			// TODO: remove these soon, they are deprecated
+			pet.DtStart = bind.DtStart
+			pet.DtStop = bind.DtStop
 			pet.RAID = x.ra.RAID
-			x.raf.Pets[i].PETID, err = rlib.InsertRentalAgreementPet(ctx, &pet)
+
+			x.raf.Pets[i].PETID, err = rlib.InsertPet(ctx, &pet)
+			if err != nil {
+				return err
+			}
+			bind.AssocElemID = pet.PETID
+			_, err = rlib.InsertTBind(ctx, &bind)
 			if err != nil {
 				return err
 			}
@@ -662,96 +735,173 @@ func F2RAUpdatePets(ctx context.Context, x *WriteHandlerContext) (err error) {
 	return nil
 }
 
-// F2RAUpdateVehicles updates all pets
+// F2RAUpdateVehicles updates all vehicles from a flow. If the Vehicle already
+// exists then it just updates the vehicle. If the Vehicle is new it creats
+// it in the permanent tables.
 //
 // INPUTS
-//     ctx    - db context for transactions
-//     x - all the contextual info we need for performing this operation
+//     ctx - db context for transactions
+//     x   - all the contextual info we need for performing this operation
 //
 // RETURNS
 //     Any errors encountered
 //-----------------------------------------------------------------------------
-func F2RAUpdateVehicles(ctx context.Context, x *WriteHandlerContext) error {
-	// rlib.Console("Entered F2RAUpdateVehicles\n")
-	for i := 0; i < len(x.raf.Vehicles); i++ {
+func F2RAUpdateVehicles(ctx context.Context, x *WriteHandlerContext) (err error) {
+	rlib.Console("Entered F2RAUpdateVehicles\n")
 
+	for i := 0; i < len(x.raf.Vehicles); i++ {
 		// get contact person
-		vehicleTCID, err := GetTCIDForTMPTCID(x, x.raf.Vehicles[i].TMPTCID)
+		var VehicleTCID int64
+		VehicleTCID, err = GetTCIDForTMPTCID(x, x.raf.Vehicles[i].TMPTCID)
 		if err != nil {
 			return err
 		}
 
-		var vehicle rlib.Vehicle
+		rlib.Console("VehicleTCID = %d\n", VehicleTCID)
 
-		//-------------------------------
-		// handle existing vehicles...
-		//-------------------------------
+		// VEHICLE ENTRY
+		var v rlib.Vehicle
+		var bind rlib.TBind
+
+		// updated tbind will be from new raid start time and for all future time.
+		bind.SourceElemType = rlib.ELEMPERSON
+		bind.SourceElemID = VehicleTCID
+		bind.AssocElemType = rlib.ELEMVEHICLE
+		bind.AssocElemID = x.raf.Vehicles[i].VID
+		bind.DtStart = x.ra.PossessionStart
+		bind.DtStop = rlib.ENDOFTIME
+		bind.BID = x.ra.BID
+
+		// If VEHICLE exists then update it
 		if x.raf.Vehicles[i].VID > 0 {
-			err := rlib.GetVehicle(ctx, x.raf.Vehicles[i].VID, &vehicle)
+			rlib.Console("Found existing Vehicle %d\n", x.raf.Vehicles[i].VID)
+			err = rlib.GetVehicle(ctx, x.raf.Vehicles[i].VID, &v)
 			if err != nil {
 				return err
 			}
+			rlib.Console("VEHICLE A\n")
+			//-----------------------------------------------------------------
+			// update it if necessary
+			//-----------------------------------------------------------------
+			chgs := 0
+			if v.VehicleType != x.raf.Vehicles[i].VehicleType {
+				v.VehicleType = x.raf.Vehicles[i].VehicleType
+				chgs++
+			}
+			if v.VehicleMake != x.raf.Vehicles[i].VehicleMake {
+				v.VehicleMake = x.raf.Vehicles[i].VehicleMake
+				chgs++
+			}
+			if v.VehicleModel != x.raf.Vehicles[i].VehicleModel {
+				v.VehicleModel = x.raf.Vehicles[i].VehicleModel
+				chgs++
+			}
+			if v.VehicleColor != x.raf.Vehicles[i].VehicleColor {
+				v.VehicleColor = x.raf.Vehicles[i].VehicleColor
+				chgs++
+			}
+			if v.VehicleYear != x.raf.Vehicles[i].VehicleYear {
+				v.VehicleYear = x.raf.Vehicles[i].VehicleYear
+				chgs++
+			}
+			if v.VIN != x.raf.Vehicles[i].VIN {
+				v.VIN = x.raf.Vehicles[i].VIN
+				chgs++
+			}
+			if v.LicensePlateState != x.raf.Vehicles[i].LicensePlateState {
+				v.LicensePlateState = x.raf.Vehicles[i].LicensePlateState
+				chgs++
+			}
+			if v.LicensePlateNumber != x.raf.Vehicles[i].LicensePlateNumber {
+				v.LicensePlateNumber = x.raf.Vehicles[i].LicensePlateNumber
+				chgs++
+			}
+			if v.ParkingPermitNumber != x.raf.Vehicles[i].ParkingPermitNumber {
+				v.ParkingPermitNumber = x.raf.Vehicles[i].ParkingPermitNumber
+				chgs++
+			}
 
-			newvehicle := vehicle
-
-			rlib.MigrateStructVals(&x.raf.Vehicles[i], &newvehicle)
-			newvehicle.TCID = vehicleTCID
-			newvehicle.BID = x.raf.Meta.BID
-
-			newStart := time.Time(x.raf.Vehicles[i].DtStart)
-			//newStop := time.Time(x.raf.Pets[i].DtStop)
-			if vehicle.DtStart.Before(newStart) {
-				//----------------------------------------------------------
-				// stop the current Vehicle when the RA begins...
-				//----------------------------------------------------------
-				vehicle.DtStop = newStart
-				if vehicle.DtStop.Before(vehicle.DtStart) { // yes, this can happen
-					vehicle.DtStop = vehicle.DtStart
-				}
-				if err = rlib.UpdateVehicle(ctx, &vehicle); err != nil {
-					return err
-				}
-				//----------------------------------------------------------
-				// now create the new one...
-				//----------------------------------------------------------
-				x.raf.Vehicles[i].VID, err = rlib.InsertVehicle(ctx, &newvehicle)
-				if err != nil {
-					return err
-				}
-			} else {
-				//---------------------------------------------------------------
-				// if dates are the same or newvehicle range precedes old vehicle range,
-				// then newvehicle overwrites vehicle.  Set the old one to no time...
-				//---------------------------------------------------------------
-				vehicle.DtStop = vehicle.DtStart // essentially sets it to no time
-				if err = rlib.UpdateVehicle(ctx, &vehicle); err != nil {
-					return err
-				}
-				//---------------------------------------------------------------
-				// now create the new one...
-				//---------------------------------------------------------------
-				x.raf.Vehicles[i].VID, err = rlib.InsertVehicle(ctx, &newvehicle)
-				if err != nil {
+			if chgs > 0 {
+				if err = rlib.UpdateVehicle(ctx, &v); err != nil {
 					return err
 				}
 			}
+			//----------------------------------------------------------------
+			// 1. If the TCID did not change from the one in the TBind that
+			//    overlaps the amend RAID start time, then no action is taken
+			//    to the TBinds for this Vehicle.
+			//
+			// 2. For the TBind that overlaps the amended RAID start time,
+			//    update its DtStop to the start of the amended RAID.
+			//
+			// 3. Remove any other TBinds for this Vehicle in the future.
+			//
+			// 4. Create a new TBind for this Vehicle where DtStart = start of
+			//    the amended RAID and DtStop is set to EOT (end of time).
+			//----------------------------------------------------------------
 
-			// rlib.Console("Just before UpdateVehicle: vehicles[j] = %#v\n", vehicles[j])
-			if err = rlib.UpdateVehicle(ctx, &vehicle); err != nil {
+			//----------------------------------------------------------
+			// Get the TBinds for the Vehicles impacted by this amendment.
+			// Source type = PERSON,  Assoc type = VEHICLE
+			//----------------------------------------------------------
+			var tblist []rlib.TBind
+			tblist, err = rlib.GetTBindAssocsByRange(ctx, v.BID, rlib.ELEMVEHICLE, v.VID, rlib.ELEMPERSON, &bind.DtStart, &bind.DtStop)
+			if err != nil {
 				return err
 			}
-			//---------------------------------
-
+			rlib.Console("VEHICLE B  tblist size = %d, v.BID = %d, v.VID =%d\n", len(tblist), v.BID, v.VID)
+			//----------------------------------------------------
+			// if only 1 and person hasn't changed, we're done
+			//----------------------------------------------------
+			if len(tblist) == 1 && tblist[0].SourceElemType == rlib.ELEMPERSON && tblist[0].SourceElemID == VehicleTCID {
+				rlib.Console("VEHICLE C\n")
+				return nil
+			}
+			rlib.Console("VEHICLE D\n")
+			//-------------------------------------------------------------
+			// Spin throught the records, update the overlapping record,
+			// and remove the rest.
+			//-------------------------------------------------------------
+			for _, tb := range tblist {
+				rlib.Console("VEHICLE E tb.TBID = %d\n", tb.TBID)
+				if rlib.DateInRange(&bind.DtStart, &tb.DtStart, &tb.DtStop) { // overlaps amended RAID ??
+					tb.DtStop = bind.DtStart // YES: update its stop date
+					rlib.Console("VEHICLE F update TBind\n")
+					if err = rlib.UpdateTBind(ctx, &tb); err != nil {
+						return err
+					}
+				} else {
+					rlib.Console("VEHICLE F delete TBind\n")
+					if err = rlib.DeleteTBind(ctx, tb.TBID); err != nil { // NO: delete it
+						return err
+					}
+				}
+			}
+			rlib.Console("VEHICLE G done with for loop\n")
+			//-------------------------------------------------------------
+			// Now add the TBind...
+			//-------------------------------------------------------------
+			_, err = rlib.InsertTBind(ctx, &bind)
+			if err != nil {
+				return err
+			}
 		} else {
-			//-------------------------------
-			// handle new vehicles...
-			//-------------------------------
-			rlib.MigrateStructVals(&x.raf.Vehicles[i], &vehicle)
-			vehicle.TCID = vehicleTCID
-			vehicle.BID = x.raf.Meta.BID
-			// vehicle.RAID = x.ra.RAID
+			rlib.Console("NEW VEHICLE\n")
+			rlib.MigrateStructVals(&x.raf.Vehicles[i], &v)
+			v.BID = x.ra.BID
+			rlib.Console("NEW VEHICLE BID  = %d\n", v.BID)
 
-			x.raf.Vehicles[i].VID, err = rlib.InsertVehicle(ctx, &vehicle)
+			// TODO: remove these soon, they are deprecated
+			v.TCID = VehicleTCID
+			v.DtStart = bind.DtStart
+			v.DtStop = bind.DtStop
+
+			x.raf.Vehicles[i].VID, err = rlib.InsertVehicle(ctx, &v)
+			if err != nil {
+				return err
+			}
+			bind.AssocElemID = v.VID
+			_, err = rlib.InsertTBind(ctx, &bind)
 			if err != nil {
 				return err
 			}
@@ -836,6 +986,7 @@ func F2RAUpdatePeople(ctx context.Context, x *WriteHandlerContext) error {
 			rlib.MigrateStructVals(&x.raf.People[i], &xp.Usr)
 			rlib.MigrateStructVals(&x.raf.People[i], &xp.Psp)
 			rlib.MigrateStructVals(&x.raf.People[i], &xp.Pay)
+			xp.Trn.BID = x.raf.Meta.BID
 			tcid, err := rlib.InsertTransactant(ctx, &xp.Trn)
 			if nil != err {
 				return err

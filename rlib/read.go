@@ -786,16 +786,16 @@ func ReadRentalAgreementPayors(rows *sql.Rows, a *RentalAgreementPayor) error {
 	return rows.Scan(&a.RAPID, &a.RAID, &a.BID, &a.TCID, &a.DtStart, &a.DtStop, &a.FLAGS, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 
-// ReadRentalAgreementPet reads a full RentalAgreementPet structure of data from the database based on the supplied Row pointer.
-func ReadRentalAgreementPet(row *sql.Row, a *RentalAgreementPet) error {
+// ReadPet reads a full Pet structure of data from the database based on the supplied Row pointer.
+func ReadPet(row *sql.Row, a *Pet) error {
 	err := row.Scan(&a.PETID, &a.BID, &a.RAID, &a.TCID, &a.Type, &a.Breed, &a.Color, &a.Weight, &a.Name, &a.DtStart, &a.DtStop,
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	SkipSQLNoRowsError(&err)
 	return err
 }
 
-// ReadRentalAgreementPets reads a full RentalAgreementPet structure of data from the database based on the supplied Rows pointer.
-func ReadRentalAgreementPets(rows *sql.Rows, a *RentalAgreementPet) error {
+// ReadPets reads a full Pet structure of data from the database based on the supplied Rows pointer.
+func ReadPets(rows *sql.Rows, a *Pet) error {
 	return rows.Scan(&a.PETID, &a.BID, &a.RAID, &a.TCID, &a.Type, &a.Breed, &a.Color, &a.Weight, &a.Name, &a.DtStart, &a.DtStop,
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
@@ -925,6 +925,22 @@ func ReadTaskListDefinition(row *sql.Row, a *TaskListDefinition) error {
 // ReadTaskListDefinitions reads a full TaskListDefinition structure from the database based on the supplied rows
 func ReadTaskListDefinitions(rows *sql.Rows, a *TaskListDefinition) error {
 	return rows.Scan(&a.TLDID, &a.BID, &a.Name, &a.Cycle, &a.Epoch, &a.EpochDue, &a.EpochPreDue, &a.FLAGS, &a.EmailList, &a.DurWait, &a.Comment, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+}
+
+//---------------------
+//  TBIND
+//---------------------
+
+// ReadTBind reads a full TBind structure from the database based on the supplied row object
+func ReadTBind(row *sql.Row, a *TBind) error {
+	err := row.Scan(&a.TBID, &a.BID, &a.SourceElemType, &a.SourceElemID, &a.AssocElemType, &a.AssocElemID, &a.DtStart, &a.DtStop, &a.FLAGS, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	SkipSQLNoRowsError(&err)
+	return err
+}
+
+// ReadTBinds reads a full TBind structure from the database based on the supplied rows
+func ReadTBinds(rows *sql.Rows, a *TBind) error {
+	return rows.Scan(&a.TBID, &a.BID, &a.SourceElemType, &a.SourceElemID, &a.AssocElemType, &a.AssocElemID, &a.DtStart, &a.DtStop, &a.FLAGS, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 
 //---------------------

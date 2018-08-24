@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.22, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.22, for osx10.12 (x86_64)
 --
--- Host: 127.0.0.1    Database: rentroll
+-- Host: localhost    Database: rentroll
 -- ------------------------------------------------------
--- Server version	5.7.22-0ubuntu0.16.04.1
+-- Server version	5.7.22
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -1290,6 +1290,42 @@ INSERT INTO `Payor` VALUES (1,1,'',0.0000,0,0,'',0.0000,'2018-03-14 19:50:32',0,
 UNLOCK TABLES;
 
 --
+-- Table structure for table `Pets`
+--
+
+DROP TABLE IF EXISTS `Pets`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `Pets` (
+  `PETID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `BID` bigint(20) NOT NULL DEFAULT '0',
+  `RAID` bigint(20) NOT NULL DEFAULT '0',
+  `TCID` bigint(20) NOT NULL DEFAULT '0',
+  `Type` varchar(100) NOT NULL DEFAULT '',
+  `Breed` varchar(100) NOT NULL DEFAULT '',
+  `Color` varchar(100) NOT NULL DEFAULT '',
+  `Weight` decimal(19,4) NOT NULL DEFAULT '0.0000',
+  `Name` varchar(100) NOT NULL DEFAULT '',
+  `DtStart` date NOT NULL DEFAULT '1970-01-01',
+  `DtStop` date NOT NULL DEFAULT '1970-01-01',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
+  `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`PETID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `Pets`
+--
+
+LOCK TABLES `Pets` WRITE;
+/*!40000 ALTER TABLE `Pets` DISABLE KEYS */;
+/*!40000 ALTER TABLE `Pets` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `Prospect`
 --
 
@@ -1976,42 +2012,6 @@ INSERT INTO `RentalAgreementPayors` VALUES (1,1,1,14,'2016-10-24','2017-02-14',0
 UNLOCK TABLES;
 
 --
--- Table structure for table `RentalAgreementPets`
---
-
-DROP TABLE IF EXISTS `RentalAgreementPets`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `RentalAgreementPets` (
-  `PETID` bigint(20) NOT NULL AUTO_INCREMENT,
-  `BID` bigint(20) NOT NULL DEFAULT '0',
-  `RAID` bigint(20) NOT NULL DEFAULT '0',
-  `TCID` bigint(20) NOT NULL DEFAULT '0',
-  `Type` varchar(100) NOT NULL DEFAULT '',
-  `Breed` varchar(100) NOT NULL DEFAULT '',
-  `Color` varchar(100) NOT NULL DEFAULT '',
-  `Weight` decimal(19,4) NOT NULL DEFAULT '0.0000',
-  `Name` varchar(100) NOT NULL DEFAULT '',
-  `DtStart` date NOT NULL DEFAULT '1970-01-01',
-  `DtStop` date NOT NULL DEFAULT '1970-01-01',
-  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
-  `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`PETID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `RentalAgreementPets`
---
-
-LOCK TABLES `RentalAgreementPets` WRITE;
-/*!40000 ALTER TABLE `RentalAgreementPets` DISABLE KEYS */;
-/*!40000 ALTER TABLE `RentalAgreementPets` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `RentalAgreementRentables`
 --
 
@@ -2187,6 +2187,40 @@ CREATE TABLE `SubAR` (
 LOCK TABLES `SubAR` WRITE;
 /*!40000 ALTER TABLE `SubAR` DISABLE KEYS */;
 /*!40000 ALTER TABLE `SubAR` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `TBind`
+--
+
+DROP TABLE IF EXISTS `TBind`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `TBind` (
+  `TBID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `BID` bigint(20) NOT NULL DEFAULT '0',
+  `SourceElemType` bigint(20) NOT NULL DEFAULT '0',
+  `SourceElemID` bigint(20) NOT NULL DEFAULT '0',
+  `AssocElemType` bigint(20) NOT NULL DEFAULT '0',
+  `AssocElemID` bigint(20) NOT NULL DEFAULT '0',
+  `DtStart` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
+  `DtStop` datetime NOT NULL DEFAULT '2066-01-01 00:00:00',
+  `FLAGS` bigint(20) NOT NULL DEFAULT '0',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
+  `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`TBID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `TBind`
+--
+
+LOCK TABLES `TBind` WRITE;
+/*!40000 ALTER TABLE `TBind` DISABLE KEYS */;
+/*!40000 ALTER TABLE `TBind` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -2575,4 +2609,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-07-30 13:26:32
+-- Dump completed on 2018-08-21 20:29:43

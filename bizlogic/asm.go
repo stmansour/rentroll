@@ -158,6 +158,9 @@ func UpdateAssessmentEndDate(ctx context.Context, a *rlib.Assessment, dt *time.T
 		rlib.Console("Found instance to prorate: ASMID = %d\n", ai.ASMID)
 		amount, n, p := rlib.SimpleProrateAmount(ai.Amount, ai.RentCycle, ai.ProrationCycle, &ai.Start, dt, &ai.Start)
 		ai.Amount = amount
+		ai.RentCycle = rlib.RECURNONE
+		ai.ProrationCycle = rlib.RECURNONE
+		ai.Stop = ai.Start
 		ai.AppendComment(fmt.Sprintf("prorated for %d of %d %s", n, p, rlib.ProrationUnits(ai.ProrationCycle)))
 		be := UpdateAssessment(ctx, &ai, 0, dt, 0)
 		if len(be) > 0 {

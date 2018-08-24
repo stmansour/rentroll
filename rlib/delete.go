@@ -270,6 +270,58 @@ func DeleteExpense(ctx context.Context, id int64) error {
 	return nil
 }
 
+// DeleteFlow deletes a flow with the given FlowID
+func DeleteFlow(ctx context.Context, FlowID int64) error {
+	var err error
+
+	// session... context
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+	}
+
+	fields := []interface{}{FlowID}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.DeleteFlow)
+		defer stmt.Close()
+		_, err = stmt.Exec(fields...)
+	} else {
+		_, err = RRdb.Prepstmt.DeleteFlow.Exec(fields...)
+	}
+	if err != nil {
+		Ulog("Error deleting FlowParts for FlowID = %d, error: %v\n", FlowID, err)
+	}
+	return err
+}
+
+// DeleteFlowByRefNo deletes a flow with the given UserRefNo
+func DeleteFlowByRefNo(ctx context.Context, BID int64, UserRefNo string) error {
+	var err error
+
+	// session... context
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+	}
+
+	fields := []interface{}{BID, UserRefNo}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.DeleteFlowByRefNo)
+		defer stmt.Close()
+		_, err = stmt.Exec(fields...)
+	} else {
+		_, err = RRdb.Prepstmt.DeleteFlowByRefNo.Exec(fields...)
+	}
+	if err != nil {
+		Ulog("Error deleting FlowParts for UserRefNo = %s, error: %v\n", UserRefNo, err)
+	}
+	return err
+}
+
 // DeleteInvoice deletes the Invoice associated with the supplied id
 // For convenience, this routine calls DeleteInvoiceAssessments. The InvoiceAssessments are
 // tightly bound to the Invoice. If a Invoice is deleted, the parts should be deleted as well.
@@ -1056,8 +1108,8 @@ func DeleteRentableUserByRBT(ctx context.Context, rid, bid, tcid int64) error {
 	return err
 }
 
-// DeleteRentalAgreementPet deletes the pet with the specified petid from the database
-func DeleteRentalAgreementPet(ctx context.Context, petid int64) error {
+// DeletePet deletes the pet with the specified petid from the database
+func DeletePet(ctx context.Context, petid int64) error {
 	var err error
 
 	// session... context
@@ -1070,11 +1122,11 @@ func DeleteRentalAgreementPet(ctx context.Context, petid int64) error {
 
 	fields := []interface{}{petid}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.DeleteRentalAgreementPet)
+		stmt := tx.Stmt(RRdb.Prepstmt.DeletePet)
 		defer stmt.Close()
 		_, err = stmt.Exec(fields...)
 	} else {
-		_, err = RRdb.Prepstmt.DeleteRentalAgreementPet.Exec(fields...)
+		_, err = RRdb.Prepstmt.DeletePet.Exec(fields...)
 	}
 	if err != nil {
 		Ulog("Error deleting petid=%d error: %v\n", petid, err)
@@ -1186,8 +1238,8 @@ func DeleteAllRentalAgreementPayors(ctx context.Context, raid int64) error {
 	return err
 }
 
-// DeleteAllRentalAgreementPets deletes all pets associated with the specified raid
-func DeleteAllRentalAgreementPets(ctx context.Context, raid int64) error {
+// DeleteAllPets deletes all pets associated with the specified raid
+func DeleteAllPets(ctx context.Context, raid int64) error {
 	var err error
 
 	// session... context
@@ -1200,11 +1252,11 @@ func DeleteAllRentalAgreementPets(ctx context.Context, raid int64) error {
 
 	fields := []interface{}{raid}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.DeleteAllRentalAgreementPets)
+		stmt := tx.Stmt(RRdb.Prepstmt.DeleteAllPets)
 		defer stmt.Close()
 		_, err = stmt.Exec(fields...)
 	} else {
-		_, err = RRdb.Prepstmt.DeleteAllRentalAgreementPets.Exec(fields...)
+		_, err = RRdb.Prepstmt.DeleteAllPets.Exec(fields...)
 	}
 	if err != nil {
 		Ulog("Error deleting pets for rental agreement=%d error: %v\n", raid, err)
@@ -1492,6 +1544,36 @@ func DeleteTaskListDefinition(ctx context.Context, id int64) error {
 }
 
 //*****************************************************************************
+//  TBIND
+//*****************************************************************************
+
+// DeleteTBind deletes the TBind with the specified id from the database
+func DeleteTBind(ctx context.Context, id int64) error {
+	var err error
+
+	// session... context
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+	}
+
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.DeleteTBind)
+		defer stmt.Close()
+		_, err = stmt.Exec(fields...)
+	} else {
+		_, err = RRdb.Prepstmt.DeleteTBind.Exec(fields...)
+	}
+	if err != nil {
+		Ulog("Error deleting TBind id=%d error: %v\n", id, err)
+	}
+	return err
+}
+
+//*****************************************************************************
 //  TRANSACTANT, PAYOR, USER, PROSPECT
 //*****************************************************************************
 
@@ -1595,58 +1677,6 @@ func DeletePayor(ctx context.Context, id int64) error {
 	}
 	if err != nil {
 		Ulog("Error deleting Payor id=%d error: %v\n", id, err)
-	}
-	return err
-}
-
-// DeleteFlow deletes a flow with the given FlowID
-func DeleteFlow(ctx context.Context, FlowID int64) error {
-	var err error
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-	}
-
-	fields := []interface{}{FlowID}
-	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.DeleteFlow)
-		defer stmt.Close()
-		_, err = stmt.Exec(fields...)
-	} else {
-		_, err = RRdb.Prepstmt.DeleteFlow.Exec(fields...)
-	}
-	if err != nil {
-		Ulog("Error deleting FlowParts for FlowID = %d, error: %v\n", FlowID, err)
-	}
-	return err
-}
-
-// DeleteFlowByRefNo deletes a flow with the given UserRefNo
-func DeleteFlowByRefNo(ctx context.Context, BID int64, UserRefNo string) error {
-	var err error
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-	}
-
-	fields := []interface{}{BID, UserRefNo}
-	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.DeleteFlowByRefNo)
-		defer stmt.Close()
-		_, err = stmt.Exec(fields...)
-	} else {
-		_, err = RRdb.Prepstmt.DeleteFlowByRefNo.Exec(fields...)
-	}
-	if err != nil {
-		Ulog("Error deleting FlowParts for UserRefNo = %s, error: %v\n", UserRefNo, err)
 	}
 	return err
 }

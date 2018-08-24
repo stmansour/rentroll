@@ -3,7 +3,7 @@
     HideAllSliderContent, SetlocalDataFromRADatesFormRecord,
     SetRADatesFormRecordFromLocalData, SetRAFlowCompLocalData,
     SetFormRecordFromData, SetDataFromFormRecord, SaveDatesCompData, displayRADatesFormError,
-    ElementFlash
+    ElementFlash, cleanFormError
 */
 
 "use strict";
@@ -139,6 +139,8 @@ window.displayRADatesFormError = function(){
 
     // get list of pets
     var dates = app.raflow.validationCheck.errors.dates;
+
+    cleanFormError();
 
     // Iterate through fields with errors
     for(var key in dates.errors){

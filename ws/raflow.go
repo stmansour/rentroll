@@ -80,7 +80,7 @@ FROM (
             RentalAgreement.RAID AS RAID,
             RentalAgreement.AgreementStart AS AgreementStart,
             RentalAgreement.AgreementStop AS AgreementStop,
-            GROUP_CONCAT(DISTINCT CASE WHEN Payor.IsCompany > 0 THEN Payor.CompanyName ELSE CONCAT(Payor.FirstName, ' ', Payor.LastName) END ORDER BY Payor.TCID ASC SEPARATOR ', ') AS Payors,
+            GROUP_CONCAT(DISTINCT CASE WHEN Payor.IsCompany > 0 THEN Payor.CompanyName ELSE CONCAT(Payor.FirstName, ' ', Payor.LastName) END ORDER BY 1 SEPARATOR ', ') AS Payors,
             Flow.FlowID AS FlowID,
             Flow.UserRefNo AS UserRefNo
         FROM RentalAgreement
@@ -89,7 +89,7 @@ FROM (
         LEFT JOIN Flow ON Flow.ID=RentalAgreement.RAID
         WHERE RentalAgreement.BID={{.BID}} AND RentalAgreement.AgreementStart <= "{{.Stop}}" AND RentalAgreement.AgreementStop > "{{.Start}}"
         GROUP BY RentalAgreement.RAID
-        /*ORDER BY RentalAgreement.RAID ASC*/
+        ORDER BY Payors ASC, AgreementStart ASC
     )
     UNION ALL
     (
@@ -107,7 +107,7 @@ FROM (
             Flow.UserRefNo AS UserRefNo
         FROM Flow
         WHERE Flow.BID={{.BID}} AND Flow.ID=0 AND "{{.Start}}" <= Flow.CreateTS AND Flow.CreateTS < "{{.Stop}}"
-        /*ORDER BY Flow.FlowID ASC*/
+        ORDER BY Flow.FlowID ASC
     )
     /*- - - - - - - - - - - - - - - - -
     Rental Agreements (with or without flow)
@@ -126,7 +126,7 @@ var RAFlowQueryClause = rlib.QueryClause{
 	"Stop":         "",
 	"SelectClause": strings.Join(RAFlowQuerySelectFields, ","),
 	"WhereClause":  "",
-	"OrderClause":  "- RA_CUM_FLOW.RAID DESC, - RA_CUM_FLOW.FlowID DESC",
+	"OrderClause":  "RA_CUM_FLOW.Payors ASC, RA_CUM_FLOW.AgreementStart ASC",
 }
 
 // GetAllRAFlows returns all existing Rental Agreements and all Flows
@@ -340,6 +340,17 @@ func GetRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// CREATE ONE ONLY WHEN REF.NO IS BLANK
 		rlib.Console("req.UserRefNo = %s\n", req.UserRefNo)
 		if req.UserRefNo == "" {
+
+			// CHECK IF ANY FLOW EXIST WITH GIVEN RAID
+			flow, err = rlib.GetFlowForRAID(ctx, "RA", req.RAID)
+			if err != nil {
+				return
+			}
+			if flow.FlowID > 0 {
+				err = fmt.Errorf("flow already exists with given refno: %s", flow.UserRefNo)
+				return
+			}
+
 			rlib.Console("Generating new flow %s\n", req.UserRefNo)
 			// IF NOT FOUND THEN TRY TO CREATE NEW ONE FROM RAID
 			// GET RENTAL AGREEMENT
@@ -420,5 +431,4 @@ func ValidateRAFlowAndAssignValidatedRAFlow(ctx context.Context, raFlowData *rli
 	raflowRespData.ValidationCheck.Errors = raFlowFieldsErrors
 	raflowRespData.ValidationCheck.NonFieldsErrors = raFlowNonFieldsErrors
 	raflowRespData.ValidationCheck.Total += totalFieldsError + totalNonFieldsError
-	raflowRespData.ValidationCheck.Status = "success"
 }

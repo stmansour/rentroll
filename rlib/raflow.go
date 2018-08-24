@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"strings"
 	"time"
 )
 
@@ -147,10 +148,10 @@ type RAPeopleFlowData struct {
 	PreferredName  string `validate:"string,min=1,max=100,omitempty"`
 	IsCompany      bool   `validate:"-"`
 	CompanyName    string `validate:"string,min=1,max=100,omitempty"` // It is required when IsCompany flag is true. It'll be checked in bizlogic validation.
-	PrimaryEmail   string `validate:"email"`
+	PrimaryEmail   string `validate:"email,omitempty"`                // It doesn't require compulsory when a transanctant is Occupant. It'll handled in bizlogic validation.
 	SecondaryEmail string `validate:"email,omitempty"`
-	WorkPhone      string `validate:"string,min=1,max=100,omitempty"` // Either Workphone or CellPhone is compulsory. It'll be checked in bizlogic validation
-	CellPhone      string `validate:"string,min=1,max=100,omitempty"` // Either Workphone or CellPhone is compulsory. It'll be checked in bizlogic validation
+	WorkPhone      string `validate:"string,min=1,max=100,omitempty"` // Either Workphone or CellPhone is compulsory when a transanctant isn't occupants. It'll be checked in bizlogic validation
+	CellPhone      string `validate:"string,min=1,max=100,omitempty"` // Either Workphone or CellPhone is compulsory when a transanctant isn't occupants. It'll be checked in bizlogic validation
 	Address        string `validate:"string,min=1,max=100,omitempty"`
 	Address2       string `validate:"string,min=0,max=100,omitempty"`
 	City           string `validate:"string,min=1,max=100,omitempty"`
@@ -167,7 +168,7 @@ type RAPeopleFlowData struct {
 	CompanyPostalCode string `validate:"string,min=1,max=100,omitempty"`
 	CompanyEmail      string `validate:"email,omitempty"`
 	CompanyPhone      string `validate:"string,min=1,max=100,omitempty"`
-	Occupation        string `validate:"string,min=1,max=100"`
+	Occupation        string `validate:"string,min=1,max=100,omitempty"` // It doesn't require compulsory when a transanctant is Occupant. It'll handled in bizlogic validation.
 
 	// Current Address information
 	CurrentAddress           string `validate:"string,min=1,max=100,omitempty"`
@@ -201,7 +202,7 @@ type RAPeopleFlowData struct {
 	CreditLimit         float64 `validate:"number:float,min=0.00,omitempty"`
 	TaxpayorID          string  `validate:"string,min=1,max=25,omitempty"`   // It requires when transanctant is renter or gurantor. It handles via business logic
 	GrossIncome         float64 `validate:"number:float,min=0.00,omitempty"` // When role is set to renter or guarantor than it is compulsory. It'll be check via bizlogic.
-	DriversLicense      string  `validate:"string,min=1,max=128"`
+	DriversLicense      string  `validate:"string,min=1,max=128,omitempty"`  // It doesn't require compulsory when a transanctant is Occupant. It'll handled in bizlogic validation.
 	EligibleFuturePayor bool    `validate:"-"`
 
 	// ---------- User -----------
@@ -215,7 +216,7 @@ type RAPeopleFlowData struct {
 	AlternateEmailAddress     string `validate:"string,min=1,max=100,omitempty"`
 	EligibleFutureUser        bool   `validate:"-"`
 	Industry                  int64  `validate:"number,min=0,omitempty"`
-	SourceSLSID               int64  `validate:"number,min=0,omitempty"` // It is compulsory when role is set to renter or user. It'll be check via bizlogic.
+	SourceSLSID               int64  `validate:"number,min=0,omitempty"` // It is compulsory when role is set to renter. It'll be check via bizlogic.
 }
 
 // RAPetsFlowData contains data in the pets part of RA flow
@@ -228,8 +229,6 @@ type RAPetsFlowData struct {
 	Breed    string       `validate:"string,min=1,max=100"`
 	Color    string       `validate:"string,min=1,max=100"`
 	Weight   float64      `validate:"number:float,min=0.0"`
-	DtStart  JSONDate     `validate:"date"`
-	DtStop   JSONDate     `validate:"date"`
 	Fees     []RAFeesData `validate:"-"`
 }
 
@@ -247,8 +246,6 @@ type RAVehiclesFlowData struct {
 	LicensePlateState   string       `validate:"string,min=1,max=80"`
 	LicensePlateNumber  string       `validate:"string,min=1,max=80"`
 	ParkingPermitNumber string       `validate:"string,min=1,max=80,omitempty"`
-	DtStart             JSONDate     `validate:"date"`
-	DtStop              JSONDate     `validate:"date"`
 	Fees                []RAFeesData `validate:"-"`
 }
 
@@ -346,14 +343,6 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 			err = json.Unmarshal(dataToUpdate, &a)
 			if err != nil {
 				return
-			}
-
-			// ----- POSSESSION DATES CHANGED CHECK ----- //
-			newPStart := (time.Time)(a.PossessionStart)
-			newPStop := (time.Time)(a.PossessionStop)
-			if !((time.Time)(raFlowData.Dates.PossessionStart).Equal(newPStart) &&
-				(time.Time)(raFlowData.Dates.PossessionStop).Equal(newPStop)) {
-				PossessDateChangeRAFlowUpdates(ctx, newPStart, newPStop, &raFlowData)
 			}
 
 			// ----- RENT DATES CHANGED CHECK ----- //
@@ -752,26 +741,6 @@ func SyncTieRecords(raFlowData *RAFlowJSONData) {
 	raFlowData.Tie.People = modTiePeople
 }
 
-// PossessDateChangeRAFlowUpdates updates raflow json with required
-// modification if possession dates are changed
-func PossessDateChangeRAFlowUpdates(ctx context.Context, pStart, pStop time.Time, raFlowData *RAFlowJSONData) {
-
-	start := JSONDate(pStart)
-	stop := JSONDate(pStop)
-
-	// ----- UPDATE PETS DTSTART/DTSTOP WITH NEW DATES ----- //
-	for i := range raFlowData.Pets {
-		raFlowData.Pets[i].DtStart = start
-		raFlowData.Pets[i].DtStop = stop
-	}
-
-	// ----- UPDATE PETS DTSTART/DTSTOP WITH NEW DATES ----- //
-	for i := range raFlowData.Vehicles {
-		raFlowData.Vehicles[i].DtStart = start
-		raFlowData.Vehicles[i].DtStop = stop
-	}
-}
-
 // RentDateChangeRAFlowUpdates updates raflow json with required
 // modification if rent dates are changed
 func RentDateChangeRAFlowUpdates(ctx context.Context, BID int64, rStart, rStop time.Time, raFlowData *RAFlowJSONData) (err error) {
@@ -786,10 +755,21 @@ func RentDateChangeRAFlowUpdates(ctx context.Context, BID int64, rStart, rStop t
 	// LOOP OVER PET FEES IN RAFLOW
 	for pi := range raFlowData.Pets {
 
+		// REMOVE PRORATED FEES
+		baseFees := []RAFeesData{}
+		for fi := range raFlowData.Pets[pi].Fees {
+			// IF FEE IS PRORATED THEN IGNORE IT CHECK OUT THE NEXT ONE
+			// SINCE IT'S ALREADY HANDLED BY RENT ASM CHARGE
+			if strings.Contains(raFlowData.Pets[pi].Fees[fi].Comment, "prorated") {
+				continue
+			}
+			baseFees = append(baseFees, raFlowData.Pets[pi].Fees[fi])
+		}
+
 		// GET MODIFIED PET FEES FROM THIS FLOW DATA PET FEES AND RENT DATES
 		var modPetFees []RAFeesData
 		modPetFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName,
-			rStart, rStop, raFlowData.Pets[pi].Fees)
+			rStart, rStop, baseFees)
 		if err != nil {
 			return
 		}
@@ -810,10 +790,21 @@ func RentDateChangeRAFlowUpdates(ctx context.Context, BID int64, rStart, rStop t
 	// LOOP OVER VEHICLE FEES IN RAFLOW
 	for vi := range raFlowData.Vehicles {
 
+		// REMOVE PRORATED FEES
+		baseFees := []RAFeesData{}
+		for fi := range raFlowData.Vehicles[vi].Fees {
+			// IF FEE IS PRORATED THEN IGNORE IT CHECK OUT THE NEXT ONE
+			// SINCE IT'S ALREADY HANDLED BY RENT ASM CHARGE
+			if strings.Contains(raFlowData.Vehicles[vi].Fees[fi].Comment, "prorated") {
+				continue
+			}
+			baseFees = append(baseFees, raFlowData.Vehicles[vi].Fees[fi])
+		}
+
 		// GET MODIFIED VEHICLE FEES FROM THIS FLOW DATA VEHICLE FEES AND RENT DATES
 		var modVehicleFees []RAFeesData
 		modVehicleFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName,
-			rStart, rStop, raFlowData.Vehicles[vi].Fees)
+			rStart, rStop, baseFees)
 		if err != nil {
 			return
 		}
@@ -834,10 +825,21 @@ func RentDateChangeRAFlowUpdates(ctx context.Context, BID int64, rStart, rStop t
 	// LOOP OVER RENTABLE FEES IN RAFLOW
 	for ri := range raFlowData.Rentables {
 
+		// REMOVE PRORATED FEES
+		baseFees := []RAFeesData{}
+		for fi := range raFlowData.Rentables[ri].Fees {
+			// IF FEE IS PRORATED THEN IGNORE IT CHECK OUT THE NEXT ONE
+			// SINCE IT'S ALREADY HANDLED BY RENT ASM CHARGE
+			if strings.Contains(raFlowData.Rentables[ri].Fees[fi].Comment, "prorated") {
+				continue
+			}
+			baseFees = append(baseFees, raFlowData.Rentables[ri].Fees[fi])
+		}
+
 		// GET MODIFIED RENTABLE FEES FROM THIS FLOW DATA RENTABLE FEES AND RENT DATES
 		var modRentableFees []RAFeesData
 		modRentableFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName,
-			rStart, rStop, raFlowData.Rentables[ri].Fees)
+			rStart, rStop, baseFees)
 		if err != nil {
 			return
 		}
@@ -1445,8 +1447,6 @@ func NewRAFlowPet(ctx context.Context, BID int64, rStart, rStop, pStart, pStop J
 	meta.LastTMPPETID++
 	pet = RAPetsFlowData{
 		TMPPETID: meta.LastTMPPETID,
-		DtStart:  pStart,
-		DtStop:   pStop,
 		Fees:     []RAFeesData{},
 	}
 
@@ -1478,10 +1478,8 @@ func NewRAFlowVehicle(ctx context.Context, BID int64, rStart, rStop, pStart, pSt
 	// assign new TMPVID & mark in meta info
 	meta.LastTMPVID++
 	vehicle = RAVehiclesFlowData{
-		TMPVID:  meta.LastTMPVID,
-		DtStart: pStart,
-		DtStop:  pStop,
-		Fees:    []RAFeesData{},
+		TMPVID: meta.LastTMPVID,
+		Fees:   []RAFeesData{},
 	}
 
 	// GET VEHICLE INITIAL FEES, META SHOULD BE UPDATED IN CALLER FUNCTION

@@ -16,7 +16,6 @@ type RAFlowDetailRequest struct {
 
 // ValidateRAFlowResponse is struct to hold ErrorList for Flow
 type ValidateRAFlowResponse struct {
-	Status          string                `json:"status"`
 	Total           int                   `json:"total"`
 	Errors          RAFlowFieldsErrors    `json:"errors"`
 	NonFieldsErrors RAFlowNonFieldsErrors `json:"nonFieldsErrors"`
@@ -151,50 +150,76 @@ type RAFlowNonFieldsErrors struct {
 }
 
 // ValidateRAFlowParts It checks for basic and biz rules for raflow data
-func ValidateRAFlowParts(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, raFlowNonFieldsErrors *RAFlowNonFieldsErrors, a *rlib.RAFlowJSONData, RAID int64) {
+func ValidateRAFlowParts(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, raFlowNonFieldsErrors *RAFlowNonFieldsErrors, a *rlib.RAFlowJSONData, RAID int64) error {
+
+	var err error
 
 	//----------------------------------------------
 	// validate RADatesFlowData structure
 	// ----------------------------------------------
-	validateDates(ctx, raFlowFieldsErrors, raFlowNonFieldsErrors, a)
+	err = validateDates(ctx, raFlowFieldsErrors, raFlowNonFieldsErrors, a, RAID)
+	if err != nil {
+		return err
+	}
 
 	// ----------------------------------------------
 	// validate RAPeopleFlowData structure
 	// ----------------------------------------------
-	validatePeople(ctx, raFlowFieldsErrors, raFlowNonFieldsErrors, a, RAID)
+	err = validatePeople(ctx, raFlowFieldsErrors, raFlowNonFieldsErrors, a, RAID)
+	if err != nil {
+		return err
+	}
 
 	// ----------------------------------------------
 	// validate RAPetFlowData structure
 	// ----------------------------------------------
-	validatePets(ctx, raFlowFieldsErrors, raFlowNonFieldsErrors, a)
+	err = validatePets(ctx, raFlowFieldsErrors, raFlowNonFieldsErrors, a)
+	if err != nil {
+		return err
+	}
 
 	// ----------------------------------------------
 	// validate RAVehicleFlowData structure
 	// ----------------------------------------------
-	validateVehicles(ctx, raFlowFieldsErrors, raFlowNonFieldsErrors, a)
+	err = validateVehicles(ctx, raFlowFieldsErrors, raFlowNonFieldsErrors, a)
+	if err != nil {
+		return err
+	}
 
 	// ----------------------------------------------
 	// validate RARentablesFlowData structure
 	// ----------------------------------------------
-	validateRentables(ctx, raFlowFieldsErrors, raFlowNonFieldsErrors, a)
+	err = validateRentables(ctx, raFlowFieldsErrors, raFlowNonFieldsErrors, a)
+	if err != nil {
+		return err
+	}
 
 	// ----------------------------------------------
 	// validate RAParentChildFlowData structure
 	// ----------------------------------------------
-	validateParentChild(ctx, raFlowFieldsErrors, raFlowNonFieldsErrors, a)
+	err = validateParentChild(ctx, raFlowFieldsErrors, raFlowNonFieldsErrors, a)
+	if err != nil {
+		return err
+	}
 
 	// ----------------------------------------------
 	// validate RATieFlowData.People structure
 	// ----------------------------------------------
-	validateTiePeople(ctx, raFlowFieldsErrors, raFlowNonFieldsErrors, a)
+	err = validateTiePeople(ctx, raFlowFieldsErrors, raFlowNonFieldsErrors, a)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // validateDates
 // BizCheck
 // ---------------------------------------------
 // 1. Start dates must be prior to End/Stop date
+// 2. If RAID > 0 then the all Start Dates on the Dates/Agent flow part must be >= Start dates on the RAID
 // ---------------------------------------------
-func validateDates(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, raFlowNonFieldsErrors *RAFlowNonFieldsErrors, a *rlib.RAFlowJSONData) {
+func validateDates(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, raFlowNonFieldsErrors *RAFlowNonFieldsErrors, a *rlib.RAFlowJSONData, RAID int64) error {
 
 	var (
 		err error
@@ -260,7 +285,54 @@ func validateDates(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, 
 		datesFieldsErrors.Total++
 	}
 
+	// --------------------------------------------------
+	// 2. If RAID > 0 then the all Start Dates on the Dates/Agent flow part must be >= Start dates on the RAID
+	// --------------------------------------------------
+	if RAID > 0 {
+
+		ra, err := rlib.GetRentalAgreement(ctx, RAID)
+		if err != nil {
+			return err
+		}
+
+		raAgreementStartDate := time.Time(ra.AgreementStart)
+		raRentStartDate := time.Time(ra.RentStart)
+		raPossessionStartDate := time.Time(ra.PossessionStart)
+
+		if !(agreementStartDate.Equal(raAgreementStartDate) || agreementStartDate.After(raAgreementStartDate)) {
+			// define and assign error
+			err = fmt.Errorf("agreement start date must be after or equal to RAID: %d agreement start date", RAID)
+			datesFieldsErrors.Errors["AgreementStart"] = append(datesFieldsErrors.Errors["AgreementStart"], err.Error())
+
+			// Modify date section error count
+			datesFieldsErrors.Total++
+		}
+
+		if !(rentStartDate.Equal(raRentStartDate) || rentStartDate.After(raRentStartDate)) {
+
+			// define and assign error
+			err = fmt.Errorf("rent start date must be after or equal to RAID: %d rent start date", RAID)
+			datesFieldsErrors.Errors["RentStart"] = append(datesFieldsErrors.Errors["RentStart"], err.Error())
+
+			// Modify date section error count
+			datesFieldsErrors.Total++
+		}
+
+		if !(possessionStartDate.Equal(raPossessionStartDate) || possessionStartDate.After(raPossessionStartDate)) {
+
+			// define and assign error
+			err = fmt.Errorf("possession start date must be after or equal to RAID: %d possession start date", RAID)
+			datesFieldsErrors.Errors["PossessionStart"] = append(datesFieldsErrors.Errors["PossessionStart"], err.Error())
+
+			// Modify date section error count
+			datesFieldsErrors.Total++
+		}
+
+	}
+
 	raFlowFieldsErrors.Dates = datesFieldsErrors
+
+	return nil
 
 }
 
@@ -271,13 +343,15 @@ func validateDates(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, 
 // 2. If isCompany flag is false than FirstName and LastName are required
 // 3. If only one person exist in the list, then it should have isRenter role marked as true.
 // 4. If role is set to Renter or guarantor than it must have mentioned GrossIncome
-// 5. Either Workphone or CellPhone is compulsory
+// 5. Either Workphone or CellPhone is compulsory when a transanctant isn't occupant
 // 6. EmergencyContactName, EmergencyContactAddress, EmergencyContactTelephone, EmergencyEmail are required when IsCompany flag is false.
-// 7. SourceSLSID must be greater than 0 when role is set to Renter, User
+// 7. SourceSLSID must be greater than 0 when role is set to Renter
 // 8. When it is brand new RA Application(RAID==0) it require "current" address related information
 // 9. TaxpayorID is only require when role is set to Renter or Guarantor
+// 10. Occupantion is only require when role is set to Renter or Gurantor
+// 11. Primary email is only require when role is set to Renter or Gurantor
 // ----------------------------------------------------------------------
-func validatePeople(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, raFlowNonFieldsErrors *RAFlowNonFieldsErrors, a *rlib.RAFlowJSONData, RAID int64) {
+func validatePeople(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, raFlowNonFieldsErrors *RAFlowNonFieldsErrors, a *rlib.RAFlowJSONData, RAID int64) error {
 
 	var (
 		err error
@@ -372,9 +446,9 @@ func validatePeople(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors,
 		}
 
 		// ----------- Check rule no. 5  ----------------
-		// Either Workphone or CellPhone is compulsory
+		// Either Workphone or CellPhone is compulsory when a transanctant isn't occupant
 		err = fmt.Errorf("provide workphone or cellphone number")
-		if p.WorkPhone == "" && p.CellPhone == "" {
+		if p.WorkPhone == "" && p.CellPhone == "" && (p.IsRenter || p.IsGuarantor) {
 			peopleFieldsError.Errors["WorkPhone"] = append(peopleFieldsError.Errors["WorkPhone"], err.Error())
 			peopleFieldsError.Total++
 		}
@@ -382,7 +456,7 @@ func validatePeople(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors,
 		// ----------- Check rule no. 7  ----------------
 		// SourceSLSID must be greater than 0 when role is set to Renter, User
 		err = fmt.Errorf("provide SourceSLSID")
-		if (p.IsRenter || p.IsOccupant) && !(p.SourceSLSID > 0) {
+		if p.IsRenter && !(p.SourceSLSID > 0) {
 			peopleFieldsError.Errors["SourceSLSID"] = append(peopleFieldsError.Errors["SourceSLSID"], err.Error())
 			peopleFieldsError.Total++
 		}
@@ -398,6 +472,28 @@ func validatePeople(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors,
 		err = fmt.Errorf("no taxpayer ID available")
 		if (p.IsRenter || p.IsGuarantor) && p.TaxpayorID == "" {
 			peopleFieldsError.Errors["TaxpayorID"] = append(peopleFieldsError.Errors["TaxpayorID"], err.Error())
+			peopleFieldsError.Total++
+		}
+
+		// ----------- Check rule no. 10  ----------------
+		// 10. Occupantion is only require when role is set to Renter or Guarantor
+		err = fmt.Errorf("must not be blank")
+		if (p.IsRenter || p.IsGuarantor) && p.Occupation == "" {
+			peopleFieldsError.Errors["Occupation"] = append(peopleFieldsError.Errors["Occupation"], err.Error())
+			peopleFieldsError.Total++
+		}
+
+		// ----------- Check rule no. 11  ----------------
+		// 11. Primary email is only require when role is set to Renter or Guarantor
+		if (p.IsRenter || p.IsGuarantor) && p.PrimaryEmail == "" {
+			peopleFieldsError.Errors["PrimaryEmail"] = append(peopleFieldsError.Errors["PrimaryEmail"], err.Error())
+			peopleFieldsError.Total++
+		}
+
+		// ----------- Check rule no. 12  ----------------
+		// 12. Driving Lic is only require when role is set to Renter or Guarantor
+		if (p.IsRenter || p.IsGuarantor) && p.DriversLicense == "" {
+			peopleFieldsError.Errors["DriversLicense"] = append(peopleFieldsError.Errors["DriversLicense"], err.Error())
 			peopleFieldsError.Total++
 		}
 
@@ -431,15 +527,16 @@ func validatePeople(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors,
 
 		raFlowFieldsErrors.People.Total++
 	}
+
+	return nil
 }
 
 // validatePets is to check Pets basic and business logic
 // BizCheck
 // ----------------------------------------------------------------------
 // 1. Every pet must be associated with a transactant
-// 2. DtStart must be prior to DtStop
 // ----------------------------------------------------------------------
-func validatePets(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, raFlowNonFieldsErrors *RAFlowNonFieldsErrors, a *rlib.RAFlowJSONData) {
+func validatePets(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, raFlowNonFieldsErrors *RAFlowNonFieldsErrors, a *rlib.RAFlowJSONData) error {
 	// ----------------------------------------------
 	// validate RAPetFlowData structure
 	// ----------------------------------------------
@@ -468,26 +565,14 @@ func validatePets(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, r
 			petFieldsErrors.Total++
 		}
 
-		// -----------------------------------------------
-		// --------- Check for rule no 2 -----------------
-		// -----------------------------------------------
-		startDate := time.Time(pet.DtStart)
-		stopDate := time.Time(pet.DtStop)
-		// Start date must be prior to End/Stop date
-		if !(startDate.Equal(stopDate) || startDate.Before(stopDate)) {
-
-			// define and assign error
-			err := fmt.Errorf("start date must be prior to stop date")
-			petFieldsErrors.Errors["DtStart"] = append(petFieldsErrors.Errors["DtStart"], err.Error())
-
-			// Modify pet section error count
-			petFieldsErrors.Total++
-		}
-
 		// ----------------------------------------------
 		// validate RAPetFlowData.Fees structure
 		// ----------------------------------------------
-		validateFees(ctx, &petFieldsErrors.FeesError, pet.Fees)
+		err := validateFees(ctx, &petFieldsErrors.FeesError, pet.Fees)
+		if err != nil {
+			return err
+		}
+
 		petFieldsErrors.Total += petFieldsErrors.FeesError.Total
 
 		// If there is no error in pet than skip that pet's error being added.
@@ -497,15 +582,16 @@ func validatePets(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, r
 			raFlowFieldsErrors.Pets.Total += petFieldsErrors.Total
 		}
 	}
+
+	return nil
 }
 
 // validateVehicles
 // BizCheck
 // ----------------------------------------------------------------------
 // 1. Every vehicle must be associated with a transactant
-// 2. DtStart must be prior to DtStop
 // ----------------------------------------------------------------------
-func validateVehicles(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, raFlowNonFieldsErrors *RAFlowNonFieldsErrors, a *rlib.RAFlowJSONData) {
+func validateVehicles(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, raFlowNonFieldsErrors *RAFlowNonFieldsErrors, a *rlib.RAFlowJSONData) error {
 	var (
 		err error
 	)
@@ -537,26 +623,13 @@ func validateVehicles(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsError
 			vehicleFieldsError.Errors["TMPTCID"] = append(vehicleFieldsError.Errors["TMPTCID"], err.Error())
 		}
 
-		// -----------------------------------------------
-		// --------- Check for rule no 2 ---------------
-		// -----------------------------------------------
-		startDate := time.Time(vehicle.DtStart)
-		stopDate := time.Time(vehicle.DtStop)
-		// Start date must be prior to End/Stop date
-		if !(startDate.Equal(stopDate) || startDate.Before(stopDate)) {
-
-			// define and assign error
-			err = fmt.Errorf("start date must be prior to stop date")
-			vehicleFieldsError.Errors["DtStart"] = append(vehicleFieldsError.Errors["DtStart"], err.Error())
-
-			// Modify vehicle section error count
-			vehicleFieldsError.Total++
-		}
-
 		// ----------------------------------------------
 		// validate RAVehicleFlowData.Fees structure
 		// ----------------------------------------------
-		validateFees(ctx, &vehicleFieldsError.FeesError, vehicle.Fees)
+		err := validateFees(ctx, &vehicleFieldsError.FeesError, vehicle.Fees)
+		if err != nil {
+			return err
+		}
 		vehicleFieldsError.Total += vehicleFieldsError.FeesError.Total
 
 		// If there is no error in vehicle than skip that vehicle's error being added.
@@ -566,13 +639,15 @@ func validateVehicles(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsError
 			raFlowFieldsErrors.Vehicle.Total += vehicleFieldsError.Total
 		}
 	}
+
+	return nil
 }
 
 // validateRentableBizLogic Perform business logic check on rentable section
 // ----------------------------------------------------------------------
 // 1. There must be one parent rentables available. (Parent rentables decide based on RTFlags)
 // ----------------------------------------------------------------------
-func validateRentables(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, raFlowNonFieldsErrors *RAFlowNonFieldsErrors, a *rlib.RAFlowJSONData) {
+func validateRentables(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, raFlowNonFieldsErrors *RAFlowNonFieldsErrors, a *rlib.RAFlowJSONData) error {
 	var (
 		err error
 	)
@@ -605,7 +680,10 @@ func validateRentables(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErro
 		// ----------------------------------------------
 		// validate RARentableFlowData.Fees structure
 		// ----------------------------------------------
-		validateFees(ctx, &rentablesFieldsError.FeesError, rentable.Fees)
+		err := validateFees(ctx, &rentablesFieldsError.FeesError, rentable.Fees)
+		if err != nil {
+			return err
+		}
 		rentablesFieldsError.Total += rentablesFieldsError.FeesError.Total
 
 		// If there is no error in vehicle than skip that rentable's error being added.
@@ -621,6 +699,8 @@ func validateRentables(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErro
 		err = fmt.Errorf("must have at least one parent rentable")
 		raFlowNonFieldsErrors.Rentables = append(raFlowNonFieldsErrors.Rentables, err.Error())
 	}
+
+	return nil
 }
 
 // validateFees
@@ -629,7 +709,7 @@ func validateRentables(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErro
 // 1. Start date must be prior or equal to Stop date
 // 2. Check fee must be exist in the database
 // ----------------------------------------------------------------------
-func validateFees(ctx context.Context, feesError *FeesError, fees []rlib.RAFeesData) {
+func validateFees(ctx context.Context, feesError *FeesError, fees []rlib.RAFeesData) error {
 	for _, fee := range fees {
 		// call validation function
 		errs := rtags.ValidateStructFromTagRules(fee)
@@ -659,11 +739,8 @@ func validateFees(ctx context.Context, feesError *FeesError, fees []rlib.RAFeesD
 		// -----------------------------------------------
 		// 2. Check fee must be exist in the database
 		ar, err := rlib.GetAR(ctx, fee.ARID)
-		// TODO(Akshay): HANDLE ERROR HERE
 		if err != nil {
-			fmt.Println("ERRROROROROOROROROROROR")
-			fmt.Println(err.Error())
-			return
+			return err
 		}
 
 		if !(ar.ARID > 0) {
@@ -679,6 +756,8 @@ func validateFees(ctx context.Context, feesError *FeesError, fees []rlib.RAFeesD
 			feesError.Total += len(raFeesErrors.Errors)
 		}
 	}
+
+	return nil
 }
 
 // validateParentChild
@@ -686,7 +765,7 @@ func validateFees(ctx context.Context, feesError *FeesError, fees []rlib.RAFeesD
 // ----------------------------------------------------------------------
 // 1. If there are any entries are in the list then id of parent/child rentable must be greater than 0. Also check does it exist in database?
 // ----------------------------------------------------------------------
-func validateParentChild(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, raFlowNonFieldsErrors *RAFlowNonFieldsErrors, a *rlib.RAFlowJSONData) {
+func validateParentChild(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, raFlowNonFieldsErrors *RAFlowNonFieldsErrors, a *rlib.RAFlowJSONData) error {
 	for _, pc := range a.ParentChild {
 		// call validation function
 		errs := rtags.ValidateStructFromTagRules(pc)
@@ -702,7 +781,7 @@ func validateParentChild(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsEr
 		// Check PRID exists in database which refer to RID in rentable table
 		r, err := rlib.GetRentable(ctx, pc.PRID)
 		if err != nil {
-			// TODO(Akshay): Handle error here
+			return err
 		}
 		// Not exist than RID will be 0
 		if !(r.RID > 0 && pc.PRID > 0) {
@@ -714,7 +793,7 @@ func validateParentChild(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsEr
 		// Check CRID exists in database which refer to RID in rentable table
 		r, err = rlib.GetRentable(ctx, pc.CRID)
 		if err != nil {
-			// TODO(Akshay): Handle error here
+			return err
 		}
 		// Not exist than RID will be 0
 		if !(r.RID > 0 && pc.CRID > 0) {
@@ -729,6 +808,8 @@ func validateParentChild(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsEr
 			raFlowFieldsErrors.ParentChild.Total += parentChildFieldsError.Total
 		}
 	}
+
+	return nil
 }
 
 // validateTiePeople
@@ -737,7 +818,7 @@ func validateParentChild(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsEr
 // 1. PRID must be greater than 0. It should exists in database
 // 2. Person must be occupant.
 // ----------------------------------------------------------------------
-func validateTiePeople(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, raFlowNonFieldsErrors *RAFlowNonFieldsErrors, a *rlib.RAFlowJSONData) {
+func validateTiePeople(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, raFlowNonFieldsErrors *RAFlowNonFieldsErrors, a *rlib.RAFlowJSONData) error {
 
 	occupantCount := 0
 
@@ -756,6 +837,9 @@ func validateTiePeople(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErro
 		// 1. PRID must be greater than 0. It should exists in database
 		// Check PRID exists in database which refer to RID in rentable table
 		r, err := rlib.GetRentable(ctx, p.PRID)
+		if err != nil {
+			return err
+		}
 		// Not exist than RID will be 0
 		if !(r.RID > 0 && p.PRID > 0) {
 			err = fmt.Errorf("parent rentable must be tied")
@@ -786,6 +870,8 @@ func validateTiePeople(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErro
 		err := fmt.Errorf("must have at least one occupant")
 		raFlowNonFieldsErrors.Tie = append(raFlowNonFieldsErrors.Tie, err.Error())
 	}
+
+	return nil
 }
 
 // isPersonOccupant Check provided TMPTCID refered person is occupant status

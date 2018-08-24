@@ -1781,8 +1781,8 @@ func InsertRentalAgreementPayor(ctx context.Context, a *RentalAgreementPayor) (i
 	return rid, err
 }
 
-// InsertRentalAgreementPet writes a new User record to the database
-func InsertRentalAgreementPet(ctx context.Context, a *RentalAgreementPet) (int64, error) {
+// InsertPet writes a new User record to the database
+func InsertPet(ctx context.Context, a *Pet) (int64, error) {
 
 	var (
 		rid = int64(0)
@@ -1805,11 +1805,11 @@ func InsertRentalAgreementPet(ctx context.Context, a *RentalAgreementPet) (int64
 	// transaction... context
 	fields := []interface{}{a.BID, a.RAID, a.TCID, a.Type, a.Breed, a.Color, a.Weight, a.Name, a.DtStart, a.DtStop, a.CreateBy, a.LastModBy}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.InsertRentalAgreementPet)
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertPet)
 		defer stmt.Close()
 		res, err = stmt.Exec(fields...)
 	} else {
-		res, err = RRdb.Prepstmt.InsertRentalAgreementPet.Exec(fields...)
+		res, err = RRdb.Prepstmt.InsertPet.Exec(fields...)
 	}
 
 	// After getting result...
@@ -1820,7 +1820,7 @@ func InsertRentalAgreementPet(ctx context.Context, a *RentalAgreementPet) (int64
 			a.PETID = rid
 		}
 	} else {
-		err = insertError(err, "RentalAgreementPet", *a)
+		err = insertError(err, "Pet", *a)
 	}
 	return rid, err
 }
@@ -2500,7 +2500,8 @@ func InsertTaskListDefinition(ctx context.Context, a *TaskListDefinition) error 
 		return err
 	}
 
-	fields := []interface{}{a.BID, a.Name, a.Cycle, a.Epoch, a.EpochDue, a.EpochPreDue, a.FLAGS, a.EmailList, a.DurWait, a.Comment, a.LastModBy, a.TLDID}
+	fields := []interface{}{a.BID, a.Name, a.Cycle, a.Epoch, a.EpochDue, a.EpochPreDue,
+		a.FLAGS, a.EmailList, a.DurWait, a.Comment, a.LastModBy, a.TLDID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertTaskListDefinition)
 		defer stmt.Close()
@@ -2519,6 +2520,51 @@ func InsertTaskListDefinition(ctx context.Context, a *TaskListDefinition) error 
 		err = insertError(err, "TaskListDefinition", *a)
 	}
 	return err
+}
+
+//*****************************************************************************
+//  TBIND
+//*****************************************************************************
+
+// InsertTBind writes a new TBind record to the database
+func InsertTBind(ctx context.Context, a *TBind) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
+
+	// session... context
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	fields := []interface{}{
+		a.BID, a.SourceElemType, a.SourceElemID, a.AssocElemType, a.AssocElemID,
+		a.DtStart, a.DtStop, a.FLAGS, a.CreateBy, a.LastModBy}
+
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertTBind)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertTBind.Exec(fields...)
+	}
+
+	// After getting result...
+	if nil == err {
+		x, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(x)
+			a.TBID = rid
+		}
+	} else {
+		err = insertError(err, "TBind", *a)
+	}
+	return rid, err
 }
 
 //*****************************************************************************

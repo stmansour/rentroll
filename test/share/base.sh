@@ -586,19 +586,17 @@ doRoomKeyTest () {
 # mysqlverify()
 #	Parameters:
 # 		$1 = base file name
-#		$2 = app options to reproduce
-# 		$3 = title
-#       $4 = mysql validation query
+# 		$2 = title
+#       $3 = mysql validation query
 ########################################
 mysqlverify () {
 # Generate the mysql commands needed to validate...
 cat >xxqq <<EOF
 use rentroll;
-${4}
+${3}
 EOF
 	TESTCOUNT=$((TESTCOUNT + 1))
-	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} $1 $3
-	#${CSVLOAD} $2 >>${LOGFILE} 2>&1
+	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} ${1} ${2}
 	CMD1="mysql --no-defaults <xxqq >${1}"
 	mysql --no-defaults <xxqq >${1}
 
@@ -839,11 +837,20 @@ dojsonPOST () {
 		declare -a out_filters=(
 			's/(^[ \t]+"LastModTime":).*/$1 TIMESTAMP/'
 			's/(^[ \t]+"CreateTS":).*/$1 TIMESTAMP/'
-			's/(^[ \t]+"ActiveDate":).*/$1 TIMESTAMP/'
 			's/(^[ \t]+"ApplicationReadyDate":).*/$1 TIMESTAMP/'
 			's/(^[ \t]+"DecisionDate1":).*/$1 TIMESTAMP/'
 			's/(^[ \t]+"DecisionDate2":).*/$1 TIMESTAMP/'
 			's/(^[ \t]+"MoveInDate":).*/$1 TIMESTAMP/'
+			's/(^[ \t]+"ActiveDate":).*/$1 TIMESTAMP/'
+			's/(^[ \t]+"NoticeToMoveReported":).*/$1 TIMESTAMP/'
+			's/(^[ \t]+"TerminationDate":).*/$1 TIMESTAMP/'
+			's/(^[ \t]+"UserRefNo":).*/$1 USEREFNO/'
+			's/(^[ \t]+"AgreementStart":).*/$1 TIMESTAMP/'
+			's/(^[ \t]+"AgreementStop":).*/$1 TIMESTAMP/'
+			's/(^[ \t]+"RentStart":).*/$1 TIMESTAMP/'
+			's/(^[ \t]+"RentStop":).*/$1 TIMESTAMP/'
+			's/(^[ \t]+"PossessionStart":).*/$1 TIMESTAMP/'
+			's/(^[ \t]+"PossessionStop":).*/$1 TIMESTAMP/'
 		)
 		cp gold/${3}.gold qqx
 		cp ${3} qqy

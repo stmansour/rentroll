@@ -33,7 +33,7 @@ var ediKnownStructMap = map[string]bool{
 	"rlib.RentalAgreementTax":      true,
 	"rlib.RentalAgreementPayor":    true,
 	"rlib.RentableUser":            true,
-	"rlib.RentalAgreementPet":      true,
+	"rlib.Pet":                     true,
 	"rlib.Vehicle":                 true,
 	"rlib.Assessment":              true,
 	"rlib.AR":                      true,
