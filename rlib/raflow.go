@@ -237,7 +237,7 @@ type RAVehiclesFlowData struct {
 	TMPVID              int64        `validate:"number,min=1"`
 	VID                 int64        `validate:"number,min=0"`
 	TMPTCID             int64        `validate:"number,min=0"`
-	VIN                 string       `validate:"string,min=1,omitempty"`
+	VIN                 string       `validate:"string,min=1,max=20,omitempty"`
 	VehicleType         string       `validate:"string,min=1,max=80"`
 	VehicleMake         string       `validate:"string,min=1,max=80"`
 	VehicleModel        string       `validate:"string,min=1,max=80"`
