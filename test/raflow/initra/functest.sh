@@ -73,6 +73,17 @@ dojsonPOST "http://localhost:8270/v1/raflow-rentable/1/1/" "request" "a9" "RAFlo
 echo "%7B%22cmd%22%3A%22save%22%2C%22RID%22%3A9%2C%22FlowID%22%3A1%7D" > request
 dojsonPOST "http://localhost:8270/v1/raflow-rentable/1/1/" "request" "a10" "RAFlow--add_rentable--CP001_RID_9--Elke_Sanders_TCID_3"
 
+# ASSIGN CHILD RENTABLE (CP001:RID=9) TO RENTABLE (Rentable001:RID=1)
+echo "%7B%22cmd%22%3A%22save%22%2C%22FlowType%22%3A%22RA%22%2C%22FlowID%22%3A1%2C%22FlowPartKey%22%3A%22parentchild%22%2C%22BID%22%3A1%2C%22Data%22%3A%5B%7B%22CRID%22%3A9%2C%22PRID%22%3A1%7D%5D%7D" > request
+dojsonPOST "http://localhost:8270/v1/flow/1/1/" "request" "a11" "RAFlow--assign_child_rentable--CP001_RID_9--to_rentable--Rentable001_RID_1"
+
+# ASSIGN RENTABLE(Rentable002:RID=2) TO (John Doe: TCID=0)
+echo "%7B%22cmd%22%3A%22save%22%2C%22FlowType%22%3A%22RA%22%2C%22FlowID%22%3A1%2C%22FlowPartKey%22%3A%22tie%22%2C%22BID%22%3A1%2C%22Data%22%3A%7B%22people%22%3A%5B%7B%22PRID%22%3A1%2C%22TMPTCID%22%3A1%7D%2C%7B%22PRID%22%3A2%2C%22TMPTCID%22%3A2%7D%5D%7D%7D" > request
+dojsonPOST "http://localhost:8270/v1/flow/1/1/" "request" "a12" "RAFlow--assign_rentable--Rentable001_RID_1--John_Doe_TCID_0"
+
+# ALL DATA ARE SAVE, VALIDATE THE FLOW (TOTAL:0)
+
+
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
 

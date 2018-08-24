@@ -167,9 +167,7 @@ func SaveRAFlowRentableDetails(w http.ResponseWriter, r *http.Request, d *Servic
 	if ar.ARID > 0 {
 		// make sure the IsRentASM is marked true
 		if ar.FLAGS&(1<<rlib.ARIsRentASM) != 0 {
-			raFlowData.Meta.LastTMPASMID++
 			feeRec := rlib.RAFeesData{
-				TMPASMID:       raFlowData.Meta.LastTMPASMID,
 				ARID:           ar.ARID,
 				ARName:         ar.Name,
 				ContractAmount: ar.DefaultAmount,
@@ -217,9 +215,7 @@ func SaveRAFlowRentableDetails(w http.ResponseWriter, r *http.Request, d *Servic
 			continue
 		}
 
-		raFlowData.Meta.LastTMPASMID++
 		feeRec := rlib.RAFeesData{
-			TMPASMID:       raFlowData.Meta.LastTMPASMID,
 			ARID:           ar.ARID,
 			ARName:         ar.Name,
 			ContractAmount: ar.DefaultAmount,
@@ -247,6 +243,12 @@ func SaveRAFlowRentableDetails(w http.ResponseWriter, r *http.Request, d *Servic
 	rentableFees, err = rlib.GetCalculatedFeesFromBaseFees(ctx, d.BID, bizPropName,
 		(time.Time)(rStart), (time.Time)(rStop),
 		baseFees)
+
+	// UPDATE LASTASMID FOR EACH NEW FEE
+	for i := range rentableFees {
+		raFlowData.Meta.LastTMPASMID++
+		rentableFees[i].TMPASMID = raFlowData.Meta.LastTMPASMID
+	}
 
 	//-------------------------------------------------------
 	// NOW SORT THE FEES LIST BASED ON ARNAME

@@ -12,16 +12,16 @@
         "Flow": {
             "BID": 1,
             "CreateBy": -99999,
-            "CreateTS": "2018-08-23T17:34:54Z",
+            "CreateTS": "2018-08-24T14:55:05Z",
             "Data": {
                 "dates": {
-                    "AgreementStart": "8/23/2018",
-                    "AgreementStop": "8/23/2019",
+                    "AgreementStart": "8/24/2018",
+                    "AgreementStop": "8/24/2019",
                     "CSAgent": -99999,
-                    "PossessionStart": "8/23/2018",
-                    "PossessionStop": "8/23/2019",
-                    "RentStart": "8/23/2018",
-                    "RentStop": "8/23/2019"
+                    "PossessionStart": "8/24/2018",
+                    "PossessionStop": "8/24/2019",
+                    "RentStart": "8/24/2018",
+                    "RentStop": "8/24/2019"
                 },
                 "meta": {
                     "ActiveDate": "1900-01-01 00:00:00 UTC",
@@ -73,8 +73,8 @@
             "FlowType": "RA",
             "ID": 0,
             "LastModBy": -99999,
-            "LastModTime": "2018-08-23T17:34:54Z",
-            "UserRefNo": "SK2TOOI2W575G7052CK9"
+            "LastModTime": "2018-08-24T14:55:05Z",
+            "UserRefNo": "SEY320Y7K916OKY3WO05"
         },
         "ValidationCheck": {
             "errors": {
