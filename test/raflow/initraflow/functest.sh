@@ -1,7 +1,7 @@
 #!/bin/bash
 
-TESTNAME="Init RA"
-TESTSUMMARY="Test to init raflow and migrate to permanent tables RA"
+TESTNAME="Init RAFlow"
+TESTSUMMARY="Test to init raflow and saving data component wise"
 DBGEN=../../../tools/dbgen
 CREATENEWDB=0
 RRBIN="../../../tmp/rentroll"
@@ -81,8 +81,9 @@ dojsonPOST "http://localhost:8270/v1/flow/1/1/" "request" "a11" "RAFlow--assign_
 echo "%7B%22cmd%22%3A%22save%22%2C%22FlowType%22%3A%22RA%22%2C%22FlowID%22%3A1%2C%22FlowPartKey%22%3A%22tie%22%2C%22BID%22%3A1%2C%22Data%22%3A%7B%22people%22%3A%5B%7B%22PRID%22%3A1%2C%22TMPTCID%22%3A1%7D%2C%7B%22PRID%22%3A2%2C%22TMPTCID%22%3A2%7D%5D%7D%7D" > request
 dojsonPOST "http://localhost:8270/v1/flow/1/1/" "request" "a12" "RAFlow--assign_rentable--Rentable001_RID_1--John_Doe_TCID_0"
 
-# ALL DATA ARE SAVE, VALIDATE THE FLOW (TOTAL:0)
-
+# ALL DATA ARE SAVE, VALIDATE THE FLOW (TOTAL:0), WILL SET THE STATE TO PENDING FIRST APPROVAL
+echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A1%7D" > request
+dojsonPOST "http://localhost:8270/v1/validate-raflow/1/1/" "request" "a13" "RAFlow--validate_raflow"
 
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"

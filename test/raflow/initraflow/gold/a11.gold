@@ -2,7 +2,7 @@
     "record": {
         "DataFulfilled": {
             "dates": true,
-            "parentchild": false,
+            "parentchild": true,
             "people": true,
             "pets": true,
             "rentables": true,
@@ -12,7 +12,7 @@
         "Flow": {
             "BID": 1,
             "CreateBy": -99999,
-            "CreateTS": "2018-08-24T14:55:05Z",
+            "CreateTS": "2018-08-24T15:20:52Z",
             "Data": {
                 "dates": {
                     "AgreementStart": "1/11/2018",
@@ -42,7 +42,7 @@
                     "DocumentDate": "1900-01-01 00:00:00 UTC",
                     "HavePets": true,
                     "HaveVehicles": true,
-                    "LastTMPASMID": 14,
+                    "LastTMPASMID": 19,
                     "LastTMPPETID": 2,
                     "LastTMPTCID": 2,
                     "LastTMPVID": 2,
@@ -63,7 +63,7 @@
                 "parentchild": [
                     {
                         "CRID": 9,
-                        "PRID": 0
+                        "PRID": 1
                     }
                 ],
                 "people": [
@@ -332,7 +332,7 @@
                                 "SalesTax": 0,
                                 "Start": "1/11/2018",
                                 "Stop": "1/11/2018",
-                                "TMPASMID": 0,
+                                "TMPASMID": 11,
                                 "TransOccTax": 0
                             },
                             {
@@ -347,7 +347,7 @@
                                 "SalesTax": 0,
                                 "Start": "2/1/2018",
                                 "Stop": "1/1/2020",
-                                "TMPASMID": 0,
+                                "TMPASMID": 12,
                                 "TransOccTax": 0
                             },
                             {
@@ -362,7 +362,7 @@
                                 "SalesTax": 0,
                                 "Start": "1/11/2018",
                                 "Stop": "1/11/2018",
-                                "TMPASMID": 0,
+                                "TMPASMID": 9,
                                 "TransOccTax": 0
                             },
                             {
@@ -377,7 +377,7 @@
                                 "SalesTax": 0,
                                 "Start": "2/1/2018",
                                 "Stop": "1/1/2020",
-                                "TMPASMID": 0,
+                                "TMPASMID": 10,
                                 "TransOccTax": 0
                             }
                         ],
@@ -404,7 +404,7 @@
                                 "SalesTax": 0,
                                 "Start": "1/11/2018",
                                 "Stop": "1/11/2018",
-                                "TMPASMID": 0,
+                                "TMPASMID": 15,
                                 "TransOccTax": 0
                             },
                             {
@@ -419,7 +419,7 @@
                                 "SalesTax": 0,
                                 "Start": "2/1/2018",
                                 "Stop": "1/1/2020",
-                                "TMPASMID": 0,
+                                "TMPASMID": 16,
                                 "TransOccTax": 0
                             },
                             {
@@ -434,7 +434,7 @@
                                 "SalesTax": 0,
                                 "Start": "1/11/2018",
                                 "Stop": "1/11/2018",
-                                "TMPASMID": 0,
+                                "TMPASMID": 13,
                                 "TransOccTax": 0
                             },
                             {
@@ -449,7 +449,7 @@
                                 "SalesTax": 0,
                                 "Start": "2/1/2018",
                                 "Stop": "1/1/2020",
-                                "TMPASMID": 0,
+                                "TMPASMID": 14,
                                 "TransOccTax": 0
                             }
                         ],
@@ -476,7 +476,7 @@
                                 "SalesTax": 0,
                                 "Start": "1/11/2018",
                                 "Stop": "1/11/2018",
-                                "TMPASMID": 0,
+                                "TMPASMID": 18,
                                 "TransOccTax": 0
                             },
                             {
@@ -491,7 +491,7 @@
                                 "SalesTax": 0,
                                 "Start": "2/1/2018",
                                 "Stop": "1/1/2020",
-                                "TMPASMID": 0,
+                                "TMPASMID": 19,
                                 "TransOccTax": 0
                             },
                             {
@@ -506,7 +506,7 @@
                                 "SalesTax": 0,
                                 "Start": "1/11/2018",
                                 "Stop": "1/1/2020",
-                                "TMPASMID": 0,
+                                "TMPASMID": 17,
                                 "TransOccTax": 0
                             }
                         ],
@@ -600,8 +600,8 @@
             "FlowType": "RA",
             "ID": 0,
             "LastModBy": -99999,
-            "LastModTime": "2018-08-24T14:55:06Z",
-            "UserRefNo": "SEY320Y7K916OKY3WO05"
+            "LastModTime": "2018-08-24T15:20:52Z",
+            "UserRefNo": "BPFF02F1S748683XSGJ0"
         },
         "ValidationCheck": {
             "errors": {
@@ -610,19 +610,8 @@
                     "total": 0
                 },
                 "parentchild": {
-                    "errors": [
-                        {
-                            "CRID": 9,
-                            "PRID": 0,
-                            "errors": {
-                                "PRID": [
-                                    "parent rentable must exists"
-                                ]
-                            },
-                            "total": 1
-                        }
-                    ],
-                    "total": 1
+                    "errors": [],
+                    "total": 0
                 },
                 "people": {
                     "errors": [],
@@ -633,138 +622,8 @@
                     "total": 0
                 },
                 "rentables": {
-                    "errors": [
-                        {
-                            "RID": 1,
-                            "errors": {},
-                            "fees": {
-                                "errors": [
-                                    {
-                                        "TMPASMID": 0,
-                                        "errors": {
-                                            "TMPASMID": [
-                                                "must be greater than 1"
-                                            ]
-                                        },
-                                        "total": 1
-                                    },
-                                    {
-                                        "TMPASMID": 0,
-                                        "errors": {
-                                            "TMPASMID": [
-                                                "must be greater than 1"
-                                            ]
-                                        },
-                                        "total": 1
-                                    },
-                                    {
-                                        "TMPASMID": 0,
-                                        "errors": {
-                                            "TMPASMID": [
-                                                "must be greater than 1"
-                                            ]
-                                        },
-                                        "total": 1
-                                    },
-                                    {
-                                        "TMPASMID": 0,
-                                        "errors": {
-                                            "TMPASMID": [
-                                                "must be greater than 1"
-                                            ]
-                                        },
-                                        "total": 1
-                                    }
-                                ],
-                                "total": 4
-                            },
-                            "total": 4
-                        },
-                        {
-                            "RID": 2,
-                            "errors": {},
-                            "fees": {
-                                "errors": [
-                                    {
-                                        "TMPASMID": 0,
-                                        "errors": {
-                                            "TMPASMID": [
-                                                "must be greater than 1"
-                                            ]
-                                        },
-                                        "total": 1
-                                    },
-                                    {
-                                        "TMPASMID": 0,
-                                        "errors": {
-                                            "TMPASMID": [
-                                                "must be greater than 1"
-                                            ]
-                                        },
-                                        "total": 1
-                                    },
-                                    {
-                                        "TMPASMID": 0,
-                                        "errors": {
-                                            "TMPASMID": [
-                                                "must be greater than 1"
-                                            ]
-                                        },
-                                        "total": 1
-                                    },
-                                    {
-                                        "TMPASMID": 0,
-                                        "errors": {
-                                            "TMPASMID": [
-                                                "must be greater than 1"
-                                            ]
-                                        },
-                                        "total": 1
-                                    }
-                                ],
-                                "total": 4
-                            },
-                            "total": 4
-                        },
-                        {
-                            "RID": 9,
-                            "errors": {},
-                            "fees": {
-                                "errors": [
-                                    {
-                                        "TMPASMID": 0,
-                                        "errors": {
-                                            "TMPASMID": [
-                                                "must be greater than 1"
-                                            ]
-                                        },
-                                        "total": 1
-                                    },
-                                    {
-                                        "TMPASMID": 0,
-                                        "errors": {
-                                            "TMPASMID": [
-                                                "must be greater than 1"
-                                            ]
-                                        },
-                                        "total": 1
-                                    },
-                                    {
-                                        "TMPASMID": 0,
-                                        "errors": {
-                                            "TMPASMID": [
-                                                "must be greater than 1"
-                                            ]
-                                        },
-                                        "total": 1
-                                    }
-                                ],
-                                "total": 3
-                            },
-                            "total": 3
-                        }
-                    ],
-                    "total": 11
+                    "errors": [],
+                    "total": 0
                 },
                 "tie": {
                     "people": {
@@ -786,7 +645,7 @@
                 "tie": [],
                 "vehicles": []
             },
-            "total": 12
+            "total": 0
         }
     },
     "status": "success"
