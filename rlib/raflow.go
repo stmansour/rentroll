@@ -148,8 +148,8 @@ type RAPeopleFlowData struct {
 	PreferredName  string `validate:"string,min=1,max=100,omitempty"`
 	IsCompany      bool   `validate:"-"`
 	CompanyName    string `validate:"string,min=1,max=100,omitempty"` // It is required when IsCompany flag is true. It'll be checked in bizlogic validation.
-	PrimaryEmail   string `validate:"email,omitempty"`                // It doesn't require compulsory when a transanctant is Occupant. It'll handled in bizlogic validation.
-	SecondaryEmail string `validate:"email,omitempty"`
+	PrimaryEmail   string `validate:"email,max=100,omitempty"`        // It doesn't require compulsory when a transanctant is Occupant. It'll handled in bizlogic validation.
+	SecondaryEmail string `validate:"email,max=100,omitempty"`
 	WorkPhone      string `validate:"string,min=1,max=100,omitempty"` // Either Workphone or CellPhone is compulsory when a transanctant isn't occupants. It'll be checked in bizlogic validation
 	CellPhone      string `validate:"string,min=1,max=100,omitempty"` // Either Workphone or CellPhone is compulsory when a transanctant isn't occupants. It'll be checked in bizlogic validation
 	Address        string `validate:"string,min=1,max=100,omitempty"`
@@ -166,7 +166,7 @@ type RAPeopleFlowData struct {
 	CompanyCity       string `validate:"string,min=1,max=100,omitempty"`
 	CompanyState      string `validate:"string,min=1,max=100,omitempty"`
 	CompanyPostalCode string `validate:"string,min=1,max=100,omitempty"`
-	CompanyEmail      string `validate:"email,omitempty"`
+	CompanyEmail      string `validate:"email,max=100,omitempty"`
 	CompanyPhone      string `validate:"string,min=1,max=100,omitempty"`
 	Occupation        string `validate:"string,min=1,max=100,omitempty"` // It doesn't require compulsory when a transanctant is Occupant. It'll handled in bizlogic validation.
 
@@ -212,7 +212,7 @@ type RAPeopleFlowData struct {
 	EmergencyContactName      string `validate:"string,min=1,max=100,omitempty"`
 	EmergencyContactAddress   string `validate:"string,min=1,max=100,omitempty"`
 	EmergencyContactTelephone string `validate:"string,min=1,max=100,omitempty"`
-	EmergencyContactEmail     string `validate:"email"`
+	EmergencyContactEmail     string `validate:"email,max=100"`
 	AlternateEmailAddress     string `validate:"string,min=1,max=100,omitempty"`
 	EligibleFutureUser        bool   `validate:"-"`
 	Industry                  int64  `validate:"number,min=0,omitempty"`
