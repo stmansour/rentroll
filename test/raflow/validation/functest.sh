@@ -346,6 +346,19 @@ dojsonPOST "http://localhost:8270/v1/flow/1/22/" "request" "bi2"  "Bogus Input -
 echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A22%7D" > request
 dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "ip2"  "Idiot proof fields -- Validate RAFlow -- People/Pet/Vehicle"
 
+#------------------------------------------------------------------------------
+# TEST ip3
+# Idiot proof fields: People/Pet/Vehicle Section
+#
+# Scenario:
+# Section's integer/float input fields have string input
+#
+# Expected Results:
+# 1. It should give format/type error
+#------------------------------------------------------------------------------
+echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A23%7D" > request
+dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "ip3"  "Idiot proof integer/float fields -- Validate RAFlow -- People/Pet/Vehicle"
+
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
 
