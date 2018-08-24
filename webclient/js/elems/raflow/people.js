@@ -41,7 +41,7 @@ window.loadRAPeopleGrid = function () {
             fields: [
                 {name: 'Transactant',   type: 'enum',       required: true,     html: {caption: "Transactant"},
                     options: {
-                        url: '/v1/transactantstd/' + app.raflow.BID,
+                        url: '/v1/transactantstd/' + getCurrentBID().toString(),
                         max: 1,
                         renderItem: function (item) {
 
