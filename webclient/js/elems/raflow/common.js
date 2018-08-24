@@ -7,7 +7,7 @@
     GetCurrentFlowID, ReassignPeopleGridRecords, AssignPetsGridRecords, AssignVehiclesGridRecords, AssignRentableGridRecords,
     GetGridToolbarAddButtonID, HideRAFlowLoader, toggleNonFieldsErrorDisplay, displayErrorSummary, submitActionForm, displayGreenCircle,
     modifyFieldErrorMessage,ChangeRAFlowVersionToolbar, displayRADatesFormError, RAFlowAJAX, cleanFormError, loadRAActionTemplate,
-    reloadActionForm
+    reloadActionForm, GetRefNoByRAIDFromGrid
 */
 
 "use strict";
@@ -398,7 +398,10 @@ window.HideRAFlowLoader = function(hide) {
 };
 
 // UpdateRAFlowLocalData updates the local data from the API response
-window.UpdateRAFlowLocalData = function(data){
+window.UpdateRAFlowLocalData = function(data, reloadRequired){
+    // catch RAID before app.raflow.Flow get updated
+    var oldRAID = app.raflow.Flow.ID,
+        newRAID = data.record.Flow.ID;
 
     app.raflow.Flow = data.record.Flow;
 
@@ -408,29 +411,34 @@ window.UpdateRAFlowLocalData = function(data){
     // Update local copy of FlowFilledData
     app.raflow.FlowFilledData = data.record.DataFulfilled;
 
-    // ALSO UPDATE THIS RAFLOW DATA(RAID/USERREFNO) IN THE MAIN GRID
-    w2ui.raflowsGrid.records.forEach(function(gridRec) {
-        if (gridRec.UserRefNo === app.raflow.Flow.UserRefNo || gridRec.RAID === app.raflow.Flow.ID) {
-            if (app.raflow.Flow.UserRefNo) { // IF AVAILABLE THEN ONLY SET
-                gridRec.UserRefNo = app.raflow.Flow.UserRefNo;
-            }
-            if (app.raflow.Flow.ID) { // IF AVAILABLE THEN ONLY SET
-                gridRec.RAID = app.raflow.Flow.ID;
-            }
+    // if RAID is not same the reload the grid listing
+    if (reloadRequired && oldRAID && newRAID && newRAID !== oldRAID) {
+        w2ui.raflowsGrid.reload();
+    } else {
+        // ALSO UPDATE THIS RAFLOW DATA(RAID/USERREFNO) IN THE MAIN GRID
+        w2ui.raflowsGrid.records.forEach(function(gridRec) {
+            if (gridRec.UserRefNo === app.raflow.Flow.UserRefNo || gridRec.RAID === app.raflow.Flow.ID) {
+                if (app.raflow.Flow.UserRefNo) { // IF AVAILABLE THEN ONLY SET
+                    gridRec.UserRefNo = app.raflow.Flow.UserRefNo;
+                }
+                if (app.raflow.Flow.ID) { // IF AVAILABLE THEN ONLY SET
+                    gridRec.RAID = app.raflow.Flow.ID;
+                }
 
-            // ONCE THE RECORD UPDATE THEN ONLY REFRESH AND BREAK
-            w2ui.raflowsGrid.refresh();
-            return;
-        }
-    });
+                // ONCE THE RECORD UPDATE THEN ONLY REFRESH AND BREAK
+                w2ui.raflowsGrid.refresh();
+                return;
+            }
+        });
+    }
 
     // UPDATE TOOLBAR
     if(!jQuery.isEmptyObject(app.raflow.Flow)) {
         // get info from local copy and refresh toolbar
         var VERSION = app.raflow.version,
-            RAID = app.raflow.Flow.ID,
-            REFNO = app.raflow.Flow.UserRefNo,
-            FLAGS = app.raflow.Flow.Data.meta.RAFLAGS;
+            RAID    = app.raflow.Flow.ID,
+            REFNO   = (RAID > 0) ? GetRefNoByRAIDFromGrid(RAID) : app.raflow.Flow.UserRefNo,
+            FLAGS   = app.raflow.Flow.Data.meta.RAFLAGS;
         ChangeRAFlowVersionToolbar(VERSION,RAID,REFNO,FLAGS);
     }
 
@@ -467,46 +475,53 @@ window.displayGreenCircle = function(){
 // load form according to target
 window.loadTargetSection = function (target, previousActiveCompID) {
 
-    switch (previousActiveCompID) {
-        case "dates":
-            w2ui.RADatesForm.actions.reset();
-            break;
-        case "people":
-            w2ui.RAPeopleGrid.clear();
-            w2ui.RAPeopleSearchForm.actions.reset();
-            break;
-        case "pets":
-            w2ui.RAPetsGrid.clear();
-            w2ui.RAPetForm.actions.reset();
-            break;
-        case "vehicles":
-            w2ui.RAVehiclesGrid.clear();
-            w2ui.RAVehicleForm.actions.reset();
-            break;
-        case "rentables":
-            w2ui.RARentablesGrid.clear();
-            w2ui.RARentableFeesGrid.clear();
-            w2ui.RARentableFeeForm.actions.reset();
-            break;
-        case "parentchild":
-            w2ui.RAParentChildGrid.clear();
-            break;
-        case "tie":
-            w2ui.RATiePeopleGrid.clear();
-            break;
-        case "final":
-            w2ui.RAFinalRentablesFeesGrid.clear();
-            w2ui.RAFinalPetsFeesGrid.clear();
-            w2ui.RAFinalVehiclesFeesGrid.clear();
-            break;
-        default:
-            alert("invalid active comp: " + previousActiveCompID);
-            return;
+    if (!target) {
+        alert("no target provided to load target screen in the raflow");
+        return false;
     }
 
-    // hide active component
-    $("#progressbar #steps-list li[data-target='#" + previousActiveCompID + "']").removeClass("active");
-    $(".ra-form-component#" + previousActiveCompID).hide();
+    if (previousActiveCompID && previousActiveCompID !== target) {
+        switch (previousActiveCompID) {
+            case "dates":
+                w2ui.RADatesForm.actions.reset();
+                break;
+            case "people":
+                w2ui.RAPeopleGrid.clear();
+                w2ui.RAPeopleSearchForm.actions.reset();
+                break;
+            case "pets":
+                w2ui.RAPetsGrid.clear();
+                w2ui.RAPetForm.actions.reset();
+                break;
+            case "vehicles":
+                w2ui.RAVehiclesGrid.clear();
+                w2ui.RAVehicleForm.actions.reset();
+                break;
+            case "rentables":
+                w2ui.RARentablesGrid.clear();
+                w2ui.RARentableFeesGrid.clear();
+                w2ui.RARentableFeeForm.actions.reset();
+                break;
+            case "parentchild":
+                w2ui.RAParentChildGrid.clear();
+                break;
+            case "tie":
+                w2ui.RATiePeopleGrid.clear();
+                break;
+            case "final":
+                w2ui.RAFinalRentablesFeesGrid.clear();
+                w2ui.RAFinalPetsFeesGrid.clear();
+                w2ui.RAFinalVehiclesFeesGrid.clear();
+                break;
+            default:
+                alert("invalid active comp: " + previousActiveCompID);
+                return;
+        }
+
+        // hide active component
+        $("#progressbar #steps-list li[data-target='#" + previousActiveCompID + "']").removeClass("active");
+        $(".ra-form-component#" + previousActiveCompID).hide();
+    }
 
     // show target component
     $("#progressbar #steps-list li[data-target='#" + target + "']").removeClass("done").addClass("active");
@@ -537,7 +552,8 @@ window.loadTargetSection = function (target, previousActiveCompID) {
     if (targetLoader.length > 0) {
         window[targetLoader]();
     } else {
-        console.log("unknown target from nav li: ", target);
+        console.error("unknown target from nav li: ", target);
+        return false;
     }
 };
 
