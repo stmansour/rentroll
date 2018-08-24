@@ -278,7 +278,7 @@
             "FlowType": "RA",
             "ID": 0,
             "LastModBy": 269,
-            "LastModTime": "2018-08-23T17:58:01Z",
+            "LastModTime": "2018-08-24T15:45:50Z",
             "UserRefNo": "3GO36ZNDV9Y7X623J4D9"
         },
         "ValidationCheck": {
@@ -483,6 +483,9 @@
                                 "ParkingPermitNumber": [
                                     "must be less than 80 chars"
                                 ],
+                                "VIN": [
+                                    "must be less than 20 chars"
+                                ],
                                 "VehicleColor": [
                                     "must be less than 80 chars"
                                 ],
@@ -513,10 +516,10 @@
                                 ],
                                 "total": 2
                             },
-                            "total": 9
+                            "total": 10
                         }
                     ],
-                    "total": 9
+                    "total": 10
                 }
             },
             "nonFieldsErrors": {
@@ -528,7 +531,7 @@
                 "tie": [],
                 "vehicles": []
             },
-            "total": 50
+            "total": 51
         }
     },
     "status": "success"
