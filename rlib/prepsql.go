@@ -911,6 +911,8 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetAllRentalAgreements, err = RRdb.Dbrr.Prepare("SELECT RAID from RentalAgreement WHERE BID=?")
 	Errcheck(err)
+	RRdb.Prepstmt.GetRentalAgreementChain, err = RRdb.Dbrr.Prepare("SELECT RAID from RentalAgreement WHERE ORIGIN=? OR RAID=?")
+	Errcheck(err)
 
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.InsertRentalAgreement, err = RRdb.Dbrr.Prepare("INSERT INTO RentalAgreement (" + s1 + ") VALUES(" + s2 + ")")

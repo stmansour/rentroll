@@ -521,6 +521,41 @@ func GetRecurringAssessmentDefsByRAID(ctx context.Context, RAID int64, d1, d2 *t
 	return getAssessmentsByRows(ctx, rows)
 }
 
+// GetAssessmentInstancesByRAIDRange returns a list of the recurring instances and
+// non-recurring assessments for the supplied RAID that happen in the supplied
+// time range
+// INPUTS
+//    ctx   - context
+//    RAID  - Rental Agreement id of interest
+//    d1,d2 - Define the time period of interest, d1 = start, d2 = stop
+//
+// RETURNS
+//    array of recurring assessment definitions that overlap d1/d2
+//    error = any error encountered
+//-----------------------------------------------------------------------------
+func GetAssessmentInstancesByRAIDRange(ctx context.Context, RAID int64, d1, d2 *time.Time) ([]Assessment, error) {
+	var err error
+	var t []Assessment
+	if _, ok := SessionCheck(ctx); !ok {
+		return t, ErrSessionRequired
+	}
+
+	var rows *sql.Rows
+	fields := []interface{}{RAID, d1, d2}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAssessmentsByRAIDRange)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetAssessmentsByRAIDRange.Query(fields...)
+	}
+
+	if err != nil {
+		return t, err
+	}
+	return getAssessmentsByRows(ctx, rows)
+}
+
 // GetEpochAssessmentsByRentalAgreement gets the definition assessments for
 // the supplied RAID
 //
@@ -6319,11 +6354,8 @@ func GetRentalAgreementsFromList(ctx context.Context, raa *[]RentalAgreementRent
 // GetAgreementsForRentable returns an array of RentalAgreementRentables associated with the supplied RentableID
 // during the time range d1-d2
 func GetAgreementsForRentable(ctx context.Context, rid int64, d1, d2 *time.Time) ([]RentalAgreementRentable, error) {
-
-	var (
-		err error
-		t   []RentalAgreementRentable
-	)
+	var err error
+	var t []RentalAgreementRentable
 
 	// session... context
 	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
@@ -6351,6 +6383,48 @@ func GetAgreementsForRentable(ctx context.Context, rid int64, d1, d2 *time.Time)
 	for rows.Next() {
 		var r RentalAgreementRentable
 		err = ReadRentalAgreementRentables(rows, &r)
+		if err != nil {
+			return t, err
+		}
+		t = append(t, r)
+	}
+
+	return t, rows.Err()
+}
+
+// GetRentalAgreementChain returns the list of rental agreements that have
+// the ORIGIN matching the supplied ID as well as the RAID == ID
+//
+func GetRentalAgreementChain(ctx context.Context, origin int64) ([]RentalAgreement, error) {
+	var err error
+	var t []RentalAgreement
+
+	// session... context
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
+	var rows *sql.Rows
+	fields := []interface{}{origin, origin}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentalAgreementChain)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetRentalAgreementChain.Query(fields...)
+	}
+
+	if err != nil {
+		return t, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var r RentalAgreement
+		err = ReadRentalAgreements(rows, &r)
 		if err != nil {
 			return t, err
 		}

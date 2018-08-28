@@ -11,11 +11,12 @@ import (
 
 // WriteHandlerContext contains context information for RA Write Handlers
 type WriteHandlerContext struct {
-	isNewOriginRaid bool  // true only if this is a new Rental Agreement, false otherwise
-	oldRAID         int64 //
-	newRAID         int64 //
-	ra              rlib.RentalAgreement
-	raOrig          rlib.RentalAgreement
+	isNewOriginRaid bool                 // true only if this is a new Rental Agreement, false otherwise
+	oldRAID         int64                //
+	newRAID         int64                //
+	lastClose       rlib.ClosePeriod     // last period closed
+	ra              rlib.RentalAgreement // the new amended RA
+	raOrig          rlib.RentalAgreement // the RA we're amending
 	raf             rlib.RAFlowJSONData
 	xbiz            rlib.XBusiness
 }

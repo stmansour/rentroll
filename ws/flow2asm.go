@@ -23,7 +23,20 @@ func Fees2RA(ctx context.Context, x *WriteHandlerContext) error {
 	var err error
 
 	//--------------------------------------------------
-	// Handle Rentables first...
+	// When was the last period closed?  Set the context
+	// variable, x, so that all other routines have it.
+	// Ensure that we have a valid lastClost.dt
+	//--------------------------------------------------
+	x.lastClose, err = rlib.GetLastClosePeriod(ctx, x.ra.BID)
+	if err != nil {
+		return err
+	}
+	if x.lastClose.CPID == 0 {
+		x.lastClose.Dt = rlib.TIME0 // use TIME0 if not set
+	}
+
+	//--------------------------------------------------
+	// Add Rentable fees to new RA first...
 	//--------------------------------------------------
 	rlib.Console("Fees2RA: Rentables fees\n")
 	for i := 0; i < len(x.raf.Rentables); i++ {
@@ -34,7 +47,7 @@ func Fees2RA(ctx context.Context, x *WriteHandlerContext) error {
 		}
 	}
 	//--------------------------------------------------
-	// Handle pet fees...
+	// Add Pet fees to new RA first...
 	//--------------------------------------------------
 	rlib.Console("Fees2RA: Pet fees\n")
 	for i := 0; i < len(x.raf.Pets); i++ {
@@ -45,7 +58,7 @@ func Fees2RA(ctx context.Context, x *WriteHandlerContext) error {
 		}
 	}
 	//--------------------------------------------------
-	// Handle vehicle fees...
+	// Add Vehicle fees to new RA first...
 	//--------------------------------------------------
 	rlib.Console("Fees2RA: Vehicle fees\n")
 	for i := 0; i < len(x.raf.Vehicles); i++ {
@@ -56,13 +69,17 @@ func Fees2RA(ctx context.Context, x *WriteHandlerContext) error {
 		}
 	}
 
+	if err = F2RAHandleOldAssessments(ctx, x); err != nil {
+		return err
+	}
+
 	//--------------------------------------------------------------------------
 	// Now clean up any assessments that are associated with the old RAID but
 	// that have not been updated as part of any fee in the new RAID.
 	//--------------------------------------------------------------------------
-	if err = CleanUpRemainingAssessments(ctx, x); err != nil {
-		return err
-	}
+	// if err = CleanUpRemainingAssessments(ctx, x); err != nil {
+	// 	return err
+	// }
 
 	return nil
 }
@@ -70,6 +87,10 @@ func Fees2RA(ctx context.Context, x *WriteHandlerContext) error {
 // CleanUpRemainingAssessments handles all the assessments associated with the
 // original RAID that were not found while handling the amended RAID.
 //
+// 1. Get RAChain
+// 2. for each RA that overlaps x.ra.RentStart/Stop
+// 3.    get all assessment instances that overlap x.ra.RentStart/Stop
+// 4.    reverse the assessments
 //
 // INPUTS
 //     ctx  - db context for transactions
@@ -126,6 +147,129 @@ func CleanUpRemainingAssessments(ctx context.Context, x *WriteHandlerContext) er
 	return nil
 }
 
+// F2RAHandleOldAssessments handles all the assessments associated with any
+// RAID in the RAID chain for the ORIGIN RAID that are affected by the new
+// amendment.
+//
+//
+// INPUTS
+//     ctx  - db context for transactions
+//     x    - all the contextual info we need for performing this operation
+//
+// RETURNS
+//     Any errors encountered
+//-----------------------------------------------------------------------------
+func F2RAHandleOldAssessments(ctx context.Context, x *WriteHandlerContext) error {
+	var err error
+	var m []rlib.RentalAgreement
+	var n []rlib.Assessment
+	//------------------------------------------------------------------
+	// Get the RAID chain so that we can process all prior RAs affected
+	//------------------------------------------------------------------
+	origin := x.raOrig.ORIGIN
+	if origin == int64(0) {
+		origin = x.raOrig.RAID
+	}
+	m, err = rlib.GetRentalAgreementChain(ctx, origin)
+	if err != nil {
+		return err
+	}
+	for _, ra := range m {
+		//-----------------------------------------
+		//  Only process if there's time overlap
+		//-----------------------------------------
+		if !rlib.DateRangeOverlap(&x.ra.RentStart, &x.ra.RentStop, &ra.RentStart, &ra.RentStop) {
+			continue
+		}
+
+		//-----------------------------------------------------------------------
+		// Need to process this one. Start with its recurring asm definitions...
+		//-----------------------------------------------------------------------
+		n, err = rlib.GetRecurringAssessmentDefsByRAID(ctx, x.raOrig.RAID, &x.ra.RentStart, &x.ra.RentStop)
+		if err != nil {
+			return err
+		}
+		for _, v := range n {
+			if v.FLAGS&(1<<2) != 0 {
+				continue // skip it if it has already been
+			}
+			//---------------------------------------------------------------
+			//  The date we use for the change depends on whether or not the
+			//  financial period at the start date of the assessment has
+			//  been closed.
+			//---------------------------------------------------------------
+			dt := v.Start // assume it will be on the assessment start date
+			if v.Start.Before(x.lastClose.Dt) {
+				dt = x.lastClose.Dt
+			}
+
+			//---------------------------------------------------------------
+			//  The assessment will be totally replaced if the new RA start
+			//  date is prior to the Assessment start date.
+			//---------------------------------------------------------------
+			if !v.Start.Before(x.ra.RentStart) {
+				//---------------------------------------------
+				// Reverse the whole thing; all instances...
+				//---------------------------------------------
+				be := bizlogic.ReverseAssessment(ctx, &v, 2 /*all instances*/, &dt)
+				if len(be) > 0 {
+					return bizlogic.BizErrorListToError(be)
+				}
+			} else {
+				//---------------------------------------------
+				// set the stop date to x.ra.RentStart
+				//---------------------------------------------
+				v.Stop = x.ra.RentStart
+				errlist := bizlogic.UpdateAssessment(ctx, &v, 1 /*this point forward*/, &dt, 1 /* create past instances */)
+				if len(errlist) > 0 {
+					return bizlogic.BizErrorListToError(errlist)
+				}
+			}
+		}
+
+		//-----------------------------------------------------------------------
+		// Now handle instances...
+		//-----------------------------------------------------------------------
+		n, err = rlib.GetAssessmentInstancesByRAIDRange(ctx, ra.RAID, &x.ra.RentStart, &x.ra.RentStop)
+		if err != nil {
+			return err
+		}
+		for _, v := range n {
+			if v.FLAGS&(1<<2) != 0 {
+				continue // skip reversed assessments
+			}
+			//---------------------------------------------------------------
+			//  The date we use for the change depends on whether or not the
+			//  financial period at the start date of the assessment has
+			//  been closed.
+			//---------------------------------------------------------------
+			dt := v.Start // assume it will be on the assessment start date
+			if v.Start.Before(x.lastClose.Dt) {
+				dt = x.lastClose.Dt
+			}
+			//----------------------------
+			// Now process the instance
+			//----------------------------
+			if !v.Start.Before(x.ra.RentStart) {
+				// Reverse the whole thing
+				be := bizlogic.ReverseAssessment(ctx, &v, 0 /*this instance*/, &dt)
+				if len(be) > 0 {
+					return bizlogic.BizErrorListToError(be)
+				}
+			} else {
+				// This should not happen. Checking for it just to make sure that
+				// the code is working as expected
+				rlib.Console("\n\n**** ERROR ****    **** ERROR ****    **** ERROR ****    \n\n")
+				rlib.Console("\nLook for this line of code in F2RAHandleOldAssessments()\n")
+				rlib.Console("Assessment ASMID = %d, Start date is out of expected range:  %s\n", v.ASMID, v.Start.Format(rlib.RRDATEREPORTFMT))
+				rlib.Console("\n\n**** ERROR ****    **** ERROR ****    **** ERROR ****    \n\n")
+			}
+		}
+	}
+
+	return nil
+}
+
 // F2RASaveFee handles all the updates necessary to move the
 // supplied fee into the permanent tables.
 //
@@ -141,10 +285,15 @@ func CleanUpRemainingAssessments(ctx context.Context, x *WriteHandlerContext) er
 //     Any errors encountered
 //-----------------------------------------------------------------------------
 func F2RASaveFee(ctx context.Context, x *WriteHandlerContext, fee *rlib.RAFeesData, eltype, id, tmptcid int64) error {
-	rlib.Console("F2RASaveFee processing fee = %d, ASMID = %d\n", fee.TMPASMID, fee.ASMID)
-	if 0 < fee.ASMID {
-		return F2RAUpdateExistingAssessment(ctx, x, fee, eltype, id, tmptcid)
-	}
+
+	// SKIPPING ALL THIS FOR NOW...   I THINK F2RAHandleOldAssessments SHOULD
+	// HANDLE EVERYTHING...
+	// VERIFY and REMOVE THIS CODE IF SO.
+
+	// rlib.Console("F2RASaveFee processing fee = %d, ASMID = %d\n", fee.TMPASMID, fee.ASMID)
+	// if 0 < fee.ASMID {
+	// 	return F2RAUpdateExistingAssessment(ctx, x, fee, eltype, id, tmptcid)
+	// }
 	return F2RASaveNewFee(ctx, x, fee, eltype, id, tmptcid)
 
 }
@@ -239,6 +388,7 @@ func F2RASaveNewFee(ctx context.Context, x *WriteHandlerContext, fee *rlib.RAFee
 
 // F2RAUpdateExistingAssessment handles all the updates necessary to move the
 // supplied fee into the permanent tables.
+//
 //
 // INPUTS
 //     ctx  - db context for transactions

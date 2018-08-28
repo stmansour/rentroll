@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"extres"
+	"runtime/debug"
 )
 
 // updateSessionProblem is a convenience function that replaces 8 lines
@@ -64,6 +65,14 @@ func UpdateAssessment(ctx context.Context, a *Assessment) error {
 
 	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
 		return err
+	}
+
+	// DEBUG
+	// just looking for where a problem is coming from
+	if a.Stop.Before(a.Start) {
+		Console("\n\n **** WARNING ****   **** WARNING ****  stop date prior to start\n")
+		debug.PrintStack()
+		Console("\n **** WARNING ****   **** WARNING ****  stop date prior to start\n\n")
 	}
 
 	a.Amount = Round(a.Amount, .5, 2)

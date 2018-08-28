@@ -10,6 +10,9 @@ import (
 // UpdateAssessment updates the supplied assessment, reversing existing assessments
 // if necessary
 //
+// Aug 27, 2018 - if a recurring definition is updated and its stop date is set
+// back in time, we now reverse all instance of it on or after the new stop date.
+//
 // INPUTS
 //    ctx  = database context
 //    anew = the assessment to update
@@ -76,11 +79,27 @@ func UpdateAssessment(ctx context.Context, anew *rlib.Assessment, mode int, dt *
 		(!aold.Start.Equal(anew.Start)) ||
 		(!aold.Stop.Equal(anew.Stop))
 	if reverse {
-		// rlib.Console("HAVE TO REVERSE ASMID = %d\n", aold.ASMID)
+		//---------------------------------------------------------------------------
+		// Reverse any instances which will be out of the new updated date range
+		// This must be done before calling ReverseAssessment, which modifies
+		// aold.  ReverseAssessmentsAfterStop needs to work with aold before
+		// any changes are made to it.
+		//---------------------------------------------------------------------------
+		if anew.Stop.Before(aold.Stop) { // is new stop date earlier in time than the old one?
+			errlist = ReverseAssessmentsAfterStop(ctx, &aold, &anew.Stop, dt)
+			if len(errlist) > 0 {
+				return errlist
+			}
+		}
+
+		//---------------------------------------------------------------------------
+		// Now reverse aold...
+		//---------------------------------------------------------------------------
 		errlist = ReverseAssessment(ctx, &aold, mode, dt) // reverse the assessment itself
 		if errlist != nil {
 			return errlist
 		}
+
 		//---------------------------------------------------------------------------
 		// This is going to be a new assessment that replaces an assessment which
 		// has just been reversed. So it is NOT reversed, and it is NOT paid in
@@ -109,6 +128,8 @@ func UpdateAssessment(ctx context.Context, anew *rlib.Assessment, mode int, dt *
 // that ocurred prior to dt. If an instance occurs during the period containing
 // dt, then that instance will be adjusted (prorated) accordingly.
 //
+// Handle the case where dt is prior to the start date of the assessment.
+//
 // INPUTS
 //    ctx  = database context
 //    a    = the recurring assessment definition to adjust
@@ -119,14 +140,19 @@ func UpdateAssessment(ctx context.Context, anew *rlib.Assessment, mode int, dt *
 //-------------------------------------------------------------------------------------
 func UpdateAssessmentEndDate(ctx context.Context, a *rlib.Assessment, dt *time.Time) error {
 	rlib.Console("Entered UpdateAssessmentEndDate\n")
+	var err error
 	//--------------------------------------------------------------------------
-	// First, the easy part... change the stop date of the recurring definition
+	// First, change the stop date of the recurring definition
 	//--------------------------------------------------------------------------
 	origStopDate := a.Stop
 	a.Stop = *dt
-	err := rlib.UpdateAssessment(ctx, a)
+	err = rlib.UpdateAssessment(ctx, a)
 	if err != nil {
 		return err
+	}
+	if a.Start.After(*dt) {
+		rlib.Console("\n\n **** WARNINGG ****  **** WARNING ****\nthe new asm.Stop (%s) is prior to the Start (%s) of ASMID %d\n\n",
+			(*dt).Format(rlib.RRDATEREPORTFMT), a.Start.Format(rlib.RRDATEREPORTFMT), a.ASMID)
 	}
 
 	//--------------------------------------------------------------------------
@@ -142,7 +168,7 @@ func UpdateAssessmentEndDate(ctx context.Context, a *rlib.Assessment, dt *time.T
 	rlib.Console("UpdateAssessmentEndDate: dt = %s, epoch = %s\n", dt.Format(rlib.RRDATEREPORTFMT), epoch.Format(rlib.RRDATEREPORTFMT))
 	if epoch.Equal(e) {
 		// TODO: validate this case
-	} else {
+	} else if epoch.After(e) {
 		// epoch is the end datetime of the next cycle, get the start date/time
 		d1 := rlib.GetPreviousInstance(epoch, a.RentCycle)
 		rlib.Console("d1 = %s\n", d1.Format(rlib.RRDATEREPORTFMT))
@@ -296,6 +322,44 @@ func ReverseAssessmentsGoingForward(ctx context.Context, aold *rlib.Assessment, 
 		return bizErrSys(&err)
 	}
 
+	return errlist
+}
+
+// ReverseAssessmentsAfterStop reverses all assessment instances of aold
+// that occur after dtStop.  The date associated with the reversal is dt
+//
+// This function should be called before moving the dtStop date of a
+// recurring assessment back in time.
+//
+// INPUTS
+//    ctx     = context needed for db transactions
+//    aold    = the recurring assessment
+//    dtStop  = new date on which the recurring instance will be stopped.
+//    dt      = time to mark when the reversal was made
+//
+// RETURNS
+//    a slice of BizErrors
+//-------------------------------------------------------------------------------------
+func ReverseAssessmentsAfterStop(ctx context.Context, aold *rlib.Assessment, dtStop, dt *time.Time) []BizError {
+	var errlist []BizError
+
+	rlib.Console("ENTERED: ReverseAssessmentsAfterStop\n")
+
+	d2 := rlib.ENDOFTIME
+	rlib.Console("aold.ASMID = %d, dtStop = %s, dt = %s\n", aold.ASMID, dtStop.Format(rlib.RRDATEREPORTFMT), dt.Format(rlib.RRDATEREPORTFMT))
+
+	m, err := rlib.GetAssessmentInstancesByParent(ctx, aold.ASMID, dtStop, &d2)
+	if err != nil {
+		return bizErrSys(&err)
+	}
+
+	rlib.Console("Number of instances to reverse: %d\n", len(m))
+	for i := 0; i < len(m); i++ {
+		errlist = ReverseAssessmentInstance(ctx, &m[i], dt)
+		if len(errlist) > 0 {
+			return errlist
+		}
+	}
 	return errlist
 }
 

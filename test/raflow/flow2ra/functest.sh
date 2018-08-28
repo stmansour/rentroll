@@ -95,6 +95,42 @@ echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%
 dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "b1"  "PayorStatement--StmtInfo"
 
 #------------------------------------------------------------------------------
+#  TEST d
+#  This tests updating a rental agreement with the term dates the same as
+#  the original rental agreement. In this case we want the old rental agreement
+#  to start and stop on the same day (so there is a record of this agreement)
+#  and the amended agreement to start on the same day and end on the date that
+#  the parent agreement eneded. For good measure, I made one change to a pet:
+#  the cat named BatMan is renamed to Crappy.
+#
+#  Scenario:
+#  RAID  4 - AgreementStart = 2/13/2018,  AgreementStop = 3/1/2020
+#            Change pet BatMan to Crappy
+#  RAID 25 - AgreementStart = 8/20/2018,  AgreementStop = 3/1/2020
+#            Pet should be named Crappy
+#
+#  Expected Results:
+#   1.  RAID 4 should start and stop on 2/13.
+#   2.  All assessments associated with RA
+#       Same for the RAID 1 pet rent. The assessments must be reversed and the
+#       payments must become available.
+#   3.  There is a Security Deposit assessment (ASMID=402) due on 9/20 in the
+#       old rental agreement. It is not in the fees list for the RefNo, so it
+#       should be reversed
+#------------------------------------------------------------------------------
+RAIDREFNO="7K9B2FD9293R0RN67PSE"
+RAIDAMENDEDID="25"
+
+# Send the command to change the RefNo to Active:
+echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
+dojsonPOST "http://localhost:8270/v1/raactions/1/" "request" "b0"  "WebService--Action-setTo-ACTIVE"
+
+# Generate a payor statement -- ensure that 2 RAs are there and have correct
+# info.
+echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%228%2F1%2F2018%22%2C%22searchDtStop%22%3A%229%2F30%2F2018%22%2C%22Bool1%22%3Afalse%7D" > request
+dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "b1"  "PayorStatement--StmtInfo"
+
+#------------------------------------------------------------------------------
 #  TEST c
 #  Validate that a new owner of a pet is properly handled in the TBind
 #  records.  Also validate that new pets are handled properly for both
