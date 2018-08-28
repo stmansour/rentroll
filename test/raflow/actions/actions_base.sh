@@ -1,10 +1,16 @@
 #!/bin/bash
 
-TESTNAME="raflow Actions"
-TESTSUMMARY="Test Different Actions taken on Flow"
-DBGEN=../../../tools/dbgen
-CREATENEWDB=0
-RRBIN="../../../tmp/rentroll"
+if [ "x${ACTIONSBIN}" = "x" ]; then
+	ACTIONSBIN="."
+else
+	echo "ACTIONSBIN was pre-set to:  \"${ACTIONSBIN}\""
+fi
+
+execute() {
+	cmd="${ACTIONSBIN}/actions -f $1"
+	echo "${cmd}"
+    ${ACTIONSBIN}/actions -f $1
+}
 
 ##########################################################################
 # outputCheck()
@@ -49,10 +55,8 @@ outputCheck() {
 			's/(^[ \t]+"DecisionDate1":).*/$1 TIMESTAMP/'
 			's/(^[ \t]+"DecisionDate2":).*/$1 TIMESTAMP/'
 			's/(^[ \t]+"MoveInDate":).*/$1 TIMESTAMP/'
-			's/(^[ \t]+"DocumentDate":).*/$1 TIMESTAMP/' # will be removed
 			's/(^[ \t]+"ActiveDate":).*/$1 TIMESTAMP/'
 			's/(^[ \t]+"NoticeToMoveReported":).*/$1 TIMESTAMP/'
-			's/(^[ \t]+"NoticeToMoveDate":).*/$1 TIMESTAMP/' # will be removed
 			's/(^[ \t]+"TerminationDate":).*/$1 TIMESTAMP/'
 			's/(^[ \t]+"UserRefNo":).*/$1 USEREFNO/'
 			's/(^[ \t]+"AgreementStart":).*/$1 TIMESTAMP/'
@@ -93,36 +97,3 @@ outputCheck() {
 	rm -f qqx qqy
 }
 ##########################################################################
-
-# echo "Create new database..."
-mysql --no-defaults rentroll < raflowactions.sql
-
-source ../../share/base.sh
-
-echo "STARTING RENTROLL SERVER"
-RENTROLLSERVERAUTH="-noauth"
-startRentRollServer
-
-./actions
-
-stopRentRollServer
-echo "RENTROLL SERVER STOPPED"
-
-outputCheck "a1"  ""  "action_\"set_pending_first_approval\"_on_flow_with_invalid_data"
-outputCheck "a2"  ""  "action_\"set_pending_first_approval\"_on_flow_with_valid_data"
-outputCheck "a3"  ""  "approve_and_set_\"pending_second_approval\"_on_flow_with_valid_data"
-outputCheck "a4"  ""  "approve_and_set_\"move-in_/_execute_modification\"_on_flow_with_valid_data"
-outputCheck "a5"  ""  "set_document_date_of_flow_with_valid_data"
-outputCheck "a6"  ""  "take_action_of_\"complete_move_in\"_on_flow_with_valid_data"
-outputCheck "a7"  ""  "action_\"set_pending_first_approval\"_on_brand_new_flow_with_invalid_data"
-outputCheck "a8"  ""  "action_\"set_pending_first_approval\"_on_brand_new_flow_with_valid_data"
-outputCheck "a9"  ""  "approve_and_set_\"pending_second_approval\"_on_brand_new_flow_with_valid_data"
-outputCheck "a10"  ""  "approve_and_set_\"move-in_/_execute_modification\"_on_brand_new_flow_with_valid_data"
-outputCheck "a11"  ""  "set_document_date_of_brand_new_flow_with_valid_data"
-outputCheck "a12"  ""  "take_action_of_\"complete_move_in\"_on_brand_new_flow_with_valid_data"
-outputCheck "a13"  ""  "decline_at_\"pending_first_approval\"_on_flow_with_valid_data"
-outputCheck "a14"  ""  "decline_at_\"pending_second_approval\"_on_flow_with_valid_data"
-
-logcheck
-
-exit 0

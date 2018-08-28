@@ -1,21 +1,21 @@
-Test 7: action "set pending first approval" on brand new flow with invalid data 
-Request( RAID: 0, UserRefNo: YCE20N8G44N45TIW1M95 )
-Response( RAID: 0, UserRefNo: YCE20N8G44N45TIW1M95 )
+Test 1: action "set pending first approval" on flow with invalid data 
+Request( RAID: 1, UserRefNo: 5OOEUJE7KF4080078T1B )
+Response( RAID: 1, UserRefNo: 5OOEUJE7KF4080078T1B )
 {
     "record": {
         "Flow": {
             "BID": 1,
-            "FlowID": 4,
-            "UserRefNo": "YCE20N8G44N45TIW1M95",
+            "FlowID": 1,
+            "UserRefNo": "5OOEUJE7KF4080078T1B",
             "FlowType": "RA",
-            "ID": 0,
+            "ID": 1,
             "Data": {
                 "tie": {
                     "people": []
                 },
                 "meta": {
                     "BID": 1,
-                    "RAID": 0,
+                    "RAID": 1,
                     "RAFLAGS": 0,
                     "HavePets": false,
                     "ActiveUID": 0,
@@ -24,14 +24,14 @@ Response( RAID: 0, UserRefNo: YCE20N8G44N45TIW1M95 )
                     "MoveInUID": 0,
                     "ActiveDate": "1900-01-01 00:00:00 UTC",
                     "ActiveName": "",
-                    "LastTMPVID": 0,
+                    "LastTMPVID": 1,
                     "MoveInDate": "1900-01-01 00:00:00 UTC",
                     "MoveInName": "",
-                    "LastTMPTCID": 0,
+                    "LastTMPTCID": 1,
                     "DocumentDate": "1900-01-01 00:00:00 UTC",
                     "HaveVehicles": false,
-                    "LastTMPASMID": 0,
-                    "LastTMPPETID": 0,
+                    "LastTMPASMID": 6,
+                    "LastTMPPETID": 1,
                     "Approver1Name": "",
                     "Approver2Name": "",
                     "DecisionDate1": "1900-01-01 00:00:00 UTC",
@@ -52,22 +52,22 @@ Response( RAID: 0, UserRefNo: YCE20N8G44N45TIW1M95 )
                 },
                 "pets": [],
                 "dates": {
-                    "CSAgent": 269,
-                    "RentStop": "8/16/2019",
-                    "RentStart": "8/16/2018",
-                    "AgreementStop": "8/16/2019",
-                    "AgreementStart": "8/16/2018",
-                    "PossessionStop": "8/16/2019",
-                    "PossessionStart": "8/16/2018"
+                    "CSAgent": 295,
+                    "RentStop": "3/1/2020",
+                    "RentStart": "8/23/2018",
+                    "AgreementStop": "3/1/2020",
+                    "AgreementStart": "8/23/2018",
+                    "PossessionStop": "3/1/2020",
+                    "PossessionStart": "8/23/2018"
                 },
                 "people": [],
                 "vehicles": [],
                 "rentables": [],
                 "parentchild": []
             },
-            "LastModTime": "2018-08-16T14:44:46Z",
+            "LastModTime": "2018-08-23T15:00:21Z",
             "LastModBy": 269,
-            "CreateTS": "2018-08-16T13:52:19Z",
+            "CreateTS": "2018-08-23T13:10:14Z",
             "CreateBy": 269
         },
         "ValidationCheck": {

@@ -1,24 +1,20 @@
-DIRS = invalid_flow proper_sequence_flow improper_sequence_flow
-
-THISDIR="actions"
-
-build:
-	go build
-	@echo "*** Completed in ${THISDIR} ***"
+TOP=../../../
+BINDIR=${TOP}/tmp/rentroll
+COUNTOL=${TOP}/tools/bashtools/countol.sh
+THISDIR="proper_sequence_flow"
 
 clean:
 	rm -f rrlog rentroll.log log llog *.g ./gold/*.g err.txt [a-z] [a-z][a-z0-9] a[0-9]* qq? ${THISDIR} fail conf*.json request serverreply svrresponse
-	for dir in $(DIRS); do make -C $$dir clean;done
 	@echo "*** CLEAN completed in ${THISDIR} ***"
 
-test: build
-	for dir in $(DIRS); do make -C $$dir test;done
+test:
+	touch fail
+	./functest.sh
 	@echo "*** TEST completed in ${THISDIR} ***"
+	@rm -f fail
 
 package:
-	for dir in $(DIRS); do make -C $$dir package;done
 	@echo "*** PACKAGE completed in ${THISDIR} ***"
 
 secure:
-	for dir in $(DIRS); do make -C $${dir} secure;done
 	@rm -f config.json confdev.json confprod.json

@@ -1,0 +1,273 @@
+Test 9: approve and set "move-in / execute modification" on brand new flow2 with valid data 
+Request( RAID: 0, UserRefNo: X6E61HZ35U6LX74T4D7R )
+Response( RAID: 0, UserRefNo: X6E61HZ35U6LX74T4D7R )
+{
+    "record": {
+        "Flow": {
+            "BID": 1,
+            "FlowID": 3,
+            "UserRefNo": "X6E61HZ35U6LX74T4D7R",
+            "FlowType": "RA",
+            "ID": 0,
+            "Data": {
+                "tie": {
+                    "people": [
+                        {
+                            "PRID": 1,
+                            "TMPTCID": 1
+                        }
+                    ]
+                },
+                "meta": {
+                    "BID": 1,
+                    "RAID": 0,
+                    "RAFLAGS": 35,
+                    "HavePets": false,
+                    "ActiveUID": 0,
+                    "Approver1": 0,
+                    "Approver2": -99999,
+                    "MoveInUID": -99999,
+                    "ActiveDate": "1900-01-01 00:00:00 UTC",
+                    "ActiveName": "",
+                    "LastTMPVID": 0,
+                    "MoveInDate": "2018-08-28 06:28:00 UTC",
+                    "MoveInName": "UID-0",
+                    "LastTMPTCID": 1,
+                    "DocumentDate": "1900-01-01 00:00:00 UTC",
+                    "HaveVehicles": false,
+                    "LastTMPASMID": 4,
+                    "LastTMPPETID": 0,
+                    "Approver1Name": "",
+                    "Approver2Name": "UID-0",
+                    "DecisionDate1": "1900-01-01 00:00:00 UTC",
+                    "DecisionDate2": "2018-08-28 06:28:00 UTC",
+                    "TerminatorUID": 0,
+                    "DeclineReason1": 0,
+                    "DeclineReason2": 0,
+                    "TerminatorName": "",
+                    "NoticeToMoveUID": 0,
+                    "TerminationDate": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveDate": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveName": "",
+                    "ApplicationReadyUID": 0,
+                    "ApplicationReadyDate": "1900-01-01 00:00:00 UTC",
+                    "ApplicationReadyName": "",
+                    "NoticeToMoveReported": "1900-01-01 00:00:00 UTC",
+                    "LeaseTerminationReason": 0
+                },
+                "pets": [],
+                "dates": {
+                    "CSAgent": 269,
+                    "RentStop": "8/28/2019",
+                    "RentStart": "8/28/2018",
+                    "AgreementStop": "8/28/2019",
+                    "AgreementStart": "8/28/2018",
+                    "PossessionStop": "8/28/2019",
+                    "PossessionStart": "8/28/2018"
+                },
+                "people": [
+                    {
+                        "City": "Lancaster",
+                        "TCID": 0,
+                        "State": "MI",
+                        "Points": 0,
+                        "Address": "57328 Aspen",
+                        "Comment": "",
+                        "Country": "",
+                        "Evicted": false,
+                        "TMPTCID": 1,
+                        "Website": "",
+                        "Address2": "",
+                        "Industry": 345,
+                        "IsRenter": true,
+                        "LastName": "Peters",
+                        "CellPhone": "(163) 878-5631",
+                        "Convicted": false,
+                        "FirstName": "Felix",
+                        "IsCompany": false,
+                        "WorkPhone": "(294) 337-5586",
+                        "Bankruptcy": false,
+                        "EvictedDes": "",
+                        "IsOccupant": true,
+                        "MiddleName": "M",
+                        "Occupation": "standards engineer",
+                        "PostalCode": "98081",
+                        "TaxpayorID": "02409211",
+                        "CompanyCity": "Burbank",
+                        "CompanyName": "Winn Dixie Stores Inc",
+                        "CreditLimit": 24831,
+                        "DateofBirth": "3/29/1992",
+                        "GrossIncome": 91741,
+                        "IsGuarantor": false,
+                        "SourceSLSID": 64,
+                        "CompanyEmail": "WBurbank2749@yahoo.com",
+                        "CompanyPhone": "(660) 684-4306",
+                        "CompanyState": "WY",
+                        "ConvictedDes": "",
+                        "PrimaryEmail": "abc@xyz.com",
+                        "PriorAddress": "61873 Twelfth, Peoria, UT 41318",
+                        "SpecialNeeds": "None",
+                        "BankruptcyDes": "",
+                        "PreferredName": "Max",
+                        "CompanyAddress": "52968 Seventh",
+                        "CurrentAddress": "59101 Mountain View, Daytona Beach, NJ 02081",
+                        "DriversLicense": "U2726611",
+                        "SecondaryEmail": "xyz@abc.com",
+                        "OtherPreferences": "",
+                        "ThirdPartySource": "Dan Glass",
+                        "CompanyPostalCode": "84059",
+                        "PriorLandLordName": "Elaine Fernandez",
+                        "EligibleFutureUser": true,
+                        "CurrentLandLordName": "Ute Mack",
+                        "EligibleFuturePayor": true,
+                        "EmergencyContactName": "Stacey Torres",
+                        "PriorLandLordPhoneNo": "(565) 771-5405",
+                        "PriorReasonForMoving": 98,
+                        "AlternateEmailAddress": "6511 Holly,North Port,NM 31847",
+                        "EmergencyContactEmail": "StaceyTorres464@hotmail.com",
+                        "CurrentLandLordPhoneNo": "(812) 981-8105",
+                        "CurrentReasonForMoving": 96,
+                        "PriorLengthOfResidency": "3 months",
+                        "EmergencyContactAddress": "67365 New Hampshire,Spartanburg,OR 27887",
+                        "CurrentLengthOfResidency": "4 years 6 months",
+                        "EmergencyContactTelephone": "(755) 705-7139"
+                    }
+                ],
+                "vehicles": [],
+                "rentables": [
+                    {
+                        "RID": 1,
+                        "Fees": [
+                            {
+                                "ARID": 16,
+                                "Stop": "8/28/2018",
+                                "ASMID": 0,
+                                "Start": "8/28/2018",
+                                "ARName": "Gas Base Fee",
+                                "Comment": "prorated for 4 of 31 days",
+                                "SalesTax": 0,
+                                "TMPASMID": 3,
+                                "RentCycle": 0,
+                                "TransOccTax": 0,
+                                "ContractAmount": 6.45,
+                                "ProrationCycle": 0,
+                                "AtSigningPreTax": 0
+                            },
+                            {
+                                "ARID": 16,
+                                "Stop": "8/28/2019",
+                                "ASMID": 0,
+                                "Start": "9/1/2018",
+                                "ARName": "Gas Base Fee",
+                                "Comment": "",
+                                "SalesTax": 0,
+                                "TMPASMID": 4,
+                                "RentCycle": 6,
+                                "TransOccTax": 0,
+                                "ContractAmount": 50,
+                                "ProrationCycle": 4,
+                                "AtSigningPreTax": 0
+                            },
+                            {
+                                "ARID": 45,
+                                "Stop": "8/28/2018",
+                                "ASMID": 0,
+                                "Start": "8/28/2018",
+                                "ARName": "Rent ST000",
+                                "Comment": "prorated for 4 of 31 days",
+                                "SalesTax": 0,
+                                "TMPASMID": 1,
+                                "RentCycle": 0,
+                                "TransOccTax": 0,
+                                "ContractAmount": 129.03,
+                                "ProrationCycle": 0,
+                                "AtSigningPreTax": 0
+                            },
+                            {
+                                "ARID": 45,
+                                "Stop": "8/28/2019",
+                                "ASMID": 0,
+                                "Start": "9/1/2018",
+                                "ARName": "Rent ST000",
+                                "Comment": "",
+                                "SalesTax": 0,
+                                "TMPASMID": 2,
+                                "RentCycle": 6,
+                                "TransOccTax": 0,
+                                "ContractAmount": 1000,
+                                "ProrationCycle": 4,
+                                "AtSigningPreTax": 0
+                            }
+                        ],
+                        "RTID": 1,
+                        "RTFLAGS": 4,
+                        "SalesTax": 0,
+                        "RentCycle": 6,
+                        "TransOccTax": 0,
+                        "RentableName": "Rentable001",
+                        "AtSigningPreTax": 0
+                    }
+                ],
+                "parentchild": []
+            },
+            "LastModTime": "2018-08-28T11:58:42Z",
+            "LastModBy": 269,
+            "CreateTS": "2018-08-28T11:11:21Z",
+            "CreateBy": 269
+        },
+        "ValidationCheck": {
+            "total": 0,
+            "errors": {
+                "dates": {
+                    "total": 0,
+                    "errors": {}
+                },
+                "people": {
+                    "total": 0,
+                    "errors": []
+                },
+                "pets": {
+                    "total": 0,
+                    "errors": []
+                },
+                "vehicles": {
+                    "total": 0,
+                    "errors": []
+                },
+                "rentables": {
+                    "total": 0,
+                    "errors": []
+                },
+                "parentchild": {
+                    "total": 0,
+                    "errors": []
+                },
+                "tie": {
+                    "people": {
+                        "total": 0,
+                        "errors": []
+                    }
+                }
+            },
+            "nonFieldsErrors": {
+                "dates": [],
+                "people": [],
+                "pets": [],
+                "vehicles": [],
+                "rentables": [],
+                "parentchild": [],
+                "tie": []
+            }
+        },
+        "DataFulfilled": {
+            "dates": true,
+            "people": true,
+            "pets": true,
+            "vehicles": true,
+            "rentables": true,
+            "parentchild": true,
+            "tie": true
+        }
+    },
+    "status": "success"
+}
