@@ -1,4 +1,4 @@
-DIRS = invalid_flow proper_sequence_flow improper_sequence_flow
+DIRS = invalid_flow proper_sequence_flow improper_sequence_flow raid_version
 
 THISDIR="actions"
 

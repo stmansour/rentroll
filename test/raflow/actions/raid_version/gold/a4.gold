@@ -1,0 +1,348 @@
+Test 4: action "terminate" on RA with state NoticeToMove 
+Request( RAID: 4, UserRefNo:  )
+Response( RAID: 4, UserRefNo:  )
+{
+    "record": {
+        "Flow": {
+            "BID": 1,
+            "FlowID": 0,
+            "UserRefNo": "",
+            "FlowType": "RA",
+            "ID": 4,
+            "Data": {
+                "dates": {
+                    "AgreementStart": "2/13/2018",
+                    "AgreementStop": "3/1/2020",
+                    "RentStart": "2/13/2018",
+                    "RentStop": "3/1/2020",
+                    "PossessionStart": "2/13/2018",
+                    "PossessionStop": "3/1/2020",
+                    "CSAgent": 102
+                },
+                "people": [
+                    {
+                        "TMPTCID": 1,
+                        "TCID": 4,
+                        "IsRenter": true,
+                        "IsOccupant": true,
+                        "IsGuarantor": false,
+                        "FirstName": "Jannette",
+                        "MiddleName": "Silas",
+                        "LastName": "Guthrie",
+                        "PreferredName": "Venetta",
+                        "IsCompany": false,
+                        "CompanyName": "Burlington Industries, Inc.",
+                        "PrimaryEmail": "JGuthrie3363@hotmail.com",
+                        "SecondaryEmail": "JGuthrie3787@comcast.net",
+                        "WorkPhone": "(494) 297-1303",
+                        "CellPhone": "(595) 452-9836",
+                        "Address": "45655 Washington",
+                        "Address2": "",
+                        "City": "Ontario",
+                        "State": "NY",
+                        "PostalCode": "23237",
+                        "Country": "USA",
+                        "Website": "",
+                        "Comment": "",
+                        "CompanyAddress": "57650 3rd",
+                        "CompanyCity": "PuntaGorda",
+                        "CompanyState": "ME",
+                        "CompanyPostalCode": "65466",
+                        "CompanyEmail": "BPuntaGorda4965@gmail.com",
+                        "CompanyPhone": "(352) 871-5172",
+                        "Occupation": "lottery ticket street vendor",
+                        "CurrentAddress": "5330 Mountain View, Boise City, CO 11528",
+                        "CurrentLandLordName": "Gidget Wheeler",
+                        "CurrentLandLordPhoneNo": "(121) 417-8238",
+                        "CurrentLengthOfResidency": "4 years 3 months",
+                        "CurrentReasonForMoving": 104,
+                        "PriorAddress": "54207 New York, Fort Walton Beach, MA 86258",
+                        "PriorLandLordName": "Latina West",
+                        "PriorLandLordPhoneNo": "(239) 988-6517",
+                        "PriorLengthOfResidency": "8 months",
+                        "PriorReasonForMoving": 119,
+                        "Evicted": false,
+                        "EvictedDes": "",
+                        "Convicted": false,
+                        "ConvictedDes": "",
+                        "Bankruptcy": false,
+                        "BankruptcyDes": "",
+                        "OtherPreferences": "",
+                        "SpecialNeeds": "",
+                        "ThirdPartySource": "Melisa Ross",
+                        "CreditLimit": 2745,
+                        "TaxpayorID": "06070731",
+                        "GrossIncome": 44713,
+                        "DriversLicense": "K8176272",
+                        "EligibleFuturePayor": true,
+                        "Points": 0,
+                        "DateofBirth": "10/28/1980",
+                        "EmergencyContactName": "Santos Mosley",
+                        "EmergencyContactAddress": "74283 7th,Rochester,UT 39106",
+                        "EmergencyContactTelephone": "(643) 494-9501",
+                        "EmergencyContactEmail": "SantosMosley557@bdiddy.com",
+                        "AlternateEmailAddress": "80953 County Line,Saginaw,AK 40495",
+                        "EligibleFutureUser": false,
+                        "Industry": 310,
+                        "SourceSLSID": 18
+                    }
+                ],
+                "pets": [
+                    {
+                        "TMPPETID": 1,
+                        "PETID": 4,
+                        "TMPTCID": 1,
+                        "Name": "Benny",
+                        "Type": "dog",
+                        "Breed": "Bluetick Coonhound",
+                        "Color": "Spotted",
+                        "Weight": 43,
+                        "Fees": [
+                            {
+                                "TMPASMID": 3,
+                                "ASMID": 67,
+                                "ARID": 24,
+                                "ARName": "Pet Rent",
+                                "ContractAmount": 10,
+                                "RentCycle": 6,
+                                "ProrationCycle": 4,
+                                "Start": "3/1/2018",
+                                "Stop": "3/1/2020",
+                                "AtSigningPreTax": 0,
+                                "SalesTax": 0,
+                                "TransOccTax": 0,
+                                "Comment": ""
+                            },
+                            {
+                                "TMPASMID": 5,
+                                "ASMID": 75,
+                                "ARID": 23,
+                                "ARName": "Pet Fee",
+                                "ContractAmount": 50,
+                                "RentCycle": 0,
+                                "ProrationCycle": 0,
+                                "Start": "2/13/2018",
+                                "Stop": "2/13/2018",
+                                "AtSigningPreTax": 0,
+                                "SalesTax": 0,
+                                "TransOccTax": 0,
+                                "Comment": ""
+                            },
+                            {
+                                "TMPASMID": 6,
+                                "ASMID": 76,
+                                "ARID": 24,
+                                "ARName": "Pet Rent",
+                                "ContractAmount": 5.71,
+                                "RentCycle": 0,
+                                "ProrationCycle": 0,
+                                "Start": "2/13/2018",
+                                "Stop": "2/13/2018",
+                                "AtSigningPreTax": 0,
+                                "SalesTax": 0,
+                                "TransOccTax": 0,
+                                "Comment": "prorated for 16 of 28 days"
+                            }
+                        ]
+                    }
+                ],
+                "vehicles": [
+                    {
+                        "TMPVID": 1,
+                        "VID": 5,
+                        "TMPTCID": 1,
+                        "VIN": "9364I5ZMY6XXRE0Y",
+                        "VehicleType": "car",
+                        "VehicleMake": "HUMMER",
+                        "VehicleModel": "H2",
+                        "VehicleColor": "Yellow",
+                        "VehicleYear": 2003,
+                        "LicensePlateState": "NY",
+                        "LicensePlateNumber": "S8E1M99",
+                        "ParkingPermitNumber": "0814080",
+                        "Fees": [
+                            {
+                                "TMPASMID": 7,
+                                "ASMID": 77,
+                                "ARID": 39,
+                                "ARName": "Vehicle Registration Fee",
+                                "ContractAmount": 10,
+                                "RentCycle": 0,
+                                "ProrationCycle": 0,
+                                "Start": "2/13/2018",
+                                "Stop": "2/13/2018",
+                                "AtSigningPreTax": 0,
+                                "SalesTax": 0,
+                                "TransOccTax": 0,
+                                "Comment": ""
+                            }
+                        ]
+                    }
+                ],
+                "rentables": [
+                    {
+                        "RID": 4,
+                        "RTID": 2,
+                        "RTFLAGS": 4,
+                        "RentableName": "Rentable004",
+                        "RentCycle": 6,
+                        "AtSigningPreTax": 0,
+                        "SalesTax": 0,
+                        "TransOccTax": 0,
+                        "Fees": [
+                            {
+                                "TMPASMID": 1,
+                                "ASMID": 59,
+                                "ARID": 26,
+                                "ARName": "Rent Non-Taxable",
+                                "ContractAmount": 1500,
+                                "RentCycle": 6,
+                                "ProrationCycle": 4,
+                                "Start": "3/1/2018",
+                                "Stop": "3/1/2020",
+                                "AtSigningPreTax": 0,
+                                "SalesTax": 0,
+                                "TransOccTax": 0,
+                                "Comment": ""
+                            },
+                            {
+                                "TMPASMID": 2,
+                                "ASMID": 66,
+                                "ARID": 28,
+                                "ARName": "Security Deposit Assessment",
+                                "ContractAmount": 3000,
+                                "RentCycle": 0,
+                                "ProrationCycle": 0,
+                                "Start": "2/13/2018",
+                                "Stop": "2/13/2018",
+                                "AtSigningPreTax": 0,
+                                "SalesTax": 0,
+                                "TransOccTax": 0,
+                                "Comment": ""
+                            },
+                            {
+                                "TMPASMID": 4,
+                                "ASMID": 74,
+                                "ARID": 26,
+                                "ARName": "Rent Non-Taxable",
+                                "ContractAmount": 857.14,
+                                "RentCycle": 0,
+                                "ProrationCycle": 0,
+                                "Start": "2/13/2018",
+                                "Stop": "2/13/2018",
+                                "AtSigningPreTax": 0,
+                                "SalesTax": 0,
+                                "TransOccTax": 0,
+                                "Comment": "prorated for 16 of 28 days"
+                            }
+                        ]
+                    }
+                ],
+                "parentchild": [],
+                "tie": {
+                    "people": [
+                        {
+                            "PRID": 4,
+                            "TMPTCID": 1
+                        }
+                    ]
+                },
+                "meta": {
+                    "BID": 1,
+                    "RAID": 4,
+                    "LastTMPPETID": 1,
+                    "LastTMPVID": 1,
+                    "LastTMPTCID": 1,
+                    "LastTMPASMID": 7,
+                    "HavePets": false,
+                    "HaveVehicles": false,
+                    "RAFLAGS": 54,
+                    "ApplicationReadyUID": 227,
+                    "ApplicationReadyName": "UID-0",
+                    "ApplicationReadyDate": "2018-02-13 00:00:00 UTC",
+                    "Approver1": 295,
+                    "Approver1Name": "Richard Wilkens",
+                    "DecisionDate1": "2018-02-13 00:00:00 UTC",
+                    "DeclineReason1": 0,
+                    "Approver2": 258,
+                    "Approver2Name": "Michelle Falls",
+                    "DecisionDate2": "2018-02-13 00:00:00 UTC",
+                    "DeclineReason2": 0,
+                    "MoveInUID": 32,
+                    "MoveInName": "Derrick Doss",
+                    "MoveInDate": "2018-02-13 00:00:00 UTC",
+                    "ActiveUID": 16,
+                    "ActiveName": "Lindsey Bird",
+                    "ActiveDate": "2018-02-13 00:00:00 UTC",
+                    "TerminatorUID": -99999,
+                    "TerminatorName": "UID-0",
+                    "TerminationDate": "2018-08-28 09:28:00 UTC",
+                    "LeaseTerminationReason": 83,
+                    "DocumentDate": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveUID": 269,
+                    "NoticeToMoveName": "Billy Tester",
+                    "NoticeToMoveDate": "2018-09-28 00:00:00 UTC",
+                    "NoticeToMoveReported": "2018-08-28 09:15:00 UTC"
+                }
+            },
+            "LastModTime": "0001-01-01T00:00:00Z",
+            "LastModBy": 0,
+            "CreateTS": "0001-01-01T00:00:00Z",
+            "CreateBy": 0
+        },
+        "ValidationCheck": {
+            "total": 0,
+            "errors": {
+                "dates": {
+                    "total": 0,
+                    "errors": {}
+                },
+                "people": {
+                    "total": 0,
+                    "errors": []
+                },
+                "pets": {
+                    "total": 0,
+                    "errors": []
+                },
+                "vehicles": {
+                    "total": 0,
+                    "errors": []
+                },
+                "rentables": {
+                    "total": 0,
+                    "errors": []
+                },
+                "parentchild": {
+                    "total": 0,
+                    "errors": []
+                },
+                "tie": {
+                    "people": {
+                        "total": 0,
+                        "errors": []
+                    }
+                }
+            },
+            "nonFieldsErrors": {
+                "dates": [],
+                "people": [],
+                "pets": [],
+                "vehicles": [],
+                "rentables": [],
+                "parentchild": [],
+                "tie": []
+            }
+        },
+        "DataFulfilled": {
+            "dates": true,
+            "people": true,
+            "pets": true,
+            "vehicles": true,
+            "rentables": true,
+            "parentchild": true,
+            "tie": true
+        }
+    },
+    "status": "success"
+}

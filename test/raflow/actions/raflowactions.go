@@ -52,7 +52,7 @@ var afterFiveDays = today.AddDate(0, 0, 5)
 var afterOneMonth = today.AddDate(0, 1, 0)
 
 var documentDate = afterFiveDays.Format(rlib.RRDATEFMT4)
-var notiveToMoveDate = afterOneMonth.Format(rlib.RRDATEFMT4)
+var noticeToMoveDate = afterOneMonth.Format(rlib.RRDATEFMT4)
 
 var folderName string
 
@@ -101,7 +101,7 @@ func main() {
 	// fmt.Println(testPayloads)
 	// fmt.Println()
 
-	for key, value := range testPayloads {
+	for key, payload := range testPayloads {
 		var req *http.Request
 		var respBody []byte
 		var respRecord []byte
@@ -110,11 +110,21 @@ func main() {
 
 		testNo := key + 1
 
-		if value.ReqData.DocumentDate == "99/99/9999" {
-			value.ReqData.DocumentDate = documentDate
+		// if payload contains DocumentDate as "99/99/9999"
+		// that means that we need to set DocumentDate
+		if payload.ReqData.DocumentDate == "99/99/9999" {
+			payload.ReqData.DocumentDate = documentDate
 		}
 
-		req, err = buildRequest(value.ReqData)
+		// if payload contains NoticeToMoveDate as "88/88/8888"
+		// that means that we need to set NoticeToMoveDate
+		if payload.ReqData.NoticeToMoveDate == "88/88/8888" {
+			payload.ReqData.NoticeToMoveDate = noticeToMoveDate
+		}
+
+		url := "http://localhost:8270/v1/raactions/1/"
+
+		req, err = buildRequest(url, payload.ReqData)
 		if err != nil {
 			fmt.Println("Internal Error: ", err)
 			return
@@ -142,6 +152,101 @@ func main() {
 				fmt.Println("Internal Error: ", err)
 				return
 			}
+
+			// here we override UserRefNo
+			// because in raid_version tests userRefNo generated will be random everytime
+			// hence to pass the comparision with gold files we set UserRefNo as "OVERRIDEEN1234567890"
+			if folderName == "raid_version" && apiResponse.Record.Flow.UserRefNo != "" {
+
+				/*flowId := apiResponse.Record.Flow.FlowID
+				newUrl := fmt.Sprintf("http://localhost:8270/v1/flow/1/%d/", flowId)
+
+				var newReq *http.Request
+				var newRespBody []byte
+				var newApiResponse FlowResponse
+
+				var flowJSONData rlib.RAFlowJSONData
+
+				err = json.Unmarshal(apiResponse.Record.Flow.Data, &flowJSONData)
+				if err != nil {
+					err = fmt.Errorf("unmarshal api response err: %s", err)
+					fmt.Println("Internal Error: ", err)
+					return
+				}
+
+				temp := struct {
+					CSAgent         int64
+					RentStop        string
+					RentStart       string
+					AgreementStop   string
+					AgreementStart  string
+					PossessionStop  string
+					PossessionStart string
+				}{
+					flowJSONData.Dates.CSAgent,
+					"3/1/2020",
+					"3/13/2018",
+					"3/1/2020",
+					"3/13/2018",
+					"3/1/2020",
+					"3/13/2018",
+				}
+
+				newPayload := struct {
+					Cmd         string
+					FlowType    string
+					FlowId      int64
+					FlowPartKey string
+					BID         int64
+					Data        struct {
+						CSAgent         int64
+						RentStop        string
+						RentStart       string
+						AgreementStop   string
+						AgreementStart  string
+						PossessionStop  string
+						PossessionStart string
+					}
+				}{
+					"save",
+					"RA",
+					flowId,
+					"dates",
+					int64(1),
+					temp,
+				}
+
+				var b []byte
+				b, err = json.Marshal(newPayload)
+				if err != nil {
+					err = fmt.Errorf("marshall payload err: %s", err)
+					fmt.Println("Internal Error: ", err)
+					return
+				}
+
+				newReq, err = http.NewRequest("POST", newUrl, bytes.NewBuffer(b))
+				if err != nil {
+					err = fmt.Errorf("new request err: %s", err)
+					fmt.Println("Internal Error: ", err)
+					return
+				}
+				newReq.Header.Set("Content-Type", "application/json")
+
+				newRespBody, err = makeRequestAndReadResponseBody(newReq)
+				if err != nil {
+					fmt.Println("Internal Error: ", err)
+					return
+				}
+
+				err = getDataFromResponseBody(newRespBody, &newApiResponse)
+				if err != nil {
+					fmt.Println("Internal Error: ", err)
+					return
+				}
+				apiResponse.Record.Flow = newApiResponse.Record.Flow*/
+
+				apiResponse.Record.Flow.UserRefNo = "OVERRIDEEN1234567890"
+			}
 			respRAID = apiResponse.Record.Flow.ID
 			respUserRefNo = apiResponse.Record.Flow.UserRefNo
 
@@ -153,14 +258,14 @@ func main() {
 			return
 		}
 
-		testInfoString := fmt.Sprintf("Test %d: %s \n", testNo, value.Description)
-		testInfoString += fmt.Sprintf("Request( RAID: %d, UserRefNo: %s )\n", value.ReqData.RAID, value.ReqData.UserRefNo)
+		testInfoString := fmt.Sprintf("Test %d: %s \n", testNo, payload.Description)
+		testInfoString += fmt.Sprintf("Request( RAID: %d, UserRefNo: %s )\n", payload.ReqData.RAID, payload.ReqData.UserRefNo)
 		testInfoString += fmt.Sprintf("Response( RAID: %d, UserRefNo: %s )\n", respRAID, respUserRefNo)
 		dumpResponseInFile(testNo, testInfoString, respRecord)
 	}
 }
 
-func buildRequest(payload Payload) (*http.Request, error) {
+func buildRequest(url string, payload Payload) (*http.Request, error) {
 	var req *http.Request
 	var err error
 
@@ -170,7 +275,7 @@ func buildRequest(payload Payload) (*http.Request, error) {
 		return req, err
 	}
 
-	url := "http://localhost:8270/v1/raactions/1/"
+	// url := "http://localhost:8270/v1/raactions/1/"
 	// fmt.Println("\nURL: ", url)
 
 	req, err = http.NewRequest("POST", url, bytes.NewBuffer(b))

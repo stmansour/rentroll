@@ -1,0 +1,95 @@
+[
+    {
+        "ReqData": {
+			"UserRefNo":        "",
+			"RAID":             1,
+			"Version":          "raid",
+			"Action":           5,
+			"Mode":             "Action",
+			"NoticeToMoveDate": "88/88/8888"
+		},
+        "Description": "action \"recieved notice to move\" and provide NoticeToMoveDate on RA with state Active"
+    },
+    {
+        "ReqData": {
+			"UserRefNo":         "",
+			"RAID":              2,
+			"Version":           "raid",
+			"Action":            6,
+			"Mode":              "Action",
+			"TerminationReason": 83
+		},
+        "Description": "action \"terminate\" on RA with state Active"
+    },
+    {
+        "ReqData": {
+			"UserRefNo": "",
+			"RAID":      3,
+			"Version":   "raid",
+			"Action":    4,
+			"Mode":      "Action"
+		},
+        "Description": "action \"complete move in\" on RA with state NoticeToMove"
+    },
+    {
+        "ReqData": {
+			"UserRefNo":         "",
+			"RAID":              4,
+			"Version":           "raid",
+			"Action":            6,
+			"Mode":              "Action",
+			"TerminationReason": 83
+		},
+        "Description": "action \"terminate\" on RA with state NoticeToMove"
+    },
+    {
+        "ReqData": {
+			"UserRefNo": "",
+			"RAID":      5,
+			"Version":   "raid",
+			"Action":    4,
+			"Mode":      "Action"
+		},
+        "Description": "action \"complete move in\" on RA with state Terminated"
+    },
+    {
+        "ReqData": {
+			"UserRefNo": "",
+			"RAID":      6,
+			"Version":   "raid",
+			"Action":    0,
+			"Mode":      "Action"
+		},
+        "Description": "action \"application being completed\" on RA with state Active"
+    },
+    {
+        "ReqData": {
+			"UserRefNo": "",
+			"RAID":      7,
+			"Version":   "raid",
+			"Action":    1,
+			"Mode":      "Action"
+		},
+        "Description": "action \"set pending first approval\" on RA with state Active"
+    },
+    {
+        "ReqData": {
+			"UserRefNo": "",
+			"RAID":      8,
+			"Version":   "raid",
+			"Action":    0,
+			"Mode":      "Action"
+		},
+        "Description": "action \"application being completed\" on RA with state NoticeToMove"
+    },
+    {
+        "ReqData": {
+			"UserRefNo": "",
+			"RAID":      9,
+			"Version":   "raid",
+			"Action":    0,
+			"Mode":      "Action"
+		},
+        "Description": "action \"application being completed\" on RA with state Terminated"
+    }
+]
