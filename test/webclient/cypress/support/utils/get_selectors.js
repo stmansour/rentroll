@@ -115,3 +115,8 @@ export function getExportPDFButtonSelector(gridname) {
 export function getDropDownValueFieldSelector(fieldValue) {
     return '#w2ui-overlay tr[index=' + fieldValue + ']';
 }
+
+// return selector for Edit RA flow button
+export function getEditRAFlowButtonSelector() {
+    return '#edit_view_raflow';
+}
