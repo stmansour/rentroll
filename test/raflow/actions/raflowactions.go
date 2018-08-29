@@ -27,6 +27,7 @@ type FlowResponse struct {
 	Status  string            `json:"status"`
 }
 
+// JSONPayloadDesc is a struct that stores request payload and short description about the test
 type JSONPayloadDesc struct {
 	ReqData     Payload
 	Description string
@@ -71,7 +72,7 @@ func getPayloadsFromJSON(payloads *[]JSONPayloadDesc) error {
 		return err
 	}
 
-	// read json file which contains payloads
+	// read json file which contains payloads and description about tests
 	payloadFilePath := path.Join(folderPath, folderName, "payload.json")
 
 	jsonData, err := ioutil.ReadFile(payloadFilePath)
@@ -97,9 +98,6 @@ func main() {
 		fmt.Println("Internal Error: ", err)
 		return
 	}
-
-	// fmt.Println(testPayloads)
-	// fmt.Println()
 
 	for key, payload := range testPayloads {
 		var req *http.Request
@@ -157,94 +155,6 @@ func main() {
 			// because in raid_version tests userRefNo generated will be random everytime
 			// hence to pass the comparision with gold files we set UserRefNo as "OVERRIDEEN1234567890"
 			if folderName == "raid_version" && apiResponse.Record.Flow.UserRefNo != "" {
-
-				/*flowId := apiResponse.Record.Flow.FlowID
-				newUrl := fmt.Sprintf("http://localhost:8270/v1/flow/1/%d/", flowId)
-
-				var newReq *http.Request
-				var newRespBody []byte
-				var newApiResponse FlowResponse
-
-				var flowJSONData rlib.RAFlowJSONData
-
-				err = json.Unmarshal(apiResponse.Record.Flow.Data, &flowJSONData)
-				if err != nil {
-					err = fmt.Errorf("unmarshal api response err: %s", err)
-					fmt.Println("Internal Error: ", err)
-					return
-				}
-
-				temp := struct {
-					CSAgent         int64
-					RentStop        string
-					RentStart       string
-					AgreementStop   string
-					AgreementStart  string
-					PossessionStop  string
-					PossessionStart string
-				}{
-					flowJSONData.Dates.CSAgent,
-					"3/1/2020",
-					"3/13/2018",
-					"3/1/2020",
-					"3/13/2018",
-					"3/1/2020",
-					"3/13/2018",
-				}
-
-				newPayload := struct {
-					Cmd         string
-					FlowType    string
-					FlowId      int64
-					FlowPartKey string
-					BID         int64
-					Data        struct {
-						CSAgent         int64
-						RentStop        string
-						RentStart       string
-						AgreementStop   string
-						AgreementStart  string
-						PossessionStop  string
-						PossessionStart string
-					}
-				}{
-					"save",
-					"RA",
-					flowId,
-					"dates",
-					int64(1),
-					temp,
-				}
-
-				var b []byte
-				b, err = json.Marshal(newPayload)
-				if err != nil {
-					err = fmt.Errorf("marshall payload err: %s", err)
-					fmt.Println("Internal Error: ", err)
-					return
-				}
-
-				newReq, err = http.NewRequest("POST", newUrl, bytes.NewBuffer(b))
-				if err != nil {
-					err = fmt.Errorf("new request err: %s", err)
-					fmt.Println("Internal Error: ", err)
-					return
-				}
-				newReq.Header.Set("Content-Type", "application/json")
-
-				newRespBody, err = makeRequestAndReadResponseBody(newReq)
-				if err != nil {
-					fmt.Println("Internal Error: ", err)
-					return
-				}
-
-				err = getDataFromResponseBody(newRespBody, &newApiResponse)
-				if err != nil {
-					fmt.Println("Internal Error: ", err)
-					return
-				}
-				apiResponse.Record.Flow = newApiResponse.Record.Flow*/
-
 				apiResponse.Record.Flow.UserRefNo = "OVERRIDEEN1234567890"
 			}
 			respRAID = apiResponse.Record.Flow.ID
@@ -275,17 +185,12 @@ func buildRequest(url string, payload Payload) (*http.Request, error) {
 		return req, err
 	}
 
-	// url := "http://localhost:8270/v1/raactions/1/"
-	// fmt.Println("\nURL: ", url)
-
 	req, err = http.NewRequest("POST", url, bytes.NewBuffer(b))
 	if err != nil {
 		err = fmt.Errorf("new request err: %s", err)
 		return req, err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	// fmt.Printf("\nRequest: %+v\n\n", req)
-
 	return req, nil
 }
 
@@ -309,8 +214,6 @@ func makeRequestAndReadResponseBody(req *http.Request) ([]byte, error) {
 		err = fmt.Errorf("read response body err: %s", err)
 		return respBody, err
 	}
-
-	// fmt.Printf("\nRESPONSE Body: %s\n\n", respBody)
 	return respBody, nil
 }
 
@@ -322,8 +225,6 @@ func getDataFromResponseBody(respBody []byte, apiResponse *FlowResponse) error {
 		err = fmt.Errorf("unmarshal api response err: %s", err)
 		return err
 	}
-
-	// fmt.Printf("\nRESPONSE FLOW DATA: %+v\n\n", apiResponse)
 	return nil
 }
 

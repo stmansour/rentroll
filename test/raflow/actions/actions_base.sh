@@ -65,6 +65,12 @@ outputCheck() {
 			's/(^[ \t]+"RentStop":).*/$1 TIMESTAMP/'
 			's/(^[ \t]+"PossessionStart":).*/$1 TIMESTAMP/'
 			's/(^[ \t]+"PossessionStop":).*/$1 TIMESTAMP/'
+			's/(^[ \t]+"DocumentDate":).*/$1 TIMESTAMP/'
+			's/(^[ \t]+"NoticeToMoveDate":).*/$1 TIMESTAMP/'
+			's/(^[ \t]+"Stop":).*/$1 TIMESTAMP/'
+			's/(^[ \t]+"Start":).*/$1 TIMESTAMP/'
+			's/(^[ \t]+"Comment":).*/$1 TIMESTAMP/'
+			's/(^[ \t]+"ContractAmount":).*/$1 TIMESTAMP/'
 		)
 		cp gold/${1}.gold qqx
 		cp ${1} qqy
