@@ -130,8 +130,7 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                 }
 
 
-                let types;
-                let type;
+                let items;
                 switch (w2uiGridColumn.field) {
                     case "ARType":
                         // Account Rules
@@ -237,7 +236,64 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                     case "DtDone":
                         valueForCell = win.dtFormatISOToW2ui(record[w2uiGridColumn.field]);
                         break;
+                    case "TMPTCID":
+                        // RAPetsGrid, RAVehiclesGrid
+                        items = appSettings.raflow.peopleW2UIItems;
+                        for (let index=0; index<items.length; index++) {
+                            if (items[index].id === valueForCell){
+                                valueForCell = items[index].text;
+                                break;
+                            }
+                        }
+                        break;
+                    case "RentCycleText":
+                        // RARentablesGrid
+                        valueForCell = appSettings.cycleFreq[record.RentCycle];
+                        break;
+                    case "RowTotal":
+                        // Check below logic in rentables.js under RARentablesGrid
+                        let total = 0.00;
 
+                        if (record.AtSigningPreTax) {
+                            total += record.AtSigningPreTax;
+                        }
+                        if (record.SalesTax) {
+                            total += record.SalesTax;
+                        }
+                        if (record.TransOccTax) {
+                            total += record.TransOccTax;
+                        }
+                        valueForCell = win.w2utils.formatters.money(total);
+                        break;
+                    case "FullName":
+                        items = appSettings.raflow.peopleW2UIItems;
+                        for (let index=0; index<items.length; index++) {
+                            if (items[index].id === record.TMPTCID){
+                                valueForCell = items[index].text;
+                                break;
+                            }
+                        }
+                        break;
+                    case "ParentRentableName":
+                        // RATiePeopleGrid, RAParentChildGrid
+                        items = appSettings.raflow.parentRentableW2UIItems;
+                        for (let index=0; index<items.length; index++) {
+                            if (items[index].id === record.PRID){
+                                valueForCell = items[index].text;
+                                break;
+                            }
+                        }
+                        break;
+                    case "ChildRentableName":
+                        // RAParentChildGrid
+                        let gridRecords = win.w2ui.RAParentChildGrid.records;
+                        for (let index=0; index<gridRecords.length; index++) {
+                            if (gridRecords [index].CRID === record.CRID){
+                                valueForCell = gridRecords [index].ChildRentableName;
+                                break;
+                            }
+                        }
+                        break;
                 }
 
                 // Check visibility and default value of cell in the grid

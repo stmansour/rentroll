@@ -21,6 +21,8 @@ describe('AIR Roller UI Tests - Rental Agreements', function () {
 
     let noRecordsInAPIResponse;
 
+    let flowData;
+
     // -- Perform operation before all tests starts. It runs once before all tests in the block --
     before(function () {
 
@@ -110,62 +112,189 @@ describe('AIR Roller UI Tests - Rental Agreements', function () {
         common.testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, testConfig);
     });
 
-    // it('Existing Rental Agreement', function (){
-    //     cy.server();
-    //
-    //     // Click on the first record
-    //     cy.route(testConfig.methodType, common.getDetailRecordAPIEndPoint("flow", 0)).as('raRecord');
-    //
-    //     cy.get(selectors.getFirstRecordInGridSelector(testConfig.grid)).click();
-    //
-    //     // Check http status
-    //     cy.wait('@raRecord').its('status').should('eq', constants.HTTP_OK_STATUS);
-    //
-    //     cy.get('@raRecord').then(function (xhr){
-    //         // Check key `status` in responseBody
-    //         expect(xhr.responseBody).to.have.property('status', constants.API_RESPONSE_SUCCESS_FLAG);
-    //
-    //         cy.log(xhr);
-    //     });
-    //
-    //     cy.wait(5000);
-    //
-    //     // Edit RAFlow
-    //     cy.route(testConfig.methodType, common.getDetailRecordAPIEndPoint("flow", 0)).as('editRARecord');
-    //
-    //     cy.get(selectors.getEditRAFlowButtonSelector()).click();
-    //
-    //     // Check http status
-    //     cy.wait('@editRARecord').its('status').should('eq', constants.HTTP_OK_STATUS);
-    //
-    //     cy.get('@editRARecord').then(function (xhr){
-    //         // Check key `status` in responseBody
-    //         expect(xhr.responseBody).to.have.property('status', constants.API_RESPONSE_SUCCESS_FLAG);
-    //
-    //         cy.log(xhr);
-    //
-    //         // TODO: [WIP]Write test for verifying grids/forms for each section
-    //         // let flowData = xhr.response.body.record.Flow.Data;
-    //         //
-    //         // cy.log("people response");
-    //         //
-    //         // cy.log(flowData.people);
-    //         //
-    //         // cy.wait(5000);
-    //         //
-    //         // // people section
-    //         // cy.get('#people').click();
-    //         //
-    //         // cy.wait(10000);
-    //         //
-    //         // testConfig.grid = "RAPeopleGrid";
-    //         // testConfig.excludeGridColumns = ["haveError"];
-    //         // common.testGridRecords(flowData.people, flowData.people.length, testConfig);
-    //
-    //
-    //     });
-    //
-    // });
+    /***********************
+     * 1. Open existing rental agreement
+     *
+     * Expect:
+     * Previous, Get Approvals buttons must be disable and visible.
+     * Next, Action, Edit, close(X) must be enable and visible
+     *
+     * 2. Click Edit button on top right corner
+     *
+     * Expect:
+     * Get Approvals button enable and visible
+     ***********************/
+    it('Existing Rental Agreement', function (){
+        cy.server();
+
+        // 1. Open existing rental agreement
+        // Click on the first record
+        cy.route(testConfig.methodType, common.getDetailRecordAPIEndPoint("flow", 0)).as('raRecord');
+
+        cy.get(selectors.getFirstRecordInGridSelector(testConfig.grid)).click();
+
+        // Check http status
+        cy.wait('@raRecord').its('status').should('eq', constants.HTTP_OK_STATUS);
+
+        cy.get('@raRecord').then(function (xhr){
+            // Check key `status` in responseBody
+            expect(xhr.responseBody).to.have.property('status', constants.API_RESPONSE_SUCCESS_FLAG);
+
+            cy.log(xhr);
+
+            // Perform assertion
+            // Previous, Get Approvals buttons must be disable and visible.
+            // Next, Action, Edit, close(X) must be enable and visible
+            let visibleButtons = ["raactions", "edit_view_raflow", "previous", "get-approvals", "next"];
+            let notVisibleButtons = [];
+            let enableButtons = ["raactions", "edit_view_raflow", "next"];
+            let disableButtons = ["previous", "get-approvals"];
+
+            common.buttonsTest(visibleButtons, notVisibleButtons);
+
+            // Check buttons are disable
+            disableButtons.forEach(function (button) {
+                cy.get(selectors.getButtonSelector(button)).should('be.disabled');
+            });
+
+            // Check buttons are enable
+            enableButtons.forEach(function (button) {
+                cy.get(selectors.getButtonSelector(button)).should('be.enabled');
+            });
+
+        });
+
+        cy.wait(constants.WAIT_TIME);
+
+        // 2. Click Edit button on top right corner
+        // Edit RAFlow
+        cy.route(testConfig.methodType, common.getDetailRecordAPIEndPoint("flow", 0)).as('editRARecord');
+
+        cy.get(selectors.getEditRAFlowButtonSelector()).click();
+
+        // Check http status
+        cy.wait('@editRARecord').its('status').should('eq', constants.HTTP_OK_STATUS);
+
+        cy.get('@editRARecord').then(function (xhr){
+            // Check key `status` in responseBody
+            expect(xhr.responseBody).to.have.property('status', constants.API_RESPONSE_SUCCESS_FLAG);
+
+            cy.log(xhr);
+
+            flowData = xhr.response.body.record.Flow.Data;
+
+            // Perform assertion
+            // Previous, Get Approvals buttons must be disable and visible.
+            // Next, Action, Get Approvals, Edit, close(X) must be enable and visible
+            let visibleButtons = ["raactions", "edit_view_raflow", "previous", "get-approvals", "next", "remove_raflow"];
+            let notVisibleButtons = [];
+            let enableButtons = ["raactions", "edit_view_raflow", "next", "get-approvals", "remove_raflow"];
+            let disableButtons = ["previous"];
+
+            cy.wait(constants.WAIT_TIME);
+
+            common.buttonsTest(visibleButtons, notVisibleButtons);
+
+            // Check buttons are disable
+            disableButtons.forEach(function (button) {
+                cy.get(selectors.getButtonSelector(button)).should('be.disabled');
+            });
+
+            // Check buttons are enable
+            enableButtons.forEach(function (button) {
+                cy.get(selectors.getButtonSelector(button)).should('be.enabled');
+            });
+
+
+        });
+
+    });
+
+    /***********************
+     * Open People section in RAFlow
+     *
+     * Expect:
+     * RAPeopeGrid must have data which match with the Server response
+     ***********************/
+    it('RAFlow -- People', function () {
+        let peopleData = flowData.people;
+        // people section
+        cy.get('#people a').click({force: true}).wait(constants.WAIT_TIME);
+
+        testConfig.grid = "RAPeopleGrid";
+        testConfig.skipColumns = ["haveError"];
+        common.testGridRecords(peopleData, peopleData.length, testConfig);
+    });
+
+    /***********************
+     * Open Pets section in RAFlow
+     *
+     * Expect:
+     * RAPetsGrid must have data which match with the Server response
+     ***********************/
+    it('RAFlow -- Pets', function () {
+        let petsData = flowData.pets;
+        testConfig.grid = "RAPetsGrid";
+        testConfig.skipColumns = ["haveError"];
+        cy.get('#pets a').click({force: true}).wait(constants.WAIT_TIME);
+        common.testGridRecords(petsData, petsData.length, testConfig);
+    });
+
+    /***********************
+     * Open Vehicles section in RAFlow
+     *
+     * Expect:
+     * RAVehiclesGrid must have data which match with the Server response
+     ***********************/
+    it('RAFlow -- Vehicles', function () {
+        let vehiclesData = flowData.vehicles;
+        testConfig.grid = "RAVehiclesGrid";
+        testConfig.skipColumns = ["haveError"];
+        cy.get('#vehicles a').click({force: true}).wait(constants.WAIT_TIME);
+        common.testGridRecords(vehiclesData, vehiclesData.length, testConfig);
+    });
+
+    /***********************
+     * Open Rentables section in RAFlow
+     *
+     * Expect:
+     * RARentablesGrid must have data which match with the Server response
+     ***********************/
+    it('RAFlow -- Rentables', function () {
+        let rentablesData = flowData.rentables;
+        testConfig.grid = "RARentablesGrid";
+        testConfig.skipColumns = ["haveError", "RemoveRec"];
+        cy.get('#rentables a').click({force: true}).wait(constants.WAIT_TIME);
+        common.testGridRecords(rentablesData, rentablesData.length, testConfig);
+    });
+
+    /***********************
+     * Open Parent/Child section in RAFlow
+     *
+     * Expect:
+     * RAParentChildGrid must have data which match with the Server response
+     ***********************/
+    it('RAFlow -- Parent/Child', function () {
+        let parenChildData = flowData.parentchild;
+        testConfig.grid = "RAParentChildGrid";
+        testConfig.skipColumns = ["haveError"];
+        cy.get('#parentchild a').click({force: true}).wait(constants.WAIT_TIME);
+        common.testGridRecords(parenChildData, parenChildData.length, testConfig);
+    });
+
+    /***********************
+     * Open Tie section in RAFlow
+     *
+     * Expect:
+     * RATiePeopleGrid must have data which match with the Server response
+     ***********************/
+    it('RAFlow -- Tie', function () {
+        let tiePeopleData = flowData.tie.people;
+        testConfig.grid = "RATiePeopleGrid";
+        testConfig.skipColumns = ["haveError"];
+        cy.get('#tie a').click({force: true}).wait(constants.WAIT_TIME);
+        common.testGridRecords(tiePeopleData, tiePeopleData.length, testConfig);
+    });
 
     // -- Perform operation after all tests finish. It runs once after all tests in the block --
     after(function () {
