@@ -465,6 +465,9 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                         type = types.find(types => types.text === fieldValue);
                         fieldValue = type.text;
                         break;
+                    case "CSAgent":
+                        fieldValue = fieldValue.toString();
+                        break;
                 }
 
                 // check fields visibility and respective value
@@ -517,9 +520,17 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
             });
     });
 
-    if(testConfig.form !== "tldsInfoForm" && testConfig.form !== "taskDescForm"){
-        // Check Business Unit field must be disabled and have value REX
-        BUDFieldTest();
+    // Check Business Unit field must be disabled and have value REX
+    switch (testConfig.form){
+        case "tldsInfoForm":
+        case "taskDescForm":
+        case "RADatesForm":
+            // do nothing
+            break;
+        default:
+            // Check Business Unit field must be disabled and have value REX
+            BUDFieldTest();
+            break;
     }
 
     // -- Check buttons visibility --

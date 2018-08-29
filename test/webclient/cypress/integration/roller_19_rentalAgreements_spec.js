@@ -211,6 +211,21 @@ describe('AIR Roller UI Tests - Rental Agreements', function () {
     });
 
     /***********************
+     * Open Date section in RAFlow
+     *
+     * Expect:
+     * RADatesForm must have data which match with the Server response
+     ***********************/
+    it('RAFlow -- Dates', function () {
+        let datesData = flowData.dates;
+        // Date section
+        cy.get('#dates a').click({force: true}).wait(constants.WAIT_TIME);
+        testConfig.form = "RADatesForm";
+        testConfig.buttonNamesInDetailForm = ["save"];
+        common.detailFormTest(datesData, testConfig);
+    });
+
+    /***********************
      * Open People section in RAFlow
      *
      * Expect:
