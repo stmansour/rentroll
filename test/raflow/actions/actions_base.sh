@@ -83,7 +83,6 @@ outputCheck() {
 		UDIFFS=$(diff qqx qqy | wc -l)
 		if [ ${UDIFFS} -eq 0 ]; then
 			echo "PASSED"
-			passmsg "${3}"
 		else
 			echo "FAILED:  differences are as follows:" >> ${ERRFILE}
 			diff qqx qqy >> ${ERRFILE}
