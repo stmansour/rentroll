@@ -561,14 +561,10 @@ window.loadRAActionTemplate = function() {
                 };
             }
         });
+        w2ui.raActionLayout.load('top', '/webclient/html/raflow/formra-actionheader.html');
+        w2ui.raActionLayout.load('bottom', '/webclient/html/raflow/formra-actionfooter.html');
     }
     w2ui.newraLayout.content('right', w2ui.raActionLayout);
-
-    w2ui.raActionLayout.load('top', '/webclient/html/raflow/formra-actionheader.html');
-    w2ui.raActionLayout.load('bottom', '/webclient/html/raflow/formra-actionfooter.html');
-
-    // var raFlags = app.raflow.Flow.Data.meta.RAFLAGS;
-    // var raState = parseInt(raFlags & 0xf);
 
     loadRAActionForm();
 
