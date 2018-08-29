@@ -1,0 +1,22 @@
+[
+    {
+        "ReqData": {
+			"UserRefNo": "5OOEUJE7KF4080078T1B",
+			"RAID":      1,
+			"Version":   "refno",
+			"Action":    1,
+			"Mode":      "Action"
+		},
+        "Description": "action \"set pending first approval\" on flow with invalid data"
+    },
+    {
+        "ReqData": {
+            "UserRefNo": "UAP3DTJTP4789X22318D",
+			"RAID":      0,
+			"Version":   "refno",
+			"Action":    1,
+			"Mode":      "Action"
+        },
+        "Description": "action \"set pending first approval\" on brand new flow with invalid data"
+    }
+]

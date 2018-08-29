@@ -1,0 +1,379 @@
+Test 2: action "terminate" on RA with state Active 
+Request( RAID: 2, UserRefNo:  )
+Response( RAID: 2, UserRefNo:  )
+{
+    "record": {
+        "Flow": {
+            "BID": 1,
+            "FlowID": 0,
+            "UserRefNo": "",
+            "FlowType": "RA",
+            "ID": 2,
+            "Data": {
+                "dates": {
+                    "AgreementStart": "2/13/2018",
+                    "AgreementStop": "3/1/2020",
+                    "RentStart": "2/13/2018",
+                    "RentStop": "3/1/2020",
+                    "PossessionStart": "2/13/2018",
+                    "PossessionStop": "3/1/2020",
+                    "CSAgent": 105
+                },
+                "people": [
+                    {
+                        "TMPTCID": 1,
+                        "TCID": 2,
+                        "IsRenter": true,
+                        "IsOccupant": true,
+                        "IsGuarantor": false,
+                        "FirstName": "Shalon",
+                        "MiddleName": "Laticia",
+                        "LastName": "Hess",
+                        "PreferredName": "Elyse",
+                        "IsCompany": false,
+                        "CompanyName": "Teradyne Inc",
+                        "PrimaryEmail": "ShalonH1016@yahoo.com",
+                        "SecondaryEmail": "SHess7684@yahoo.com",
+                        "WorkPhone": "(923) 247-6237",
+                        "CellPhone": "(888) 343-4061",
+                        "Address": "40976 Narragansett",
+                        "Address2": "",
+                        "City": "High Point",
+                        "State": "MT",
+                        "PostalCode": "54425",
+                        "Country": "USA",
+                        "Website": "",
+                        "Comment": "",
+                        "CompanyAddress": "65894 10th",
+                        "CompanyCity": "Tyler",
+                        "CompanyState": "OH",
+                        "CompanyPostalCode": "03300",
+                        "CompanyEmail": "TTyler5171@aol.com",
+                        "CompanyPhone": "(601) 740-5474",
+                        "Occupation": "art photographer",
+                        "CurrentAddress": "46788 Orchard, Tuscaloosa, ND 10694",
+                        "CurrentLandLordName": "Alton Dillard",
+                        "CurrentLandLordPhoneNo": "(409) 297-2925",
+                        "CurrentLengthOfResidency": "2 years 4 months",
+                        "CurrentReasonForMoving": 126,
+                        "PriorAddress": "93761 Eighth, Hialeah, WV 78511",
+                        "PriorLandLordName": "Marybeth Contreras",
+                        "PriorLandLordPhoneNo": "(851) 683-8639",
+                        "PriorLengthOfResidency": "1 years 5 months",
+                        "PriorReasonForMoving": 121,
+                        "Evicted": false,
+                        "EvictedDes": "",
+                        "Convicted": false,
+                        "ConvictedDes": "",
+                        "Bankruptcy": false,
+                        "BankruptcyDes": "",
+                        "OtherPreferences": "",
+                        "SpecialNeeds": "",
+                        "ThirdPartySource": "Denisse Chambers",
+                        "CreditLimit": 27451,
+                        "TaxpayorID": "04345969",
+                        "GrossIncome": 58278,
+                        "DriversLicense": "K6128884",
+                        "EligibleFuturePayor": true,
+                        "Points": 0,
+                        "DateofBirth": "12/28/1957",
+                        "EmergencyContactName": "Willy Garrett",
+                        "EmergencyContactAddress": "66046 Aloha,Lancaster,DC 22540",
+                        "EmergencyContactTelephone": "(619) 636-6415",
+                        "EmergencyContactEmail": "WillyG6497@yahoo.com",
+                        "AlternateEmailAddress": "92937 Zoo,Sterling Heights,CT 40456",
+                        "EligibleFutureUser": true,
+                        "Industry": 252,
+                        "SourceSLSID": 47
+                    }
+                ],
+                "pets": [
+                    {
+                        "TMPPETID": 1,
+                        "PETID": 2,
+                        "TMPTCID": 1,
+                        "Name": "Rusty",
+                        "Type": "dog",
+                        "Breed": "Parson Russell Terrier",
+                        "Color": "Red",
+                        "Weight": 23,
+                        "Fees": [
+                            {
+                                "TMPASMID": 3,
+                                "ASMID": 28,
+                                "ARID": 24,
+                                "ARName": "Pet Rent",
+                                "ContractAmount": 10,
+                                "RentCycle": 6,
+                                "ProrationCycle": 4,
+                                "Start": "3/1/2018",
+                                "Stop": "3/1/2020",
+                                "AtSigningPreTax": 0,
+                                "SalesTax": 0,
+                                "TransOccTax": 0,
+                                "Comment": ""
+                            },
+                            {
+                                "TMPASMID": 5,
+                                "ASMID": 36,
+                                "ARID": 23,
+                                "ARName": "Pet Fee",
+                                "ContractAmount": 50,
+                                "RentCycle": 0,
+                                "ProrationCycle": 0,
+                                "Start": "2/13/2018",
+                                "Stop": "2/13/2018",
+                                "AtSigningPreTax": 0,
+                                "SalesTax": 0,
+                                "TransOccTax": 0,
+                                "Comment": ""
+                            },
+                            {
+                                "TMPASMID": 6,
+                                "ASMID": 37,
+                                "ARID": 24,
+                                "ARName": "Pet Rent",
+                                "ContractAmount": 5.71,
+                                "RentCycle": 0,
+                                "ProrationCycle": 0,
+                                "Start": "2/13/2018",
+                                "Stop": "2/13/2018",
+                                "AtSigningPreTax": 0,
+                                "SalesTax": 0,
+                                "TransOccTax": 0,
+                                "Comment": "prorated for 16 of 28 days"
+                            }
+                        ]
+                    }
+                ],
+                "vehicles": [
+                    {
+                        "TMPVID": 1,
+                        "VID": 2,
+                        "TMPTCID": 1,
+                        "VIN": "LGHFQ57EQIQPIXNL",
+                        "VehicleType": "car",
+                        "VehicleMake": "Chevrolet",
+                        "VehicleModel": "Aveo",
+                        "VehicleColor": "Turquoise",
+                        "VehicleYear": 2008,
+                        "LicensePlateState": "NH",
+                        "LicensePlateNumber": "A8SA059",
+                        "ParkingPermitNumber": "2790313",
+                        "Fees": [
+                            {
+                                "TMPASMID": 7,
+                                "ASMID": 38,
+                                "ARID": 39,
+                                "ARName": "Vehicle Registration Fee",
+                                "ContractAmount": 10,
+                                "RentCycle": 0,
+                                "ProrationCycle": 0,
+                                "Start": "2/13/2018",
+                                "Stop": "2/13/2018",
+                                "AtSigningPreTax": 0,
+                                "SalesTax": 0,
+                                "TransOccTax": 0,
+                                "Comment": ""
+                            }
+                        ]
+                    },
+                    {
+                        "TMPVID": 2,
+                        "VID": 3,
+                        "TMPTCID": 1,
+                        "VIN": "1G6O30RYK6ENUFQZ",
+                        "VehicleType": "car",
+                        "VehicleMake": "Dodge",
+                        "VehicleModel": "Ram Van 2500",
+                        "VehicleColor": "Brown",
+                        "VehicleYear": 1998,
+                        "LicensePlateState": "NY",
+                        "LicensePlateNumber": "N571RA6",
+                        "ParkingPermitNumber": "1716335",
+                        "Fees": [
+                            {
+                                "TMPASMID": 8,
+                                "ASMID": 39,
+                                "ARID": 39,
+                                "ARName": "Vehicle Registration Fee",
+                                "ContractAmount": 10,
+                                "RentCycle": 0,
+                                "ProrationCycle": 0,
+                                "Start": "2/13/2018",
+                                "Stop": "2/13/2018",
+                                "AtSigningPreTax": 0,
+                                "SalesTax": 0,
+                                "TransOccTax": 0,
+                                "Comment": ""
+                            }
+                        ]
+                    }
+                ],
+                "rentables": [
+                    {
+                        "RID": 2,
+                        "RTID": 1,
+                        "RTFLAGS": 4,
+                        "RentableName": "Rentable002",
+                        "RentCycle": 6,
+                        "AtSigningPreTax": 0,
+                        "SalesTax": 0,
+                        "TransOccTax": 0,
+                        "Fees": [
+                            {
+                                "TMPASMID": 1,
+                                "ASMID": 20,
+                                "ARID": 26,
+                                "ARName": "Rent Non-Taxable",
+                                "ContractAmount": 1000,
+                                "RentCycle": 6,
+                                "ProrationCycle": 4,
+                                "Start": "3/1/2018",
+                                "Stop": "3/1/2020",
+                                "AtSigningPreTax": 0,
+                                "SalesTax": 0,
+                                "TransOccTax": 0,
+                                "Comment": ""
+                            },
+                            {
+                                "TMPASMID": 2,
+                                "ASMID": 27,
+                                "ARID": 28,
+                                "ARName": "Security Deposit Assessment",
+                                "ContractAmount": 2000,
+                                "RentCycle": 0,
+                                "ProrationCycle": 0,
+                                "Start": "2/13/2018",
+                                "Stop": "2/13/2018",
+                                "AtSigningPreTax": 0,
+                                "SalesTax": 0,
+                                "TransOccTax": 0,
+                                "Comment": ""
+                            },
+                            {
+                                "TMPASMID": 4,
+                                "ASMID": 35,
+                                "ARID": 26,
+                                "ARName": "Rent Non-Taxable",
+                                "ContractAmount": 571.43,
+                                "RentCycle": 0,
+                                "ProrationCycle": 0,
+                                "Start": "2/13/2018",
+                                "Stop": "2/13/2018",
+                                "AtSigningPreTax": 0,
+                                "SalesTax": 0,
+                                "TransOccTax": 0,
+                                "Comment": "prorated for 16 of 28 days"
+                            }
+                        ]
+                    }
+                ],
+                "parentchild": [],
+                "tie": {
+                    "people": [
+                        {
+                            "PRID": 2,
+                            "TMPTCID": 1
+                        }
+                    ]
+                },
+                "meta": {
+                    "BID": 1,
+                    "RAID": 2,
+                    "LastTMPPETID": 1,
+                    "LastTMPVID": 2,
+                    "LastTMPTCID": 1,
+                    "LastTMPASMID": 8,
+                    "HavePets": false,
+                    "HaveVehicles": false,
+                    "RAFLAGS": 54,
+                    "ApplicationReadyUID": 220,
+                    "ApplicationReadyName": "UID-0",
+                    "ApplicationReadyDate": "2018-02-13 00:00:00 UTC",
+                    "Approver1": 210,
+                    "Approver1Name": "Andy Feola",
+                    "DecisionDate1": "2018-02-13 00:00:00 UTC",
+                    "DeclineReason1": 0,
+                    "Approver2": 20,
+                    "Approver2Name": "Patricia Buz",
+                    "DecisionDate2": "2018-02-13 00:00:00 UTC",
+                    "DeclineReason2": 0,
+                    "MoveInUID": 29,
+                    "MoveInName": "Sonia Davis",
+                    "MoveInDate": "2018-02-13 00:00:00 UTC",
+                    "ActiveUID": 112,
+                    "ActiveName": "Christopher Montgomery",
+                    "ActiveDate": "2018-02-13 00:00:00 UTC",
+                    "TerminatorUID": -99999,
+                    "TerminatorName": "UID-0",
+                    "TerminationDate": "2018-08-28 09:28:00 UTC",
+                    "LeaseTerminationReason": 83,
+                    "DocumentDate": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveUID": 0,
+                    "NoticeToMoveName": "UID-0",
+                    "NoticeToMoveDate": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveReported": "1900-01-01 00:00:00 UTC"
+                }
+            },
+            "LastModTime": "0001-01-01T00:00:00Z",
+            "LastModBy": 0,
+            "CreateTS": "0001-01-01T00:00:00Z",
+            "CreateBy": 0
+        },
+        "ValidationCheck": {
+            "total": 0,
+            "errors": {
+                "dates": {
+                    "total": 0,
+                    "errors": {}
+                },
+                "people": {
+                    "total": 0,
+                    "errors": []
+                },
+                "pets": {
+                    "total": 0,
+                    "errors": []
+                },
+                "vehicles": {
+                    "total": 0,
+                    "errors": []
+                },
+                "rentables": {
+                    "total": 0,
+                    "errors": []
+                },
+                "parentchild": {
+                    "total": 0,
+                    "errors": []
+                },
+                "tie": {
+                    "people": {
+                        "total": 0,
+                        "errors": []
+                    }
+                }
+            },
+            "nonFieldsErrors": {
+                "dates": [],
+                "people": [],
+                "pets": [],
+                "vehicles": [],
+                "rentables": [],
+                "parentchild": [],
+                "tie": []
+            }
+        },
+        "DataFulfilled": {
+            "dates": true,
+            "people": true,
+            "pets": true,
+            "vehicles": true,
+            "rentables": true,
+            "parentchild": true,
+            "tie": true
+        }
+    },
+    "status": "success"
+}

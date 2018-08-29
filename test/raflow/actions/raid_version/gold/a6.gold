@@ -1,0 +1,259 @@
+Test 6: action "application being completed" on RA with state Active 
+Request( RAID: 6, UserRefNo:  )
+Response( RAID: 6, UserRefNo: OVERRIDEEN1234567890 )
+{
+    "record": {
+        "Flow": {
+            "BID": 1,
+            "FlowID": 1,
+            "UserRefNo": "OVERRIDEEN1234567890",
+            "FlowType": "RA",
+            "ID": 6,
+            "Data": {
+                "tie": {
+                    "people": [
+                        {
+                            "PRID": 6,
+                            "TMPTCID": 1
+                        }
+                    ]
+                },
+                "meta": {
+                    "BID": 1,
+                    "RAID": 6,
+                    "RAFLAGS": 0,
+                    "HavePets": false,
+                    "ActiveUID": 0,
+                    "Approver1": 0,
+                    "Approver2": 0,
+                    "MoveInUID": 0,
+                    "ActiveDate": "1900-01-01 00:00:00 UTC",
+                    "ActiveName": "",
+                    "LastTMPVID": 0,
+                    "MoveInDate": "1900-01-01 00:00:00 UTC",
+                    "MoveInName": "",
+                    "LastTMPTCID": 0,
+                    "DocumentDate": "1900-01-01 00:00:00 UTC",
+                    "HaveVehicles": false,
+                    "LastTMPASMID": 0,
+                    "LastTMPPETID": 0,
+                    "Approver1Name": "",
+                    "Approver2Name": "",
+                    "DecisionDate1": "1900-01-01 00:00:00 UTC",
+                    "DecisionDate2": "1900-01-01 00:00:00 UTC",
+                    "TerminatorUID": 0,
+                    "DeclineReason1": 0,
+                    "DeclineReason2": 0,
+                    "TerminatorName": "UID-0",
+                    "NoticeToMoveUID": 0,
+                    "TerminationDate": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveDate": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveName": "UID-0",
+                    "ApplicationReadyUID": 0,
+                    "ApplicationReadyDate": "1900-01-01 00:00:00 UTC",
+                    "ApplicationReadyName": "",
+                    "NoticeToMoveReported": "1900-01-01 00:00:00 UTC",
+                    "LeaseTerminationReason": 0
+                },
+                "pets": [],
+                "dates": {
+                    "CSAgent": 68,
+                    "RentStop": "3/1/2020",
+                    "RentStart": "8/28/2018",
+                    "AgreementStop": "3/1/2020",
+                    "AgreementStart": "8/28/2018",
+                    "PossessionStop": "3/1/2020",
+                    "PossessionStart": "8/28/2018"
+                },
+                "people": [
+                    {
+                        "City": "Thousand Oaks",
+                        "TCID": 6,
+                        "State": "ID",
+                        "Points": 0,
+                        "Address": "9618 2nd",
+                        "Comment": "",
+                        "Country": "USA",
+                        "Evicted": false,
+                        "TMPTCID": 1,
+                        "Website": "",
+                        "Address2": "",
+                        "Industry": 230,
+                        "IsRenter": true,
+                        "LastName": "Hammond",
+                        "CellPhone": "(618) 141-2175",
+                        "Convicted": false,
+                        "FirstName": "Johanna",
+                        "IsCompany": false,
+                        "WorkPhone": "(852) 286-8722",
+                        "Bankruptcy": false,
+                        "EvictedDes": "",
+                        "IsOccupant": true,
+                        "MiddleName": "Stanley",
+                        "Occupation": "security guard",
+                        "PostalCode": "95541",
+                        "TaxpayorID": "06421387",
+                        "CompanyCity": "Kissimmee",
+                        "CompanyName": "MGM Mirage",
+                        "CreditLimit": 27774,
+                        "DateofBirth": "10/31/1968",
+                        "GrossIncome": 60831,
+                        "IsGuarantor": false,
+                        "SourceSLSID": 7,
+                        "CompanyEmail": "MGMMirageK87@gmail.com",
+                        "CompanyPhone": "(826) 526-2586",
+                        "CompanyState": "PA",
+                        "ConvictedDes": "",
+                        "PrimaryEmail": "JohannaHammond157@gmail.com",
+                        "PriorAddress": "71345 Zoo, Yonkers, WV 25356",
+                        "SpecialNeeds": "",
+                        "BankruptcyDes": "",
+                        "PreferredName": "Herlinda",
+                        "CompanyAddress": "66389 Malulani",
+                        "CurrentAddress": "89225 Willow, Lakewood, LA 15429",
+                        "DriversLicense": "O5869145",
+                        "SecondaryEmail": "JHammond4705@gmail.com",
+                        "OtherPreferences": "",
+                        "ThirdPartySource": "Joya Pierce",
+                        "CompanyPostalCode": "66831",
+                        "PriorLandLordName": "Jodie Petty",
+                        "EligibleFutureUser": true,
+                        "CurrentLandLordName": "Cletus Lindsey",
+                        "EligibleFuturePayor": true,
+                        "EmergencyContactName": "Will Rutledge",
+                        "PriorLandLordPhoneNo": "(932) 380-0558",
+                        "PriorReasonForMoving": 115,
+                        "AlternateEmailAddress": "73903 Aspen,Lewisville,OH 07387",
+                        "EmergencyContactEmail": "WillRutledge761@comcast.net",
+                        "CurrentLandLordPhoneNo": "(644) 641-2861",
+                        "CurrentReasonForMoving": 93,
+                        "PriorLengthOfResidency": "1 years 9 months",
+                        "EmergencyContactAddress": "49725 Main,Athens,VA 80408",
+                        "CurrentLengthOfResidency": "2 years 7 months",
+                        "EmergencyContactTelephone": "(292) 984-8419"
+                    }
+                ],
+                "vehicles": [
+                    {
+                        "VID": 7,
+                        "VIN": "JD4H3LE35Z8JVLY",
+                        "Fees": [],
+                        "TMPVID": 1,
+                        "TMPTCID": 1,
+                        "VehicleMake": "Toyota",
+                        "VehicleType": "car",
+                        "VehicleYear": 1998,
+                        "VehicleColor": "Maroon",
+                        "VehicleModel": "Sienna",
+                        "LicensePlateState": "WY",
+                        "LicensePlateNumber": "Y2Y450T",
+                        "ParkingPermitNumber": "7955378"
+                    }
+                ],
+                "rentables": [
+                    {
+                        "RID": 6,
+                        "Fees": [
+                            {
+                                "ARID": 26,
+                                "Stop": "8/28/2018",
+                                "ASMID": 88,
+                                "Start": "8/28/2018",
+                                "ARName": "Rent Non-Taxable",
+                                "Comment": "prorated for 4 of 31 days",
+                                "SalesTax": 0,
+                                "TMPASMID": 5,
+                                "RentCycle": 0,
+                                "TransOccTax": 0,
+                                "ContractAmount": 225.81,
+                                "ProrationCycle": 0,
+                                "AtSigningPreTax": 0
+                            },
+                            {
+                                "ARID": 26,
+                                "Stop": "3/1/2020",
+                                "ASMID": 88,
+                                "Start": "9/1/2018",
+                                "ARName": "Rent Non-Taxable",
+                                "Comment": "",
+                                "SalesTax": 0,
+                                "TMPASMID": 6,
+                                "RentCycle": 6,
+                                "TransOccTax": 0,
+                                "ContractAmount": 1750,
+                                "ProrationCycle": 4,
+                                "AtSigningPreTax": 0
+                            }
+                        ],
+                        "RTID": 3,
+                        "RTFLAGS": 4,
+                        "SalesTax": 0,
+                        "RentCycle": 6,
+                        "TransOccTax": 0,
+                        "RentableName": "Rentable006",
+                        "AtSigningPreTax": 0
+                    }
+                ],
+                "parentchild": []
+            },
+            "LastModTime": "2018-08-28T15:30:28Z",
+            "LastModBy": -99999,
+            "CreateTS": "2018-08-28T15:30:28Z",
+            "CreateBy": -99999
+        },
+        "ValidationCheck": {
+            "total": 0,
+            "errors": {
+                "dates": {
+                    "total": 0,
+                    "errors": {}
+                },
+                "people": {
+                    "total": 0,
+                    "errors": []
+                },
+                "pets": {
+                    "total": 0,
+                    "errors": []
+                },
+                "vehicles": {
+                    "total": 0,
+                    "errors": []
+                },
+                "rentables": {
+                    "total": 0,
+                    "errors": []
+                },
+                "parentchild": {
+                    "total": 0,
+                    "errors": []
+                },
+                "tie": {
+                    "people": {
+                        "total": 0,
+                        "errors": []
+                    }
+                }
+            },
+            "nonFieldsErrors": {
+                "dates": [],
+                "people": [],
+                "pets": [],
+                "vehicles": [],
+                "rentables": [],
+                "parentchild": [],
+                "tie": []
+            }
+        },
+        "DataFulfilled": {
+            "dates": true,
+            "people": true,
+            "pets": true,
+            "vehicles": true,
+            "rentables": true,
+            "parentchild": true,
+            "tie": true
+        }
+    },
+    "status": "success"
+}
