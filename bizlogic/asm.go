@@ -2,6 +2,7 @@ package bizlogic
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"rentroll/rlib"
 	"time"
@@ -22,7 +23,7 @@ import (
 //           2: reverse all instances
 //    dt   = date of modification
 //    exp  = if it is a recurring assessment and the start date is in the past,
-//           should past entries be created?  true = yes
+//           should past entries be created?  1 = yes
 //
 // RETURNS
 //    a slice of BizErrors
@@ -212,11 +213,11 @@ func UpdateAssessmentEndDate(ctx context.Context, a *rlib.Assessment, dt *time.T
 func ReverseAssessment(ctx context.Context, aold *rlib.Assessment, mode int, dt *time.Time) []BizError {
 	funcname := "bizlogic.ReverseAssessment"
 	var errlist []BizError
-	rlib.Console("#####>>>>>>>>> Entered ReverseAssessment. ASMID = %d, mode = %d,  dt = %s\n", aold.ASMID, mode, dt.Format(rlib.RRDATEFMTSQL))
+	// rlib.Console("#####>>>>>>>>> Entered ReverseAssessment. ASMID = %d, mode = %d,  dt = %s\n", aold.ASMID, mode, dt.Format(rlib.RRDATEFMTSQL))
 	if aold.PASMID == 0 && aold.RentCycle > 0 {
 		mode = 2 // force behavior on the epoch
 	}
-	rlib.Console("ReverseAssessment: processing forward with mode = %d,  dt = %s\n", mode, dt.Format(rlib.RRDATEFMTSQL))
+	// rlib.Console("ReverseAssessment: processing forward with mode = %d,  dt = %s\n", mode, dt.Format(rlib.RRDATEFMTSQL))
 	switch mode {
 	case 0:
 		errlist = ReverseAssessmentInstance(ctx, aold, dt)
@@ -232,7 +233,7 @@ func ReverseAssessment(ctx context.Context, aold *rlib.Assessment, mode int, dt 
 		if aold.PASMID != 0 {
 			epoch, err = rlib.GetAssessment(ctx, aold.PASMID)
 			if err != nil {
-				rlib.Console("EXITING ReverseAssessment.  PT 1\n")
+				// rlib.Console("EXITING ReverseAssessment.  PT 1\n")
 				return bizErrSys(&err)
 			}
 		} else {
@@ -243,7 +244,7 @@ func ReverseAssessment(ctx context.Context, aold *rlib.Assessment, mode int, dt 
 		// If it is not recurring then reverse it and we're done
 		//---------------------------------------------------------
 		if epoch.RentCycle == rlib.RECURNONE {
-			rlib.Console("EXITING ReverseAssessment.  PT 2\n")
+			// rlib.Console("EXITING ReverseAssessment.  PT 2\n")
 			return ReverseAssessmentInstance(ctx, &epoch, dt)
 		}
 
@@ -252,28 +253,28 @@ func ReverseAssessment(ctx context.Context, aold *rlib.Assessment, mode int, dt 
 		//---------------------------------------------------------
 		inst, err = rlib.GetAssessmentFirstInstance(ctx, epoch.ASMID)
 		if err != nil {
-			rlib.Console("EXITING ReverseAssessment.  PT 3\n")
+			// rlib.Console("EXITING ReverseAssessment.  PT 3\n")
 			return bizErrSys(&err)
 		}
 		errlist = ReverseAssessmentsGoingForward(ctx, &inst, &inst.Start, dt) // reverse from start of recurring instances forward
 		if len(errlist) > 0 {
-			rlib.Console("EXITING ReverseAssessment.  PT 4\n")
+			// rlib.Console("EXITING ReverseAssessment.  PT 4\n")
 			return errlist
 		}
 		epoch.FLAGS |= 0x4 // mark that this is void
 		err = rlib.UpdateAssessment(ctx, &epoch)
 		if err != nil {
-			rlib.Console("EXITING ReverseAssessment.  PT 5\n")
+			// rlib.Console("EXITING ReverseAssessment.  PT 5\n")
 			return bizErrSys(&err)
 		}
 
 	default:
 		err := fmt.Errorf("%s:  unsupported mode: %d", funcname, mode)
 		rlib.LogAndPrintError(funcname, err)
-		rlib.Console("EXITING ReverseAssessment.  PT 6\n")
+		// rlib.Console("EXITING ReverseAssessment.  PT 6\n")
 		return bizErrSys(&err)
 	}
-	rlib.Console("EXITING ReverseAssessment\n")
+	// rlib.Console("EXITING ReverseAssessment\n")
 	return errlist
 }
 
@@ -293,7 +294,7 @@ func ReverseAssessmentsGoingForward(ctx context.Context, aold *rlib.Assessment, 
 
 	rlib.Console("ENTERED: ReverseAssessmentsGoingForward\n")
 
-	d2 := time.Date(9999, time.December, 31, 0, 0, 0, 0, time.UTC)
+	d2 := rlib.ENDOFTIME
 	rlib.Console("aold.PASMID = %d, dtStart = %s, dt = %s\n", aold.PASMID, dtStart.Format(rlib.RRDATEREPORTFMT), dt.Format(rlib.RRDATEREPORTFMT))
 
 	m, err := rlib.GetAssessmentInstancesByParent(ctx, aold.PASMID, dtStart, &d2)
@@ -374,7 +375,7 @@ func ReverseAssessmentsAfterStop(ctx context.Context, aold *rlib.Assessment, dtS
 //    a slice of BizErrors
 //-------------------------------------------------------------------------------------
 func ReverseAssessmentInstance(ctx context.Context, aold *rlib.Assessment, dt *time.Time) []BizError {
-	// funcname := "ReverseAssessmentInstance"
+	rlib.Console("Entered ReverseAssessmentInstance\n")
 	if aold.FLAGS&0x4 != 0 {
 		return nil // it's already reversed
 	}
@@ -387,8 +388,11 @@ func ReverseAssessmentInstance(ctx context.Context, aold *rlib.Assessment, dt *t
 	anew.FLAGS |= 0x4 // set bit 2 to mark that this assessment is void
 	anew.AppendComment(fmt.Sprintf("Reversal of %s", aold.IDtoString()))
 
+	// rlib.Console("RAI: anew = %#v\n", anew)
+
 	errlist := InsertAssessment(ctx, &anew, 1)
 	if len(errlist) > 0 {
+		rlib.Console("RAI: err 1\n")
 		return errlist
 	}
 
@@ -396,12 +400,14 @@ func ReverseAssessmentInstance(ctx context.Context, aold *rlib.Assessment, dt *t
 	aold.FLAGS |= 0x4 // set bit 2 to mark that this assessment is void
 	err := rlib.UpdateAssessment(ctx, aold)
 	if err != nil {
+		rlib.Console("RAI: err 2\n")
 		return bizErrSys(&err)
 	}
 
 	if aold.AGRCPTID == 0 {
 		err = DeallocateAppliedFunds(ctx, aold, anew.ASMID, dt)
 		if err != nil {
+			rlib.Console("RAI: err 3\n")
 			return bizErrSys(&err)
 		}
 	} else {
@@ -409,8 +415,13 @@ func ReverseAssessmentInstance(ctx context.Context, aold *rlib.Assessment, dt *t
 		// handle auto-generated assessments a little different...
 		// See if there was a funds transfer to a bank account...
 		//---------------------------------------------------------
-		return ReverseAutoGenAsmt(ctx, aold)
+		be := ReverseAutoGenAsmt(ctx, aold)
+		if len(be) > 0 {
+			rlib.Console("RAI: err 4\n")
+			return be
+		}
 	}
+	rlib.Console("Exiting ReverseAssessmentInstance\n")
 	return nil
 }
 
@@ -728,15 +739,16 @@ func DeallocateAppliedFunds(ctx context.Context, a *rlib.Assessment, asmtRevID i
 //    a slice of BizErrors
 //-------------------------------------------------------------------------------------
 func InsertAssessment(ctx context.Context, a *rlib.Assessment, exp int) []BizError {
-	// funcname := "bizlogic.InsertAssessment"
-	// rlib.Console("Entered %s\n", funcname)
+	funcname := "bizlogic.InsertAssessment"
+	rlib.Console("Entered %s\n", funcname)
+
 	var errlist []BizError
 	errlist = ValidateAssessment(ctx, a) // Make sure there are no bizlogic errors before saving
 	if len(errlist) > 0 {
 		return errlist
 	}
 
-	// rlib.Console("A.  a.BID = %d, a.ARID = %d\n", a.BID, a.ARID)
+	rlib.Console("A.  a.ASMID = %d, a.BID = %d, a.ARID = %d\n", a.ASMID, a.BID, a.ARID)
 	var xbiz rlib.XBusiness
 	err := rlib.InitBizInternals(a.BID, &xbiz)
 	if err != nil {
@@ -806,18 +818,26 @@ func InsertAssessment(ctx context.Context, a *rlib.Assessment, exp int) []BizErr
 func ValidateAssessment(ctx context.Context, a *rlib.Assessment) []BizError {
 	var e []BizError
 	var raid, bid int64
+	var row *sql.Row
+
 	//----------------------------------------------
 	// Validate that we have a RAID that exists...
 	//----------------------------------------------
 	qry := fmt.Sprintf("SELECT RAID,BID FROM RentalAgreement WHERE RAID=%d", a.RAID)
-	de := rlib.RRdb.Dbrr.QueryRow(qry).Scan(&raid, &bid)
-	if de != nil {
-		if rlib.IsSQLNoResultsError(de) {
+	// err := rlib.RRdb.Dbrr.QueryRow(qry).Scan(&raid, &bid)
+	if tx, ok := rlib.DBTxFromContext(ctx); ok { // if transaction is supplied
+		row = tx.QueryRow(qry)
+	} else {
+		row = rlib.RRdb.Dbrr.QueryRow(qry)
+	}
+	err := row.Scan(&raid, &bid)
+	if err != nil {
+		if rlib.IsSQLNoResultsError(err) {
 			s := fmt.Sprintf(BizErrors[UnknownRAID].Message, a.RAID, a.BID)
 			b := BizError{Errno: UnknownRAID, Message: s}
 			e = append(e, b)
 		} else {
-			return bizErrSys(&de)
+			return bizErrSys(&err)
 		}
 	}
 	//----------------------------------------------------

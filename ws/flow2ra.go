@@ -11,14 +11,16 @@ import (
 
 // WriteHandlerContext contains context information for RA Write Handlers
 type WriteHandlerContext struct {
-	isNewOriginRaid bool                 // true only if this is a new Rental Agreement, false otherwise
-	oldRAID         int64                //
-	newRAID         int64                //
-	lastClose       rlib.ClosePeriod     // last period closed
-	ra              rlib.RentalAgreement // the new amended RA
-	raOrig          rlib.RentalAgreement // the RA we're amending
-	raf             rlib.RAFlowJSONData
-	xbiz            rlib.XBusiness
+	isNewOriginRaid      bool                   // true only if this is a new Rental Agreement, false otherwise
+	oldRAID              int64                  //
+	newRAID              int64                  //
+	lastClose            rlib.ClosePeriod       // last period closed
+	ra                   rlib.RentalAgreement   // the new amended RA
+	raChainOrig          []rlib.RentalAgreement // the RA(s) we're amending with updated data
+	raChainOrigUnchanged []rlib.RentalAgreement // the RA(s) we're amending with data as it was before we modified raChainOrig
+	raOrigIndex          int                    // index within raChainOrig (and raChainOrigUnchanged) of the Active RA at the time this change is being made
+	raf                  rlib.RAFlowJSONData
+	xbiz                 rlib.XBusiness
 }
 
 // RAWriteHandler a handler function for part of the work of migrating
@@ -140,7 +142,7 @@ func Flow2RA(ctx context.Context, flowid int64) (int64, error) {
 // INPUTS
 //     ctx - db context for transactions
 //     x - all the contextual info we need for performing this operation
-//         Note: this routine adds ra and raOrig to x
+//         Note: this routine adds ra and raChainOrig to x
 //
 // RETURNS
 //     RAID of the Rental Agreement in which meta-data was changed.
@@ -285,7 +287,7 @@ func FlowSaveMetaDataChanges(ctx context.Context, x *WriteHandlerContext) (int64
 // INPUTS
 //     ctx - db context for transactions
 //     x - all the contextual info we need for performing this operation
-//         Note: this routine adds ra and raOrig to x
+//         Note: this routine adds ra and raChainOrig to x
 //
 // RETURNS
 //     RAID of newly created Rental Agreement or updated Rental Agreement
@@ -296,6 +298,7 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 	// rlib.Console("Entered FlowSaveRA\n")
 	var err error
 	var nraid int64
+	var raOrig rlib.RentalAgreement
 
 	if err = rlib.InitBizInternals(x.raf.Meta.BID, &x.xbiz); err != nil {
 		return nraid, err
@@ -303,14 +306,24 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 
 	if x.raf.Meta.RAID > 0 {
 		//------------------------------------------------------------
-		// Get the rental agreement that will be superceded by the
+		// Get the rental agreement chain that will be updated by the
 		// one we're creating here. Update its stop dates accordingly
 		//------------------------------------------------------------
 		x.oldRAID = x.raf.Meta.RAID
-		x.raOrig, err = rlib.GetRentalAgreement(ctx, x.oldRAID)
+		raOrig, err = rlib.GetRentalAgreement(ctx, x.oldRAID)
 		if err != nil {
 			return nraid, err
 		}
+		if raOrig.ORIGIN == int64(0) {
+			x.raChainOrig = append(x.raChainOrig, raOrig)
+		} else {
+			x.raChainOrig, err = rlib.GetRentalAgreementChain(ctx, raOrig.ORIGIN)
+			if err != nil {
+				return nraid, err
+			}
+		}
+		x.raChainOrigUnchanged = make([]rlib.RentalAgreement, len(x.raChainOrig))
+		copy(x.raChainOrigUnchanged, x.raChainOrig)
 
 		// if err = rlib.InitBizInternals(x.raOrig.BID, &x.xbiz); err != nil {
 		// 	return nraid, err
@@ -320,58 +333,89 @@ func FlowSaveRA(ctx context.Context, x *WriteHandlerContext) (int64, error) {
 		AStart := time.Time(x.raf.Dates.AgreementStart)
 		RStart := time.Time(x.raf.Dates.RentStart)
 		PStart := time.Time(x.raf.Dates.PossessionStart)
-		if x.raOrig.AgreementStop.After(AStart) {
-			x.raOrig.AgreementStop = AStart
-			chgs++
-		}
-		if x.raOrig.RentStop.After(RStart) {
-			x.raOrig.RentStop = RStart
-			chgs++
-		}
-		if x.raOrig.PossessionStop.After(PStart) {
-			x.raOrig.PossessionStop = PStart
-			chgs++
-		}
+
+		x.raOrigIndex = -1 // mark that there is nothing to link to at the moment
 
 		//------------------------------------------------------------------
-		// If there are changes, then we stop the old Rental Agreement and
-		// create a new one linked to x.raOrig
+		//  Fix up the dates of the affected Rental Agreements. We only
+		//  want to change the stop dates of Rental Agreements the ACTIVE
+		//  RA; and only if its stop dates are AFTER the start date of the
+		//  amended RA
 		//------------------------------------------------------------------
-		if chgs > 0 {
-			x.raOrig.FLAGS &= ^uint64(0x7)           // clear the status
-			x.raOrig.FLAGS |= rlib.RAActionTerminate // set the state to Terminated
-			x.raOrig.LeaseTerminationReason =
-				rlib.RRdb.BizTypes[x.raOrig.BID].Msgs.S[rlib.MSGRAUPDATED].SLSID // "Rental Agreement was updated"
-
-			//--------------------------------------------------------------------------
-			// In noauth mode, it still have tester session, get it from the context
-			//--------------------------------------------------------------------------
-			sess, ok := rlib.SessionFromContext(ctx)
-			if !ok {
-				return nraid, rlib.ErrSessionRequired
+		for i := 0; i < len(x.raChainOrig); i++ {
+			state := x.raChainOrig[i].FLAGS & 0xf
+			if !(state == rlib.RASTATEActive || state == rlib.RASTATENoticeToMove) {
+				continue // we're only interested in active RAs
 			}
 
-			x.raOrig.TerminatorUID = sess.UID
-			x.raOrig.TerminationDate = time.Now()
+			x.raOrigIndex = i // keep track of the RA currently active.
 
-			err = rlib.UpdateRentalAgreement(ctx, &x.raOrig)
-			if err != nil {
-				return nraid, err
+			if x.raChainOrig[i].AgreementStop.After(AStart) {
+
 			}
+			if x.raChainOrig[i].AgreementStop.After(AStart) {
+				x.raChainOrig[i].AgreementStop = AStart
+				chgs++
+			}
+			if x.raChainOrig[i].RentStop.After(RStart) {
+				x.raChainOrig[i].RentStop = RStart
+				chgs++
+			}
+			if x.raChainOrig[i].PossessionStop.After(PStart) {
+				x.raChainOrig[i].PossessionStop = PStart
+				chgs++
+			}
+
+			//------------------------------------------------------------------
+			// If there are changes, then we stop the old Rental Agreement and
+			// create a new one linked to x.raChainOrig[i]
+			//------------------------------------------------------------------
+			if chgs > 0 {
+				x.raChainOrig[i].FLAGS &= ^uint64(0xf)           // clear the status
+				x.raChainOrig[i].FLAGS |= rlib.RAActionTerminate // set the state to Terminated
+				x.raChainOrig[i].LeaseTerminationReason =
+					rlib.RRdb.BizTypes[x.raChainOrig[i].BID].Msgs.S[rlib.MSGRAUPDATED].SLSID // "Rental Agreement was updated"
+
+				//--------------------------------------------------------------------------
+				// In noauth mode, it still have tester session, get it from the context
+				//--------------------------------------------------------------------------
+				sess, ok := rlib.SessionFromContext(ctx)
+				if !ok {
+					return nraid, rlib.ErrSessionRequired
+				}
+
+				x.raChainOrig[i].TerminatorUID = sess.UID
+				x.raChainOrig[i].TerminationDate = time.Now()
+
+				err = rlib.UpdateRentalAgreement(ctx, &x.raChainOrig[i])
+				if err != nil {
+					return nraid, err
+				}
+			}
+		}
+
+		//---------------------------------------------------------------------
+		// if x.raOriginIndex has not yet been set, set it to the last RA in
+		// the chain chronologically.  The chain is ordered by AgreementStart
+		// so, we'll link it to the last one in the chain...
+		//---------------------------------------------------------------------
+		if x.raOrigIndex < 0 {
+			x.raOrigIndex = len(x.raChainOrig) - 1
 		}
 
 		//------------------------------------------------------------
-		// Now start the new RAID.  Link it to x.raOrig
+		// Now start the new RAID.  Link it to x.raChainOrig[i]
 		//------------------------------------------------------------
 		initRA(ctx, x)
-		x.ra.PRAID = x.raOrig.RAID
-		x.ra.ORIGIN = x.raOrig.ORIGIN
-		x.ra.BID = x.raOrig.BID
-		if x.raOrig.ORIGIN == 0 {
-			x.ra.ORIGIN = x.raOrig.RAID
+		i := x.raOrigIndex // makes it easier to read the following lines
+		x.ra.PRAID = x.raChainOrig[i].RAID
+		x.ra.ORIGIN = x.raChainOrig[i].ORIGIN
+		x.ra.BID = x.raChainOrig[i].BID
+		if x.raChainOrig[i].ORIGIN == 0 {
+			x.ra.ORIGIN = x.raChainOrig[i].RAID
 		}
-		x.ra.RATID = x.raOrig.RATID
-		x.ra.RentCycleEpoch = x.raOrig.RentCycleEpoch
+		x.ra.RATID = x.raChainOrig[i].RATID
+		x.ra.RentCycleEpoch = x.raChainOrig[i].RentCycleEpoch
 
 	} else {
 		//-------------------------------------
@@ -490,12 +534,12 @@ func FlowSaveRentables(ctx context.Context, x *WriteHandlerContext) error {
 			//----------------------------------------------------------------
 			// Fix up the users
 			//----------------------------------------------------------------
-			rul, err := rlib.GetRentableUsersInRange(ctx, v.RID, &x.raOrig.PossessionStart, &x.ra.PossessionStop)
+			rul, err := rlib.GetRentableUsersInRange(ctx, v.RID, &x.raChainOrig[x.raOrigIndex].PossessionStart, &x.ra.PossessionStop)
 			if err != nil {
 				return err
 			}
 			for _, ru := range rul {
-				ru.DtStop = x.raOrig.PossessionStop
+				ru.DtStop = x.raChainOrig[x.raOrigIndex].PossessionStop
 				if err = rlib.UpdateRentableUser(ctx, &ru); err != nil {
 					return err
 				}

@@ -20,7 +20,7 @@ startRentRollServer
 #  An existing rental agreement (RAID=1) is being amended. This test
 #  verifies that all assessments from RAID=1 to the new RAID (2) are correct.
 #  It also verifies that payments are properly filtered. For example,
-#  I the original agreement there is a Security Deposit request in
+#  if the original agreement there is a Security Deposit request in
 #  September. This security deposit is not in the fees for the amended
 #  Rental Agreement, so it should be reversed in the old rental agreement
 #
@@ -49,6 +49,15 @@ RAIDAMENDEDID="24"
 # Send the command to change the flow to Active:
 echo "%7B%22UserRefNo%22%3A%22${RAID1REFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
 dojsonPOST "http://localhost:8270/v1/raactions/1/" "request" "a0"  "WebService--Action-setTo-ACTIVE"
+
+# RAID1REFNO="8VMAH0O53D6R4W25P5V0"
+# RAIDAMENDEDID="2"
+#
+# # Send the command to change the flow to Active:
+# echo "%7B%22UserRefNo%22%3A%22${RAID1REFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
+# dojsonPOST "http://localhost:8270/v1/raactions/1/" "request" "a0"  "WebService--Action-setTo-ACTIVE"
+# stopRentRollServer
+# exit 0
 
 # Generate an assessment report from Aug 1 to Oct 1. The security deposit
 # assessment for RAID 1 should no longer be present
