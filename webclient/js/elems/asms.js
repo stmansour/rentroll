@@ -773,7 +773,7 @@ window.buildAssessmentElements = function () {
                         info = app.asmInstanceHeader.format(''+r.PASMID, r.RentCycle.text, f.pasmStart, f.pasmStop);
                     }
                     $(f.box).find("#AssessmentInfo").html(info);
-                }, 100);
+                }, 500);
 
                 // FLAG reports
                 var flag = r.FLAGS,
