@@ -265,8 +265,11 @@ describe('AIR Roller UI Tests - Rental Agreements', function () {
             testConfig.form = "RAPetForm";
             common.detailFormTest(petsData[0], testConfig);
 
-            // -- Close the form. And assert that form isn't visible. --
-            common.closeFormTests(selectors.getFormSelector(testConfig.form));
+            // Close the form
+            cy.get('.w2ui-form-box [class="fas fa-times"]').click().wait(constants.WAIT_TIME);
+
+            // Check that form should not visible after closing it
+            cy.get(selectors.getFormSelector(testConfig.form)).should('not.be.visible');
         }
         testConfig.grid = "RAPetFeesGrid";
         common.testGridRecords(petsData[0].Fees, petsData[0].Fees.length, testConfig);

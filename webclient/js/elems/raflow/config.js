@@ -1,3 +1,6 @@
+/* global
+    RACompConfig
+*/
 "use strict";
 
 // right side slider content div length
