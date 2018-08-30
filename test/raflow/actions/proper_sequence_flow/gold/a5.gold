@@ -1,0 +1,302 @@
+Test 5: take action of "complete move in" on flow with valid data 
+Request( RAID: 1, UserRefNo: P6O4BQ2J9BC72D51I13S )
+Response( RAID: 2, UserRefNo:  )
+{
+    "record": {
+        "Flow": {
+            "BID": 1,
+            "FlowID": 0,
+            "UserRefNo": "",
+            "FlowType": "RA",
+            "ID": 2,
+            "Data": {
+                "dates": {
+                    "AgreementStart": "8/23/2018",
+                    "AgreementStop": "3/1/2020",
+                    "RentStart": "8/23/2018",
+                    "RentStop": "3/1/2020",
+                    "PossessionStart": "8/23/2018",
+                    "PossessionStop": "3/1/2020",
+                    "CSAgent": 190
+                },
+                "people": [
+                    {
+                        "TMPTCID": 1,
+                        "TCID": 1,
+                        "IsRenter": true,
+                        "IsOccupant": true,
+                        "IsGuarantor": false,
+                        "FirstName": "Shayne",
+                        "MiddleName": "Michaele",
+                        "LastName": "Mcmahon",
+                        "PreferredName": "Carole",
+                        "IsCompany": false,
+                        "CompanyName": "Winn Dixie Stores Inc",
+                        "PrimaryEmail": "ShayneMcmahon39@comcast.net",
+                        "SecondaryEmail": "SMcmahon2229@aol.com",
+                        "WorkPhone": "(294) 337-5586",
+                        "CellPhone": "(163) 878-5631",
+                        "Address": "57328 Aspen",
+                        "Address2": "",
+                        "City": "Lancaster",
+                        "State": "MI",
+                        "PostalCode": "98081",
+                        "Country": "USA",
+                        "Website": "",
+                        "Comment": "",
+                        "CompanyAddress": "52968 Seventh",
+                        "CompanyCity": "Burbank",
+                        "CompanyState": "WY",
+                        "CompanyPostalCode": "84059",
+                        "CompanyEmail": "WBurbank2749@yahoo.com",
+                        "CompanyPhone": "(660) 684-4306",
+                        "Occupation": "standards engineer",
+                        "CurrentAddress": "59101 Mountain View, Daytona Beach, NJ 02081",
+                        "CurrentLandLordName": "Ute Mack",
+                        "CurrentLandLordPhoneNo": "(812) 981-8105",
+                        "CurrentLengthOfResidency": "4 years 6 months",
+                        "CurrentReasonForMoving": 96,
+                        "PriorAddress": "61873 Twelfth, Peoria, UT 41318",
+                        "PriorLandLordName": "Elaine Fernandez",
+                        "PriorLandLordPhoneNo": "(565) 771-5405",
+                        "PriorLengthOfResidency": "3 months",
+                        "PriorReasonForMoving": 98,
+                        "Evicted": false,
+                        "EvictedDes": "",
+                        "Convicted": false,
+                        "ConvictedDes": "",
+                        "Bankruptcy": false,
+                        "BankruptcyDes": "",
+                        "OtherPreferences": "",
+                        "SpecialNeeds": "",
+                        "ThirdPartySource": "Dan Glass",
+                        "CreditLimit": 24831,
+                        "TaxpayorID": "02409261",
+                        "GrossIncome": 91741,
+                        "DriversLicense": "U2726633",
+                        "EligibleFuturePayor": true,
+                        "Points": 0,
+                        "DateofBirth": "3/29/1992",
+                        "EmergencyContactName": "Stacey Torres",
+                        "EmergencyContactAddress": "67365 New Hampshire,Spartanburg,OR 27887",
+                        "EmergencyContactTelephone": "(755) 705-7139",
+                        "EmergencyContactEmail": "StaceyTorres464@hotmail.com",
+                        "AlternateEmailAddress": "6511 Holly,North Port,NM 31847",
+                        "EligibleFutureUser": true,
+                        "Industry": 345,
+                        "SourceSLSID": 64
+                    }
+                ],
+                "pets": [
+                    {
+                        "TMPPETID": 1,
+                        "PETID": 1,
+                        "TMPTCID": 1,
+                        "Name": "Pumpkin ",
+                        "Type": "cat",
+                        "Breed": "Pixie-bob",
+                        "Color": "seal point",
+                        "Weight": 10,
+                        "Fees": [
+                            {
+                                "TMPASMID": 3,
+                                "ASMID": 26,
+                                "ARID": 24,
+                                "ARName": "Pet Rent",
+                                "ContractAmount": 2.9,
+                                "RentCycle": 0,
+                                "ProrationCycle": 4,
+                                "Start": "8/23/2018",
+                                "Stop": "8/23/2018",
+                                "AtSigningPreTax": 0,
+                                "SalesTax": 0,
+                                "TransOccTax": 0,
+                                "Comment": "Continuation of ASMID 9 from RAID 1"
+                            },
+                            {
+                                "TMPASMID": 4,
+                                "ASMID": 27,
+                                "ARID": 24,
+                                "ARName": "Pet Rent",
+                                "ContractAmount": 10,
+                                "RentCycle": 6,
+                                "ProrationCycle": 4,
+                                "Start": "9/1/2018",
+                                "Stop": "3/1/2020",
+                                "AtSigningPreTax": 0,
+                                "SalesTax": 0,
+                                "TransOccTax": 0,
+                                "Comment": "Continuation of ASMID 9 from RAID 1"
+                            }
+                        ]
+                    }
+                ],
+                "vehicles": [
+                    {
+                        "TMPVID": 1,
+                        "VID": 1,
+                        "TMPTCID": 1,
+                        "VIN": "1FCR2IGBGXZ6KW9J",
+                        "VehicleType": "car",
+                        "VehicleMake": "Mazda",
+                        "VehicleModel": "MPV",
+                        "VehicleColor": "Red",
+                        "VehicleYear": 1996,
+                        "LicensePlateState": "IL",
+                        "LicensePlateNumber": "0SUU905",
+                        "ParkingPermitNumber": "3944525",
+                        "Fees": []
+                    }
+                ],
+                "rentables": [
+                    {
+                        "RID": 1,
+                        "RTID": 1,
+                        "RTFLAGS": 4,
+                        "RentableName": "Rentable001",
+                        "RentCycle": 6,
+                        "AtSigningPreTax": 0,
+                        "SalesTax": 0,
+                        "TransOccTax": 0,
+                        "Fees": [
+                            {
+                                "TMPASMID": 1,
+                                "ASMID": 22,
+                                "ARID": 26,
+                                "ARName": "Rent Non-Taxable",
+                                "ContractAmount": 290.32,
+                                "RentCycle": 0,
+                                "ProrationCycle": 4,
+                                "Start": "8/23/2018",
+                                "Stop": "8/23/2018",
+                                "AtSigningPreTax": 0,
+                                "SalesTax": 0,
+                                "TransOccTax": 0,
+                                "Comment": "Continuation of ASMID 1 from RAID 1"
+                            },
+                            {
+                                "TMPASMID": 2,
+                                "ASMID": 23,
+                                "ARID": 26,
+                                "ARName": "Rent Non-Taxable",
+                                "ContractAmount": 1000,
+                                "RentCycle": 6,
+                                "ProrationCycle": 4,
+                                "Start": "9/1/2018",
+                                "Stop": "3/1/2020",
+                                "AtSigningPreTax": 0,
+                                "SalesTax": 0,
+                                "TransOccTax": 0,
+                                "Comment": "Continuation of ASMID 1 from RAID 1"
+                            }
+                        ]
+                    }
+                ],
+                "parentchild": [],
+                "tie": {
+                    "people": [
+                        {
+                            "PRID": 1,
+                            "TMPTCID": 1
+                        }
+                    ]
+                },
+                "meta": {
+                    "BID": 1,
+                    "RAID": 2,
+                    "LastTMPPETID": 1,
+                    "LastTMPVID": 1,
+                    "LastTMPTCID": 1,
+                    "LastTMPASMID": 4,
+                    "HavePets": false,
+                    "HaveVehicles": false,
+                    "RAFLAGS": 52,
+                    "ApplicationReadyUID": -99999,
+                    "ApplicationReadyName": "UID-0",
+                    "ApplicationReadyDate": "2018-08-28 05:04:00 UTC",
+                    "Approver1": -99999,
+                    "Approver1Name": "UID-0",
+                    "DecisionDate1": "2018-08-28 05:04:00 UTC",
+                    "DeclineReason1": 0,
+                    "Approver2": -99999,
+                    "Approver2Name": "UID-0",
+                    "DecisionDate2": "2018-08-28 05:04:00 UTC",
+                    "DeclineReason2": 0,
+                    "MoveInUID": -99999,
+                    "MoveInName": "UID-0",
+                    "MoveInDate": "2018-08-28 05:04:00 UTC",
+                    "ActiveUID": -99999,
+                    "ActiveName": "UID-0",
+                    "ActiveDate": "2018-08-28 05:04:00 UTC",
+                    "TerminatorUID": 0,
+                    "TerminatorName": "UID-0",
+                    "TerminationDate": "1900-01-01 00:00:00 UTC",
+                    "LeaseTerminationReason": 0,
+                    "DocumentDate": "2018-09-02 00:00:00 UTC",
+                    "NoticeToMoveUID": 0,
+                    "NoticeToMoveName": "UID-0",
+                    "NoticeToMoveDate": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveReported": "1900-01-01 00:00:00 UTC"
+                }
+            },
+            "LastModTime": "0001-01-01T00:00:00Z",
+            "LastModBy": 0,
+            "CreateTS": "0001-01-01T00:00:00Z",
+            "CreateBy": 0
+        },
+        "ValidationCheck": {
+            "total": 0,
+            "errors": {
+                "dates": {
+                    "total": 0,
+                    "errors": {}
+                },
+                "people": {
+                    "total": 0,
+                    "errors": []
+                },
+                "pets": {
+                    "total": 0,
+                    "errors": []
+                },
+                "vehicles": {
+                    "total": 0,
+                    "errors": []
+                },
+                "rentables": {
+                    "total": 0,
+                    "errors": []
+                },
+                "parentchild": {
+                    "total": 0,
+                    "errors": []
+                },
+                "tie": {
+                    "people": {
+                        "total": 0,
+                        "errors": []
+                    }
+                }
+            },
+            "nonFieldsErrors": {
+                "dates": [],
+                "people": [],
+                "pets": [],
+                "vehicles": [],
+                "rentables": [],
+                "parentchild": [],
+                "tie": []
+            }
+        },
+        "DataFulfilled": {
+            "dates": true,
+            "people": true,
+            "pets": true,
+            "vehicles": true,
+            "rentables": true,
+            "parentchild": true,
+            "tie": true
+        }
+    },
+    "status": "success"
+}

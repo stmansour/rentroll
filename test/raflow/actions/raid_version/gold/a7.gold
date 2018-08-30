@@ -1,0 +1,259 @@
+Test 7: action "set pending first approval" on RA with state Active 
+Request( RAID: 7, UserRefNo:  )
+Response( RAID: 7, UserRefNo: OVERRIDEEN1234567890 )
+{
+    "record": {
+        "Flow": {
+            "BID": 1,
+            "FlowID": 2,
+            "UserRefNo": "OVERRIDEEN1234567890",
+            "FlowType": "RA",
+            "ID": 7,
+            "Data": {
+                "tie": {
+                    "people": [
+                        {
+                            "PRID": 7,
+                            "TMPTCID": 1
+                        }
+                    ]
+                },
+                "meta": {
+                    "BID": 1,
+                    "RAID": 7,
+                    "RAFLAGS": 1,
+                    "HavePets": false,
+                    "ActiveUID": 0,
+                    "Approver1": 0,
+                    "Approver2": 0,
+                    "MoveInUID": 0,
+                    "ActiveDate": "1900-01-01 00:00:00 UTC",
+                    "ActiveName": "",
+                    "LastTMPVID": 0,
+                    "MoveInDate": "1900-01-01 00:00:00 UTC",
+                    "MoveInName": "",
+                    "LastTMPTCID": 0,
+                    "DocumentDate": "1900-01-01 00:00:00 UTC",
+                    "HaveVehicles": false,
+                    "LastTMPASMID": 0,
+                    "LastTMPPETID": 0,
+                    "Approver1Name": "",
+                    "Approver2Name": "",
+                    "DecisionDate1": "1900-01-01 00:00:00 UTC",
+                    "DecisionDate2": "1900-01-01 00:00:00 UTC",
+                    "TerminatorUID": 0,
+                    "DeclineReason1": 0,
+                    "DeclineReason2": 0,
+                    "TerminatorName": "UID-0",
+                    "NoticeToMoveUID": 0,
+                    "TerminationDate": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveDate": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveName": "UID-0",
+                    "ApplicationReadyUID": -99999,
+                    "ApplicationReadyDate": "2018-08-28 10:00:00 UTC",
+                    "ApplicationReadyName": "UID-0",
+                    "NoticeToMoveReported": "1900-01-01 00:00:00 UTC",
+                    "LeaseTerminationReason": 0
+                },
+                "pets": [],
+                "dates": {
+                    "CSAgent": 144,
+                    "RentStop": "3/1/2020",
+                    "RentStart": "8/28/2018",
+                    "AgreementStop": "3/1/2020",
+                    "AgreementStart": "8/28/2018",
+                    "PossessionStop": "3/1/2020",
+                    "PossessionStart": "8/28/2018"
+                },
+                "people": [
+                    {
+                        "City": "McAllen",
+                        "TCID": 7,
+                        "State": "MA",
+                        "Points": 0,
+                        "Address": "75909 Apache",
+                        "Comment": "",
+                        "Country": "USA",
+                        "Evicted": false,
+                        "TMPTCID": 1,
+                        "Website": "",
+                        "Address2": "",
+                        "Industry": 188,
+                        "IsRenter": true,
+                        "LastName": "Pruitt",
+                        "CellPhone": "(120) 784-2131",
+                        "Convicted": false,
+                        "FirstName": "Gussie",
+                        "IsCompany": false,
+                        "WorkPhone": "(936) 911-9669",
+                        "Bankruptcy": false,
+                        "EvictedDes": "",
+                        "IsOccupant": true,
+                        "MiddleName": "Zaida",
+                        "Occupation": "circus artiste (circus performer)",
+                        "PostalCode": "41737",
+                        "TaxpayorID": "09849326",
+                        "CompanyCity": "Independence",
+                        "CompanyName": "ChevronTexaco Corp.",
+                        "CreditLimit": 11334,
+                        "DateofBirth": "6/1/1994",
+                        "GrossIncome": 130247,
+                        "IsGuarantor": false,
+                        "SourceSLSID": 32,
+                        "CompanyEmail": "CIndependence8967@gmail.com",
+                        "CompanyPhone": "(582) 521-5761",
+                        "CompanyState": "NE",
+                        "ConvictedDes": "",
+                        "PrimaryEmail": "GPruitt1530@bdiddy.com",
+                        "PriorAddress": "99624 Willow, Kenosha, WY 03090",
+                        "SpecialNeeds": "",
+                        "BankruptcyDes": "",
+                        "PreferredName": "Kali",
+                        "CompanyAddress": "31066 Hickory",
+                        "CurrentAddress": "29314 Canyon, Denver, OR 86413",
+                        "DriversLicense": "T8489776",
+                        "SecondaryEmail": "GussiePruitt367@hotmail.com",
+                        "OtherPreferences": "",
+                        "ThirdPartySource": "Chan Barron",
+                        "CompanyPostalCode": "15026",
+                        "PriorLandLordName": "Gisela Pollard",
+                        "EligibleFutureUser": false,
+                        "CurrentLandLordName": "Florentina Holman",
+                        "EligibleFuturePayor": true,
+                        "EmergencyContactName": "Charlsie Byrd",
+                        "PriorLandLordPhoneNo": "(387) 524-5256",
+                        "PriorReasonForMoving": 114,
+                        "AlternateEmailAddress": "93464 Hampton,Poughkeepsie,ND 11485",
+                        "EmergencyContactEmail": "CharlsieB599@bdiddy.com",
+                        "CurrentLandLordPhoneNo": "(900) 635-6970",
+                        "CurrentReasonForMoving": 111,
+                        "PriorLengthOfResidency": "3 months",
+                        "EmergencyContactAddress": "65672 3rd,Indianapolis,HI 60631",
+                        "CurrentLengthOfResidency": "1 years 8 months",
+                        "EmergencyContactTelephone": "(819) 922-2610"
+                    }
+                ],
+                "vehicles": [
+                    {
+                        "VID": 8,
+                        "VIN": "1ME5E769G31QG8SL",
+                        "Fees": [],
+                        "TMPVID": 1,
+                        "TMPTCID": 1,
+                        "VehicleMake": "Chevrolet",
+                        "VehicleType": "car",
+                        "VehicleYear": 2006,
+                        "VehicleColor": "Copper",
+                        "VehicleModel": "Aveo",
+                        "LicensePlateState": "NV",
+                        "LicensePlateNumber": "A9F0C91",
+                        "ParkingPermitNumber": "9384168"
+                    }
+                ],
+                "rentables": [
+                    {
+                        "RID": 7,
+                        "Fees": [
+                            {
+                                "ARID": 26,
+                                "Stop": "8/28/2018",
+                                "ASMID": 98,
+                                "Start": "8/28/2018",
+                                "ARName": "Rent Non-Taxable",
+                                "Comment": "prorated for 4 of 31 days",
+                                "SalesTax": 0,
+                                "TMPASMID": 5,
+                                "RentCycle": 0,
+                                "TransOccTax": 0,
+                                "ContractAmount": 225.81,
+                                "ProrationCycle": 0,
+                                "AtSigningPreTax": 0
+                            },
+                            {
+                                "ARID": 26,
+                                "Stop": "3/1/2020",
+                                "ASMID": 98,
+                                "Start": "9/1/2018",
+                                "ARName": "Rent Non-Taxable",
+                                "Comment": "",
+                                "SalesTax": 0,
+                                "TMPASMID": 6,
+                                "RentCycle": 6,
+                                "TransOccTax": 0,
+                                "ContractAmount": 1750,
+                                "ProrationCycle": 4,
+                                "AtSigningPreTax": 0
+                            }
+                        ],
+                        "RTID": 3,
+                        "RTFLAGS": 4,
+                        "SalesTax": 0,
+                        "RentCycle": 6,
+                        "TransOccTax": 0,
+                        "RentableName": "Rentable007",
+                        "AtSigningPreTax": 0
+                    }
+                ],
+                "parentchild": []
+            },
+            "LastModTime": "2018-08-28T15:30:28Z",
+            "LastModBy": -99999,
+            "CreateTS": "2018-08-28T15:30:28Z",
+            "CreateBy": -99999
+        },
+        "ValidationCheck": {
+            "total": 0,
+            "errors": {
+                "dates": {
+                    "total": 0,
+                    "errors": {}
+                },
+                "people": {
+                    "total": 0,
+                    "errors": []
+                },
+                "pets": {
+                    "total": 0,
+                    "errors": []
+                },
+                "vehicles": {
+                    "total": 0,
+                    "errors": []
+                },
+                "rentables": {
+                    "total": 0,
+                    "errors": []
+                },
+                "parentchild": {
+                    "total": 0,
+                    "errors": []
+                },
+                "tie": {
+                    "people": {
+                        "total": 0,
+                        "errors": []
+                    }
+                }
+            },
+            "nonFieldsErrors": {
+                "dates": [],
+                "people": [],
+                "pets": [],
+                "vehicles": [],
+                "rentables": [],
+                "parentchild": [],
+                "tie": []
+            }
+        },
+        "DataFulfilled": {
+            "dates": true,
+            "people": true,
+            "pets": true,
+            "vehicles": true,
+            "rentables": true,
+            "parentchild": true,
+            "tie": true
+        }
+    },
+    "status": "success"
+}
