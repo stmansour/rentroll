@@ -246,13 +246,32 @@ describe('AIR Roller UI Tests - Rental Agreements', function () {
      *
      * Expect:
      * RAPetsGrid must have data which match with the Server response
+     *
+     * Click on first grid record
+     *
+     * Expect:
+     * Pet form  have loaded data with match with the server response
      ***********************/
     it('RAFlow -- Pets', function () {
         let petsData = flowData.pets;
-        testConfig.grid = "RAPetsGrid";
-        testConfig.skipColumns = ["haveError"];
         cy.get('#pets a').click({force: true}).wait(constants.WAIT_TIME);
-        common.testGridRecords(petsData, petsData.length, testConfig);
+        if (petsData.length > 0) {
+            testConfig.grid = "RAPetsGrid";
+            testConfig.skipColumns = ["haveError"];
+            common.testGridRecords(petsData, petsData.length, testConfig);
+
+            // click on the first record of grid
+            cy.get(selectors.getSecondRecordInGridSelector(testConfig.grid)).click().wait(constants.WAIT_TIME);
+            testConfig.form = "RAPetForm";
+            common.detailFormTest(petsData[0], testConfig);
+
+            // -- Close the form. And assert that form isn't visible. --
+            common.closeFormTests(selectors.getFormSelector(testConfig.form));
+        }
+        testConfig.grid = "RAPetFeesGrid";
+        common.testGridRecords(petsData[0].Fees, petsData[0].Fees.length, testConfig);
+
+        cy.get(selectors.getFirstRecordInGridSelector(testConfig.grid)).click().wait(constants.WAIT_TIME);
     });
 
     /***********************

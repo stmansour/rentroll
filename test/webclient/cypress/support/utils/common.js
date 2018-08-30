@@ -471,8 +471,18 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                         type = types.find(types => types.text === fieldValue);
                         fieldValue = type.text;
                         break;
-                    case "CSAgent":
+                    case "CSAgent": // Date section
+                    case "Weight": // Pet Section
                         fieldValue = fieldValue.toString();
+                        break;
+                    case "TMPTCID":
+                        let items = appSettings.raflow.peopleW2UIItems;
+                        for (let index=0; index<items.length; index++) {
+                            if (items[index].id === fieldValue){
+                                fieldValue = items[index].text;
+                                break;
+                            }
+                        }
                         break;
                 }
 
@@ -531,6 +541,7 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
         case "tldsInfoForm":
         case "taskDescForm":
         case "RADatesForm":
+        case "RAPetForm":
             // do nothing
             break;
         default:

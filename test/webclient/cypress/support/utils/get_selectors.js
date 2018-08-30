@@ -2,7 +2,7 @@
 
 // return selector for close button of form
 export function getFormCloseButtonSelector() {
-    return '[class="fas fa-times"]';
+    return '.w2ui-form-box [class="fas fa-times"]';
 }
 
 // return selector for close button inside form
