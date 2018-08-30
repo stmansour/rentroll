@@ -53,8 +53,8 @@ ASM00000388  RA00000023  Rentable023  monthly        daily            2,500.00  
 ASM00000396  RA00000023  Rentable023  monthly        daily               10.00           Pet Rent                   
 ASM00000401  RA00000001  Rentable001  non-recurring  non-recurring    4,000.00           Security Deposit Assessment
 ASM00000402  RA00000002  Rentable002  non-recurring  non-recurring    4,500.00           Security Deposit Assessment
-ASM00000403  RA00000001  Rentable001  monthly        daily           -1,000.00           Rent Non-Taxable           
-ASM00000404  RA00000001  Rentable001  non-recurring  non-recurring      612.90           Rent Non-Taxable           
-ASM00000405  RA00000024  Rentable001  non-recurring  daily              387.10           Rent Non-Taxable           
+ASM00000403  RA00000024  Rentable001  non-recurring  daily              387.10           Rent Non-Taxable           
+ASM00000405  RA00000001  Rentable001  monthly        daily           -1,000.00           Rent Non-Taxable           
+ASM00000406  RA00000001  Rentable001  non-recurring  non-recurring      612.90           Rent Non-Taxable           
 ASM00000407  RA00000001  Rentable001  non-recurring  non-recurring   -4,000.00           Security Deposit Assessment
 

@@ -118,7 +118,7 @@
             "Assessment": 1000,
             "Balance": 0,
             "Date": "8/1/2018",
-            "Description": "REVERSAL: Rent Non-Taxable (Reversed by ASM00000403)",
+            "Description": "REVERSAL: Rent Non-Taxable (Reversed by ASM00000405)",
             "Payor": "Louann Lezlie Mejia",
             "RAID": "RA-1",
             "RCPTID": "",
@@ -129,7 +129,7 @@
             "recid": 7
         },
         {
-            "ASMID": "ASM-403",
+            "ASMID": "ASM-405",
             "AppliedAmount": 0,
             "Assessment": -1000,
             "Balance": 0,
@@ -145,7 +145,7 @@
             "recid": 8
         },
         {
-            "ASMID": "ASM-404",
+            "ASMID": "ASM-406",
             "AppliedAmount": 0,
             "Assessment": 612.9,
             "Balance": 612.9,
@@ -177,28 +177,12 @@
             "recid": 10
         },
         {
-            "ASMID": "ASM-7",
-            "AppliedAmount": -1000,
-            "Assessment": 0,
-            "Balance": 612.9,
-            "Date": "8/20/2018",
-            "Description": "REVERSAL: Receipt allocation (payment for ASM-7)",
-            "Payor": "Louann Lezlie Mejia",
-            "RAID": "RA-1",
-            "RCPTID": "RCPT-6",
-            "RentableName": "",
-            "Reverse": true,
-            "TCID": 0,
-            "UnappliedAmount": 0,
-            "recid": 11
-        },
-        {
             "ASMID": "ASM-401",
             "AppliedAmount": 0,
             "Assessment": 4000,
             "Balance": 612.9,
             "Date": "9/20/2018",
-            "Description": "REVERSAL: Security Deposit Assessment (Reversing due to amended RAID 24 | Reversed by ASM00000407)",
+            "Description": "REVERSAL: Security Deposit Assessment (Reversed by ASM00000407)",
             "Payor": "Louann Lezlie Mejia",
             "RAID": "RA-1",
             "RCPTID": "",
@@ -206,7 +190,7 @@
             "Reverse": true,
             "TCID": 0,
             "UnappliedAmount": 0,
-            "recid": 12
+            "recid": 11
         },
         {
             "ASMID": "ASM-407",
@@ -222,7 +206,7 @@
             "Reverse": true,
             "TCID": 0,
             "UnappliedAmount": 0,
-            "recid": 13
+            "recid": 12
         },
         {
             "ASMID": "",
@@ -238,7 +222,7 @@
             "Reverse": false,
             "TCID": 0,
             "UnappliedAmount": 0,
-            "recid": 14
+            "recid": 13
         },
         {
             "ASMID": "",
@@ -254,7 +238,7 @@
             "Reverse": false,
             "TCID": 0,
             "UnappliedAmount": 0,
-            "recid": 15
+            "recid": 14
         },
         {
             "ASMID": "",
@@ -270,7 +254,7 @@
             "Reverse": false,
             "TCID": 0,
             "UnappliedAmount": 0,
-            "recid": 16
+            "recid": 15
         },
         {
             "ASMID": "",
@@ -286,10 +270,10 @@
             "Reverse": false,
             "TCID": 0,
             "UnappliedAmount": 0,
-            "recid": 17
+            "recid": 16
         },
         {
-            "ASMID": "ASM-405",
+            "ASMID": "ASM-403",
             "AppliedAmount": 0,
             "Assessment": 387.1,
             "Balance": 387.1,
@@ -302,7 +286,7 @@
             "Reverse": false,
             "TCID": 0,
             "UnappliedAmount": 0,
-            "recid": 18
+            "recid": 17
         },
         {
             "ASMID": "",
@@ -318,9 +302,9 @@
             "Reverse": false,
             "TCID": 0,
             "UnappliedAmount": 0,
-            "recid": 19
+            "recid": 18
         }
     ],
     "status": "success",
-    "total": 19
+    "total": 18
 }
