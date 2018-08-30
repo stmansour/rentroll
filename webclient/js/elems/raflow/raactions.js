@@ -586,6 +586,7 @@ window.loadRAActionForm = function() {
                 { field: 'RAApprovalDecision1', type: 'list', width: 120, required: true, hidden: true,
                     options: {
                         items: [
+                            {id: 0, text: "--Select Approve or Decline--"},
                             {id: 1, text: "Approve"},
                             {id: 2, text: "Decline"}
                         ]
@@ -599,6 +600,7 @@ window.loadRAActionForm = function() {
                 { field: 'RAApprovalDecision2', type: 'list', width: 120, required: true, hidden: true,
                     options: {
                         items: [
+                            {id: 0, text: "--Select Approve or Decline--"},
                             {id: 1, text: "Approve"},
                             {id: 2, text: "Decline"}
                         ]
@@ -662,8 +664,12 @@ window.loadRAActionForm = function() {
                         if(event.value_new.text === 'Decline') {
                             $('button[name=save]').attr('disabled',true);
                             w2ui.RAActionForm.get('RADeclineReason1').hidden = false;
-                        } else {
+                        } else if(event.value_new.text === 'Approve') {
                             $('button[name=save]').attr('disabled',false);
+                            w2ui.RAActionForm.get('RADeclineReason1').hidden = true;
+                            delete this.record.RADeclineReason1;
+                        } else {
+                            $('button[name=save]').attr('disabled',true);
                             w2ui.RAActionForm.get('RADeclineReason1').hidden = true;
                             delete this.record.RADeclineReason1;
                         }
@@ -673,8 +679,12 @@ window.loadRAActionForm = function() {
                         if(event.value_new.text === 'Decline') {
                             $('button[name=save]').attr('disabled',true);
                             w2ui.RAActionForm.get('RADeclineReason2').hidden = false;
-                        } else {
+                        } else if(event.value_new.text === 'Approve') {
                             $('button[name=save]').attr('disabled',false);
+                            w2ui.RAActionForm.get('RADeclineReason2').hidden = true;
+                            delete this.record.RADeclineReason2;
+                        } else {
+                            $('button[name=save]').attr('disabled',true);
                             w2ui.RAActionForm.get('RADeclineReason2').hidden = true;
                             delete this.record.RADeclineReason2;
                         }
