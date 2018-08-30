@@ -72,23 +72,29 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
             switch (record.FLAGS) {
                 // Normal row
                 case 0:
-                    testConfig.skipColumns = ["BeginReceivable", "DeltaReceivable", "EndReceivable", "BeginSecDep", "DeltaSecDep", "EndSecDep"];
+                    testConfig.skipColumns = ["BeginReceivable", "DeltaReceivable", "EndReceivable", "BeginSecDep", "DeltaSecDep", "EndSecDep", "UsePeriod"];
                     break;
                 // Main row
                 case 1:
-                    testConfig.skipColumns = ["BeginReceivable", "DeltaReceivable", "EndReceivable", "BeginSecDep", "DeltaSecDep", "EndSecDep"];
+                    testConfig.skipColumns = ["BeginReceivable", "DeltaReceivable", "EndReceivable", "BeginSecDep", "DeltaSecDep", "EndSecDep", "UsePeriod"];
                     break;
                 // Subtotal row
                 case 2:
-                    testConfig.skipColumns = [];
+                    testConfig.skipColumns = ["UsePeriod"];
                     break;
                 // Blank row
                 case 4:
                     // Skipping tests on blank row
-                    testConfig.skipColumns = [];
+                    testConfig.skipColumns = ["UsePeriod"];
                     return;
             }
-        }else if(testConfig.grid === "payorStmtDetailGrid"){
+
+            // If rentable is unrented than skip the test on the row of rrGrid
+            if (record.Description === "Unrented"){
+                return;
+            }
+        }
+        else if(testConfig.grid === "payorStmtDetailGrid"){
             switch (record.Description){
                 case "*** RECEIPT SUMMARY ***":
                 case "*** UNAPPLIED FUNDS ***":
@@ -853,6 +859,8 @@ export function testDetailFormWithGrid(recordsAPIResponse, testConfig, testConfi
 
     // check response status of API end point
     // cy.wait('@getGridRecordsInDetailedForm').its('status').should('eq', constants.HTTP_OK_STATUS);
+
+    cy.wait(constants.WAIT_TIME);
 
     // perform tests on record detail form
     cy.get('@getGridRecordsInDetailedForm').then(function (xhr) {

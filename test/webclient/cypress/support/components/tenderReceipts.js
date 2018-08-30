@@ -21,8 +21,8 @@ export let conf = {
     skipFields: ["Payor"], // TODO(Jay): Payor field is of enum type, hence it is skipped for now.
     primaryId: "RCPTID",
     haveDateValue: true,
-    fromDate: new Date(2018, 0, 1), // year, month-1, day : 1st Jan 2018
-    toDate: new Date(2018, 1, 1) // 1st Feb 2018
+    fromDate: new Date(2018, 2, 1), // year, month-1, day : 1st March 2018
+    toDate: new Date(2018, 3, 1) // 1st April 2018
 };
 
 // TODO(Akshay): Green allocated section

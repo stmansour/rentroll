@@ -131,7 +131,7 @@ describe('AIR Roller UI Tests - Rental Agreements', function () {
         // Click on the first record
         cy.route(testConfig.methodType, common.getDetailRecordAPIEndPoint("flow", 0)).as('raRecord');
 
-        cy.get(selectors.getFirstRecordInGridSelector(testConfig.grid)).click();
+        cy.get(selectors.getSecondRecordInGridSelector(testConfig.grid)).click();
 
         // Check http status
         cy.wait('@raRecord').its('status').should('eq', constants.HTTP_OK_STATUS);
