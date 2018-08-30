@@ -1,0 +1,106 @@
+[
+    {
+        "ReqData": {
+			"UserRefNo": "P6O4BQ2J9BC72D51I13S",
+			"RAID":      1,
+			"Version":   "refno",
+			"Action":    1,
+			"Mode":      "Action"
+		},
+        "Description": "action \"set pending first approval\" on flow with valid data"
+    },
+    {
+	    "ReqData": {
+	    	"UserRefNo":      "P6O4BQ2J9BC72D51I13S",
+			"RAID":           1,
+			"Version":        "refno",
+			"Mode":           "State",
+			"Decision1":      1,
+			"DeclineReason1": 0
+	    },
+	    "Description": "approve and set \"pending second approval\" on flow with valid data"
+	},
+	{
+	    "ReqData": {
+	    	"UserRefNo":      "P6O4BQ2J9BC72D51I13S",
+			"RAID":           1,
+			"Version":        "refno",
+			"Mode":           "State",
+			"Decision2":      1,
+			"DeclineReason2": 0
+	    },
+	    "Description": "approve and set \"move-in / execute modification\" on flow with valid data"
+	},
+	{
+	    "ReqData": {
+	    	"UserRefNo":    "P6O4BQ2J9BC72D51I13S",
+			"RAID":         1,
+			"Version":      "refno",
+			"Mode":         "State",
+			"DocumentDate": "99/99/9999"
+	    },
+	    "Description": "set document date of flow with valid data"
+	},
+	{
+        "ReqData": {
+			"UserRefNo": "P6O4BQ2J9BC72D51I13S",
+			"RAID":      1,
+			"Version":   "refno",
+			"Action":    4,
+			"Mode":      "Action"
+		},
+        "Description": "take action of \"complete move in\" on flow with valid data"
+    },
+    {
+        "ReqData": {
+            "UserRefNo": "5PR115PPMA585W88ZL3W",
+			"RAID":      0,
+			"Version":   "refno",
+			"Action":    1,
+			"Mode":      "Action"
+        },
+        "Description": "action \"set pending first approval\" on brand new flow with valid data"
+    },
+    {
+	    "ReqData": {
+	    	"UserRefNo":      "5PR115PPMA585W88ZL3W",
+			"RAID":           0,
+			"Version":        "refno",
+			"Mode":           "State",
+			"Decision1":      1,
+			"DeclineReason1": 0
+	    },
+	    "Description": "approve and set \"pending second approval\" on brand new flow with valid data"
+	},
+	{
+	    "ReqData": {
+	    	"UserRefNo":      "5PR115PPMA585W88ZL3W",
+			"RAID":           0,
+			"Version":        "refno",
+			"Mode":           "State",
+			"Decision2":      1,
+			"DeclineReason2": 0
+	    },
+	    "Description": "approve and set \"move-in / execute modification\" on brand new flow with valid data"
+	},
+	{
+	    "ReqData": {
+	    	"UserRefNo":    "5PR115PPMA585W88ZL3W",
+			"RAID":         0,
+			"Version":      "refno",
+			"Mode":         "State",
+			"DocumentDate": "99/99/9999"
+	    },
+	    "Description": "set document date of brand new flow with valid data"
+	},
+	{
+        "ReqData": {
+			"UserRefNo": "5PR115PPMA585W88ZL3W",
+			"RAID":      0,
+			"Version":   "refno",
+			"Action":    4,
+			"Mode":      "Action"
+		},
+        "Description": "take action of \"complete move in\" on brand new flow with valid data"
+    }
+]

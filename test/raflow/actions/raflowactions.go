@@ -3,57 +3,34 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"path"
 	"rentroll/rlib"
 	"rentroll/ws"
 	"strconv"
 	"time"
+
+	"github.com/kardianos/osext"
 )
 
 const (
 	statusError   = "error"
 	statusSuccess = "success"
-
-	ExistingRAValidFlow   = "FU1T222ATL6HWFS61388"
-	ExistingRAValidFlow1  = "ON5SY742BDK19L0D9M34"
-	ExistingRAValidFlow2  = "NDSD46NIKR363005L3I8"
-	ExistingRAInValidFlow = "VJFC558GW9MM625CT176"
-	BrandNewValidFlow     = "HL76CY7PA47W6H9U8K38"
-	BrandNewInValidFlow   = "YCE20N8G44N45TIW1M95"
-
-	VersionRefNo = "refno"
-	VersionRAID  = "raid"
-
-	ModeAction = "Action"
-	ModeState  = "State"
-
-	DecisionAccept  = 1
-	DecisionDecline = 2
 )
-
-var testNames = map[int]string{
-	1:  "action \"set pending first approval\" on flow with invalid data",
-	2:  "action \"set pending first approval\" on flow with valid data",
-	3:  "approve and set \"pending second approval\" on flow with valid data",
-	4:  "approve and set \"move-in / execute modification\" on flow with valid data",
-	5:  "set document date of flow with valid data",
-	6:  "take action of \"complete move in\" on flow with valid data",
-	7:  "action \"set pending first approval\" on brand new flow with invalid data",
-	8:  "action \"set pending first approval\" on brand new flow with valid data",
-	9:  "approve and set \"pending second approval\" on brand new flow with valid data",
-	10: "approve and set \"move-in / execute modification\" on brand new flow with valid data",
-	11: "set document date of brand new flow with valid data",
-	12: "take action of \"complete move in\" on brand new flow with valid data",
-	13: "decline at \"pending first approval\" on flow with valid data",
-	14: "decline at \"pending second approval\" on flow with valid data",
-}
 
 type FlowResponse struct {
 	Record  ws.RAFlowResponse `json:"record,omitempty"`
 	Message string            `json:"message,omitempty"`
 	Status  string            `json:"status"`
+}
+
+// JSONPayloadDesc is a struct that stores request payload and short description about the test
+type JSONPayloadDesc struct {
+	ReqData     Payload
+	Description string
 }
 
 type Payload struct {
@@ -76,178 +53,76 @@ var afterFiveDays = today.AddDate(0, 0, 5)
 var afterOneMonth = today.AddDate(0, 1, 0)
 
 var documentDate = afterFiveDays.Format(rlib.RRDATEFMT4)
-var notiveToMoveDate = afterOneMonth.Format(rlib.RRDATEFMT4)
+var noticeToMoveDate = afterOneMonth.Format(rlib.RRDATEFMT4)
+
+var folderName string
+
+func readCommandLineArgs() {
+	pFolder := flag.String("f", "", "test directory")
+
+	flag.Parse()
+
+	folderName = *pFolder
+}
+
+func getPayloadsFromJSON(payloads *[]JSONPayloadDesc) error {
+
+	folderPath, err := osext.ExecutableFolder()
+	if err != nil {
+		return err
+	}
+
+	// read json file which contains payloads and description about tests
+	payloadFilePath := path.Join(folderPath, folderName, "payload.json")
+
+	jsonData, err := ioutil.ReadFile(payloadFilePath)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(jsonData, payloads)
+	if err != nil {
+		return err
+	}
+	return err
+}
 
 func main() {
+	var err error
+	var testPayloads []JSONPayloadDesc
 
-	var testPayloads []Payload
+	readCommandLineArgs()
 
-	var payload Payload
-
-	// InVALID SCENARIO
-	// take action of "set pending first approval" on flow with invalid data
-	payload = Payload{
-		UserRefNo: ExistingRAInValidFlow,
-		RAID:      2,
-		Version:   VersionRefNo,
-		Action:    rlib.RAActionSetToFirstApproval,
-		Mode:      ModeAction,
+	err = getPayloadsFromJSON(&testPayloads)
+	if err != nil {
+		fmt.Println("Internal Error: ", err)
+		return
 	}
-	testPayloads = append(testPayloads, payload)
 
-	// VALID SCENARIO
-	// take action of "set pending first approval" on flow with valid data
-	payload = Payload{
-		UserRefNo: ExistingRAValidFlow,
-		RAID:      1,
-		Version:   VersionRefNo,
-		Action:    rlib.RAActionSetToFirstApproval,
-		Mode:      ModeAction,
-	}
-	testPayloads = append(testPayloads, payload)
-
-	// approve "pending first approval" by accepting and set "pending second approval" on flow with valid data
-	payload = Payload{
-		UserRefNo:      ExistingRAValidFlow,
-		RAID:           1,
-		Version:        VersionRefNo,
-		Mode:           ModeState,
-		Decision1:      DecisionAccept,
-		DeclineReason1: 0,
-	}
-	testPayloads = append(testPayloads, payload)
-
-	// approve "pending second approval" by accepting and set "move-in / execute modification" on flow with valid data
-	payload = Payload{
-		UserRefNo:      ExistingRAValidFlow,
-		RAID:           1,
-		Version:        VersionRefNo,
-		Mode:           ModeState,
-		Decision2:      DecisionAccept,
-		DeclineReason2: 0,
-	}
-	testPayloads = append(testPayloads, payload)
-
-	// set document date of flow with valid data
-	payload = Payload{
-		UserRefNo:    ExistingRAValidFlow,
-		RAID:         1,
-		Version:      VersionRefNo,
-		Mode:         ModeState,
-		DocumentDate: documentDate,
-	}
-	testPayloads = append(testPayloads, payload)
-
-	// take action of "complete move in" on flow with valid data
-	payload = Payload{
-		UserRefNo: ExistingRAValidFlow,
-		RAID:      1,
-		Version:   VersionRefNo,
-		Action:    rlib.RAActionCompleteMoveIn,
-		Mode:      ModeAction,
-	}
-	testPayloads = append(testPayloads, payload)
-
-	// INVALID SCENARIO
-	// take action of "set pending first approval" on brand new flow with invalid data
-	payload = Payload{
-		UserRefNo: BrandNewInValidFlow,
-		RAID:      0,
-		Version:   VersionRefNo,
-		Action:    rlib.RAActionSetToFirstApproval,
-		Mode:      ModeAction,
-	}
-	testPayloads = append(testPayloads, payload)
-
-	// VALID SCENARIO
-	// take action of "set pending first approval" on brand new flow with valid data
-	payload = Payload{
-		UserRefNo: BrandNewValidFlow,
-		RAID:      0,
-		Version:   VersionRefNo,
-		Action:    rlib.RAActionSetToFirstApproval,
-		Mode:      ModeAction,
-	}
-	testPayloads = append(testPayloads, payload)
-
-	// approve "pending first approval" by accepting and set "pending second approval" on brand new flow with valid data
-	payload = Payload{
-		UserRefNo:      BrandNewValidFlow,
-		RAID:           0,
-		Version:        VersionRefNo,
-		Mode:           ModeState,
-		Decision1:      DecisionAccept,
-		DeclineReason1: 0,
-	}
-	testPayloads = append(testPayloads, payload)
-
-	// approve "pending second approval" by accepting and set "move-in / execute modification" on brand new flow with valid data
-	payload = Payload{
-		UserRefNo:      BrandNewValidFlow,
-		RAID:           0,
-		Version:        VersionRefNo,
-		Mode:           ModeState,
-		Decision2:      DecisionAccept,
-		DeclineReason2: 0,
-	}
-	testPayloads = append(testPayloads, payload)
-
-	// set document date of brand new flow with valid data
-	payload = Payload{
-		UserRefNo:    BrandNewValidFlow,
-		RAID:         0,
-		Version:      VersionRefNo,
-		Mode:         ModeState,
-		DocumentDate: documentDate,
-	}
-	testPayloads = append(testPayloads, payload)
-
-	// take action of "complete move in" on brand new flow with valid data
-	payload = Payload{
-		UserRefNo: BrandNewValidFlow,
-		RAID:      0,
-		Version:   VersionRefNo,
-		Action:    rlib.RAActionCompleteMoveIn,
-		Mode:      ModeAction,
-	}
-	testPayloads = append(testPayloads, payload)
-
-	// VALID SCENARIO
-	// decline at "pending first approval" on flow with valid data
-	payload = Payload{
-		UserRefNo:      ExistingRAValidFlow1,
-		RAID:           3,
-		Version:        VersionRefNo,
-		Mode:           ModeState,
-		Decision1:      DecisionDecline,
-		DeclineReason1: 75, //Criminal Background
-	}
-	testPayloads = append(testPayloads, payload)
-
-	// decline at "pending second approval" on flow with valid data
-	payload = Payload{
-		UserRefNo:      ExistingRAValidFlow2,
-		RAID:           4,
-		Version:        VersionRefNo,
-		Mode:           ModeState,
-		Decision2:      DecisionDecline,
-		DeclineReason2: 75, //Criminal Background
-	}
-	testPayloads = append(testPayloads, payload)
-
-	// fmt.Println(testPayloads)
-	// fmt.Println()
-
-	for key, value := range testPayloads {
+	for key, payload := range testPayloads {
 		var req *http.Request
 		var respBody []byte
 		var respRecord []byte
-		var err error
+
 		var apiResponse FlowResponse
 
 		testNo := key + 1
 
-		req, err = buildRequest(value)
+		// if payload contains DocumentDate as "99/99/9999"
+		// that means that we need to set DocumentDate
+		if payload.ReqData.DocumentDate == "99/99/9999" {
+			payload.ReqData.DocumentDate = documentDate
+		}
+
+		// if payload contains NoticeToMoveDate as "88/88/8888"
+		// that means that we need to set NoticeToMoveDate
+		if payload.ReqData.NoticeToMoveDate == "88/88/8888" {
+			payload.ReqData.NoticeToMoveDate = noticeToMoveDate
+		}
+
+		url := "http://localhost:8270/v1/raactions/1/"
+
+		req, err = buildRequest(url, payload.ReqData)
 		if err != nil {
 			fmt.Println("Internal Error: ", err)
 			return
@@ -275,6 +150,13 @@ func main() {
 				fmt.Println("Internal Error: ", err)
 				return
 			}
+
+			// here we override UserRefNo
+			// because in raid_version tests userRefNo generated will be random everytime
+			// hence to pass the comparision with gold files we set UserRefNo as "OVERRIDEEN1234567890"
+			if folderName == "raid_version" && apiResponse.Record.Flow.UserRefNo != "" {
+				apiResponse.Record.Flow.UserRefNo = "OVERRIDEEN1234567890"
+			}
 			respRAID = apiResponse.Record.Flow.ID
 			respUserRefNo = apiResponse.Record.Flow.UserRefNo
 
@@ -286,14 +168,14 @@ func main() {
 			return
 		}
 
-		testInfoString := fmt.Sprintf("Test %d: %s \n", testNo, testNames[testNo])
-		testInfoString += fmt.Sprintf("Request( RAID: %d, UserRefNo: %s )\n", value.RAID, value.UserRefNo)
+		testInfoString := fmt.Sprintf("Test %d: %s \n", testNo, payload.Description)
+		testInfoString += fmt.Sprintf("Request( RAID: %d, UserRefNo: %s )\n", payload.ReqData.RAID, payload.ReqData.UserRefNo)
 		testInfoString += fmt.Sprintf("Response( RAID: %d, UserRefNo: %s )\n", respRAID, respUserRefNo)
 		dumpResponseInFile(testNo, testInfoString, respRecord)
 	}
 }
 
-func buildRequest(payload Payload) (*http.Request, error) {
+func buildRequest(url string, payload Payload) (*http.Request, error) {
 	var req *http.Request
 	var err error
 
@@ -303,17 +185,12 @@ func buildRequest(payload Payload) (*http.Request, error) {
 		return req, err
 	}
 
-	url := "http://localhost:8270/v1/raactions/1/"
-	// fmt.Println("\nURL: ", url)
-
 	req, err = http.NewRequest("POST", url, bytes.NewBuffer(b))
 	if err != nil {
 		err = fmt.Errorf("new request err: %s", err)
 		return req, err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	// fmt.Printf("\nRequest: %+v\n\n", req)
-
 	return req, nil
 }
 
@@ -337,8 +214,6 @@ func makeRequestAndReadResponseBody(req *http.Request) ([]byte, error) {
 		err = fmt.Errorf("read response body err: %s", err)
 		return respBody, err
 	}
-
-	// fmt.Printf("\nRESPONSE Body: %s\n\n", respBody)
 	return respBody, nil
 }
 
@@ -350,8 +225,6 @@ func getDataFromResponseBody(respBody []byte, apiResponse *FlowResponse) error {
 		err = fmt.Errorf("unmarshal api response err: %s", err)
 		return err
 	}
-
-	// fmt.Printf("\nRESPONSE FLOW DATA: %+v\n\n", apiResponse)
 	return nil
 }
 
@@ -361,8 +234,18 @@ func dumpResponseInFile(testNo int, testInfoString string, respRecord []byte) er
 	testInfoString += string(respRecord)
 
 	data := []byte(testInfoString)
-	fileName := "a" + strconv.Itoa(testNo)
-	err = ioutil.WriteFile(fileName, data, 0644)
+
+	filename := "a" + strconv.Itoa(testNo)
+
+	folderPath, err := osext.ExecutableFolder()
+	if err != nil {
+		return err
+	}
+
+	// read json file which contains payloads
+	filePath := path.Join(folderPath, folderName, filename)
+
+	err = ioutil.WriteFile(filePath, data, 0644)
 	if err != nil {
 		err = fmt.Errorf("write file err: %s", err)
 		return err

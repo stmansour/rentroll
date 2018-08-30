@@ -164,7 +164,7 @@ window.reloadActionForm = function() {
         case 3:
             // auto load date in component if it is present in meta
             if (data.meta.DocumentDate != "1900-01-01 00:00:00 UTC"){
-                var documentDate = w2uiUTCDateControlString(new Date(data.meta.DocumentDate));
+                var documentDate = w2uiUTCDateControlString(new Date((data.meta.DocumentDate).replace(" ", "T").replace(" UTC", "Z")));
                 w2ui.RAActionForm.record.RADocumentDate = documentDate;
             }
 
@@ -234,7 +234,7 @@ window.refreshLabels = function () {
         if (meta.ApplicationReadyUID == 0) {
             x.innerHTML = '';
         } else {
-            x.innerHTML = dtFormatISOToW2ui(meta.ApplicationReadyDate) + ' by ' + meta.ApplicationReadyName;
+            x.innerHTML = dtFormatISOToW2ui((meta.ApplicationReadyDate).replace(" ", "T").replace(" UTC", "Z")) + ' by ' + meta.ApplicationReadyName;
         }
     }
 
@@ -244,11 +244,11 @@ window.refreshLabels = function () {
             x.innerHTML = '';
         } else {
             if ((meta.RAFLAGS & (1<<4)) > 0) {
-                x.innerHTML = dtFormatISOToW2ui(meta.DecisionDate1) + '  Approved by ' + meta.Approver1Name ;
+                x.innerHTML = dtFormatISOToW2ui((meta.DecisionDate1).replace(" ", "T").replace(" UTC", "Z")) + '  Approved by ' + meta.Approver1Name ;
             } else{
                 var reason1 = app.ApplDeny.find(function(t){if(t.id == meta.DeclineReason1){return t;}});
                 var reason1Text = reason1 ? reason1.text : "";
-                x.innerHTML = dtFormatISOToW2ui(meta.DecisionDate1) + '  Declined by ' + meta.Approver1Name + ' (' + reason1Text + ')';
+                x.innerHTML = dtFormatISOToW2ui((meta.DecisionDate1).replace(" ", "T").replace(" UTC", "Z")) + '  Declined by ' + meta.Approver1Name + ' (' + reason1Text + ')';
             }
         }
     }
@@ -259,11 +259,11 @@ window.refreshLabels = function () {
             x.innerHTML = '';
         } else {
             if ((meta.RAFLAGS & (1<<5)) > 0) {
-                x.innerHTML = dtFormatISOToW2ui(meta.DecisionDate2) + '  Approved by ' + meta.Approver2Name;
+                x.innerHTML = dtFormatISOToW2ui((meta.DecisionDate2).replace(" ", "T").replace(" UTC", "Z")) + '  Approved by ' + meta.Approver2Name;
             } else{
                 var reason2 = app.ApplDeny.find(function(t){if(t.id == meta.DeclineReason2){return t;}});
                 var reason2Text = reason2 ? reason2.text : "";
-                x.innerHTML = dtFormatISOToW2ui(meta.DecisionDate2) + '  Declined by ' + meta.Approver2Name + ' (' + reason2Text + ')';
+                x.innerHTML = dtFormatISOToW2ui((meta.DecisionDate2).replace(" ", "T").replace(" UTC", "Z")) + '  Declined by ' + meta.Approver2Name + ' (' + reason2Text + ')';
             }
         }
     }
@@ -273,7 +273,7 @@ window.refreshLabels = function () {
         if (meta.MoveInUID == 0) {
             x.innerHTML = '';
         } else {
-            x.innerHTML = dtFormatISOToW2ui(meta.MoveInDate) + ' by ' + meta.MoveInName;
+            x.innerHTML = dtFormatISOToW2ui((meta.MoveInDate).replace(" ", "T").replace(" UTC", "Z")) + ' by ' + meta.MoveInName;
         }
     }
 
@@ -282,7 +282,7 @@ window.refreshLabels = function () {
         if (meta.ActiveUID == 0) {
             x.innerHTML = '';
         } else {
-            x.innerHTML = dtFormatISOToW2ui(meta.ActiveDate) + ' by ' + meta.ActiveName;
+            x.innerHTML = dtFormatISOToW2ui((meta.ActiveDate).replace(" ", "T").replace(" UTC", "Z")) + ' by ' + meta.ActiveName;
         }
     }
 
@@ -293,9 +293,9 @@ window.refreshLabels = function () {
         } else {
             var moveDate = '';
             if (meta.NoticeToMoveDate != "1900-01-01 00:00:00 UTC") {
-                moveDate = w2uiUTCDateControlString(new Date(meta.NoticeToMoveDate));
+                moveDate = w2uiUTCDateControlString(new Date((meta.NoticeToMoveDate).replace(" ", "T").replace(" UTC", "Z")));
             }
-            x.innerHTML = dtFormatISOToW2ui(meta.NoticeToMoveReported) + ' by ' + meta.NoticeToMoveName + ' (move date: ' + moveDate + ')';
+            x.innerHTML = dtFormatISOToW2ui((meta.NoticeToMoveReported).replace(" ", "T").replace(" UTC", "Z")) + ' by ' + meta.NoticeToMoveName + ' (move date: ' + moveDate + ')';
         }
     }
 
@@ -312,7 +312,7 @@ window.refreshLabels = function () {
                 tReason = app.WhyLeaving.find(function(t){if(t.id == meta.LeaseTerminationReason){return t;}});
             }
             tReasonText = tReason ? tReason.text : "";
-            x.innerHTML = dtFormatISOToW2ui(meta.TerminationDate) + ' by '+ meta.TerminatorName + ' (' + tReasonText + ')';
+            x.innerHTML = dtFormatISOToW2ui((meta.TerminationDate).replace(" ", "T").replace(" UTC", "Z")) + ' by '+ meta.TerminatorName + ' (' + tReasonText + ')';
         }
     }
 
@@ -323,7 +323,7 @@ window.refreshLabels = function () {
     x = document.getElementById("bannerTerminatedBy");
     if (x !== null) {
         if (meta.TerminatorUID > 0) {
-            x.innerHTML = dtFormatISOToW2ui(meta.TerminationDate) + ' by ' + meta.TerminatorName;
+            x.innerHTML = dtFormatISOToW2ui((meta.TerminationDate).replace(" ", "T").replace(" UTC", "Z")) + ' by ' + meta.TerminatorName;
         } else {
             x.innerHTML = '';
         }
@@ -375,7 +375,7 @@ window.refreshLabels = function () {
     x = document.getElementById("bannerMoveDate");
     if (x !== null) {
         if (meta.NoticeToMoveDate != "1900-01-01 00:00:00 UTC") {
-            x.innerHTML = w2uiUTCDateControlString(new Date(meta.NoticeToMoveDate));
+            x.innerHTML = w2uiUTCDateControlString(new Date((meta.NoticeToMoveDate).replace(" ", "T").replace(" UTC", "Z")));
         } else {
             x.innerHTML = '';
         }
@@ -384,7 +384,7 @@ window.refreshLabels = function () {
     x = document.getElementById("bannerRecievedNoticeDate");
     if (x !== null) {
         if (meta.NoticeToMoveReported != "1900-01-01 00:00:00 UTC") {
-            x.innerHTML = dtFormatISOToW2ui(meta.NoticeToMoveReported);
+            x.innerHTML = dtFormatISOToW2ui((meta.NoticeToMoveReported).replace(" ", "T").replace(" UTC", "Z"));
         } else {
             x.innerHTML = '';
         }
@@ -394,7 +394,7 @@ window.refreshLabels = function () {
     x = document.getElementById("bannerDocumentDate");
     if (x !== null) {
         if (meta.DocumentDate != "1900-01-01 00:00:00 UTC") {
-            x.innerHTML = w2uiUTCDateControlString(new Date(meta.DocumentDate));
+            x.innerHTML = w2uiUTCDateControlString(new Date((meta.DocumentDate).replace(" ", "T").replace(" UTC", "Z")));
         } else {
             x.innerHTML = '';
         }
@@ -561,14 +561,10 @@ window.loadRAActionTemplate = function() {
                 };
             }
         });
+        w2ui.raActionLayout.load('top', '/webclient/html/raflow/formra-actionheader.html');
+        w2ui.raActionLayout.load('bottom', '/webclient/html/raflow/formra-actionfooter.html');
     }
     w2ui.newraLayout.content('right', w2ui.raActionLayout);
-
-    w2ui.raActionLayout.load('top', '/webclient/html/raflow/formra-actionheader.html');
-    w2ui.raActionLayout.load('bottom', '/webclient/html/raflow/formra-actionfooter.html');
-
-    // var raFlags = app.raflow.Flow.Data.meta.RAFLAGS;
-    // var raState = parseInt(raFlags & 0xf);
 
     loadRAActionForm();
 
@@ -590,6 +586,7 @@ window.loadRAActionForm = function() {
                 { field: 'RAApprovalDecision1', type: 'list', width: 120, required: true, hidden: true,
                     options: {
                         items: [
+                            {id: 0, text: "--Select Approve or Decline--"},
                             {id: 1, text: "Approve"},
                             {id: 2, text: "Decline"}
                         ]
@@ -603,6 +600,7 @@ window.loadRAActionForm = function() {
                 { field: 'RAApprovalDecision2', type: 'list', width: 120, required: true, hidden: true,
                     options: {
                         items: [
+                            {id: 0, text: "--Select Approve or Decline--"},
                             {id: 1, text: "Approve"},
                             {id: 2, text: "Decline"}
                         ]
@@ -635,7 +633,7 @@ window.loadRAActionForm = function() {
 
                                 // auto load date in component if it is present in meta
                                 if (app.raflow.Flow.Data.meta.NoticeToMoveDate != "1900-01-01 00:00:00 UTC"){
-                                    var moveDate = w2uiUTCDateControlString(new Date(app.raflow.Flow.Data.meta.NoticeToMoveDate));
+                                    var moveDate = w2uiUTCDateControlString(new Date((app.raflow.Flow.Data.meta.NoticeToMoveDate).replace(" ", "T").replace(" UTC", "Z")));
                                     this.record.RANoticeToMoveDate = moveDate;
                                 }
 
@@ -666,8 +664,12 @@ window.loadRAActionForm = function() {
                         if(event.value_new.text === 'Decline') {
                             $('button[name=save]').attr('disabled',true);
                             w2ui.RAActionForm.get('RADeclineReason1').hidden = false;
-                        } else {
+                        } else if(event.value_new.text === 'Approve') {
                             $('button[name=save]').attr('disabled',false);
+                            w2ui.RAActionForm.get('RADeclineReason1').hidden = true;
+                            delete this.record.RADeclineReason1;
+                        } else {
+                            $('button[name=save]').attr('disabled',true);
                             w2ui.RAActionForm.get('RADeclineReason1').hidden = true;
                             delete this.record.RADeclineReason1;
                         }
@@ -677,8 +679,12 @@ window.loadRAActionForm = function() {
                         if(event.value_new.text === 'Decline') {
                             $('button[name=save]').attr('disabled',true);
                             w2ui.RAActionForm.get('RADeclineReason2').hidden = false;
-                        } else {
+                        } else if(event.value_new.text === 'Approve') {
                             $('button[name=save]').attr('disabled',false);
+                            w2ui.RAActionForm.get('RADeclineReason2').hidden = true;
+                            delete this.record.RADeclineReason2;
+                        } else {
+                            $('button[name=save]').attr('disabled',true);
                             w2ui.RAActionForm.get('RADeclineReason2').hidden = true;
                             delete this.record.RADeclineReason2;
                         }
