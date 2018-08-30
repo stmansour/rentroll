@@ -1,0 +1,283 @@
+{
+    "record": {
+        "DataFulfilled": {
+            "dates": true,
+            "parentchild": true,
+            "people": true,
+            "pets": true,
+            "rentables": true,
+            "tie": true,
+            "vehicles": true
+        },
+        "Flow": {
+            "BID": 1,
+            "CreateBy": 0,
+            "CreateTS": "0001-01-01T00:00:00Z",
+            "Data": {
+                "dates": {
+                    "AgreementStart": "2/13/2018",
+                    "AgreementStop": "3/1/2020",
+                    "CSAgent": 283,
+                    "PossessionStart": "2/13/2018",
+                    "PossessionStop": "3/1/2020",
+                    "RentStart": "2/13/2018",
+                    "RentStop": "3/1/2020"
+                },
+                "meta": {
+                    "ActiveDate": "2018-08-30 17:44:00 UTC",
+                    "ActiveName": "UID-0",
+                    "ActiveUID": -99999,
+                    "ApplicationReadyDate": "2018-08-23 22:47:00 UTC",
+                    "ApplicationReadyName": "Steve Mansour",
+                    "ApplicationReadyUID": 211,
+                    "Approver1": 211,
+                    "Approver1Name": "Steve Mansour",
+                    "Approver2": 211,
+                    "Approver2Name": "Steve Mansour",
+                    "BID": 1,
+                    "DecisionDate1": "2018-08-23 22:47:00 UTC",
+                    "DecisionDate2": "2018-08-23 22:47:00 UTC",
+                    "DeclineReason1": 0,
+                    "DeclineReason2": 0,
+                    "DocumentDate": "2018-02-14 00:00:00 UTC",
+                    "HavePets": false,
+                    "HaveVehicles": false,
+                    "LastTMPASMID": 4,
+                    "LastTMPPETID": 1,
+                    "LastTMPTCID": 1,
+                    "LastTMPVID": 0,
+                    "LeaseTerminationReason": 0,
+                    "MoveInDate": "2018-08-23 22:47:00 UTC",
+                    "MoveInName": "Steve Mansour",
+                    "MoveInUID": 211,
+                    "NoticeToMoveDate": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveName": "UID-0",
+                    "NoticeToMoveReported": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveUID": 0,
+                    "RAFLAGS": 52,
+                    "RAID": 26,
+                    "TerminationDate": "1900-01-01 00:00:00 UTC",
+                    "TerminatorName": "UID-0",
+                    "TerminatorUID": 0
+                },
+                "parentchild": [],
+                "people": [
+                    {
+                        "Address": "39569 Hemlock",
+                        "Address2": "",
+                        "AlternateEmailAddress": "94265 Fifth,New London,ID 40495",
+                        "Bankruptcy": false,
+                        "BankruptcyDes": "",
+                        "CellPhone": "(364) 665-1725",
+                        "City": "Orem",
+                        "Comment": "",
+                        "CompanyAddress": "99211 Kansas",
+                        "CompanyCity": "Ogden",
+                        "CompanyEmail": "CharmingShoppesIncOgden211@abiz.com",
+                        "CompanyName": "Charming Shoppes Inc.",
+                        "CompanyPhone": "(544) 872-5108",
+                        "CompanyPostalCode": "65466",
+                        "CompanyState": "IA",
+                        "Convicted": false,
+                        "ConvictedDes": "",
+                        "Country": "USA",
+                        "CreditLimit": 28524,
+                        "CurrentAddress": "36503 Pioneer, Marysville, NJ 11528",
+                        "CurrentLandLordName": "Khalilah Potter",
+                        "CurrentLandLordPhoneNo": "(276) 305-0365",
+                        "CurrentLengthOfResidency": "4 years 9 months",
+                        "CurrentReasonForMoving": 114,
+                        "DateofBirth": "5/19/1972",
+                        "DriversLicense": "P7649422",
+                        "EligibleFuturePayor": true,
+                        "EligibleFutureUser": false,
+                        "EmergencyContactAddress": "31030 8th,Richmond,MA 39106",
+                        "EmergencyContactEmail": "MRobbins2996@yahoo.com",
+                        "EmergencyContactName": "Marcelle Robbins",
+                        "EmergencyContactTelephone": "(227) 763-1285",
+                        "Evicted": false,
+                        "EvictedDes": "",
+                        "FirstName": "Lulu",
+                        "GrossIncome": 83269,
+                        "Industry": 233,
+                        "IsCompany": false,
+                        "IsGuarantor": false,
+                        "IsOccupant": true,
+                        "IsRenter": true,
+                        "LastName": "Emerson",
+                        "MiddleName": "Jospeh",
+                        "Occupation": "musicologist",
+                        "OtherPreferences": "",
+                        "Points": 0,
+                        "PostalCode": "23237",
+                        "PreferredName": "Beata",
+                        "PrimaryEmail": "LuluE7606@comcast.net",
+                        "PriorAddress": "51173 Lake, Flint, MO 86258",
+                        "PriorLandLordName": "Caprice Pitts",
+                        "PriorLandLordPhoneNo": "(282) 577-9499",
+                        "PriorLengthOfResidency": "9 years 9 months",
+                        "PriorReasonForMoving": 99,
+                        "SecondaryEmail": "LuluE9924@bdiddy.com",
+                        "SourceSLSID": 34,
+                        "SpecialNeeds": "",
+                        "State": "WY",
+                        "TCID": 4,
+                        "TMPTCID": 1,
+                        "TaxpayorID": "08486357",
+                        "ThirdPartySource": "Annis Collier",
+                        "Website": "",
+                        "WorkPhone": "(515) 731-1422"
+                    }
+                ],
+                "pets": [
+                    {
+                        "Breed": "Oriental Longhair",
+                        "Color": "tortoiseshell",
+                        "Fees": [
+                            {
+                                "ARID": 24,
+                                "ARName": "Pet Rent",
+                                "ASMID": 426,
+                                "AtSigningPreTax": 0,
+                                "Comment": "Continuation of ASMID 57 from RAID 4",
+                                "ContractAmount": 5.71,
+                                "ProrationCycle": 4,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "2/13/2018",
+                                "Stop": "2/13/2018",
+                                "TMPASMID": 3,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 24,
+                                "ARName": "Pet Rent",
+                                "ASMID": 427,
+                                "AtSigningPreTax": 0,
+                                "Comment": "Continuation of ASMID 57 from RAID 4",
+                                "ContractAmount": 10,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "3/1/2018",
+                                "Stop": "3/1/2020",
+                                "TMPASMID": 4,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "Name": "Crappy ",
+                        "PETID": 3,
+                        "TMPPETID": 1,
+                        "TMPTCID": 1,
+                        "Type": "cat",
+                        "Weight": 20
+                    }
+                ],
+                "rentables": [
+                    {
+                        "AtSigningPreTax": 0,
+                        "Fees": [
+                            {
+                                "ARID": 26,
+                                "ARName": "Rent Non-Taxable",
+                                "ASMID": 418,
+                                "AtSigningPreTax": 0,
+                                "Comment": "Continuation of ASMID 49 from RAID 4",
+                                "ContractAmount": 571.43,
+                                "ProrationCycle": 4,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "2/13/2018",
+                                "Stop": "2/13/2018",
+                                "TMPASMID": 1,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 26,
+                                "ARName": "Rent Non-Taxable",
+                                "ASMID": 419,
+                                "AtSigningPreTax": 0,
+                                "Comment": "Continuation of ASMID 49 from RAID 4",
+                                "ContractAmount": 1000,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "3/1/2018",
+                                "Stop": "3/1/2020",
+                                "TMPASMID": 2,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "RID": 4,
+                        "RTFLAGS": 4,
+                        "RTID": 1,
+                        "RentCycle": 6,
+                        "RentableName": "Rentable004",
+                        "SalesTax": 0,
+                        "TransOccTax": 0
+                    }
+                ],
+                "tie": {
+                    "people": [
+                        {
+                            "PRID": 4,
+                            "TMPTCID": 1
+                        }
+                    ]
+                },
+                "vehicles": []
+            },
+            "FlowID": 0,
+            "FlowType": "RA",
+            "ID": 26,
+            "LastModBy": 0,
+            "LastModTime": "0001-01-01T00:00:00Z",
+            "UserRefNo": ""
+        },
+        "ValidationCheck": {
+            "errors": {
+                "dates": {
+                    "errors": {},
+                    "total": 0
+                },
+                "parentchild": {
+                    "errors": [],
+                    "total": 0
+                },
+                "people": {
+                    "errors": [],
+                    "total": 0
+                },
+                "pets": {
+                    "errors": [],
+                    "total": 0
+                },
+                "rentables": {
+                    "errors": [],
+                    "total": 0
+                },
+                "tie": {
+                    "people": {
+                        "errors": [],
+                        "total": 0
+                    }
+                },
+                "vehicles": {
+                    "errors": [],
+                    "total": 0
+                }
+            },
+            "nonFieldsErrors": {
+                "dates": [],
+                "parentchild": [],
+                "people": [],
+                "pets": [],
+                "rentables": [],
+                "tie": [],
+                "vehicles": []
+            },
+            "total": 0
+        }
+    },
+    "status": "success"
+}
