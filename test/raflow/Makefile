@@ -1,4 +1,4 @@
-DIRS = initraflow validation actions flow2ra
+DIRS = initraflow validation actions f2ra flow2ra
 
 raflow:
 	for dir in $(DIRS); do make -C $$dir;done

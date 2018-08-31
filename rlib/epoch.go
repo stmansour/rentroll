@@ -1,6 +1,8 @@
 package rlib
 
-import "time"
+import (
+	"time"
+)
 
 // GetRoundingDate returns the date with rounding
 func GetRoundingDate(t time.Time) (n time.Time) {
@@ -180,61 +182,3 @@ func GetMonthlyEpochDate(base, d1 time.Time) (epoch time.Time) {
 func isLeap(year int) bool {
 	return year%4 == 0 && (year%100 != 0 || year%400 == 0)
 }
-
-// // SnapToInstance date takes an arbitrary date b and returns the closest instance
-// // date on or before the d.
-// //
-// // INPUTS
-// //   b  the date near the instance you want
-// //  d1  any instance start date
-// //-------------------------------------------------------------------------------
-// func SnapToInstanceDate(b, d1 time.Time, cycle int64) time.Time {
-//
-// 	// DECIDE BASED ON CYCLE
-// 	switch cycle {
-// 	case RECURNONE:
-// 		return d;
-//
-// 	case RECURSECONDLY:
-// 		return time.Date(d1.Year(), d1.Month(), d1.Day(), d1.Hour(), d1.Minute(), d1.Second(), b.Nanosecond(), b.Location())
-//
-// 	case RECURMINUTELY:
-// 		epoch = time.Date(d1.Year(), d1.Month(), d1.Day(), d1.Hour(), d1.Minute(), b.Second(), b.Nanosecond(), b.Location())
-//
-// 	case RECURHOURLY:
-// 		epoch = time.Date(d1.Year(), d1.Month(), d1.Day(), d1.Hour(), b.Minute(), b.Second(), b.Nanosecond(), b.Location())
-//
-// 		// IF EPOCH IS PASSED (PRIOR TO START), THEN MAKE IT HAPPEN ON NEXT HOUR
-// 		if epoch.Before(d1) {
-// 			epoch = epoch.Add(time.Hour)
-// 		}
-//
-// 	case RECURDAILY:
-// 		epoch = time.Date(d1.Year(), d1.Month(), d1.Day(), b.Hour(), b.Minute(), b.Second(), b.Nanosecond(), b.Location())
-//
-// 	case RECURWEEKLY:
-// 		epoch = GetWeeklyEpochDate(b, d1)
-//
-// 	case RECURMONTHLY:
-// 		return time.Date(b.Year(), b.Month(), d1.Day(), d1.Hour(), d1.Minute(), d1.Second(), d1.Nanosecond(), d1.Location())
-//
-// 	case RECURQUARTERLY:
-// 		epoch = time.Date(d1.Year(), d1.Month(), b.Day(), b.Hour(), b.Minute(), b.Second(), b.Nanosecond(), b.Location())
-//
-// 	case RECURYEARLY:
-// 		epoch = time.Date(d1.Year(), b.Month(), b.Day(), b.Hour(), b.Minute(), b.Second(), b.Nanosecond(), b.Location())
-//
-// 		// IF EPOCH IS PASSED (PRIOR TO START), THEN MAKE IT HAPPEN ON NEXT YEAR
-// 		if epoch.Before(d1) {
-// 			epoch = epoch.AddDate(1, 0, 0)
-// 		}
-// 	}
-//
-// 	// IF EPOCH FALLS BEFORE THE *END DATE* (i.e, IN GIVEN DATE RANGE)
-// 	// THEN MARK "OK" FLAG AS TRUE
-// 	if epoch.Before(d2) {
-// 		ok = true
-// 	}
-//
-// 	return
-// }

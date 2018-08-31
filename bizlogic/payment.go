@@ -166,12 +166,13 @@ func PayAssessment(ctx context.Context, a *rlib.Assessment, rcpt *rlib.Receipt, 
 	// pay the assessment
 	//-----------------------
 	var ra rlib.ReceiptAllocation
-	ra.Amount = amtToUse                           // this is what can be applied to pay off the assessment
-	ra.ASMID = a.ASMID                             // this assessment
-	ra.BID = a.BID                                 // this business
-	ra.RCPTID = rcpt.RCPTID                        // bind this allocation the the receipt
-	ra.Dt = *dt                                    // the date is the one supplied to this routine, may be different than the Receipt's date
-	ra.RAID = a.RAID                               // this Rental Agreement
+	ra.Amount = amtToUse    // this is what can be applied to pay off the assessment
+	ra.ASMID = a.ASMID      // this assessment
+	ra.BID = a.BID          // this business
+	ra.RCPTID = rcpt.RCPTID // bind this allocation the the receipt
+	ra.Dt = *dt             // the date is the one supplied to this routine, may be different than the Receipt's date
+	ra.RAID = a.RAID        // this Rental Agreement
+	rlib.Console("a.BID = %d, a.ARID = %d\n", a.BID, a.ARID)
 	car := rlib.RRdb.BizTypes[a.BID].AR[a.ARID]    // this is the assessment's Account Rule
 	dar := rlib.RRdb.BizTypes[a.BID].AR[rcpt.ARID] // debit -- this is the receipt's Account Rule, credit account
 
