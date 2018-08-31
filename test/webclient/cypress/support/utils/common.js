@@ -473,6 +473,7 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                         break;
                     case "CSAgent": // Date section
                     case "Weight": // Pet Section
+                    case "VehicleYear": // Vehicle Section
                         fieldValue = fieldValue.toString();
                         break;
                     case "TMPTCID":
@@ -542,6 +543,7 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
         case "taskDescForm":
         case "RADatesForm":
         case "RAPetForm":
+        case "RAVehicleForm":
             // do nothing
             break;
         default:

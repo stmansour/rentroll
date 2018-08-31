@@ -108,9 +108,9 @@ describe('AIR Roller UI Tests - Rental Agreements', function () {
      * Expect:
      * Cell value must be same as record's field value from API Response.
      ***********************/
-    it('Grid Records', function () {
-        common.testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, testConfig);
-    });
+    // it('Grid Records', function () {
+    //     common.testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, testConfig);
+    // });
 
     /***********************
      * 1. Open existing rental agreement
@@ -216,14 +216,14 @@ describe('AIR Roller UI Tests - Rental Agreements', function () {
      * Expect:
      * RADatesForm must have data which match with the Server response
      ***********************/
-    it('RAFlow -- Dates', function () {
-        let datesData = flowData.dates;
-        // Date section
-        cy.get('#dates a').click({force: true}).wait(constants.WAIT_TIME);
-        testConfig.form = "RADatesForm";
-        testConfig.buttonNamesInDetailForm = ["save"];
-        common.detailFormTest(datesData, testConfig);
-    });
+    // it('RAFlow -- Dates', function () {
+    //     let datesData = flowData.dates;
+    //     // Date section
+    //     cy.get('#dates a').click({force: true}).wait(constants.WAIT_TIME);
+    //     testConfig.form = "RADatesForm";
+    //     testConfig.buttonNamesInDetailForm = ["save"];
+    //     common.detailFormTest(datesData, testConfig);
+    // });
 
     /***********************
      * Open People section in RAFlow
@@ -231,15 +231,15 @@ describe('AIR Roller UI Tests - Rental Agreements', function () {
      * Expect:
      * RAPeopeGrid must have data which match with the Server response
      ***********************/
-    it('RAFlow -- People', function () {
-        let peopleData = flowData.people;
-        // people section
-        cy.get('#people a').click({force: true}).wait(constants.WAIT_TIME);
-
-        testConfig.grid = "RAPeopleGrid";
-        testConfig.skipColumns = ["haveError"];
-        common.testGridRecords(peopleData, peopleData.length, testConfig);
-    });
+    // it('RAFlow -- People', function () {
+    //     let peopleData = flowData.people;
+    //     // people section
+    //     cy.get('#people a').click({force: true}).wait(constants.WAIT_TIME);
+    //
+    //     testConfig.grid = "RAPeopleGrid";
+    //     testConfig.skipColumns = ["haveError"];
+    //     common.testGridRecords(peopleData, peopleData.length, testConfig);
+    // });
 
     /***********************
      * Open Pets section in RAFlow
@@ -252,26 +252,28 @@ describe('AIR Roller UI Tests - Rental Agreements', function () {
      * Expect:
      * Pet form  have loaded data with match with the server response
      ***********************/
-    it('RAFlow -- Pets', function () {
-        let petsData = flowData.pets;
-        cy.get('#pets a').click({force: true}).wait(constants.WAIT_TIME);
-        if (petsData.length > 0) {
-            testConfig.grid = "RAPetsGrid";
-            testConfig.skipColumns = ["haveError"];
-            common.testGridRecords(petsData, petsData.length, testConfig);
-
-            // click on the first record of grid
-            cy.get(selectors.getSecondRecordInGridSelector(testConfig.grid)).click().wait(constants.WAIT_TIME);
-            testConfig.form = "RAPetForm";
-            common.detailFormTest(petsData[0], testConfig);
-
-            // Close the form
-            cy.get('.w2ui-form-box [class="fas fa-times"]').click().wait(constants.WAIT_TIME);
-
-            // Check that form should not visible after closing it
-            cy.get(selectors.getFormSelector(testConfig.form)).should('not.be.visible');
-        }
-    });
+    // it('RAFlow -- Pets', function () {
+    //     let petsData = flowData.pets;
+    //     cy.get('#pets a').click({force: true}).wait(constants.WAIT_TIME);
+    //     if (petsData.length > 0) {
+    //         testConfig.grid = "RAPetsGrid";
+    //         testConfig.skipColumns = ["haveError"];
+    //         common.testGridRecords(petsData, petsData.length, testConfig);
+    //
+    //         // click on the first record of grid
+    //         cy.get(selectors.getSecondRecordInGridSelector(testConfig.grid)).click().wait(constants.WAIT_TIME);
+    //         testConfig.form = "RAPetForm";
+    //         common.detailFormTest(petsData[0], testConfig);
+    //
+    //         cy.log(petsData[0]);
+    //
+    //         // Close the form
+    //         cy.get('.w2ui-form-box [class="fas fa-times"]').click().wait(constants.WAIT_TIME);
+    //
+    //         // Check that form should not visible after closing it
+    //         cy.get(selectors.getFormSelector(testConfig.form)).should('not.be.visible');
+    //     }
+    // });
 
     /***********************
      * Open Vehicles section in RAFlow
@@ -285,6 +287,19 @@ describe('AIR Roller UI Tests - Rental Agreements', function () {
         testConfig.skipColumns = ["haveError"];
         cy.get('#vehicles a').click({force: true}).wait(constants.WAIT_TIME);
         common.testGridRecords(vehiclesData, vehiclesData.length, testConfig);
+
+        // click on the first record of grid
+        cy.get(selectors.getSecondRecordInGridSelector(testConfig.grid)).click().wait(constants.WAIT_TIME);
+        testConfig.form = "RAVehicleForm";
+        common.detailFormTest(vehiclesData[0], testConfig);
+
+        cy.log(vehiclesData[0]);
+
+        // Close the form
+        cy.get('.w2ui-form-box [class="fas fa-times"]').click().wait(constants.WAIT_TIME);
+
+        // Check that form should not visible after closing it
+        cy.get(selectors.getFormSelector(testConfig.form)).should('not.be.visible');
     });
 
     /***********************
@@ -293,13 +308,13 @@ describe('AIR Roller UI Tests - Rental Agreements', function () {
      * Expect:
      * RARentablesGrid must have data which match with the Server response
      ***********************/
-    it('RAFlow -- Rentables', function () {
-        let rentablesData = flowData.rentables;
-        testConfig.grid = "RARentablesGrid";
-        testConfig.skipColumns = ["haveError", "RemoveRec"];
-        cy.get('#rentables a').click({force: true}).wait(constants.WAIT_TIME);
-        common.testGridRecords(rentablesData, rentablesData.length, testConfig);
-    });
+    // it('RAFlow -- Rentables', function () {
+    //     let rentablesData = flowData.rentables;
+    //     testConfig.grid = "RARentablesGrid";
+    //     testConfig.skipColumns = ["haveError", "RemoveRec"];
+    //     cy.get('#rentables a').click({force: true}).wait(constants.WAIT_TIME);
+    //     common.testGridRecords(rentablesData, rentablesData.length, testConfig);
+    // });
 
     /***********************
      * Open Parent/Child section in RAFlow
@@ -307,13 +322,13 @@ describe('AIR Roller UI Tests - Rental Agreements', function () {
      * Expect:
      * RAParentChildGrid must have data which match with the Server response
      ***********************/
-    it('RAFlow -- Parent/Child', function () {
-        let parenChildData = flowData.parentchild;
-        testConfig.grid = "RAParentChildGrid";
-        testConfig.skipColumns = ["haveError"];
-        cy.get('#parentchild a').click({force: true}).wait(constants.WAIT_TIME);
-        common.testGridRecords(parenChildData, parenChildData.length, testConfig);
-    });
+    // it('RAFlow -- Parent/Child', function () {
+    //     let parenChildData = flowData.parentchild;
+    //     testConfig.grid = "RAParentChildGrid";
+    //     testConfig.skipColumns = ["haveError"];
+    //     cy.get('#parentchild a').click({force: true}).wait(constants.WAIT_TIME);
+    //     common.testGridRecords(parenChildData, parenChildData.length, testConfig);
+    // });
 
     /***********************
      * Open Tie section in RAFlow
@@ -321,13 +336,13 @@ describe('AIR Roller UI Tests - Rental Agreements', function () {
      * Expect:
      * RATiePeopleGrid must have data which match with the Server response
      ***********************/
-    it('RAFlow -- Tie', function () {
-        let tiePeopleData = flowData.tie.people;
-        testConfig.grid = "RATiePeopleGrid";
-        testConfig.skipColumns = ["haveError"];
-        cy.get('#tie a').click({force: true}).wait(constants.WAIT_TIME);
-        common.testGridRecords(tiePeopleData, tiePeopleData.length, testConfig);
-    });
+    // it('RAFlow -- Tie', function () {
+    //     let tiePeopleData = flowData.tie.people;
+    //     testConfig.grid = "RATiePeopleGrid";
+    //     testConfig.skipColumns = ["haveError"];
+    //     cy.get('#tie a').click({force: true}).wait(constants.WAIT_TIME);
+    //     common.testGridRecords(tiePeopleData, tiePeopleData.length, testConfig);
+    // });
 
     // -- Perform operation after all tests finish. It runs once after all tests in the block --
     after(function () {
