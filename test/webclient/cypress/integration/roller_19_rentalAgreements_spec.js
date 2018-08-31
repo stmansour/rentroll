@@ -271,10 +271,6 @@ describe('AIR Roller UI Tests - Rental Agreements', function () {
             // Check that form should not visible after closing it
             cy.get(selectors.getFormSelector(testConfig.form)).should('not.be.visible');
         }
-        testConfig.grid = "RAPetFeesGrid";
-        common.testGridRecords(petsData[0].Fees, petsData[0].Fees.length, testConfig);
-
-        cy.get(selectors.getFirstRecordInGridSelector(testConfig.grid)).click().wait(constants.WAIT_TIME);
     });
 
     /***********************
