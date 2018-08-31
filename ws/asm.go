@@ -37,7 +37,7 @@ type AssessmentSendForm struct {
 	CreateTS       rlib.JSONDateTime
 	CreateBy       int64
 	CreateByUser   string
-	ExpandPastInst int // if this is a new  Assessment and its epoch date is in the past, do we create instances in the past after saving the recurring Assessment?
+	ExpandPastInst bool // if this is a new  Assessment and its epoch date is in the past, do we create instances in the past after saving the recurring Assessment?
 	FLAGS          uint64
 	Mode           int // initializes edit mode: 0 = this instance only, 1 = this and future, 2 = all
 }
@@ -65,8 +65,8 @@ type AssessmentSaveForm struct {
 	Stop           rlib.JSONDate
 	InvoiceNo      int64
 	Comment        string
-	ReverseMode    int // if this a Reversal (delete), then 0 = this instance only, 1 = this and future instances, 2 = all instances
-	ExpandPastInst int // if this is a new  Assessment and its epoch date is in the past, do we create instances in the past after saving the recurring Assessment?
+	ReverseMode    int  // if this a Reversal (delete), then 0 = this instance only, 1 = this and future instances, 2 = all instances
+	ExpandPastInst bool // if this is a new  Assessment and its epoch date is in the past, do we create instances in the past after saving the recurring Assessment?
 	FLAGS          uint64
 	Mode           int // 0 = this instance only, 1 = this and future, 2 = all
 }
@@ -157,6 +157,13 @@ var asmQuerySelectFields = []string{
 	"Assessments.ARID",
 	"AR.Name",
 	"Assessments.FLAGS",
+}
+
+func getExpandMode(b bool) int {
+	if b {
+		return 1
+	}
+	return 0
 }
 
 // SvcSearchHandlerAssessments generates a report of all Assessments defined business d.BID
@@ -357,7 +364,7 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	// Now just update the database
 	if a.ASMID == 0 && d.ASMID == 0 {
-		errlist := bizlogic.InsertAssessment(r.Context(), &a, foo.Record.ExpandPastInst)
+		errlist = bizlogic.InsertAssessment(r.Context(), &a, getExpandMode(foo.Record.ExpandPastInst))
 		if len(errlist) > 0 {
 			SvcErrListReturn(w, errlist, funcname)
 			return
@@ -365,7 +372,7 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	} else if a.ASMID > 0 || d.ASMID > 0 {
 		rlib.Console(">>>> UPDATE EXISTING ASSESSMENT  ASMID = %d\n", a.ASMID)
 		now := time.Now() // mark Assessment reversed at this time
-		errlist = bizlogic.UpdateAssessment(r.Context(), &a, foo.Record.Mode, &now, foo.Record.ExpandPastInst)
+		errlist = bizlogic.UpdateAssessment(r.Context(), &a, foo.Record.Mode, &now, getExpandMode(foo.Record.ExpandPastInst))
 		if len(errlist) > 0 {
 			SvcErrListReturn(w, errlist, funcname)
 			return
@@ -456,7 +463,7 @@ func getAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
-		gg.ExpandPastInst = 1 // assume we don't expand unless told otherwise
+		gg.ExpandPastInst = false // assume we don't expand unless told otherwise
 
 		gg.CreateByUser = rlib.GetNameForUID(r.Context(), gg.CreateBy)
 		gg.LastModByUser = rlib.GetNameForUID(r.Context(), gg.LastModBy)

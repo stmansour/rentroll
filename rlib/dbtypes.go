@@ -1963,6 +1963,7 @@ type RRprepSQL struct {
 	InsertTBind                             *sql.Stmt
 	UpdateTBind                             *sql.Stmt
 	DeleteTBind                             *sql.Stmt
+	GetRentalAgreementChain                 *sql.Stmt
 }
 
 // DeleteBusinessFromDB deletes information from all tables if it is part of the supplied BID.

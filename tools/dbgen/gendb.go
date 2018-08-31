@@ -797,6 +797,7 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 		ra.DecisionDate2 = dbConf.DtStart
 		ra.MoveInUID = GenerateValidUID()
 		ra.MoveInDate = dbConf.DtStart
+		ra.DocumentDate = dbConf.DtStart
 		ra.ActiveUID = GenerateValidUID()
 		ra.ActiveDate = dbConf.DtStart
 		ra.OtherPreferences = ""

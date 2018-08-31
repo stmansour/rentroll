@@ -393,8 +393,8 @@ window.buildAssessmentElements = function () {
                 });
             },
             save: function () {
-                var x = getCurrentBusiness(),
-                    grid = w2ui.asmsGrid;
+                var x = getCurrentBusiness();
+                var grid = w2ui.asmsGrid;
 
                 grid.selectNone();
                 w2ui.asmEpochForm.url = '/v1/asm/' + x.value + '/' + w2ui.asmEpochForm.record.ASMID;
@@ -569,6 +569,7 @@ window.buildAssessmentElements = function () {
                     data.postData.record.ProrationCycle = index;
                 }
             });
+            //
         },
     });
 
@@ -993,4 +994,3 @@ window.popupAsmRevMode = function (mode,form) {
         }
     });
 };
-

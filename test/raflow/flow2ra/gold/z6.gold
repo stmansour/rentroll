@@ -56,7 +56,7 @@
                     "NoticeToMoveUID": 0,
                     "RAFLAGS": 54,
                     "RAID": 3,
-                    "TerminationDate": "2018-08-23 04:16:00 UTC",
+                    "TerminationDate": "2018-08-30 17:48:00 UTC",
                     "TerminatorName": "UID-0",
                     "TerminatorUID": -99999
                 },
@@ -203,7 +203,7 @@
                                 "RentCycle": 6,
                                 "SalesTax": 0,
                                 "Start": "3/1/2018",
-                                "Stop": "8/22/2018",
+                                "Stop": "8/1/2018",
                                 "TMPASMID": 1,
                                 "TransOccTax": 0
                             },

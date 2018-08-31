@@ -7,7 +7,7 @@ CREATENEWDB=0
 RRBIN="../../../tmp/rentroll"
 
 echo "Create new database..."
-mysql --no-defaults rentroll < rr.sql
+mysql --no-defaults rentroll < x.sql
 
 source ../../share/base.sh
 
@@ -20,7 +20,7 @@ startRentRollServer
 #  An existing rental agreement (RAID=1) is being amended. This test
 #  verifies that all assessments from RAID=1 to the new RAID (2) are correct.
 #  It also verifies that payments are properly filtered. For example,
-#  if the original agreement there is a Security Deposit request in
+#  I the original agreement there is a Security Deposit request in
 #  September. This security deposit is not in the fees for the amended
 #  Rental Agreement, so it should be reversed in the old rental agreement
 #
@@ -28,36 +28,32 @@ startRentRollServer
 #  The flow for RAID 1 is updated to the active state causing an amended
 #  Rental Agreement (RAID=24) to be created.
 #  RAID  1 - AgreementStart = 2/13/2018,  AgreementStop = 3/1/2020
-#  RAID 24 - AgreementStart = 8/20/2018,  AgreementStop = 3/1/2020
-#            The flow used to create RAID 24 has no links between its fees and
-#            the assessments in RAID 1. So, the handling tests how "unlinked"
-#            assessments are handled when amending a rental agreement.
+#  RAID  2 - AgreementStart = 6/8/2018,  AgreementStop = 3/1/2020
 #
 #  Expected Results:
 #   1.  All RAID 1 recurring assessment definitions that overlap the period
-#       8/8/2018 - 3/1/2020 must have their stop date set to 8/8/201
+#       6/8/2018 - 3/1/2020 must have their stop date set to 6/8/201
 #   2.  The RAID 1 rent assessment has already occured, and it has been paid.
 #       Same for the RAID 1 pet rent. The assessments must be reversed and the
 #       payments must become available.
-#   3.  There is a Security Deposit assessment for RAID 1 due on 9/20 in the
-#       old rental agreement. It is not in the fees list for the RefNo, so it
-#       should be reversed in RAID 1 and not present in RAID 24
+#   3.  All rent assessment instances for the period containing 6/8/2018 and
+#       all periods after 6/8/2018 must be Reversed.
+#   4.  Rent assessments for the month of June and all months afterwards
+#       up to the present must have an instance in the database tied to the
+#       new rental agreement
+#   5.  Rent for the first period of the change (June 1, 2018) will have
+#       a prorated assessment for RAID 1 covering June 1 to 8, and another
+#       prorated assessment covering June 8 - 30.
 #------------------------------------------------------------------------------
-RAID1REFNO="T7LYN5K18Z7F756KE64C"
-RAIDAMENDEDID="24"
+RAID1REFNO="UJF64M3Y28US5BHW5400"
+RAIDAMENDEDID="2"
 
 # Send the command to change the flow to Active:
 echo "%7B%22UserRefNo%22%3A%22${RAID1REFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
 dojsonPOST "http://localhost:8270/v1/raactions/1/" "request" "a0"  "WebService--Action-setTo-ACTIVE"
 
-# RAID1REFNO="8VMAH0O53D6R4W25P5V0"
-# RAIDAMENDEDID="2"
-#
-# # Send the command to change the flow to Active:
-# echo "%7B%22UserRefNo%22%3A%22${RAID1REFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
-# dojsonPOST "http://localhost:8270/v1/raactions/1/" "request" "a0"  "WebService--Action-setTo-ACTIVE"
-# stopRentRollServer
-# exit 0
+stopRentRollServer
+exit 0
 
 # Generate an assessment report from Aug 1 to Oct 1. The security deposit
 # assessment for RAID 1 should no longer be present
@@ -132,12 +128,12 @@ RAIDAMENDEDID="25"
 
 # Send the command to change the RefNo to Active:
 echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
-dojsonPOST "http://localhost:8270/v1/raactions/1/" "request" "d0"  "WebService--Action-setTo-ACTIVE"
+dojsonPOST "http://localhost:8270/v1/raactions/1/" "request" "b0"  "WebService--Action-setTo-ACTIVE"
 
 # Generate a payor statement -- ensure that 2 RAs are there and have correct
 # info.
 echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%228%2F1%2F2018%22%2C%22searchDtStop%22%3A%229%2F30%2F2018%22%2C%22Bool1%22%3Afalse%7D" > request
-dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "d1"  "PayorStatement--StmtInfo"
+dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "b1"  "PayorStatement--StmtInfo"
 
 #------------------------------------------------------------------------------
 #  TEST c
@@ -162,7 +158,7 @@ dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "d1"  "PayorStatem
 echo "Create new database..."
 mysql --no-defaults rentroll < rrsm1.sql
 
-RAIDREFNO="8VMAH0O53D6R4W25P5V0"
+RAIDREFNO="A686LT3TUPX1YZ961X91"
 
 # Send the command to change the RefNo to Active:
 echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
