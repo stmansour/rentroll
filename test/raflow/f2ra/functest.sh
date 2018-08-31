@@ -6,9 +6,6 @@ DBGEN=../../../tools/dbgen
 CREATENEWDB=0
 RRBIN="../../../tmp/rentroll"
 
-echo "Create new database..."
-mysql --no-defaults rentroll < x0.sql
-
 source ../../share/base.sh
 
 echo "STARTING RENTROLL SERVER"
@@ -52,9 +49,12 @@ startRentRollServer
 RAID1REFNO="UJF64M3Y28US5BHW5400"
 RAIDAMENDEDID="2"
 
-# Send the command to change the flow to Active:
-echo "%7B%22UserRefNo%22%3A%22${RAID1REFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
-dojsonPOST "http://localhost:8270/v1/raactions/1/" "request" "a0"  "WebService--Action-setTo-ACTIVE"
+# echo "Create new database... x0.sql"
+# mysql --no-defaults rentroll < x0.sql
+#
+# # Send the command to change the flow to Active:
+# echo "%7B%22UserRefNo%22%3A%22${RAID1REFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
+# dojsonPOST "http://localhost:8270/v1/raactions/1/" "request" "a0"  "WebService--Action-setTo-ACTIVE"
 
 # stopRentRollServer
 # exit 0
@@ -90,7 +90,7 @@ dojsonPOST "http://localhost:8270/v1/raactions/1/" "request" "a0"  "WebService--
 #
 #
 #------------------------------------------------------------------------------
-echo "Create new database..."
+echo "Create new database... x1.sql"
 mysql --no-defaults rentroll < x1.sql
 
 RAIDREFNO="5R6I7HQM1M1922LD35HH"

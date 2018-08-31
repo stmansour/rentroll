@@ -12,6 +12,12 @@ import (
 	"time"
 )
 
+var noClose = rlib.ClosePeriod{
+	Dt:               rlib.TIME0,
+	OpenPeriodDt:     rlib.TIME0,
+	ExpandAsmDtStart: rlib.TIME0,
+}
+
 // AssessmentSendForm is the outbound structure specifically for the UI. It will be
 // automatically populated from an rlib.Assessment struct.
 type AssessmentSendForm struct {
@@ -362,11 +368,6 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.Console("\nAfter MigrateStructVals: a = %#v\n", a)
 	rlib.Console("Start = %s, Stop = %s\n\n", a.Start.Format(rlib.RRDATEINPFMT), a.Stop.Format(rlib.RRDATEINPFMT))
 
-	noClose := rlib.ClosePeriod{
-		Dt:           rlib.TIME0,
-		OpenPeriodDt: rlib.TIME0,
-	}
-
 	// Now just update the database
 	if a.ASMID == 0 && d.ASMID == 0 {
 		errlist = bizlogic.InsertAssessment(r.Context(), &a, getExpandMode(foo.Record.ExpandPastInst), &noClose)
@@ -525,11 +526,6 @@ func deleteAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
-	}
-
-	noClose := rlib.ClosePeriod{
-		Dt:           rlib.TIME0,
-		OpenPeriodDt: rlib.TIME0,
 	}
 
 	// reverse assessment in atomic transaction

@@ -75,10 +75,6 @@ func adjustAssessments(ctx context.Context, ra *rlib.RentalAgreement) []BizError
 	if err != nil {
 		return bizErrSys(&err)
 	}
-	noClose := rlib.ClosePeriod{
-		Dt:           rlib.TIME0,
-		OpenPeriodDt: rlib.TIME0,
-	}
 
 	for i := 0; i < len(m); i++ {
 		// rlib.Console("Found ASMID = %d\n", m[i].ASMID)

@@ -731,6 +731,8 @@ func InsertAssessment(ctx context.Context, a *rlib.Assessment, exp int, lc *rlib
 			d := rlib.InstanceDateCoveringDate(&a.Start, &lc.OpenPeriodDt, a.RentCycle)
 			rlib.Console("      assesment recurs, so snapping to next instance on or after: %s\n", lc.OpenPeriodDt.Format(rlib.RRDATEFMT3))
 			rlib.Console("      next instance is: %s\n", d.Format(rlib.RRDATEFMT3))
+			lc.ExpandAsmDtStart = a.Start // save this for expansion if needed
+			rlib.Console("      ExpandAsmDtStart = %s\n", lc.ExpandAsmDtStart.Format(rlib.RRDATEFMT3))
 			a.Start = d
 			if a.PASMID > 0 {
 				// this is an instance, so set the stop date as well...
@@ -775,7 +777,7 @@ func InsertAssessment(ctx context.Context, a *rlib.Assessment, exp int, lc *rlib
 	rlib.InitLedgerCache()
 
 	if a.RentCycle == rlib.RECURNONE { // for nonrecurring, use existng struct: a
-		rlib.ProcessJournalEntry(ctx, a, &xbiz, &d1, &d2, true, lc) // generates assessment instances
+		rlib.ExpandAssessment(ctx, a, &xbiz, &d1, &d2, true, lc) // generates assessment instances
 	} else if exp != 0 && a.PASMID == 0 && 0 == (a.FLAGS&(1<<6)) { // only expand if we're asked and if we're not an instance, and not a single instanced assessment
 		// rlib.Console("C1\n")
 		now := rlib.DateAtTimeZero(time.Now())
@@ -911,7 +913,7 @@ func createInstancesToDate(ctx context.Context, a *rlib.Assessment, xbiz *rlib.X
 	m := rlib.GetRecurrences(&a.Start, &a.Stop, &as, &now, a.RentCycle) // get all from the beginning up to now
 	for i := 0; i < len(m); i++ {
 		dt1, dt2 := rlib.GetMonthPeriodForDate(&m[i])
-		err := rlib.ProcessJournalEntry(ctx, a, xbiz, &dt1, &dt2, true, lc) // this generates the assessment instances
+		err := rlib.ExpandAssessment(ctx, a, xbiz, &dt1, &dt2, true, lc) // this generates the assessment instances
 		if err != nil {
 			return err
 		}
