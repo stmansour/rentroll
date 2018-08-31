@@ -120,3 +120,13 @@ export function getDropDownValueFieldSelector(fieldValue) {
 export function getEditRAFlowButtonSelector() {
     return '#edit_view_raflow';
 }
+
+// return form's close button selector
+export function getRAFormCloseButtonSelector() {
+    return '.w2ui-form-box [class="fas fa-times"]';
+}
+
+// return grid's close button selector
+export function getGridCloseButtonSelector() {
+    return '.w2ui-grid-box [class="fas fa-times"]';
+}

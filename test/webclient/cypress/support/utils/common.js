@@ -338,9 +338,17 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
 
     // formName
     let formName = testConfig.form;
+    let formSelector;
 
-    // get form selector
-    let formSelector = selectors.getFormSelector(formName);
+    switch (formName){
+        case "RARentableFeeForm":
+            formSelector = 'section[name=' + formName + ']';
+            break;
+        default:
+            // get form selector
+            formSelector = selectors.getFormSelector(formName);
+            break;
+    }
 
     // Check visibility of form
     cy.get(formSelector).should('be.visible');
@@ -423,10 +431,15 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                             ruleName = "ExpenseRules";
                         } else if (formName === "rtForm") {
                             win.w2ui[formName].get("ARID").options.items.forEach(function(item) {
-                                if (item.id == fieldValue) {
+                                if (item.id === fieldValue) {
                                     fieldValue = item.text;
                                 }
                             });
+                            break;
+                        }else if(formName === "RARentableFeeForm"){
+                            types = appSettings.raflow.arList[constants.BID];
+                            type = types.find(types => types.ARID === fieldValue);
+                            fieldValue = type.Name;
                             break;
                         }
                         types = appSettings[ruleName][constants.testBiz];
@@ -448,6 +461,12 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                     case "Proration":
                     case "GSRPC":
                         fieldValue = appSettings.cycleFreq[fieldValue];
+                        break;
+                    case "RentCycleText":
+                        fieldValue = appSettings.cycleFreq[recordDetailFromAPIResponse.RentCycle];
+                        break;
+                    case "ProrationCycleText":
+                        fieldValue = appSettings.cycleFreq[recordDetailFromAPIResponse.ProrationCycle];
                         break;
                     case "UseStatus":
                         fieldValue = appSettings.RSUseStatus[fieldValue];
@@ -544,6 +563,9 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
         case "RADatesForm":
         case "RAPetForm":
         case "RAVehicleForm":
+        case "RARentableFeeForm":
+        case "RAPetFeeForm":
+        case "RAVehicleFeeForm":
             // do nothing
             break;
         default:
