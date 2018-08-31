@@ -362,9 +362,14 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.Console("\nAfter MigrateStructVals: a = %#v\n", a)
 	rlib.Console("Start = %s, Stop = %s\n\n", a.Start.Format(rlib.RRDATEINPFMT), a.Stop.Format(rlib.RRDATEINPFMT))
 
+	noClose := rlib.ClosePeriod{
+		Dt:           rlib.TIME0,
+		OpenPeriodDt: rlib.TIME0,
+	}
+
 	// Now just update the database
 	if a.ASMID == 0 && d.ASMID == 0 {
-		errlist = bizlogic.InsertAssessment(r.Context(), &a, getExpandMode(foo.Record.ExpandPastInst))
+		errlist = bizlogic.InsertAssessment(r.Context(), &a, getExpandMode(foo.Record.ExpandPastInst), &noClose)
 		if len(errlist) > 0 {
 			SvcErrListReturn(w, errlist, funcname)
 			return
@@ -372,7 +377,7 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	} else if a.ASMID > 0 || d.ASMID > 0 {
 		rlib.Console(">>>> UPDATE EXISTING ASSESSMENT  ASMID = %d\n", a.ASMID)
 		now := time.Now() // mark Assessment reversed at this time
-		errlist = bizlogic.UpdateAssessment(r.Context(), &a, foo.Record.Mode, &now, getExpandMode(foo.Record.ExpandPastInst))
+		errlist = bizlogic.UpdateAssessment(r.Context(), &a, foo.Record.Mode, &now, &noClose, getExpandMode(foo.Record.ExpandPastInst))
 		if len(errlist) > 0 {
 			SvcErrListReturn(w, errlist, funcname)
 			return
@@ -522,9 +527,14 @@ func deleteAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
+	noClose := rlib.ClosePeriod{
+		Dt:           rlib.TIME0,
+		OpenPeriodDt: rlib.TIME0,
+	}
+
 	// reverse assessment in atomic transaction
 	now := time.Now() // mark Assessment reversed at this time
-	errlist := bizlogic.ReverseAssessment(ctx, &a, del.ReverseMode, &now)
+	errlist := bizlogic.ReverseAssessment(ctx, &a, del.ReverseMode, &now, &noClose)
 	if len(errlist) > 0 {
 		tx.Rollback()
 		SvcErrListReturn(w, errlist, funcname)

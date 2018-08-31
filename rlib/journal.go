@@ -465,8 +465,28 @@ func ProcessNewExpense(ctx context.Context, a *Expense, xbiz *XBusiness) error {
 // ProcessJournalEntry processes an assessment. It adds instances of recurring
 // assessments for the time period d1-d2 if they do not already exist. Then
 // creates a journal entry for the assessment.
+//
+// INPUTS
+//            ctx = db context
+//              a - the assessment of interest
+//           xbiz - business info
+//          d1,d2 - time range in the case where we need to add recurring instances
+//  updateLedgers - flag indicating whether ledgers should be updated
+//             lc - last close info. if assessments are added and the start
+//                  date is prior to lc.Dt, then snap the start date to lc.OpenPeriodDt.
+//
+//                  There are edge cases where a recurring assessment
+//                  definition was initially in a closed period and had to be snapped
+//                  to lc. We still want to expand the instances as though they were
+//                  starting from the original a.Start (before it was snapped).
+//                  The lc snap still applies, but a comment is appended that
+//                  indicates the original intended start date and notes that it
+//                  was snapped to do that date being in a closed perion.
+//
+// RETURNS:
+//    any error encountered
 //-----------------------------------------------------------------------------
-func ProcessJournalEntry(ctx context.Context, a *Assessment, xbiz *XBusiness, d1, d2 *time.Time, updateLedgers bool) error {
+func ProcessJournalEntry(ctx context.Context, a *Assessment, xbiz *XBusiness, d1, d2 *time.Time, updateLedgers bool, lc *ClosePeriod) error {
 	funcname := "ProcessJournalEntry"
 	var j Journal
 	var err error
@@ -489,6 +509,7 @@ func ProcessJournalEntry(ctx context.Context, a *Assessment, xbiz *XBusiness, d1
 	} else if a.RentCycle >= RECURSECONDLY && a.RentCycle <= RECURHOURLY {
 		// TBD
 		LogAndPrint("Unhandled assessment recurrence type: %d\n", a.RentCycle)
+		return fmt.Errorf("Unhandled assessment recurrence type: %d", a.RentCycle)
 	} else {
 		// Console("ProcessJournalEntry: 2\n")
 		// Console("Instances that occur between %s and %s for assessment dates(%s-%s)\n", d1.Format(RRDATEFMT4), d2.Format(RRDATEFMT4), a.Start.Format(RRDATEFMT4), a.Stop.Format(RRDATEFMT4))
@@ -498,11 +519,27 @@ func ProcessJournalEntry(ctx context.Context, a *Assessment, xbiz *XBusiness, d1
 		for i := 0; i < len(dl); i++ {
 			a1 := *a
 			// Console("ProcessJournalEntry: 3.1  a1.Amount = %.2f\n", a1.Amount)
-			a1.FLAGS = 0                                                  // ensure that we don't cary forward any flags
-			a1.Start = dl[i]                                              // use the instance date
-			a1.Stop = dl[i].Add(CycleDuration(a.ProrationCycle, a.Start)) // add enough time so that the recurrence calculator sees this instance
-			a1.ASMID = 0                                                  // ensure this is a new assessment
-			a1.PASMID = a.ASMID                                           // parent assessment
+			a1.ASMID = 0        // ensure this is a new assessment
+			a1.PASMID = a.ASMID // parent assessment
+			a1.FLAGS = 0        // ensure that we don't cary forward any flags
+
+			//-------------------------------------------------------------------
+			// Now we must respect the last close date, lc.Dt.  If the date of this
+			// instance is prior to lc.Dt then snap it to lc.OpenPeriodDt and add an explanation
+			//-------------------------------------------------------------------
+			dtStart := dl[i]
+			Console("%s: setting dtstart of new instances: initial = %s, lc = %s\n", funcname, dtStart.Format(RRDATEFMT3), lc.OpenPeriodDt.Format(RRDATEFMT3))
+			if dtStart.Before(lc.Dt) {
+				Console("%s: that date was before lc.Dt (%s), setting to lc.OpenPeriodDt: %s\n", funcname, lc.Dt.Format(RRDATEFMT3), lc.OpenPeriodDt.Format(RRDATEFMT3))
+				a1.AppendComment(fmt.Sprintf("Changed %s to first date in open period", dtStart.Format(RRDATEFMT3)))
+				dtStart = lc.OpenPeriodDt
+			}
+			a1.Start = dtStart
+			a1.Stop = dtStart
+			Console("%s: a1.Start, a1.Stop = %s\n", funcname, a1.Start.Format(RRDATEFMT3))
+
+			// a1.Stop = dl[i].Add(CycleDuration(a.ProrationCycle, a.Start)) // add enough time so that the recurrence calculator sees this instance
+
 			// Console("****>>>>>>  a1.Start = %s\n", a1.Start.Format(RRDATEFMT4))
 			// Console("****>>>>>>  a1.Stop  = %s\n", a1.Stop.Format(RRDATEFMT4))
 			// Console("****>>>>>>  CycleDuration( %d, %s ) --->  %d\n", a.ProrationCycle, a.Start.Format(RRDATEFMT4), CycleDuration(a.ProrationCycle, a.Start))
@@ -591,6 +628,10 @@ func GenerateRecurInstances(ctx context.Context, xbiz *XBusiness, d1, d2 *time.T
 	}
 	defer rows.Close()
 
+	noClose := ClosePeriod{
+		Dt:           TIME0,
+		OpenPeriodDt: TIME0,
+	}
 	for rows.Next() {
 		var a Assessment
 		err = ReadAssessments(rows, &a)
@@ -599,7 +640,7 @@ func GenerateRecurInstances(ctx context.Context, xbiz *XBusiness, d1, d2 *time.T
 		}
 		// Console("rlib.GenerateRecurInstances: Process ASMID = %d\n", a.ASMID)
 
-		err = ProcessJournalEntry(ctx, &a, xbiz, d1, d2, false)
+		err = ProcessJournalEntry(ctx, &a, xbiz, d1, d2, false, &noClose)
 		if err != nil {
 			return err
 		}

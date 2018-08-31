@@ -913,7 +913,7 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 		asmRent.Start = epoch
 		asmRent.Stop = d2
 		asmRent.ARID = dbConf.ARIDrent
-		be := bizlogic.InsertAssessment(ctx, &asmRent, 1)
+		be := bizlogic.InsertAssessment(ctx, &asmRent, 1, &rlib.TIME0)
 		if be != nil {
 			return bizlogic.BizErrorListToError(be)
 		}
@@ -930,7 +930,7 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 		asmSecDep.Start = d1
 		asmSecDep.Stop = d1
 		asmSecDep.ARID = dbConf.ARIDsecdep
-		be = bizlogic.InsertAssessment(ctx, &asmSecDep, 1)
+		be = bizlogic.InsertAssessment(ctx, &asmSecDep, 1, &rlib.TIME0)
 		if be != nil {
 			return bizlogic.BizErrorListToError(be)
 		}
@@ -968,7 +968,7 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 					Stop:           d2,
 					ARID:           dbConf.PetFees[j].ARID,
 				}
-				be := bizlogic.InsertAssessment(ctx, &asm, 1) // bizlogic will not expand it if it is a single instanced assessment
+				be := bizlogic.InsertAssessment(ctx, &asm, 1, &rlib.TIME0) // bizlogic will not expand it if it is a single instanced assessment
 				if be != nil {
 					return bizlogic.BizErrorListToError(be)
 				}
@@ -1014,7 +1014,7 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 				rlib.Console("\n\n********\n")
 				rlib.Console("INSERTING VEHICLE FEE:  elem = %d, id = %d\n", asm.AssocElemType, asm.AssocElemID)
 				rlib.Console("\n********\n\n")
-				be := bizlogic.InsertAssessment(ctx, &asm, 1) // bizlogic will not expand it if it is a single instanced assessment
+				be := bizlogic.InsertAssessment(ctx, &asm, 1, &rlib.TIME0) // bizlogic will not expand it if it is a single instanced assessment
 				if be != nil {
 					return bizlogic.BizErrorListToError(be)
 				}
@@ -1043,7 +1043,7 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 			a.Start = d1
 			a.Stop = d1
 			a.ARID = dbConf.ARIDrent
-			be = bizlogic.InsertAssessment(ctx, &a, 1)
+			be = bizlogic.InsertAssessment(ctx, &a, 1, &rlib.TIME0)
 			if be != nil {
 				return bizlogic.BizErrorListToError(be)
 			}
@@ -1096,7 +1096,7 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 						ARID:           dbConf.PetFees[j].ARID,
 						Comment:        cmt,
 					}
-					be := bizlogic.InsertAssessment(ctx, &asm, 1)
+					be := bizlogic.InsertAssessment(ctx, &asm, 1, &rlib.TIME0)
 					if be != nil {
 						return bizlogic.BizErrorListToError(be)
 					}
@@ -1149,7 +1149,7 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 						ARID:           dbConf.VehicleFees[j].ARID,
 						Comment:        cmt,
 					}
-					be := bizlogic.InsertAssessment(ctx, &asm, 1)
+					be := bizlogic.InsertAssessment(ctx, &asm, 1, &rlib.TIME0)
 					if be != nil {
 						return bizlogic.BizErrorListToError(be)
 					}

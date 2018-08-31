@@ -262,8 +262,13 @@ func CreateAssessmentsFromCSV(ctx context.Context, sa []string, lineno int) (int
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting assessment: %v", funcname, lineno, err)
 	}
 
+	noClose := rlib.ClosePeriod{
+		Dt:           rlib.TIME0,
+		OpenPeriodDt: rlib.TIME0,
+	}
+
 	// process this new assessment over the requested time range...
-	err = rlib.ProcessJournalEntry(ctx, &a, Rcsv.Xbiz, &Rcsv.DtStart, &Rcsv.DtStop, false)
+	err = rlib.ProcessJournalEntry(ctx, &a, Rcsv.Xbiz, &Rcsv.DtStart, &Rcsv.DtStop, false, &noClose)
 	if err != nil {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error while processing journal entries. Error: %s", funcname, lineno, err.Error())
 	}
