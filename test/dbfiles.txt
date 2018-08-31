@@ -18,3 +18,5 @@ raflow/actions/raflowactions.sql
 raflow/validation/validateraflow.sql
 raflow/flow2ra/rr.sql
 raflow/flow2ra/rrsm1.sql
+raflow/f2ra/x0.sql
+raflow/f2ra/x1.sql
