@@ -338,11 +338,15 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
 
     // formName
     let formName = testConfig.form;
+
+    // formSelector
     let formSelector;
 
     switch (formName){
         case "RARentableFeeForm":
-            formSelector = 'section[name=' + formName + ']';
+        case "RAPetFeeForm":
+        case "RAVehicleFeeForm":
+            formSelector = selectors.getRAFormSelector(formName);
             break;
         default:
             // get form selector
@@ -436,7 +440,7 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                                 }
                             });
                             break;
-                        }else if(formName === "RARentableFeeForm"){
+                        }else if(formName === "RARentableFeeForm" || formName === "RAPetFeeForm" || formName === "RAVehicleFeeForm"){
                             types = appSettings.raflow.arList[constants.BID];
                             type = types.find(types => types.ARID === fieldValue);
                             fieldValue = type.Name;
