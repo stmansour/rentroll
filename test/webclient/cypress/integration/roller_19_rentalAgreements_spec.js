@@ -221,14 +221,14 @@ describe('AIR Roller UI Tests - Rental Agreements', function () {
      * Expect:
      * RADatesForm must have data which match with the Server response
      ***********************/
-    // it('RAFlow -- Dates', function () {
-    //     let datesData = flowData.dates;
-    //     // Date section
-    //     cy.get('#dates a').click({force: true}).wait(constants.WAIT_TIME);
-    //     testConfig.form = "RADatesForm";
-    //     testConfig.buttonNamesInDetailForm = ["save"];
-    //     common.detailFormTest(datesData, testConfig);
-    // });
+    it('RAFlow -- Dates', function () {
+        let datesData = flowData.dates;
+        // Date section
+        cy.get('#dates a').click({force: true}).wait(constants.WAIT_TIME);
+        testConfig.form = "RADatesForm";
+        testConfig.buttonNamesInDetailForm = ["save"];
+        common.detailFormTest(datesData, testConfig);
+    });
 
     /***********************
      * Open People section in RAFlow
@@ -236,15 +236,15 @@ describe('AIR Roller UI Tests - Rental Agreements', function () {
      * Expect:
      * RAPeopeGrid must have data which match with the Server response
      ***********************/
-    // it('RAFlow -- People', function () {
-    //     let peopleData = flowData.people;
-    //     // people section
-    //     cy.get('#people a').click({force: true}).wait(constants.WAIT_TIME);
-    //
-    //     testConfig.grid = "RAPeopleGrid";
-    //     testConfig.skipColumns = ["haveError"];
-    //     common.testGridRecords(peopleData, peopleData.length, testConfig);
-    // });
+    it('RAFlow -- People', function () {
+        let peopleData = flowData.people;
+        // people section
+        cy.get('#people a').click({force: true}).wait(constants.WAIT_TIME);
+
+        testConfig.grid = "RAPeopleGrid";
+        testConfig.skipColumns = ["haveError"];
+        common.testGridRecords(peopleData, peopleData.length, testConfig);
+    });
 
     /***********************
      * Open Pets section in RAFlow
@@ -286,16 +286,18 @@ describe('AIR Roller UI Tests - Rental Agreements', function () {
         //--------------------------------
         // Test RAPetFeeForm
         //--------------------------------
-        // click on the first record of RAPetFeesGrid
-        cy.get(selectors.getSecondRecordInGridSelector(rapetfeeConfig.grid)).click().wait(constants.WAIT_TIME);
-        common.detailFormTest(petsData[0].Fees[0], rapetfeeConfig);
+        if (petsData[0].Fees.length > 0){
+            // click on the first record of RAPetFeesGrid
+            cy.get(selectors.getSecondRecordInGridSelector(rapetfeeConfig.grid)).click().wait(constants.WAIT_TIME);
+            common.detailFormTest(petsData[0].Fees[0], rapetfeeConfig);
 
-        //--------------------------------
-        // Close the RAPetFeeForm form
-        //--------------------------------
-        cy.get(selectors.getRAFormCloseButtonSelector(rapetfeeConfig.form)).click().wait(constants.WAIT_TIME);
-        // Check that form should not visible after closing it
-        cy.get(selectors.getRAFormSelector(rapetfeeConfig.form)).should('not.be.visible');
+            //--------------------------------
+            // Close the RAPetFeeForm form
+            //--------------------------------
+            cy.get(selectors.getRAFormCloseButtonSelector(rapetfeeConfig.form)).click().wait(constants.WAIT_TIME);
+            // Check that form should not visible after closing it
+            cy.get(selectors.getRAFormSelector(rapetfeeConfig.form)).should('not.be.visible');
+        }
 
         //--------------------------------
         // Close the RAPetForm form
@@ -340,15 +342,17 @@ describe('AIR Roller UI Tests - Rental Agreements', function () {
         // Test RAVehicleFeeForm
         //--------------------------------
         // click on the first record of RAVehicleFeesGrid
-        cy.get(selectors.getSecondRecordInGridSelector(ravehiclefeeConfig.grid)).click().wait(constants.WAIT_TIME);
-        common.detailFormTest(vehiclesData[0].Fees[0], ravehiclefeeConfig);
+        if(vehiclesData[0].Fees.length > 0){
+            cy.get(selectors.getSecondRecordInGridSelector(ravehiclefeeConfig.grid)).click().wait(constants.WAIT_TIME);
+            common.detailFormTest(vehiclesData[0].Fees[0], ravehiclefeeConfig);
 
-        //--------------------------------
-        // Close the RAVehicleFeeForm form
-        //--------------------------------
-        cy.get(selectors.getRAFormCloseButtonSelector(ravehiclefeeConfig.form)).click().wait(constants.WAIT_TIME);
-        // Check that form should not visible after closing it
-        cy.get(selectors.getRAFormSelector(ravehiclefeeConfig.form)).should('not.be.visible');
+            //--------------------------------
+            // Close the RAVehicleFeeForm form
+            //--------------------------------
+            cy.get(selectors.getRAFormCloseButtonSelector(ravehiclefeeConfig.form)).click().wait(constants.WAIT_TIME);
+            // Check that form should not visible after closing it
+            cy.get(selectors.getRAFormSelector(ravehiclefeeConfig.form)).should('not.be.visible');
+        }
 
         //--------------------------------
         // Close the RAVehicleForm form
@@ -365,42 +369,44 @@ describe('AIR Roller UI Tests - Rental Agreements', function () {
      * Expect:
      * RARentablesGrid must have data which match with the Server response
      ***********************/
-    // it('RAFlow -- Rentables', function () {
-    //     let rentablesData = flowData.rentables;
-    //     testConfig.grid = "RARentablesGrid";
-    //     testConfig.skipColumns = ["haveError", "RemoveRec"];
-    //     cy.get('#rentables a').click({force: true}).wait(constants.WAIT_TIME);
-    //
-    //     //--------------------------------
-    //     // Test RARentablesGrid
-    //     //--------------------------------
-    //     common.testGridRecords(rentablesData, rentablesData.length, testConfig);
-    //
-    //     //-------------------------------
-    //     // Test RARentableFeeGrid
-    //     //-------------------------------
-    //     // click on the first record of RARentablesGrid grid
-    //     cy.get(selectors.getSecondRecordInGridSelector(testConfig.grid)).click().wait(constants.WAIT_TIME);
-    //     common.testGridRecords(rentablesData[0].Fees, rentablesData[0].Fees.length, rarentbelfeeConfig);
-    //
-    //     //-------------------------------
-    //     // Test RARentableFeeForm
-    //     //-------------------------------
-    //     // click on the first record of RARentableFeeGrid
-    //     cy.get(selectors.getSecondRecordInGridSelector(rarentbelfeeConfig.grid)).click().wait(constants.WAIT_TIME);
-    //     common.detailFormTest(rentablesData[0].Fees[0], rarentbelfeeConfig);
-    //
-    //     // Close the RARentableFeeForm form
-    //     cy.get(selectors.getRAFormCloseButtonSelector()).click().wait(constants.WAIT_TIME);
-    //     // Check that form should not visible after closing it
-    //     cy.get(selectors.getFormSelector(rarentbelfeeConfig.form)).should('not.be.visible');
-    //
-    //     // Close the RARentableFeeGrid
-    //     cy.get(selectors.getGridCloseButtonSelector()).click().wait(constants.WAIT_TIME);
-    //     // Check that grid should not visible after closing it
-    //     cy.get('section[name=RARentableFeesGrid]').should('not.be.visible');
-    //
-    // });
+    it('RAFlow -- Rentables', function () {
+        let rentablesData = flowData.rentables;
+        testConfig.grid = "RARentablesGrid";
+        testConfig.skipColumns = ["haveError", "RemoveRec"];
+        cy.get('#rentables a').click({force: true}).wait(constants.WAIT_TIME);
+
+        //--------------------------------
+        // Test RARentablesGrid
+        //--------------------------------
+        common.testGridRecords(rentablesData, rentablesData.length, testConfig);
+
+        //-------------------------------
+        // Test RARentableFeeGrid
+        //-------------------------------
+        // click on the first record of RARentablesGrid grid
+        cy.get(selectors.getSecondRecordInGridSelector(testConfig.grid)).click().wait(constants.WAIT_TIME);
+        common.testGridRecords(rentablesData[0].Fees, rentablesData[0].Fees.length, rarentbelfeeConfig);
+
+        //-------------------------------
+        // Test RARentableFeeForm
+        //-------------------------------
+        if(rentablesData[0].Fees.length > 0){
+            // click on the first record of RARentableFeeGrid
+            cy.get(selectors.getSecondRecordInGridSelector(rarentbelfeeConfig.grid)).click().wait(constants.WAIT_TIME);
+            common.detailFormTest(rentablesData[0].Fees[0], rarentbelfeeConfig);
+
+            // Close the RARentableFeeForm form
+            cy.get(selectors.getRAFormCloseButtonSelector(rarentbelfeeConfig.form)).click().wait(constants.WAIT_TIME);
+            // Check that form should not visible after closing it
+            cy.get(selectors.getFormSelector(rarentbelfeeConfig.form)).should('not.be.visible');
+        }
+
+        // Close the RARentableFeeGrid
+        cy.get(selectors.getGridCloseButtonSelector()).click().wait(constants.WAIT_TIME);
+        // Check that grid should not visible after closing it
+        cy.get('section[name=RARentableFeesGrid]').should('not.be.visible');
+
+    });
 
     /***********************
      * Open Parent/Child section in RAFlow
@@ -408,13 +414,13 @@ describe('AIR Roller UI Tests - Rental Agreements', function () {
      * Expect:
      * RAParentChildGrid must have data which match with the Server response
      ***********************/
-    // it('RAFlow -- Parent/Child', function () {
-    //     let parenChildData = flowData.parentchild;
-    //     testConfig.grid = "RAParentChildGrid";
-    //     testConfig.skipColumns = ["haveError"];
-    //     cy.get('#parentchild a').click({force: true}).wait(constants.WAIT_TIME);
-    //     common.testGridRecords(parenChildData, parenChildData.length, testConfig);
-    // });
+    it('RAFlow -- Parent/Child', function () {
+        let parenChildData = flowData.parentchild;
+        testConfig.grid = "RAParentChildGrid";
+        testConfig.skipColumns = ["haveError"];
+        cy.get('#parentchild a').click({force: true}).wait(constants.WAIT_TIME);
+        common.testGridRecords(parenChildData, parenChildData.length, testConfig);
+    });
 
     /***********************
      * Open Tie section in RAFlow
@@ -422,13 +428,13 @@ describe('AIR Roller UI Tests - Rental Agreements', function () {
      * Expect:
      * RATiePeopleGrid must have data which match with the Server response
      ***********************/
-    // it('RAFlow -- Tie', function () {
-    //     let tiePeopleData = flowData.tie.people;
-    //     testConfig.grid = "RATiePeopleGrid";
-    //     testConfig.skipColumns = ["haveError"];
-    //     cy.get('#tie a').click({force: true}).wait(constants.WAIT_TIME);
-    //     common.testGridRecords(tiePeopleData, tiePeopleData.length, testConfig);
-    // });
+    it('RAFlow -- Tie', function () {
+        let tiePeopleData = flowData.tie.people;
+        testConfig.grid = "RATiePeopleGrid";
+        testConfig.skipColumns = ["haveError"];
+        cy.get('#tie a').click({force: true}).wait(constants.WAIT_TIME);
+        common.testGridRecords(tiePeopleData, tiePeopleData.length, testConfig);
+    });
 
     // -- Perform operation after all tests finish. It runs once after all tests in the block --
     after(function () {
