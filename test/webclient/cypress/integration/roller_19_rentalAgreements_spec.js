@@ -244,6 +244,8 @@ describe('AIR Roller UI Tests - Rental Agreements', function () {
         testConfig.grid = "RAPeopleGrid";
         testConfig.skipColumns = ["haveError"];
         common.testGridRecords(peopleData, peopleData.length, testConfig);
+
+        // TODO: Write UI test for background information form
     });
 
     /***********************
