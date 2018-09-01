@@ -61,6 +61,8 @@ const (
 	UnknownTLDID                    = 37 // task list definition does not exist
 	ImproperTLDID                   = 38 // task list definition does not belong to the specified business
 	TaskDescrMissingName            = 39 // task descriptor missing name
+	RecurAsmEpochInClosedPeriod     = 40 // attempt to create a recurring definition in a closed period
+	RecurStartAfterStopAfterRelo    = 41 // after moving start date of recurring asmt def to open period, start date occurs after stop date
 )
 
 // InitBizLogic loads the error messages needed for validation errors

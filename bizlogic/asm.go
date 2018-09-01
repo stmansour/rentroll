@@ -22,13 +22,14 @@ import (
 //           1: reverse this and future instances
 //           2: reverse all instances
 //    dt   = date of modification
+//    lc   = date of last close
 //    exp  = if it is a recurring assessment and the start date is in the past,
 //           should past entries be created?  1 = yes
 //
 // RETURNS
 //    a slice of BizErrors
 //-------------------------------------------------------------------------------------
-func UpdateAssessment(ctx context.Context, anew *rlib.Assessment, mode int, dt *time.Time, exp int) []BizError {
+func UpdateAssessment(ctx context.Context, anew *rlib.Assessment, mode int, dt *time.Time, lc *rlib.ClosePeriod, exp int) []BizError {
 	var err error
 	var errlist []BizError
 
@@ -87,7 +88,7 @@ func UpdateAssessment(ctx context.Context, anew *rlib.Assessment, mode int, dt *
 		// any changes are made to it.
 		//---------------------------------------------------------------------------
 		if anew.Stop.Before(aold.Stop) { // is new stop date earlier in time than the old one?
-			errlist = ReverseAssessmentsAfterStop(ctx, &aold, &anew.Stop, dt)
+			errlist = ReverseAssessmentsAfterStop(ctx, &aold, &anew.Stop, dt, lc)
 			if len(errlist) > 0 {
 				return errlist
 			}
@@ -96,7 +97,7 @@ func UpdateAssessment(ctx context.Context, anew *rlib.Assessment, mode int, dt *
 		//---------------------------------------------------------------------------
 		// Now reverse aold...
 		//---------------------------------------------------------------------------
-		errlist = ReverseAssessment(ctx, &aold, mode, dt) // reverse the assessment itself
+		errlist = ReverseAssessment(ctx, &aold, mode, dt, lc) // reverse the assessment itself
 		if errlist != nil {
 			return errlist
 		}
@@ -110,7 +111,7 @@ func UpdateAssessment(ctx context.Context, anew *rlib.Assessment, mode int, dt *
 		anew.FLAGS &= ^uint64(7) // clears the first 3 bits
 		// rlib.Console("ANEW.FLAGS = %d\n", anew.FLAGS)
 
-		errlist = InsertAssessment(ctx, anew, exp) // Finally, insert the new assessment...
+		errlist = InsertAssessment(ctx, anew, exp, lc) // Finally, insert the new assessment...
 		if errlist != nil {
 			return errlist
 		}
@@ -124,79 +125,6 @@ func UpdateAssessment(ctx context.Context, anew *rlib.Assessment, mode int, dt *
 	return nil
 }
 
-// UpdateAssessmentEndDate updates the stop date of the supplied assessment,
-// which must be the recurring series definition. It will not modify instances
-// that ocurred prior to dt. If an instance occurs during the period containing
-// dt, then that instance will be adjusted (prorated) accordingly.
-//
-// Handle the case where dt is prior to the start date of the assessment.
-//
-// INPUTS
-//    ctx  = database context
-//    a    = the recurring assessment definition to adjust
-//    dt   = new stop date for definition
-//
-// RETURNS
-//    any error encountered
-//-------------------------------------------------------------------------------------
-func UpdateAssessmentEndDate(ctx context.Context, a *rlib.Assessment, dt *time.Time) error {
-	rlib.Console("Entered UpdateAssessmentEndDate\n")
-	var err error
-	//--------------------------------------------------------------------------
-	// First, change the stop date of the recurring definition
-	//--------------------------------------------------------------------------
-	origStopDate := a.Stop
-	a.Stop = *dt
-	err = rlib.UpdateAssessment(ctx, a)
-	if err != nil {
-		return err
-	}
-	if a.Start.After(*dt) {
-		rlib.Console("\n\n **** WARNINGG ****  **** WARNING ****\nthe new asm.Stop (%s) is prior to the Start (%s) of ASMID %d\n\n",
-			(*dt).Format(rlib.RRDATEREPORTFMT), a.Start.Format(rlib.RRDATEREPORTFMT), a.ASMID)
-	}
-
-	//--------------------------------------------------------------------------
-	// Now, check to see if there is an instance for the period containing dt
-	//--------------------------------------------------------------------------
-	e := time.Date(dt.Year(), dt.Month(), dt.Day(), 0, 0, 0, 0, time.UTC)
-	rlib.Console("e = %s, a.Start = %s, Stop = %s\n", e.Format(rlib.RRDATEREPORTFMT), a.Start.Format(rlib.RRDATEREPORTFMT), origStopDate.Format(rlib.RRDATEREPORTFMT))
-	ok, epoch := rlib.GetEpochFromBaseDate(a.Start, e, origStopDate, a.RentCycle)
-	if !ok {
-		return nil // we're done, the instance we were looking for does not exist
-		// return fmt.Errorf("UpdateAssessmentEndDate for ASMID=%d, received ok=false from GetEpochFromBaseDate", a.ASMID)
-	}
-	rlib.Console("UpdateAssessmentEndDate: dt = %s, epoch = %s\n", dt.Format(rlib.RRDATEREPORTFMT), epoch.Format(rlib.RRDATEREPORTFMT))
-	if epoch.Equal(e) {
-		// TODO: validate this case
-	} else if epoch.After(e) {
-		// epoch is the end datetime of the next cycle, get the start date/time
-		d1 := rlib.GetPreviousInstance(epoch, a.RentCycle)
-		rlib.Console("d1 = %s\n", d1.Format(rlib.RRDATEREPORTFMT))
-		// do we have an instance of assessment a in the time range [d1,epoch)
-		ai, err := rlib.GetAssessmentInstance(ctx, &d1, a.ASMID)
-		if err != nil {
-			return err
-		}
-		if ai.ASMID == 0 {
-			return nil // we're done, there was no instance found
-		}
-		// found an instance, we need to prorate it
-		rlib.Console("Found instance to prorate: ASMID = %d\n", ai.ASMID)
-		amount, n, p := rlib.SimpleProrateAmount(ai.Amount, ai.RentCycle, ai.ProrationCycle, &ai.Start, dt, &ai.Start)
-		ai.Amount = amount
-		ai.RentCycle = rlib.RECURNONE
-		ai.ProrationCycle = rlib.RECURNONE
-		ai.Stop = ai.Start
-		ai.AppendComment(fmt.Sprintf("prorated for %d of %d %s", n, p, rlib.ProrationUnits(ai.ProrationCycle)))
-		be := UpdateAssessment(ctx, &ai, 0, dt, 0)
-		if len(be) > 0 {
-			return BizErrorListToError(be)
-		}
-	}
-	return nil
-}
-
 // ReverseAssessment reverses an existing assessment
 //
 // INPUTS
@@ -206,11 +134,14 @@ func UpdateAssessmentEndDate(ctx context.Context, a *rlib.Assessment, dt *time.T
 //           1: reverse this and future instances
 //           2: reverse all instances
 //    dt   = time to mark when the reversal was made
+//    lc   = last closing date, date when the last period was closed.
+//           Reversing entries will be made on the later date of dt or lc.
+//           The routine honors the last close date.
 //
 // RETURNS
 //    a slice of BizErrors
-//-------------------------------------------------------------------------------------
-func ReverseAssessment(ctx context.Context, aold *rlib.Assessment, mode int, dt *time.Time) []BizError {
+//-----------------------------------------------------------------------------
+func ReverseAssessment(ctx context.Context, aold *rlib.Assessment, mode int, dt *time.Time, lc *rlib.ClosePeriod) []BizError {
 	funcname := "bizlogic.ReverseAssessment"
 	var errlist []BizError
 	// rlib.Console("#####>>>>>>>>> Entered ReverseAssessment. ASMID = %d, mode = %d,  dt = %s\n", aold.ASMID, mode, dt.Format(rlib.RRDATEFMTSQL))
@@ -220,9 +151,9 @@ func ReverseAssessment(ctx context.Context, aold *rlib.Assessment, mode int, dt 
 	// rlib.Console("ReverseAssessment: processing forward with mode = %d,  dt = %s\n", mode, dt.Format(rlib.RRDATEFMTSQL))
 	switch mode {
 	case 0:
-		errlist = ReverseAssessmentInstance(ctx, aold, dt)
+		errlist = ReverseAssessmentInstance(ctx, aold, dt, lc)
 	case 1:
-		errlist = ReverseAssessmentsGoingForward(ctx, aold, &aold.Start, dt)
+		errlist = ReverseAssessmentsGoingForward(ctx, aold, &aold.Start, dt, lc)
 	case 2:
 		var epoch, inst rlib.Assessment
 		var err error
@@ -245,7 +176,7 @@ func ReverseAssessment(ctx context.Context, aold *rlib.Assessment, mode int, dt 
 		//---------------------------------------------------------
 		if epoch.RentCycle == rlib.RECURNONE {
 			// rlib.Console("EXITING ReverseAssessment.  PT 2\n")
-			return ReverseAssessmentInstance(ctx, &epoch, dt)
+			return ReverseAssessmentInstance(ctx, &epoch, dt, lc)
 		}
 
 		//---------------------------------------------------------
@@ -256,7 +187,7 @@ func ReverseAssessment(ctx context.Context, aold *rlib.Assessment, mode int, dt 
 			// rlib.Console("EXITING ReverseAssessment.  PT 3\n")
 			return bizErrSys(&err)
 		}
-		errlist = ReverseAssessmentsGoingForward(ctx, &inst, &inst.Start, dt) // reverse from start of recurring instances forward
+		errlist = ReverseAssessmentsGoingForward(ctx, &inst, &inst.Start, dt, lc) // reverse from start of recurring instances forward
 		if len(errlist) > 0 {
 			// rlib.Console("EXITING ReverseAssessment.  PT 4\n")
 			return errlist
@@ -289,7 +220,7 @@ func ReverseAssessment(ctx context.Context, aold *rlib.Assessment, mode int, dt 
 // RETURNS
 //    a slice of BizErrors
 //-------------------------------------------------------------------------------------
-func ReverseAssessmentsGoingForward(ctx context.Context, aold *rlib.Assessment, dtStart, dt *time.Time) []BizError {
+func ReverseAssessmentsGoingForward(ctx context.Context, aold *rlib.Assessment, dtStart, dt *time.Time, lc *rlib.ClosePeriod) []BizError {
 	var errlist []BizError
 
 	rlib.Console("ENTERED: ReverseAssessmentsGoingForward\n")
@@ -304,7 +235,7 @@ func ReverseAssessmentsGoingForward(ctx context.Context, aold *rlib.Assessment, 
 
 	rlib.Console("Number of instances to reverse: %d\n", len(m))
 	for i := 0; i < len(m); i++ {
-		errlist = ReverseAssessmentInstance(ctx, &m[i], dt)
+		errlist = ReverseAssessmentInstance(ctx, &m[i], dt, lc)
 		if len(errlist) > 0 {
 			return errlist
 		}
@@ -341,7 +272,7 @@ func ReverseAssessmentsGoingForward(ctx context.Context, aold *rlib.Assessment, 
 // RETURNS
 //    a slice of BizErrors
 //-------------------------------------------------------------------------------------
-func ReverseAssessmentsAfterStop(ctx context.Context, aold *rlib.Assessment, dtStop, dt *time.Time) []BizError {
+func ReverseAssessmentsAfterStop(ctx context.Context, aold *rlib.Assessment, dtStop, dt *time.Time, lc *rlib.ClosePeriod) []BizError {
 	var errlist []BizError
 
 	rlib.Console("ENTERED: ReverseAssessmentsAfterStop\n")
@@ -356,7 +287,7 @@ func ReverseAssessmentsAfterStop(ctx context.Context, aold *rlib.Assessment, dtS
 
 	rlib.Console("Number of instances to reverse: %d\n", len(m))
 	for i := 0; i < len(m); i++ {
-		errlist = ReverseAssessmentInstance(ctx, &m[i], dt)
+		errlist = ReverseAssessmentInstance(ctx, &m[i], dt, lc)
 		if len(errlist) > 0 {
 			return errlist
 		}
@@ -374,7 +305,7 @@ func ReverseAssessmentsAfterStop(ctx context.Context, aold *rlib.Assessment, dtS
 // RETURNS
 //    a slice of BizErrors
 //-------------------------------------------------------------------------------------
-func ReverseAssessmentInstance(ctx context.Context, aold *rlib.Assessment, dt *time.Time) []BizError {
+func ReverseAssessmentInstance(ctx context.Context, aold *rlib.Assessment, dt *time.Time, lc *rlib.ClosePeriod) []BizError {
 	rlib.Console("Entered ReverseAssessmentInstance\n")
 	if aold.FLAGS&0x4 != 0 {
 		return nil // it's already reversed
@@ -390,7 +321,17 @@ func ReverseAssessmentInstance(ctx context.Context, aold *rlib.Assessment, dt *t
 
 	// rlib.Console("RAI: anew = %#v\n", anew)
 
-	errlist := InsertAssessment(ctx, &anew, 1)
+	//-----------------------------------------------------------
+	// If the Start/stop dates are prior to lc, snap them to LC
+	//-----------------------------------------------------------
+	rlib.Console("LC Check: anew.Start = %s,  lc.Dt = %s\n", anew.Start.Format(rlib.RRDATEREPORTFMT), lc.Dt.Format(rlib.RRDATEREPORTFMT))
+	if anew.Start.Before(lc.Dt) {
+		anew.AppendComment(fmt.Sprintf("Date changed from %s to first open period", anew.Start.Format(rlib.RRDATEFMT3)))
+		anew.Start = lc.OpenPeriodDt
+		anew.Stop = lc.OpenPeriodDt
+	}
+
+	errlist := InsertAssessment(ctx, &anew, 1, lc)
 	if len(errlist) > 0 {
 		rlib.Console("RAI: err 1\n")
 		return errlist
@@ -738,7 +679,7 @@ func DeallocateAppliedFunds(ctx context.Context, a *rlib.Assessment, asmtRevID i
 // RETURNS
 //    a slice of BizErrors
 //-------------------------------------------------------------------------------------
-func InsertAssessment(ctx context.Context, a *rlib.Assessment, exp int) []BizError {
+func InsertAssessment(ctx context.Context, a *rlib.Assessment, exp int, lc *rlib.ClosePeriod) []BizError {
 	funcname := "bizlogic.InsertAssessment"
 	rlib.Console("Entered %s\n", funcname)
 
@@ -748,7 +689,7 @@ func InsertAssessment(ctx context.Context, a *rlib.Assessment, exp int) []BizErr
 		return errlist
 	}
 
-	rlib.Console("A.  a.ASMID = %d, a.BID = %d, a.ARID = %d\n", a.ASMID, a.BID, a.ARID)
+	rlib.Console("A.  a.ASMID = %d, a.BID = %d, a.ARID = %d, a.RAID = %d, amount = %8.2f\n", a.ASMID, a.BID, a.ARID, a.RAID, a.Amount)
 	var xbiz rlib.XBusiness
 	err := rlib.InitBizInternals(a.BID, &xbiz)
 	if err != nil {
@@ -765,8 +706,53 @@ func InsertAssessment(ctx context.Context, a *rlib.Assessment, exp int) []BizErr
 	// rlib.Console("Pay Assessment:    Receipt Rule:  Debit %s, Credit %s\n", rlib.RRdb.BizTypes[a.BID].GLAccounts[dar.DebitLID].Name, rlib.RRdb.BizTypes[a.BID].GLAccounts[dar.CreditLID].Name)
 
 	if rlib.RRdb.BizTypes[a.BID].GLAccounts[dlid].FLAGS&0x1 > 0 || rlib.RRdb.BizTypes[a.BID].GLAccounts[clid].FLAGS&0x1 > 0 {
-		a.FLAGS &= 0x8ffffffffffffffc //zero bits 0:1
-		a.FLAGS |= 0x3                // indicate that this is an OFFSET and should not be processd during payment allocation
+		//a.FLAGS &= 0x8ffffffffffffffc //zero bits 0:1
+		a.FLAGS |= 0x3 // indicate that this is an OFFSET and should not be processd during payment allocation
+	}
+
+	//------------------------------------------------------------
+	// Save original start date before close-period-snap-check
+	// because we may need to expand instances...
+	//------------------------------------------------------------
+	originalStart := a.Start
+
+	//------------------------------------------------------------
+	// If start date is prior to last close, snap to last close
+	//------------------------------------------------------------
+	if a.Start.Before(lc.Dt) {
+		rlib.Console(">>>>> Attempt to create an assessment in a closed period\n")
+		rlib.Console("      requested start date = %s\n", a.Start.Format(rlib.RRDATEFMT3))
+		a.AppendComment(fmt.Sprintf("Changed %s to first date in open period", a.Start.Format(rlib.RRDATEFMT3)))
+		if a.RentCycle > rlib.RECURNONE {
+			//------------------------------------------------------------
+			// create it at the first epoch date on or after the open period
+			//------------------------------------------------------------
+			// d := rlib.GetNextInstance(*lc, a.RentCycle)
+			d := rlib.InstanceDateCoveringDate(&a.Start, &lc.OpenPeriodDt, a.RentCycle)
+			rlib.Console("      assesment recurs, so snapping to next instance on or after: %s\n", lc.OpenPeriodDt.Format(rlib.RRDATEFMT3))
+			rlib.Console("      next instance is: %s\n", d.Format(rlib.RRDATEFMT3))
+			a.Start = d
+			if a.PASMID > 0 {
+				// this is an instance, so set the stop date as well...
+				a.Stop = d
+			} else {
+				// this is a definition.  make sure the start date is before the stop date
+				if a.Start.After(a.Stop) {
+					// this is not recoverable...
+					s := fmt.Sprintf(BizErrors[RecurStartAfterStopAfterRelo].Message, a.RAID, a.BID)
+					b := BizError{Errno: RecurStartAfterStopAfterRelo, Message: s}
+					errlist = append(errlist, b)
+					return errlist
+				}
+			}
+		} else {
+			//------------------------------------------------------------------
+			// This is a non-recurring assessment - move it to the open period
+			//------------------------------------------------------------------
+			a.Start = lc.OpenPeriodDt
+			a.Stop = lc.OpenPeriodDt
+		}
+		rlib.Console("      after adjustments: Start = %s, Stop = %s\n", a.Start.Format(rlib.RRDATEFMT3), a.Stop.Format(rlib.RRDATEFMT3))
 	}
 
 	// rlib.Console("B:   a = %#v\n", a)
@@ -789,14 +775,14 @@ func InsertAssessment(ctx context.Context, a *rlib.Assessment, exp int) []BizErr
 	rlib.InitLedgerCache()
 
 	if a.RentCycle == rlib.RECURNONE { // for nonrecurring, use existng struct: a
-		rlib.ProcessJournalEntry(ctx, a, &xbiz, &d1, &d2, true)
+		rlib.ProcessJournalEntry(ctx, a, &xbiz, &d1, &d2, true, lc) // generates assessment instances
 	} else if exp != 0 && a.PASMID == 0 && 0 == (a.FLAGS&(1<<6)) { // only expand if we're asked and if we're not an instance, and not a single instanced assessment
 		// rlib.Console("C1\n")
 		now := rlib.DateAtTimeZero(time.Now())
 		dt := rlib.DateAtTimeZero(a.Start)
 		if !dt.After(now) {
 			// rlib.Console("C2\n")
-			err := createInstancesToDate(ctx, a, &xbiz)
+			err := createInstancesToDate(ctx, a, &xbiz, lc, &originalStart)
 			if err != nil {
 				return bizErrSys(&err)
 			}
@@ -910,21 +896,22 @@ func ValidateAssessment(ctx context.Context, a *rlib.Assessment) []BizError {
 // supplied date
 //
 // INPUTS
-//    a = the recurring assessment
-// xbiz = Business information
+//     a = the recurring assessment
+//  xbiz = Business information
+//    lc = date to use which is past the last close date
+// start = start date on assessment before any snapping that occured due to
+//         checking closed period
 //
 // RETURNS
 //
 //-------------------------------------------------------------------------------------
-func createInstancesToDate(ctx context.Context, a *rlib.Assessment, xbiz *rlib.XBusiness) error {
+func createInstancesToDate(ctx context.Context, a *rlib.Assessment, xbiz *rlib.XBusiness, lc *rlib.ClosePeriod, start *time.Time) error {
 	now := time.Now()
-	as := time.Date(a.Start.Year(), a.Start.Month(), a.Start.Day(), 0, 0, 0, 0, time.UTC)
+	as := time.Date(start.Year(), start.Month(), start.Day(), 0, 0, 0, 0, time.UTC)
 	m := rlib.GetRecurrences(&a.Start, &a.Stop, &as, &now, a.RentCycle) // get all from the beginning up to now
 	for i := 0; i < len(m); i++ {
 		dt1, dt2 := rlib.GetMonthPeriodForDate(&m[i])
-
-		// TODO(steve): should we have error here?
-		err := rlib.ProcessJournalEntry(ctx, a, xbiz, &dt1, &dt2, true) // this generates the assessment instances
+		err := rlib.ProcessJournalEntry(ctx, a, xbiz, &dt1, &dt2, true, lc) // this generates the assessment instances
 		if err != nil {
 			return err
 		}
@@ -932,3 +919,76 @@ func createInstancesToDate(ctx context.Context, a *rlib.Assessment, xbiz *rlib.X
 
 	return nil
 }
+
+// UpdateAssessmentEndDate updates the stop date of the supplied assessment,
+// which must be the recurring series definition. It will not modify instances
+// that ocurred prior to dt. If an instance occurs during the period containing
+// dt, then that instance will be adjusted (prorated) accordingly.
+//
+// Handle the case where dt is prior to the start date of the assessment.
+//
+// INPUTS
+//    ctx  = database context
+//    a    = the recurring assessment definition to adjust
+//    dt   = new stop date for definition
+//
+// RETURNS
+//    any error encountered
+//-------------------------------------------------------------------------------------
+// func UpdateAssessmentEndDate(ctx context.Context, a *rlib.Assessment, dt *time.Time) error {
+// 	rlib.Console("Entered UpdateAssessmentEndDate\n")
+// 	var err error
+// 	//--------------------------------------------------------------------------
+// 	// First, change the stop date of the recurring definition
+// 	//--------------------------------------------------------------------------
+// 	origStopDate := a.Stop
+// 	a.Stop = *dt
+// 	err = rlib.UpdateAssessment(ctx, a)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	if a.Start.After(*dt) {
+// 		rlib.Console("\n\n **** WARNINGG ****  **** WARNING ****\nthe new asm.Stop (%s) is prior to the Start (%s) of ASMID %d\n\n",
+// 			(*dt).Format(rlib.RRDATEREPORTFMT), a.Start.Format(rlib.RRDATEREPORTFMT), a.ASMID)
+// 	}
+//
+// 	//--------------------------------------------------------------------------
+// 	// Now, check to see if there is an instance for the period containing dt
+// 	//--------------------------------------------------------------------------
+// 	e := time.Date(dt.Year(), dt.Month(), dt.Day(), 0, 0, 0, 0, time.UTC)
+// 	rlib.Console("e = %s, a.Start = %s, Stop = %s\n", e.Format(rlib.RRDATEREPORTFMT), a.Start.Format(rlib.RRDATEREPORTFMT), origStopDate.Format(rlib.RRDATEREPORTFMT))
+// 	ok, epoch := rlib.GetEpochFromBaseDate(a.Start, e, origStopDate, a.RentCycle)
+// 	if !ok {
+// 		return nil // we're done, the instance we were looking for does not exist
+// 		// return fmt.Errorf("UpdateAssessmentEndDate for ASMID=%d, received ok=false from GetEpochFromBaseDate", a.ASMID)
+// 	}
+// 	rlib.Console("UpdateAssessmentEndDate: dt = %s, epoch = %s\n", dt.Format(rlib.RRDATEREPORTFMT), epoch.Format(rlib.RRDATEREPORTFMT))
+// 	if epoch.Equal(e) {
+// 		// TODO: validate this case
+// 	} else if epoch.After(e) {
+// 		// epoch is the end datetime of the next cycle, get the start date/time
+// 		d1 := rlib.GetPreviousInstance(epoch, a.RentCycle)
+// 		rlib.Console("d1 = %s\n", d1.Format(rlib.RRDATEREPORTFMT))
+// 		// do we have an instance of assessment a in the time range [d1,epoch)
+// 		ai, err := rlib.GetAssessmentInstance(ctx, &d1, a.ASMID)
+// 		if err != nil {
+// 			return err
+// 		}
+// 		if ai.ASMID == 0 {
+// 			return nil // we're done, there was no instance found
+// 		}
+// 		// found an instance, we need to prorate it
+// 		rlib.Console("Found instance to prorate: ASMID = %d\n", ai.ASMID)
+// 		amount, n, p := rlib.SimpleProrateAmount(ai.Amount, ai.RentCycle, ai.ProrationCycle, &ai.Start, dt, &ai.Start)
+// 		ai.Amount = amount
+// 		ai.RentCycle = rlib.RECURNONE
+// 		ai.ProrationCycle = rlib.RECURNONE
+// 		ai.Stop = ai.Start
+// 		ai.AppendComment(fmt.Sprintf("prorated for %d of %d %s", n, p, rlib.ProrationUnits(ai.ProrationCycle)))
+// 		be := UpdateAssessment(ctx, &ai, 0, dt, &rlib.TIME0, 0)
+// 		if len(be) > 0 {
+// 			return BizErrorListToError(be)
+// 		}
+// 	}
+// 	return nil
+// }
