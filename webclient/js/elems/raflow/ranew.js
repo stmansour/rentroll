@@ -294,7 +294,7 @@ window.buildRAFlowElements = function() {
                         {                       type: 'break' },
                         { id: 'stateAction',    type: 'html' },
                         { id: 'remove-refno',   type: 'html',
-                            html: '<button id="remove_raflow" name="remove_raflow" class="w2ui-btn" style="min-width: 30px; padding: 6px 0px;"><i class="fas fa-trash"></i></button>' },
+                            html: '<button id="remove_raflow" class="w2ui-btn" style="min-width: 30px; padding: 6px 0px;"><i class="fas fa-trash"></i></button>' },
                         {                       type: 'break' },
                         { id: 'editViewBtn',    type: 'html' },
                         {                       type: 'break' },
@@ -373,7 +373,7 @@ window.ChangeRAFlowVersionToolbar = function(version, RAID, RefNo, FLAGS) {
     var stateHTML = "<p style='margin:0 10px; font-size: 10pt;'>State:&nbsp;<span id='RAState'>" + state + "</span></p>";
 
     // STATE CHANGE ACTIONS BUTTON HTML
-    var stateActionHTML = "<button class='w2ui-btn' id='raactions' name='raactions'><i class='fas fa-cog' style='margin-right: 7px;'></i>Actions</button>";
+    var stateActionHTML = "<button class='w2ui-btn' id='raactions'><i class='fas fa-cog' style='margin-right: 7px;'></i>Actions</button>";
 
     var idString = "",
         editViewBtnHTML = "",
@@ -383,7 +383,7 @@ window.ChangeRAFlowVersionToolbar = function(version, RAID, RefNo, FLAGS) {
     switch(version) {
         case "raid":
             idString = "<p style='margin:0 10px; font-size: 12pt;'><strong>RA" + RAID + "</strong></p>";
-            editViewBtnHTML = "<button class='w2ui-btn' id='edit_view_raflow' name='edit_view_raflow'><i class='fas fa-pencil-alt fa-sm' style='margin-right: 7px;'></i>Edit" + (RefNo ? "&nbsp;&nbsp;" + RefNo : "") + "</button>";
+            editViewBtnHTML = "<button class='w2ui-btn' id='edit_view_raflow'><i class='fas fa-pencil-alt fa-sm' style='margin-right: 7px;'></i>Edit" + (RefNo ? "&nbsp;&nbsp;" + RefNo : "") + "</button>";
             versionMode = "Viewing";
             btnBackToRAText = "Back to RA" + RAID;
 
@@ -397,7 +397,7 @@ window.ChangeRAFlowVersionToolbar = function(version, RAID, RefNo, FLAGS) {
 
         case "refno":
             idString = "<p style='margin:0 10px; font-size: 12pt;'><strong>" + RefNo + "</strong></p>";
-            editViewBtnHTML = "<button class='w2ui-btn' id='edit_view_raflow' name='edit_view_raflow'><i class='fas fa-eye fa-sm' style='margin-right: 7px;'></i>" + (RAID ? "View RA" + RAID : "") + "</button>";
+            editViewBtnHTML = "<button class='w2ui-btn' id='edit_view_raflow'><i class='fas fa-eye fa-sm' style='margin-right: 7px;'></i>" + (RAID ? "View RA" + RAID : "") + "</button>";
             versionMode = "Editing";
             btnBackToRAText = "Back to " + RefNo;
 

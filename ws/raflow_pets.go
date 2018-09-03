@@ -29,7 +29,7 @@ func SvcRAFlowPetsHandler(w http.ResponseWriter, r *http.Request, d *ServiceData
 		CreateNewRAFlowPet(w, r, d)
 		break
 	default:
-		err = fmt.Errorf("unhandled command: %s", d.wsSearchReq.Cmd)
+		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
@@ -82,7 +82,7 @@ func CreateNewRAFlowPet(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 
 	// http method check
 	if r.Method != "POST" {
-		err = fmt.Errorf("only POST method is allowed")
+		err = fmt.Errorf("Only POST method is allowed")
 		return
 	}
 
