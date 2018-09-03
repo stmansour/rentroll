@@ -81,6 +81,11 @@ export function getFormSelector(formName) {
     return 'div[name=' + formName + ']';
 }
 
+// return selector for formName
+export function getRAFormSelector(formName) {
+    return 'section[name=' + formName + ']';
+}
+
 // return selector for field
 export function getFieldSelector(formSelector, fieldId) {
     return formSelector + ' #' + fieldId;
@@ -119,4 +124,14 @@ export function getDropDownValueFieldSelector(fieldValue) {
 // return selector for Edit RA flow button
 export function getEditRAFlowButtonSelector() {
     return '#edit_view_raflow';
+}
+
+// return form's close button selector
+export function getRAFormCloseButtonSelector(id) {
+    return '#tb_' + id + '_toolbar_item_btnClose';
+}
+
+// return grid's close button selector
+export function getGridCloseButtonSelector() {
+    return '.w2ui-grid-box [class="fas fa-times"]';
 }

@@ -22,8 +22,8 @@ export let conf = {
     skipFields: [],
     primaryId: "ASMID",
     haveDateValue: true,
-    fromDate: new Date(2018, 1, 1), // year, month-1, day : 1st Feb 2018
-    toDate: new Date(2018, 2, 1) // 1st March 2018
+    fromDate: new Date(2018, 2, 1), // year, month-1, day : 1st Feb 2018
+    toDate: new Date(2018, 3, 1) // 1st March 2018
 };
 
 //TODO(Akshay): Find button in form
