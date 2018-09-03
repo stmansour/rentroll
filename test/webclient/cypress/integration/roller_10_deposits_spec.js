@@ -61,8 +61,6 @@ describe('AIR Roller UI Tests - Deposits', function () {
             common.changeDate(testConfig.sidebarID, testConfig.fromDate, testConfig.toDate);
         }
 
-        cy.wait(constants.WAIT_TIME);
-
         // Check http status
         cy.wait('@getRecords').its('status').should('eq', constants.HTTP_OK_STATUS);
 
@@ -126,7 +124,6 @@ describe('AIR Roller UI Tests - Deposits', function () {
         // testConfig: configuration for running tests
         common.testRecordDetailForm(recordsAPIResponse, testConfig);
 
-        cy.wait(constants.WAIT_TIME);
 
         // perform tests on grid record (depositListGrid) in deposit detail record form
         cy.get('@getDepositListGrid').then(function (xhr) {

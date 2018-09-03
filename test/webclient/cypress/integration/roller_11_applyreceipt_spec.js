@@ -122,12 +122,12 @@ describe('AIR Roller UI Tests - Apply Receipt', function () {
 
         // route the endpoint for grid records in deposit's record detail form
         cy.server();
-        cy.route(testConfig.methodType, common.getAPIEndPoint(testConfig.module, 3)).as('getDetailRecord');
-        cy.route(testConfig.methodType, common.getDetailRecordAPIEndPoint('unpaidasms', 3)).as('getUnpaidAsms');
-        cy.route('GET', common.getDetailRecordAPIEndPoint('payorfund', 3)).as('getPayorFundResponse');
+        cy.route(testConfig.methodType, common.getAPIEndPoint(testConfig.module, 1)).as('getDetailRecord');
+        cy.route(testConfig.methodType, common.getDetailRecordAPIEndPoint('unpaidasms', 1)).as('getUnpaidAsms');
+        cy.route('GET', common.getDetailRecordAPIEndPoint('payorfund', 1)).as('getPayorFundResponse');
 
         // First record is blank. So temporary perform tests on second record.
-        cy.get(selectors.getFirstRecordInGridSelector(testConfig.grid)).click().wait(constants.WAIT_TIME);
+        cy.get(selectors.getSecondRecordInGridSelector(testConfig.grid)).click().wait(constants.WAIT_TIME);
 
         // check response status of API end point
         cy.wait('@getDetailRecord').its('status').should('eq', constants.HTTP_OK_STATUS);
@@ -147,7 +147,7 @@ describe('AIR Roller UI Tests - Apply Receipt', function () {
                 allocfundsRecordLength = 0;
             }
 
-            let payorName = allocfundsRecords[0].Name;
+            let payorName = allocfundsRecords[1].Name;
 
             // Check payor name in detailed form
             cy.get('[name=unallocForm]').should('contain', payorName);

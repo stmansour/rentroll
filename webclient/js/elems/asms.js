@@ -741,6 +741,7 @@ window.buildAssessmentElements = function () {
                     info = "";
 
                 formRefreshCallBack(f, "ASMID", header);
+
                 // ==============================
                 // SPECIAL CASE
                 // ==============================
@@ -765,16 +766,14 @@ window.buildAssessmentElements = function () {
                 // Assessment Info at the top of form
                 // r.epoch = app.epochInstance[  (r.RentCycle !== 'Norecur' && r.PASMID === 0) ? 0 : 1 ];
                 if (typeof r.RentCycle !== "object") { return; }
-                setTimeout(function(){
-                    if (r.RentCycle.text == 'Norecur' && r.PASMID === 0) {
-                        // Non-recurred instance
-                        info = '<p style="margin-bottom: 0px;">Single Instance Assessment</p>'.format(r.ASMID);
-                    } else {
-                        // INSTANCE has 4 variables: ParentASM, RentCycle, Start, Stop
-                        info = app.asmInstanceHeader.format(''+r.PASMID, r.RentCycle.text, f.pasmStart, f.pasmStop);
-                    }
-                    $(f.box).find("#AssessmentInfo").html(info);
-                }, 500);
+                if (r.RentCycle.text == 'Norecur' && r.PASMID === 0) {
+                    // Non-recurred instance
+                    info = '<p style="margin-bottom: 0px;">Single Instance Assessment</p>'.format(r.ASMID);
+                } else {
+                    // INSTANCE has 4 variables: ParentASM, RentCycle, Start, Stop
+                    info = app.asmInstanceHeader.format(''+r.PASMID, r.RentCycle.text, f.pasmStart, f.pasmStop);
+                }
+                $(f.box).find("#AssessmentInfo").html(info);
 
                 // FLAG reports
                 var flag = r.FLAGS,
