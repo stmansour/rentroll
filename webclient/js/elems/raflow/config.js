@@ -1,10 +1,10 @@
 /* global
-    RACompConfig
+    RACompConfig, SliderContentDivLength
 */
 "use strict";
 
 // right side slider content div length
-var SliderContentDivLength = 400;
+window.SliderContentDivLength = 400;
 
 // RACompConfig for each section
 window.RACompConfig = {
