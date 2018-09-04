@@ -160,6 +160,7 @@ window.buildAssessmentElements = function () {
             {field: 'RAID', caption: app.sRentalAgreement,  size: '125px', style: 'text-align: right', sortable: true},
             {field: 'RID', caption: 'RID',  size: '40px', hidden: true, sortable: false},
             {field: 'Rentable', caption: app.sRentable,  size: '150px', sortable: true},
+            {field: 'Comment', caption: 'Comment',  size: '600px', sortable: true},
             // {field: 'ATypeLID', caption: 'Type', size: '100px', sortable: true, style: 'text-align: right'},
             // {field: 'RentCycle', caption: app.sRentCycle,  size: '60px', style: 'text-align: right', sortable: true},
             // {field: 'ProrationCycle', caption: sProrationCycle,  size: '60px', style: 'text-align: right', sortable: true},

@@ -33,7 +33,8 @@ func Fees2RA(ctx context.Context, x *WriteHandlerContext) error {
 		return err
 	}
 	if x.lastClose.CPID == 0 {
-		x.lastClose.Dt = rlib.TIME0 // use TIME0 if not set
+		x.lastClose.Dt = rlib.TIME0               // use TIME0 if not set
+		x.lastClose.ExpandAsmDtStart = rlib.TIME0 //
 	}
 	x.lastClose.OpenPeriodDt = x.lastClose.Dt.AddDate(0, 0, 1) // for our purposes, use the day after close
 	rlib.Console("lastClose = %s\n", x.lastClose.Dt.Format(rlib.RRDATEREPORTFMT))

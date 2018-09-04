@@ -8,10 +8,14 @@ Waiting for signal from workers...
 Entered TWSAsmtBotChecker.  App.Idx = 0, len(checkTimes) = 2
 Created ctx
 Calling CreateAsmInstCore
-ProcessJournalEntry: setting dtstart of new instances: initial = 3/1/2018, lc = 1/1/1970
-ProcessJournalEntry: a1.Start, a1.Stop = 3/1/2018
-ProcessJournalEntry: setting dtstart of new instances: initial = 3/1/2018, lc = 1/1/1970
-ProcessJournalEntry: a1.Start, a1.Stop = 3/1/2018
+Entered journalAssessment
+journalAssessment: d = Mar 1, 2018, d1 = Mar 1, 2018, d2 = Apr 1, 2018
+Assessment: PASMID = 27, RentCycle = 6, ProrationCycle = 4, Start = 3/1/2018 12:00 am, Stop = 3/1/2018 12:00 am
+After ProrateAssessment: start = 3/1/2018 12:00 am, stop = 4/1/2018 12:00 am
+Entered journalAssessment
+journalAssessment: d = Mar 1, 2018, d1 = Mar 1, 2018, d2 = Apr 1, 2018
+Assessment: PASMID = 49, RentCycle = 6, ProrationCycle = 4, Start = 3/1/2018 12:00 am, Stop = 3/1/2018 12:00 am
+After ProrateAssessment: start = 3/1/2018 12:00 am, stop = 4/1/2018 12:00 am
 Incr App.Idx.  new value: 1
 Rescheduled another pass
 
@@ -20,10 +24,6 @@ Rescheduled another pass
 Entered TWSAsmtBotChecker.  App.Idx = 1, len(checkTimes) = 2
 Created ctx
 Calling CreateAsmInstCore
-ProcessJournalEntry: setting dtstart of new instances: initial = 4/1/2018, lc = 1/1/1970
-ProcessJournalEntry: a1.Start, a1.Stop = 4/1/2018
-ProcessJournalEntry: setting dtstart of new instances: initial = 4/1/2018, lc = 1/1/1970
-ProcessJournalEntry: a1.Start, a1.Stop = 4/1/2018
 Incr App.Idx.  new value: 2
 Done, signaling completion
 Received completion signal. done = 1

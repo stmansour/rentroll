@@ -176,8 +176,12 @@ mysqlverify "c2" "flow2ra-Transactants" "SELECT TCID,BID,PreferredName,LastName 
 
 
 # import rr.sql again to test update existing RA
+stopRentRollServer
+echo "RENTROLL SERVER STOPPED"
 echo "Create new database..."
 mysql --no-defaults rentroll < rr.sql
+RENTROLLSERVERAUTH="-noauth"
+startRentRollServer
 
 #----------------------------------------------------------------------------------
 # TEST z

@@ -92,6 +92,7 @@ type AssessmentGrid struct {
 	Stop      rlib.JSONDate   // stop time, may be the same as start time or later
 	InvoiceNo int64           // A uniqueID for the invoice number
 	ARID      int64           // which account rule
+	Comment   string          // assessment comment
 	AcctRule  rlib.NullString // expression showing how to account for the amount
 	FLAGS     uint64
 }
@@ -125,7 +126,7 @@ type DeleteAsmForm struct {
 
 // assessmentGridRowScan scans a result from sql row and dump it in a AssessmentGrid struct
 func assessmentGridRowScan(rows *sql.Rows, q AssessmentGrid) (AssessmentGrid, error) {
-	err := rows.Scan(&q.ASMID, &q.BID, &q.PASMID, &q.RID, &q.Rentable, &q.RAID, &q.RentCycle, &q.Amount, &q.Start, &q.Stop, &q.InvoiceNo, &q.ARID, &q.AcctRule, &q.FLAGS)
+	err := rows.Scan(&q.ASMID, &q.BID, &q.PASMID, &q.RID, &q.Rentable, &q.RAID, &q.RentCycle, &q.Amount, &q.Start, &q.Stop, &q.InvoiceNo, &q.ARID, &q.AcctRule, &q.FLAGS, &q.Comment)
 	return q, err
 }
 
@@ -145,6 +146,7 @@ var asmFieldsMap = map[string][]string{
 	"ARID":         {"Assessments.ARID"},
 	"AcctRule":     {"AR.Name"},
 	"FLAGS":        {"Assessments.FLAGS"},
+	"Comment":      {"Assessments.Comment"},
 }
 
 // which fields needs to be fetched for SQL query for assessment grid
@@ -163,6 +165,7 @@ var asmQuerySelectFields = []string{
 	"Assessments.ARID",
 	"AR.Name",
 	"Assessments.FLAGS",
+	"Assessments.Comment",
 }
 
 func getExpandMode(b bool) int {

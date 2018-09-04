@@ -33,6 +33,16 @@ func RRAssessmentsTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("AsmType", 50, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("AR Name", 80, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
+	const (
+		ASMID = iota
+		RAID
+		Rentable
+		RentCycle
+		ProrationCycle
+		Amount
+		AsmType
+		ARName
+	)
 	// prepare table's title, section1, section2, section3 if there are any error
 	err = TableReportHeaderBlock(ctx, &tbl, "Assessments", funcname, ri)
 	if err != nil {
@@ -78,20 +88,20 @@ func RRAssessmentsTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 		}
 
 		tbl.AddRow()
-		tbl.Puts(-1, 0, a.IDtoString())
-		tbl.Puts(-1, 1, rlib.IDtoString("RA", a.RAID))
-		tbl.Puts(-1, 2, r.RentableName)
-		tbl.Puts(-1, 3, rlib.RentalPeriodToString(a.RentCycle))
-		tbl.Puts(-1, 4, rlib.RentalPeriodToString(a.ProrationCycle))
-		tbl.Putf(-1, 5, a.Amount)
-		// tbl.Puts(-1, 6, rlib.RRdb.BizTypes[a.BID].GLAccounts[a.ATypeLID].Name)
+		tbl.Puts(-1, ASMID, a.IDtoString())
+		tbl.Puts(-1, RAID, rlib.IDtoString("RA", a.RAID))
+		tbl.Puts(-1, Rentable, r.RentableName)
+		tbl.Puts(-1, RentCycle, rlib.RentalPeriodToString(a.RentCycle))
+		tbl.Puts(-1, ProrationCycle, rlib.RentalPeriodToString(a.ProrationCycle))
+		tbl.Putf(-1, Amount, a.Amount)
+		// tbl.Puts(-1, AsmType, rlib.RRdb.BizTypes[a.BID].GLAccounts[a.ATypeLID].Name)
 		ar, err := rlib.GetAssessmentAccountRuleText(ctx, &a)
 		if err != nil {
 			// set errors in section3 and return
 			tbl.SetSection3(err.Error())
 			return tbl
 		}
-		tbl.Puts(-1, 7, ar)
+		tbl.Puts(-1, ARName, ar)
 	}
 
 	err = rows.Err()

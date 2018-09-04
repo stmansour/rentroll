@@ -70,9 +70,9 @@ func UpdateAssessment(ctx context.Context, a *Assessment) error {
 	// DEBUG
 	// just looking for where a problem is coming from
 	if a.Stop.Before(a.Start) {
-		Console("\n\n **** WARNING ****   **** WARNING ****  stop date prior to start\n")
+		Console("\n\n **** FATAL ****   **** FATAL ****  stop date prior to start\n")
 		debug.PrintStack()
-		Console("\n **** WARNING ****   **** WARNING ****  stop date prior to start\n\n")
+		Console("\n **** FATAL ****   **** FATAL ****  stop date prior to start\n\n")
 	}
 
 	a.Amount = Round(a.Amount, .5, 2)
