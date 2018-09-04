@@ -346,6 +346,7 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
         case "RARentableFeeForm":
         case "RAPetFeeForm":
         case "RAVehicleFeeForm":
+        case "RATransactantForm":
             formSelector = selectors.getRAFormSelector(formName);
             break;
         default:
@@ -497,6 +498,7 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                     case "CSAgent": // Date section
                     case "Weight": // Pet Section
                     case "VehicleYear": // Vehicle Section
+                    case "Points": // People Section
                         fieldValue = fieldValue.toString();
                         break;
                     case "TMPTCID":
@@ -507,6 +509,22 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                                 break;
                             }
                         }
+                        break;
+                    case "CurrentReasonForMoving":
+                    case "PriorReasonForMoving":
+                        types = appSettings.WhyLeaving;
+                        type = types.find(types => types.id === fieldValue);
+                        fieldValue = type.text;
+                        break;
+                    case "SourceSLSID":
+                        types = appSettings.HowFound;
+                        type = types.find(types => types.id === fieldValue);
+                        fieldValue = type.text;
+                        break;
+                    case "Industry":
+                        types = appSettings.Industries;
+                        type = types.find(types => types.id === fieldValue);
+                        fieldValue = type.text;
                         break;
                 }
 
@@ -540,6 +558,16 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                         case "ChkDtDone":
                         // Chart of Accounts form checkbox
                         case "IsActive":
+                        // RATransanctant form
+                        case "IsRenter":
+                        case "IsOccupant":
+                        case "IsGuarantor":
+                        case "IsCompany":
+                        case "Evicted":
+                        case "Convicted":
+                        case "Bankruptcy":
+                        case "EligibleFuturePayor":
+                        case "EligibleFutureUser":
                             if(fieldValue){
                                 cy.get(selectors.getFieldSelector(formSelector, fieldID))
                                     .should('be.visible')
@@ -570,6 +598,7 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
         case "RARentableFeeForm":
         case "RAPetFeeForm":
         case "RAVehicleFeeForm":
+        case "RATransactantForm":
             // do nothing
             break;
         default:
