@@ -163,7 +163,7 @@ describe('AIR Roller UI Tests - Deposit Accounts', function () {
     // it('Save new record', function () {
     //     // Click add new button and open a form
     //     cy.contains('Add New', {force: true}).click().wait(constants.WAIT_TIME);
-
+    //
     //     // ---------------------------------------
     //     // ----- Tests for save new record -------
     //     // ---------------------------------------

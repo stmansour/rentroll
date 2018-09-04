@@ -13,6 +13,11 @@ let appSettings;
 // holds the test configuration for the modules
 let testConfig;
 
+// hold individual components cofiguration
+let rarentbelfeeConfig = require('../support/components/rarentablefee').conf;
+let rapetfeeConfig = require('../support/components/rapetfee').conf;
+let ravehiclefeeConfig = require('../support/components/ravehiclefee').conf;
+
 // -- Start Cypress UI tests for AIR Roller Application --
 describe('AIR Roller UI Tests - Rental Agreements', function () {
 
@@ -20,6 +25,8 @@ describe('AIR Roller UI Tests - Rental Agreements', function () {
     let recordsAPIResponse;
 
     let noRecordsInAPIResponse;
+
+    let flowData;
 
     // -- Perform operation before all tests starts. It runs once before all tests in the block --
     before(function () {
@@ -110,61 +117,357 @@ describe('AIR Roller UI Tests - Rental Agreements', function () {
         common.testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, testConfig);
     });
 
-    // it('Existing Rental Agreement', function (){
-    //     cy.server();
+    /***********************
+     * 1. Open existing rental agreement
+     *
+     * Expect:
+     * Previous, Get Approvals buttons must be disable and visible.
+     * Next, Action, Edit, close(X) must be enable and visible
+     *
+     * 2. Click Edit button on top right corner
+     *
+     * Expect:
+     * Get Approvals button enable and visible
+     ***********************/
+    it('Existing Rental Agreement', function (){
+        cy.server();
+
+        // 1. Open existing rental agreement
+        // Click on the first record
+        cy.route(testConfig.methodType, common.getDetailRecordAPIEndPoint("flow", 0)).as('raRecord');
+
+        cy.get(selectors.getSecondRecordInGridSelector(testConfig.grid)).click();
+
+        // Check http status
+        cy.wait('@raRecord').its('status').should('eq', constants.HTTP_OK_STATUS);
+
+        cy.get('@raRecord').then(function (xhr){
+            // Check key `status` in responseBody
+            expect(xhr.responseBody).to.have.property('status', constants.API_RESPONSE_SUCCESS_FLAG);
+
+            cy.log(xhr);
+
+            // Perform assertion
+            // Previous, Get Approvals buttons must be disable and visible.
+            // Next, Action, Edit, close(X) must be enable and visible
+            let visibleButtons = ["raactions", "edit_view_raflow", "previous", "get-approvals", "next"];
+            let notVisibleButtons = [];
+            let enableButtons = ["raactions", "edit_view_raflow", "next"];
+            let disableButtons = ["previous", "get-approvals"];
+
+            common.buttonsTest(visibleButtons, notVisibleButtons);
+
+            // Check buttons are disable
+            disableButtons.forEach(function (button) {
+                cy.get(selectors.getButtonSelector(button)).should('be.disabled');
+            });
+
+            // Check buttons are enable
+            enableButtons.forEach(function (button) {
+                cy.get(selectors.getButtonSelector(button)).should('be.enabled');
+            });
+
+        });
+
+        cy.wait(constants.WAIT_TIME);
+
+        // 2. Click Edit button on top right corner
+        // Edit RAFlow
+        cy.route(testConfig.methodType, common.getDetailRecordAPIEndPoint("flow", 0)).as('editRARecord');
+
+        cy.get(selectors.getEditRAFlowButtonSelector()).click();
+
+        // Check http status
+        cy.wait('@editRARecord').its('status').should('eq', constants.HTTP_OK_STATUS);
+
+        cy.get('@editRARecord').then(function (xhr){
+            // Check key `status` in responseBody
+            expect(xhr.responseBody).to.have.property('status', constants.API_RESPONSE_SUCCESS_FLAG);
+
+            cy.log(xhr);
+
+            flowData = xhr.response.body.record.Flow.Data;
+
+            // Perform assertion
+            // Previous, Get Approvals buttons must be disable and visible.
+            // Next, Action, Get Approvals, Edit, close(X) must be enable and visible
+            let visibleButtons = ["raactions", "edit_view_raflow", "previous", "get-approvals", "next", "remove_raflow"];
+            let notVisibleButtons = [];
+            let enableButtons = ["raactions", "edit_view_raflow", "next", "get-approvals", "remove_raflow"];
+            let disableButtons = ["previous"];
+
+            cy.wait(constants.WAIT_TIME);
+
+            common.buttonsTest(visibleButtons, notVisibleButtons);
+
+            // Check buttons are disable
+            disableButtons.forEach(function (button) {
+                cy.get(selectors.getButtonSelector(button)).should('be.disabled');
+            });
+
+            // Check buttons are enable
+            enableButtons.forEach(function (button) {
+                cy.get(selectors.getButtonSelector(button)).should('be.enabled');
+            });
+
+
+        });
+
+    });
+
+    /***********************
+     * Open Date section in RAFlow
+     *
+     * Expect:
+     * RADatesForm must have data which match with the Server response
+     ***********************/
+    it('RAFlow -- Dates', function () {
+        let datesData = flowData.dates;
+        // Date section
+        cy.get('#dates a').click({force: true}).wait(constants.WAIT_TIME);
+        testConfig.form = "RADatesForm";
+        testConfig.buttonNamesInDetailForm = ["save"];
+        common.detailFormTest(datesData, testConfig);
+    });
+
+    // Except dates section other section getting wrong data(If we check in the response than it is blank array)
+    // in headless mode. Due to this it feeds wrong data to UI.
+    // After checking rrlog.log I can foresight that ConvertRA2Flow return blank array data for other section.
+    // After resolving this issue below tests can be enabled.
+    // TODO: Enable other section's UI tests
+
+    // /***********************
+    //  * Open People section in RAFlow
+    //  *
+    //  * Expect:
+    //  * RAPeopeGrid must have data which match with the Server response
+    //  ***********************/
+    // it('RAFlow -- People', function () {
+    //     let peopleData = flowData.people;
+    //     // people section
+    //     cy.get('#people a').click({force: true}).wait(constants.WAIT_TIME);
     //
-    //     // Click on the first record
-    //     cy.route(testConfig.methodType, common.getDetailRecordAPIEndPoint("flow", 0)).as('raRecord');
+    //     testConfig.grid = "RAPeopleGrid";
+    //     testConfig.form = "RATransactantForm";
+    //     testConfig.skipColumns = ["haveError"];
+    //     testConfig.skipFields = ["BUD"]; // BUD should be remove from RATransactantForm
+    //     common.testGridRecords(peopleData, peopleData.length, testConfig);
     //
-    //     cy.get(selectors.getFirstRecordInGridSelector(testConfig.grid)).click();
+    //     //--------------------------------
+    //     // Test RATransactantForm
+    //     //--------------------------------
+    //     cy.get(selectors.getSecondRecordInGridSelector(testConfig.grid)).click().wait(constants.WAIT_TIME);
     //
-    //     // Check http status
-    //     cy.wait('@raRecord').its('status').should('eq', constants.HTTP_OK_STATUS);
+    //     common.detailFormTest(peopleData[0], testConfig);
     //
-    //     cy.get('@raRecord').then(function (xhr){
-    //         // Check key `status` in responseBody
-    //         expect(xhr.responseBody).to.have.property('status', constants.API_RESPONSE_SUCCESS_FLAG);
+    //     cy.get("#tabs_RATransactantForm_tabs_tab_tab4").click();
+    //     common.detailFormTest(peopleData[0], testConfig);
     //
-    //         cy.log(xhr);
-    //     });
+    //     cy.get("#tabs_RATransactantForm_tabs_tab_tab3").click();
+    //     common.detailFormTest(peopleData[0], testConfig);
     //
-    //     cy.wait(5000);
+    //     cy.get("#tabs_RATransactantForm_tabs_tab_tab2").click();
+    //     common.detailFormTest(peopleData[0], testConfig);
     //
-    //     // Edit RAFlow
-    //     cy.route(testConfig.methodType, common.getDetailRecordAPIEndPoint("flow", 0)).as('editRARecord');
+    //     //--------------------------------
+    //     // Close the RATransactantForm form
+    //     //--------------------------------
+    //     cy.get(selectors.getRAFormCloseButtonSelector(testConfig.form)).click().wait(constants.WAIT_TIME);
+    //     // Check that form should not visible after closing it
+    //     cy.get(selectors.getRAFormSelector(testConfig.form)).should('not.be.visible');
+    // });
     //
-    //     cy.get(selectors.getEditRAFlowButtonSelector()).click();
+    // /***********************
+    //  * Open Pets section in RAFlow
+    //  *
+    //  * Expect:
+    //  * RAPetsGrid must have data which match with the Server response
+    //  *
+    //  * Click on first grid record
+    //  *
+    //  * Expect:
+    //  * Pet form  have loaded data with match with the server response
+    //  ***********************/
+    // it('RAFlow -- Pets', function () {
+    //     let petsData = flowData.pets;
+    //     testConfig.grid = "RAPetsGrid";
+    //     testConfig.form = "RAPetForm";
+    //     testConfig.skipColumns = ["haveError"];
+    //     cy.get('#pets a').click({force: true}).wait(constants.WAIT_TIME);
     //
-    //     // Check http status
-    //     cy.wait('@editRARecord').its('status').should('eq', constants.HTTP_OK_STATUS);
+    //     //--------------------------------
+    //     // Test RAPetsGrid
+    //     //--------------------------------
+    //     common.testGridRecords(petsData, petsData.length, testConfig);
     //
-    //     cy.get('@editRARecord').then(function (xhr){
-    //         // Check key `status` in responseBody
-    //         expect(xhr.responseBody).to.have.property('status', constants.API_RESPONSE_SUCCESS_FLAG);
+    //     cy.log(petsData[0]);
     //
-    //         cy.log(xhr);
+    //     //--------------------------------
+    //     // Test RAPetForm
+    //     //--------------------------------
+    //     // click on the first record of RAPetsGrid grid
+    //     cy.get(selectors.getSecondRecordInGridSelector(testConfig.grid)).click().wait(constants.WAIT_TIME);
+    //     common.detailFormTest(petsData[0], testConfig);
     //
-    //         // TODO: [WIP]Write test for verifying grids/forms for each section
-    //         // let flowData = xhr.response.body.record.Flow.Data;
-    //         //
-    //         // cy.log("people response");
-    //         //
-    //         // cy.log(flowData.people);
-    //         //
-    //         // cy.wait(5000);
-    //         //
-    //         // // people section
-    //         // cy.get('#people').click();
-    //         //
-    //         // cy.wait(10000);
-    //         //
-    //         // testConfig.grid = "RAPeopleGrid";
-    //         // testConfig.excludeGridColumns = ["haveError"];
-    //         // common.testGridRecords(flowData.people, flowData.people.length, testConfig);
+    //     // TODO: Fees object is undfined while running test in headless mode. Due to this below tests are commented.
+    //     //--------------------------------
+    //     // Test RAPetFeesGrid
+    //     //--------------------------------
+    //     common.testGridRecords(petsData[0].Fees, petsData[0].Fees.length, rapetfeeConfig);
     //
+    //     //--------------------------------
+    //     // Test RAPetFeeForm
+    //     //--------------------------------
+    //     if (petsData[0].Fees.length > 0){
+    //         // click on the first record of RAPetFeesGrid
+    //         cy.get(selectors.getSecondRecordInGridSelector(rapetfeeConfig.grid)).click().wait(constants.WAIT_TIME);
+    //         common.detailFormTest(petsData[0].Fees[0], rapetfeeConfig);
     //
-    //     });
+    //         //--------------------------------
+    //         // Close the RAPetFeeForm form
+    //         //--------------------------------
+    //         cy.get(selectors.getRAFormCloseButtonSelector(rapetfeeConfig.form)).click().wait(constants.WAIT_TIME);
+    //         // Check that form should not visible after closing it
+    //         cy.get(selectors.getRAFormSelector(rapetfeeConfig.form)).should('not.be.visible');
+    //     }
     //
+    //     //--------------------------------
+    //     // Close the RAPetForm form
+    //     //--------------------------------
+    //     cy.get(selectors.getRAFormCloseButtonSelector(testConfig.form)).click().wait(constants.WAIT_TIME);
+    //     // Check that form should not visible after closing it
+    //     cy.get(selectors.getRAFormSelector(testConfig.form)).should('not.be.visible');
+    //
+    // });
+    //
+    // /***********************
+    //  * Open Vehicles section in RAFlow
+    //  *
+    //  * Expect:
+    //  * RAVehiclesGrid must have data which match with the Server response
+    //  ***********************/
+    // it('RAFlow -- Vehicles', function () {
+    //     let vehiclesData = flowData.vehicles;
+    //     testConfig.grid = "RAVehiclesGrid";
+    //     testConfig.form = "RAVehicleForm";
+    //     testConfig.skipColumns = ["haveError"];
+    //     cy.get('#vehicles a').click({force: true}).wait(constants.WAIT_TIME);
+    //
+    //     //--------------------------------
+    //     // Test RAVehiclesGrid
+    //     //--------------------------------
+    //     common.testGridRecords(vehiclesData, vehiclesData.length, testConfig);
+    //
+    //     //--------------------------------
+    //     // Test RAVehicleForm
+    //     //--------------------------------
+    //     // click on the first record of grid
+    //     cy.get(selectors.getSecondRecordInGridSelector(testConfig.grid)).click().wait(constants.WAIT_TIME);
+    //     common.detailFormTest(vehiclesData[0], testConfig);
+    //
+    //     // TODO: Fees object is undfined while running test in headless mode. Due to this below tests are commented.
+    //     //--------------------------------
+    //     // Test RAVehicleFeesGrid
+    //     //--------------------------------
+    //     common.testGridRecords(vehiclesData[0].Fees, vehiclesData[0].Fees.length, ravehiclefeeConfig);
+    //
+    //     //--------------------------------
+    //     // Test RAVehicleFeeForm
+    //     //--------------------------------
+    //     // click on the first record of RAVehicleFeesGrid
+    //     if(vehiclesData[0].Fees.length > 0){
+    //         cy.get(selectors.getSecondRecordInGridSelector(ravehiclefeeConfig.grid)).click().wait(constants.WAIT_TIME);
+    //         common.detailFormTest(vehiclesData[0].Fees[0], ravehiclefeeConfig);
+    //
+    //         //--------------------------------
+    //         // Close the RAVehicleFeeForm form
+    //         //--------------------------------
+    //         cy.get(selectors.getRAFormCloseButtonSelector(ravehiclefeeConfig.form)).click().wait(constants.WAIT_TIME);
+    //         // Check that form should not visible after closing it
+    //         cy.get(selectors.getRAFormSelector(ravehiclefeeConfig.form)).should('not.be.visible');
+    //     }
+    //
+    //     //--------------------------------
+    //     // Close the RAVehicleForm form
+    //     //--------------------------------
+    //     cy.get(selectors.getRAFormCloseButtonSelector(testConfig.form)).click().wait(constants.WAIT_TIME);
+    //     // Check that form should not visible after closing it
+    //     cy.get(selectors.getRAFormSelector(testConfig.form)).should('not.be.visible');
+    //
+    // });
+    //
+    // /***********************
+    //  * Open Rentables section in RAFlow
+    //  *
+    //  * Expect:
+    //  * RARentablesGrid must have data which match with the Server response
+    //  ***********************/
+    // it('RAFlow -- Rentables', function () {
+    //     let rentablesData = flowData.rentables;
+    //     testConfig.grid = "RARentablesGrid";
+    //     testConfig.skipColumns = ["haveError", "RemoveRec"];
+    //     cy.get('#rentables a').click({force: true}).wait(constants.WAIT_TIME);
+    //
+    //     //--------------------------------
+    //     // Test RARentablesGrid
+    //     //--------------------------------
+    //     common.testGridRecords(rentablesData, rentablesData.length, testConfig);
+    //
+    //     // TODO: Fees object is undfined while running test in headless mode. Due to this below tests are commented.
+    //     //-------------------------------
+    //     // Test RARentableFeeGrid
+    //     //-------------------------------
+    //     // click on the first record of RARentablesGrid grid
+    //     cy.get(selectors.getSecondRecordInGridSelector(testConfig.grid)).click().wait(constants.WAIT_TIME);
+    //     common.testGridRecords(rentablesData[0].Fees, rentablesData[0].Fees.length, rarentbelfeeConfig);
+    //
+    //     //-------------------------------
+    //     // Test RARentableFeeForm
+    //     //-------------------------------
+    //     if(rentablesData[0].Fees.length > 0){
+    //         // click on the first record of RARentableFeeGrid
+    //         cy.get(selectors.getSecondRecordInGridSelector(rarentbelfeeConfig.grid)).click().wait(constants.WAIT_TIME);
+    //         common.detailFormTest(rentablesData[0].Fees[0], rarentbelfeeConfig);
+    //
+    //         // Close the RARentableFeeForm form
+    //         cy.get(selectors.getRAFormCloseButtonSelector(rarentbelfeeConfig.form)).click().wait(constants.WAIT_TIME);
+    //         // Check that form should not visible after closing it
+    //         cy.get(selectors.getFormSelector(rarentbelfeeConfig.form)).should('not.be.visible');
+    //     }
+    //
+    //     // Close the RARentableFeeGrid
+    //     cy.get(selectors.getGridCloseButtonSelector()).click().wait(constants.WAIT_TIME);
+    //     // Check that grid should not visible after closing it
+    //     cy.get('section[name=RARentableFeesGrid]').should('not.be.visible');
+    //
+    // });
+    //
+    // /***********************
+    //  * Open Parent/Child section in RAFlow
+    //  *
+    //  * Expect:
+    //  * RAParentChildGrid must have data which match with the Server response
+    //  ***********************/
+    // it('RAFlow -- Parent/Child', function () {
+    //     let parenChildData = flowData.parentchild;
+    //     testConfig.grid = "RAParentChildGrid";
+    //     testConfig.skipColumns = ["haveError"];
+    //     cy.get('#parentchild a').click({force: true}).wait(constants.WAIT_TIME);
+    //     common.testGridRecords(parenChildData, parenChildData.length, testConfig);
+    // });
+    //
+    // /***********************
+    //  * Open Tie section in RAFlow
+    //  *
+    //  * Expect:
+    //  * RATiePeopleGrid must have data which match with the Server response
+    //  ***********************/
+    // it('RAFlow -- Tie', function () {
+    //     let tiePeopleData = flowData.tie.people;
+    //     testConfig.grid = "RATiePeopleGrid";
+    //     testConfig.skipColumns = ["haveError"];
+    //     cy.get('#tie a').click({force: true}).wait(constants.WAIT_TIME);
+    //     common.testGridRecords(tiePeopleData, tiePeopleData.length, testConfig);
     // });
 
     // -- Perform operation after all tests finish. It runs once after all tests in the block --

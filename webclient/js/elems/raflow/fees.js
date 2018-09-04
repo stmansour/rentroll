@@ -67,7 +67,7 @@ window.GetFeeFormFields = function() {
         // {name: 'SalesTaxAmt',           type: 'money',  required: true,     html: {page: 0, column: 0}}, // FUTURE RELEASE
         {name: 'TransOccTax',           type: 'money',  required: true,     html: {page: 0, column: 0}},
         // {name: 'TransOccAmt',           type: 'money',  required: true,     html: {page: 0, column: 0}}, // FUTURE RELEASE
-        {name: 'Comment',               type: 'text',   required: false,    html: {page: 0, column: 0}},
+        {name: 'Comment',               type: 'text',   required: false,    html: {page: 0, column: 0}}
     ];
 
     // RETURN the clone

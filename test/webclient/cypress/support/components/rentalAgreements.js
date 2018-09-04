@@ -18,7 +18,7 @@ export let conf = {
     skipColumns: [],
     skipFields: [],
     primaryId: "RAID",
-    haveDateValue: false,
+    haveDateValue: true,
     fromDate: new Date(2018, 7, 1), // year, month-1, day : 1st August 2018
     toDate: new Date(2018, 7, 31), // 31st August 2018
     gridInForm: "tlsDetailGrid",

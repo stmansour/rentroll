@@ -169,11 +169,11 @@ describe('AIR Roller UI Tests - Account Rules', function () {
     // it('Save new record', function () {
     //     // Click add new button and open a form
     //     cy.contains('Add New', {force: true}).click().wait(constants.WAIT_TIME);
-        
+    //
     //     // ---------------------------------------
     //     // ----- Tests for save new record -------
     //     // ---------------------------------------
-
+    //
     //     //TODO(Jay): CheckBox, StartDate, StopDate are skipped
     //     common.testSaveNewRecord(testConfig);
     // });
