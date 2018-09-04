@@ -242,10 +242,33 @@ describe('AIR Roller UI Tests - Rental Agreements', function () {
         cy.get('#people a').click({force: true}).wait(constants.WAIT_TIME);
 
         testConfig.grid = "RAPeopleGrid";
+        testConfig.form = "RATransactantForm";
         testConfig.skipColumns = ["haveError"];
+        testConfig.skipFields = ["BUD"]; // BUD should be remove from RATransactantForm
         common.testGridRecords(peopleData, peopleData.length, testConfig);
 
-        // TODO: Write UI test for background information form
+        //--------------------------------
+        // Test RATransactantForm
+        //--------------------------------
+        cy.get(selectors.getSecondRecordInGridSelector(testConfig.grid)).click().wait(constants.WAIT_TIME);
+
+        common.detailFormTest(peopleData[0], testConfig);
+
+        cy.get("#tabs_RATransactantForm_tabs_tab_tab4").click();
+        common.detailFormTest(peopleData[0], testConfig);
+
+        cy.get("#tabs_RATransactantForm_tabs_tab_tab3").click();
+        common.detailFormTest(peopleData[0], testConfig);
+
+        cy.get("#tabs_RATransactantForm_tabs_tab_tab2").click();
+        common.detailFormTest(peopleData[0], testConfig);
+
+        //--------------------------------
+        // Close the RATransactantForm form
+        //--------------------------------
+        cy.get(selectors.getRAFormCloseButtonSelector(testConfig.form)).click().wait(constants.WAIT_TIME);
+        // Check that form should not visible after closing it
+        cy.get(selectors.getRAFormSelector(testConfig.form)).should('not.be.visible');
     });
 
     /***********************
