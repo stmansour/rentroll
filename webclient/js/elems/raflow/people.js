@@ -374,11 +374,15 @@ window.loadRAPeopleGrid = function () {
             onChange: function (event) {
                 event.onComplete = function () {
 
-                    onCheckboxesChange(this);
+                    switch(event.target){
+                        case "Evicted":
+                        case "Convicted":
+                        case "Bankruptcy":
+                            onCheckboxesChange(this);
+                            break;
+                    }
 
                     manageBGInfoFormFields(this.record);
-
-                    this.refresh();
 
                     // formRecDiffer: 1=current record, 2=original record, 3=diff object
                     var diff = formRecDiffer(this.record, app.active_form_original, {});
@@ -414,10 +418,10 @@ window.loadRAPeopleGrid = function () {
                         $(form.box).find("button[name=delete]").removeClass("hidden");
                     }
 
-                    onCheckboxesChange(form);
-
                     // FREEZE THE INPUTS IF VERSION IS RAID
                     EnableDisableRAFlowVersionInputs(form);
+
+                    onCheckboxesChange(form);
 
                     // Display error dot for the tabs
                     displayRAPeopleSearchFormTabErrorDot();

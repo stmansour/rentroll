@@ -6,19 +6,19 @@ Suite 301
 Austin, TX 78738 USA
 
 
-Journal ID  Description                                                             Date        RntAgr      Rentable         GLAccount        Amount
-----------  ----------------------------------------------------------------------  ----------  ----------  ---------------  ---------  ------------
-J-1           6303-231 [A2, monthly]                                                                                                                
-            Accounts Receivable                                                     02/01/2017  RA-1        6303-231         12000          1,000.00
-            Unit Gross Scheduled Rent-Taxable                                       02/01/2017  RA-1        6303-231         41000         -1,000.00
-                                                                                                                                                    
-J-2           6323-301 [A1, monthly]                                                                                                                
-            Accounts Receivable                                                     02/01/2017  RA-2        6323-301         12000          1,000.00
-            Unit Gross Scheduled Rent-Taxable                                       02/01/2017  RA-2        6323-301         41000         -1,000.00
-                                                                                                                                                    
-J-3         Payment - ABC Corporation   #2111  2000.00                                                                                              
-            Cash                                                                    02/03/2017  RA-1        6303-231         10000          1,000.00
-            Accounts Receivable                                                     02/03/2017  RA-1        6303-231         12000         -1,000.00
-            Cash                                                                    02/03/2017  RA-2        6323-301         10000          1,000.00
-            Accounts Receivable                                                     02/03/2017  RA-2        6323-301         12000         -1,000.00
-                                                                                                                                                    
+Journal ID  Rev  Description                                                             Date        RntAgr      Rentable         GLAccount        Amount
+----------  ---  ----------------------------------------------------------------------  ----------  ----------  ---------------  ---------  ------------
+J-1                6303-231 [A2, monthly]                                                                                                                
+                 Accounts Receivable                                                     02/01/2017  RA-1        6303-231         12000          1,000.00
+                 Unit Gross Scheduled Rent-Taxable                                       02/01/2017  RA-1        6303-231         41000         -1,000.00
+                                                                                                                                                         
+J-2                6323-301 [A1, monthly]                                                                                                                
+                 Accounts Receivable                                                     02/01/2017  RA-2        6323-301         12000          1,000.00
+                 Unit Gross Scheduled Rent-Taxable                                       02/01/2017  RA-2        6323-301         41000         -1,000.00
+                                                                                                                                                         
+J-3              Payment - ABC Corporation   #2111  2000.00                                                                                              
+                 Cash                                                                    02/03/2017  RA-1        6303-231         10000          1,000.00
+                 Accounts Receivable                                                     02/03/2017  RA-1        6303-231         12000         -1,000.00
+                 Cash                                                                    02/03/2017  RA-2        6323-301         10000          1,000.00
+                 Accounts Receivable                                                     02/03/2017  RA-2        6323-301         12000         -1,000.00
+                                                                                                                                                         

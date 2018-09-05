@@ -160,6 +160,7 @@ window.buildAssessmentElements = function () {
             {field: 'RAID', caption: app.sRentalAgreement,  size: '125px', style: 'text-align: right', sortable: true},
             {field: 'RID', caption: 'RID',  size: '40px', hidden: true, sortable: false},
             {field: 'Rentable', caption: app.sRentable,  size: '150px', sortable: true},
+            {field: 'Comment', caption: 'Comment',  size: '600px', sortable: true},
             // {field: 'ATypeLID', caption: 'Type', size: '100px', sortable: true, style: 'text-align: right'},
             // {field: 'RentCycle', caption: app.sRentCycle,  size: '60px', style: 'text-align: right', sortable: true},
             // {field: 'ProrationCycle', caption: sProrationCycle,  size: '60px', style: 'text-align: right', sortable: true},
@@ -741,7 +742,6 @@ window.buildAssessmentElements = function () {
                     info = "";
 
                 formRefreshCallBack(f, "ASMID", header);
-
                 // ==============================
                 // SPECIAL CASE
                 // ==============================
@@ -766,14 +766,16 @@ window.buildAssessmentElements = function () {
                 // Assessment Info at the top of form
                 // r.epoch = app.epochInstance[  (r.RentCycle !== 'Norecur' && r.PASMID === 0) ? 0 : 1 ];
                 if (typeof r.RentCycle !== "object") { return; }
-                if (r.RentCycle.text == 'Norecur' && r.PASMID === 0) {
-                    // Non-recurred instance
-                    info = '<p style="margin-bottom: 0px;">Single Instance Assessment</p>'.format(r.ASMID);
-                } else {
-                    // INSTANCE has 4 variables: ParentASM, RentCycle, Start, Stop
-                    info = app.asmInstanceHeader.format(''+r.PASMID, r.RentCycle.text, f.pasmStart, f.pasmStop);
-                }
-                $(f.box).find("#AssessmentInfo").html(info);
+                setTimeout(function(){
+                    if (r.RentCycle.text == 'Norecur' && r.PASMID === 0) {
+                        // Non-recurred instance
+                        info = '<p style="margin-bottom: 0px;">Single Instance Assessment</p>'.format(r.ASMID);
+                    } else {
+                        // INSTANCE has 4 variables: ParentASM, RentCycle, Start, Stop
+                        info = app.asmInstanceHeader.format(''+r.PASMID, r.RentCycle.text, f.pasmStart, f.pasmStop);
+                    }
+                    $(f.box).find("#AssessmentInfo").html(info);
+                }, 500);
 
                 // FLAG reports
                 var flag = r.FLAGS,

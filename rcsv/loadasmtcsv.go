@@ -7,6 +7,12 @@ import (
 	"strings"
 )
 
+var noClose = rlib.ClosePeriod{
+	Dt:               rlib.TIME0,
+	OpenPeriodDt:     rlib.TIME0,
+	ExpandAsmDtStart: rlib.TIME0,
+}
+
 // // ValidAssessmentDate determines whether the assessment type supplied can be assessed during the assessment's defined period
 // // given the supplied Rental Agreement period.
 // // Returns true if the assessment is valid, false otherwise
@@ -263,7 +269,7 @@ func CreateAssessmentsFromCSV(ctx context.Context, sa []string, lineno int) (int
 	}
 
 	// process this new assessment over the requested time range...
-	err = rlib.ProcessJournalEntry(ctx, &a, Rcsv.Xbiz, &Rcsv.DtStart, &Rcsv.DtStop, false)
+	err = rlib.ExpandAssessment(ctx, &a, Rcsv.Xbiz, &Rcsv.DtStart, &Rcsv.DtStop, false, &noClose)
 	if err != nil {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error while processing journal entries. Error: %s", funcname, lineno, err.Error())
 	}

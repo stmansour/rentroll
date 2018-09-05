@@ -12,6 +12,12 @@ import (
 	"time"
 )
 
+var noClose = rlib.ClosePeriod{
+	Dt:               rlib.TIME0,
+	OpenPeriodDt:     rlib.TIME0,
+	ExpandAsmDtStart: rlib.TIME0,
+}
+
 // AssessmentSendForm is the outbound structure specifically for the UI. It will be
 // automatically populated from an rlib.Assessment struct.
 type AssessmentSendForm struct {
@@ -86,6 +92,7 @@ type AssessmentGrid struct {
 	Stop      rlib.JSONDate   // stop time, may be the same as start time or later
 	InvoiceNo int64           // A uniqueID for the invoice number
 	ARID      int64           // which account rule
+	Comment   string          // assessment comment
 	AcctRule  rlib.NullString // expression showing how to account for the amount
 	FLAGS     uint64
 }
@@ -119,7 +126,7 @@ type DeleteAsmForm struct {
 
 // assessmentGridRowScan scans a result from sql row and dump it in a AssessmentGrid struct
 func assessmentGridRowScan(rows *sql.Rows, q AssessmentGrid) (AssessmentGrid, error) {
-	err := rows.Scan(&q.ASMID, &q.BID, &q.PASMID, &q.RID, &q.Rentable, &q.RAID, &q.RentCycle, &q.Amount, &q.Start, &q.Stop, &q.InvoiceNo, &q.ARID, &q.AcctRule, &q.FLAGS)
+	err := rows.Scan(&q.ASMID, &q.BID, &q.PASMID, &q.RID, &q.Rentable, &q.RAID, &q.RentCycle, &q.Amount, &q.Start, &q.Stop, &q.InvoiceNo, &q.ARID, &q.AcctRule, &q.FLAGS, &q.Comment)
 	return q, err
 }
 
@@ -139,6 +146,7 @@ var asmFieldsMap = map[string][]string{
 	"ARID":         {"Assessments.ARID"},
 	"AcctRule":     {"AR.Name"},
 	"FLAGS":        {"Assessments.FLAGS"},
+	"Comment":      {"Assessments.Comment"},
 }
 
 // which fields needs to be fetched for SQL query for assessment grid
@@ -157,6 +165,7 @@ var asmQuerySelectFields = []string{
 	"Assessments.ARID",
 	"AR.Name",
 	"Assessments.FLAGS",
+	"Assessments.Comment",
 }
 
 func getExpandMode(b bool) int {
@@ -364,7 +373,7 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	// Now just update the database
 	if a.ASMID == 0 && d.ASMID == 0 {
-		errlist = bizlogic.InsertAssessment(r.Context(), &a, getExpandMode(foo.Record.ExpandPastInst))
+		errlist = bizlogic.InsertAssessment(r.Context(), &a, getExpandMode(foo.Record.ExpandPastInst), &noClose)
 		if len(errlist) > 0 {
 			SvcErrListReturn(w, errlist, funcname)
 			return
@@ -372,7 +381,7 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	} else if a.ASMID > 0 || d.ASMID > 0 {
 		rlib.Console(">>>> UPDATE EXISTING ASSESSMENT  ASMID = %d\n", a.ASMID)
 		now := time.Now() // mark Assessment reversed at this time
-		errlist = bizlogic.UpdateAssessment(r.Context(), &a, foo.Record.Mode, &now, getExpandMode(foo.Record.ExpandPastInst))
+		errlist = bizlogic.UpdateAssessment(r.Context(), &a, foo.Record.Mode, &now, &noClose, getExpandMode(foo.Record.ExpandPastInst))
 		if len(errlist) > 0 {
 			SvcErrListReturn(w, errlist, funcname)
 			return
@@ -524,7 +533,7 @@ func deleteAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	// reverse assessment in atomic transaction
 	now := time.Now() // mark Assessment reversed at this time
-	errlist := bizlogic.ReverseAssessment(ctx, &a, del.ReverseMode, &now)
+	errlist := bizlogic.ReverseAssessment(ctx, &a, del.ReverseMode, &now, &noClose)
 	if len(errlist) > 0 {
 		tx.Rollback()
 		SvcErrListReturn(w, errlist, funcname)

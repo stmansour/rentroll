@@ -13,6 +13,18 @@ type jprintctx struct {
 	ReportStop  time.Time
 }
 
+// JournalID et al are column identifers
+const (
+	JournalID = iota
+	JRev
+	JDescr
+	JDate
+	JRAID
+	JRID
+	JGLAcct
+	JAmt
+)
+
 // func setTitle(tbl *gotable.Table, xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 // 	s := "JOURNAL\n"
 // 	s += fmt.Sprintf("Business: %-13s\n", xbiz.P.Name)
@@ -20,7 +32,7 @@ type jprintctx struct {
 // 	tbl.SetTitle(s)
 // }
 
-func processAcctRuleAmount(ctx context.Context, tbl *gotable.Table, xbiz *rlib.XBusiness, rid int64, d time.Time, rule string, raid int64, r *rlib.Rentable, amt float64) error {
+func processAcctRuleAmount(ctx context.Context, tbl *gotable.Table, xbiz *rlib.XBusiness, rid int64, d time.Time, rule string, raid int64, r *rlib.Rentable, amt float64, rev bool) error {
 	const funcname = "processAcctRuleAmount"
 	var (
 		err error
@@ -68,12 +80,15 @@ func processAcctRuleAmount(ctx context.Context, tbl *gotable.Table, xbiz *rlib.X
 
 		// printDatedJournalEntryRJ(l.Name, d, fmt.Sprintf("%d", raid), r.RentableName, m[i].Account, amt)
 		tbl.AddRow()
-		tbl.Puts(-1, 1, l.Name)
-		tbl.Putd(-1, 2, d)
-		tbl.Puts(-1, 3, rlib.IDtoShortString("RA", raid))
-		tbl.Puts(-1, 4, r.RentableName)
-		tbl.Puts(-1, 5, m[i].Account)
-		tbl.Putf(-1, 6, amt)
+		tbl.Puts(-1, JDescr, l.Name)
+		tbl.Putd(-1, JDate, d)
+		tbl.Puts(-1, JRAID, rlib.IDtoShortString("RA", raid))
+		tbl.Puts(-1, JRID, r.RentableName)
+		tbl.Puts(-1, JGLAcct, m[i].Account)
+		tbl.Putf(-1, JAmt, amt)
+		if rev {
+			tbl.Puts(-1, JRev, "R")
+		}
 	}
 
 	return err
@@ -159,11 +174,11 @@ func textPrintJournalAssessment(ctx context.Context, tbl *gotable.Table, jctx *j
 	}
 
 	tbl.AddRow()
-	tbl.Puts(-1, 0, j.IDtoShortString())
-	tbl.Puts(-1, 1, s)
+	tbl.Puts(-1, JournalID, j.IDtoShortString())
+	tbl.Puts(-1, JDescr, s)
 
 	for i := 0; i < len(j.JA); i++ {
-		err = processAcctRuleAmount(ctx, tbl, xbiz, r.RID, j.Dt, j.JA[i].AcctRule, j.JA[i].RAID, r, j.JA[i].Amount)
+		err = processAcctRuleAmount(ctx, tbl, xbiz, r.RID, j.Dt, j.JA[i].AcctRule, j.JA[i].RAID, r, j.JA[i].Amount, a.FLAGS&(1<<2) != 0)
 		if err != nil {
 			rlib.LogAndPrintError(funcname, err)
 			continue
@@ -192,8 +207,8 @@ func printJournalExpense(ctx context.Context, tbl *gotable.Table, xbiz *rlib.XBu
 	s += " " + j.Comment
 
 	tbl.AddRow()
-	tbl.Puts(-1, 0, j.IDtoShortString())
-	tbl.Puts(-1, 1, s)
+	tbl.Puts(-1, JournalID, j.IDtoShortString())
+	tbl.Puts(-1, JDescr, s)
 
 	for i := 0; i < len(j.JA); i++ {
 		clid := rlib.RRdb.BizTypes[j.BID].AR[a.ARID].CreditLID
@@ -207,20 +222,20 @@ func printJournalExpense(ctx context.Context, tbl *gotable.Table, xbiz *rlib.XBu
 			raid = rlib.IDtoShortString("RA", j.JA[i].RAID)
 		}
 		tbl.AddRow()
-		tbl.Puts(-1, 1, rlib.RRdb.BizTypes[j.BID].GLAccounts[dlid].Name)
-		tbl.Putd(-1, 2, j.Dt)
-		tbl.Puts(-1, 3, raid)
-		tbl.Puts(-1, 4, rn)
-		tbl.Puts(-1, 5, rlib.RRdb.BizTypes[j.BID].GLAccounts[dlid].GLNumber)
-		tbl.Putf(-1, 6, j.Amount)
+		tbl.Puts(-1, JDescr, rlib.RRdb.BizTypes[j.BID].GLAccounts[dlid].Name)
+		tbl.Putd(-1, JDate, j.Dt)
+		tbl.Puts(-1, JRAID, raid)
+		tbl.Puts(-1, JRID, rn)
+		tbl.Puts(-1, JGLAcct, rlib.RRdb.BizTypes[j.BID].GLAccounts[dlid].GLNumber)
+		tbl.Putf(-1, JAmt, j.Amount)
 
 		tbl.AddRow()
-		tbl.Puts(-1, 1, rlib.RRdb.BizTypes[j.BID].GLAccounts[clid].Name)
-		tbl.Putd(-1, 2, j.Dt)
-		tbl.Puts(-1, 3, raid)
-		tbl.Puts(-1, 4, rn)
-		tbl.Puts(-1, 5, rlib.RRdb.BizTypes[j.BID].GLAccounts[clid].GLNumber)
-		tbl.Putf(-1, 6, -j.Amount)
+		tbl.Puts(-1, JDescr, rlib.RRdb.BizTypes[j.BID].GLAccounts[clid].Name)
+		tbl.Putd(-1, JDate, j.Dt)
+		tbl.Puts(-1, JRAID, raid)
+		tbl.Puts(-1, JRID, rn)
+		tbl.Puts(-1, JGLAcct, rlib.RRdb.BizTypes[j.BID].GLAccounts[clid].GLNumber)
+		tbl.Putf(-1, JAmt, -j.Amount)
 	}
 
 	tbl.AddRow() // nothing in this line, it's blank
@@ -281,8 +296,8 @@ func textPrintJournalReceipt(ctx context.Context, tbl *gotable.Table, ri *Report
 
 	s := fmt.Sprintf("Payment - %s   #%s  %.2f", ps, rcpt.DocNo, rcpt.Amount)
 	tbl.AddRow()
-	tbl.Puts(-1, 0, j.IDtoShortString())
-	tbl.Puts(-1, 1, s)
+	tbl.Puts(-1, JournalID, j.IDtoShortString())
+	tbl.Puts(-1, JDescr, s)
 
 	// PROCESS EVERY RECEIPT ALLOCATION IN OUR DATE RANGE...
 	for i := 0; i < len(rcpt.RA); i++ {
@@ -355,12 +370,15 @@ func textPrintJournalReceipt(ctx context.Context, tbl *gotable.Table, ri *Report
 				rs = rlib.IDtoShortString("RA", a.RAID)
 			}
 			tbl.AddRow()
-			tbl.Puts(-1, 1, l.Name)
-			tbl.Putd(-1, 2, rcpt.Dt)
-			tbl.Puts(-1, 3, rs)
-			tbl.Puts(-1, 4, r.RentableName)
-			tbl.Puts(-1, 5, m[k].Account)
-			tbl.Putf(-1, 6, amt)
+			tbl.Puts(-1, JDescr, l.Name)
+			tbl.Putd(-1, JDate, rcpt.Dt)
+			tbl.Puts(-1, JRAID, rs)
+			tbl.Puts(-1, JRID, r.RentableName)
+			tbl.Puts(-1, JGLAcct, m[k].Account)
+			tbl.Putf(-1, JAmt, amt)
+			if rcpt.FLAGS&(1<<2) != 0 {
+				tbl.Puts(-1, JRev, "R")
+			}
 		}
 	}
 	tbl.AddRow() // nothing in this line, it's blank
@@ -380,10 +398,10 @@ func textPrintJournalUnassociated(ctx context.Context, tbl *gotable.Table, xbiz 
 		return
 	}
 	tbl.AddRow()
-	tbl.Puts(-1, 0, j.IDtoShortString())
-	tbl.Puts(-1, 1, fmt.Sprintf("Unassociated: %s %s", r.RentableName, j.Comment))
+	tbl.Puts(-1, JournalID, j.IDtoShortString())
+	tbl.Puts(-1, JDescr, fmt.Sprintf("Unassociated: %s %s", r.RentableName, j.Comment))
 	for i := 0; i < len(j.JA); i++ {
-		err = processAcctRuleAmount(ctx, tbl, xbiz, j.JA[i].RID, j.Dt, j.JA[i].AcctRule, 0, &r, j.JA[i].Amount)
+		err = processAcctRuleAmount(ctx, tbl, xbiz, j.JA[i].RID, j.Dt, j.JA[i].AcctRule, 0, &r, j.JA[i].Amount, false)
 		if err != nil {
 			rlib.LogAndPrintError(funcname, err)
 			continue
@@ -394,12 +412,12 @@ func textPrintJournalUnassociated(ctx context.Context, tbl *gotable.Table, xbiz 
 
 func textPrintJournalXfer(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintctx, j *rlib.Journal) {
 	tbl.AddRow()
-	tbl.Puts(-1, 0, j.IDtoShortString())
+	tbl.Puts(-1, JournalID, j.IDtoShortString())
 	s := "Transfer"
 	if len(j.Comment) > 0 {
 		s += fmt.Sprintf(" (%s)", j.Comment)
 	}
-	tbl.Puts(-1, 1, s)
+	tbl.Puts(-1, JDescr, s)
 
 	if len(j.JA[0].AcctRule) > 0 {
 		var clid, dlid int64
@@ -425,18 +443,18 @@ func textPrintJournalXfer(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintctx,
 
 		if dlid > 0 && clid > 0 {
 			tbl.AddRow()
-			tbl.Puts(-1, 1, "from "+rlib.RRdb.BizTypes[j.BID].GLAccounts[clid].Name)
-			tbl.Putd(-1, 2, j.Dt)
-			tbl.Puts(-1, 3, rlib.IDtoShortString("RA", j.JA[0].RAID))
-			tbl.Puts(-1, 5, rlib.RRdb.BizTypes[j.BID].GLAccounts[clid].GLNumber)
-			tbl.Putf(-1, 6, -j.Amount)
+			tbl.Puts(-1, JDescr, "from "+rlib.RRdb.BizTypes[j.BID].GLAccounts[clid].Name)
+			tbl.Putd(-1, JDate, j.Dt)
+			tbl.Puts(-1, JRAID, rlib.IDtoShortString("RA", j.JA[0].RAID))
+			tbl.Puts(-1, JGLAcct, rlib.RRdb.BizTypes[j.BID].GLAccounts[clid].GLNumber)
+			tbl.Putf(-1, JAmt, -j.Amount)
 
 			tbl.AddRow()
-			tbl.Puts(-1, 1, "to "+rlib.RRdb.BizTypes[j.BID].GLAccounts[dlid].Name)
-			tbl.Putd(-1, 2, j.Dt)
-			tbl.Puts(-1, 3, rlib.IDtoShortString("RA", j.JA[0].RAID))
-			tbl.Puts(-1, 5, rlib.RRdb.BizTypes[j.BID].GLAccounts[dlid].GLNumber)
-			tbl.Putf(-1, 6, j.Amount)
+			tbl.Puts(-1, JDescr, "to "+rlib.RRdb.BizTypes[j.BID].GLAccounts[dlid].Name)
+			tbl.Putd(-1, JDate, j.Dt)
+			tbl.Puts(-1, JRAID, rlib.IDtoShortString("RA", j.JA[0].RAID))
+			tbl.Puts(-1, JGLAcct, rlib.RRdb.BizTypes[j.BID].GLAccounts[dlid].GLNumber)
+			tbl.Putf(-1, JAmt, j.Amount)
 		}
 	}
 	tbl.AddRow() // nothing in this line, it's blank
@@ -460,7 +478,11 @@ func textPrintJournalEntry(ctx context.Context, tbl *gotable.Table, ri *Reporter
 	case rlib.JNLTYPEXFER:
 		textPrintJournalXfer(tbl, ri, jctx, j)
 	case rlib.JNLTYPEASMT:
-		a, _ := rlib.GetAssessment(ctx, j.ID) // TODO(Steve): ignore error?
+		a, err := rlib.GetAssessment(ctx, j.ID) // TODO(Steve): ignore error?
+		if err != nil {
+			rlib.LogAndPrint("Failed to get assessment ASMID = %d\n", j.ID)
+			return
+		}
 		r, err := rlib.GetRentable(ctx, a.RID)
 		if err != nil {
 			rlib.LogAndPrint("Failed to get rentable for j.ID = %d,  a.RID = %d\n", j.ID, a.RID)
@@ -492,9 +514,12 @@ func textReportJournalEntry(ctx context.Context, tbl *gotable.Table, ri *Reporte
 	// TODO:  THIS NEEDS TO BE BETTER GENERALIZED...
 
 	if len(j.JA) > 0 { // is there an associated rental agreement?
-		// TODO(Steve): ignore error?
-		ra, _ := rlib.GetRentalAgreement(ctx, j.JA[0].RAID) // if so, get it
-		if ra.AgreementStart.After(start) {                 // if possession of rental starts later...
+		ra, err := rlib.GetRentalAgreement(ctx, j.JA[0].RAID) // if so, get it
+		if err != nil {
+			rlib.Ulog("Error getting rental agreement %d: %s", j.JA[0].RAID, err.Error())
+			// TODO: show it in the report?
+		}
+		if ra.AgreementStart.After(start) { // if possession of rental starts later...
 			start = ra.AgreementStart // ...then make an adjustment
 		}
 		stop = ra.AgreementStop // .Add(24 * 60 * time.Minute) -- removing this as all ranges should be NON-INCLUSIVE
@@ -528,13 +553,14 @@ func JournalReportTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 	// table init
 	tbl := getRRTable()
 
-	tbl.AddColumn("Journal ID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)  // 0
-	tbl.AddColumn("Description", 70, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT) // 1
-	tbl.AddColumn("Date", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)          // 2
-	tbl.AddColumn("RntAgr", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)      // 3
-	tbl.AddColumn("Rentable", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)    // 4
-	tbl.AddColumn("GLAccount", 8, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)    // 5
-	tbl.AddColumn("Amount", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)      // 6
+	tbl.AddColumn("Journal ID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Rev", 3, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Description", 70, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Date", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("RntAgr", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Rentable", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("GLAccount", 8, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Amount", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
 
 	// prepare table's title, sections
 	err = TableReportHeaderBlock(ctx, &tbl, "Journal", funcname, ri)

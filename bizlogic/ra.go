@@ -75,6 +75,7 @@ func adjustAssessments(ctx context.Context, ra *rlib.RentalAgreement) []BizError
 	if err != nil {
 		return bizErrSys(&err)
 	}
+
 	for i := 0; i < len(m); i++ {
 		// rlib.Console("Found ASMID = %d\n", m[i].ASMID)
 		//-----------------------------------------------------------------------
@@ -84,7 +85,7 @@ func adjustAssessments(ctx context.Context, ra *rlib.RentalAgreement) []BizError
 		if m[i].RentCycle == rlib.RECURNONE {
 			if m[i].Start.After(ra.RentStop) {
 				// rlib.Console("Reversing ASMID = %d\n", m[i].ASMID)
-				if be := ReverseAssessment(ctx, &m[i], 0, &now); be != nil {
+				if be := ReverseAssessment(ctx, &m[i], 0, &now, &noClose); be != nil {
 					return be
 				}
 			}

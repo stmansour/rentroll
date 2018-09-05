@@ -58,6 +58,11 @@ echo "request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3
 dojsonPOST "http://localhost:8270/v1/transactants/1" "request" "ws9"  "WebService--GetTransactants"
 
 # Get Rentables
+#  Get Rentables for Business 1, between 8/1/2016 and 9/1/2016
+#
+#  Expected Results:
+#  There are 4 rentables: 309 Rexford, 309 1/2 Rexford, 311 Rexford, 311 1/2 Rexford
+#------------------------------------------------------------------------------------
 # echo "request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D" > request
 echo "request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%228%2F1%2F2016%22%2C%22searchDtStop%22%3A%229%2F1%2F2016%22%7D" > request
 dojsonPOST "http://localhost:8270/v1/rentables/1" "request" "ws10"  "WebService--GetRentables"

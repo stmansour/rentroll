@@ -216,14 +216,16 @@ type Period struct {
 
 // ClosePeriod defines a date and tasklist associated with a period close
 type ClosePeriod struct {
-	CPID        int64
-	BID         int64
-	TLID        int64
-	Dt          time.Time
-	LastModTime time.Time
-	LastModBy   int64
-	CreateTS    time.Time
-	CreateBy    int64
+	CPID             int64
+	BID              int64
+	TLID             int64
+	Dt               time.Time
+	LastModTime      time.Time
+	LastModBy        int64
+	CreateTS         time.Time
+	CreateBy         int64
+	OpenPeriodDt     time.Time // NOTE: this value is not saved to the db, it's just a convenience for keeping a date to use for snapping asms to an open period
+	ExpandAsmDtStart time.Time // NOTE: for use in ExpandAssessment. If asm.DtStart.Before(Dt) then it gets snapped to OpenPeriodDt, but we still want to expand from original asm.DtStart. Store it in this field.
 }
 
 // Task is an indivually tracked work item.

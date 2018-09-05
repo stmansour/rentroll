@@ -1166,7 +1166,7 @@ CREATE TABLE Receipt (
     ARID BIGINT NOT NULL DEFAULT 0,                             -- identifies the account rule used on Receipt
     AcctRuleApply VARCHAR(4096) NOT NULL DEFAULT '',            -- How the funds will be applied
     FLAGS BIGINT NOT NULL DEFAULT 0,                            /* bits 0-1 : 0 unallocated, 1 = partially allocated, 2 = fully allocated,
-                                                                 * bit 2 = VOID THIS RECEIPT
+                                                                 *     1<<2 : This receipt is reversed
                                                                  */
     Comment VARCHAR(256) NOT NULL DEFAULT '',                   -- for comments like "Prior Period Adjustment"
     OtherPayorName VARCHAR(128) NOT NULL DEFAULT '',            -- If not '' then Payment was made by a payor who is not on the RA, and may not be in our system at all

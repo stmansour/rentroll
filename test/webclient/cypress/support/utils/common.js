@@ -72,23 +72,29 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
             switch (record.FLAGS) {
                 // Normal row
                 case 0:
-                    testConfig.skipColumns = ["BeginReceivable", "DeltaReceivable", "EndReceivable", "BeginSecDep", "DeltaSecDep", "EndSecDep"];
+                    testConfig.skipColumns = ["BeginReceivable", "DeltaReceivable", "EndReceivable", "BeginSecDep", "DeltaSecDep", "EndSecDep", "UsePeriod"];
                     break;
                 // Main row
                 case 1:
-                    testConfig.skipColumns = ["BeginReceivable", "DeltaReceivable", "EndReceivable", "BeginSecDep", "DeltaSecDep", "EndSecDep"];
+                    testConfig.skipColumns = ["BeginReceivable", "DeltaReceivable", "EndReceivable", "BeginSecDep", "DeltaSecDep", "EndSecDep", "UsePeriod"];
                     break;
                 // Subtotal row
                 case 2:
-                    testConfig.skipColumns = [];
+                    testConfig.skipColumns = ["UsePeriod"];
                     break;
                 // Blank row
                 case 4:
                     // Skipping tests on blank row
-                    testConfig.skipColumns = [];
+                    testConfig.skipColumns = ["UsePeriod"];
                     return;
             }
-        }else if(testConfig.grid === "payorStmtDetailGrid"){
+
+            // If rentable is unrented than skip the test on the row of rrGrid
+            if (record.Description === "Unrented"){
+                return;
+            }
+        }
+        else if(testConfig.grid === "payorStmtDetailGrid"){
             switch (record.Description){
                 case "*** RECEIPT SUMMARY ***":
                 case "*** UNAPPLIED FUNDS ***":
@@ -130,8 +136,7 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                 }
 
 
-                let types;
-                let type;
+                let items;
                 switch (w2uiGridColumn.field) {
                     case "ARType":
                         // Account Rules
@@ -237,7 +242,64 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                     case "DtDone":
                         valueForCell = win.dtFormatISOToW2ui(record[w2uiGridColumn.field]);
                         break;
+                    case "TMPTCID":
+                        // RAPetsGrid, RAVehiclesGrid
+                        items = appSettings.raflow.peopleW2UIItems;
+                        for (let index=0; index<items.length; index++) {
+                            if (items[index].id === valueForCell){
+                                valueForCell = items[index].text;
+                                break;
+                            }
+                        }
+                        break;
+                    case "RentCycleText":
+                        // RARentablesGrid
+                        valueForCell = appSettings.cycleFreq[record.RentCycle];
+                        break;
+                    case "RowTotal":
+                        // Check below logic in rentables.js under RARentablesGrid
+                        let total = 0.00;
 
+                        if (record.AtSigningPreTax) {
+                            total += record.AtSigningPreTax;
+                        }
+                        if (record.SalesTax) {
+                            total += record.SalesTax;
+                        }
+                        if (record.TransOccTax) {
+                            total += record.TransOccTax;
+                        }
+                        valueForCell = win.w2utils.formatters.money(total);
+                        break;
+                    case "FullName":
+                        items = appSettings.raflow.peopleW2UIItems;
+                        for (let index=0; index<items.length; index++) {
+                            if (items[index].id === record.TMPTCID){
+                                valueForCell = items[index].text;
+                                break;
+                            }
+                        }
+                        break;
+                    case "ParentRentableName":
+                        // RATiePeopleGrid, RAParentChildGrid
+                        items = appSettings.raflow.parentRentableW2UIItems;
+                        for (let index=0; index<items.length; index++) {
+                            if (items[index].id === record.PRID){
+                                valueForCell = items[index].text;
+                                break;
+                            }
+                        }
+                        break;
+                    case "ChildRentableName":
+                        // RAParentChildGrid
+                        let gridRecords = win.w2ui.RAParentChildGrid.records;
+                        for (let index=0; index<gridRecords.length; index++) {
+                            if (gridRecords [index].CRID === record.CRID){
+                                valueForCell = gridRecords [index].ChildRentableName;
+                                break;
+                            }
+                        }
+                        break;
                 }
 
                 // Check visibility and default value of cell in the grid
@@ -277,8 +339,21 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
     // formName
     let formName = testConfig.form;
 
-    // get form selector
-    let formSelector = selectors.getFormSelector(formName);
+    // formSelector
+    let formSelector;
+
+    switch (formName){
+        case "RARentableFeeForm":
+        case "RAPetFeeForm":
+        case "RAVehicleFeeForm":
+        case "RATransactantForm":
+            formSelector = selectors.getRAFormSelector(formName);
+            break;
+        default:
+            // get form selector
+            formSelector = selectors.getFormSelector(formName);
+            break;
+    }
 
     // Check visibility of form
     cy.get(formSelector).should('be.visible');
@@ -361,10 +436,15 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                             ruleName = "ExpenseRules";
                         } else if (formName === "rtForm") {
                             win.w2ui[formName].get("ARID").options.items.forEach(function(item) {
-                                if (item.id == fieldValue) {
+                                if (item.id === fieldValue) {
                                     fieldValue = item.text;
                                 }
                             });
+                            break;
+                        }else if(formName === "RARentableFeeForm" || formName === "RAPetFeeForm" || formName === "RAVehicleFeeForm"){
+                            types = appSettings.raflow.arList[constants.BID];
+                            type = types.find(types => types.ARID === fieldValue);
+                            fieldValue = type.Name;
                             break;
                         }
                         types = appSettings[ruleName][constants.testBiz];
@@ -387,6 +467,12 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                     case "GSRPC":
                         fieldValue = appSettings.cycleFreq[fieldValue];
                         break;
+                    case "RentCycleText":
+                        fieldValue = appSettings.cycleFreq[recordDetailFromAPIResponse.RentCycle];
+                        break;
+                    case "ProrationCycleText":
+                        fieldValue = appSettings.cycleFreq[recordDetailFromAPIResponse.ProrationCycle];
+                        break;
                     case "UseStatus":
                         fieldValue = appSettings.RSUseStatus[fieldValue];
                         break;
@@ -407,6 +493,37 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                         fieldValue = recordDetailFromAPIResponse.Worker;
                         types = appSettings.workers;
                         type = types.find(types => types.text === fieldValue);
+                        fieldValue = type.text;
+                        break;
+                    case "CSAgent": // Date section
+                    case "Weight": // Pet Section
+                    case "VehicleYear": // Vehicle Section
+                    case "Points": // People Section
+                        fieldValue = fieldValue.toString();
+                        break;
+                    case "TMPTCID":
+                        let items = appSettings.raflow.peopleW2UIItems;
+                        for (let index=0; index<items.length; index++) {
+                            if (items[index].id === fieldValue){
+                                fieldValue = items[index].text;
+                                break;
+                            }
+                        }
+                        break;
+                    case "CurrentReasonForMoving":
+                    case "PriorReasonForMoving":
+                        types = appSettings.WhyLeaving;
+                        type = types.find(types => types.id === fieldValue);
+                        fieldValue = type.text;
+                        break;
+                    case "SourceSLSID":
+                        types = appSettings.HowFound;
+                        type = types.find(types => types.id === fieldValue);
+                        fieldValue = type.text;
+                        break;
+                    case "Industry":
+                        types = appSettings.Industries;
+                        type = types.find(types => types.id === fieldValue);
                         fieldValue = type.text;
                         break;
                 }
@@ -441,6 +558,16 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                         case "ChkDtDone":
                         // Chart of Accounts form checkbox
                         case "IsActive":
+                        // RATransanctant form
+                        case "IsRenter":
+                        case "IsOccupant":
+                        case "IsGuarantor":
+                        case "IsCompany":
+                        case "Evicted":
+                        case "Convicted":
+                        case "Bankruptcy":
+                        case "EligibleFuturePayor":
+                        case "EligibleFutureUser":
                             if(fieldValue){
                                 cy.get(selectors.getFieldSelector(formSelector, fieldID))
                                     .should('be.visible')
@@ -461,9 +588,23 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
             });
     });
 
-    if(testConfig.form !== "tldsInfoForm" && testConfig.form !== "taskDescForm"){
-        // Check Business Unit field must be disabled and have value REX
-        BUDFieldTest();
+    // Check Business Unit field must be disabled and have value REX
+    switch (testConfig.form){
+        case "tldsInfoForm":
+        case "taskDescForm":
+        case "RADatesForm":
+        case "RAPetForm":
+        case "RAVehicleForm":
+        case "RARentableFeeForm":
+        case "RAPetFeeForm":
+        case "RAVehicleFeeForm":
+        case "RATransactantForm":
+            // do nothing
+            break;
+        default:
+            // Check Business Unit field must be disabled and have value REX
+            BUDFieldTest();
+            break;
     }
 
     // -- Check buttons visibility --
@@ -786,6 +927,8 @@ export function testDetailFormWithGrid(recordsAPIResponse, testConfig, testConfi
 
     // check response status of API end point
     // cy.wait('@getGridRecordsInDetailedForm').its('status').should('eq', constants.HTTP_OK_STATUS);
+
+    cy.wait(constants.WAIT_TIME);
 
     // perform tests on record detail form
     cy.get('@getGridRecordsInDetailedForm').then(function (xhr) {

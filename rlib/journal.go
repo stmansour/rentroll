@@ -3,6 +3,8 @@ package rlib
 import (
 	"context"
 	"fmt"
+	"log"
+	"runtime/debug"
 	"time"
 )
 
@@ -115,9 +117,11 @@ func ProrateAssessment(ctx context.Context, xbiz *XBusiness, a *Assessment, d, d
 		err         error
 	)
 
+	// Console("ProrateAssessment: A\n")
 	useStatus := int64(USESTATUSinService) // if RID==0, then it's for an application fee or similar.  Assume rentable is online.
 
 	if a.RID > 0 {
+		// Console("ProrateAssessment: B\n")
 		r, err = GetRentable(ctx, a.RID)
 		if err != nil {
 			return pf, num, den, start, stop, err
@@ -129,16 +133,19 @@ func ProrateAssessment(ctx context.Context, xbiz *XBusiness, a *Assessment, d, d
 		}
 	}
 
+	// Console("ProrateAssessment: C\n")
 	// Console("GetRentableStateForDate( %d, %s ) = %d\n", r.RID, d.Format(RRDATEINPFMT), useStatus)
 	switch useStatus {
 	case USESTATUSemployee:
 		fallthrough
 	case USESTATUSinService:
+		// Console("ProrateAssessment: D\n")
 		// Console("%s: at case USESTATUSinService.\n", funcname)
 		ra, err := GetRentalAgreement(ctx, a.RAID)
 		if err != nil {
 			Ulog("ProrateAssessment: error getting rental agreement RAID=%d, err = %s\n", a.RAID, err.Error())
 		} else {
+			// Console("ProrateAssessment: E\n")
 			switch a.RentCycle {
 			case RECURDAILY:
 				// Console("%s: RECURDAILY: ra.RAID = %d, ra.RentStart = %s, ra.RentStop = %s\n", funcname, ra.RAID, ra.RentStart.Format(RRDATEFMT4), ra.RentStop.Format(RRDATEFMT4))
@@ -161,6 +168,7 @@ func ProrateAssessment(ctx context.Context, xbiz *XBusiness, a *Assessment, d, d
 	case USESTATUSofflineRenovation:
 		fallthrough
 	case USESTATUSofflineMaintenance:
+		// Console("ProrateAssessment: F\n")
 		ta, err := GetAllRentableAssessments(ctx, r.RID, d1, d2)
 		if err != nil {
 			return pf, num, den, start, stop, nil
@@ -180,6 +188,8 @@ func ProrateAssessment(ctx context.Context, xbiz *XBusiness, a *Assessment, d, d
 			}
 		}
 	default:
+		// Console("ProrateAssessment: G\n")
+
 		Ulog("%s: Rentable %d on %s has unknown useStatus: %d\n", funcname, r.RID, d.Format(RRDATEINPFMT), useStatus)
 	}
 
@@ -195,15 +205,18 @@ func ProrateAssessment(ctx context.Context, xbiz *XBusiness, a *Assessment, d, d
 //		d1-d2 - defines the timerange being covered in this period
 //=================================================================================================
 func journalAssessment(ctx context.Context, xbiz *XBusiness, d time.Time, a *Assessment, d1, d2 *time.Time) (Journal, error) {
-	// funcname := "journalAssessment"
-	// Console("Entered %s\n", funcname)
-	// Console("%s: d = %s, d1 = %s, d2 = %s\n", funcname, d.Format(RRDATEREPORTFMT), d1.Format(RRDATEREPORTFMT), d2.Format(RRDATEREPORTFMT))
+	funcname := "journalAssessment"
+	Console("Entered %s\n", funcname)
+	Console("%s: d = %s, d1 = %s, d2 = %s\n", funcname, d.Format(RRDATEREPORTFMT), d1.Format(RRDATEREPORTFMT), d2.Format(RRDATEREPORTFMT))
+	Console("Assessment: PASMID = %d, RentCycle = %d, ProrationCycle = %d, Start = %s, Stop = %s\n", a.PASMID, a.RentCycle, a.ProrationCycle, a.Start.Format(RRDATETIMEW2UIFMT), a.Stop.Format(RRDATETIMEW2UIFMT))
 	var j Journal
 
 	pf, num, den, start, stop, err := ProrateAssessment(ctx, xbiz, a, &d, d1, d2)
 	if err != nil {
 		return j, err
 	}
+
+	Console("After ProrateAssessment: start = %s, stop = %s\n", start.Format(RRDATETIMEW2UIFMT), stop.Format(RRDATETIMEW2UIFMT))
 
 	//--------------------------------------------------------------------------------------
 	// This is a safeguard against issues encountered in Feb 2018 where rent assessments
@@ -352,8 +365,16 @@ func RemoveJournalEntries(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Tim
 	return err
 }
 
-// ProcessNewAssessmentInstance creates a Journal entry for the supplied non-recurring assessment
-//=================================================================================================
+// ProcessNewAssessmentInstance must be supplied with a non-recurring instance.
+// It does the Insert for a new assessment instance, then it creates the
+// associated Journal entry for the supplied non-recurring assessment
+//
+// INPUTS
+//    ctx   - db context
+//    xbiz  - biz info
+//   d1,d2  - time range -- used to determine if proration is needed
+//       a  - the assessment
+//==============================================================================
 func ProcessNewAssessmentInstance(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time, a *Assessment) (Journal, error) {
 	funcname := "ProcessNewAssessmentInstance"
 	var j Journal
@@ -462,16 +483,41 @@ func ProcessNewExpense(ctx context.Context, a *Expense, xbiz *XBusiness) error {
 	return nil
 }
 
-// ProcessJournalEntry processes an assessment. It adds instances of recurring
+// ExpandAssessment processes an assessment. It adds instances of recurring
 // assessments for the time period d1-d2 if they do not already exist. Then
 // creates a journal entry for the assessment.
+//
+// INPUTS
+//            ctx = db context
+//              a - the assessment of interest
+//           xbiz - business info
+//          d1,d2 - time range in the case where we need to add recurring instances
+//  updateLedgers - flag indicating whether ledgers should be updated
+//             lc - last close info. if assessments are added and the start
+//                  date is prior to lc.Dt, then snap the start date to lc.OpenPeriodDt.
+//
+//                  There are edge cases where a recurring assessment
+//                  definition was initially in a closed period and had to be snapped
+//                  to lc. We still want to expand the instances as though they were
+//                  starting from the original a.Start (before it was snapped).
+//                  The lc snap still applies, but a comment is appended that
+//                  indicates the original intended start date and notes that it
+//                  was snapped to do that date being in a closed perion.
+//
+// RETURNS:
+//    any error encountered
 //-----------------------------------------------------------------------------
-func ProcessJournalEntry(ctx context.Context, a *Assessment, xbiz *XBusiness, d1, d2 *time.Time, updateLedgers bool) error {
-	funcname := "ProcessJournalEntry"
+func ExpandAssessment(ctx context.Context, a *Assessment, xbiz *XBusiness, d1, d2 *time.Time, updateLedgers bool, lc *ClosePeriod) error {
+	funcname := "ExpandAssessment"
 	var j Journal
 	var err error
-	// Console("ProcessJournalEntry: 1. a.ASMID = %d, Biz = %s (%d), d1 - d2 = %s - %s\n",
-	// a.ASMID, xbiz.P.Designation, xbiz.P.BID, d1.Format(RRDATEREPORTFMT), d2.Format(RRDATEREPORTFMT))
+	// Console("ExpandAssessment: 1. a.ASMID = %d, Biz = %s (%d), d1 - d2 = %s - %s\n", a.ASMID, xbiz.P.Designation, xbiz.P.BID, d1.Format(RRDATEREPORTFMT), d2.Format(RRDATEREPORTFMT))
+	if lc.ExpandAsmDtStart.Year() < 1970 && a.RentCycle > RECURNONE {
+		// Console("PANIC: ExpandAsmDtStart = %s\n", lc.ExpandAsmDtStart.Format(RRDATEFMT3))
+		debug.PrintStack()
+		log.Fatalf("bad expand date")
+	}
+
 	if a.RentCycle == RECURNONE {
 		j, err = ProcessNewAssessmentInstance(ctx, xbiz, d1, d2, a)
 		if err != nil {
@@ -489,20 +535,77 @@ func ProcessJournalEntry(ctx context.Context, a *Assessment, xbiz *XBusiness, d1
 	} else if a.RentCycle >= RECURSECONDLY && a.RentCycle <= RECURHOURLY {
 		// TBD
 		LogAndPrint("Unhandled assessment recurrence type: %d\n", a.RentCycle)
+		return fmt.Errorf("Unhandled assessment recurrence type: %d", a.RentCycle)
 	} else {
-		// Console("ProcessJournalEntry: 2\n")
-		// Console("Instances that occur between %s and %s for assessment dates(%s-%s)\n", d1.Format(RRDATEFMT4), d2.Format(RRDATEFMT4), a.Start.Format(RRDATEFMT4), a.Stop.Format(RRDATEFMT4))
-		dl := a.GetRecurrences(d1, d2)
-		rangeDuration := d2.Sub(*d1)
-		// Console("ProcessJournalEntry: 3... len(dl) = %d\n", len(dl))
+		idempotentCheck := true // by default, we always do this check
+		// Console("ExpandAssessment: 2   d1 = %s, lc.Dt = %s, lc.ExpandAsmDtStart = %s\n", d1.Format(RRDATEFMT3), lc.Dt.Format(RRDATEFMT3), lc.ExpandAsmDtStart.Format(RRDATEFMT3))
+		d1Adjusted := *d1
+		//------------------------------------------------------------
+		// If the expansion start date is prior to d1, then use the
+		// expansion start date...
+		//------------------------------------------------------------
+		if !lc.ExpandAsmDtStart.Equal(TIME0) && lc.ExpandAsmDtStart.Before(*d1) {
+			d1Adjusted = lc.ExpandAsmDtStart
+			idempotentCheck = false // inhibit the check in this case, many instances may snap to the same date
+			// Console("Expansion start time adjusted.  idempontentCheck = %t\n", idempotentCheck)
+		}
+		// Console("Instances that occur between %s and %s for assessment dates(%s-%s)\n", d1Adjusted.Format(RRDATEFMT4), d2.Format(RRDATEFMT4), a.Start.Format(RRDATEFMT4), a.Stop.Format(RRDATEFMT4))
+		dl := a.GetRecurrences(&d1Adjusted, d2)
+
+		//-------------------------------------------------------------------
+		// Alternate approach to using GetRecurrences.
+		// Removing hours, mins, ... as they were causing miscompares
+		//-------------------------------------------------------------------
+		dtstop := time.Date(d2.Year(), d2.Month(), d2.Day(), 0, 0, 0, 0, time.UTC)
+		dtemp := time.Date(d1Adjusted.Year(), d1Adjusted.Month(), d1Adjusted.Day(), 0, 0, 0, 0, time.UTC)
+		dl1 := []time.Time{}
+		// Console("dtemp = %s, dtstop = %s:   Before = %t, Equal = %t, After = %t\n", dtemp.Format(RRDATEFMT3), dtstop.Format(RRDATEFMT3), dtemp.Before(dtstop), dtemp.Equal(dtstop), dtemp.After(dtstop))
+		for dtemp.Before(dtstop) {
+			dl1 = append(dl1, dtemp)
+			dtemp = GetNextInstance(dtemp, a.RentCycle)
+			// Console("loop: dtemp = %s, dtstop = %s\n", dtemp.Format(RRDATETIMEW2UIFMT), dtstop.Format(RRDATETIMEW2UIFMT))
+			// Console("      Before = %t, Equal = %t, After = %t\n", dtemp.Before(dtstop), dtemp.Equal(dtstop), dtemp.After(dtstop))
+		}
+
+		//-------------------------------------------------------------------
+		// DEBUG: code to get the difference between dl and dl1
+		//-------------------------------------------------------------------
+		// Console("len(dl) = %d,  len(dl1) = %d\n", len(dl), len(dl1))
+		if len(dl) != len(dl1) {
+			Console("**** YIPES  -- different expansions!")
+			ra, err := GetRentalAgreement(ctx, a.RAID)
+			if err != nil {
+				Console("error getting RAID = %s\n", err.Error())
+			}
+			Console("RAID = %d, RentStart = %s, RentStop = %s\n", ra.RAID, ra.RentStart.Format(RRDATEFMT3), ra.RentStop.Format(RRDATEFMT3))
+		}
+
+		rangeDuration := d2.Sub(d1Adjusted)
+		// Console("ExpandAssessment: 3   -  len(dl) = %d\n", len(dl))
 		for i := 0; i < len(dl); i++ {
 			a1 := *a
-			// Console("ProcessJournalEntry: 3.1  a1.Amount = %.2f\n", a1.Amount)
-			a1.FLAGS = 0                                                  // ensure that we don't cary forward any flags
-			a1.Start = dl[i]                                              // use the instance date
-			a1.Stop = dl[i].Add(CycleDuration(a.ProrationCycle, a.Start)) // add enough time so that the recurrence calculator sees this instance
-			a1.ASMID = 0                                                  // ensure this is a new assessment
-			a1.PASMID = a.ASMID                                           // parent assessment
+			// Console("ExpandAssessment: 3.1  a1.Amount = %.2f\n", a1.Amount)
+			a1.ASMID = 0        // ensure this is a new assessment
+			a1.PASMID = a.ASMID // parent assessment
+			a1.FLAGS = 0        // ensure that we don't cary forward any flags
+
+			//-------------------------------------------------------------------
+			// Now we must respect the last close date, lc.Dt.  If the date of this
+			// instance is prior to lc.Dt then snap it to lc.OpenPeriodDt and add an explanation
+			//-------------------------------------------------------------------
+			dtStart := dl[i]
+			// Console("%s: setting dtstart of new instances: initial = %s, lc = %s\n", funcname, dtStart.Format(RRDATEFMT3), lc.OpenPeriodDt.Format(RRDATEFMT3))
+			if dtStart.Before(lc.Dt) {
+				Console("%s: that date was before lc.Dt (%s), setting to lc.OpenPeriodDt: %s\n", funcname, lc.Dt.Format(RRDATEFMT3), lc.OpenPeriodDt.Format(RRDATEFMT3))
+				a1.AppendComment(fmt.Sprintf("Changed %s to first date in open period", dtStart.Format(RRDATEFMT3)))
+				dtStart = lc.OpenPeriodDt
+			}
+			a1.Start = dtStart
+			a1.Stop = dtStart
+			// Console("%s: a1.Start, a1.Stop = %s\n", funcname, a1.Start.Format(RRDATEFMT3))
+
+			// a1.Stop = dl[i].Add(CycleDuration(a.ProrationCycle, a.Start)) // add enough time so that the recurrence calculator sees this instance
+
 			// Console("****>>>>>>  a1.Start = %s\n", a1.Start.Format(RRDATEFMT4))
 			// Console("****>>>>>>  a1.Stop  = %s\n", a1.Stop.Format(RRDATEFMT4))
 			// Console("****>>>>>>  CycleDuration( %d, %s ) --->  %d\n", a.ProrationCycle, a.Start.Format(RRDATEFMT4), CycleDuration(a.ProrationCycle, a.Start))
@@ -533,15 +636,20 @@ func ProcessJournalEntry(ctx context.Context, a *Assessment, xbiz *XBusiness, d1
 			// The generation of recurring assessment instances needs to be idempotent.
 			// Check to ensure that this instance does not already exist before generating it
 			//--------------------------------------------------------------------------------
-			a2, err := GetAssessmentInstance(ctx, &a1.Start, a1.PASMID) // if this returns an existing instance (ASMID != 0) then it's already been processed...
-			if err != nil {
-				// Console("Error in GetAssessmentInstance: %s\n", err.Error())
+			var a2 Assessment
+			if idempotentCheck {
+				// Console("a1.Start = %s, a1.PASMID = %d\n", a1.Start.Format(RRDATEFMT3), a1.PASMID)
+				a2, err = GetAssessmentInstance(ctx, &a1.Start, a1.PASMID) // if this returns an existing instance (ASMID != 0) then it's already been processed...
+				if err != nil {
+					// Console("Error in GetAssessmentInstance: %s\n", err.Error())
+				}
+				// Console("a2.ASMID = %d\n", a2.ASMID)
 			}
 			if a2.ASMID == 0 { // ... otherwise, process this instance
-				// Console("ProcessJournalEntry: 4.0, a1.Amount = %.2f\n", a1.Amount)
+				// Console("ExpandAssessment: 4.0, a1.Amount = %.2f\n", a1.Amount)
 				_, err = InsertAssessment(ctx, &a1)
 				Errlog(err)
-				// Console("ProcessJournalEntry: 4.1, inserted a1.ASMID = %d, a1.Amount = %.2f\n", a1.ASMID, a1.Amount)
+				// Console("ExpandAssessment: 4.1, inserted a1.ASMID = %d, a1.Amount = %.2f\n", a1.ASMID, a1.Amount)
 
 				//--------------------------------------------------------------------------------
 				// Rent is assessed on the following cycle: a.RentCycle
@@ -554,12 +662,23 @@ func ProcessJournalEntry(ctx context.Context, a *Assessment, xbiz *XBusiness, d1
 				}
 				dtb := *d1
 				dte := *d2
+
+				//-------------------------------------------------------------------
+				// TODO: see if we an remove this...
+				// This bit of code is really old and I don't like it.  Looks like
+				// there was some concern about the the date range being correct.
+				//-------------------------------------------------------------------
 				// Console("dtb = %s, dte = %s, diff = %d\n", dtb.Format(RRDATEFMT4), dte.Format(RRDATEFMT4), diff)
 				if diff > rentCycleDur/9 { // if this is true then
 					dtb = dl[i] // add one full cycle diration
 					dte = dtb.Add(CycleDuration(a.RentCycle, dtb))
 				}
-				j, err := ProcessNewAssessmentInstance(ctx, xbiz, &dtb, &dte, &a1)
+
+				//-----------------------------------------------------------
+				// Insert the assessment and update the Journal
+				//-----------------------------------------------------------
+				var j Journal
+				j, err = ProcessNewAssessmentInstance(ctx, xbiz, &dtb, &dte, &a1)
 				if err != nil {
 					LogAndPrintError(funcname, err)
 					return err
@@ -574,7 +693,7 @@ func ProcessJournalEntry(ctx context.Context, a *Assessment, xbiz *XBusiness, d1
 			} else if a.RentCycle >= RECURSECONDLY && a.RentCycle <= RECURHOURLY {
 				LogAndPrintError(funcname, fmt.Errorf("Unhandled RentCycle frequency: %d", a.RentCycle))
 			}
-			// Console("ProcessJournalEntry: 5\n")
+			// Console("ExpandAssessment: 5\n")
 		}
 	}
 	return err
@@ -591,6 +710,11 @@ func GenerateRecurInstances(ctx context.Context, xbiz *XBusiness, d1, d2 *time.T
 	}
 	defer rows.Close()
 
+	noClose := ClosePeriod{
+		Dt:               TIME0,
+		OpenPeriodDt:     TIME0,
+		ExpandAsmDtStart: TIME0,
+	}
 	for rows.Next() {
 		var a Assessment
 		err = ReadAssessments(rows, &a)
@@ -599,7 +723,7 @@ func GenerateRecurInstances(ctx context.Context, xbiz *XBusiness, d1, d2 *time.T
 		}
 		// Console("rlib.GenerateRecurInstances: Process ASMID = %d\n", a.ASMID)
 
-		err = ProcessJournalEntry(ctx, &a, xbiz, d1, d2, false)
+		err = ExpandAssessment(ctx, &a, xbiz, d1, d2, false, &noClose)
 		if err != nil {
 			return err
 		}

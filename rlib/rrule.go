@@ -176,8 +176,11 @@ func genRegularRecurSeq(a1, a2, R1, R2 *time.Time, freq time.Duration) []time.Ti
 	return m
 }
 
+// genMonthlyRecurSeq
 func genMonthlyRecurSeq(a1, a2, R1, R2 *time.Time, nMonths int64) []time.Time {
-
+	// Console("Entered genMonthlyRecurSeq\n")
+	// Console("a1 - a2 = %s - %s\n", a1.Format(RRDATEFMT3), a2.Format(RRDATEFMT3))
+	// Console("R1 - R2 = %s - %s\n", R1.Format(RRDATEFMT3), R2.Format(RRDATEFMT3))
 	//============================================
 	// Set up first time range for first run...
 	//============================================
@@ -189,7 +192,7 @@ func genMonthlyRecurSeq(a1, a2, R1, R2 *time.Time, nMonths int64) []time.Time {
 	// save the recurrence dates...
 	//============================================
 	var m []time.Time
-	for i := 0; i < 10000; i++ {
+	for i := 0; i < 1000; i++ { // 1 to 1000 just ensures that we won't loop forever
 		mo, y := IncMonths(d1.Month(), nMonths)
 		d2 = time.Date(d1.Year()+int(y), mo, d1.Day(), d1.Hour(), d1.Minute(), d1.Second(), 0, time.UTC)
 
@@ -197,7 +200,7 @@ func genMonthlyRecurSeq(a1, a2, R1, R2 *time.Time, nMonths int64) []time.Time {
 		// don't go outside the requested range
 		//----------------------------------------
 		if d1.After(*R2) || d1.Equal(*R2) {
-			break
+			break // THIS IS HOW WE BREAK OUT OF THE LOOP
 		}
 		if d2.After(*R2) {
 			d2 = *R2
