@@ -1,6 +1,10 @@
 package rlib
 
 import "time"
+/*import (
+	"time"
+	"fmt"
+)*/
 
 // RentalPeriodToString takes an accrual recurrence value and returns its
 // name as a string
@@ -314,13 +318,15 @@ func InstanceDateCoveringDate(epoch, t *time.Time, cycle int64) time.Time {
 		}
 		return x
 	}
+
 	d1 := epoch.Day()
 	day := d1
 	if d1 > 28 {
 		d1 = 28
 	}
 
-	qoff := int(epoch.Month()-1) % 3 // offset within the quarter
+	//qoff := int(epoch.Month()-1) % 3 // offset within the quarter By Lina
+	qoff := int(epoch.Month()) % 3 // offset within the quarter
 	dt := time.Date(t.Year(), t.Month(), d1, epoch.Hour(), epoch.Minute(), epoch.Second(), epoch.Nanosecond(), epoch.Location())
 	if cycle == RECURMONTHLY {
 		if dt.After(*t) {
@@ -330,6 +336,21 @@ func InstanceDateCoveringDate(epoch, t *time.Time, cycle int64) time.Time {
 	if cycle == RECURQUARTERLY {
 		for i := 0; i < 3 && qoff != (int(dt.Month())%3); i++ { // i guarantees that we won't loop forever
 			dt = dt.AddDate(0, -1, 0)
+		}
+		if (dt.After(*t)) {//By Lina
+				dt = dt.AddDate(0,-3, 0)
+		}
+	}
+	if cycle == RECURYEARLY {//By Lina
+
+		if epoch.Month() != time.February || epoch.Day() != 29 {
+			dt = time.Date(t.Year(), epoch.Month(), epoch.Day(), epoch.Hour(), epoch.Minute(), epoch.Second(), epoch.Nanosecond(), epoch.Location())
+		} else {////handle the situations like "2/29/2020"
+			dayofFeb := LastDOM(epoch.Month(), t.Year())
+			dt = time.Date(t.Year(), epoch.Month(), dayofFeb, epoch.Hour(), epoch.Minute(), epoch.Second(), epoch.Nanosecond(), epoch.Location())
+		}
+		if (dt.After(*t)) {
+			dt = dt.AddDate(-1, 0, 0)
 		}
 	}
 	if day >= 28 { // snap to the last day of this month...
