@@ -6,8 +6,17 @@ import (
 	"rentroll/rlib"
 )
 
-// RRAssessmentsTable generates a gotable table object
-// for report of all rlib.Assessment records related with business
+// RRAssessmentsTable generates a report of all rlib.Assessment records
+// for the Business in ri.  The return value is a gotable which can be used
+// to produce reports in text, HTML, and PDF
+//
+// INPUTS
+//     ctx - the database context
+//      ri - context information about the report
+//
+// RETURNS
+//     a gotable
+//--------------------------------------------------------------------------
 func RRAssessmentsTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 	const funcname = "RRAssessmentsTable"
 	var (
