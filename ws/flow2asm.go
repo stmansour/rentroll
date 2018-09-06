@@ -36,6 +36,7 @@ func Fees2RA(ctx context.Context, x *WriteHandlerContext) error {
 		x.lastClose.Dt = rlib.TIME0               // use TIME0 if not set
 		x.lastClose.ExpandAsmDtStart = rlib.TIME0 //
 	}
+	x.lastClose.ExpandAsmDtStop = x.ra.RentStop                // do not expand past this date
 	x.lastClose.OpenPeriodDt = x.lastClose.Dt.AddDate(0, 0, 1) // for our purposes, use the day after close
 	rlib.Console("lastClose = %s\n", x.lastClose.Dt.Format(rlib.RRDATEREPORTFMT))
 
@@ -113,7 +114,10 @@ func F2RAHandleOldAssessments(ctx context.Context, x *WriteHandlerContext) error
 
 	rlib.Console("A2 - Processing RA Chain\n")
 	for i := 0; i < len(x.raChainOrig); i++ {
+
 		ra := x.raChainOrig[i]
+		rlib.Console("Seeting ExpandAsmDtStop to RentStop of RAID %d: %s\n", ra.RAID, ra.RentStop.Format(rlib.RRDATEFMT3))
+		x.lastClose.ExpandAsmDtStop = ra.RentStop // do not expand past this date
 		raUnchanged := x.raChainOrigUnchanged[i]
 
 		rlib.Console("A3: ra.RAID = %d\n", ra.RAID)
@@ -206,17 +210,21 @@ func F2RAHandleOldAssessments(ctx context.Context, x *WriteHandlerContext) error
 						//-----------------------------------------------------
 						asm := n[0]
 						amt, count, totcount := rlib.SimpleProrateAmount(v.Amount, v.RentCycle, v.ProrationCycle, &target, &x.ra.RentStart, &target)
-						asm.AppendComment(fmt.Sprintf("prorated for %d of %d %s", count, totcount, rlib.ProrationUnits(v.ProrationCycle)))
+						thru := x.ra.RentStart.Add(-rlib.CycleDuration(v.ProrationCycle, v.Start))
+						asm.AppendComment(fmt.Sprintf("prorated for %d of %d %s (covers %s thru %s)",
+							count, totcount, rlib.ProrationUnits(v.ProrationCycle), target.Format(rlib.RRDATEFMT3), thru.Format(rlib.RRDATEFMT3)))
 						asm.Amount = amt
 						asm.RentCycle = rlib.RECURNONE      // not part of a series
 						asm.ProrationCycle = rlib.RECURNONE // no proration here
 						asm.FLAGS = 0
 						asm.Stop = asm.Start
+						rlib.Console("\n\n**********\ncalling bizlogic.InsertAssessment")
 						if errlist := bizlogic.InsertAssessment(ctx, &asm, 0 /*no expanding*/, &x.lastClose); len(errlist) > 0 {
 							return bizlogic.BizErrorListToError(errlist)
 						}
 						skipASMID = asm.ASMID
 						rlib.Console("A9.2 - just inserted asm = %d, skipASMID set\n", skipASMID)
+						rlib.Console("**********\n\n\n")
 					} else {
 						rlib.Console("A9.3 - new RA rentstart (%s) was found to be an instance date of ASMID = %d\n", x.ra.RentStart.Format(rlib.RRDATEREPORTFMT), v.ASMID)
 						rlib.Console("     - so will not add a prorated rent assessment\n")
@@ -294,33 +302,6 @@ func F2RAHandleOldAssessments(ctx context.Context, x *WriteHandlerContext) error
 	return nil
 }
 
-// // F2RASaveFee handles all the updates necessary to move the
-// // supplied fee into the permanent tables.
-// //
-// // INPUTS
-// //     ctx  - db context for transactions
-// //     x    - all the contextual info we need for performing this operation
-// //     elt  - element type if is this is bound to a pet or vehicle
-// //     id   - RID if elt == rlib.ELEMRENTABLE, or tmpid of the element
-// //            (TMPPETID, TMPVID), valid if elt > 0
-// //     tcid - tmptcid of the transactant responsible, valid if elt > 0
-// //
-// // RETURNS
-// //     Any errors encountered
-// //-----------------------------------------------------------------------------
-// func F2RASaveFee(ctx context.Context, x *WriteHandlerContext, fee *rlib.RAFeesData, eltype, id, tmptcid int64) error {
-//
-// 	// SKIPPING ALL THIS FOR NOW...   I THINK F2RAHandleOldAssessments SHOULD
-// 	// HANDLE EVERYTHING...
-// 	// VERIFY and REMOVE THIS CODE IF SO.
-//
-// 	// rlib.Console("F2RASaveFee processing fee = %d, ASMID = %d\n", fee.TMPASMID, fee.ASMID)
-// 	// if 0 < fee.ASMID {
-// 	// 	return F2RAUpdateExistingAssessment(ctx, x, fee, eltype, id, tmptcid)
-// 	// }
-// 	return F2RASaveNewFee(ctx, x, fee, eltype, id, tmptcid)
-// }
-
 // F2RASaveFee handles all the updates necessary to move the
 // supplied fee into the permanent tables.
 //
@@ -341,9 +322,10 @@ func F2RASaveFee(ctx context.Context, x *WriteHandlerContext, fee *rlib.RAFeesDa
 	// Create a new assessment from this day forward...
 	//-------------------------------------------------------------------
 	var b rlib.Assessment
+	b.Comment = fee.Comment
 	dt := time.Time(x.raf.Dates.AgreementStart)
 	if fee.ASMID > 0 {
-		b.AppendComment(fmt.Sprintf("Continuation of ASMID %d from RAID %d", fee.ASMID, x.raf.Meta.RAID))
+		b.AppendComment(fmt.Sprintf("Derived from RAID %d, ASMID %d", x.raf.Meta.RAID, fee.ASMID))
 	}
 	Start := time.Time(fee.Start) // the start time will be either the fee start
 	if Start.Before(dt) {         // or the start of the new rental agreement
@@ -401,9 +383,12 @@ func F2RASaveFee(ctx context.Context, x *WriteHandlerContext, fee *rlib.RAFeesDa
 		b.AssocElemID = id // must be the PETID
 		b.AssocElemType = eltype
 	}
+	rlib.Console("\n\n**********\nF2RASaveFee:  calling bizlogic.InsertAssessment")
 	if errlist := bizlogic.InsertAssessment(ctx, &b, 1 /*expand*/, &x.lastClose); len(errlist) > 0 {
 		return bizlogic.BizErrorListToError(errlist)
 	}
+	rlib.Console("just inserted ASMID = %d\n", b.ASMID)
+	rlib.Console("**********\n\n\n")
 
 	return nil
 }

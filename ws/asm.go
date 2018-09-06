@@ -16,6 +16,7 @@ var noClose = rlib.ClosePeriod{
 	Dt:               rlib.TIME0,
 	OpenPeriodDt:     rlib.TIME0,
 	ExpandAsmDtStart: rlib.TIME0,
+	ExpandAsmDtStop:  rlib.ENDOFTIME,
 }
 
 // AssessmentSendForm is the outbound structure specifically for the UI. It will be

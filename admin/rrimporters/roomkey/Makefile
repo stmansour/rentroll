@@ -1,5 +1,6 @@
 TOP=../../..
 COUNTOL=${TOP}/tools/bashtools/countol.sh
+THISDIR=roomkey
 
 roomkey: *.go
 	@touch fail
@@ -13,10 +14,14 @@ roomkey: *.go
 
 clean:
 	rm -f roomkey config.json mapper.json fail
-	@echo "*** CLEAN completed in rrimporters/roomkey ***"
+	@echo "*** CLEAN completed in ${THISDIR}  ***"
+
+relink:
+	go build
+	@echo "*** Relink completed in ${THISDIR} ***"
 
 test:
-	@echo "*** TEST completed in rrimporters/roomkey ***"
+	@echo "*** TEST completed in ${THISDIR}  ***"
 
 package: roomkey
 	@touch fail
@@ -25,7 +30,7 @@ package: roomkey
 	rm -f ${TOP}/tmp/rentroll/importers/roomkey/mapper.json
 	cp ./mapper.json ${TOP}/tmp/rentroll/importers/roomkey/mapper.json
 	cp ./roomkey ${TOP}/tmp/rentroll/importers/roomkey/roomkeyload
-	@echo "*** PACKAGE completed in rrimporters/roomkey ***"
+	@echo "*** PACKAGE completed in ${THISDIR}  ***"
 	@rm -f fail
 
 secure:

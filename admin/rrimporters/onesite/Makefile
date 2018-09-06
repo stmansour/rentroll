@@ -1,5 +1,6 @@
 TOP=../../..
 COUNTOL=${TOP}/tools/bashtools/countol.sh
+THISDIR=onesite
 
 onesite: *.go
 	@touch fail
@@ -11,12 +12,16 @@ onesite: *.go
 	go build
 	@rm -f fail
 
+relink:
+	go build
+	@echo "*** Relink completed in ${THISDIR} ***"
+
 clean:
 	rm -f onesite config.json mapper.json
-	@echo "*** CLEAN completed in rrimporters/onesite ***"
+	@echo "*** CLEAN completed in ${THISDIR} ***"
 
 test:
-	@echo "*** TEST completed in rrimporters/onesite ***"
+	@echo "*** TEST completed in ${THISDIR} ***"
 
 # man:
 # 	nroff -man rrloadcsv.1
@@ -29,7 +34,7 @@ package: onesite
 	cp ./config.json ${TOP}/tmp/rentroll/importers/onesite/config.json
 	cp ./mapper.json ${TOP}/tmp/rentroll/importers/onesite/
 	cp ./onesite ${TOP}/tmp/rentroll/importers/onesite/onesiteload
-	@echo "*** PACKAGE completed in rrimporters/onesite ***"
+	@echo "*** PACKAGE completed in ${THISDIR} ***"
 	@rm -f fail
 
 secure:

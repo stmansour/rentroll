@@ -24,7 +24,7 @@
                     "RentStop": "3/1/2020"
                 },
                 "meta": {
-                    "ActiveDate": "2018-08-31 17:12:00 UTC",
+                    "ActiveDate": "2018-09-05 23:18:00 UTC",
                     "ActiveName": "UID-0",
                     "ActiveUID": -99999,
                     "ApplicationReadyDate": "2018-08-30 19:38:00 UTC",
@@ -139,7 +139,7 @@
                                 "ARName": "Rent Non-Taxable",
                                 "ASMID": 11,
                                 "AtSigningPreTax": 0,
-                                "Comment": "Continuation of ASMID 1 from RAID 1 | Changed 6/13/2018 to first date in open period",
+                                "Comment": "prorated for 18 of 30 days | Derived from RAID 1, ASMID 1 | BL- Snapped instance 6/13/2018 to open period 8/1/2018",
                                 "ContractAmount": 600,
                                 "ProrationCycle": 4,
                                 "RentCycle": 0,
@@ -154,7 +154,7 @@
                                 "ARName": "Rent Non-Taxable",
                                 "ASMID": 12,
                                 "AtSigningPreTax": 0,
-                                "Comment": "Continuation of ASMID 1 from RAID 1 | Changed 7/1/2018 to first date in open period",
+                                "Comment": "Derived from RAID 1, ASMID 1 | BL- Snapped definition 7/1/2018 to open period 8/1/2018",
                                 "ContractAmount": 1000,
                                 "ProrationCycle": 4,
                                 "RentCycle": 6,

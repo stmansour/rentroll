@@ -6,6 +6,9 @@ admin:
 clean:
 	for dir in $(DIRS); do make -C $$dir clean;done
 
+relink:
+	for dir in $(DIRS); do make -C $$dir relink;done
+
 test:
 	for dir in $(DIRS); do make -C $$dir test;done
 	@echo "*** ALL TESTS PASSED ***"

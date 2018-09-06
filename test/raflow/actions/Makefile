@@ -11,6 +11,10 @@ clean:
 	for dir in $(DIRS); do make -C $$dir clean;done
 	@echo "*** CLEAN completed in ${THISDIR} ***"
 
+relink:
+	go build
+	@echo "*** RELINK completed in ${THISDIR} ***"
+
 test: build
 	for dir in $(DIRS); do make -C $$dir test;done
 	@echo "*** TEST completed in ${THISDIR} ***"

@@ -1,21 +1,26 @@
 TOP=../..
 BINDIR=${TOP}/tmp/rentroll
 COUNTOL=${TOP}/tools/bashtools/countol.sh
+THISDIR=rrwatchdog
+
 rrwatchdog: *.sh
 
 clean:
-	rm -f rrwatchdog
-	@echo "*** Clean completed in rrwatchdog ***"
+	rm -f ${THISDIR}
+	@echo "*** Clean completed in ${THISDIR} ***"
 
-install: rrwatchdog
-	@echo "*** Packaging completed in rrwatchdog ***"
+relink:
+	@echo "*** Relink completed in ${THISDIR} ***"
 
-package: rrwatchdog
-	cp rrwatchdog ${BINDIR}/
-	@echo "*** Packaging completed in rrwatchdog ***"
+install: ${THISDIR}
+	@echo "*** Packaging completed in ${THISDIR} ***"
+
+package: ${THISDIR}
+	cp ${THISDIR} ${BINDIR}/
+	@echo "*** Packaging completed in ${THISDIR} ***"
 
 test:
-	@echo "*** Testing completed in rrwatchdog ***"
+	@echo "*** Testing completed in ${THISDIR} ***"
 
 secure:
 	@rm -f config.json confdev.json confprod.json

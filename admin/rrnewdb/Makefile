@@ -1,23 +1,27 @@
 TOP=../..
 COUNTOL=${TOP}/tools/bashtools/countol.sh
+THISDIR=rrnewdb
 
 rrnewdb: *.sh
 
 clean:
-	rm -f rrnewdb fail
-	@echo "*** Clean completed in admin/rrnewdb ***"
+	rm -f ${THISDIR} fail
+	@echo "*** Clean completed in admin/${THISDIR} ***"
 
-install: rrnewdb
-	@echo "*** Packaging completed in admin/rrnewdb ***"
+install: ${RRNEWDB}
+	@echo "*** Packaging completed in admin/${THISDIR} ***"
 
-package: rrnewdb
+relink:
+	@echo "*** Relink completed in ${THISDIR} ***"
+
+package: ${RRNEWDB}
 	touch fail
-	cp rrnewdb ${TOP}/tmp/rentroll/
+	cp ${THISDIR} ${TOP}/tmp/rentroll/
 	cp *.1 ${TOP}/tmp/rentroll/man/man1/
-	@echo "*** Packaging completed in admin/rrnewdb ***"
+	@echo "*** Packaging completed in admin/${THISDIR} ***"
 	@rm -f fail
 
-packageqa: rrnewdb
+packageqa: ${RRNEWDB}
 	touch fail
 	cp rrnewdb ${TOP}/tmp/rentroll/
 	cp *.1 ${TOP}/tmp/rentrollqa/man/man1/

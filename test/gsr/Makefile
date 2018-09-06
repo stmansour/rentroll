@@ -22,6 +22,10 @@ less: unalloc
 eq: unalloc
 	./gsr -funds eq -db
 
+relink:
+	go build
+	@echo "*** RELINK completed in ${THISDIR} ***"
+
 config.json:
 	/usr/local/accord/bin/getfile.sh accord/db/confdev.json ; cp confdev.json config.json
 

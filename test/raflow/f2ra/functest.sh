@@ -6,6 +6,9 @@ DBGEN=../../../tools/dbgen
 CREATENEWDB=0
 RRBIN="../../../tmp/rentroll"
 
+SINGLE=""  # This runs all the tests
+# SINGLE="b"   # Run just test b
+
 source ../../share/base.sh
 
 echo "STARTING RENTROLL SERVER"
@@ -46,27 +49,26 @@ startRentRollServer
 #       month's rent in this case will need to be  prorated to account for
 #       days June 8 thru June 30.
 #------------------------------------------------------------------------------
-RAID1REFNO="UJF64M3Y28US5BHW5400"
-RAIDAMENDEDID="2"
+if [ "${SINGLE}a" = "a" -o "${SINGLE}a" = "aa" ]; then
+    RAID1REFNO="UJF64M3Y28US5BHW5400"
+    RAIDAMENDEDID="2"
 
-# echo "Create new database... x0.sql"
-# mysql --no-defaults rentroll < x0.sql
-#
-# # Send the command to change the flow to Active:
-# echo "%7B%22UserRefNo%22%3A%22${RAID1REFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
-# dojsonPOST "http://localhost:8270/v1/raactions/1/" "request" "a0"  "WebService--Action-setTo-ACTIVE"
+    echo "Create new database... x0.sql"
+    mysql --no-defaults rentroll < x0.sql
 
-# stopRentRollServer
-# exit 0
-#
-# # Generate an assessment report from Aug 1 to Oct 1. The security deposit
-# # assessment for RAID 1 should no longer be present
-# docsvtest "a1" "-G ${BUD} -g 8/1/18,10/1/18 -L 11,${BUD}" "Assessments-2018-AUG"
-#
-# # Generate a payor statement -- ensure that 2 RAs are there and have correct
-# # info.
-# echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%228%2F1%2F2018%22%2C%22searchDtStop%22%3A%228%2F31%2F2018%22%2C%22Bool1%22%3Afalse%7D" > request
-# dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "a2"  "PayorStatement--StmtInfo"
+    # Send the command to change the flow to Active:
+    echo "%7B%22UserRefNo%22%3A%22${RAID1REFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
+    dojsonPOST "http://localhost:8270/v1/raactions/1/" "request" "a0"  "WebService--Action-setTo-ACTIVE"
+
+    # Generate an assessment report from Aug 1 to Oct 1. The security deposit
+    # assessment for RAID 1 should no longer be present
+    docsvtest "a1" "-G ${BUD} -g 8/1/18,10/1/18 -L 11,${BUD}" "Assessments-2018-AUG"
+
+    # Generate a payor statement -- ensure that 2 RAs are there and have correct
+    # info.
+    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%228%2F1%2F2018%22%2C%22searchDtStop%22%3A%228%2F31%2F2018%22%2C%22Bool1%22%3Afalse%7D" > request
+    dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "a2"  "PayorStatement--StmtInfo"
+fi
 
 #------------------------------------------------------------------------------
 #  TEST b
@@ -90,17 +92,25 @@ RAIDAMENDEDID="2"
 #
 #
 #------------------------------------------------------------------------------
-echo "Create new database... x1.sql"
-mysql --no-defaults rentroll < x1.sql
+if [ "${SINGLE}b" = "b" -o "${SINGLE}b" = "bb" ]; then
+    echo "Create new database... x1.sql"
+    mysql --no-defaults rentroll < x1.sql
 
-RAIDREFNO="5R6I7HQM1M1922LD35HH"
-RAIDAMENDEDID="2"
+    RAIDREFNO="5R6I7HQM1M1922LD35HH"
+    RAIDAMENDEDID="2"
 
-# Send the command to change the RefNo to Active:
-echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
-dojsonPOST "http://localhost:8270/v1/raactions/1/" "request" "b0"  "WebService--Action-setTo-ACTIVE"
+    # Send the command to change the RefNo to Active:
+    echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
+    dojsonPOST "http://localhost:8270/v1/raactions/1/" "request" "b0"  "WebService--Backdated-RA-Amendment"
+
+    # Generate a payor statement -- ensure that 2 RAs are there and have correct
+    # info.
+    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%222%2F1%2F2018%22%2C%22searchDtStop%22%3A%229%2F30%2F2018%22%2C%22Bool1%22%3Afalse%7D" > request
+    dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "b1"  "PayorStatement--StmtInfo"
+fi
 
 
+#------------------------------------------------------------------------------
 
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"

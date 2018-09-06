@@ -16,6 +16,10 @@ clean:
 	rm -f rentroll.log log llog ${THIS} fail c*.json dbgen
 	@echo "*** CLEAN completed in ${THIS} ***"
 
+relink:
+	go build
+	@echo "*** Relink completed in ${THIS} ***"
+
 config.json:
 	@/usr/local/accord/bin/getfile.sh accord/db/confdev.json
 	@cp confdev.json config.json
