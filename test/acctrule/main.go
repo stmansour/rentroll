@@ -85,6 +85,7 @@ func main() {
 
 	rlib.RpnInit()
 	rlib.InitDBHelpers(App.dbrr, App.dbdir)
+	rlib.Console("App.NoAuth = %t\n", App.NoAuth)
 	rlib.SetNoAuthFlag(App.NoAuth)
 	rlib.SessionInit(10) // must be called before calling InitBizInternals
 

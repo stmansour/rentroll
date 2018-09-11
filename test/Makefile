@@ -1,7 +1,7 @@
 DIRS=setup newbiz crypto workerasm mrr rrr rr1 rr rr_use_cases jm1 gsr notes ccc upd acctbal gap importers bizdelete testdb bizlogic ws websvc1 websvc2 websvc3 payorstmt roller tws tws3 receipts raflow strlist webclient
 #DIRS=setup newbiz crypto workerasm mrr rrr rr1 rr rr_use_cases jm1 gsr notes ccc upd acctbal gap importers bizdelete testdb bizlogic ws websvc1 websvc2 websvc3 payorstmt roller tws tws3 receipts raflow strlist
 TESTREPORT="testreport.txt"
-RLNK = acctbal acctrule bizlogic conv crypto gsr notes rfix rr strlist tws tws3 upd workerasm
+RLNK = acctbal bizlogic conv crypto gsr notes rfix rr strlist tws tws3 upd workerasm
 
 db:
 	for dir in $(DIRS); do make -C $$dir;done
