@@ -474,7 +474,7 @@ CREATE TABLE Business (
     DefaultProrationCycle SMALLINT NOT NULL DEFAULT 0,          -- default for every rentable type - useful to initialize UI
     DefaultGSRPC SMALLINT NOT NULL DEFAULT 0,                   -- default for every rentable type - useful to initialize UI
     ClosePeriodTLID BIGINT NOT NULL DEFAULT 0,                  -- The tasklist needed for closing a period
-    FLAGS BIGINT NOT NULL DEFAULT 0,                            -- last bit =0(EDI disabled), =1(EDI enabled)
+    FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 1<<0 = EDI Flag 0(EDI disabled), =1(EDI enabled) (End Date Includes)
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,      -- when was this record created

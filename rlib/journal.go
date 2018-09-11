@@ -255,6 +255,8 @@ func journalAssessment(ctx context.Context, xbiz *XBusiness, d time.Time, a *Ass
 	Console("%s: E:: j.Amount = %8.2f, pf = %8.5f\n", funcname, j.Amount, pf)
 
 	//------------------------------------------------------------------------------------------------------
+	// THIS BLOCK OF CODE SHOULD BE DELETED. IT SHOULD BE HANDLED IN ASSESSMENT CODE, NOT JOURNAL CODE.
+	//=====================================================================================================
 	// the assessment amount may have
 	// been prorated as it was a newly created recurring assessment for a RentalAgreement that was either
 	// just beginning or just ending. If so, we'll update the assessment amount here the calculated

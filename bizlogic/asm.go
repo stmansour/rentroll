@@ -887,10 +887,15 @@ func ValidateAssessment(ctx context.Context, a *rlib.Assessment) []BizError {
 		//--------------------------------------------------------------------------
 		//  If the assessment is non-recurring - then start and stop date should
 		//  be the same.
+		// NOTE: removed 9/11/2018 - sman
 		//--------------------------------------------------------------------------
-		if a.RentCycle == rlib.RECURNONE && !a.Start.Equal(a.Stop) {
-			e = append(e, BizErrors[AsmDateRangeNotAllowed])
-		}
+		// if a.RentCycle == rlib.RECURNONE && !a.Start.Equal(a.Stop) {
+		// 	e = append(e, BizErrors[AsmDateRangeNotAllowed])
+		// }
+
+		//--------------------------------------------------------------------------
+		// We cannot have the start date occuring after the stop date
+		//--------------------------------------------------------------------------
 		if a.Stop.Before(a.Start) {
 			e = append(e, BizErrors[StartDateAfterStopDate])
 		}

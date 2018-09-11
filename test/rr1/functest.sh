@@ -34,13 +34,16 @@ docsvtest "j" "-U assigncustom.csv -L 15,${BUD}" "AssignCustomAttributes"
 #     07/05/2016 - 07/09/2016    $4000 / month
 #     07/11/2016 - ENDOFTIME     $3200 / month
 #
-# The assessments are:
+#  The recurring definitions are created with a date range shown above
+#  and the amounts match the Market Rates listed. When the instances are
+#  created they are prorated. The prorated instance amounts are:
 #
 #  1. 07/01/2016 - 07/04/2016    3 days @ $3100/31 -> $100/day     = $ 300.00
 #  2. 07/05/2016 - 07/09/2016    4 days @ $4000/31 -> $129.032/day = $ 516.13
 #  3. 07/11/2016 - 08/01/2016   21 days @ $3200/31 -> $103.226/day = $2167.74
 #
-# So the expected amounts in the report are: $300, $516.13, and $2167.74
+#  The Assessment report shows only instances during the requested time range.
+#  So the expected amounts in the report are: $300, $516.13, and $2167.74
 #-------------------------------------------------------------------------------
 docsvtest "k" "-A asmt.csv -G ${BUD} -g 7/1/16,8/1/16 -L 11,${BUD}" "Assessments"
 docsvtest "l" "-e rcpt.csv -G ${BUD} -g 7/1/16,8/1/16 -L 13,${BUD}" "Receipts"
