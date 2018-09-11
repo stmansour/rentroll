@@ -262,21 +262,21 @@ func journalAssessment(ctx context.Context, xbiz *XBusiness, d time.Time, a *Ass
 	// just beginning or just ending. If so, we'll update the assessment amount here the calculated
 	// j.Amount != a.Amount
 	//------------------------------------------------------------------------------------------------------
-	if pf < 1.0 {
-		Console("%s: F:: will update assessment\n", funcname)
-		a.Amount = j.Amount // update to the prorated amount
-		a.Start = start     // adjust to the dates used in the proration
-		a.Stop = stop       // adjust to the dates used in the proration
-		a.Comment = fmt.Sprintf("Prorated for %d of %d %s", num, den, ProrationUnits(a.ProrationCycle))
-		Console("%s: G:: a.Amount = %8.2f\n", funcname, a.Amount)
-		if err := UpdateAssessment(ctx, a); err != nil {
-			err = fmt.Errorf("Error updating prorated assessment amount: %s", err.Error())
-			Console("%s: H:: exiting.  err = %s\n", funcname, err.Error())
-			return j, err
-		}
-		Console("%s:  I::  Updating ASMID = %d, Amount = %8.2f\n", funcname, a.ASMID, a.Amount)
-	}
-	Console("%s:  J::  ASMID = %d, Amount = %8.2f\n", funcname, a.ASMID, a.Amount)
+	// if pf < 1.0 {
+	// 	Console("%s: F:: will update assessment\n", funcname)
+	// 	a.Amount = j.Amount // update to the prorated amount
+	// 	a.Start = start     // adjust to the dates used in the proration
+	// 	a.Stop = stop       // adjust to the dates used in the proration
+	// 	a.Comment = fmt.Sprintf("Prorated for %d of %d %s", num, den, ProrationUnits(a.ProrationCycle))
+	// 	Console("%s: G:: a.Amount = %8.2f\n", funcname, a.Amount)
+	// 	if err := UpdateAssessment(ctx, a); err != nil {
+	// 		err = fmt.Errorf("Error updating prorated assessment amount: %s", err.Error())
+	// 		Console("%s: H:: exiting.  err = %s\n", funcname, err.Error())
+	// 		return j, err
+	// 	}
+	// 	Console("%s:  I::  Updating ASMID = %d, Amount = %8.2f\n", funcname, a.ASMID, a.Amount)
+	// }
+	// Console("%s:  J::  ASMID = %d, Amount = %8.2f\n", funcname, a.ASMID, a.Amount)
 
 	//-------------------------------------------------------------------------------------------
 	// In the event that we need to prorate, pull together the pieces and determine the
