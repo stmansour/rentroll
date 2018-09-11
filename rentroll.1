@@ -34,36 +34,36 @@ Username for logging into the database server. Default name is "ec2-user"
 Filename for the certificate for the key-pair, the public part of the pair. The default
 filename is localhost.crt
 .IP "-j periodStartDate"
-For use with batch mode operation. Set the period to 
+For use with batch mode operation. Set the period to
 .I periodStartDate
 which is in the format yyyy-mm-dd.  Example: 2016-05-01
 .IP "-K key_filename"
 Filename for the private key for the key-pair, the private part of the pair. The default
 filename is localhost.key
 .IP "-k periodStopDate"
-For use with batch mode operation. Set the period to 
+For use with batch mode operation. Set the period to
 .I periodStopDate
 which is in the format yyyy-mm-dd.  Example: 2016-06-01.
 .B Note:
-The stop date means "up-to-but-not-including".  Thus the range 
+The stop date means "up-to-but-not-including".  Thus the range
 .I -i 2016-05-01 -j 2016-06-01
 would include May 1, 2016 through May 31, 2016.
 .IP "-M rentroll_database_name"
-Set the name of the rentroll database to 
+Set the name of the rentroll database to
 .I rentroll_database_name.
 The default name is "rentroll".
 .IP "-N directory_database_name"
-Set the name of the directory database to 
+Set the name of the directory database to
 .I directory_database_name.
 The default name is "accord".
 .IP "-p port"
-Specify the TCP port number on which rentroll listens when running its HTTP service. 
+Specify the TCP port number on which rentroll listens when running its HTTP service.
 By default, the port is 8270.
 .IP "-r reportspec"
 Rentroll will generate the following text reports based on a report specification.  The date
-range for all reports is from 
+range for all reports is from
 .I periodStartDate
-to 
+to
 .I periodEndDate
 unless otherwise noted.
 
@@ -73,8 +73,6 @@ reportSpec          Description
 -r  1               Journal report
 -r  2               Ledger report
 -r  4               Rentroll report
--r  5               Assessment check report 
--r  6               \fIunassigned\fR
 -r  7               Rentable count by RentableType
 -r  8               Statement
 -r  9,InvoiceNo     Example -r 9,IN00001  or   -r 9,1
@@ -93,7 +91,7 @@ reportSpec          Description
                     Example: -r 14,2016-05-25
 -r 15               Process vacancy and generate vacancy journal entries.
 -r 16               Generate Ledger Markers for the current Stop date.
--r 17               Ledger Balance Report - shows the value of all 
+-r 17               Ledger Balance Report - shows the value of all
 	                ledgers on the current Stop date.
 -r 18               Generate Journal records for the current period
 -r 19               Generate Ledger records for the current period. Note
@@ -105,6 +103,8 @@ reportSpec          Description
                               -r 20,27
                     Both examples list the Market Rates for the rentable
                     with RID = 27.
+-r 24               Assessments report
+-r 25,TLID          print task list TLID
 .fi
 
 .IP "-v"

@@ -130,8 +130,7 @@ J-30               6303-231 [A2, daily]
                                                                                                                                                          
 J-31               6323-301 [A1, monthly]                                                                                                                
                  Accounts Receivable                                                     07/01/2016  RA-4        6323-301         12000            730.00
-                 Unit Gross Scheduled Rent-Taxable                                       07/01/2016  RA-4        6323-301         41000           -755.00
-                 Loss (Gain) to Lease                                                    07/01/2016  RA-4        6323-301         41102             25.00
+                 Unit Gross Scheduled Rent-Taxable                                       07/01/2016  RA-4        6323-301         41000           -730.00
                                                                                                                                                          
 J-32               6392-930 [B5, daily]                                                                                                                  
                  Accounts Receivable                                                     07/01/2016  RA-5        6392-930         12000            125.00
@@ -271,8 +270,7 @@ J-65               6303-231 [A2]
                                                                                                                                                          
 J-66               6323-302 [A3, monthly]                                                                                                                
                  Accounts Receivable                                                     07/01/2016  RA-6        6323-302         12000          2,750.00
-                 Unit Gross Scheduled Rent-Taxable                                       07/01/2016  RA-6        6323-302         41000         -3,319.35
-                 Loss (Gain) to Lease                                                    07/01/2016  RA-6        6323-302         41102            569.35
+                 Unit Gross Scheduled Rent-Taxable                                       07/01/2016  RA-6        6323-302         41000         -2,750.00
                                                                                                                                                          
 J-67               6323-302 [A3, monthly]                                                                                                                
                  Accounts Receivable                                                     07/01/2016  RA-6        6323-302         12000           -250.00

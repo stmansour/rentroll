@@ -1041,7 +1041,8 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 			tot, np, tp := rlib.SimpleProrateAmount(RIDMktRate, asmRent.RentCycle, asmRent.ProrationCycle, &d1, &td2, &epoch)
 			a.Amount = tot
 			if a.Amount < RIDMktRate {
-				a.Comment = fmt.Sprintf("prorated for %d of %d %s", np, tp, rlib.ProrationUnits(asmRent.ProrationCycle))
+				// a.Comment = fmt.Sprintf("prorated for %d of %d %s", np, tp, rlib.ProrationUnits(asmRent.ProrationCycle))
+				a.Comment = rlib.ProrateComment(np, tp, asmRent.ProrationCycle)
 			}
 			a.RentCycle = rlib.RECURNONE
 			a.ProrationCycle = rlib.RECURNONE
@@ -1085,7 +1086,9 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 					}
 					tot, np, tp := rlib.SimpleProrateAmount(dbConf.PetFees[j].DefaultAmount, rc, dbConf.xbiz.RT[rtr.RTID].Proration, &d1, &td2, &epoch)
 					if tot < dbConf.PetFees[j].DefaultAmount {
-						cmt = fmt.Sprintf("prorated for %d of %d %s", np, tp, rlib.ProrationUnits(dbConf.xbiz.RT[rtr.RTID].Proration))
+						// cmt = fmt.Sprintf("prorated for %d of %d %s", np, tp, rlib.ProrationUnits(dbConf.xbiz.RT[rtr.RTID].Proration))
+						cmt = rlib.ProrateComment(np, tp, dbConf.xbiz.RT[rtr.RTID].Proration)
+
 					}
 					var asm = rlib.Assessment{
 						BID:            BID,
@@ -1138,7 +1141,8 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 					}
 					tot, np, tp := rlib.SimpleProrateAmount(dbConf.VehicleFees[j].DefaultAmount, rc, dbConf.xbiz.RT[rtr.RTID].Proration, &d1, &td2, &epoch)
 					if tot < dbConf.VehicleFees[j].DefaultAmount {
-						cmt = fmt.Sprintf("prorated for %d of %d %s", np, tp, rlib.ProrationUnits(dbConf.xbiz.RT[rtr.RTID].Proration))
+						// cmt = fmt.Sprintf("prorated for %d of %d %s", np, tp, rlib.ProrationUnits(dbConf.xbiz.RT[rtr.RTID].Proration))
+						cmt = rlib.ProrateComment(np, tp, dbConf.xbiz.RT[rtr.RTID].Proration)
 					}
 					var asm = rlib.Assessment{
 						BID:            BID,

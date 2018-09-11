@@ -53,6 +53,9 @@ docsvtest "k1" "-C ra1.csv -L 9,${BUD}" "RentalAgreements"
 # create an assessment from 1st Jan 2016 to 1st Jan 2017 with all instances with contract rent of 3500$
 echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22asmForm%22%2C%22record%22%3A%7B%22recid%22%3A0%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22RentCycle%22%3A6%2C%22ProrationCycle%22%3A4%2C%22ARID%22%3A26%2C%22ASMID%22%3A0%2C%22PASMID%22%3A0%2C%22RID%22%3A1%2C%22RAID%22%3A1%2C%22Amount%22%3A3500%2C%22Start%22%3A%221%2F1%2F2016%22%2C%22Stop%22%3A%221%2F1%2F2017%22%2C%22InvoiceNo%22%3A0%2C%22Comment%22%3A%22%22%2C%22ReverseMode%22%3A0%2C%22ExpandPastInst%22%3Atrue%2C%22FLAGS%22%3A0%2C%22Mode%22%3A0%7D%7D" > request
 dojsonPOST "http://localhost:8270/v1/asm/1/0" "request" "ws101"  "WebService--AddAssessments-01Jan2016-01Jan2017"
+# dorrtest "xx1" "${RRDATERANGE} -b ${BUD} -r 24" "Assessments"
+
+# msl x.sql; curl -s -X POST http://localhost:8270/v1/asm/1/0 -H "Content-Type: application/json" -d @request ; ../../../tmp/rentroll/rentroll -A -noauth -j 2016-01-01 -k 2017-01-01 -b REX -r 24
 
 # ---------------------------
 #       JANUARY PAYMENT
@@ -68,7 +71,7 @@ dojsonPOST "http://localhost:8270/v1/deposit/1/0" "request" "ws103"  "WebService
 # Now, apply the funds towards Jan month Assessment on 2nd of Jan (was assessed on 1st Jan)
 echo "%7B%22cmd%22%3A%22save%22%2C%22TCID%22%3A1%2C%22BID%22%3A1%2C%22records%22%3A%5B%7B%22recid%22%3A0%2C%22Date%22%3A%221%2F2%2F2016%22%2C%22ASMID%22%3A2%2C%22ARID%22%3A11%2C%22Assessment%22%3A%22Rent%20Non-Taxable%22%2C%22Amount%22%3A3500%2C%22AmountPaid%22%3A0%2C%22AmountOwed%22%3A3500%2C%22Dt%22%3A%221%2F2%2F2016%22%2C%22Allocate%22%3A3500%2C%22Date_%22%3A%222016-01-02T07%3A00%3A00.000Z%22%2C%22Dt_%22%3A%222016-01-02T07%3A00%3A00.000Z%22%7D%5D%7D" > request
 dojsonPOST "http://localhost:8270/v1/allocfunds/1" "request" "ws104"  "WebService--ApplyThePayment-02Jan2016"
-# ---------------------------
+
 
 # ---------------------------
 #      FEBRUARY PAYMENT

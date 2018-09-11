@@ -204,19 +204,19 @@ func ProrateAssessment(ctx context.Context, xbiz *XBusiness, a *Assessment, d, d
 //=================================================================================================
 func journalAssessment(ctx context.Context, xbiz *XBusiness, d time.Time, a *Assessment, d1, d2 *time.Time) (Journal, error) {
 	funcname := "journalAssessment"
-	Console("Entered %s\n", funcname)
+	Console("*** Entered  %s\n", funcname)
 	Console("%s: d = %s, d1 = %s, d2 = %s\n", funcname, d.Format(RRDATEREPORTFMT), d1.Format(RRDATEREPORTFMT), d2.Format(RRDATEREPORTFMT))
-	Console("%s: Assessment: PASMID = %d, RentCycle = %d, ProrationCycle = %d, Start = %s, Stop = %s\n", funcname,
-		a.PASMID, a.RentCycle, a.ProrationCycle, a.Start.Format(RRDATETIMEW2UIFMT), a.Stop.Format(RRDATETIMEW2UIFMT))
+	Console("%s: Assessment: PASMID = %d, RentCycle = %d, ProrationCycle = %d, Start = %s, Stop = %s\n", funcname, a.PASMID, a.RentCycle, a.ProrationCycle, a.Start.Format(RRDATETIMEW2UIFMT), a.Stop.Format(RRDATETIMEW2UIFMT))
 	var j Journal
 
 	pf, num, den, start, stop, err := ProrateAssessment(ctx, xbiz, a, &d, d1, d2)
 	if err != nil {
-		Console("%s: exiting.  err = %s\n", funcname, err.Error())
+		// Console("%s: exiting.  err = %s\n", funcname, err.Error())
 		return j, err
 	}
 
-	Console("%s: After ProrateAssessment: start = %s, stop = %s\n", funcname, start.Format(RRDATETIMEW2UIFMT), stop.Format(RRDATETIMEW2UIFMT))
+	Console("%s: A:: **** AFTER PRORATION CHECK **** pf = %6.4f, num = %d, den = %d, start = %s, stop = %s\n", funcname, pf, num, den, start.Format(RRDATEFMT3), stop.Format(RRDATEFMT3))
+	Console("%s: B:: After ProrateAssessment: start = %s, stop = %s\n", funcname, start.Format(RRDATETIMEW2UIFMT), stop.Format(RRDATETIMEW2UIFMT))
 
 	//--------------------------------------------------------------------------------------
 	// This is a safeguard against issues encountered in Feb 2018 where rent assessments
@@ -237,39 +237,44 @@ func journalAssessment(ctx context.Context, xbiz *XBusiness, d time.Time, a *Ass
 		return j, err
 	}
 
+	Console("%s: C:: Parsing account rule: %s  Amount = %8.2f\n", funcname, asmRules, a.Amount)
 	m, err := ParseAcctRule(ctx, xbiz, a.RID, d1, d2, asmRules, a.Amount, pf) // a rule such as "d 11001 1000.0, c 40001 1100.0, d 41004 100.00"
 	if err != nil {
-		Console("%s: exiting.  err = %s\n", funcname, err.Error())
+		Console("%s: C1:: exiting.  err = %s\n", funcname, err.Error())
 		return j, err
 	}
 
-	// Console("%s:  m = %#v\n", funcname, m)
-	// for i := 0; i < len(m); i++ {
-	// 	Console("m[%d].Amount = %f,  .Action = %s   .Expr = %s\n", i, m[i].Amount, m[i].Action, m[i].Expr)
-	// }
+	Console("%s:  m = %#v\n", funcname, m)
+	for i := 0; i < len(m); i++ {
+		Console("D:: m[%d].Amount = %f,  .Action = %s   .Expr = %s\n", i, m[i].Amount, m[i].Action, m[i].Expr)
+	}
 
 	_, j.Amount = sumAllocations(&m)
 	j.Amount = RoundToCent(j.Amount)
 
-	// Console("j.Amount = %f\n", j.Amount)
+	Console("%s: E:: j.Amount = %8.2f, pf = %8.5f\n", funcname, j.Amount, pf)
 
 	//------------------------------------------------------------------------------------------------------
-	// for non-recurring assessments (the only kind that we should be processing here) the amount may have
+	// the assessment amount may have
 	// been prorated as it was a newly created recurring assessment for a RentalAgreement that was either
 	// just beginning or just ending. If so, we'll update the assessment amount here the calculated
 	// j.Amount != a.Amount
 	//------------------------------------------------------------------------------------------------------
 	if pf < 1.0 {
+		Console("%s: F:: will update assessment\n", funcname)
 		a.Amount = j.Amount // update to the prorated amount
 		a.Start = start     // adjust to the dates used in the proration
 		a.Stop = stop       // adjust to the dates used in the proration
-		a.Comment = fmt.Sprintf("Prorated: %d %s out of %d", num, ProrationUnits(a.ProrationCycle), den)
+		a.Comment = fmt.Sprintf("Prorated for %d of %d %s", num, den, ProrationUnits(a.ProrationCycle))
+		Console("%s: G:: a.Amount = %8.2f\n", funcname, a.Amount)
 		if err := UpdateAssessment(ctx, a); err != nil {
 			err = fmt.Errorf("Error updating prorated assessment amount: %s", err.Error())
-			Console("%s: exiting.  err = %s\n", funcname, err.Error())
+			Console("%s: H:: exiting.  err = %s\n", funcname, err.Error())
 			return j, err
 		}
+		Console("%s:  I::  Updating ASMID = %d, Amount = %8.2f\n", funcname, a.ASMID, a.Amount)
 	}
+	Console("%s:  J::  ASMID = %d, Amount = %8.2f\n", funcname, a.ASMID, a.Amount)
 
 	//-------------------------------------------------------------------------------------------
 	// In the event that we need to prorate, pull together the pieces and determine the
@@ -302,7 +307,7 @@ func journalAssessment(ctx context.Context, xbiz *XBusiness, d time.Time, a *Ass
 
 	}
 
-	// Console("INSERTING JOURNAL: Date = %s, Type = %d, amount = %f\n", j.Dt, j.Type, j.Amount)
+	Console("INSERTING JOURNAL: Date = %s, Type = %d, amount = %f\n", j.Dt, j.Type, j.Amount)
 
 	jid, err := InsertJournal(ctx, &j)
 	if err != nil {
@@ -385,7 +390,7 @@ func ProcessNewAssessmentInstance(ctx context.Context, xbiz *XBusiness, d1, d2 *
 	funcname := "ProcessNewAssessmentInstance"
 	var j Journal
 	var err error
-	// Console("Entered %s:  d1 = %s, d2 = %s, Assessment date: %s\n", funcname, d1.Format(RRDATEREPORTFMT), d2.Format(RRDATEREPORTFMT), a.Start.Format(RRDATEREPORTFMT))
+	Console("Entered %s:  d1 = %s, d2 = %s, Assessment date: %s\n", funcname, d1.Format(RRDATEREPORTFMT), d2.Format(RRDATEREPORTFMT), a.Start.Format(RRDATEREPORTFMT))
 	if a.PASMID == 0 && a.RentCycle != RECURNONE { // if this assessment is not a single instance recurrence, then return an error
 		err = fmt.Errorf("%s: Function only accepts non-recurring instances, RentCycle = %d", funcname, a.RentCycle)
 		LogAndPrintError(funcname, err)
@@ -399,7 +404,7 @@ func ProcessNewAssessmentInstance(ctx context.Context, xbiz *XBusiness, d1, d2 *
 		}
 	}
 
-	// Console("%s: Calling journalAssessment for ASMID = %d\n", funcname, a.ASMID)
+	Console("%s: Calling journalAssessment for ASMID = %d, PASMID = %d\n", funcname, a.ASMID, a.PASMID)
 	j, err = journalAssessment(ctx, xbiz, a.Start, a, d1, d2)
 	return j, err
 }
@@ -422,7 +427,7 @@ func ProcessNewReceipt(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time, 
 	if jid > 0 {
 		// now add the Journal allocation records...
 		for i := 0; i < len(r.RA); i++ {
-			// Console("r.RA[%d] id = %d\n", i, r.RA[i].RCPAID)
+			// // Console("r.RA[%d] id = %d\n", i, r.RA[i].RCPAID)
 			// rntagr, _ := GetRentalAgreement(r.RA[i].RAID) // what Rental Agreements did this payment affect and the amounts for each
 			var ja JournalAllocation
 			ja.JID = jid
@@ -493,7 +498,7 @@ func ProcessNewExpense(ctx context.Context, a *Expense, xbiz *XBusiness) error {
 // creates the corresponding journal instances for the new assessment instances
 //=================================================================================================
 func GenerateRecurInstances(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time) error {
-	// Console("GetRecurringAssessmentsByBusiness - d1 = %s   d2 = %s\n", d1.Format(RRDATEINPFMT, d2.Format(RRDATEINPFMT)))
+	// // Console("GetRecurringAssessmentsByBusiness - d1 = %s   d2 = %s\n", d1.Format(RRDATEINPFMT, d2.Format(RRDATEINPFMT)))
 	rows, err := RRdb.Prepstmt.GetRecurringAssessmentsByBusiness.Query(xbiz.P.BID, d2, d1) // only get recurring instances without a parent
 	if err != nil {
 		return err
@@ -513,7 +518,7 @@ func GenerateRecurInstances(ctx context.Context, xbiz *XBusiness, d1, d2 *time.T
 			return err
 		}
 
-		Console("\n\n\n**** GenerateRecurInstances: calling ExpandAssessment ASMID = %d\n", a.ASMID)
+		// Console("\n\n\n**** GenerateRecurInstances: calling ExpandAssessment ASMID = %d\n", a.ASMID)
 		err = ExpandAssessment(ctx, &a, xbiz, d1, d2, false, &noClose)
 		if err != nil {
 			return err

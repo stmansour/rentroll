@@ -51,7 +51,7 @@ func ExpandAssessment(ctx context.Context, a *Assessment, xbiz *XBusiness, d1, d
 	funcname := "ExpandAssessment"
 	var j Journal
 	var err error
-	Console("ENTERED %s: 1. a.ASMID = %d, Biz = %s (%d), d1 - d2 = %s - %s, RentCycle = %d\n", funcname, a.ASMID, xbiz.P.Designation, xbiz.P.BID, d1.Format(RRDATEREPORTFMT), d2.Format(RRDATEREPORTFMT), a.RentCycle)
+	// Console("ENTERED %s: 1. a.ASMID = %d, Biz = %s (%d), d1 - d2 = %s - %s, RentCycle = %d\n", funcname, a.ASMID, xbiz.P.Designation, xbiz.P.BID, d1.Format(RRDATEREPORTFMT), d2.Format(RRDATEREPORTFMT), a.RentCycle)
 	if lc.ExpandAsmDtStart.Year() < 1970 && a.RentCycle > RECURNONE {
 		// Console("PANIC: ExpandAsmDtStart = %s\n", lc.ExpandAsmDtStart.Format(RRDATEFMT3))
 		debug.PrintStack()
@@ -59,6 +59,7 @@ func ExpandAssessment(ctx context.Context, a *Assessment, xbiz *XBusiness, d1, d
 	}
 
 	if a.RentCycle == RECURNONE {
+		// Console("%s: calling ProcessNewAssessmentInstance(ctx, xbiz, %s, %s, a.ASMID = %d)\n", d1.Format(RRDATEFMT3), d2.Format(RRDATEFMT3), a.ASMID)
 		j, err = ProcessNewAssessmentInstance(ctx, xbiz, d1, d2, a)
 		if err != nil {
 			LogAndPrintError(funcname, err)
@@ -117,9 +118,9 @@ func ExpandAssessment(ctx context.Context, a *Assessment, xbiz *XBusiness, d1, d
 		// DEBUG: code to get the difference between dl and dl1
 		//-------------------------------------------------------------------
 		// dl1 := a.GetRecurrences(&dtLimitStart, &dtLimitStop)
-		// Console("\n\n***<<<<< OLD LIMITS:  Start = %s, Stop = %s\n", a.Start.Format(RRDATEFMT4), a.Stop.Format(RRDATEFMT4))
-		// Console("***>>>>> NEW LIMITS:  Start = %s, Stop = %s\n", dtLimitStart.Format(RRDATEFMT4), dtLimitStop.Format(RRDATEFMT4))
-		// Console("%s: 2.4   len(dl) = %d,  len(dl1) = %d\n", funcname, len(dl), len(dl1))
+		// // Console("\n\n***<<<<< OLD LIMITS:  Start = %s, Stop = %s\n", a.Start.Format(RRDATEFMT4), a.Stop.Format(RRDATEFMT4))
+		// // Console("***>>>>> NEW LIMITS:  Start = %s, Stop = %s\n", dtLimitStart.Format(RRDATEFMT4), dtLimitStop.Format(RRDATEFMT4))
+		// // Console("%s: 2.4   len(dl) = %d,  len(dl1) = %d\n", funcname, len(dl), len(dl1))
 		// dbug := true
 		// if dbug && len(dl) != len(dl1) {
 		// 	// Console("**** YIPES  -- different expansions!\n")
@@ -144,9 +145,9 @@ func ExpandAssessment(ctx context.Context, a *Assessment, xbiz *XBusiness, d1, d
 		// 		if k < l1 {
 		// 			s1 += fmt.Sprintf("%12s", dl1[k].Format(RRDATEFMT3))
 		// 		}
-		// 		Console("%s\n", s1)
+		// 		// Console("%s\n", s1)
 		// 	}
-		// 	Console("%s: 2.5   RAID = %d, RentStart = %s, RentStop = %s\n\n", funcname, ra.RAID, ra.RentStart.Format(RRDATEFMT3), ra.RentStop.Format(RRDATEFMT3))
+		// 	// Console("%s: 2.5   RAID = %d, RentStart = %s, RentStop = %s\n\n", funcname, ra.RAID, ra.RentStart.Format(RRDATEFMT3), ra.RentStop.Format(RRDATEFMT3))
 		// }
 
 		rangeDuration := d2.Sub(dtLimitStart)
@@ -186,19 +187,19 @@ func ExpandAssessment(ctx context.Context, a *Assessment, xbiz *XBusiness, d1, d
 			// when their associated RentalAgreements stopped.
 			//--------------------------------------------------------------------------------
 			if a.RAID > 0 {
-				// Console("a.RAID = %d\n", a.RAID)
+				// Console("%s: 3.2  a.RAID = %d\n", funcname, a.RAID)
 				ra, err := GetRentalAgreement(ctx, a.RAID)
 				if err != nil {
 					LogAndPrintError(funcname, err)
 					// Console("%s exiting. e3 Error = %s\n", funcname, err.Error())
 					return err
 				}
-				// Console("ra.RentStop = %s\n", ra.RentStop)
+				// Console("%s: 3.3  ra.RentStop = %s\n", funcname, ra.RentStop)
 				if a1.Start.After(ra.RentStop) || a1.Start.Equal(ra.RentStop) {
-					// Console("Do not add the new assessment\n")
+					// Console("%s: 3.4  Do not add the new assessment\n", funcname)
 					err = fmt.Errorf("%s:  Cannot add new assessment instance on %s after RentalAgreement (%s) stop date %s", funcname, a1.Start.Format(RRDATEREPORTFMT), ra.IDtoShortString(), ra.RentStop.Format(RRDATEREPORTFMT))
 					LogAndPrintError(funcname, err)
-					// Console("%s exiting. e4 Error = %s\n", funcname, err.Error())
+					// Console("%s: 3.5  exiting. e4 Error = %s\n", funcname, err.Error())
 					return err
 				}
 			}
@@ -209,19 +210,14 @@ func ExpandAssessment(ctx context.Context, a *Assessment, xbiz *XBusiness, d1, d
 			//--------------------------------------------------------------------------------
 			var a2 Assessment
 			if idempotentCheck {
-				// Console("a1.Start = %s, a1.PASMID = %d\n", a1.Start.Format(RRDATEFMT3), a1.PASMID)
+				// Console("%s: 3.6  a1.Start = %s, a1.PASMID = %d\n", funcname, a1.Start.Format(RRDATEFMT3), a1.PASMID)
 				a2, err = GetAssessmentInstance(ctx, &a1.Start, a1.PASMID) // if this returns an existing instance (ASMID != 0) then it's already been processed...
 				if err != nil {
-					// Console("Error in GetAssessmentInstance: %s\n", err.Error())
+					// Console("%s: 3.61  Error in GetAssessmentInstance: %s\n", funcname, err.Error())
 				}
-				// Console("a2.ASMID = %d\n", a2.ASMID)
+				// Console("%s: 3.7  a2.ASMID = %d\n", funcname, a2.ASMID)
 			}
 			if a2.ASMID == 0 { // ... otherwise, process this instance
-				// Console("ExpandAssessment: 4.0, a1.Amount = %.2f\n", a1.Amount)
-				_, err = InsertAssessment(ctx, &a1)
-				Errlog(err)
-				// Console("%s: 4.1, inserted a1.ASMID = %d, a1.Amount = %.2f\n", funcname, a1.ASMID, a1.Amount)
-
 				//--------------------------------------------------------------------------------
 				// Rent is assessed on the following cycle: a.RentCycle
 				// and prorated on the following cycle: a.ProrationCycle
@@ -231,22 +227,50 @@ func ExpandAssessment(ctx context.Context, a *Assessment, xbiz *XBusiness, d1, d
 				if diff < 0 {
 					diff = -diff
 				}
-				dtb := *d1
-				dte := *d2
+				dtb := *d1 // beginning
+				dte := *d2 // end
+				// Console("%s: 4.2  dtb = %s, dte = %s, diff = %d\n", funcname, dtb.Format(RRDATEFMT4), dte.Format(RRDATEFMT4), diff)
+				// Console("%s: 4.21  a.ASMID = %d, a.PASMID = %d, a.Start = %s, a.Stop = %s\n", funcname, a.ASMID, a.PASMID, a.Start.Format(RRDATEFMT3), a.Stop.Format(RRDATEFMT3))
 
 				//-------------------------------------------------------------------
 				// TODO: see if we an remove this...
 				// This bit of code is really old and I don't like it.  Looks like
 				// there was some concern about the the date range being correct.
 				//-------------------------------------------------------------------
-				// Console("dtb = %s, dte = %s, diff = %d\n", dtb.Format(RRDATEFMT4), dte.Format(RRDATEFMT4), diff)
-				if diff > rentCycleDur/9 { // if this is true then
-					dtb = dl[i] // add one full cycle diration
-					dte = dtb.Add(CycleDuration(a.RentCycle, dtb))
+				if diff > rentCycleDur/9 { // if this is true then...
+					dtb = dl[i]                                    // use the instance start point and...
+					dte = dtb.Add(CycleDuration(a.RentCycle, dtb)) // add one full cycle duration
 				}
 
+				// Console("%s: 4.22 - dtb = %s, dte = %s\n", funcname, dtb.Format(RRDATEFMT3), dte.Format(RRDATEFMT3))
+				//-------------------------------------------------------------------
+				// If anything has pushed dte beyond the stop date of the parent,
+				// now is the time to snap it back.  This also causes the instance
+				// to be prorated...
+				//-------------------------------------------------------------------
+				if dte.After(a.Stop) {
+					dte = a.Stop
+					// Console("%s: 4.23 - calling SimpleProrateAmount( amount %8.2f ,rentcycle %d, prorate %d, %s, %s, %s )\n", a.Amount, a.RentCycle, a.ProrationCycle, dtb.Format(RRDATEFMT4), dte.Format(RRDATEFMT4), a.Start.Format(RRDATEFMT4))
+					amt, num, den := SimpleProrateAmount(a.Amount, a.RentCycle, a.ProrationCycle, &dtb, &dte, &a.Start)
+					a1.Amount = amt
+					a1.AppendComment(ProrateComment(num, den, a.ProrationCycle))
+				}
+
+				// Console("%s: 4.3   dtb = %s, dte = %s\n", funcname, dtb.Format(RRDATEFMT4), dte.Format(RRDATEFMT4))
+				// Console("%s: 4.31  a1.ASMID = %d, a1.PASMID = %d, a1.Start = %s, a1.Stop = %s\n", funcname, a1.ASMID, a1.PASMID, a1.Start.Format(RRDATEFMT4), a1.Stop.Format(RRDATEFMT4))
+
+				// Prorate this assessment if necessary...
+
 				//-----------------------------------------------------------
-				// Insert the assessment and update the Journal
+				// Insert the assessment
+				//-----------------------------------------------------------
+				// Console("%s: 4.0, a1.Amount = %.2f\n", funcname, a1.Amount)
+				_, err = InsertAssessment(ctx, &a1)
+				Errlog(err)
+				// Console("%s: 4.1, inserted a1.ASMID = %d, a1.Amount = %.2f\n", funcname, a1.ASMID, a1.Amount)
+
+				//-----------------------------------------------------------
+				// Update the Journal
 				//-----------------------------------------------------------
 				var j Journal
 				j, err = ProcessNewAssessmentInstance(ctx, xbiz, &dtb, &dte, &a1)
@@ -264,9 +288,9 @@ func ExpandAssessment(ctx context.Context, a *Assessment, xbiz *XBusiness, d1, d
 			} else if a.RentCycle >= RECURSECONDLY && a.RentCycle <= RECURHOURLY {
 				LogAndPrintError(funcname, fmt.Errorf("Unhandled RentCycle frequency: %d", a.RentCycle))
 			}
-			// Console("ExpandAssessment: 5\n")
+			// Console("%s: 5\n", funcname)
 		}
 	}
-	// Console("%s exiting. end of func\n", funcname)
+	// Console("%s: 6  exiting. end of func\n", funcname)
 	return err
 }

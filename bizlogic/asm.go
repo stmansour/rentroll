@@ -912,7 +912,9 @@ func ValidateAssessment(ctx context.Context, a *rlib.Assessment) []BizError {
 //
 //-------------------------------------------------------------------------------------
 func createInstancesToDate(ctx context.Context, a *rlib.Assessment, xbiz *rlib.XBusiness, lc *rlib.ClosePeriod, start *time.Time) error {
-	rlib.Console("\n\n\nEntered createInstancesToDate   start = %s,  lc.dt = %s\n", start.Format(rlib.RRDATEFMT3), lc.Dt.Format(rlib.RRDATEFMT3))
+	rlib.Console("\n\n*** Entered createInstancesToDate   start = %s,  lc.dt = %s\n", start.Format(rlib.RRDATEFMT3), lc.Dt.Format(rlib.RRDATEFMT3))
+	rlib.Console("a.Start = %s, a.Stop = %s\n", a.Start.Format(rlib.RRDATEFMT3), a.Stop.Format(rlib.RRDATEFMT3))
+
 	// now := time.Now()
 	// as := time.Date(start.Year(), start.Month(), start.Day(), 0, 0, 0, 0, time.UTC)
 
@@ -935,6 +937,10 @@ func createInstancesToDate(ctx context.Context, a *rlib.Assessment, xbiz *rlib.X
 	//-------------------------------------------------------------------------
 	d1 := *start
 	d2 := time.Now()
+	if d2.After(a.Stop) {
+		d2 = a.Stop
+	}
+
 	rlib.Console("**** createInstancesToDate calling ExpandAssessment ASMID = %d, d1 = %s, d2 = %s\n\n\n", a.ASMID, d1.Format(rlib.RRDATEFMT3), d2.Format(rlib.RRDATEFMT3))
 	err := rlib.ExpandAssessment(ctx, a, xbiz, &d1, &d2, true, lc) // this generates the assessment instances
 	if err != nil {
@@ -1010,7 +1016,7 @@ func createInstancesToDate(ctx context.Context, a *rlib.Assessment, xbiz *rlib.X
 // 		ai.RentCycle = rlib.RECURNONE
 // 		ai.ProrationCycle = rlib.RECURNONE
 // 		ai.Stop = ai.Start
-// 		ai.AppendComment(fmt.Sprintf("prorated for %d of %d %s", n, p, rlib.ProrationUnits(ai.ProrationCycle)))
+// 		ai.AppendComment(ProrateComment( n, p, rai.ProrationCycle))
 // 		be := UpdateAssessment(ctx, &ai, 0, dt, &rlib.TIME0, 0)
 // 		if len(be) > 0 {
 // 			return BizErrorListToError(be)

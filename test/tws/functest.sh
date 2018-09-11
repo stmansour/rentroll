@@ -16,7 +16,7 @@ fi
 
 source ../share/base.sh
 
-./tws -noauth > z
+./tws -nocon -noauth > z
 
 genericlogcheck "z"  ""  "Validations"
 
