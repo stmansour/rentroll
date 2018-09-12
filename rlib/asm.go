@@ -85,14 +85,24 @@ func ExpandAssessment(ctx context.Context, a *Assessment, xbiz *XBusiness, d1, d
 		idempotentCheck := true // by default, we always do this check
 
 		//-----------------------------------------------------------------------------
-		// The only snapping check to make before expansion is to ensure that the
-		// limits do not exceed the assessment's bounds...
+		// If we're not dealing with closed periods or back-dated rental agreements,
+		// then don't start before the assessment's start date.
 		//-----------------------------------------------------------------------------
-		if dtLimitStart.Before(a.Start) {
+		if lc.ExpandAsmDtStart.Equal(TIME0) && dtLimitStart.Before(a.Start) {
 			dtLimitStart = a.Start
 		}
 		if dtLimitStop.After(a.Stop) {
 			dtLimitStop = a.Stop
+		}
+
+		//-----------------------------------------------------------------------------
+		// If we are dealing with closed periods or back-dated rental agreements,
+		// then we may need to set the start date of the assessment before the
+		// start date of the Recurring Assessment Definition, which may have been
+		// snapped to a later date because of a closed period
+		//-----------------------------------------------------------------------------
+		if !lc.ExpandAsmDtStart.Equal(TIME0) && lc.ExpandAsmDtStart.Before(dtLimitStart) {
+			dtLimitStart = lc.ExpandAsmDtStart
 		}
 
 		//-----------------------------------------------------------------------------
