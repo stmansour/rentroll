@@ -1,6 +1,9 @@
 package rlib
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 var consoleEnable = true
 
@@ -15,4 +18,9 @@ func Console(format string, a ...interface{}) {
 	if consoleEnable {
 		fmt.Printf(format, a...)
 	}
+}
+
+// ConsoleDRange formats a date range string
+func ConsoleDRange(d1, d2 *time.Time) string {
+	return fmt.Sprintf("%s, %s", d1.Format(RRDATEFMT3), d2.Format(RRDATEFMT3))
 }

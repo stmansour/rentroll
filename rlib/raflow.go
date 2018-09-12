@@ -10,6 +10,22 @@ import (
 	"time"
 )
 
+// F2RAWriteHandlerContext contains context information for RA Write Handlers.
+// It is used when we write fees to the db in F2RA.  It needs to be used in
+// bizlogic as well, thus, it is declared here.
+type F2RAWriteHandlerContext struct {
+	IsNewOriginRaid      bool              // true only if this is a new Rental Agreement, false otherwise
+	OldRAID              int64             //
+	NewRAID              int64             //
+	LastClose            ClosePeriod       // last period closed
+	Ra                   RentalAgreement   // the new amended RA
+	RaChainOrig          []RentalAgreement // the RA(s) we're amending with updated data
+	RaChainOrigUnchanged []RentalAgreement // the RA(s) we're amending with data as it was before we modified raChainOrig
+	RaOrigIndex          int               // index within raChainOrig (and raChainOrigUnchanged) of the Active RA at the time this change is being made
+	Raf                  RAFlowJSONData
+	Xbiz                 XBusiness
+}
+
 // RAFlow etc.. all are list of all flows exist in the system
 const (
 	RAFlow string = "RA"

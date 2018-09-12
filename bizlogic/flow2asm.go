@@ -1,10 +1,9 @@
-package ws
+package bizlogic
 
 // Fees2RA copies fees into permanent table Assessments.
 import (
 	"context"
 	"fmt"
-	"rentroll/bizlogic"
 	"rentroll/rlib"
 	"time"
 )
@@ -19,7 +18,7 @@ import (
 // RETURNS
 //     Any errors encountered
 //-----------------------------------------------------------------------------
-func Fees2RA(ctx context.Context, x *WriteHandlerContext) error {
+func Fees2RA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) error {
 	var err error
 
 	//--------------------------------------------------
@@ -27,26 +26,27 @@ func Fees2RA(ctx context.Context, x *WriteHandlerContext) error {
 	// variable, x, so that all other routines have it.
 	// Ensure that we have a valid lastClost.dt
 	//--------------------------------------------------
-	rlib.Console("Fees2RA - getting lastClose date\n")
-	x.lastClose, err = rlib.GetLastClosePeriod(ctx, x.xbiz.P.BID)
+	rlib.Console("Fees2RA - getting LastClose date\n")
+	x.LastClose, err = rlib.GetLastClosePeriod(ctx, x.Xbiz.P.BID)
 	if err != nil {
 		return err
 	}
-	if x.lastClose.CPID == 0 {
-		x.lastClose.Dt = rlib.TIME0               // use TIME0 if not set
-		x.lastClose.ExpandAsmDtStart = rlib.TIME0 //
+	if x.LastClose.CPID == 0 {
+		x.LastClose.Dt = rlib.TIME0               // use TIME0 if not set
+		x.LastClose.ExpandAsmDtStart = rlib.TIME0 //
 	}
-	x.lastClose.ExpandAsmDtStop = x.ra.RentStop                // do not expand past this date
-	x.lastClose.OpenPeriodDt = x.lastClose.Dt.AddDate(0, 0, 1) // for our purposes, use the day after close
-	rlib.Console("lastClose = %s\n", x.lastClose.Dt.Format(rlib.RRDATEREPORTFMT))
+	x.LastClose.ExpandAsmDtStop = x.Ra.RentStop                // do not expand past this date
+	x.LastClose.OpenPeriodDt = x.LastClose.Dt.AddDate(0, 0, 1) // for our purposes, use the day after close
+	rlib.Console("x.LastClose.Dt = %s, x.LastClose.OpenPeriodDt = %s, x.LastClose.ExpandAsmDtStart = %s\n",
+		x.LastClose.Dt.Format(rlib.RRDATEREPORTFMT), x.LastClose.OpenPeriodDt.Format(rlib.RRDATEREPORTFMT), x.LastClose.ExpandAsmDtStop.Format(rlib.RRDATEREPORTFMT))
 
 	//--------------------------------------------------
 	// Add Rentable fees to new RA first...
 	//--------------------------------------------------
 	rlib.Console("Fees2RA: Rentables fees\n")
-	for i := 0; i < len(x.raf.Rentables); i++ {
-		for j := 0; j < len(x.raf.Rentables[i].Fees); j++ {
-			if err = F2RASaveFee(ctx, x, &x.raf.Rentables[i].Fees[j], rlib.ELEMRENTABLE, x.raf.Rentables[i].RID, 0); err != nil {
+	for i := 0; i < len(x.Raf.Rentables); i++ {
+		for j := 0; j < len(x.Raf.Rentables[i].Fees); j++ {
+			if err = F2RASaveFee(ctx, x, &x.Raf.Rentables[i].Fees[j], rlib.ELEMRENTABLE, x.Raf.Rentables[i].RID, 0); err != nil {
 				return err
 			}
 		}
@@ -55,9 +55,9 @@ func Fees2RA(ctx context.Context, x *WriteHandlerContext) error {
 	// Add Pet fees to new RA first...
 	//--------------------------------------------------
 	rlib.Console("Fees2RA: Pet fees\n")
-	for i := 0; i < len(x.raf.Pets); i++ {
-		for j := 0; j < len(x.raf.Pets[i].Fees); j++ {
-			if err = F2RASaveFee(ctx, x, &x.raf.Pets[i].Fees[j], rlib.ELEMPET, x.raf.Pets[i].PETID, x.raf.Pets[i].TMPTCID); err != nil {
+	for i := 0; i < len(x.Raf.Pets); i++ {
+		for j := 0; j < len(x.Raf.Pets[i].Fees); j++ {
+			if err = F2RASaveFee(ctx, x, &x.Raf.Pets[i].Fees[j], rlib.ELEMPET, x.Raf.Pets[i].PETID, x.Raf.Pets[i].TMPTCID); err != nil {
 				return err
 			}
 		}
@@ -66,9 +66,9 @@ func Fees2RA(ctx context.Context, x *WriteHandlerContext) error {
 	// Add Vehicle fees to new RA first...
 	//--------------------------------------------------
 	rlib.Console("Fees2RA: Vehicle fees\n")
-	for i := 0; i < len(x.raf.Vehicles); i++ {
-		for j := 0; j < len(x.raf.Vehicles[i].Fees); j++ {
-			if err = F2RASaveFee(ctx, x, &x.raf.Vehicles[i].Fees[j], rlib.ELEMVEHICLE, x.raf.Vehicles[i].VID, x.raf.Vehicles[i].TMPTCID); err != nil {
+	for i := 0; i < len(x.Raf.Vehicles); i++ {
+		for j := 0; j < len(x.Raf.Vehicles[i].Fees); j++ {
+			if err = F2RASaveFee(ctx, x, &x.Raf.Vehicles[i].Fees[j], rlib.ELEMVEHICLE, x.Raf.Vehicles[i].VID, x.Raf.Vehicles[i].TMPTCID); err != nil {
 				return err
 			}
 		}
@@ -77,14 +77,6 @@ func Fees2RA(ctx context.Context, x *WriteHandlerContext) error {
 	if err = F2RAHandleOldAssessments(ctx, x); err != nil {
 		return err
 	}
-
-	//--------------------------------------------------------------------------
-	// Now clean up any assessments that are associated with the old RAID but
-	// that have not been updated as part of any fee in the new RAID.
-	//--------------------------------------------------------------------------
-	// if err = CleanUpRemainingAssessments(ctx, x); err != nil {
-	// 	return err
-	// }
 
 	return nil
 }
@@ -101,24 +93,28 @@ func Fees2RA(ctx context.Context, x *WriteHandlerContext) error {
 // RETURNS
 //     Any errors encountered
 //-----------------------------------------------------------------------------
-func F2RAHandleOldAssessments(ctx context.Context, x *WriteHandlerContext) error {
+func F2RAHandleOldAssessments(ctx context.Context, x *rlib.F2RAWriteHandlerContext) error {
 	var err error
 	var n []rlib.Assessment
 	var skipASMID int64
 	rlib.Console("Entered F2RAHandleOldAssessments\n")
 
-	for _, ra := range x.raChainOrig {
+	for _, ra := range x.RaChainOrig {
 		rlib.Console("%d ", ra.RAID)
 	}
+
 	rlib.Console("\n")
-
 	rlib.Console("A2 - Processing RA Chain\n")
-	for i := 0; i < len(x.raChainOrig); i++ {
 
-		ra := x.raChainOrig[i]
+	//=========================================================================
+	//  FOR EVERY RENTAL AGREEMENT THAT IS IMPACTED BY THIS UPDATE...
+	//=========================================================================
+	for i := 0; i < len(x.RaChainOrig); i++ {
+
+		ra := x.RaChainOrig[i]
 		rlib.Console("Seeting ExpandAsmDtStop to RentStop of RAID %d: %s\n", ra.RAID, ra.RentStop.Format(rlib.RRDATEFMT3))
-		x.lastClose.ExpandAsmDtStop = ra.RentStop // do not expand past this date
-		raUnchanged := x.raChainOrigUnchanged[i]
+		x.LastClose.ExpandAsmDtStop = ra.RentStop // do not expand past this date
+		raUnchanged := x.RaChainOrigUnchanged[i]
 
 		rlib.Console("A3: ra.RAID = %d\n", ra.RAID)
 		//-------------------------------------------------------------------------
@@ -126,8 +122,8 @@ func F2RAHandleOldAssessments(ctx context.Context, x *WriteHandlerContext) error
 		//  the time range of the old RA before any changes were made, so we need
 		//  to use raUnchanged
 		//-------------------------------------------------------------------------
-		if !rlib.DateRangeOverlap(&x.ra.RentStart, &x.ra.RentStop, &raUnchanged.RentStart, &raUnchanged.RentStop) {
-			rlib.Console("A3.1 no overlap: %s - %s, %s - %s\n", x.ra.RentStart.Format(rlib.RRDATEREPORTFMT), x.ra.RentStop.Format(rlib.RRDATEREPORTFMT), ra.RentStart.Format(rlib.RRDATEREPORTFMT), ra.RentStop.Format(rlib.RRDATEREPORTFMT))
+		if !rlib.DateRangeOverlap(&x.Ra.RentStart, &x.Ra.RentStop, &raUnchanged.RentStart, &raUnchanged.RentStop) {
+			rlib.Console("A3.1 no overlap: %s - %s, %s - %s\n", x.Ra.RentStart.Format(rlib.RRDATEREPORTFMT), x.Ra.RentStop.Format(rlib.RRDATEREPORTFMT), ra.RentStart.Format(rlib.RRDATEREPORTFMT), ra.RentStop.Format(rlib.RRDATEREPORTFMT))
 			continue
 		}
 
@@ -135,15 +131,19 @@ func F2RAHandleOldAssessments(ctx context.Context, x *WriteHandlerContext) error
 		//-----------------------------------------------------------------------
 		// Need to process this one. Start with its recurring asm definitions...
 		//-----------------------------------------------------------------------
-		n, err = rlib.GetRecurringAssessmentDefsByRAID(ctx, ra.RAID, &x.ra.RentStart, &x.ra.RentStop)
+		n, err = rlib.GetRecurringAssessmentDefsByRAID(ctx, ra.RAID, &x.Ra.RentStart, &x.Ra.RentStop)
 		if err != nil {
 			return err
 		}
 		rlib.Console("A5 - found %d recurring Assessments for RAID %d\n", len(n), ra.RAID)
+
+		//=========================================================================
+		//  FOR EVERY RECURRING ASSESSMENT DEFINITION IN THIS RENTAL AGREEMENT...
+		//=========================================================================
 		for _, v := range n {
 			rlib.Console("A6 - ASMID=%d\n", v.ASMID)
 			if v.FLAGS&(1<<2) != 0 {
-				continue // skip it if it has already been
+				continue // skip it if it has already been Reversed
 			}
 			//---------------------------------------------------------------
 			//  The date we use for the change depends on whether or not the
@@ -151,9 +151,9 @@ func F2RAHandleOldAssessments(ctx context.Context, x *WriteHandlerContext) error
 			//  been closed.
 			//---------------------------------------------------------------
 			dt := v.Start // assume it will be on the assessment start date
-			if v.Start.Before(x.lastClose.Dt) {
+			if v.Start.Before(x.LastClose.Dt) {
 				rlib.Console("A6.1 - v.Start is prior to the last close period. Snapping dt to: %s\n", dt.Format(rlib.RRDATERECEIPTFMT))
-				dt = x.lastClose.Dt
+				dt = x.LastClose.Dt
 			}
 
 			rlib.Console("A6.2 - dt for changes = %s\n", dt.Format(rlib.RRDATEREPORTFMT))
@@ -162,55 +162,55 @@ func F2RAHandleOldAssessments(ctx context.Context, x *WriteHandlerContext) error
 			//  The assessment will be totally replaced if the new RA start
 			//  date is prior to the Assessment start date.
 			//---------------------------------------------------------------
-			if !v.Start.Before(x.ra.RentStart) {
+			if !v.Start.Before(x.Ra.RentStart) {
 				//---------------------------------------------
 				// Reverse the whole thing; all instances...
 				//---------------------------------------------
 				rlib.Console("A7 -- REVERSE THE ASSESSMENT!! amended RA starts prior to ASM Start: %s\n", v.Start.Format(rlib.RRDATEREPORTFMT))
-				be := bizlogic.ReverseAssessment(ctx, &v, 2 /*from dt onward*/, &dt, &x.lastClose)
+				be := ReverseAssessment(ctx, &v, 2 /*from dt onward*/, &dt, &x.LastClose)
 				if len(be) > 0 {
 					rlib.Console("A7 error\n")
-					return bizlogic.BizErrorListToError(be)
+					return BizErrorListToError(be)
 				}
 			} else {
 				rlib.Console("A8 -- REVERSE from this time forward\n")
 				//-------------------------------------------------------------
 				// Reverse the instances that occur in periods on or after
-				// x.ra.RentStart.  We know the epoch as we have the  recurring
+				// x.Ra.RentStart.  We know the epoch as we have the  recurring
 				// definition. So, we want to create the epoch day based on
-				// v.Start and the start date of the switchover -- x.ra.RentStart
+				// v.Start and the start date of the switchover -- x.Ra.RentStart
 				//-------------------------------------------------------------
-				target := rlib.InstanceDateCoveringDate(&v.Start, &x.ra.RentStart, v.RentCycle)
+				target := rlib.InstanceDateCoveringDate(&v.Start, &x.Ra.RentStart, v.RentCycle)
 				t2 := target.AddDate(0, 0, 1)
 				n, err = rlib.GetAssessmentInstancesByRAIDRange(ctx, ra.RAID, &target, &t2)
 				if err != nil {
 					return err
 				}
 				if len(n) == 0 {
-					rlib.Console("A8.1 -- cannot find instance date near x.ra.RentStart!!\n")
+					rlib.Console("A8.1 -- cannot find instance date near x.Ra.RentStart!!\n")
 				} else {
 					rlib.Console("A9 - reversing assessments from = %s forward, starting with ASMID = %d\n", n[0].Start.Format(rlib.RRDATEREPORTFMT), n[0].ASMID)
-					errlist := bizlogic.ReverseAssessment(ctx, &n[0], 1 /*this point forward*/, &dt, &x.lastClose)
+					errlist := ReverseAssessment(ctx, &n[0], 1 /*this point forward*/, &dt, &x.LastClose)
 					if len(errlist) > 0 {
 						rlib.Console("A9 error\n")
-						return bizlogic.BizErrorListToError(errlist)
+						return BizErrorListToError(errlist)
 					}
 					//-------------------------------------------------------------
 					// PRORATE ASSESSMENT IF NEEDED
 					// Create a prorated assessment for the transition period only
-					// if the switchover (x.ra.RentStart) date is NOT an instance
+					// if the switchover (x.Ra.RentStart) date is NOT an instance
 					// date of the the assessment (epoch = v.Start)
 					//-------------------------------------------------------------
-					isinst := rlib.IsInstanceDate(&target, &x.ra.RentStart, v.RentCycle, v.ProrationCycle)
+					isinst := rlib.IsInstanceDate(&target, &x.Ra.RentStart, v.RentCycle, v.ProrationCycle)
 					if !isinst {
-						rlib.Console("A9.1 - new RA rentstart (%s) was found NOT to be an instance date of ASMID = %d\n", x.ra.RentStart.Format(rlib.RRDATEREPORTFMT), v.ASMID)
+						rlib.Console("A9.1 - new RA rentstart (%s) was found NOT to be an instance date of ASMID = %d\n", x.Ra.RentStart.Format(rlib.RRDATEREPORTFMT), v.ASMID)
 						//------------------------------------------------------
 						// In this case we need to create a prorated assessment
-						// that covers from target to x.ra.RentStart
+						// that covers from target to x.Ra.RentStart
 						//-----------------------------------------------------
 						asm := n[0]
-						amt, count, totcount := rlib.SimpleProrateAmount(v.Amount, v.RentCycle, v.ProrationCycle, &target, &x.ra.RentStart, &target)
-						thru := x.ra.RentStart.Add(-rlib.CycleDuration(v.ProrationCycle, v.Start))
+						amt, count, totcount := rlib.SimpleProrateAmount(v.Amount, v.RentCycle, v.ProrationCycle, &target, &x.Ra.RentStart, &target)
+						thru := x.Ra.RentStart.Add(-rlib.CycleDuration(v.ProrationCycle, v.Start))
 						// asm.AppendComment(fmt.Sprintf("prorated for %d of %d %s (covers %s thru %s)", count, totcount, rlib.ProrationUnits(v.ProrationCycle), target.Format(rlib.RRDATEFMT3), thru.Format(rlib.RRDATEFMT3)))
 						asm.AppendComment(rlib.ProrateComment(count, totcount, v.ProrationCycle) + fmt.Sprintf(" (covers %s thru %s)", target.Format(rlib.RRDATEFMT3), thru.Format(rlib.RRDATEFMT3)))
 
@@ -219,26 +219,26 @@ func F2RAHandleOldAssessments(ctx context.Context, x *WriteHandlerContext) error
 						asm.ProrationCycle = rlib.RECURNONE // no proration here
 						asm.FLAGS = 0
 						asm.Stop = asm.Start
-						rlib.Console("\n\n**********\ncalling bizlogic.InsertAssessment")
-						if errlist := bizlogic.InsertAssessment(ctx, &asm, 0 /*no expanding*/, &x.lastClose); len(errlist) > 0 {
-							return bizlogic.BizErrorListToError(errlist)
+						rlib.Console("\n\n**********\ncalling InsertAssessment")
+						if errlist := InsertAssessment(ctx, &asm, 0 /*no expanding*/, &x.LastClose); len(errlist) > 0 {
+							return BizErrorListToError(errlist)
 						}
 						skipASMID = asm.ASMID
 						rlib.Console("A9.2 - just inserted asm = %d, skipASMID set\n", skipASMID)
 						rlib.Console("**********\n\n\n")
 					} else {
-						rlib.Console("A9.3 - new RA rentstart (%s) was found to be an instance date of ASMID = %d\n", x.ra.RentStart.Format(rlib.RRDATEREPORTFMT), v.ASMID)
+						rlib.Console("A9.3 - new RA rentstart (%s) was found to be an instance date of ASMID = %d\n", x.Ra.RentStart.Format(rlib.RRDATEREPORTFMT), v.ASMID)
 						rlib.Console("     - so will not add a prorated rent assessment\n")
 					}
 				}
 				//-------------------------------------------------------------
-				// Set the stop date for v to x.ra.RentStart.  Since we've
+				// Set the stop date for v to x.Ra.RentStart.  Since we've
 				// already reversed only those instances that needed to be
 				// reversed, we do not call the bizlogic version of this routine.
 				// This is one of the rare exceptions where we just want to change
 				// the end date and nothing else.
 				//-------------------------------------------------------------
-				v.Stop = x.ra.RentStart
+				v.Stop = x.Ra.RentStart
 				if err = rlib.UpdateAssessment(ctx, &v); err != nil {
 					return err
 				}
@@ -247,13 +247,13 @@ func F2RAHandleOldAssessments(ctx context.Context, x *WriteHandlerContext) error
 
 		rlib.Console("A10 - HANDLE INSTANCES\n")
 		//-----------------------------------------------------------------------
-		// Now handle instances...
+		// REVERSE ALL REMAINING INSTANCES IMPACTED BY THE NEW RENTAL AGREEMENT
 		//-----------------------------------------------------------------------
-		n, err = rlib.GetAssessmentInstancesByRAIDRange(ctx, ra.RAID, &x.ra.RentStart, &rlib.ENDOFTIME)
+		n, err = rlib.GetAssessmentInstancesByRAIDRange(ctx, ra.RAID, &x.Ra.RentStart, &rlib.ENDOFTIME)
 		if err != nil {
 			return err
 		}
-		rlib.Console("A11 -  Found %d instances in the range %s - %s\n", len(n), x.ra.RentStart.Format(rlib.RRDATEREPORTFMT), rlib.ENDOFTIME.Format(rlib.RRDATEREPORTFMT))
+		rlib.Console("A11 -  Found %d instances in the range %s - %s\n", len(n), x.Ra.RentStart.Format(rlib.RRDATEREPORTFMT), rlib.ENDOFTIME.Format(rlib.RRDATEREPORTFMT))
 		for _, v := range n {
 			if v.ASMID == skipASMID {
 				continue // this one is OK, we just added it
@@ -263,8 +263,8 @@ func F2RAHandleOldAssessments(ctx context.Context, x *WriteHandlerContext) error
 				rlib.Console("A12.1 - reversed, skipping\n")
 				continue // skip reversed assessments
 			}
-			if v.Start.Before(x.ra.RentStart) {
-				continue // v.Stop was >= x.ra.RentStart so the overlap period matched the query, not a problem, just skip it
+			if v.Start.Before(x.Ra.RentStart) {
+				continue // v.Stop was >= x.Ra.RentStart so the overlap period matched the query, not a problem, just skip it
 			}
 			//---------------------------------------------------------------
 			//  The date we use for the change depends on whether or not the
@@ -272,21 +272,21 @@ func F2RAHandleOldAssessments(ctx context.Context, x *WriteHandlerContext) error
 			//  been closed.
 			//---------------------------------------------------------------
 			dt := v.Start // assume it will be on the assessment start date
-			if v.Start.Before(x.lastClose.Dt) {
-				dt = x.lastClose.Dt
+			if v.Start.Before(x.LastClose.Dt) {
+				dt = x.LastClose.Dt
 			}
 			rlib.Console("A12.2 - Reversal dates will be as of: %s\n", dt.Format(rlib.RRDATEREPORTFMT))
 			//----------------------------
 			// Now process the instance
 			//----------------------------
-			if !v.Start.Before(x.ra.RentStart) {
+			if !v.Start.Before(x.Ra.RentStart) {
 				// Reverse the whole thing
 				rlib.Console("A13 - Reversing ASMID = %d\n", v.ASMID)
-				be := bizlogic.ReverseAssessment(ctx, &v, 0 /*this instance*/, &dt, &x.lastClose)
+				be := ReverseAssessment(ctx, &v, 0 /*this instance*/, &dt, &x.LastClose)
 				if len(be) > 0 {
 					rlib.Console("A13 error\n")
-					bizlogic.PrintBizErrorList(be)
-					return bizlogic.BizErrorListToError(be)
+					PrintBizErrorList(be)
+					return BizErrorListToError(be)
 				}
 			} else {
 				// This should not happen. Checking for it just to make sure that
@@ -303,8 +303,10 @@ func F2RAHandleOldAssessments(ctx context.Context, x *WriteHandlerContext) error
 	return nil
 }
 
-// F2RASaveFee handles all the updates necessary to move the
-// supplied fee into the permanent tables.
+// F2RASaveFee handles all the updates necessary to move the supplied fee into
+// the permanent tables.  Remember that the new Rental Agreement may be back-
+// dated which means that recurring assessments may need new instances to be
+// generated so that we're up-to-date
 //
 // INPUTS
 //     ctx  - db context for transactions
@@ -317,23 +319,23 @@ func F2RAHandleOldAssessments(ctx context.Context, x *WriteHandlerContext) error
 // RETURNS
 //     Any errors encountered
 //-----------------------------------------------------------------------------
-func F2RASaveFee(ctx context.Context, x *WriteHandlerContext, fee *rlib.RAFeesData, eltype, id, tmptcid int64) error {
-	// rlib.Console("Entered F2RASaveFee\n")
+func F2RASaveFee(ctx context.Context, x *rlib.F2RAWriteHandlerContext, fee *rlib.RAFeesData, eltype, id, tmptcid int64) error {
+	rlib.Console("Entered F2RASaveFee, x.LastClose.ExpandAsmDtStart = %s\n", x.LastClose.ExpandAsmDtStart.Format(rlib.RRDATEREPORTFMT))
 	//-------------------------------------------------------------------
 	// Create a new assessment from this day forward...
 	//-------------------------------------------------------------------
 	var b rlib.Assessment
 	b.Comment = fee.Comment
-	dt := time.Time(x.raf.Dates.AgreementStart)
+	dt := time.Time(x.Raf.Dates.AgreementStart)
 	if fee.ASMID > 0 {
-		b.AppendComment(fmt.Sprintf("Derived from RAID %d, ASMID %d", x.raf.Meta.RAID, fee.ASMID))
+		b.AppendComment(fmt.Sprintf("Derived from RAID %d, ASMID %d", x.Raf.Meta.RAID, fee.ASMID))
 	}
 	Start := time.Time(fee.Start) // the start time will be either the fee start
 	if Start.Before(dt) {         // or the start of the new rental agreement
 		Start = dt // whichever is later
 	}
 	b.Stop = time.Time(fee.Stop)
-	b.BID = x.raf.Meta.BID
+	b.BID = x.Raf.Meta.BID
 
 	//-------------------------------------------------------------------
 	// Set the Element Type and ID if necessary
@@ -365,7 +367,7 @@ func F2RASaveFee(ctx context.Context, x *WriteHandlerContext, fee *rlib.RAFeesDa
 	b.Amount = fee.ContractAmount
 	b.AcctRule = ""
 	b.RentCycle = fee.RentCycle
-	b.RAID = x.ra.RAID
+	b.RAID = x.Ra.RAID
 	b.Start = time.Time(fee.Start)
 	b.Stop = time.Time(fee.Stop)
 	b.RentCycle = fee.RentCycle
@@ -384,12 +386,19 @@ func F2RASaveFee(ctx context.Context, x *WriteHandlerContext, fee *rlib.RAFeesDa
 		b.AssocElemID = id // must be the PETID
 		b.AssocElemType = eltype
 	}
-	rlib.Console("\n\n**********\nF2RASaveFee:  calling bizlogic.InsertAssessment")
-	if errlist := bizlogic.InsertAssessment(ctx, &b, 1 /*expand*/, &x.lastClose); len(errlist) > 0 {
-		return bizlogic.BizErrorListToError(errlist)
+
+	rlib.Console("\n\n$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n")
+	rlib.Console("InsertAssessment: Amount = %8.2f, RentCycle = %d, Start = %s, Stop = %s\n", b.Amount, b.RentCycle, b.Start.Format(rlib.RRDATEFMT3), b.Stop.Format(rlib.RRDATEFMT3))
+	rlib.Console("x.LastClose.CPID = %d, x.LastClose.Dt = %s\n", x.LastClose.CPID, x.LastClose.Dt.Format(rlib.RRDATEREPORTFMT))
+	rlib.Console("x.LastClose.ExpandAsmDtStart = %s, x.LastClose.ExpandAsmDtStart = %s\n", x.LastClose.ExpandAsmDtStart.Format(rlib.RRDATEREPORTFMT), x.LastClose.ExpandAsmDtStart.Format(rlib.RRDATEREPORTFMT))
+	rlib.Console("x.LastClose.ExpandAsmDtStop  = %s, x.LastClose.ExpandAsmDtStop  = %s\n", x.LastClose.ExpandAsmDtStop.Format(rlib.RRDATEREPORTFMT), x.LastClose.ExpandAsmDtStop.Format(rlib.RRDATEREPORTFMT))
+	rlib.Console("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n")
+
+	if errlist := InsertAssessment(ctx, &b, 1 /*expand*/, &x.LastClose); len(errlist) > 0 {
+		return BizErrorListToError(errlist)
 	}
 	rlib.Console("just inserted ASMID = %d\n", b.ASMID)
-	rlib.Console("**********\n\n\n")
+	rlib.Console("**********\n\n")
 
 	return nil
 }
@@ -407,10 +416,10 @@ func F2RASaveFee(ctx context.Context, x *WriteHandlerContext, fee *rlib.RAFeesDa
 // RETURNS
 //     RID of associated rentable, or -1 if not found
 //-----------------------------------------------------------------------------
-func GetRIDForTMPTCID(ctx context.Context, x *WriteHandlerContext, tmptcid int64) int64 {
-	for i := 0; i < len(x.raf.Tie.People); i++ {
-		if x.raf.Tie.People[i].TMPTCID == tmptcid {
-			return x.raf.Tie.People[i].PRID
+func GetRIDForTMPTCID(ctx context.Context, x *rlib.F2RAWriteHandlerContext, tmptcid int64) int64 {
+	for i := 0; i < len(x.Raf.Tie.People); i++ {
+		if x.Raf.Tie.People[i].TMPTCID == tmptcid {
+			return x.Raf.Tie.People[i].PRID
 		}
 	}
 	return -1

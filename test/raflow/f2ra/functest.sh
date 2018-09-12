@@ -7,7 +7,7 @@ CREATENEWDB=0
 RRBIN="../../../tmp/rentroll"
 
 SINGLE=""  # This runs all the tests
-# SINGLE="b"   # Run just test b
+#SINGLE="b"   # Run just this test
 
 source ../../share/base.sh
 
@@ -78,19 +78,22 @@ fi
 #
 #  Scenario:
 #  RAID  1 - AgreementStart = 2/13/2018,  AgreementStop = 6/13/2020
-#  RAID 25 - AgreementStart = 6/13/2018,  AgreementStop = 3/1/2020
+#  RAID  2 - AgreementStart = 6/13/2018,  AgreementStop = 3/1/2020
 #            Verify that correcting entries are made on Aug 1.
 #
+#  Graphically shown here: https://docs.google.com/presentation/d/1YO6DWzn_KFB9h2xjOoItrAxaxhokQ6cwgymEdkfMmJw/edit#slide=id.g408d3d1457_4_1
+#
 #  Expected Results:
-#   1.  WIP
+#   1.  June rent reversed and broken into 2 separate new norecur assessments:
+#       One assigned to RAID 1 for  6/1 thru 6/12 → snap to Aug 1 due to closed period
+#       One assigned to RAID 2 for 6/12 thru 6/30 → snap to Aug 1 due to closed period
 #
+#   2.  July rent reversed and a new rent assessment created and assigned to
+#       RAID 2 for July → snap to Aug 1 due to closed period
 #
-#   2.
+#   3.  August rent assessment created on Aug 1.
 #
-#
-#   3.
-#
-#
+#   4.  September rent assessment created on Sep 1
 #------------------------------------------------------------------------------
 if [ "${SINGLE}b" = "b" -o "${SINGLE}b" = "bb" ]; then
     echo "Create new database... x1.sql"
@@ -109,6 +112,45 @@ if [ "${SINGLE}b" = "b" -o "${SINGLE}b" = "bb" ]; then
     dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "b1"  "PayorStatement--StmtInfo"
 fi
 
+#------------------------------------------------------------------------------
+#  TEST c
+#  Further modifies the database created in TEST b.  Changes the rent to
+#  $1100/month starting 7/21
+#
+#  Scenario:
+#  RAID  1 - AgreementStart = 2/13/2018,  AgreementStop = 6/13/2020
+#  RAID  2 - AgreementStart = 6/13/2018,  AgreementStop = 7/21/2020
+#  RAID  3 - AgreementStart = 7/21/2018,  AgreementStop = 3/1/2020
+#            Verify that correcting entries are made on Aug 1.
+#
+#  Graphically shown here:
+#
+#  Expected Results:
+#   1.
+#   2.
+#   3.
+#   4.
+#------------------------------------------------------------------------------
+if [ "${SINGLE}c" = "c" -o "${SINGLE}c" = "cc" ]; then
+    echo "Create new database... x2.sql"
+    mysql --no-defaults rentroll < x2.sql
+
+    RAIDREFNO="Q1ML439WOCU47XF323J2"
+    RAIDAMENDEDID="3"
+
+    # Send the command to change the RefNo to Active:
+    echo "%7B%22UserRefNo%22%3A%22Q1ML439WOCU47XF323J2%22%2C%22RAID%22%3A2%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
+    dojsonPOST "http://localhost:8270/v1/raactions/1/2" "request" "c0"  "WebService--Backdated-RA-Amendment-with-rent-change"
+
+    # Generate a payor statement -- ensure that 2 RAs are there and have correct
+    # info.
+    # echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%222%2F1%2F2018%22%2C%22searchDtStop%22%3A%229%2F30%2F2018%22%2C%22Bool1%22%3Afalse%7D" > request
+    # dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "c1"  "PayorStatement--StmtInfo"
+fi
+
+
+
+# {"UserRefNo":"Q1ML439WOCU47XF323J2","RAID":2,"Version":"refno","Action":4,"Mode":"Action"}
 
 #------------------------------------------------------------------------------
 

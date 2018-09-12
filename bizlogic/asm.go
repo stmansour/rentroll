@@ -681,7 +681,14 @@ func DeallocateAppliedFunds(ctx context.Context, a *rlib.Assessment, asmtRevID i
 //-------------------------------------------------------------------------------------
 func InsertAssessment(ctx context.Context, a *rlib.Assessment, exp int, lc *rlib.ClosePeriod) []BizError {
 	funcname := "bizlogic.InsertAssessment"
+	rlib.Console("*************************************************************************\n")
 	rlib.Console("Entered %s\n", funcname)
+	rlib.Console("Amount = %8.2f, RentCycle = %d, Start = %s, Stop = %s\n", a.Amount, a.RentCycle, a.Start.Format(rlib.RRDATEFMT3), a.Stop.Format(rlib.RRDATEFMT3))
+	rlib.Console("lc.Dt = %s\n", lc.Dt.Format(rlib.RRDATEREPORTFMT))
+	rlib.Console("lc.CPID= %d, lc.Dt = %s\n", lc.CPID, lc.Dt.Format(rlib.RRDATEFMT3))
+	rlib.Console("lc.ExpandAsmDtStart = %s\n", lc.ExpandAsmDtStart.Format(rlib.RRDATEFMT3))
+	rlib.Console("lc.ExpandAsmDtStop = %s\n", lc.ExpandAsmDtStop.Format(rlib.RRDATEREPORTFMT))
+	rlib.Console("*************************************************************************\n")
 
 	var errlist []BizError
 	errlist = ValidateAssessment(ctx, a) // Make sure there are no bizlogic errors before saving
@@ -725,17 +732,18 @@ func InsertAssessment(ctx context.Context, a *rlib.Assessment, exp int, lc *rlib
 		rlib.Console(">>>>> requested start date = %s\n", a.Start.Format(rlib.RRDATEFMT3))
 		atype := "instance" // update assumption
 		if a.RentCycle > rlib.RECURNONE {
-			rlib.Console(">>>>> ")
+			rlib.Console(">>>>> \n")
 			//-----------------------------------------------------------------
 			// create it at the first epoch date on or after the open period
 			//-----------------------------------------------------------------
 			// d := rlib.GetNextInstance(*lc, a.RentCycle)
+			rlib.Console("BEFORE rlib.InstanceDateCoveringDate lc.ExpandAsmDtStart = %s\n", lc.ExpandAsmDtStart.Format(rlib.RRDATEFMT3))
 			d := rlib.InstanceDateCoveringDate(&a.Start, &lc.OpenPeriodDt, a.RentCycle)
 			rlib.Console(">>>>> assesment recurs, so snapping to next instance on or after: %s\n", lc.OpenPeriodDt.Format(rlib.RRDATEFMT3))
 			rlib.Console(">>>>> next instance is: %s\n", d.Format(rlib.RRDATEFMT3))
 			lc.ExpandAsmDtStart = a.Start // save this for expansion if needed
 			lc.ExpandAsmDtStop = a.Stop   // don't expand beyond this date
-			rlib.Console(">>>>> ExpandAsmDtStart = %s\n", lc.ExpandAsmDtStart.Format(rlib.RRDATEFMT3))
+			rlib.Console("AFTER >>>>> ExpandAsmDtStart = %s\n", lc.ExpandAsmDtStart.Format(rlib.RRDATEFMT3))
 			a.Start = d
 			if a.PASMID > 0 { // this is an instance, so set the stop date as well...
 				a.Stop = d
@@ -787,7 +795,7 @@ func InsertAssessment(ctx context.Context, a *rlib.Assessment, exp int, lc *rlib
 		now := rlib.DateAtTimeZero(time.Now())
 		dt := rlib.DateAtTimeZero(a.Start)
 		if !dt.After(now) {
-			rlib.Console("C2\n")
+			rlib.Console("C2  lc.ExpandAsmDtStart = %s\n", lc.ExpandAsmDtStart)
 			err := createInstancesToDate(ctx, a, &xbiz, lc, &originalStart)
 			if err != nil {
 				return bizErrSys(&err)
@@ -946,7 +954,8 @@ func createInstancesToDate(ctx context.Context, a *rlib.Assessment, xbiz *rlib.X
 		d2 = a.Stop
 	}
 
-	rlib.Console("**** createInstancesToDate calling ExpandAssessment ASMID = %d, d1 = %s, d2 = %s\n\n\n", a.ASMID, d1.Format(rlib.RRDATEFMT3), d2.Format(rlib.RRDATEFMT3))
+	rlib.Console("\n\n**** createInstancesToDate calling ExpandAssessment ASMID = %d, d1 = %s, d2 = %s\n", a.ASMID, d1.Format(rlib.RRDATEFMT3), d2.Format(rlib.RRDATEFMT3))
+	rlib.Console("createInstancesToDate: lc.ExpandAsmDtStart = %s\n", lc.ExpandAsmDtStart.Format(rlib.RRDATEFMT3))
 	err := rlib.ExpandAssessment(ctx, a, xbiz, &d1, &d2, true, lc) // this generates the assessment instances
 	if err != nil {
 		rlib.Console("Exiting createInstancesToDate err = %s\n", err.Error())
