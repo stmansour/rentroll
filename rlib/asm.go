@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 	"time"
-
-	"rentroll.bad/rlib"
 )
 
 // AppendComment adds the supplied string to a.Comment, separating it from
@@ -55,7 +53,7 @@ func ExpandAssessment(ctx context.Context, a *Assessment, xbiz *XBusiness, d1, d
 	Console("ENTERED %s: 1. a.ASMID = %d, Biz = %s (%d), d1 - d2 = %s - %s, RentCycle = %d\n", funcname, a.ASMID, xbiz.P.Designation, xbiz.P.BID, d1.Format(RRDATEREPORTFMT), d2.Format(RRDATEREPORTFMT), a.RentCycle)
 	if lc.ExpandAsmDtStart.Year() < 1970 && a.RentCycle > RECURNONE {
 		Console("ExpandAsmDtStart = %s -- considering this to be unset.\n", lc.ExpandAsmDtStart.Format(RRDATEFMT3))
-		Console("Setting ExpandAsmDtStart to d1 (= %s) as lc value is unusable\n", d1.Format(rlib.RRDATEFMT3))
+		Console("Setting ExpandAsmDtStart to d1 (= %s) as lc value is unusable\n", d1.Format(RRDATEFMT3))
 		lc.ExpandAsmDtStart = *d1
 	}
 
@@ -86,8 +84,6 @@ func ExpandAssessment(ctx context.Context, a *Assessment, xbiz *XBusiness, d1, d
 		dtLimitStop := *d2      // bounds for recurrence expansion
 		idempotentCheck := true // by default, we always do this check
 
-		// dl1 := a.GetRecurrences(d1, d2)  // original list -- before backdated RA handling
-
 		//-----------------------------------------------------------------------------
 		// The only snapping check to make before expansion is to ensure that the
 		// limits do not exceed the assessment's bounds...
@@ -100,9 +96,10 @@ func ExpandAssessment(ctx context.Context, a *Assessment, xbiz *XBusiness, d1, d
 		}
 
 		//-----------------------------------------------------------------------------
-		// Do the expansion list BEFORE applying any of the limit dates. The expansion
-		// gives us the date of instances needed -- regardless of the closed perionds.
-		// The limit dates will force those instances into acceptable dates.
+		// Do the expansion list BEFORE applying any of the other limit dates.
+		// The expansion gives us the date of instances needed -- regardless of
+		// the closed perionds. The limit dates will force those instances onto
+		// acceptable dates.
 		//-----------------------------------------------------------------------------
 		Console("%s: GetRecurrences(%s, %s, %d) =\n", funcname, ConsoleDRange(&dtLimitStart, &dtLimitStop), ConsoleDRange(&dtLimitStart, &dtLimitStop), a.RentCycle)
 		dl := GetRecurrences(&dtLimitStart, &dtLimitStop, &dtLimitStart, &dtLimitStop, a.RentCycle)
