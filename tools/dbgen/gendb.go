@@ -759,7 +759,7 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 		epoch = epoch.AddDate(0, 1, 0)
 
 	}
-	d2 := epoch.AddDate(2, 0, 0)
+	d2 := dbConf.DtStop
 	if d2.Day() != 1 {
 		d2 = time.Date(d2.Year(), d2.Month(), 1, 0, 0, 0, 0, time.UTC)
 	}

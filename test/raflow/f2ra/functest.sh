@@ -6,8 +6,8 @@ DBGEN=../../../tools/dbgen
 CREATENEWDB=0
 RRBIN="../../../tmp/rentroll"
 
-SINGLE=""  # This runs all the tests
-#SINGLE="c"   # Run just this test
+#SINGLE=""  # This runs all the tests
+SINGLE="c"   # Run just this test
 
 source ../../share/base.sh
 
@@ -116,7 +116,7 @@ fi
 #------------------------------------------------------------------------------
 #  TEST c
 #  Further modifies the database created in TEST b.  Changes the rent to
-#  $1100/month starting 7/21
+#  $1100/month starting 7/21.
 #
 #  Scenario:
 #  RAID  1 - AgreementStart = 2/13/2018,  AgreementStop = 6/13/2020
@@ -136,11 +136,11 @@ if [ "${SINGLE}c" = "c" -o "${SINGLE}c" = "cc" ]; then
     echo "Create new database... x2.sql"
     mysql --no-defaults rentroll < x2.sql
 
-    RAIDREFNO="Q1ML439WOCU47XF323J2"
+    RAIDREFNO="V91682OU9DNAST5K262A"
     RAIDAMENDEDID="3"
 
     # Send the command to change the RefNo to Active:
-    echo "%7B%22UserRefNo%22%3A%22Q1ML439WOCU47XF323J2%22%2C%22RAID%22%3A2%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
+    echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
     dojsonPOST "http://localhost:8270/v1/raactions/1/2" "request" "c0"  "WebService--Backdated-RA-Amendment-with-rent-change"
 
     # Generate a payor statement -- ensure that 2 RAs are there and have correct

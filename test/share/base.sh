@@ -198,11 +198,11 @@ OPTIONS
 	    checks in the database, or in logfiles, or any other output that
 	    the tests cause.
 
-	-r  Run the script in interactive REPORT mode. A menu of report options
-	    is displayed. Type in the letter(s) for the the report you want and
-	    it will run. When the report completes, the script will pause for you
-	    to review the output. Pressing Return will go back to the menu of
-	    reports.
+	-t  Sets the environment variable RUNSINGLETEST to the supplied value. By
+	    default, "${RUNSINGLETEST}x" == "x" and this should cause all of the
+		tests in the script to run. But if you would like to be able to run
+		an individual test by name, you can use ${RUNSINGLETEST} to check and
+		see if the user has requested a specific test.
 EOF
 }
 
@@ -1285,7 +1285,7 @@ function loadPhoneBookDB() {
 #  Handle command line options...
 #--------------------------------------------------------------------------
 tdir
-while getopts "acfmoprnR:" o; do
+while getopts "acfmoprnt:" o; do
 	echo "o = ${o}"
 	case "${o}" in
 		a)	ASKBEFOREEXIT=1
@@ -1314,6 +1314,9 @@ while getopts "acfmoprnR:" o; do
 			;;
 		o)	FORCEGOOD=1
 			echo "OUTPUT OF THIS RUN IS SAVED AS *.GOLD"
+			;;
+		t) RUNSINGLETEST="${OPTARG}"
+			echo "RUNSINGLETEST set to ${RUNSINGLETEST}"
 			;;
 		*) 	usage
 			exit 1

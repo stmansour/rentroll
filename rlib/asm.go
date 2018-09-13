@@ -146,38 +146,38 @@ func ExpandAssessment(ctx context.Context, a *Assessment, xbiz *XBusiness, d1, d
 		//-------------------------------------------------------------------
 		// DEBUG: code to get the difference between dl and dl1
 		//-------------------------------------------------------------------
-		dl1 := a.GetRecurrences(&dtLimitStart, &dtLimitStop)
-		Console("\n\n***<<<<< OLD LIMITS:  Start = %s, Stop = %s\n", a.Start.Format(RRDATEFMT4), a.Stop.Format(RRDATEFMT4))
-		Console("***>>>>> NEW LIMITS:  Start = %s, Stop = %s\n", dtLimitStart.Format(RRDATEFMT4), dtLimitStop.Format(RRDATEFMT4))
-		Console("%s: 2.4   len(dl) = %d,  len(dl1) = %d\n", funcname, len(dl), len(dl1))
-		dbug := true
-		if dbug && len(dl) != len(dl1) {
-			Console("**** YIPES  -- different expansions!\n")
-			Console("       dl[]         dl1[]\n")
-			ra, err := GetRentalAgreement(ctx, a.RAID)
-			if err != nil {
-				Console("error getting RAID = %s\n", err.Error())
-			}
-			l := len(dl)
-			l1 := len(dl1)
-			lp := l
-			if l1 > l {
-				lp = l1
-			}
-			for k := 0; k < lp; k++ {
-				s1 := fmt.Sprintf("%d. ", k)
-				if k < l {
-					s1 += fmt.Sprintf("%12s\t", dl[k].Format(RRDATEFMT3))
-				} else {
-					s1 += fmt.Sprintf("%12s\t", " ")
-				}
-				if k < l1 {
-					s1 += fmt.Sprintf("%12s", dl1[k].Format(RRDATEFMT3))
-				}
-				Console("%s\n", s1)
-			}
-			Console("%s: 2.5   RAID = %d, RentStart = %s, RentStop = %s\n\n", funcname, ra.RAID, ra.RentStart.Format(RRDATEFMT3), ra.RentStop.Format(RRDATEFMT3))
-		}
+		// dl1 := a.GetRecurrences(&dtLimitStart, &dtLimitStop)
+		// Console("\n\n***<<<<< OLD LIMITS:  Start = %s, Stop = %s\n", a.Start.Format(RRDATEFMT4), a.Stop.Format(RRDATEFMT4))
+		// Console("***>>>>> NEW LIMITS:  Start = %s, Stop = %s\n", dtLimitStart.Format(RRDATEFMT4), dtLimitStop.Format(RRDATEFMT4))
+		// Console("%s: 2.4   len(dl) = %d,  len(dl1) = %d\n", funcname, len(dl), len(dl1))
+		// dbug := true
+		// if dbug && len(dl) != len(dl1) {
+		// 	Console("**** YIPES  -- different expansions!\n")
+		// 	Console("       dl[]         dl1[]\n")
+		// 	ra, err := GetRentalAgreement(ctx, a.RAID)
+		// 	if err != nil {
+		// 		Console("error getting RAID = %s\n", err.Error())
+		// 	}
+		// 	l := len(dl)
+		// 	l1 := len(dl1)
+		// 	lp := l
+		// 	if l1 > l {
+		// 		lp = l1
+		// 	}
+		// 	for k := 0; k < lp; k++ {
+		// 		s1 := fmt.Sprintf("%d. ", k)
+		// 		if k < l {
+		// 			s1 += fmt.Sprintf("%12s\t", dl[k].Format(RRDATEFMT3))
+		// 		} else {
+		// 			s1 += fmt.Sprintf("%12s\t", " ")
+		// 		}
+		// 		if k < l1 {
+		// 			s1 += fmt.Sprintf("%12s", dl1[k].Format(RRDATEFMT3))
+		// 		}
+		// 		Console("%s\n", s1)
+		// 	}
+		// 	Console("%s: 2.5   RAID = %d, RentStart = %s, RentStop = %s\n\n", funcname, ra.RAID, ra.RentStart.Format(RRDATEFMT3), ra.RentStop.Format(RRDATEFMT3))
+		// }
 
 		rangeDuration := d2.Sub(dtLimitStart)
 		Console("%s: 3   -  len(dl) = %d\n", funcname, len(dl))

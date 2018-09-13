@@ -45,3 +45,17 @@ Developers: Please add notes here to anything that is missing.
 10. The files sqlschema/fixprod.sh and sqlschema/fixrcpts.sh are scripts
     that update the production databases based on all the changes we make.
     You will need to update them as well as dbmod.sh. 
+
+11. All test cases should be documented. Describe what the test
+    does and what the expected results are.  If you don't do this
+    you probably won't remember the details of what you were doing
+    six months after you wrote it and one of your code changes
+    breaks the test.
+
+12. The main script for running the test is named functest.sh by
+    convention.  Individual tests within functest.sh can be created
+    in sections referred to by name. This makes them easier to
+    document, and it makes it possible to run them individually
+    for debugging purposes. an example of this can be seen in
+    ./raflow/f2ra/functest.sh
+

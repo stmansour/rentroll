@@ -112,7 +112,7 @@ func F2RAHandleOldAssessments(ctx context.Context, x *rlib.F2RAWriteHandlerConte
 	for i := 0; i < len(x.RaChainOrig); i++ {
 
 		ra := x.RaChainOrig[i]
-		rlib.Console("Seeting ExpandAsmDtStop to RentStop of RAID %d: %s\n", ra.RAID, ra.RentStop.Format(rlib.RRDATEFMT3))
+		rlib.Console("Setting ExpandAsmDtStop to RentStop of RAID %d: %s\n", ra.RAID, ra.RentStop.Format(rlib.RRDATEFMT3))
 		x.LastClose.ExpandAsmDtStop = ra.RentStop // do not expand past this date
 		raUnchanged := x.RaChainOrigUnchanged[i]
 

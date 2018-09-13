@@ -209,14 +209,15 @@ func journalAssessment(ctx context.Context, xbiz *XBusiness, d time.Time, a *Ass
 	Console("%s: Assessment: PASMID = %d, RentCycle = %d, ProrationCycle = %d, Start = %s, Stop = %s\n", funcname, a.PASMID, a.RentCycle, a.ProrationCycle, a.Start.Format(RRDATETIMEW2UIFMT), a.Stop.Format(RRDATETIMEW2UIFMT))
 	var j Journal
 
-	pf, num, den, start, stop, err := ProrateAssessment(ctx, xbiz, a, &d, d1, d2)
+	// pf, num, den, start, stop, err := ProrateAssessment(ctx, xbiz, a, &d, d1, d2)
+	pf, _, _, _, _, err := ProrateAssessment(ctx, xbiz, a, &d, d1, d2)
 	if err != nil {
 		// Console("%s: exiting.  err = %s\n", funcname, err.Error())
 		return j, err
 	}
 
-	Console("%s: A:: **** AFTER PRORATION CHECK **** pf = %6.4f, num = %d, den = %d, start = %s, stop = %s\n", funcname, pf, num, den, start.Format(RRDATEFMT3), stop.Format(RRDATEFMT3))
-	Console("%s: B:: After ProrateAssessment: start = %s, stop = %s\n", funcname, start.Format(RRDATETIMEW2UIFMT), stop.Format(RRDATETIMEW2UIFMT))
+	// Console("%s: A:: **** AFTER PRORATION CHECK **** pf = %6.4f, num = %d, den = %d, start = %s, stop = %s\n", funcname, pf, num, den, start.Format(RRDATEFMT3), stop.Format(RRDATEFMT3))
+	// Console("%s: B:: After ProrateAssessment: start = %s, stop = %s\n", funcname, start.Format(RRDATETIMEW2UIFMT), stop.Format(RRDATETIMEW2UIFMT))
 
 	//--------------------------------------------------------------------------------------
 	// This is a safeguard against issues encountered in Feb 2018 where rent assessments
@@ -226,33 +227,33 @@ func journalAssessment(ctx context.Context, xbiz *XBusiness, d time.Time, a *Ass
 		pf = float64(0)
 	}
 
-	// Console("%s: a.ASMTID = %d, d = %s, d1 = %s, d2 = %s\n", funcname, a.ASMID, d.Format(RRDATEFMT4), d1.Format(RRDATEFMT4), d2.Format(RRDATEFMT4))
+	Console("%s: a.ASMTID = %d, d = %s, d1 = %s, d2 = %s\n", funcname, a.ASMID, d.Format(RRDATEFMT4), d1.Format(RRDATEFMT4), d2.Format(RRDATEFMT4))
 	// Console("%s: pf = %f, num = %d, den = %d, start = %s, stop = %s\n", funcname, pf, num, den, start.Format(RRDATEFMT4), stop.Format(RRDATEFMT4))
 
 	j = Journal{BID: a.BID, Dt: d, Type: JNLTYPEASMT, ID: a.ASMID}
 
 	asmRules, err := GetAssessmentAccountRule(ctx, a)
 	if err != nil {
-		Console("%s: exiting.  err = %s\n", funcname, err.Error())
+		// Console("%s: exiting.  err = %s\n", funcname, err.Error())
 		return j, err
 	}
 
-	Console("%s: C:: Parsing account rule: %s  Amount = %8.2f\n", funcname, asmRules, a.Amount)
+	// Console("%s: C:: Parsing account rule: %s  Amount = %8.2f\n", funcname, asmRules, a.Amount)
 	m, err := ParseAcctRule(ctx, xbiz, a.RID, d1, d2, asmRules, a.Amount, pf) // a rule such as "d 11001 1000.0, c 40001 1100.0, d 41004 100.00"
 	if err != nil {
-		Console("%s: C1:: exiting.  err = %s\n", funcname, err.Error())
+		// Console("%s: C1:: exiting.  err = %s\n", funcname, err.Error())
 		return j, err
 	}
 
-	Console("%s:  m = %#v\n", funcname, m)
-	for i := 0; i < len(m); i++ {
-		Console("D:: m[%d].Amount = %f,  .Action = %s   .Expr = %s\n", i, m[i].Amount, m[i].Action, m[i].Expr)
-	}
+	// Console("%s:  m = %#v\n", funcname, m)
+	// for i := 0; i < len(m); i++ {
+	// 	Console("D:: m[%d].Amount = %f,  .Action = %s   .Expr = %s\n", i, m[i].Amount, m[i].Action, m[i].Expr)
+	// }
 
 	_, j.Amount = sumAllocations(&m)
 	j.Amount = RoundToCent(j.Amount)
 
-	Console("%s: E:: j.Amount = %8.2f, pf = %8.5f\n", funcname, j.Amount, pf)
+	// Console("%s: E:: j.Amount = %8.2f, pf = %8.5f\n", funcname, j.Amount, pf)
 
 	//------------------------------------------------------------------------------------------------------
 	// THIS BLOCK OF CODE SHOULD BE DELETED. IT SHOULD BE HANDLED IN ASSESSMENT CODE, NOT JOURNAL CODE.
@@ -309,12 +310,12 @@ func journalAssessment(ctx context.Context, xbiz *XBusiness, d time.Time, a *Ass
 
 	}
 
-	Console("INSERTING JOURNAL: Date = %s, Type = %d, amount = %f\n", j.Dt, j.Type, j.Amount)
+	// Console("INSERTING JOURNAL: Date = %s, Type = %d, amount = %f\n", j.Dt, j.Type, j.Amount)
 
 	jid, err := InsertJournal(ctx, &j)
 	if err != nil {
 		LogAndPrintError(funcname, err)
-		Console("%s: exiting.  err = %s\n", funcname, err.Error())
+		// Console("%s: exiting.  err = %s\n", funcname, err.Error())
 		return j, err
 	}
 
@@ -338,7 +339,7 @@ func journalAssessment(ctx context.Context, xbiz *XBusiness, d time.Time, a *Ass
 		// Console("INSERTING JOURNAL-ALLOCATION: ja.JID = %d, ja.ASMID = %d, ja.RAID = %d\n", ja.JID, ja.ASMID, ja.RAID)
 		if _, err = InsertJournalAllocationEntry(ctx, &ja); err != nil {
 			LogAndPrintError(funcname, err)
-			Console("%s: exiting.  err = %s\n", funcname, err.Error())
+			// Console("%s: exiting.  err = %s\n", funcname, err.Error())
 			return j, err
 		}
 		j.JA = append(j.JA, ja)
