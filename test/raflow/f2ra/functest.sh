@@ -6,8 +6,8 @@ DBGEN=../../../tools/dbgen
 CREATENEWDB=0
 RRBIN="../../../tmp/rentroll"
 
-#SINGLE=""  # This runs all the tests
-SINGLE="b"   # Run just this test
+SINGLE=""  # This runs all the tests
+#SINGLE="c"   # Run just this test
 
 source ../../share/base.sh
 
@@ -105,8 +105,6 @@ if [ "${SINGLE}b" = "b" -o "${SINGLE}b" = "bb" ]; then
     # Send the command to change the RefNo to Active:
     echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
     dojsonPOST "http://localhost:8270/v1/raactions/1/" "request" "b0"  "WebService--Backdated-RA-Amendment"
-
-    exit 1
 
     # Generate a payor statement -- ensure that 2 RAs are there and have correct
     # info.

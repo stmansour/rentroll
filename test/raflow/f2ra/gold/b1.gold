@@ -438,7 +438,7 @@
             "Assessment": 1000,
             "Balance": 0,
             "Date": "6/1/2018",
-            "Description": "REVERSAL: Rent Non-Taxable (Reversed by ASM00000015)",
+            "Description": "REVERSAL: Rent Non-Taxable (Reversed by ASM00000016)",
             "Payor": "Hilaria Rosaline Moody",
             "RAID": "RA-1",
             "RCPTID": "",
@@ -486,7 +486,7 @@
             "Assessment": 1000,
             "Balance": 0,
             "Date": "7/1/2018",
-            "Description": "REVERSAL: Rent Non-Taxable (Reversed by ASM00000016)",
+            "Description": "REVERSAL: Rent Non-Taxable (Reversed by ASM00000017)",
             "Payor": "Hilaria Rosaline Moody",
             "RAID": "RA-1",
             "RCPTID": "",
@@ -561,7 +561,7 @@
             "recid": 34
         },
         {
-            "ASMID": "ASM-17",
+            "ASMID": "ASM-18",
             "AppliedAmount": 0,
             "Assessment": -1000,
             "Balance": 0,
@@ -582,7 +582,7 @@
             "Assessment": 1000,
             "Balance": 0,
             "Date": "8/1/2018",
-            "Description": "REVERSAL: Rent Non-Taxable (Reversed by ASM00000017)",
+            "Description": "REVERSAL: Rent Non-Taxable (Reversed by ASM00000018)",
             "Payor": "Hilaria Rosaline Moody",
             "RAID": "RA-1",
             "RCPTID": "",
@@ -593,7 +593,7 @@
             "recid": 36
         },
         {
-            "ASMID": "ASM-16",
+            "ASMID": "ASM-17",
             "AppliedAmount": 0,
             "Assessment": -1000,
             "Balance": 0,
@@ -609,7 +609,7 @@
             "recid": 37
         },
         {
-            "ASMID": "ASM-15",
+            "ASMID": "ASM-16",
             "AppliedAmount": 0,
             "Assessment": -1000,
             "Balance": 0,
@@ -625,7 +625,7 @@
             "recid": 38
         },
         {
-            "ASMID": "ASM-18",
+            "ASMID": "ASM-19",
             "AppliedAmount": 0,
             "Assessment": 400,
             "Balance": 400,
@@ -705,7 +705,7 @@
             "recid": 43
         },
         {
-            "ASMID": "ASM-13",
+            "ASMID": "ASM-14",
             "AppliedAmount": 0,
             "Assessment": 1000,
             "Balance": 1000,
@@ -737,11 +737,11 @@
             "recid": 45
         },
         {
-            "ASMID": "ASM-14",
+            "ASMID": "ASM-13",
             "AppliedAmount": 0,
             "Assessment": 1000,
             "Balance": 2600,
-            "Date": "9/1/2018",
+            "Date": "8/1/2018",
             "Description": "Rent Non-Taxable",
             "Payor": "Hilaria Rosaline Moody",
             "RAID": "RA-2",
@@ -753,10 +753,26 @@
             "recid": 46
         },
         {
+            "ASMID": "ASM-15",
+            "AppliedAmount": 0,
+            "Assessment": 1000,
+            "Balance": 3600,
+            "Date": "9/1/2018",
+            "Description": "Rent Non-Taxable",
+            "Payor": "Hilaria Rosaline Moody",
+            "RAID": "RA-2",
+            "RCPTID": "",
+            "RentableName": "Rentable001",
+            "Reverse": false,
+            "TCID": 0,
+            "UnappliedAmount": 0,
+            "recid": 47
+        },
+        {
             "ASMID": "",
             "AppliedAmount": 0,
-            "Assessment": 2600,
-            "Balance": 2600,
+            "Assessment": 3600,
+            "Balance": 3600,
             "Date": "10/1/2018",
             "Description": "Closing balance",
             "Payor": "",
@@ -766,9 +782,9 @@
             "Reverse": false,
             "TCID": 0,
             "UnappliedAmount": 0,
-            "recid": 47
+            "recid": 48
         }
     ],
     "status": "success",
-    "total": 47
+    "total": 48
 }
