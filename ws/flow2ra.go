@@ -123,7 +123,9 @@ func Flow2RA(ctx context.Context, flowid int64) (int64, error) {
 }
 
 // FlowSaveMetaDataChanges saves any change to the meta data in the flow with
-//     the existing RAID
+//     the existing RAID.  In this case, we must always set the state of any
+//     old RAID to Terminated because it is being replaced by an amended
+//     agreement.
 //
 // INPUTS
 //     ctx - db context for transactions
@@ -136,6 +138,7 @@ func Flow2RA(ctx context.Context, flowid int64) (int64, error) {
 //-----------------------------------------------------------------------------
 func FlowSaveMetaDataChanges(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (int64, error) {
 	var err error
+	rlib.Console("Entered FlowSaveMetaDataChanges\n")
 	raid := x.NewRAID // update this one if changes were found and a new amendment was written.
 	if raid == 0 {
 		raid = x.Raf.Meta.RAID // update this one if no changes were found
@@ -365,16 +368,9 @@ func FlowSaveRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (int64, er
 				x.RaChainOrig[i].LeaseTerminationReason =
 					rlib.RRdb.BizTypes[x.RaChainOrig[i].BID].Msgs.S[rlib.MSGRAUPDATED].SLSID // "Rental Agreement was updated"
 
-				//--------------------------------------------------------------------------
-				// In noauth mode, it still have tester session, get it from the context
-				//--------------------------------------------------------------------------
-				sess, ok := rlib.SessionFromContext(ctx)
-				if !ok {
-					return nraid, rlib.ErrSessionRequired
+				if err = setRATerminator(ctx, &x.RaChainOrig[i]); err != nil {
+					return nraid, err
 				}
-
-				x.RaChainOrig[i].TerminatorUID = sess.UID
-				x.RaChainOrig[i].TerminationDate = time.Now()
 
 				err = rlib.UpdateRentalAgreement(ctx, &x.RaChainOrig[i])
 				if err != nil {
@@ -446,7 +442,55 @@ func FlowSaveRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (int64, er
 		}
 	}
 
+	//-------------------------------------------------------------------------
+	// Final Step:  The raid that had no parent gets x.Ra as its parent
+	//-------------------------------------------------------------------------
+	rlib.Console("FINAL STEP\n")
+	for i := 0; i < len(x.RaChainOrigUnchanged); i++ {
+		rlib.Console("Checking RAID %d\n", x.RaChainOrigUnchanged[i].RAID)
+		if x.RaChainOrigUnchanged[i].PRAID == 0 {
+			rlib.Console("RAID %d has PRAID == 0, setting to %d\n", x.RaChainOrigUnchanged[i].RAID, x.Ra.RAID)
+			//---------------------------------------------------------------
+			// The agreement timespan overalps the agreement timespane of x.Ra
+			// so x.Ra either amends it or replaces it.  Either way, that's
+			// the new parent for this rental agreement...
+			//---------------------------------------------------------------
+			x.RaChainOrigUnchanged[i].PRAID = x.Ra.RAID
+
+			//---------------------------------------------------------------
+			// One last check before updating... if this RAID's State is not
+			// Terminated, then we need to terminate it and set the reason
+			//---------------------------------------------------------------
+			if x.RaChainOrigUnchanged[i].FLAGS&0xf != rlib.RASTATETerminated {
+				x.RaChainOrigUnchanged[i].FLAGS &= ^uint64(0xf)
+				x.RaChainOrigUnchanged[i].FLAGS |= rlib.RASTATETerminated
+				x.RaChainOrigUnchanged[i].LeaseTerminationReason = rlib.RRdb.BizTypes[x.Ra.BID].Msgs.S[rlib.MSGRAUPDATED].SLSID // "Rental Agreement was updated"
+				if err = setRATerminator(ctx, &x.RaChainOrigUnchanged[i]); err != nil {
+					return nraid, err
+				}
+			}
+			if err = rlib.UpdateRentalAgreement(ctx, &x.RaChainOrigUnchanged[i]); err != nil {
+				return nraid, err
+			}
+		}
+	}
+	rlib.Console("DONE\n")
+
 	return nraid, nil
+}
+
+func setRATerminator(ctx context.Context, ra *rlib.RentalAgreement) error {
+	//--------------------------------------------------------------------------
+	// In noauth mode, we still have tester session, get it from the context
+	//--------------------------------------------------------------------------
+	sess, ok := rlib.SessionFromContext(ctx)
+	if !ok {
+		return rlib.ErrSessionRequired
+	}
+
+	ra.TerminatorUID = sess.UID
+	ra.TerminationDate = time.Now()
+	return nil
 }
 
 // initRA initializes a rental agreement structure with information from flow

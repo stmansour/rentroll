@@ -1315,8 +1315,8 @@ while getopts "acfmoprnt:" o; do
 		o)	FORCEGOOD=1
 			echo "OUTPUT OF THIS RUN IS SAVED AS *.GOLD"
 			;;
-		t) RUNSINGLETEST="${OPTARG}"
-			echo "RUNSINGLETEST set to ${RUNSINGLETEST}"
+		t) SINGLETEST="${OPTARG}"
+			echo "SINGLETEST set to ${SINGLETEST}"
 			;;
 		*) 	usage
 			exit 1

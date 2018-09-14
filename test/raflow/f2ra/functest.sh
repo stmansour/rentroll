@@ -6,8 +6,7 @@ DBGEN=../../../tools/dbgen
 CREATENEWDB=0
 RRBIN="../../../tmp/rentroll"
 
-#SINGLE=""  # This runs all the tests
-SINGLE="c"   # Run just this test
+#SINGLETEST=""  # This runs all the tests
 
 source ../../share/base.sh
 
@@ -15,6 +14,7 @@ echo "STARTING RENTROLL SERVER"
 RENTROLLSERVERAUTH="-noauth"
 startRentRollServer
 
+echo "SINGLETEST = ${SINGLETEST}"
 #------------------------------------------------------------------------------
 #  TEST a
 #  An existing rental agreement (RAID=1) is being amended. This test
@@ -49,7 +49,7 @@ startRentRollServer
 #       month's rent in this case will need to be  prorated to account for
 #       days June 8 thru June 30.
 #------------------------------------------------------------------------------
-if [ "${SINGLE}a" = "a" -o "${SINGLE}a" = "aa" ]; then
+if [ "${SINGLETEST}a" = "a" -o "${SINGLETEST}a" = "aa" ]; then
     RAID1REFNO="UJF64M3Y28US5BHW5400"
     RAIDAMENDEDID="2"
 
@@ -95,7 +95,7 @@ fi
 #
 #   4.  September rent assessment created on Sep 1
 #------------------------------------------------------------------------------
-if [ "${SINGLE}b" = "b" -o "${SINGLE}b" = "bb" ]; then
+if [ "${SINGLETEST}b" = "b" -o "${SINGLETEST}b" = "bb" ]; then
     echo "Create new database... x1.sql"
     mysql --no-defaults rentroll < x1.sql
 
@@ -132,27 +132,97 @@ fi
 #   3.
 #   4.
 #------------------------------------------------------------------------------
-if [ "${SINGLE}c" = "c" -o "${SINGLE}c" = "cc" ]; then
-    echo "Create new database... x2.sql"
-    mysql --no-defaults rentroll < x2.sql
+# if [ "${SINGLETEST}c" = "c" -o "${SINGLETEST}c" = "cc" ]; then
+#     echo "Create new database... x2.sql"
+#     mysql --no-defaults rentroll < x2.sql
+#
+#     RAIDREFNO="V91682OU9DNAST5K262A"
+#     RAIDAMENDEDID="3"
+#
+#     # Send the command to change the RefNo to Active:
+#     echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
+#     dojsonPOST "http://localhost:8270/v1/raactions/1/2" "request" "c0"  "WebService--Backdated-RA-Amendment-with-rent-change"
+#
+#     # Generate a payor statement -- ensure that 2 RAs are there and have correct
+#     # info.
+#     # echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%222%2F1%2F2018%22%2C%22searchDtStop%22%3A%229%2F30%2F2018%22%2C%22Bool1%22%3Afalse%7D" > request
+#     # dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "c1"  "PayorStatement--StmtInfo"
+# fi
 
-    RAIDREFNO="V91682OU9DNAST5K262A"
+
+#------------------------------------------------------------------------------
+#  TEST d
+#  Extends a rental agreement that is going to expire.  Also raises the rent
+#  and handles the addition of a pet.
+#
+#  Scenario:
+#  RAID  1 - AgreementStart = 2/13/2017,  AgreementStop = 1/1/2018
+#  RAID  3 - AgreementStart = 1/1/2018,   AgreementStop = 1/1/2019
+#  Add a cat.
+#
+#  Expected Results:
+#   1.  New rent assessment for $1100/month
+#   2.  Pet Fee assessment for $50
+#   3.  Pet Rent assessment for $10/month
+#   4.  RAID 1 is terminated
+#   5.  The payor statement for 9/1 - 9/30 should show $10,040 as the Balance
+#------------------------------------------------------------------------------
+if [ "${SINGLETEST}d" = "d" -o "${SINGLETEST}d" = "dd" ]; then
+    TFILES="d"
+    echo "Create new database... x3.sql"
+    mysql --no-defaults rentroll < x3.sql
+
+    RAIDREFNO="1RQTH0A0EO2JD003475M"
     RAIDAMENDEDID="3"
 
     # Send the command to change the RefNo to Active:
     echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
-    dojsonPOST "http://localhost:8270/v1/raactions/1/2" "request" "c0"  "WebService--Backdated-RA-Amendment-with-rent-change"
+    dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}0"  "WebService--updated-rental-agreement"
 
-    # Generate a payor statement -- ensure that 2 RAs are there and have correct
-    # info.
-    # echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%222%2F1%2F2018%22%2C%22searchDtStop%22%3A%229%2F30%2F2018%22%2C%22Bool1%22%3Afalse%7D" > request
-    # dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "c1"  "PayorStatement--StmtInfo"
+    # Payor statement -- 2 RAs, Balance should be 0 for RA1, $10,040 for RA3
+    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%229%2F1%2F2018%22%2C%22searchDtStop%22%3A%229%2F30%2F2018%22%2C%22Bool1%22%3Afalse%7D" > request
+    dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "${TFILES}1"  "PayorStatement--StmtInfo"
 fi
 
+#------------------------------------------------------------------------------
+#  TEST e
+#  Normal Lease Extension
+#  60 days prior to AgreementStop, create updated amendment to renew the
+#  lease for another year.  When completed, we can still allow the RA to be
+#  in the Active state.  (closing the existing agreement after its AgreementStop
+#  is a check that will be added to Close period)
+#------------------------------------------------------------------------------
 
 
-# {"UserRefNo":"Q1ML439WOCU47XF323J2","RAID":2,"Version":"refno","Action":4,"Mode":"Action"}
 
+#------------------------------------------------------------------------------
+#  TEST f
+#  Lease Holdover
+#  Adjust the end date of the RentStop forward in time. (optional: adjust
+#  PossessionStop). This should only update the existing RA.  It should extend
+#  any recurring assessment definition with a stop date that matched the
+#  RA RentStop date.  That is, new assessments will net be created.
+#------------------------------------------------------------------------------
+
+
+#------------------------------------------------------------------------------
+#  TEST g
+#  Move RentStop back in time
+#  Adjust the end date of the RentStop forward in time. (optional: adjust
+#  PossessionStop).
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+#  TEST h
+#  Move Possession date only.
+#
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+#  TEST h
+#  Move Agreement date only.  This should result in updating the existing RA.
+#  It could happen for insurance reasons - but no rent or occupancy
+#
 #------------------------------------------------------------------------------
 
 stopRentRollServer
