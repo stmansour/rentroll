@@ -341,26 +341,26 @@ func FlowSaveRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (int64, er
 			}
 
 			x.RaOrigIndex = i // keep track of the RA currently active.
-
+			rlib.Console("RAChain[%d] = RAID %d. Date mods...\n", i, x.RaChainOrig[i].RAID)
 			if x.RaChainOrig[i].AgreementStop.After(AStart) {
-
-			}
-			if x.RaChainOrig[i].AgreementStop.After(AStart) {
+				rlib.Console("\tsetting AgreementStop to %s\n", AStart.Format(rlib.RRDATEFMT3))
 				x.RaChainOrig[i].AgreementStop = AStart
 				chgs++
 			}
 			if x.RaChainOrig[i].RentStop.After(RStart) {
+				rlib.Console("\tsetting RentStop to %s\n", RStart.Format(rlib.RRDATEFMT3))
 				x.RaChainOrig[i].RentStop = RStart
 				chgs++
 			}
 			if x.RaChainOrig[i].PossessionStop.After(PStart) {
+				rlib.Console("\tsetting PossessionStop to %s\n", PStart.Format(rlib.RRDATEFMT3))
 				x.RaChainOrig[i].PossessionStop = PStart
 				chgs++
 			}
 
 			//------------------------------------------------------------------
 			// If there are changes, then we stop the old Rental Agreement and
-			// create a new one linked to x.RaChainOrig[i]
+			// create a new one linked to x.RaChainOrig[i].
 			//------------------------------------------------------------------
 			if chgs > 0 {
 				x.RaChainOrig[i].FLAGS &= ^uint64(0xf)           // clear the status
@@ -372,6 +372,7 @@ func FlowSaveRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (int64, er
 					return nraid, err
 				}
 
+				rlib.Console("Updating RAID %d.  AgreementStart = %s, AgreementStop = %s\n", x.RaChainOrig[i].RAID, x.RaChainOrig[i].AgreementStart.Format(rlib.RRDATEFMT3), x.RaChainOrig[i].AgreementStop.Format(rlib.RRDATEFMT3))
 				err = rlib.UpdateRentalAgreement(ctx, &x.RaChainOrig[i])
 				if err != nil {
 					return nraid, err
@@ -393,6 +394,8 @@ func FlowSaveRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (int64, er
 		//------------------------------------------------------------
 		initRA(ctx, x)
 		i := x.RaOrigIndex // makes it easier to read the following lines
+		rlib.Console("After updates x.RaOrigIndex = %d  -> RAID = %d.  x.RaChainOrig[i]: AgreementStart = %s, AgreementStop = %s\n", i, x.RaChainOrig[i].RAID, x.RaChainOrig[i].AgreementStart.Format(rlib.RRDATEFMT3), x.RaChainOrig[i].AgreementStop.Format(rlib.RRDATEFMT3))
+		rlib.Console("x.RaChainOrigUnchanged[i]: AgreementStart = %s, AgreementStop = %s\n", x.RaChainOrigUnchanged[i].AgreementStart.Format(rlib.RRDATEFMT3), x.RaChainOrigUnchanged[i].AgreementStop.Format(rlib.RRDATEFMT3))
 		x.Ra.PRAID = x.RaChainOrig[i].RAID
 		x.Ra.ORIGIN = x.RaChainOrig[i].ORIGIN
 		x.Ra.BID = x.RaChainOrig[i].BID
@@ -443,33 +446,36 @@ func FlowSaveRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (int64, er
 	}
 
 	//-------------------------------------------------------------------------
-	// Final Step:  The raid that had no parent gets x.Ra as its parent
+	// Final Step:  The raid that had no parent gets x.Ra as its parent. We
+	// must use x.RaChainOrig because its agreement dates may have been
+	// modified and we don't want to lose that.
 	//-------------------------------------------------------------------------
 	rlib.Console("FINAL STEP\n")
-	for i := 0; i < len(x.RaChainOrigUnchanged); i++ {
-		rlib.Console("Checking RAID %d\n", x.RaChainOrigUnchanged[i].RAID)
-		if x.RaChainOrigUnchanged[i].PRAID == 0 {
-			rlib.Console("RAID %d has PRAID == 0, setting to %d\n", x.RaChainOrigUnchanged[i].RAID, x.Ra.RAID)
+	for i := 0; i < len(x.RaChainOrig); i++ {
+		rlib.Console("Checking RAID %d\n", x.RaChainOrig[i].RAID)
+		if x.RaChainOrig[i].PRAID == 0 {
+			rlib.Console("RAID %d has PRAID == 0, setting to %d\n", x.RaChainOrig[i].RAID, x.Ra.RAID)
 			//---------------------------------------------------------------
 			// The agreement timespan overalps the agreement timespane of x.Ra
 			// so x.Ra either amends it or replaces it.  Either way, that's
 			// the new parent for this rental agreement...
 			//---------------------------------------------------------------
-			x.RaChainOrigUnchanged[i].PRAID = x.Ra.RAID
+			x.RaChainOrig[i].PRAID = x.Ra.RAID
 
 			//---------------------------------------------------------------
 			// One last check before updating... if this RAID's State is not
 			// Terminated, then we need to terminate it and set the reason
 			//---------------------------------------------------------------
-			if x.RaChainOrigUnchanged[i].FLAGS&0xf != rlib.RASTATETerminated {
-				x.RaChainOrigUnchanged[i].FLAGS &= ^uint64(0xf)
-				x.RaChainOrigUnchanged[i].FLAGS |= rlib.RASTATETerminated
-				x.RaChainOrigUnchanged[i].LeaseTerminationReason = rlib.RRdb.BizTypes[x.Ra.BID].Msgs.S[rlib.MSGRAUPDATED].SLSID // "Rental Agreement was updated"
-				if err = setRATerminator(ctx, &x.RaChainOrigUnchanged[i]); err != nil {
+			if x.RaChainOrig[i].FLAGS&0xf != rlib.RASTATETerminated {
+				x.RaChainOrig[i].FLAGS &= ^uint64(0xf)
+				x.RaChainOrig[i].FLAGS |= rlib.RASTATETerminated
+				x.RaChainOrig[i].LeaseTerminationReason = rlib.RRdb.BizTypes[x.Ra.BID].Msgs.S[rlib.MSGRAUPDATED].SLSID // "Rental Agreement was updated"
+				if err = setRATerminator(ctx, &x.RaChainOrig[i]); err != nil {
 					return nraid, err
 				}
 			}
-			if err = rlib.UpdateRentalAgreement(ctx, &x.RaChainOrigUnchanged[i]); err != nil {
+			rlib.Console("UPDATING x.RaChainOrig[i]\n")
+			if err = rlib.UpdateRentalAgreement(ctx, &x.RaChainOrig[i]); err != nil {
 				return nraid, err
 			}
 		}

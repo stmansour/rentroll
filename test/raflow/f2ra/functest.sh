@@ -2,7 +2,7 @@
 
 TESTNAME="Flow2RA"
 TESTSUMMARY="Test Flow data to permanent tables"
-DBGEN=../../../tools/dbgen
+DBGENDIR=../../../tools/dbgen
 CREATENEWDB=0
 RRBIN="../../../tmp/rentroll"
 
@@ -169,7 +169,6 @@ fi
 #------------------------------------------------------------------------------
 if [ "${SINGLETEST}d" = "d" -o "${SINGLETEST}d" = "dd" ]; then
     TFILES="d"
-    echo "Create new database... x3.sql"
     mysql --no-defaults rentroll < x3.sql
 
     RAIDREFNO="1RQTH0A0EO2JD003475M"
@@ -187,11 +186,94 @@ fi
 #------------------------------------------------------------------------------
 #  TEST e
 #  Normal Lease Extension
-#  60 days prior to AgreementStop, create updated amendment to renew the
-#  lease for another year.  When completed, we can still allow the RA to be
-#  in the Active state.  (closing the existing agreement after its AgreementStop
-#  is a check that will be added to Close period)
+#
+#  In this example, 2 months (or more) prior to AgreementStop, create an updated
+#  amendment to renew the lease for another year.  When completed, the current
+#  and the amended RA shound both be Active.
+#
+#  (ensuring that RentalAgreements that have expired have been changed to the
+#  the Terminated state is a check that will be added to Close period)
+#
+#  Scenario:
+#  Amend the existing rental agreement so that the amended RA starts immediately
+#  after the old RA stops
+#
+#
 #------------------------------------------------------------------------------
+TFILES="e"
+if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
+
+    #------------------------------------------------------------------
+    # Create a database with a single RA that expires between 2 and 3
+    # months from now...
+    #------------------------------------------------------------------
+    echo "Create new database"
+    ./f2ra | python -m json.tool > db1.json
+    F=$(pwd)
+    FNAME="${F}/db1.json"
+    pushd ${DBGENDIR}
+    ./dbgen -f "${FNAME}"
+    popd
+
+    #----------------------------------------------------------------
+    # put RA 1 into Edit mode...
+    #----------------------------------------------------------------
+    echo "%7B%22cmd%22%3A%22get%22%2C%22UserRefNo%22%3Anull%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22FlowType%22%3A%22RA%22%7D" > request
+    dojsonPOST "http://localhost:8270/v1/flow/1/0" "request" "${TFILES}0"  "WebService--edit-RA"
+    RAIDREFNO=$(cat e0 | grep UserRefNo | awk '{print $2}'|sed 's/"//g')
+
+    #----------------------------------------------------------------
+    # Compute the date information we need for this test...
+    #----------------------------------------------------------------
+    ./f2ra -outype 1 > amend.dat
+    DTSTART=$(grep DTSTART amend.dat | awk '{print $2}')
+    DTSTOP=$(grep DTSTOP amend.dat | awk '{print $2}')
+    rm -f amend.dat
+
+    #----------------------------------------------------------------
+    # Send the command to change the Dates.
+    # Note the use of ${DTSTART} and ${DTSTOP} in the echo command
+    #----------------------------------------------------------------
+    echo "%7B%22cmd%22%3A%22save%22%2C%22FlowType%22%3A%22RA%22%2C%22FlowID%22%3A1%2C%22FlowPartKey%22%3A%22dates%22%2C%22BID%22%3A1%2C%22Data%22%3A%7B%22CSAgent%22%3A209%2C%22RentStop%22%3A%22${DTSTOP}%22%2C%22RentStart%22%3A%22${DTSTART}%22%2C%22AgreementStop%22%3A%22${DTSTOP}%22%2C%22AgreementStart%22%3A%22${DTSTART}%22%2C%22PossessionStop%22%3A%22${DTSTOP}%22%2C%22PossessionStart%22%3A%22${DTSTART}%22%7D%7D" > request
+    dojsonPOST "http://localhost:8270/v1/flow/1/1" "request" "${TFILES}1"  "WebService--update-dates"
+
+    #----------------------------------------------------------------
+    # Send the command add a Rent assessment definition
+    #----------------------------------------------------------------
+    echo "%7B%22cmd%22%3A%22save%22%2C%22FlowType%22%3A%22RA%22%2C%22FlowID%22%3A1%2C%22FlowPartKey%22%3A%22rentables%22%2C%22BID%22%3A1%2C%22Data%22%3A%5B%7B%22RID%22%3A1%2C%22Fees%22%3A%5B%7B%22RentCycleText%22%3A%22Monthly%22%2C%22ProrationCycleText%22%3A%22Daily%22%2C%22recid%22%3A1%2C%22TMPASMID%22%3A0%2C%22ASMID%22%3A0%2C%22ARID%22%3A40%2C%22ARName%22%3A%22Rent%20ST000%22%2C%22ContractAmount%22%3A1100%2C%22RentCycle%22%3A6%2C%22ProrationCycle%22%3A4%2C%22Start%22%3A%22${DTSTART}%22%2C%22Stop%22%3A%22${DTSTOP}%22%2C%22AtSigningPreTax%22%3A0%2C%22SalesTax%22%3A0%2C%22TransOccTax%22%3A0%2C%22Comment%22%3A%22%22%7D%5D%2C%22RTID%22%3A1%2C%22RTFLAGS%22%3A4%2C%22SalesTax%22%3A0%2C%22RentCycle%22%3A6%2C%22TransOccTax%22%3A0%2C%22RentableName%22%3A%22Rentable001%22%2C%22AtSigningPreTax%22%3A0%2C%22recid%22%3A1%2C%22w2ui%22%3A%7B%22class%22%3A%22%22%2C%22style%22%3A%7B%7D%7D%7D%5D%7D" > request
+    dojsonPOST "http://localhost:8270/v1/flow/1/1" "request" "${TFILES}2"  "WebService--add-rent-assessment"
+
+    #----------------------------------------------------------------
+    # Validate the RA-Flow, which automatically puts the Flow into
+    # PendingFirstApproval if successful
+    #----------------------------------------------------------------
+    echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A1%7D" > request
+    dojsonPOST "http://localhost:8270/v1/validate-raflow/1/1" "request" "${TFILES}4"  "WebService--validate"
+
+    #----------------------------------------------------------------
+    # First Approver approves...
+    #----------------------------------------------------------------
+    echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Mode%22%3A%22State%22%2C%22Decision1%22%3A1%2C%22DeclineReason1%22%3A0%7D" > request
+    dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}5"  "WebService--Approver1"
+
+    #----------------------------------------------------------------
+    # Second Approver approves...
+    #----------------------------------------------------------------
+    echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Mode%22%3A%22State%22%2C%22Decision2%22%3A1%2C%22DeclineReason2%22%3A0%7D" > request
+    dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}6"  "WebService--Approver2"
+
+    #----------------------------------------------------------------
+    # Set move-in date
+    #----------------------------------------------------------------
+    echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Mode%22%3A%22State%22%2C%22DocumentDate%22%3A%22${DTSTART}%22%7D" > request
+    dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}7"  "WebService--Approver2"
+
+    # Make the updated RefNo an Active RA
+    echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
+    dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}8"  "WebService--Activate-RefNo"
+
+
+fi
 
 
 

@@ -761,7 +761,7 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 	}
 	d2 := dbConf.DtStop
 	if d2.Day() != 1 {
-		d2 = time.Date(d2.Year(), d2.Month(), 1, 0, 0, 0, 0, time.UTC)
+		d2 = time.Date(d2.Year(), d2.Month(), d2.Day(), 0, 0, 0, 0, time.UTC)
 	}
 	rentableC, err := rlib.GetCountByTableName(ctx, "Rentable", BID)
 	if err != nil {
@@ -1016,9 +1016,6 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 					Stop:           d2,
 					ARID:           dbConf.VehicleFees[j].ARID,
 				}
-				rlib.Console("\n\n********\n")
-				rlib.Console("INSERTING VEHICLE FEE:  elem = %d, id = %d\n", asm.AssocElemType, asm.AssocElemID)
-				rlib.Console("\n********\n\n")
 				be := bizlogic.InsertAssessment(ctx, &asm, 1, &noClose) // bizlogic will not expand it if it is a single instanced assessment
 				if be != nil {
 					return bizlogic.BizErrorListToError(be)

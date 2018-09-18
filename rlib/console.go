@@ -20,7 +20,10 @@ func Console(format string, a ...interface{}) {
 	}
 }
 
-// ConsoleDRange formats a date range string
+// ConsoleDRange formats a date range string.
+// format date range
+// print date range
+// format dates, print dates
 func ConsoleDRange(d1, d2 *time.Time) string {
 	return fmt.Sprintf("%s, %s", d1.Format(RRDATEFMT3), d2.Format(RRDATEFMT3))
 }

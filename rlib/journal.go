@@ -204,9 +204,9 @@ func ProrateAssessment(ctx context.Context, xbiz *XBusiness, a *Assessment, d, d
 //=================================================================================================
 func journalAssessment(ctx context.Context, xbiz *XBusiness, d time.Time, a *Assessment, d1, d2 *time.Time) (Journal, error) {
 	funcname := "journalAssessment"
-	Console("*** Entered  %s\n", funcname)
-	Console("%s: d = %s, d1 = %s, d2 = %s\n", funcname, d.Format(RRDATEREPORTFMT), d1.Format(RRDATEREPORTFMT), d2.Format(RRDATEREPORTFMT))
-	Console("%s: Assessment: PASMID = %d, RentCycle = %d, ProrationCycle = %d, Start = %s, Stop = %s\n", funcname, a.PASMID, a.RentCycle, a.ProrationCycle, a.Start.Format(RRDATETIMEW2UIFMT), a.Stop.Format(RRDATETIMEW2UIFMT))
+	// Console("*** Entered  %s\n", funcname)
+	// Console("%s: d = %s, d1 = %s, d2 = %s\n", funcname, d.Format(RRDATEREPORTFMT), d1.Format(RRDATEREPORTFMT), d2.Format(RRDATEREPORTFMT))
+	// Console("%s: Assessment: PASMID = %d, RentCycle = %d, ProrationCycle = %d, Start = %s, Stop = %s\n", funcname, a.PASMID, a.RentCycle, a.ProrationCycle, a.Start.Format(RRDATETIMEW2UIFMT), a.Stop.Format(RRDATETIMEW2UIFMT))
 	var j Journal
 
 	// pf, num, den, start, stop, err := ProrateAssessment(ctx, xbiz, a, &d, d1, d2)
@@ -227,7 +227,7 @@ func journalAssessment(ctx context.Context, xbiz *XBusiness, d time.Time, a *Ass
 		pf = float64(0)
 	}
 
-	Console("%s: a.ASMTID = %d, d = %s, d1 = %s, d2 = %s\n", funcname, a.ASMID, d.Format(RRDATEFMT4), d1.Format(RRDATEFMT4), d2.Format(RRDATEFMT4))
+	// Console("%s: a.ASMTID = %d, d = %s, d1 = %s, d2 = %s\n", funcname, a.ASMID, d.Format(RRDATEFMT4), d1.Format(RRDATEFMT4), d2.Format(RRDATEFMT4))
 	// Console("%s: pf = %f, num = %d, den = %d, start = %s, stop = %s\n", funcname, pf, num, den, start.Format(RRDATEFMT4), stop.Format(RRDATEFMT4))
 
 	j = Journal{BID: a.BID, Dt: d, Type: JNLTYPEASMT, ID: a.ASMID}
@@ -345,7 +345,7 @@ func journalAssessment(ctx context.Context, xbiz *XBusiness, d time.Time, a *Ass
 		j.JA = append(j.JA, ja)
 	}
 
-	Console("%s: exiting\n", funcname)
+	// Console("%s: exiting\n", funcname)
 	return j, err
 }
 
@@ -393,7 +393,7 @@ func ProcessNewAssessmentInstance(ctx context.Context, xbiz *XBusiness, d1, d2 *
 	funcname := "ProcessNewAssessmentInstance"
 	var j Journal
 	var err error
-	Console("Entered %s:  d1 = %s, d2 = %s, Assessment date: %s\n", funcname, d1.Format(RRDATEREPORTFMT), d2.Format(RRDATEREPORTFMT), a.Start.Format(RRDATEREPORTFMT))
+	// Console("Entered %s:  d1 = %s, d2 = %s, Assessment date: %s\n", funcname, d1.Format(RRDATEREPORTFMT), d2.Format(RRDATEREPORTFMT), a.Start.Format(RRDATEREPORTFMT))
 	if a.PASMID == 0 && a.RentCycle != RECURNONE { // if this assessment is not a single instance recurrence, then return an error
 		err = fmt.Errorf("%s: Function only accepts non-recurring instances, RentCycle = %d", funcname, a.RentCycle)
 		LogAndPrintError(funcname, err)
@@ -407,7 +407,7 @@ func ProcessNewAssessmentInstance(ctx context.Context, xbiz *XBusiness, d1, d2 *
 		}
 	}
 
-	Console("%s: Calling journalAssessment for ASMID = %d, PASMID = %d\n", funcname, a.ASMID, a.PASMID)
+	// Console("%s: Calling journalAssessment for ASMID = %d, PASMID = %d\n", funcname, a.ASMID, a.PASMID)
 	j, err = journalAssessment(ctx, xbiz, a.Start, a, d1, d2)
 	return j, err
 }

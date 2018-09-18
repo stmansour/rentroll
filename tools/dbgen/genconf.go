@@ -192,7 +192,7 @@ func ReadConfig(fname string) (GenDBConf, error) {
 	b.RSeed = a.RSeed
 	b.RRand = rand.New(b.RSource)
 
-	rlib.Console("\nGENDBCONF:  %s\n\n", rlib.ConsoleDRange(&b.DtStart, &b.DtStop))
+	rlib.Console("Date Range:  %s\n\n", rlib.ConsoleDRange(&b.DtStart, &b.DtStop))
 
 	return b, nil
 }

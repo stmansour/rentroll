@@ -202,37 +202,37 @@ func F2RAHandleOldAssessments(ctx context.Context, x *rlib.F2RAWriteHandlerConte
 					// payment to cover for the partial period is needed from the
 					// instance epoch to the new rental agreement start
 					//-------------------------------------------------------------
-					// NOTE: need to rethink this
+					// NOTE: may need to rethink this
 
-					// isinst := rlib.IsInstanceDate(&target, &x.Ra.RentStart, v.RentCycle, v.ProrationCycle)
-					// if !isinst {
-					// 	rlib.Console("A9.1 - new RA rentstart (%s) was found NOT to be an instance date of ASMID = %d\n", x.Ra.RentStart.Format(rlib.RRDATEREPORTFMT), v.ASMID)
-					// 	//------------------------------------------------------
-					// 	// In this case we need to create a prorated assessment
-					// 	// that covers from target to x.Ra.RentStart
-					// 	//-----------------------------------------------------
-					// 	asm := n[0]
-					// 	amt, count, totcount := rlib.SimpleProrateAmount(v.Amount, v.RentCycle, v.ProrationCycle, &target, &x.Ra.RentStart, &target)
-					// 	thru := x.Ra.RentStart.Add(-rlib.CycleDuration(v.ProrationCycle, v.Start))
-					// 	// asm.AppendComment(fmt.Sprintf("prorated for %d of %d %s (covers %s thru %s)", count, totcount, rlib.ProrationUnits(v.ProrationCycle), target.Format(rlib.RRDATEFMT3), thru.Format(rlib.RRDATEFMT3)))
-					// 	asm.AppendComment(rlib.ProrateComment(count, totcount, v.ProrationCycle) + fmt.Sprintf(" (covers %s thru %s)", target.Format(rlib.RRDATEFMT3), thru.Format(rlib.RRDATEFMT3)))
-					//
-					// 	asm.Amount = amt
-					// 	asm.RentCycle = rlib.RECURNONE      // not part of a series
-					// 	asm.ProrationCycle = rlib.RECURNONE // no proration here
-					// 	asm.FLAGS = 0
-					// 	asm.Stop = asm.Start
-					// 	rlib.Console("\n\n**********\ncalling InsertAssessment")
-					// 	if errlist := InsertAssessment(ctx, &asm, 0 /*no expanding*/, &x.LastClose); len(errlist) > 0 {
-					// 		return BizErrorListToError(errlist)
-					// 	}
-					// 	skipASMID = asm.ASMID
-					// 	rlib.Console("A9.2 - just inserted asm = %d, skipASMID set\n", skipASMID)
-					// 	rlib.Console("**********\n\n\n")
-					// } else {
-					// 	rlib.Console("A9.3 - new RA rentstart (%s) was found to be an instance date of ASMID = %d\n", x.Ra.RentStart.Format(rlib.RRDATEREPORTFMT), v.ASMID)
-					// 	rlib.Console("     - so will not add a prorated rent assessment\n")
-					// }
+					isinst := rlib.IsInstanceDate(&target, &x.Ra.RentStart, v.RentCycle, v.ProrationCycle)
+					if !isinst {
+						rlib.Console("A9.1 - new RA rentstart (%s) was found NOT to be an instance date of ASMID = %d\n", x.Ra.RentStart.Format(rlib.RRDATEREPORTFMT), v.ASMID)
+						//------------------------------------------------------
+						// In this case we need to create a prorated assessment
+						// that covers from target to x.Ra.RentStart
+						//-----------------------------------------------------
+						asm := n[0]
+						amt, count, totcount := rlib.SimpleProrateAmount(v.Amount, v.RentCycle, v.ProrationCycle, &target, &x.Ra.RentStart, &target)
+						thru := x.Ra.RentStart.Add(-rlib.CycleDuration(v.ProrationCycle, v.Start))
+						// asm.AppendComment(fmt.Sprintf("prorated for %d of %d %s (covers %s thru %s)", count, totcount, rlib.ProrationUnits(v.ProrationCycle), target.Format(rlib.RRDATEFMT3), thru.Format(rlib.RRDATEFMT3)))
+						asm.AppendComment(rlib.ProrateComment(count, totcount, v.ProrationCycle) + fmt.Sprintf(" (covers %s thru %s)", target.Format(rlib.RRDATEFMT3), thru.Format(rlib.RRDATEFMT3)))
+
+						asm.Amount = amt
+						asm.RentCycle = rlib.RECURNONE      // not part of a series
+						asm.ProrationCycle = rlib.RECURNONE // no proration here
+						asm.FLAGS = 0
+						asm.Stop = asm.Start
+						rlib.Console("\n\n**********\ncalling InsertAssessment")
+						if errlist := InsertAssessment(ctx, &asm, 0 /*no expanding*/, &x.LastClose); len(errlist) > 0 {
+							return BizErrorListToError(errlist)
+						}
+						skipASMID = asm.ASMID
+						rlib.Console("A9.2 - just inserted asm = %d, skipASMID set\n", skipASMID)
+						rlib.Console("**********\n\n\n")
+					} else {
+						rlib.Console("A9.3 - new RA rentstart (%s) was found to be an instance date of ASMID = %d\n", x.Ra.RentStart.Format(rlib.RRDATEREPORTFMT), v.ASMID)
+						rlib.Console("     - so will not add a prorated rent assessment\n")
+					}
 				}
 				//-------------------------------------------------------------
 				// Set the stop date for v to x.Ra.RentStart.  Since we've
