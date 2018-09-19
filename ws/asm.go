@@ -372,7 +372,7 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//rlib.Console("\nAfter MigrateStructVals: a = %#v\n", a)
 	rlib.Console("%s: Before EDI:  Start = %s, Stop = %s\n", funcname, a.Start.Format(rlib.RRDATEINPFMT), a.Stop.Format(rlib.RRDATEINPFMT))
 
-	rlib.HandleFrontEndDates(d.BID, &a.Start, &a.Stop)
+	rlib.EDIHandleIncomingDateRange(d.BID, &a.Start, &a.Stop)
 	rlib.Console("%s: After EDI:   Start = %s, Stop = %s\n", funcname, a.Start.Format(rlib.RRDATEINPFMT), a.Stop.Format(rlib.RRDATEINPFMT))
 
 	// Now just update the database

@@ -4,11 +4,16 @@ How To Use DBGEN
 dbgen is a program used to create a rentroll database with predictable or
 random information.  It can be used to generate a database with any number
 of rentables, rentable types, rental agreements, and transactants. It adds
-payment information as well with some controls to randomize payments.  Some 
+payment information as well with some controls to randomize payments.  Some
 fields are required and some are optional.
 
 dbgen is driven by a configuration file. Several examples are provided with
 the source code.
+
+Note: dbgen date ranges must be specified as up-to-but-not-including.  This is
+the way datea is stored in the server.  For example, if you want Rental
+Agreements to be from for the full year of 2018, you would set DtStart to
+1/1/2018 and DtStop to 1/1/2019 (not 12/31/2018).
 
 dbgen always dumps DtStart/DtStop and the RSeed value to stdout each time it is
 run. The date values are there to remind you of the time period to look for the
@@ -68,7 +73,7 @@ RT.ProrateCycle  (required)
 
 RT.Style  (optional)
     The short name designation to associate with the RentableType. If it is
-    not specified, it will have a default value of "ST000" where 000 is a 
+    not specified, it will have a default value of "ST000" where 000 is a
     monotonically increasing number for each RentableType.
 
 RT.Name  (optional)
@@ -87,11 +92,11 @@ PTypeCheckName  (required)
 
 PeopleCount  (required)
 	Number of Transactants created. If this value is less than the number of
-	RentalAgreements requested (RACount) then some transactants will be the 
+	RentalAgreements requested (RACount) then some transactants will be the
 	payor on more than one RentalAgreement.
 
 PetFees [] (optional)
-    PetFees is a BusinessProperty. It is an array of strings. The strings 
+    PetFees is a BusinessProperty. It is an array of strings. The strings
     are the names of Account Rules which should be applied to pets.
 
 RACount  (required)
@@ -100,23 +105,23 @@ RACount  (required)
     rental agreements once it has used all the rentables.
 
 RSeed  (optional)
-    Number used to seed the random number generator. If not specified, the 
-    seed will be a highly random number based on the current system time. If 
-    it is specified then the databases it creates will be predictable. 
+    Number used to seed the random number generator. If not specified, the
+    seed will be a highly random number based on the current system time. If
+    it is specified then the databases it creates will be predictable.
     Otherwise, they will be highly random.
 
 RandName  (optional)
-    Set to false if not present. If set to true, the transactant names will be 
-    randomly chosen from a large list of first and last names.  Note, phone 
+    Set to false if not present. If set to true, the transactant names will be
+    randomly chosen from a large list of first and last names.  Note, phone
     numbers, email addresses, and land addresses are always totally random.
 
 RandomizePayments bool (optional)
     Set to false if not present. If set to true, the code will inhibit the
-    creation of a percentage of payments from payors. The percentage is 
-    controlled by RandMissPayment, see below.  Also, the code will not apply 
-    some percentage of payments made. The percentage is controlled by 
+    creation of a percentage of payments from payors. The percentage is
+    controlled by RandMissPayment, see below.  Also, the code will not apply
+    some percentage of payments made. The percentage is controlled by
     RandMissApply, see below.  This can be helpful to check the functioning of
-    the Rentroll view, the RentRoll report, payor statements, and rental 
+    the Rentroll view, the RentRoll report, payor statements, and rental
     agreement statements.
 
 RandMissPayment  (optional)
@@ -124,7 +129,7 @@ RandMissPayment  (optional)
     default value is 0.
 
 RandMissApply  (optional)
-    Specifies the percent (0-99) of payments that will not be applied. The 
+    Specifies the percent (0-99) of payments that will not be applied. The
     default value is 0.
 
 VehicleFees [] (optional)

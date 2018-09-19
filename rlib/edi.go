@@ -243,6 +243,7 @@ func EDIEnabledForBID(BID int64) bool {
 // based on application DateMode setting for the p interface
 // which is having dateranges fields
 // right now it supports only "struct" kind of element
+// -----------------------------------------------------------------------------
 func HandleInterfaceEDI(p interface{}, BID int64) {
 
 	// if end date inclusion enabled
@@ -262,25 +263,43 @@ func HandleInterfaceEDI(p interface{}, BID int64) {
 	}
 }
 
-// HandleFrontEndDates will modify front end dates coming from web service/command line app.
-// if edi is enabled for BID then it will modify stopDate incrementing by one day.
-// else it will look for the gap, if gap is not more than one day then it will force to stopDate
-// to be incremented by one day.
-func HandleFrontEndDates(BID int64, dtStart, dtStop *time.Time) {
+// EDIHandleIncomingDateRange will modify front end dates coming from web
+// service/command line app. If edi is enabled for BID then it will modify
+// stopDate incrementing by one day.
+// -----------------------------------------------------------------------------
+func EDIHandleIncomingDateRange(BID int64, dtStart, dtStop *time.Time) {
 	if EDIEnabledForBID(BID) {
 		*dtStop = dtStop.AddDate(0, 0, 1)
-	} else {
-		// if edi is not enabled then gap should not be less then a day
-		gap := dtStop.Sub(*dtStart)
-		if gap >= 0 && gap < 24 { // if gap falls in 0 and upto 24
-			*dtStop = dtStop.AddDate(0, 0, 1)
+	}
+
+	//----------------------------------------------------------------------
+	// it is ok for start/stop dates to be equal -- that's what happens on
+	// non-recurring assessments.  But it is not ok for the stop time to be
+	// before the start time.
+	//----------------------------------------------------------------------
+	if dtStop.Before(*dtStart) {
+		*dtStop = *dtStart
+	}
+}
+
+// EDIHandleOutgoingDateRange will modify give stopDate if EDI is enabled for
+// the given business
+// -----------------------------------------------------------------------------
+func EDIHandleOutgoingDateRange(BID int64, d1, stopDate *time.Time) {
+	if EDIEnabledForBID(BID) {
+		*stopDate = stopDate.AddDate(0, 0, -1)
+		if stopDate.Before(*d1) {
+			*stopDate = *d1
 		}
 	}
 }
 
-// HandleStopDateEDI will modify give stopDate if EDI is enabled for the given business
-func HandleStopDateEDI(BID int64, stopDate *time.Time) {
-	if EDIEnabledForBID(BID) {
-		*stopDate = stopDate.AddDate(0, 0, -1)
+// EDIHandleNDOutgoingDateRange is like EDIHandleOutgoingDateRange but handles
+// NullDates
+// -----------------------------------------------------------------------------
+func EDIHandleNDOutgoingDateRange(BID int64, d1, stopDate *NullDate) {
+	if !d1.Valid || !stopDate.Valid {
+		return
 	}
+	EDIHandleOutgoingDateRange(BID, &d1.Time, &stopDate.Time)
 }

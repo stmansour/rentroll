@@ -12,15 +12,15 @@
         "Flow": {
             "BID": 1,
             "CreateBy": -99999,
-            "CreateTS": "2018-09-17T18:29:50Z",
+            "CreateTS": "2018-09-18T22:12:18Z",
             "Data": {
                 "dates": {
-                    "AgreementStart": "9/18/2018",
+                    "AgreementStart": "9/19/2018",
                     "AgreementStop": "11/30/2018",
                     "CSAgent": 209,
-                    "PossessionStart": "9/18/2018",
+                    "PossessionStart": "9/19/2018",
                     "PossessionStop": "11/30/2018",
-                    "RentStart": "9/18/2018",
+                    "RentStart": "9/19/2018",
                     "RentStop": "11/30/2018"
                 },
                 "meta": {
@@ -87,7 +87,7 @@
                         "CurrentLandLordPhoneNo": "(764) 127-4570",
                         "CurrentLengthOfResidency": "6 years 2 months",
                         "CurrentReasonForMoving": 94,
-                        "DateofBirth": "2/6/1957",
+                        "DateofBirth": "2/7/1957",
                         "DriversLicense": "G9017884",
                         "EligibleFuturePayor": true,
                         "EligibleFutureUser": true,
@@ -151,13 +151,13 @@
                                 "ARName": "Rent Non-Taxable",
                                 "ASMID": 1,
                                 "AtSigningPreTax": 0,
-                                "Comment": "prorated for 13 of 30 days",
-                                "ContractAmount": 433.33,
+                                "Comment": "prorated for 12 of 30 days",
+                                "ContractAmount": 400,
                                 "ProrationCycle": 0,
                                 "RentCycle": 0,
                                 "SalesTax": 0,
-                                "Start": "9/18/2018",
-                                "Stop": "9/18/2018",
+                                "Start": "9/19/2018",
+                                "Stop": "9/19/2018",
                                 "TMPASMID": 2,
                                 "TransOccTax": 0
                             },
@@ -216,8 +216,8 @@
             "FlowType": "RA",
             "ID": 1,
             "LastModBy": -99999,
-            "LastModTime": "2018-09-17T18:29:50Z",
-            "UserRefNo": "EVEO7T6X93HD8TU00319"
+            "LastModTime": "2018-09-18T22:12:18Z",
+            "UserRefNo": "8U56TINHR24C3L00S4I3"
         },
         "ValidationCheck": {
             "errors": {

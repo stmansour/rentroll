@@ -226,7 +226,7 @@ func RRRentalAgreementStatementTable(ctx context.Context, BID, RAID int64, d1, d
 	// displayD2
 	// ALERT: d2 is pointer
 	displayD2 := *d2
-	rlib.HandleStopDateEDI(BID, &displayD2)
+	rlib.EDIHandleOutgoingDateRange(BID, d1, &displayD2)
 
 	tbl.SetSection1(fmt.Sprintf("Statement Period: %s - %s <br>\n%s", d1.Format(rlib.RRDATEFMT3), displayD2.Format(rlib.RRDATEFMT3), strings.Join(sap, ", ")))
 

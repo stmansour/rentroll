@@ -1022,14 +1022,27 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement, EditFlag bool) (RA
 	TerminatorName, _ := GetDirectoryPerson(ctx, ra.TerminatorUID)
 	NoticeToMoveName, _ := GetDirectoryPerson(ctx, ra.NoticeToMoveUID)
 
+	//-------------------------------------
+	// Adjust dates for EDI...
+	//-------------------------------------
+	AStart := ra.AgreementStart
+	RStart := ra.RentStart
+	PStart := ra.PossessionStart
+	AStop := ra.AgreementStop
+	RStop := ra.RentStop
+	PStop := ra.PossessionStop
+	EDIHandleOutgoingDateRange(ra.BID, &AStart, &AStop)
+	EDIHandleOutgoingDateRange(ra.BID, &RStart, &RStop)
+	EDIHandleOutgoingDateRange(ra.BID, &PStart, &PStop)
+
 	var raf = RAFlowJSONData{
 		Dates: RADatesFlowData{
-			RentStart:       JSONDate(ra.RentStart),
-			RentStop:        JSONDate(ra.RentStop),
-			AgreementStart:  JSONDate(ra.AgreementStart),
-			AgreementStop:   JSONDate(ra.AgreementStop),
-			PossessionStart: JSONDate(ra.PossessionStart),
-			PossessionStop:  JSONDate(ra.PossessionStop),
+			RentStart:       JSONDate(RStart),
+			RentStop:        JSONDate(RStop),
+			AgreementStart:  JSONDate(AStart),
+			AgreementStop:   JSONDate(AStop),
+			PossessionStart: JSONDate(PStart),
+			PossessionStop:  JSONDate(PStop),
 			CSAgent:         ra.CSAgent,
 		},
 		People:      []RAPeopleFlowData{},
@@ -1188,6 +1201,11 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement, EditFlag bool) (RA
 			if err != nil {
 				return raf, nil
 			}
+
+			//----------------------------------------------------------
+			// Adjust for EDI now...
+			//----------------------------------------------------------
+			EDIHandleOutgoingDateRange(asms[j].BID, &asms[j].Start, &asms[j].Stop)
 
 			//----------------------------------------------------------
 			// Handle Rentable Fees that are NOT Pet or Vehicle related

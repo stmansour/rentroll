@@ -49,12 +49,12 @@ func readCommandLineArgs() {
 
 func main() {
 	readCommandLineArgs()
-	now := time.Now()
-	d2 := now.AddDate(0, 3, 0)
-	d2 = time.Date(d2.Year(), d2.Month(), 0, 0, 0, 0, 0, time.UTC)
-	d1 := d2.AddDate(-1, 1, 0)
+	now := time.Now()                                              // 9/18/2018
+	d2 := now.AddDate(0, 3, 0)                                     // 12/18/2018
+	d2 = time.Date(d2.Year(), d2.Month(), 1, 0, 0, 0, 0, time.UTC) // 12/1/2018
+	d1 := d2.AddDate(-1, 1, 0)                                     // 1/1/2018
 	d1 = time.Date(d1.Year(), d1.Month(), 1, 0, 0, 0, 0, time.UTC)
-	// fmt.Printf("Rental Agreement time ranges = %s\n", rlib.ConsoleDRange(&d1, &d2))
+	//rlib.Console("Rental Agreement time ranges = %s\n", rlib.ConsoleDRange(&d1, &d2))
 
 	switch App.OutputType {
 	case 0:
@@ -68,14 +68,12 @@ func main() {
 }
 func newRARangeEscaped(d1, d2 time.Time) {
 	dtStop := d2.AddDate(1, 0, 0)
-	d2 = d2.AddDate(0, 0, 1)
 	fmt.Printf("DTSTART: %s\n", url.QueryEscape(d2.Format(rlib.RRDATEFMT3)))
 	fmt.Printf("DTSTOP: %s\n", url.QueryEscape(dtStop.Format(rlib.RRDATEFMT3)))
 }
 
 func newRARange(d1, d2 time.Time) {
 	dtStop := d2.AddDate(1, 0, 0)
-	d2 = d2.AddDate(0, 0, 1)
 	fmt.Printf("DTSTART: %s\n", d2.Format(rlib.RRDATEFMT3))
 	fmt.Printf("DTSTOP: %s\n", dtStop.Format(rlib.RRDATEFMT3))
 }

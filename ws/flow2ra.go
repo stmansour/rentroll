@@ -317,15 +317,14 @@ func FlowSaveRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (int64, er
 		x.RaChainOrigUnchanged = make([]rlib.RentalAgreement, len(x.RaChainOrig))
 		copy(x.RaChainOrigUnchanged, x.RaChainOrig)
 
-		// if err = rlib.InitBizInternals(x.RaOrig.BID, &x.Xbiz); err != nil {
-		// 	return nraid, err
-		// }
-		// saveFlags := x.RaOrig.FLAGS
-		chgs := 0
+		//--------------------------------------------------
+		// Now press forward using the adjusted dates...
+		//--------------------------------------------------
 		AStart := time.Time(x.Raf.Dates.AgreementStart)
 		RStart := time.Time(x.Raf.Dates.RentStart)
 		PStart := time.Time(x.Raf.Dates.PossessionStart)
 
+		chgs := 0
 		x.RaOrigIndex = -1 // mark that there is nothing to link to at the moment
 
 		//------------------------------------------------------------------
@@ -512,15 +511,29 @@ func setRATerminator(ctx context.Context, ra *rlib.RentalAgreement) error {
 //     nothing at this time
 //-----------------------------------------------------------------------------
 func initRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) {
+	//-------------------------------------
+	// Adjust dates for EDI...
+	//-------------------------------------
+	AStart := time.Time(x.Raf.Dates.AgreementStart)
+	RStart := time.Time(x.Raf.Dates.RentStart)
+	PStart := time.Time(x.Raf.Dates.PossessionStart)
+	AStop := time.Time(x.Raf.Dates.AgreementStop)
+	RStop := time.Time(x.Raf.Dates.RentStop)
+	PStop := time.Time(x.Raf.Dates.PossessionStop)
+
+	rlib.EDIHandleIncomingDateRange(x.Raf.Meta.BID, &AStart, &AStop)
+	rlib.EDIHandleIncomingDateRange(x.Raf.Meta.BID, &RStart, &RStop)
+	rlib.EDIHandleIncomingDateRange(x.Raf.Meta.BID, &PStart, &PStop)
+
 	x.Ra.PRAID = int64(0)
 	x.Ra.ORIGIN = int64(0)
 	x.Ra.BID = x.Raf.Meta.BID
-	x.Ra.AgreementStart = time.Time(x.Raf.Dates.AgreementStart)
-	x.Ra.AgreementStop = time.Time(x.Raf.Dates.AgreementStop)
-	x.Ra.RentStart = time.Time(x.Raf.Dates.RentStart)
-	x.Ra.RentStop = time.Time(x.Raf.Dates.RentStop)
-	x.Ra.PossessionStart = time.Time(x.Raf.Dates.PossessionStart)
-	x.Ra.PossessionStop = time.Time(x.Raf.Dates.PossessionStop)
+	x.Ra.AgreementStart = AStart
+	x.Ra.AgreementStop = AStop
+	x.Ra.RentStart = RStart
+	x.Ra.RentStop = RStop
+	x.Ra.PossessionStart = PStart
+	x.Ra.PossessionStop = PStop
 	x.Ra.CSAgent = x.Raf.Dates.CSAgent
 	x.Ra.FLAGS = x.Raf.Meta.RAFLAGS
 	x.Ra.Approver1 = x.Raf.Meta.Approver1

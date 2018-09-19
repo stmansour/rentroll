@@ -124,7 +124,7 @@ func ReportServiceHandler(w http.ResponseWriter, r *http.Request, d *ServiceData
 		d2, err = rlib.StringToDate(x[0])
 
 		// if dateMode is on then change the stopDate value for search op
-		rlib.HandleFrontEndDates(d.BID, &d1, &d2)
+		rlib.EDIHandleIncomingDateRange(d.BID, &d1, &d2)
 
 		if err == nil {
 			ui.D2 = d2
@@ -290,7 +290,7 @@ func v1ReportHandler(ctx context.Context, reportname string, xbiz *rlib.XBusines
 			d2 := ri.D2
 
 			// if EDI mode enabled then we should subtract one day from the report name
-			rlib.HandleStopDateEDI(ri.Bid, &d2)
+			rlib.EDIHandleOutgoingDateRange(ri.Bid, &ri.D1, &d2)
 
 			toDate := rrpt.GetAttachmentDate(d2)
 			attachmentName += "To:" + toDate
@@ -436,7 +436,7 @@ func v1ReportHandler(ctx context.Context, reportname string, xbiz *rlib.XBusines
 			d2 := ri.D2
 
 			// if EDI mode enabled then we should subtract one day from the report name
-			rlib.HandleStopDateEDI(ri.Bid, &d2)
+			rlib.EDIHandleOutgoingDateRange(ri.Bid, &ri.D1, &d2)
 
 			toDate := rrpt.GetAttachmentDate(d2)
 			attachmentName += "To" + toDate
@@ -472,7 +472,7 @@ func v1ReportHandler(ctx context.Context, reportname string, xbiz *rlib.XBusines
 				d2 := ri.D2
 
 				// if EDI mode enabled then we should subtract one day from the report name
-				rlib.HandleStopDateEDI(ri.Bid, &d2)
+				rlib.EDIHandleOutgoingDateRange(ri.Bid, &ri.D1, &d2)
 
 				toDate := rrpt.GetAttachmentDate(d2)
 				pdfTitle += " To " + toDate

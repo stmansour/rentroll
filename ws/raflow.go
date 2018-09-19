@@ -213,6 +213,12 @@ func GetAllRAFlows(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
+
+		//----------------
+		// Handle EDI...
+		//----------------
+		rlib.EDIHandleNDOutgoingDateRange(q.BID, &q.AgreementStart, &q.AgreementStop)
+
 		resp.Records = append(resp.Records, q)
 		count++ // update the count only after adding the record
 		if count >= d.wsSearchReq.Limit {

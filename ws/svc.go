@@ -618,7 +618,7 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 	rlib.Console("Client = %s\n", d.wsSearchReq.Client)
 
 	// if dateMode is on then change the stopDate value for search op
-	rlib.HandleFrontEndDates(d.BID, &d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
+	rlib.EDIHandleIncomingDateRange(d.BID, &d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
 
 	return err
 }

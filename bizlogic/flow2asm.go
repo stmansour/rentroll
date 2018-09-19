@@ -366,13 +366,20 @@ func F2RASaveFee(ctx context.Context, x *rlib.F2RAWriteHandlerContext, fee *rlib
 		// rlib.Console("    ID for this vehicle is %d\n", b.AssocElemID)
 	}
 
+	//-------------------------------
+	// Handle EDI on date range...
+	//-------------------------------
+	d1 := time.Time(fee.Start)
+	d2 := time.Time(fee.Stop)
+	rlib.EDIHandleIncomingDateRange(b.BID, &d1, &d2)
+
 	// rlib.Console("bid = %d, fee ARID = %d\n", b.BID, fee.ARID)
 	b.Amount = fee.ContractAmount
 	b.AcctRule = ""
 	b.RentCycle = fee.RentCycle
 	b.RAID = x.Ra.RAID
-	b.Start = time.Time(fee.Start)
-	b.Stop = time.Time(fee.Stop)
+	b.Start = d1
+	b.Stop = d2
 	b.RentCycle = fee.RentCycle
 	b.ProrationCycle = rlib.RRdb.BizTypes[b.BID].AR[fee.ARID].DefaultProrationCycle
 	b.InvoiceNo = 0

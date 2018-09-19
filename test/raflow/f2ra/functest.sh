@@ -14,7 +14,9 @@ echo "STARTING RENTROLL SERVER"
 RENTROLLSERVERAUTH="-noauth"
 startRentRollServer
 
-echo "SINGLETEST = ${SINGLETEST}"
+# echo "SINGLETEST = ${SINGLETEST}"
+
+
 #------------------------------------------------------------------------------
 #  TEST a
 #  An existing rental agreement (RAID=1) is being amended. This test
@@ -49,12 +51,13 @@ echo "SINGLETEST = ${SINGLETEST}"
 #       month's rent in this case will need to be  prorated to account for
 #       days June 8 thru June 30.
 #------------------------------------------------------------------------------
-if [ "${SINGLETEST}a" = "a" -o "${SINGLETEST}a" = "aa" ]; then
+TFILES="a"
+if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
     RAID1REFNO="UJF64M3Y28US5BHW5400"
     RAIDAMENDEDID="2"
 
-    echo "Create new database... x0.sql"
-    mysql --no-defaults rentroll < x0.sql
+    echo "Create new database... x${TFILES}.sql"
+    mysql --no-defaults rentroll < x${TFILES}.sql
 
     # Send the command to change the flow to Active:
     echo "%7B%22UserRefNo%22%3A%22${RAID1REFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
@@ -95,9 +98,10 @@ fi
 #
 #   4.  September rent assessment created on Sep 1
 #------------------------------------------------------------------------------
-if [ "${SINGLETEST}b" = "b" -o "${SINGLETEST}b" = "bb" ]; then
-    echo "Create new database... x1.sql"
-    mysql --no-defaults rentroll < x1.sql
+TFILES="b"
+if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
+    echo "Create new database... x${TFILES}.sql"
+    mysql --no-defaults rentroll < x${TFILES}.sql
 
     RAIDREFNO="5R6I7HQM1M1922LD35HH"
     RAIDAMENDEDID="2"
@@ -132,9 +136,10 @@ fi
 #   3.
 #   4.
 #------------------------------------------------------------------------------
-# if [ "${SINGLETEST}c" = "c" -o "${SINGLETEST}c" = "cc" ]; then
-#     echo "Create new database... x2.sql"
-#     mysql --no-defaults rentroll < x2.sql
+TFILES="c"
+# if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
+#     echo "Create new database... x${TFILES}.sql"
+#     mysql --no-defaults rentroll < x${TFILES}.sql
 #
 #     RAIDREFNO="V91682OU9DNAST5K262A"
 #     RAIDAMENDEDID="3"
@@ -167,9 +172,9 @@ fi
 #   4.  RAID 1 is terminated
 #   5.  The payor statement for 9/1 - 9/30 should show $10,040 as the Balance
 #------------------------------------------------------------------------------
-if [ "${SINGLETEST}d" = "d" -o "${SINGLETEST}d" = "dd" ]; then
-    TFILES="d"
-    mysql --no-defaults rentroll < x3.sql
+TFILES="d"
+if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
+    mysql --no-defaults rentroll < x${TFILES}.sql
 
     RAIDREFNO="1RQTH0A0EO2JD003475M"
     RAIDAMENDEDID="3"
@@ -208,9 +213,9 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     # months from now...
     #------------------------------------------------------------------
     echo "Create new database"
-    ./f2ra | python -m json.tool > db1.json
+    ./f2ra | python -m json.tool > db${TFILES}.json
     F=$(pwd)
-    FNAME="${F}/db1.json"
+    FNAME="${F}/db${TFILES}.json"
     pushd ${DBGENDIR}
     ./dbgen -f "${FNAME}"
     popd
@@ -220,7 +225,7 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     #----------------------------------------------------------------
     echo "%7B%22cmd%22%3A%22get%22%2C%22UserRefNo%22%3Anull%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22FlowType%22%3A%22RA%22%7D" > request
     dojsonPOST "http://localhost:8270/v1/flow/1/0" "request" "${TFILES}0"  "WebService--edit-RA"
-    RAIDREFNO=$(cat e0 | grep UserRefNo | awk '{print $2}'|sed 's/"//g')
+    RAIDREFNO=$(cat ${TFILES}0 | grep UserRefNo | awk '{print $2}'|sed 's/"//g')
 
     #----------------------------------------------------------------
     # Compute the date information we need for this test...
@@ -271,21 +276,30 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     # Make the updated RefNo an Active RA
     echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
     dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}8"  "WebService--Activate-RefNo"
-
-
 fi
-
-
 
 #------------------------------------------------------------------------------
 #  TEST f
 #  Lease Holdover
+#
 #  Adjust the end date of the RentStop forward in time. (optional: adjust
 #  PossessionStop). This should only update the existing RA.  It should extend
 #  any recurring assessment definition with a stop date that matched the
 #  RA RentStop date.  That is, new assessments will net be created.
+#
+#  Expected Results:
+#  1. The Rental Agreement will be amended. The amendment RentStop will be
+#     extended out
+#
+#  1. All recurring assessments that ended on (or after) the RA stop date will
+#     be extended to the new stop date.
 #------------------------------------------------------------------------------
+TFILES="f"
+if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
+    mysql --no-defaults rentroll < x${TFILES}.sql
 
+
+fi
 
 #------------------------------------------------------------------------------
 #  TEST g
@@ -293,19 +307,33 @@ fi
 #  Adjust the end date of the RentStop forward in time. (optional: adjust
 #  PossessionStop).
 #------------------------------------------------------------------------------
+TFILES="g"
+if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
+    echo "Test g"
+fi
 
 #------------------------------------------------------------------------------
 #  TEST h
 #  Move Possession date only.
 #
 #------------------------------------------------------------------------------
+TFILES="h"
+if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
+    echo "Test h"
+
+fi
 
 #------------------------------------------------------------------------------
-#  TEST h
+#  TEST i
 #  Move Agreement date only.  This should result in updating the existing RA.
 #  It could happen for insurance reasons - but no rent or occupancy
 #
 #------------------------------------------------------------------------------
+TFILES="i"
+if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
+    echo "Test i"
+
+fi
 
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
