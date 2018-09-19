@@ -324,8 +324,15 @@ fi
 #------------------------------------------------------------------------------
 #  TEST g
 #  Move RentStop back in time
-#  Adjust the end date of the RentStop forward in time. (optional: adjust
-#  PossessionStop).
+#
+#  Scenario:
+#  We start with a Rental Agreement from 1/1/2018 to 12/31/2018.  For some
+#  reason we wish to keep the agreement end date at 12/31/2018 but we want
+#  to stop all the rent payments after 8/31/2018.
+#  Adjust the end date of the RentStop backward in time. (optional: adjust
+#  PossessionStop). In this example, no periods have been closed and the
+#  Start date will be maintained as 2/13/2017
+#
 #------------------------------------------------------------------------------
 TFILES="g"
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then

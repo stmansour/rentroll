@@ -1110,7 +1110,7 @@ func buildPreparedStatements() {
 	RRdb.DBFields["RentableStatus"] = flds
 	RRdb.Prepstmt.GetRentableStatus, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableStatus WHERE RSID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRentableStatusByRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableStatus WHERE RID=? AND DtStop>? AND DtStart<?")
+	RRdb.Prepstmt.GetRentableStatusByRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableStatus WHERE RID=? AND DtStop>? AND DtStart<=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetRentableStatusOnOrAfter, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableStatus WHERE RID=? AND DtStart>=?")
 	Errcheck(err)
