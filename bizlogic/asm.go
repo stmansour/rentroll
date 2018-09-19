@@ -681,14 +681,14 @@ func DeallocateAppliedFunds(ctx context.Context, a *rlib.Assessment, asmtRevID i
 //-------------------------------------------------------------------------------------
 func InsertAssessment(ctx context.Context, a *rlib.Assessment, exp int, lc *rlib.ClosePeriod) []BizError {
 	funcname := "bizlogic.InsertAssessment"
-	rlib.Console("*************************************************************************\n")
-	rlib.Console("Entered %s\n", funcname)
-	rlib.Console("Amount = %8.2f, RentCycle = %d, Start = %s, Stop = %s\n", a.Amount, a.RentCycle, a.Start.Format(rlib.RRDATEFMT3), a.Stop.Format(rlib.RRDATEFMT3))
-	rlib.Console("lc.Dt = %s\n", lc.Dt.Format(rlib.RRDATEREPORTFMT))
-	rlib.Console("lc.CPID= %d, lc.Dt = %s\n", lc.CPID, lc.Dt.Format(rlib.RRDATEFMT3))
-	rlib.Console("lc.ExpandAsmDtStart = %s\n", lc.ExpandAsmDtStart.Format(rlib.RRDATEFMT3))
-	rlib.Console("lc.ExpandAsmDtStop = %s\n", lc.ExpandAsmDtStop.Format(rlib.RRDATEREPORTFMT))
-	rlib.Console("*************************************************************************\n")
+	// rlib.Console("*************************************************************************\n")
+	// rlib.Console("Entered %s\n", funcname)
+	// rlib.Console("Amount = %8.2f, RentCycle = %d, Start = %s, Stop = %s\n", a.Amount, a.RentCycle, a.Start.Format(rlib.RRDATEFMT3), a.Stop.Format(rlib.RRDATEFMT3))
+	// rlib.Console("lc.Dt = %s\n", lc.Dt.Format(rlib.RRDATEREPORTFMT))
+	// rlib.Console("lc.CPID= %d, lc.Dt = %s\n", lc.CPID, lc.Dt.Format(rlib.RRDATEFMT3))
+	// rlib.Console("lc.ExpandAsmDtStart = %s\n", lc.ExpandAsmDtStart.Format(rlib.RRDATEFMT3))
+	// rlib.Console("lc.ExpandAsmDtStop = %s\n", lc.ExpandAsmDtStop.Format(rlib.RRDATEREPORTFMT))
+	// rlib.Console("*************************************************************************\n")
 
 	var errlist []BizError
 	errlist = ValidateAssessment(ctx, a) // Make sure there are no bizlogic errors before saving
@@ -818,7 +818,7 @@ func ValidateAssessment(ctx context.Context, a *rlib.Assessment) []BizError {
 	var e []BizError
 	var raid, bid int64
 	var row *sql.Row
-	rlib.Console("ValidateAssessment: A\n")
+	// rlib.Console("ValidateAssessment: A\n")
 	//----------------------------------------------
 	// Validate that we have a RAID that exists...
 	//----------------------------------------------
@@ -835,7 +835,7 @@ func ValidateAssessment(ctx context.Context, a *rlib.Assessment) []BizError {
 			s := fmt.Sprintf(BizErrors[UnknownRAID].Message, a.RAID, a.BID)
 			b := BizError{Errno: UnknownRAID, Message: s}
 			e = append(e, b)
-			rlib.Console("ValidateAssessment: B\n")
+			// rlib.Console("ValidateAssessment: B\n")
 		} else {
 			return bizErrSys(&err)
 		}
@@ -846,7 +846,7 @@ func ValidateAssessment(ctx context.Context, a *rlib.Assessment) []BizError {
 	if bid != a.BID {
 		s := fmt.Sprintf(BizErrors[UnknownRAID].Message, a.RAID, a.BID)
 		b := BizError{Errno: UnknownRAID, Message: s}
-		rlib.Console("ValidateAssessment: C\n")
+		// rlib.Console("ValidateAssessment: C\n")
 		e = append(e, b)
 	}
 
@@ -857,20 +857,18 @@ func ValidateAssessment(ctx context.Context, a *rlib.Assessment) []BizError {
 		rtl, err := rlib.GetRentableTypeRefs(ctx, a.RID) // these are returned in chronological order
 		if err != nil {
 			elist := bizErrSys(&err)
-			rlib.Console("ValidateAssessment: D\n")
+			// rlib.Console("ValidateAssessment: D\n")
 			e = append(e, elist[0])
 		}
 
 		l := len(rtl)
 		if l == 0 {
-			rlib.Console("ValidateAssessment: E\n")
+			// rlib.Console("ValidateAssessment: E\n")
 			e = append(e, BizErrors[RentableTypeUnknown])
 		} else {
 			if a.Stop.Before(rtl[0].DtStart) || a.Start.After(rtl[l-1].DtStop) {
-				rlib.Console("ASMID = %d\n\tStart = %s, Stop = %s\n\tRentableType[0].start = %s, RentableType[%d].stop = %s",
-					a.ASMID, a.Start.Format(rlib.RRDATEREPORTFMT), a.Stop.Format(rlib.RRDATEREPORTFMT),
-					rtl[0].DtStart.Format(rlib.RRDATEREPORTFMT), l-1, rtl[l-1].DtStop.Format(rlib.RRDATEREPORTFMT))
-				rlib.Console("ValidateAssessment: F\n")
+				// rlib.Console("ASMID = %d\n\tStart = %s, Stop = %s\n\tRentableType[0].start = %s, RentableType[%d].stop = %s", a.ASMID, a.Start.Format(rlib.RRDATEREPORTFMT), a.Stop.Format(rlib.RRDATEREPORTFMT), rtl[0].DtStart.Format(rlib.RRDATEREPORTFMT), l-1, rtl[l-1].DtStop.Format(rlib.RRDATEREPORTFMT))
+				// rlib.Console("ValidateAssessment: F\n")
 				e = append(e, BizErrors[RentableTypeUnknown])
 			}
 		}
@@ -878,23 +876,23 @@ func ValidateAssessment(ctx context.Context, a *rlib.Assessment) []BizError {
 		//--------------------------------------------------------------------------
 		//  Check for assessment timeframe prior to or after Rentable's status being defined
 		//--------------------------------------------------------------------------
-		rlib.Console("ValidateAssessment: a.Start-Stop = %s - %s\n", a.Start.Format(rlib.RRDATEINPFMT), a.Stop.Format(rlib.RRDATEINPFMT))
+		// rlib.Console("ValidateAssessment: a.Start-Stop = %s - %s\n", a.Start.Format(rlib.RRDATEINPFMT), a.Stop.Format(rlib.RRDATEINPFMT))
 		rsl, err := rlib.GetRentableStatusByRange(ctx, a.RID, &a.Start, &a.Stop)
 		if err != nil {
 			elist := bizErrSys(&err)
-			rlib.Console("ValidateAssessment: G\n")
+			// rlib.Console("ValidateAssessment: G\n")
 			e = append(e, elist[0])
 		}
 
 		l = len(rsl)
 		if l == 0 {
-			rlib.Console("ValidateAssessment: H\n")
+			// rlib.Console("ValidateAssessment: H\n")
 			rlib.Console("ValidateAssessment: l=0 --> GetRentableStatusByRange( a.RID=%d, %s)\n", a.RID, rlib.ConsoleDRange(&a.Start, &a.Stop))
 			e = append(e, BizErrors[RentableStatusUnknown])
 		} else {
-			rlib.Console("ValidateAssessment: rtl = %s - %s\n", rtl[0].DtStart.Format(rlib.RRDATEINPFMT), rtl[l-1].DtStop.Format(rlib.RRDATEINPFMT))
+			// rlib.Console("ValidateAssessment: rtl = %s - %s\n", rtl[0].DtStart.Format(rlib.RRDATEINPFMT), rtl[l-1].DtStop.Format(rlib.RRDATEINPFMT))
 			if a.Stop.Before(rtl[0].DtStart) || a.Start.After(rtl[l-1].DtStop) {
-				rlib.Console("ValidateAssessment: I\n")
+				// rlib.Console("ValidateAssessment: I\n")
 				e = append(e, BizErrors[RentableStatusUnknown])
 			}
 		}
@@ -912,7 +910,7 @@ func ValidateAssessment(ctx context.Context, a *rlib.Assessment) []BizError {
 		// We cannot have the start date occuring after the stop date
 		//--------------------------------------------------------------------------
 		if a.Stop.Before(a.Start) {
-			rlib.Console("ValidateAssessment: J\n")
+			// rlib.Console("ValidateAssessment: J\n")
 			e = append(e, BizErrors[StartDateAfterStopDate])
 		}
 	}
