@@ -1,0 +1,269 @@
+{
+    "record": {
+        "DataFulfilled": {
+            "dates": true,
+            "parentchild": true,
+            "people": true,
+            "pets": true,
+            "rentables": true,
+            "tie": true,
+            "vehicles": true
+        },
+        "Flow": {
+            "BID": 1,
+            "CreateBy": 0,
+            "CreateTS": "0001-01-01T00:00:00Z",
+            "Data": {
+                "dates": {
+                    "AgreementStart": "1/1/2018",
+                    "AgreementStop": "1/1/2018",
+                    "CSAgent": 229,
+                    "PossessionStart": "1/1/2018",
+                    "PossessionStop": "2/28/2018",
+                    "RentStart": "1/1/2018",
+                    "RentStop": "2/28/2018"
+                },
+                "meta": {
+                    "ActiveDate": "2018-09-19 06:32:00 UTC",
+                    "ActiveName": "UID-0",
+                    "ActiveUID": -99999,
+                    "ApplicationReadyDate": "2018-09-19 06:22:00 UTC",
+                    "ApplicationReadyName": "Steve Mansour",
+                    "ApplicationReadyUID": 211,
+                    "Approver1": 211,
+                    "Approver1Name": "Steve Mansour",
+                    "Approver2": 211,
+                    "Approver2Name": "Steve Mansour",
+                    "BID": 1,
+                    "DecisionDate1": "2018-09-19 06:22:00 UTC",
+                    "DecisionDate2": "2018-09-19 06:22:00 UTC",
+                    "DeclineReason1": 0,
+                    "DeclineReason2": 0,
+                    "DocumentDate": "2019-01-01 00:00:00 UTC",
+                    "HavePets": false,
+                    "HaveVehicles": false,
+                    "LastTMPASMID": 2,
+                    "LastTMPPETID": 1,
+                    "LastTMPTCID": 1,
+                    "LastTMPVID": 1,
+                    "LeaseTerminationReason": 0,
+                    "MoveInDate": "2018-09-19 06:22:00 UTC",
+                    "MoveInName": "Steve Mansour",
+                    "MoveInUID": 211,
+                    "NoticeToMoveDate": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveName": "UID-0",
+                    "NoticeToMoveReported": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveUID": 0,
+                    "RAFLAGS": 52,
+                    "RAID": 2,
+                    "TerminationDate": "1900-01-01 00:00:00 UTC",
+                    "TerminatorName": "UID-0",
+                    "TerminatorUID": 0
+                },
+                "parentchild": [],
+                "people": [
+                    {
+                        "Address": "60487 Ridge",
+                        "Address2": "",
+                        "AlternateEmailAddress": "48184 Pioneer,Arvada,ID 31847",
+                        "Bankruptcy": false,
+                        "BankruptcyDes": "",
+                        "CellPhone": "(690) 432-1475",
+                        "City": "Port St. Lucie",
+                        "Comment": "",
+                        "CompanyAddress": "9362 Malulani",
+                        "CompanyCity": "SterlingHeights",
+                        "CompanyEmail": "ContinentalAirlinesIncS9166@bdiddy.com",
+                        "CompanyName": "Continental Airlines Inc.",
+                        "CompanyPhone": "(280) 226-1594",
+                        "CompanyPostalCode": "84059",
+                        "CompanyState": "GA",
+                        "Convicted": false,
+                        "ConvictedDes": "",
+                        "Country": "USA",
+                        "CreditLimit": 750,
+                        "CurrentAddress": "84683 Kahili, Westminster, MI 02081",
+                        "CurrentLandLordName": "Willy Booker",
+                        "CurrentLandLordPhoneNo": "(128) 242-3357",
+                        "CurrentLengthOfResidency": "5 years 11 months",
+                        "CurrentReasonForMoving": 128,
+                        "DateofBirth": "5/1/1959",
+                        "DriversLicense": "A1777109",
+                        "EligibleFuturePayor": true,
+                        "EligibleFutureUser": true,
+                        "EmergencyContactAddress": "44075 Fifth,Thousand Oaks,HI 27887",
+                        "EmergencyContactEmail": "AWare7809@abiz.com",
+                        "EmergencyContactName": "Araceli Ware",
+                        "EmergencyContactTelephone": "(957) 366-5178",
+                        "Evicted": false,
+                        "EvictedDes": "",
+                        "FirstName": "Antionette",
+                        "GrossIncome": 142182,
+                        "Industry": 266,
+                        "IsCompany": false,
+                        "IsGuarantor": false,
+                        "IsOccupant": true,
+                        "IsRenter": true,
+                        "LastName": "Klein",
+                        "MiddleName": "Victoria",
+                        "Occupation": "product designer (industrial designer)",
+                        "OtherPreferences": "",
+                        "Points": 0,
+                        "PostalCode": "98081",
+                        "PreferredName": "Jana",
+                        "PrimaryEmail": "AntionetteKlein768@comcast.net",
+                        "PriorAddress": "47281 Bay, Aurora, NY 41318",
+                        "PriorLandLordName": "Lieselotte Kramer",
+                        "PriorLandLordPhoneNo": "(994) 347-9580",
+                        "PriorLengthOfResidency": "2 years 6 months",
+                        "PriorReasonForMoving": 112,
+                        "SecondaryEmail": "AntionetteKlein894@bdiddy.com",
+                        "SourceSLSID": 64,
+                        "SpecialNeeds": "",
+                        "State": "IA",
+                        "TCID": 1,
+                        "TMPTCID": 1,
+                        "TaxpayorID": "02773249",
+                        "ThirdPartySource": "Terry Suarez",
+                        "Website": "",
+                        "WorkPhone": "(460) 498-1359"
+                    }
+                ],
+                "pets": [
+                    {
+                        "Breed": "Napoleon cat",
+                        "Color": "white",
+                        "Fees": [
+                            {
+                                "ARID": 23,
+                                "ARName": "Pet Fee",
+                                "ASMID": 31,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 10,
+                                "ProrationCycle": 0,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "1/1/2018",
+                                "Stop": "2/28/2018",
+                                "TMPASMID": 2,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "Name": "Simon ",
+                        "PETID": 1,
+                        "TMPPETID": 1,
+                        "TMPTCID": 1,
+                        "Type": "cat",
+                        "Weight": 13
+                    }
+                ],
+                "rentables": [
+                    {
+                        "AtSigningPreTax": 0,
+                        "Fees": [
+                            {
+                                "ARID": 40,
+                                "ARName": "Rent ST000",
+                                "ASMID": 28,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 1000,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "1/1/2018",
+                                "Stop": "2/28/2018",
+                                "TMPASMID": 1,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "RID": 1,
+                        "RTFLAGS": 4,
+                        "RTID": 1,
+                        "RentCycle": 6,
+                        "RentableName": "Rentable001",
+                        "SalesTax": 0,
+                        "TransOccTax": 0
+                    }
+                ],
+                "tie": {
+                    "people": [
+                        {
+                            "PRID": 1,
+                            "TMPTCID": 1
+                        }
+                    ]
+                },
+                "vehicles": [
+                    {
+                        "Fees": [],
+                        "LicensePlateNumber": "C8S119O",
+                        "LicensePlateState": "NH",
+                        "ParkingPermitNumber": "1314422",
+                        "TMPTCID": 1,
+                        "TMPVID": 1,
+                        "VID": 1,
+                        "VIN": "WVWDXWPSXOELZETO",
+                        "VehicleColor": "Gold",
+                        "VehicleMake": "Mercedes-Benz",
+                        "VehicleModel": "SL-Class",
+                        "VehicleType": "car",
+                        "VehicleYear": 2002
+                    }
+                ]
+            },
+            "FlowID": 0,
+            "FlowType": "RA",
+            "ID": 2,
+            "LastModBy": 0,
+            "LastModTime": "0001-01-01T00:00:00Z",
+            "UserRefNo": ""
+        },
+        "ValidationCheck": {
+            "errors": {
+                "dates": {
+                    "errors": {},
+                    "total": 0
+                },
+                "parentchild": {
+                    "errors": [],
+                    "total": 0
+                },
+                "people": {
+                    "errors": [],
+                    "total": 0
+                },
+                "pets": {
+                    "errors": [],
+                    "total": 0
+                },
+                "rentables": {
+                    "errors": [],
+                    "total": 0
+                },
+                "tie": {
+                    "people": {
+                        "errors": [],
+                        "total": 0
+                    }
+                },
+                "vehicles": {
+                    "errors": [],
+                    "total": 0
+                }
+            },
+            "nonFieldsErrors": {
+                "dates": [],
+                "parentchild": [],
+                "people": [],
+                "pets": [],
+                "rentables": [],
+                "tie": [],
+                "vehicles": []
+            },
+            "total": 0
+        }
+    },
+    "status": "success"
+}

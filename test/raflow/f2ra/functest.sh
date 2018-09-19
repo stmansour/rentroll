@@ -174,6 +174,7 @@ TFILES="c"
 #------------------------------------------------------------------------------
 TFILES="d"
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
+    echo "Create new database... x${TFILES}.sql"
     mysql --no-defaults rentroll < x${TFILES}.sql
 
     RAIDREFNO="1RQTH0A0EO2JD003475M"
@@ -273,7 +274,9 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Mode%22%3A%22State%22%2C%22DocumentDate%22%3A%22${DTSTART}%22%7D" > request
     dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}7"  "WebService--Approver2"
 
+    #----------------------------------------------------------------
     # Make the updated RefNo an Active RA
+    #----------------------------------------------------------------
     echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
     dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}8"  "WebService--Activate-RefNo"
 fi
@@ -287,17 +290,34 @@ fi
 #  any recurring assessment definition with a stop date that matched the
 #  RA RentStop date.  That is, new assessments will net be created.
 #
+#  RAID 1 - 2/13/2017 12/31/2017
+#  RAID 2 - 1/1/2018 - 2/28/2018  -  RentStop and PossessionStop Only
+#
 #  Expected Results:
 #  1. The Rental Agreement will be amended. The amendment RentStop will be
-#     extended out
+#     extended out to the end of Feb 2018.
 #
-#  1. All recurring assessments that ended on (or after) the RA stop date will
-#     be extended to the new stop date.
+#  2. Recurring assessments end on the RentStop date
 #------------------------------------------------------------------------------
 TFILES="f"
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
+    echo "Create new database... x${TFILES}.sql"
     mysql --no-defaults rentroll < x${TFILES}.sql
 
+    RAIDREFNO="C8VV07E4FJI983MC5Z76"
+
+    #----------------------------------------------------------------
+    # Make the updated RefNo an Active RA
+    #----------------------------------------------------------------
+    echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
+    dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}0"  "WebService--Activate-RefNo"
+
+    #---------------------------------------------------------------------------
+    # Generate a payor statement -- ensure that 2 RAs are there and have correct
+    # info.
+    #---------------------------------------------------------------------------
+    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%222%2F1%2F2018%22%2C%22searchDtStop%22%3A%229%2F30%2F2018%22%2C%22Bool1%22%3Afalse%7D" > request
+    dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "${TFILES}1"  "PayorStatement--StmtInfo"
 
 fi
 
