@@ -97,14 +97,14 @@ func F2RAHandleOldAssessments(ctx context.Context, x *rlib.F2RAWriteHandlerConte
 	var err error
 	var n []rlib.Assessment
 	var skipASMID int64
-	rlib.Console("Entered F2RAHandleOldAssessments\n")
+	// rlib.Console("Entered F2RAHandleOldAssessments\n")
 
-	for _, ra := range x.RaChainOrig {
-		rlib.Console("%d ", ra.RAID)
-	}
+	// for _, ra := range x.RaChainOrig {
+	// 	// rlib.Console("%d ", ra.RAID)
+	// }
 
-	rlib.Console("\n")
-	rlib.Console("A2 - Processing RA Chain\n")
+	// rlib.Console("\n")
+	// rlib.Console("A2 - Processing RA Chain\n")
 
 	//=========================================================================
 	//  FOR EVERY RENTAL AGREEMENT THAT IS IMPACTED BY THIS UPDATE...
@@ -112,22 +112,22 @@ func F2RAHandleOldAssessments(ctx context.Context, x *rlib.F2RAWriteHandlerConte
 	for i := 0; i < len(x.RaChainOrig); i++ {
 
 		ra := x.RaChainOrig[i]
-		rlib.Console("Setting ExpandAsmDtStop to RentStop of RAID %d: %s\n", ra.RAID, ra.RentStop.Format(rlib.RRDATEFMT3))
+		// rlib.Console("Setting ExpandAsmDtStop to RentStop of RAID %d: %s\n", ra.RAID, ra.RentStop.Format(rlib.RRDATEFMT3))
 		x.LastClose.ExpandAsmDtStop = ra.RentStop // do not expand past this date
 		raUnchanged := x.RaChainOrigUnchanged[i]
 
-		rlib.Console("A3: ra.RAID = %d\n", ra.RAID)
+		// rlib.Console("A3: ra.RAID = %d\n", ra.RAID)
 		//-------------------------------------------------------------------------
 		//  Only process if there's time overlap.  In this case we need to compare
 		//  the time range of the old RA before any changes were made, so we need
 		//  to use raUnchanged
 		//-------------------------------------------------------------------------
 		if !rlib.DateRangeOverlap(&x.Ra.RentStart, &x.Ra.RentStop, &raUnchanged.RentStart, &raUnchanged.RentStop) {
-			rlib.Console("A3.1 no overlap: %s - %s, %s - %s\n", x.Ra.RentStart.Format(rlib.RRDATEREPORTFMT), x.Ra.RentStop.Format(rlib.RRDATEREPORTFMT), ra.RentStart.Format(rlib.RRDATEREPORTFMT), ra.RentStop.Format(rlib.RRDATEREPORTFMT))
+			// rlib.Console("A3.1 no overlap: %s - %s, %s - %s\n", x.Ra.RentStart.Format(rlib.RRDATEREPORTFMT), x.Ra.RentStop.Format(rlib.RRDATEREPORTFMT), ra.RentStart.Format(rlib.RRDATEREPORTFMT), ra.RentStop.Format(rlib.RRDATEREPORTFMT))
 			continue
 		}
 
-		rlib.Console("A4 - overlaps the amended RA\n")
+		// rlib.Console("A4 - overlaps the amended RA\n")
 		//-----------------------------------------------------------------------
 		// Need to process this one. Start with its recurring asm definitions...
 		//-----------------------------------------------------------------------
@@ -135,13 +135,13 @@ func F2RAHandleOldAssessments(ctx context.Context, x *rlib.F2RAWriteHandlerConte
 		if err != nil {
 			return err
 		}
-		rlib.Console("A5 - found %d recurring Assessments for RAID %d\n", len(n), ra.RAID)
+		// rlib.Console("A5 - found %d recurring Assessments for RAID %d\n", len(n), ra.RAID)
 
 		//=========================================================================
 		//  FOR EVERY RECURRING ASSESSMENT DEFINITION IN THIS RENTAL AGREEMENT...
 		//=========================================================================
 		for _, v := range n {
-			rlib.Console("A6 - ASMID=%d\n", v.ASMID)
+			// rlib.Console("A6 - ASMID=%d\n", v.ASMID)
 			if v.FLAGS&(1<<2) != 0 {
 				continue // skip it if it has already been Reversed
 			}
@@ -152,11 +152,11 @@ func F2RAHandleOldAssessments(ctx context.Context, x *rlib.F2RAWriteHandlerConte
 			//---------------------------------------------------------------
 			dt := v.Start // assume it will be on the assessment start date
 			if v.Start.Before(x.LastClose.Dt) {
-				rlib.Console("A6.1 - v.Start is prior to the last close period. Snapping dt to: %s\n", dt.Format(rlib.RRDATERECEIPTFMT))
+				// rlib.Console("A6.1 - v.Start is prior to the last close period. Snapping dt to: %s\n", dt.Format(rlib.RRDATERECEIPTFMT))
 				dt = x.LastClose.Dt
 			}
 
-			rlib.Console("A6.2 - dt for changes = %s\n", dt.Format(rlib.RRDATEREPORTFMT))
+			// rlib.Console("A6.2 - dt for changes = %s\n", dt.Format(rlib.RRDATEREPORTFMT))
 
 			//---------------------------------------------------------------
 			//  The assessment will be totally replaced if the new RA start
@@ -166,14 +166,14 @@ func F2RAHandleOldAssessments(ctx context.Context, x *rlib.F2RAWriteHandlerConte
 				//---------------------------------------------
 				// Reverse the whole thing; all instances...
 				//---------------------------------------------
-				rlib.Console("A7 -- REVERSE THE ASSESSMENT!! amended RA starts prior to ASM Start: %s\n", v.Start.Format(rlib.RRDATEREPORTFMT))
+				// rlib.Console("A7 -- REVERSE THE ASSESSMENT!! amended RA starts prior to ASM Start: %s\n", v.Start.Format(rlib.RRDATEREPORTFMT))
 				be := ReverseAssessment(ctx, &v, 2 /*from dt onward*/, &dt, &x.LastClose)
 				if len(be) > 0 {
-					rlib.Console("A7 error\n")
+					// rlib.Console("A7 error\n")
 					return BizErrorListToError(be)
 				}
 			} else {
-				rlib.Console("A8 -- REVERSE from this time forward\n")
+				// rlib.Console("A8 -- REVERSE from this time forward\n")
 				//-------------------------------------------------------------
 				// Reverse the instances that occur in periods on or after
 				// x.Ra.RentStart.  We know the epoch as we have the  recurring
@@ -187,12 +187,12 @@ func F2RAHandleOldAssessments(ctx context.Context, x *rlib.F2RAWriteHandlerConte
 					return err
 				}
 				if len(n) == 0 {
-					rlib.Console("A8.1 -- cannot find instance date near x.Ra.RentStart!!\n")
+					// rlib.Console("A8.1 -- cannot find instance date near x.Ra.RentStart!!\n")
 				} else {
-					rlib.Console("A9 - reversing assessments from = %s forward, starting with ASMID = %d\n", n[0].Start.Format(rlib.RRDATEREPORTFMT), n[0].ASMID)
+					// rlib.Console("A9 - reversing assessments from = %s forward, starting with ASMID = %d\n", n[0].Start.Format(rlib.RRDATEREPORTFMT), n[0].ASMID)
 					errlist := ReverseAssessment(ctx, &n[0], 1 /*this point forward*/, &dt, &x.LastClose)
 					if len(errlist) > 0 {
-						rlib.Console("A9 error\n")
+						// rlib.Console("A9 error\n")
 						return BizErrorListToError(errlist)
 					}
 					//-------------------------------------------------------------
@@ -206,7 +206,7 @@ func F2RAHandleOldAssessments(ctx context.Context, x *rlib.F2RAWriteHandlerConte
 
 					isinst := rlib.IsInstanceDate(&target, &x.Ra.RentStart, v.RentCycle, v.ProrationCycle)
 					if !isinst {
-						rlib.Console("A9.1 - new RA rentstart (%s) was found NOT to be an instance date of ASMID = %d\n", x.Ra.RentStart.Format(rlib.RRDATEREPORTFMT), v.ASMID)
+						// rlib.Console("A9.1 - new RA rentstart (%s) was found NOT to be an instance date of ASMID = %d\n", x.Ra.RentStart.Format(rlib.RRDATEREPORTFMT), v.ASMID)
 						//------------------------------------------------------
 						// In this case we need to create a prorated assessment
 						// that covers from target to x.Ra.RentStart
@@ -222,16 +222,16 @@ func F2RAHandleOldAssessments(ctx context.Context, x *rlib.F2RAWriteHandlerConte
 						asm.ProrationCycle = rlib.RECURNONE // no proration here
 						asm.FLAGS = 0
 						asm.Stop = asm.Start
-						rlib.Console("\n\n**********\ncalling InsertAssessment")
+						// rlib.Console("\n\n**********\ncalling InsertAssessment")
 						if errlist := InsertAssessment(ctx, &asm, 0 /*no expanding*/, &x.LastClose); len(errlist) > 0 {
 							return BizErrorListToError(errlist)
 						}
 						skipASMID = asm.ASMID
-						rlib.Console("A9.2 - just inserted asm = %d, skipASMID set\n", skipASMID)
-						rlib.Console("**********\n\n\n")
+						// rlib.Console("A9.2 - just inserted asm = %d, skipASMID set\n", skipASMID)
+						// rlib.Console("**********\n\n\n")
 					} else {
-						rlib.Console("A9.3 - new RA rentstart (%s) was found to be an instance date of ASMID = %d\n", x.Ra.RentStart.Format(rlib.RRDATEREPORTFMT), v.ASMID)
-						rlib.Console("     - so will not add a prorated rent assessment\n")
+						// rlib.Console("A9.3 - new RA rentstart (%s) was found to be an instance date of ASMID = %d\n", x.Ra.RentStart.Format(rlib.RRDATEREPORTFMT), v.ASMID)
+						// rlib.Console("     - so will not add a prorated rent assessment\n")
 					}
 				}
 				//-------------------------------------------------------------
@@ -248,7 +248,7 @@ func F2RAHandleOldAssessments(ctx context.Context, x *rlib.F2RAWriteHandlerConte
 			}
 		}
 
-		rlib.Console("A10 - HANDLE INSTANCES\n")
+		// rlib.Console("A10 - HANDLE INSTANCES\n")
 		//-----------------------------------------------------------------------
 		// REVERSE ALL REMAINING INSTANCES IMPACTED BY THE NEW RENTAL AGREEMENT
 		//-----------------------------------------------------------------------
@@ -256,14 +256,14 @@ func F2RAHandleOldAssessments(ctx context.Context, x *rlib.F2RAWriteHandlerConte
 		if err != nil {
 			return err
 		}
-		rlib.Console("A11 -  Found %d instances in the range %s - %s\n", len(n), x.Ra.RentStart.Format(rlib.RRDATEREPORTFMT), rlib.ENDOFTIME.Format(rlib.RRDATEREPORTFMT))
+		// rlib.Console("A11 -  Found %d instances in the range %s - %s\n", len(n), x.Ra.RentStart.Format(rlib.RRDATEREPORTFMT), rlib.ENDOFTIME.Format(rlib.RRDATEREPORTFMT))
 		for _, v := range n {
 			if v.ASMID == skipASMID {
 				continue // this one is OK, we just added it
 			}
-			rlib.Console("A12 -  ASMID = %d\n", v.ASMID)
+			// rlib.Console("A12 -  ASMID = %d\n", v.ASMID)
 			if v.FLAGS&(1<<2) != 0 {
-				rlib.Console("A12.1 - reversed, skipping\n")
+				// rlib.Console("A12.1 - reversed, skipping\n")
 				continue // skip reversed assessments
 			}
 			if v.Start.Before(x.Ra.RentStart) {
@@ -278,30 +278,30 @@ func F2RAHandleOldAssessments(ctx context.Context, x *rlib.F2RAWriteHandlerConte
 			if v.Start.Before(x.LastClose.Dt) {
 				dt = x.LastClose.Dt
 			}
-			rlib.Console("A12.2 - Reversal dates will be as of: %s\n", dt.Format(rlib.RRDATEREPORTFMT))
+			// rlib.Console("A12.2 - Reversal dates will be as of: %s\n", dt.Format(rlib.RRDATEREPORTFMT))
 			//----------------------------
 			// Now process the instance
 			//----------------------------
 			if !v.Start.Before(x.Ra.RentStart) {
 				// Reverse the whole thing
-				rlib.Console("A13 - Reversing ASMID = %d\n", v.ASMID)
+				// rlib.Console("A13 - Reversing ASMID = %d\n", v.ASMID)
 				be := ReverseAssessment(ctx, &v, 0 /*this instance*/, &dt, &x.LastClose)
 				if len(be) > 0 {
-					rlib.Console("A13 error\n")
+					// rlib.Console("A13 error\n")
 					PrintBizErrorList(be)
 					return BizErrorListToError(be)
 				}
 			} else {
 				// This should not happen. Checking for it just to make sure that
 				// the code is working as expected
-				rlib.Console("\n\n**** ERROR ****    **** ERROR ****    **** ERROR ****    \n\n")
-				rlib.Console("\nLook for this line of code in F2RAHandleOldAssessments()\n")
-				rlib.Console("Assessment ASMID = %d, Start date is out of expected range:  %s\n", v.ASMID, v.Start.Format(rlib.RRDATEREPORTFMT))
-				rlib.Console("\n\n**** ERROR ****    **** ERROR ****    **** ERROR ****    \n\n")
+				// rlib.Console("\n\n**** ERROR ****    **** ERROR ****    **** ERROR ****    \n\n")
+				// rlib.Console("\nLook for this line of code in F2RAHandleOldAssessments()\n")
+				// rlib.Console("Assessment ASMID = %d, Start date is out of expected range:  %s\n", v.ASMID, v.Start.Format(rlib.RRDATEREPORTFMT))
+				// rlib.Console("\n\n**** ERROR ****    **** ERROR ****    **** ERROR ****    \n\n")
 			}
 		}
 	}
-	rlib.Console("A14\n")
+	// rlib.Console("A14\n")
 
 	return nil
 }

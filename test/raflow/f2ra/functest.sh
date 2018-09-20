@@ -274,6 +274,9 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Mode%22%3A%22State%22%2C%22DocumentDate%22%3A%22${DTSTART}%22%7D" > request
     dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}7"  "WebService--Approver2"
 
+    # for debugging, it's nice to have the database in this state
+    # mysqldump --no-defaults rentroll > "x${TFILES}.sql"
+
     #----------------------------------------------------------------
     # Make the updated RefNo an Active RA
     #----------------------------------------------------------------
@@ -343,10 +346,12 @@ fi
 #  Expected Results:
 #  1. The Rental Agreement will be amended. The amendment will have the dates
 #     just as described above.
-#  2. The resulting assessments should have everything for RA 1 reversed and
-#     all the RAs should be for RAID 2.
-#  3. $9000 of rent should be reversed on RAID 1, $8080 should be charged
-#     to RAID 2 due to the addidion of the pet.
+#  2. All assessments for RA 1 should be reversed and all active
+#     assessment should be for RAID 2.
+#  3. $9000 of rent assessments should be reversed on RAID 1, $8080 of
+#     assessments should be charged to RAID 2. The extra $80 is due to
+#     the addidion of the pet.
+#  4. There should be $9000 of unallocated funds for RA 2
 #------------------------------------------------------------------------------
 TFILES="g"
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
@@ -370,13 +375,44 @@ fi
 
 #------------------------------------------------------------------------------
 #  TEST h
-#  Move Possession date only.
+#  Move RentStop back in time -- into a closed period.
+#  This is exactly like test g except that Jan - Aug are closed periods.
+#
+#  Scenario
+#  On Sep 19, 2018 set the rental agreement dates as follows:
+#     Agreement Start/Stop:  1/1/2018 - 12/31/2018
+#     Rent Start/Stop:       1/1/2018 - 7/31/2018
+#     Possession Start/Stop: 1/1/2018 - 7/31/2018
+#
+#  Expected Results:
+#  1. The Rental Agreement will be amended. The amendment will have the dates
+#     just as described above.
+#  2. All assessments for RA 1 should be reversed and
+#     all the RAs should be for RAID 2.
+#  3. $9000 of rent should be reversed on RAID 1, $8080 should be charged
+#     to RAID 2 due to the addidion of the pet.
 #
 #------------------------------------------------------------------------------
 TFILES="h"
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
     echo "Test h"
 
+    echo "Create new database... x${TFILES}.sql"
+    mysql --no-defaults rentroll < x${TFILES}.sql
+    RAIDREFNO="227ZM0HGT05MQC41XM89"
+
+    #----------------------------------------------------------------
+    # Make the updated RefNo an Active RA
+    #----------------------------------------------------------------
+    echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
+    dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}0"  "WebService--Activate-RefNo"
+
+    #---------------------------------------------------------------------------
+    # Generate a payor statement -- ensure that 2 RAs are there and have correct
+    # info.
+    #---------------------------------------------------------------------------
+    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%222%2F1%2F2018%22%2C%22searchDtStop%22%3A%229%2F30%2F2018%22%2C%22Bool1%22%3Afalse%7D" > request
+    dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "${TFILES}1"  "PayorStatement--StmtInfo"
 fi
 
 #------------------------------------------------------------------------------

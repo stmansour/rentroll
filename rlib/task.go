@@ -293,14 +293,14 @@ func LastDOM(m time.Month, y int) int {
 //    ctx - db context
 //    tl  - the task list - will be updated on return to the last instance created
 //    tld - task list definition
-//    pivot - creation pivot date
+//    pivot - creation pivot date of original instance
 //    dstop - create instances up to this date
 //
 // RETURNS:
 //    any error encountered
 //------------------------------------------------------------------------------
 func TaskListExpandPastInstances(ctx context.Context, tl *TaskList, tld *TaskListDefinition, pivot, dstop *time.Time) error {
-	Console("Entered TaskListExpandPastInstances\n")
+	// Console("Entered TaskListExpandPastInstances\n")
 	var err error
 	dtNext := NextInstance(pivot, tl.Cycle)
 	if !dstop.After(dtNext) {
@@ -326,7 +326,7 @@ func TaskListExpandPastInstances(ctx context.Context, tl *TaskList, tld *TaskLis
 		if err != nil {
 			return err
 		}
-		Console("created instance: TLID=%d\n", tl.TLID)
+		// Console("created instance: TLID=%d\n", tl.TLID)
 
 		dtNext = NextInstance(pivot, tl.Cycle)
 		// Console("loop: NextInstance(&pivot, tl.Cycle) --> dtNext = %s\n", dtNext.Format(RRDATETIMERPTFMT))

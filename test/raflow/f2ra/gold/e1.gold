@@ -12,7 +12,7 @@
         "Flow": {
             "BID": 1,
             "CreateBy": -99999,
-            "CreateTS": "2018-09-18T22:12:18Z",
+            "CreateTS": "2018-09-20T12:39:43Z",
             "Data": {
                 "dates": {
                     "AgreementStart": "12/1/2018",
@@ -87,7 +87,7 @@
                         "CurrentLandLordPhoneNo": "(764) 127-4570",
                         "CurrentLengthOfResidency": "6 years 2 months",
                         "CurrentReasonForMoving": 94,
-                        "DateofBirth": "2/7/1957",
+                        "DateofBirth": "2/8/1957",
                         "DriversLicense": "G9017884",
                         "EligibleFuturePayor": true,
                         "EligibleFutureUser": true,
@@ -185,8 +185,8 @@
             "FlowType": "RA",
             "ID": 1,
             "LastModBy": -99999,
-            "LastModTime": "2018-09-18T22:12:43Z",
-            "UserRefNo": "8U56TINHR24C3L00S4I3"
+            "LastModTime": "2018-09-20T12:39:43Z",
+            "UserRefNo": "J440HKLJ0LL3D14I33J3"
         },
         "ValidationCheck": {
             "errors": {

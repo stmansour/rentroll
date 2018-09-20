@@ -47,14 +47,17 @@ func (a *Assessment) GetRecurrences(d1, d2 *time.Time) []time.Time {
 //-----------------------------------------------------------------------------
 func ExpandAssessment(ctx context.Context, a *Assessment, xbiz *XBusiness, d1, d2 *time.Time, updateLedgers bool, lc1 *ClosePeriod) error {
 	funcname := "ExpandAssessment"
+	ExpAsmDtStartWasSet := true
 	var j Journal
 	var err error
 	lc := *lc1 // local copy
+
 	// Console("ENTERED %s: 1. a.ASMID = %d, Biz = %s (%d), d1 - d2 = %s - %s, RentCycle = %d\n", funcname, a.ASMID, xbiz.P.Designation, xbiz.P.BID, d1.Format(RRDATEREPORTFMT), d2.Format(RRDATEREPORTFMT), a.RentCycle)
 	if lc.ExpandAsmDtStart.Year() < 1970 && a.RentCycle > RECURNONE {
 		// Console("ExpandAsmDtStart = %s -- considering this to be unset.\n", lc.ExpandAsmDtStart.Format(RRDATEFMT3))
 		// Console("Setting ExpandAsmDtStart to d1 (= %s) as lc value is unusable\n", d1.Format(RRDATEFMT3))
 		lc.ExpandAsmDtStart = *d1
+		ExpAsmDtStartWasSet = false
 	}
 
 	if a.RentCycle == RECURNONE {
@@ -105,10 +108,15 @@ func ExpandAssessment(ctx context.Context, a *Assessment, xbiz *XBusiness, d1, d
 			dtLimitStart = lc.ExpandAsmDtStart
 		}
 
+		// ensure that we don't expand too far out...
+		if !lc.ExpandAsmDtStop.Equal(TIME0) && lc.ExpandAsmDtStop.Before(dtLimitStop) {
+			dtLimitStop = lc.ExpandAsmDtStop
+		}
+
 		//-----------------------------------------------------------------------------
 		// Do the expansion list BEFORE applying any of the other limit dates.
 		// The expansion gives us the date of instances needed -- regardless of
-		// the closed perionds. The limit dates will force those instances onto
+		// the closed periods. The limit dates will force those instances onto
 		// acceptable dates.
 		//-----------------------------------------------------------------------------
 		// Console("%s: GetRecurrences(%s, %s, %d) =\n", funcname, // ConsoleDRange(&dtLimitStart, &dtLimitStop), // ConsoleDRange(&dtLimitStart, &dtLimitStop), a.RentCycle)
@@ -124,18 +132,21 @@ func ExpandAssessment(ctx context.Context, a *Assessment, xbiz *XBusiness, d1, d
 		// Start date has been snapped to the nearest open date. But the expansion
 		// needs to start on the date provided in lc.ExpandAsmDtStart
 		//-------------------------------------------------------------------------
-		if !lc.ExpandAsmDtStart.Equal(TIME0) && lc.ExpandAsmDtStart.Before(*d1) {
+		if ExpAsmDtStartWasSet && lc.ExpandAsmDtStart.Before(*d1) {
 			dtLimitStart = lc.ExpandAsmDtStart
-			idempotentCheck = false // inhibit the check in this case, many instances may snap to the same date
-			// Console("Expansion start time adjusted.  idempontentCheck = %t\n", idempotentCheck)
 		} else if a.Start.After(dtLimitStart) {
 			dtLimitStart = a.Start
 		}
-		if !lc.ExpandAsmDtStop.Equal(ENDOFTIME) && dtLimitStop.After(lc.ExpandAsmDtStop) {
+
+		// Console("%s: Ensure stop limit (%s) is not past lc.ExpandAsmDtStop (%s)\n", funcname, dtLimitStop.Format(RRDATEFMT3), lc.ExpandAsmDtStop.Format(RRDATEFMT3))
+		if dtLimitStop.After(lc.ExpandAsmDtStop) {
 			dtLimitStop = lc.ExpandAsmDtStop
-		} else if a.Stop.Before(dtLimitStop) {
+		}
+		// Console("%s: Ensure stop limit (%s) is not past a.Stop (%s)\n", funcname, dtLimitStop.Format(RRDATEFMT3), a.Stop.Format(RRDATEFMT3))
+		if a.Stop.Before(dtLimitStop) {
 			dtLimitStop = a.Stop
 		}
+		// Console("%s: stop limit is %s\n", funcname, dtLimitStop.Format(RRDATEFMT3))
 
 		//-------------------------------------------------------------------
 		// Remove hours/mins differences
@@ -197,6 +208,8 @@ func ExpandAssessment(ctx context.Context, a *Assessment, xbiz *XBusiness, d1, d
 			if dtStart.Before(lc.Dt) {
 				// Console("<<<< %d >>>> dtStart is before lc.Dt (%s), ==> so setting to lc.OpenPeriodDt: %s\n", i, lc.Dt.Format(RRDATEFMT3), lc.OpenPeriodDt.Format(RRDATEFMT3))
 				a1.AppendComment(fmt.Sprintf("Snapping %s to open period: %s", dtStart.Format(RRDATEFMT3), lc.OpenPeriodDt.Format(RRDATEFMT3)))
+				idempotentCheck = false
+				// Console("     idempotentCheck = %t\n", idempotentCheck)
 				dtStart = lc.OpenPeriodDt
 			}
 			a1.Start = dtStart
@@ -224,7 +237,16 @@ func ExpandAssessment(ctx context.Context, a *Assessment, xbiz *XBusiness, d1, d
 					return err
 				}
 				// Console("%s: 3.3  ra.RentStop = %s\n", funcname, ra.RentStop)
-				if a1.Start.After(ra.RentStop) || a1.Start.Equal(ra.RentStop) {
+				//----------------------------------------------------------------------
+				// Check the boundaries: don't create instances outside the boundaries
+				// of the recurring definition.
+				// NOTE: THE ONLY EXCEPTION is if we're expanding something that
+				// would otherwise expand into closed periods. We will add these
+				// instances at the requested dates, but we will make notes in
+				// the comments explaining what's happening
+				//----------------------------------------------------------------------
+				// Console("%s: 3.31 lc: Dt = %s, ExpandAsmStart/Stop = %s\n", funcname, lc.Dt.Format(RRDATEFMT3), // ConsoleDRange(&lc.ExpandAsmDtStart, &lc.ExpandAsmDtStop))
+				if (a1.Start.After(ra.RentStop) || a1.Start.Equal(ra.RentStop)) && !ExpAsmDtStartWasSet {
 					// Console("%s: 3.4  Do not add the new assessment\n", funcname)
 					err = fmt.Errorf("%s:  Cannot add new assessment instance on %s after RentalAgreement (%s) stop date %s", funcname, a1.Start.Format(RRDATEREPORTFMT), ra.IDtoShortString(), ra.RentStop.Format(RRDATEREPORTFMT))
 					LogAndPrintError(funcname, err)

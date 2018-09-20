@@ -1343,33 +1343,5 @@ func CreateTaskLists(ctx context.Context, dbConf *GenDBConf) error {
 		return err
 	}
 
-	// dtNext := rlib.NextInstance(&pivot, tl.Cycle)
-	// ptlid := tl.TLID
-	// for {
-	// 	pivot = dtNext
-	// 	// rlib.Console("loop:  pivot = %s\n", pivot.Format(rlib.RRDATETIMERPTFMT))
-	//
-	// 	newtl := tl
-	// 	// This is when it will be created
-	// 	if err = rlib.NextTLInstanceDates(&pivot, &tld, &newtl); err != nil {
-	// 		return err
-	// 	}
-	// 	// rlib.Console("tl.DtDue = %s,  newtl.DtDue = %s\n", tl.DtDue.Format(rlib.RRDATETIMERPTFMT), newtl.DtDue.Format(rlib.RRDATETIMERPTFMT))
-	// 	if tl.DtDue.Equal(newtl.DtDue) {
-	// 		break
-	// 	}
-	//
-	// 	tl, err := rlib.CreateTaskListInstance(ctx, TLDID, ptlid, &pivot)
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// 	dtNext = rlib.NextInstance(&pivot, tl.Cycle)
-	// 	// rlib.Console("loop: rlib.NextInstance(&pivot, tl.Cycle) --> dtNext = %s\n", dtNext.Format(rlib.RRDATETIMERPTFMT))
-	// 	// rlib.Console("loop: dtNext = %s\n", dtNext.Format(rlib.RRDATETIMERPTFMT))
-	// 	if dtNext.After(now) {
-	// 		break
-	// 	}
-	// }
-
 	return nil
 }
