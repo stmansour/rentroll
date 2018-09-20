@@ -421,6 +421,19 @@ func saveTaskList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			return
 		}
 		a.TLID = tl.TLID // ensure that the return value is correct
+
+		//----------------------------------------------------------
+		// Create past instances as needed...
+		//----------------------------------------------------------
+		tld, err := rlib.GetTaskListDefinition(r.Context(), tl.TLDID)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+		if err = rlib.TaskListExpandPastInstances(r.Context(), &tl, &tld, &pivot, &now); err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
 	} else {
 		if foo.Record.ChkDtPreDone {
 			a.DtPreDone = now

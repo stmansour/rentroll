@@ -13,7 +13,7 @@ webclient/webclientTest.sql
 websvc1/asmtest.sql
 websvc3/tasks.sql
 workerasm/rr.sql
-raflow/initra/ra0.sql
+raflow/initraflow/ra0.sql
 raflow/actions/raflowactions.sql
 raflow/validation/validateraflow.sql
 raflow/flow2ra/rr.sql
