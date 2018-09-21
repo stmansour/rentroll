@@ -47,10 +47,10 @@ func (a *Assessment) GetRecurrences(d1, d2 *time.Time) []time.Time {
 //-----------------------------------------------------------------------------
 func ExpandAssessment(ctx context.Context, a *Assessment, xbiz *XBusiness, d1, d2 *time.Time, updateLedgers bool, lc1 *ClosePeriod) error {
 	funcname := "ExpandAssessment"
-	ExpAsmDtStartWasSet := true
 	var j Journal
 	var err error
 	lc := *lc1 // local copy
+	ExpAsmDtStartWasSet := !lc.ExpandAsmDtStart.Equal(TIME0)
 
 	// Console("ENTERED %s: 1. a.ASMID = %d, Biz = %s (%d), d1 - d2 = %s - %s, RentCycle = %d\n", funcname, a.ASMID, xbiz.P.Designation, xbiz.P.BID, d1.Format(RRDATEREPORTFMT), d2.Format(RRDATEREPORTFMT), a.RentCycle)
 	if lc.ExpandAsmDtStart.Year() < 1970 && a.RentCycle > RECURNONE {
@@ -245,7 +245,7 @@ func ExpandAssessment(ctx context.Context, a *Assessment, xbiz *XBusiness, d1, d
 				// instances at the requested dates, but we will make notes in
 				// the comments explaining what's happening
 				//----------------------------------------------------------------------
-				// Console("%s: 3.31 lc: Dt = %s, ExpandAsmStart/Stop = %s\n", funcname, lc.Dt.Format(RRDATEFMT3), // ConsoleDRange(&lc.ExpandAsmDtStart, &lc.ExpandAsmDtStop))
+				// Console("%s: 3.31 ExpAsmDtStartWasSet = %t, lc: Dt = %s, ExpandAsmStart/Stop = %s\n", funcname, ExpAsmDtStartWasSet, lc.Dt.Format(RRDATEFMT3), ConsoleDRange(&lc.ExpandAsmDtStart, &lc.ExpandAsmDtStop))
 				if (a1.Start.After(ra.RentStop) || a1.Start.Equal(ra.RentStop)) && !ExpAsmDtStartWasSet {
 					// Console("%s: 3.4  Do not add the new assessment\n", funcname)
 					err = fmt.Errorf("%s:  Cannot add new assessment instance on %s after RentalAgreement (%s) stop date %s", funcname, a1.Start.Format(RRDATEREPORTFMT), ra.IDtoShortString(), ra.RentStop.Format(RRDATEREPORTFMT))

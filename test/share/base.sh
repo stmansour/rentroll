@@ -800,16 +800,17 @@ stopRentRollServer() {
 	fi
 }
 
-########################################
+########################################################################
 # dojsonPOST()
 #   Simulate a POST command to the server and use
-#   the supplied file name as the json data
+#   the supplied file name as the json data.
+#
 #	Parameters:
 # 		$1 = url
 #       $2 = json file
 # 		$3 = base file name
 #		$4 = title
-########################################
+########################################################################
 dojsonPOST () {
 	TESTCOUNT=$((TESTCOUNT + 1))
 	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} $3 $4

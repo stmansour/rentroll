@@ -5,6 +5,7 @@ TESTSUMMARY="Test Flow data to permanent tables"
 DBGENDIR=../../../tools/dbgen
 CREATENEWDB=0
 RRBIN="../../../tmp/rentroll"
+CATRML="../../../tools/catrml/catrml"
 
 #SINGLETEST=""  # This runs all the tests
 
@@ -209,17 +210,8 @@ fi
 TFILES="e"
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
 
-    #------------------------------------------------------------------
-    # Create a database with a single RA that expires between 2 and 3
-    # months from now...
-    #------------------------------------------------------------------
-    echo "Create new database"
-    ./f2ra | python -m json.tool > db${TFILES}.json
-    F=$(pwd)
-    FNAME="${F}/db${TFILES}.json"
-    pushd ${DBGENDIR}
-    ./dbgen -f "${FNAME}"
-    popd
+    echo "Create new database... x${TFILES}.sql"
+    mysql --no-defaults rentroll < x${TFILES}.sql
 
     #----------------------------------------------------------------
     # put RA 1 into Edit mode...
@@ -228,13 +220,8 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     dojsonPOST "http://localhost:8270/v1/flow/1/0" "request" "${TFILES}0"  "WebService--edit-RA"
     RAIDREFNO=$(cat ${TFILES}0 | grep UserRefNo | awk '{print $2}'|sed 's/"//g')
 
-    #----------------------------------------------------------------
-    # Compute the date information we need for this test...
-    #----------------------------------------------------------------
-    ./f2ra -outype 1 > amend.dat
-    DTSTART=$(grep DTSTART amend.dat | awk '{print $2}')
-    DTSTOP=$(grep DTSTOP amend.dat | awk '{print $2}')
-    rm -f amend.dat
+    DTSTART="12%2F1%2F2018"
+    DTSTOP="12%2F1%2F2019"
 
     #----------------------------------------------------------------
     # Send the command to change the Dates.
