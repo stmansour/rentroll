@@ -398,8 +398,8 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     # Generate a payor statement -- ensure that 2 RAs are there and have correct
     # info.
     #---------------------------------------------------------------------------
-    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%222%2F1%2F2018%22%2C%22searchDtStop%22%3A%229%2F30%2F2018%22%2C%22Bool1%22%3Afalse%7D" > request
-    dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "${TFILES}1"  "PayorStatement--StmtInfo"
+    # echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%222%2F1%2F2018%22%2C%22searchDtStop%22%3A%229%2F30%2F2018%22%2C%22Bool1%22%3Afalse%7D" > request
+    # dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "${TFILES}1"  "PayorStatement--StmtInfo"
 fi
 
 #------------------------------------------------------------------------------
