@@ -22,5 +22,6 @@ raflow/f2ra/xa.sql
 raflow/f2ra/xb.sql
 raflow/f2ra/xc.sql
 raflow/f2ra/xd.sql
+raflow/f2ra/xe.sql
 raflow/f2ra/xf.sql
 raflow/f2ra/xg.sql
