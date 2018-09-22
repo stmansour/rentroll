@@ -125,7 +125,7 @@ func GetJSDepositMethods(ctx context.Context) map[string][]DepMethMap {
 //-----------------------------------------------------------------------------
 func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "SvcUILists"
-	fmt.Printf("Entered %s\n", funcname)
+	rlib.Console("Entered %s\n", funcname)
 	language := "en-us"   // start with default
 	template := "default" // start with default
 	s, err := url.QueryUnescape(strings.TrimSpace(r.URL.String()))
@@ -158,6 +158,13 @@ func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		businessList = append(businessList, bizMap{BID: bid, BUD: bud})
 	}
 	appData["BizMap"] = businessList
+
+	// --------------- LIST DOWN CLOSE INFO ----------------------
+	ctx := context.Background()
+	appData["CloseInfo"], err = rlib.GetAllBizCloseInfo(ctx)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+	}
 
 	// --------------- LIST DOWN Workers ----------------------
 	var wa []IDTextMap

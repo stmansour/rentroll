@@ -474,7 +474,13 @@ CREATE TABLE Business (
     DefaultProrationCycle SMALLINT NOT NULL DEFAULT 0,          -- default for every rentable type - useful to initialize UI
     DefaultGSRPC SMALLINT NOT NULL DEFAULT 0,                   -- default for every rentable type - useful to initialize UI
     ClosePeriodTLID BIGINT NOT NULL DEFAULT 0,                  -- The tasklist needed for closing a period
-    FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 1<<0 = EDI Flag 0(EDI disabled), =1(EDI enabled) (End Date Includes)
+    -- -------------------------------------------------------------------------
+    -- FLAGS
+    -- Bit    Description
+    -- 1<<0 = EDI Flag 0(EDI disabled), =1(EDI enabled) (End Date Includes)
+    -- 1<<1 = allow backdated Rental Agreements in closed periods 0 = no, 1 = yes
+    -- -------------------------------------------------------------------------
+    FLAGS BIGINT NOT NULL DEFAULT 0,
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,      -- when was this record created
