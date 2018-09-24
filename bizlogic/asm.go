@@ -944,8 +944,8 @@ func ValidateAssessment(ctx context.Context, a *rlib.Assessment) []BizError {
 //
 //-------------------------------------------------------------------------------------
 func createInstancesToDate(ctx context.Context, a *rlib.Assessment, xbiz *rlib.XBusiness, lc *rlib.ClosePeriod, start *time.Time) error {
-	rlib.Console("\n\n*** Entered createInstancesToDate   start = %s,  lc.dt = %s\n", start.Format(rlib.RRDATEFMT3), lc.Dt.Format(rlib.RRDATEFMT3))
-	rlib.Console("a.Start = %s, a.Stop = %s\n", a.Start.Format(rlib.RRDATEFMT3), a.Stop.Format(rlib.RRDATEFMT3))
+	// rlib.Console("\n\n*** Entered createInstancesToDate   start = %s,  lc.dt = %s\n", start.Format(rlib.RRDATEFMT3), lc.Dt.Format(rlib.RRDATEFMT3))
+	// rlib.Console("a.Start = %s, a.Stop = %s\n", a.Start.Format(rlib.RRDATEFMT3), a.Stop.Format(rlib.RRDATEFMT3))
 
 	//-------------------------------------------------------------------------
 	// Create instances from original start date to now. ExpandAssessment will
@@ -957,14 +957,14 @@ func createInstancesToDate(ctx context.Context, a *rlib.Assessment, xbiz *rlib.X
 		d2 = a.Stop
 	}
 
-	rlib.Console("\n\n**** createInstancesToDate calling ExpandAssessment ASMID = %d, d1 = %s, d2 = %s\n", a.ASMID, d1.Format(rlib.RRDATEFMT3), d2.Format(rlib.RRDATEFMT3))
-	rlib.Console("createInstancesToDate: lc.ExpandAsmDtStart,Stop = %s\n", rlib.ConsoleDRange(&lc.ExpandAsmDtStart, &lc.ExpandAsmDtStop))
+	// rlib.Console("\n\n**** createInstancesToDate calling ExpandAssessment ASMID = %d, d1 = %s, d2 = %s\n", a.ASMID, d1.Format(rlib.RRDATEFMT3), d2.Format(rlib.RRDATEFMT3))
+	// rlib.Console("createInstancesToDate: lc.ExpandAsmDtStart,Stop = %s\n", rlib.ConsoleDRange(&lc.ExpandAsmDtStart, &lc.ExpandAsmDtStop))
 	err := rlib.ExpandAssessment(ctx, a, xbiz, &d1, &d2, true, lc) // this generates the assessment instances
 	if err != nil {
-		rlib.Console("Exiting createInstancesToDate err = %s\n", err.Error())
+		// rlib.Console("Exiting createInstancesToDate err = %s\n", err.Error())
 		return err
 	}
 
-	rlib.Console("Exiting createInstancesToDate\n\n\n")
+	// rlib.Console("Exiting createInstancesToDate\n\n\n")
 	return nil
 }

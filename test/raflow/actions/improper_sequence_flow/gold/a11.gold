@@ -196,7 +196,7 @@ Response( RAID: 4, UserRefNo:  )
                         "Fees": [
                             {
                                 "TMPASMID": 1,
-                                "ASMID": 39,
+                                "ASMID": 41,
                                 "ARID": 16,
                                 "ARName": "Gas Base Fee",
                                 "ContractAmount": 6.45,
@@ -207,11 +207,11 @@ Response( RAID: 4, UserRefNo:  )
                                 "AtSigningPreTax": 0,
                                 "SalesTax": 0,
                                 "TransOccTax": 0,
-                                "Comment": ""
+                                "Comment": "prorated for 4 of 31 days"
                             },
                             {
                                 "TMPASMID": 2,
-                                "ASMID": 40,
+                                "ASMID": 42,
                                 "ARID": 16,
                                 "ARName": "Gas Base Fee",
                                 "ContractAmount": 50,
@@ -226,7 +226,7 @@ Response( RAID: 4, UserRefNo:  )
                             },
                             {
                                 "TMPASMID": 3,
-                                "ASMID": 42,
+                                "ASMID": 44,
                                 "ARID": 45,
                                 "ARName": "Rent ST000",
                                 "ContractAmount": 129.03,
@@ -237,11 +237,11 @@ Response( RAID: 4, UserRefNo:  )
                                 "AtSigningPreTax": 0,
                                 "SalesTax": 0,
                                 "TransOccTax": 0,
-                                "Comment": ""
+                                "Comment": "prorated for 4 of 31 days"
                             },
                             {
                                 "TMPASMID": 4,
-                                "ASMID": 43,
+                                "ASMID": 45,
                                 "ARID": 45,
                                 "ARName": "Rent ST000",
                                 "ContractAmount": 1000,
@@ -289,19 +289,19 @@ Response( RAID: 4, UserRefNo:  )
                     "DeclineReason1": 0,
                     "Approver2": -99999,
                     "Approver2Name": "UID-0",
-                    "DecisionDate2": "2018-09-04 00:45:00 UTC",
+                    "DecisionDate2": "2018-09-24 19:24:00 UTC",
                     "DeclineReason2": 0,
                     "MoveInUID": -99999,
                     "MoveInName": "UID-0",
-                    "MoveInDate": "2018-09-04 00:45:00 UTC",
+                    "MoveInDate": "2018-09-24 19:24:00 UTC",
                     "ActiveUID": -99999,
                     "ActiveName": "UID-0",
-                    "ActiveDate": "2018-09-04 00:45:00 UTC",
+                    "ActiveDate": "2018-09-24 19:24:00 UTC",
                     "TerminatorUID": 0,
                     "TerminatorName": "UID-0",
                     "TerminationDate": "1900-01-01 00:00:00 UTC",
                     "LeaseTerminationReason": 0,
-                    "DocumentDate": "2018-09-08 00:00:00 UTC",
+                    "DocumentDate": "2018-09-29 00:00:00 UTC",
                     "NoticeToMoveUID": 0,
                     "NoticeToMoveName": "UID-0",
                     "NoticeToMoveDate": "1900-01-01 00:00:00 UTC",

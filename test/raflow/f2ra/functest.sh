@@ -213,15 +213,16 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     echo "Create new database... x${TFILES}.sql"
     mysql --no-defaults rentroll < x${TFILES}.sql
 
-    #----------------------------------------------------------------
-    # put RA 1 into Edit mode...
-    #----------------------------------------------------------------
-    echo "%7B%22cmd%22%3A%22get%22%2C%22UserRefNo%22%3Anull%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22FlowType%22%3A%22RA%22%7D" > request
-    dojsonPOST "http://localhost:8270/v1/flow/1/0" "request" "${TFILES}0"  "WebService--edit-RA"
-    RAIDREFNO=$(cat ${TFILES}0 | grep UserRefNo | awk '{print $2}'|sed 's/"//g')
+    # #----------------------------------------------------------------
+    # # put RA 1 into Edit mode...
+    # #----------------------------------------------------------------
+    # echo "%7B%22cmd%22%3A%22get%22%2C%22UserRefNo%22%3Anull%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22FlowType%22%3A%22RA%22%7D" > request
+    # dojsonPOST "http://localhost:8270/v1/flow/1/0" "request" "${TFILES}0"  "WebService--edit-RA"
+    # RAIDREFNO=$(cat ${TFILES}0 | grep UserRefNo | awk '{print $2}'|sed 's/"//g')
 
     DTSTART="12%2F1%2F2018"
     DTSTOP="12%2F1%2F2019"
+    RAIDREFNO="DUO6X142Z3GC1597BHG0"
 
     #----------------------------------------------------------------
     # Send the command to change the Dates.
@@ -229,6 +230,9 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     #----------------------------------------------------------------
     echo "%7B%22cmd%22%3A%22save%22%2C%22FlowType%22%3A%22RA%22%2C%22FlowID%22%3A1%2C%22FlowPartKey%22%3A%22dates%22%2C%22BID%22%3A1%2C%22Data%22%3A%7B%22CSAgent%22%3A209%2C%22RentStop%22%3A%22${DTSTOP}%22%2C%22RentStart%22%3A%22${DTSTART}%22%2C%22AgreementStop%22%3A%22${DTSTOP}%22%2C%22AgreementStart%22%3A%22${DTSTART}%22%2C%22PossessionStop%22%3A%22${DTSTOP}%22%2C%22PossessionStart%22%3A%22${DTSTART}%22%7D%7D" > request
     dojsonPOST "http://localhost:8270/v1/flow/1/1" "request" "${TFILES}1"  "WebService--update-dates"
+
+    # for debugging, it's nice to have the database in this state
+    mysqldump --no-defaults rentroll > "xxx${TFILES}.sql"
 
     #----------------------------------------------------------------
     # Send the command add a Rent assessment definition
@@ -261,8 +265,6 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Mode%22%3A%22State%22%2C%22DocumentDate%22%3A%22${DTSTART}%22%7D" > request
     dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}7"  "WebService--Approver2"
 
-    # for debugging, it's nice to have the database in this state
-    # mysqldump --no-defaults rentroll > "x${TFILES}.sql"
 
     #----------------------------------------------------------------
     # Make the updated RefNo an Active RA

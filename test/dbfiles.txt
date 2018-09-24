@@ -1,6 +1,6 @@
 ../tools/dbgen/empty.sql
 acctbal/baltest.sql
-closeperiod/rr.sql
+closeperiod/xa.sql
 payorstmt/pstmt.sql
 rfix/rcptfixed.sql
 rfix/receipts.sql

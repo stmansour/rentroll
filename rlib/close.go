@@ -1,12 +1,16 @@
 package rlib
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
 // CloseInfo contains relevant close period information for a business
 type CloseInfo struct {
-	BID       int64       // Business ID
-	LastClose ClosePeriod // last closed period
-	BKDTRACP  bool        // backdate rental agreements in closed period allowed?
+	BID       int64     // Business ID
+	LastClose time.Time // last closed period
+	CPID      int64     // id of last close
+	BKDTRACP  bool      // backdate rental agreements in closed period allowed?
 }
 
 // GetCloseInfo returns a struct of information about closed periods and
@@ -24,13 +28,15 @@ func GetCloseInfo(ctx context.Context, bid int64) (CloseInfo, error) {
 	var ci CloseInfo
 	var err error
 	var b Business
+	var lc ClosePeriod
 
 	ci.BID = bid
-	ci.LastClose, err = GetLastClosePeriod(ctx, bid)
+	lc, err = GetLastClosePeriod(ctx, bid)
 	if err != nil {
 		return ci, err
 	}
-
+	ci.LastClose = lc.Dt
+	ci.CPID = lc.CPID
 	if err = getBiz(bid, &b); err != nil {
 		return ci, err
 	}
@@ -57,11 +63,14 @@ func GetAllBizCloseInfo(ctx context.Context) (map[string]CloseInfo, error) {
 	}
 	for i := 0; i < len(n); i++ {
 		var ci CloseInfo
+		var lc ClosePeriod
 		ci.BID = n[i].BID
-		ci.LastClose, err = GetLastClosePeriod(ctx, ci.BID)
+		lc, err = GetLastClosePeriod(ctx, ci.BID)
 		if err != nil {
 			return m, err
 		}
+		ci.LastClose = lc.Dt
+		ci.CPID = lc.CPID
 		ci.BKDTRACP = n[i].FLAGS&(1<<1) != 0
 		m[n[i].Designation] = ci
 	}
