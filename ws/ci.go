@@ -6,7 +6,7 @@ import (
 	"rentroll/rlib"
 )
 
-// CloseInfo is the service version of rlib.CloseInfo
+// CloseInfo is the service version of rlib.CloseInfo.
 type CloseInfo struct {
 	BID       int64             // Business ID
 	LastClose rlib.JSONDateTime // last closed period

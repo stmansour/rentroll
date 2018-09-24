@@ -3,7 +3,7 @@
     HideAllSliderContent, SetlocalDataFromRADatesFormRecord,
     SetRADatesFormRecordFromLocalData, SetRAFlowCompLocalData,
     SetFormRecordFromData, SetDataFromFormRecord, SaveDatesCompData, displayRADatesFormError,
-    ElementFlash, cleanFormError, dtFormatISOToW2ui
+    ElementFlash, cleanFormError, dtFormatISOToW2ui, UpdateCloseInfo,
 */
 
 "use strict";
@@ -99,6 +99,11 @@ window.loadRADatesForm = function () {
             },
             onRefresh: function (event) {
                 var form = this;
+
+                var x = getCurrentBusiness();
+                var BID=parseInt(x.value);
+                UpdateCloseInfo(BID); // start this now, we want the data to be as updated as possible.
+
                 event.onComplete = function() {
                     var t = new Date(),
                     nyd = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
