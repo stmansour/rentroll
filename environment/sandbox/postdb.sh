@@ -25,13 +25,14 @@ fi
 #--------------------------------------------------------------
 pushd ${DBGEN}
 ./dbgen -f db25.json
-${MYSQLDUMP} rentroll >sandboxdb.sql
+${MYSQLDUMP} rentroll >${DB}
 popd
-mv ${DBGEN}/sandboxdb.sql .
+mv ${DBGEN}/${DB} .
+gzip ${DB}
 
 #--------------------------------------------------------------
 # Now deploy the file to both repos...
 #--------------------------------------------------------------
-${DEPLOY} ${DB} accord/db
-jfrog rt u ${DB} accord/misc/${DB}
+${DEPLOY} ${DB}.gz accord/db
+jfrog rt u ${DB}.gz accord/misc/${DB}.gz
 

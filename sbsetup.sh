@@ -21,6 +21,7 @@ WATCHDOGOPTS=""
 GETFILE="/usr/local/accord/bin/getfile.sh"
 RENTROLLHOME="/home/ec2-user/apps/${PROGNAME}"
 DATABASENAME="${PROGNAME}"
+DBFILENAME="sandbox"
 DBUSER="ec2-user"
 IAM=$(whoami)
 OS=$(uname)
@@ -38,12 +39,12 @@ setupAppNode() {
 	#---------------------
 	RRDB=$(echo "show databases;" | ${MYSQL} | grep rentroll | wc -l)
 	if [ ${RRDB} == "0" ]; then
-	    rm -rf ${DATABASENAME}db*  >log.out 2>&1
-	    ${GETFILE} accord/db/${DATABASENAME}db.sql.gz  >log.out 2>&1
-	    gunzip ${DATABASENAME}db.sql  >log.out 2>&1
+	    rm -rf ${DBFILENAME}db*  >log.out 2>&1
+	    ${GETFILE} accord/db/${DBFILENAME}db.sql.gz  >log.out 2>&1
+	    gunzip ${DBFILENAME}db.sql  >log.out 2>&1
 		echo "DROP USER IF EXISTS 'ec2-user'@'localhost';CREATE USER 'ec2-user'@'localhost';GRANT ALL PRIVILEGES ON *.* TO 'ec2-user'@'localhost' WITH GRANT OPTION;" | mysql > log.out 2>&1
 	    echo "DROP DATABASE IF EXISTS ${DATABASENAME}; CREATE DATABASE ${DATABASENAME}; USE ${DATABASENAME};" > restore.sql
-	    echo "source ${DATABASENAME}db.sql" >> restore.sql
+	    echo "source ${DBFILENAME}db.sql" >> restore.sql
 	    ${MYSQL} < restore.sql  >log.out 2>&1
 	fi
 
