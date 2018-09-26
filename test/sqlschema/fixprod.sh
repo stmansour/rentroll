@@ -3,7 +3,8 @@ MODFILE="dbqqqmods.sql"
 # Last updated on Aug 3, 2018
 cat > ${MODFILE} <<EOF
 -- Aug 21, 2018
-RENAME TABLE RentalAgreementPets TO Pets;
+-- RENAME TABLE RentalAgreementPets TO Pets;
+DROP TABLE IF EXISTS RentalAgreementPets;
 CREATE TABLE TBind (
     TBID BIGINT NOT NULL AUTO_INCREMENT,                    -- unique id
     BID BIGINT NOT NULL DEFAULT 0,                          -- business
