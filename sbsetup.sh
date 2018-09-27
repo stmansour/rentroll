@@ -26,6 +26,7 @@ DBUSER="ec2-user"
 IAM=$(whoami)
 OS=$(uname)
 MYSQL="mysql --no-defaults"
+SBLOG="sblog.out"
 #--------------------------------------------------------------
 #  For QA, Sandbox, and Production nodes, go through the
 #  laundry list of details...
@@ -37,21 +38,22 @@ setupAppNode() {
 	#---------------------
 	# database
 	#---------------------
-	RRDB=$(echo "show databases;" | ${MYSQL} | grep rentroll | wc -l)
+	RRDB=$(grep "Env" config.json | awk '{print $2}' | sed 's/,//')
+	# RRDB=$(echo "show databases;" | ${MYSQL} | grep rentroll | wc -l)
 	if [ ${RRDB} == "0" ]; then
-	    rm -rf ${DBFILENAME}db*  >log.out 2>&1
-	    ${GETFILE} accord/db/${DBFILENAME}db.sql.gz  >log.out 2>&1
-	    gunzip ${DBFILENAME}db.sql  >log.out 2>&1
-		echo "DROP USER IF EXISTS 'ec2-user'@'localhost';CREATE USER 'ec2-user'@'localhost';GRANT ALL PRIVILEGES ON *.* TO 'ec2-user'@'localhost' WITH GRANT OPTION;" | mysql > log.out 2>&1
+	    rm -rf ${DBFILENAME}db*  >${SBLOG} 2>&1
+	    ${GETFILE} accord/db/${DBFILENAME}db.sql.gz  >${SBLOG} 2>&1
+	    gunzip ${DBFILENAME}db.sql  >${SBLOG} 2>&1
+		echo "DROP USER IF EXISTS 'ec2-user'@'localhost';CREATE USER 'ec2-user'@'localhost';GRANT ALL PRIVILEGES ON *.* TO 'ec2-user'@'localhost' WITH GRANT OPTION;" | mysql > ${SBLOG} 2>&1
 	    echo "DROP DATABASE IF EXISTS ${DATABASENAME}; CREATE DATABASE ${DATABASENAME}; USE ${DATABASENAME};" > restore.sql
 	    echo "source ${DBFILENAME}db.sql" >> restore.sql
-	    ${MYSQL} < restore.sql  >log.out 2>&1
+	    ${MYSQL} < restore.sql  >${SBLOG} 2>&1
 	fi
 
 	#---------------------
 	# wkhtmltopdf
 	#---------------------
-	./pdfinstall.sh  >log.out 2>&1
+	./pdfinstall.sh  >${SBLOG} 2>&1
 
 	#-----------------------------------------------------------------
 	#  If no config.json exists, pull the development environment
@@ -61,7 +63,7 @@ setupAppNode() {
 	#    2 = QA environment
 	#-----------------------------------------------------------------
 	if [ ! -f ./config.json ]; then
-		${GETFILE} accord/db/conflocal.json  >log.out 2>&1
+		${GETFILE} accord/db/conflocal.json  >${SBLOG} 2>&1
 		mv confdev.json config.json
 	fi
 }
