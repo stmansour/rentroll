@@ -1,4 +1,349 @@
 {
-    "message": "Error: Date could not be decoded\n",
-    "status": "error"
+    "record": {
+        "DataFulfilled": {
+            "dates": true,
+            "parentchild": true,
+            "people": true,
+            "pets": true,
+            "rentables": true,
+            "tie": true,
+            "vehicles": true
+        },
+        "Flow": {
+            "BID": 1,
+            "CreateBy": 269,
+            "CreateTS": "2018-08-23T01:46:28Z",
+            "Data": {
+                "dates": {
+                    "AgreementStart": "",
+                    "AgreementStop": "",
+                    "CSAgent": 269,
+                    "PossessionStart": "",
+                    "PossessionStop": "",
+                    "RentStart": "",
+                    "RentStop": ""
+                },
+                "meta": {
+                    "ActiveDate": "1900-01-01 00:00:00 UTC",
+                    "ActiveName": "",
+                    "ActiveUID": 0,
+                    "ApplicationReadyDate": "1900-01-01 00:00:00 UTC",
+                    "ApplicationReadyName": "",
+                    "ApplicationReadyUID": 0,
+                    "Approver1": 0,
+                    "Approver1Name": "",
+                    "Approver2": 0,
+                    "Approver2Name": "",
+                    "BID": 1,
+                    "DecisionDate1": "1900-01-01 00:00:00 UTC",
+                    "DecisionDate2": "1900-01-01 00:00:00 UTC",
+                    "DeclineReason1": 0,
+                    "DeclineReason2": 0,
+                    "DocumentDate": "1900-01-01 00:00:00 UTC",
+                    "HavePets": true,
+                    "HaveVehicles": true,
+                    "LastTMPASMID": 6,
+                    "LastTMPPETID": 1,
+                    "LastTMPTCID": 1,
+                    "LastTMPVID": 1,
+                    "LeaseTerminationReason": 0,
+                    "MoveInDate": "1900-01-01 00:00:00 UTC",
+                    "MoveInName": "",
+                    "MoveInUID": 0,
+                    "NoticeToMoveDate": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveName": "",
+                    "NoticeToMoveReported": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveUID": 0,
+                    "RAFLAGS": 0,
+                    "RAID": 0,
+                    "TerminationDate": "1900-01-01 00:00:00 UTC",
+                    "TerminatorName": "",
+                    "TerminatorUID": 0
+                },
+                "parentchild": [],
+                "people": [
+                    {
+                        "Address": "45016 Willow",
+                        "Address2": "",
+                        "AlternateEmailAddress": "58300 Fourth,Raleigh,FL 31847",
+                        "Bankruptcy": false,
+                        "BankruptcyDes": "",
+                        "CellPhone": "(967) 958-1161",
+                        "City": "Portland",
+                        "Comment": "",
+                        "CompanyAddress": "48382 Juniper",
+                        "CompanyCity": "Murfreesboro",
+                        "CompanyEmail": "EIDuPontdeNemoursandCompanyM1855@bdiddy.com",
+                        "CompanyName": "E.I. Du Pont de Nemours and Company",
+                        "CompanyPhone": "(687) 572-3427",
+                        "CompanyPostalCode": "84059",
+                        "CompanyState": "HI",
+                        "Convicted": false,
+                        "ConvictedDes": "",
+                        "Country": "USA",
+                        "CreditLimit": 22103,
+                        "CurrentAddress": "60368 Hickory, Boise City, WY 02081",
+                        "CurrentLandLordName": "Luisa Haynes",
+                        "CurrentLandLordPhoneNo": "(906) 659-0586",
+                        "CurrentLengthOfResidency": "7 years 8 months",
+                        "CurrentReasonForMoving": 98,
+                        "DateofBirth": "12/23/1978",
+                        "DriversLicense": "X6795597",
+                        "EligibleFuturePayor": true,
+                        "EligibleFutureUser": false,
+                        "EmergencyContactAddress": "5878 Broadway,Lowell,ME 27887",
+                        "EmergencyContactEmail": "KathlineCampos325@yahoo.com",
+                        "EmergencyContactName": "Kathline Campos",
+                        "EmergencyContactTelephone": "(653) 640-1801",
+                        "Evicted": false,
+                        "EvictedDes": "",
+                        "FirstName": "Vena",
+                        "GrossIncome": 96826,
+                        "Industry": 332,
+                        "IsCompany": false,
+                        "IsGuarantor": false,
+                        "IsOccupant": true,
+                        "IsRenter": true,
+                        "LastName": "Hicks",
+                        "MiddleName": "Alvina",
+                        "Occupation": "marine hotel manager",
+                        "OtherPreferences": "",
+                        "Points": 0,
+                        "PostalCode": "98081",
+                        "PreferredName": "Gina",
+                        "PrimaryEmail": "VHicks9809@comcast.net",
+                        "PriorAddress": "31096 Canyon, Bakersfield, WY 41318",
+                        "PriorLandLordName": "Jaye Leonard",
+                        "PriorLandLordPhoneNo": "(208) 540-0849",
+                        "PriorLengthOfResidency": "6 years 4 months",
+                        "PriorReasonForMoving": 88,
+                        "SecondaryEmail": "VenaHicks903@bdiddy.com",
+                        "SourceSLSID": 71,
+                        "SpecialNeeds": "",
+                        "State": "VT",
+                        "TCID": 1,
+                        "TMPTCID": 1,
+                        "TaxpayorID": "00831481",
+                        "ThirdPartySource": "Bessie Carney",
+                        "Website": "",
+                        "WorkPhone": "(203) 684-7713"
+                    }
+                ],
+                "pets": [
+                    {
+                        "Breed": "Australian Terrier",
+                        "Color": "Chocolate",
+                        "Fees": [
+                            {
+                                "ARID": 23,
+                                "ARName": "Pet Fee",
+                                "ASMID": 0,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 50,
+                                "ProrationCycle": 0,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "8/23/2018",
+                                "Stop": "8/23/2018",
+                                "TMPASMID": 1,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 24,
+                                "ARName": "Pet Rent",
+                                "ASMID": 0,
+                                "AtSigningPreTax": 0,
+                                "Comment": "prorated for 9 of 31 days",
+                                "ContractAmount": 2.9,
+                                "ProrationCycle": 0,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "8/23/2018",
+                                "Stop": "8/23/2018",
+                                "TMPASMID": 2,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 24,
+                                "ARName": "Pet Rent",
+                                "ASMID": 0,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 10,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "9/1/2018",
+                                "Stop": "8/23/2019",
+                                "TMPASMID": 3,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "Name": "Vader",
+                        "PETID": 1,
+                        "TMPPETID": 1,
+                        "TMPTCID": 1,
+                        "Type": "dog",
+                        "Weight": 47
+                    }
+                ],
+                "rentables": [
+                    {
+                        "AtSigningPreTax": 0,
+                        "Fees": [
+                            {
+                                "ARID": 16,
+                                "ARName": "Gas Base Fee",
+                                "ASMID": 0,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 50,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "8/23/2018",
+                                "Stop": "8/23/2019",
+                                "TMPASMID": 6,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 42,
+                                "ARName": "Rent ST002",
+                                "ASMID": 0,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 1750,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "8/23/2018",
+                                "Stop": "8/23/2019",
+                                "TMPASMID": 5,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "RID": 5,
+                        "RTFLAGS": 4,
+                        "RTID": 3,
+                        "RentCycle": 6,
+                        "RentableName": "Rentable005",
+                        "SalesTax": 0,
+                        "TransOccTax": 0
+                    }
+                ],
+                "tie": {
+                    "people": [
+                        {
+                            "PRID": 5,
+                            "TMPTCID": 1
+                        }
+                    ]
+                },
+                "vehicles": [
+                    {
+                        "Fees": [
+                            {
+                                "ARID": 39,
+                                "ARName": "Vehicle Registration Fee",
+                                "ASMID": 0,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 10,
+                                "ProrationCycle": 0,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "8/23/2018",
+                                "Stop": "8/23/2018",
+                                "TMPASMID": 4,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "LicensePlateNumber": "XM0A564",
+                        "LicensePlateState": "TN",
+                        "ParkingPermitNumber": "8729662",
+                        "TMPTCID": 1,
+                        "TMPVID": 1,
+                        "VID": 1,
+                        "VIN": "5381XW6L3O893XDI",
+                        "VehicleColor": "Black",
+                        "VehicleMake": "Subaru",
+                        "VehicleModel": "Tribeca",
+                        "VehicleType": "car",
+                        "VehicleYear": 2008
+                    }
+                ]
+            },
+            "FlowID": 20,
+            "FlowType": "RA",
+            "ID": 0,
+            "LastModBy": 269,
+            "LastModTime": "2018-08-23T01:46:41Z",
+            "UserRefNo": "F436EDIH6K82IP4M184L"
+        },
+        "ValidationCheck": {
+            "errors": {
+                "dates": {
+                    "errors": {
+                        "AgreementStart": [
+                            "dates must be Jan 1, 2000 00:00:00 UTC or later"
+                        ],
+                        "AgreementStop": [
+                            "dates must be Jan 1, 2000 00:00:00 UTC or later"
+                        ],
+                        "PossessionStart": [
+                            "dates must be Jan 1, 2000 00:00:00 UTC or later"
+                        ],
+                        "PossessionStop": [
+                            "dates must be Jan 1, 2000 00:00:00 UTC or later"
+                        ],
+                        "RentStart": [
+                            "dates must be Jan 1, 2000 00:00:00 UTC or later"
+                        ],
+                        "RentStop": [
+                            "dates must be Jan 1, 2000 00:00:00 UTC or later"
+                        ]
+                    },
+                    "total": 6
+                },
+                "parentchild": {
+                    "errors": [],
+                    "total": 0
+                },
+                "people": {
+                    "errors": [],
+                    "total": 0
+                },
+                "pets": {
+                    "errors": [],
+                    "total": 0
+                },
+                "rentables": {
+                    "errors": [],
+                    "total": 0
+                },
+                "tie": {
+                    "people": {
+                        "errors": [],
+                        "total": 0
+                    }
+                },
+                "vehicles": {
+                    "errors": [],
+                    "total": 0
+                }
+            },
+            "nonFieldsErrors": {
+                "dates": [],
+                "parentchild": [],
+                "people": [],
+                "pets": [],
+                "rentables": [],
+                "tie": [],
+                "vehicles": []
+            },
+            "total": 6
+        }
+    },
+    "status": "success"
 }
