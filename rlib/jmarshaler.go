@@ -37,6 +37,10 @@ func (t *JSONDate) MarshalJSON() ([]byte, error) {
 func (t *JSONDate) UnmarshalJSON(b []byte) error {
 	s := string(b)
 	s = Stripchars(s, "\"")
+	if len(s) == 0 {
+		*t = JSONDate(TIME0)
+		return nil
+	}
 	// x, err := time.Parse("2006-01-02", s)
 	x, err := StringToDate(s)
 	if err != nil {
@@ -78,6 +82,10 @@ func (t *JSONDateTime) UnmarshalJSON(b []byte) error {
 	s := string(b)
 	s = Stripchars(s, "\"")
 	// x, err := time.Parse("2006-01-02", s)
+	if len(s) == 0 {
+		*t = JSONDateTime(TIME0)
+		return nil
+	}
 	x, err := StringToDate(s)
 	if err != nil {
 		return err

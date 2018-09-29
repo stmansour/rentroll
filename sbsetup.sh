@@ -27,6 +27,7 @@ IAM=$(whoami)
 OS=$(uname)
 MYSQL="mysql --no-defaults"
 SBLOG="sblog.out"
+
 #--------------------------------------------------------------
 #  For QA, Sandbox, and Production nodes, go through the
 #  laundry list of details...

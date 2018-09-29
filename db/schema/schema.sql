@@ -587,6 +587,8 @@ CREATE TABLE TaskListDefinition (
     EpochDue DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',   -- Task Due Date
     EpochPreDue DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',-- Pre Completion due date
     FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 1<<0 : 0 = active, 1 = inactive
+                                                                -- 1<<1 : 0 = task list definition does not have a PreDueDate, 1 = has a PreDueDate
+                                                                -- 1<<1 : 0 = task list definition does not have a DueDate, 1 = has a DueDate
     EmailList VARCHAR(2048) NOT NULL DEFAULT '',                -- list of email addresses for when due date arrives - will apply to all TaskList instances
     DurWait BIGINT NOT NULL DEFAULT 86400000000000,             -- how long to wait after failure notification for next check (default: 1 day)
     Comment VARCHAR(2048) NOT NULL DEFAULT '',                  -- any user comments

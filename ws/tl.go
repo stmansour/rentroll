@@ -177,8 +177,26 @@ func SvcSearchHandlerTaskList(w http.ResponseWriter, r *http.Request, d *Service
 	var err error
 	rlib.Console("Entered %s\n", funcname)
 
-	whr := `TaskList.BID = %d AND TaskList.FLAGS & 1 = 0 AND %q <= DtDue AND DtDue < %q` // only get the Active TaskLists
-	whr = fmt.Sprintf(whr, d.BID, d.wsSearchReq.SearchDtStart, d.wsSearchReq.SearchDtStop)
+	//-----------------------------------------------------------------------------
+	// Flag definitions for TaskLists:
+	// 1<<0 : 0 = active, 1 = inactive
+	// 1<<1 : 0 = task list definition does not have a PreDueDate, 1 = has a PreDueDate
+	// 1<<2 : 0 = task list definition does not have a DueDate,    1 = has a DueDate
+	// 1<<3 : 0 = DtPreDue has not been set, 1 = DtPreDue has been set
+	// 1<<4 : 0 = DtDue    has not been set, 1 = DtDue has been set
+	// 1<<5 : 0 = no notification has been sent, 1 = Notification sent on DtLastNotify
+	//-----------------------------------------------------------------------------
+	whr := `TaskList.BID = %d AND TaskList.FLAGS & 1 = 0 AND (                                   /* biz is correct and it is active */
+              (TaskList.FLAGS&20 != 0 AND %q <= TaskList.DtDue AND TaskList.DtDue < %q)          /* (Either the TaskListDefinition requires or the Task has set a due date) and due date falls in date range */
+			  OR (TaskList.FLAGS&8 != 0 AND %q <= TaskList.DtPreDue AND TaskList.DtPreDue < %q)  /* PreDue date is set and falls in the date range */
+			  OR (TaskList.FLAGS&16 != 0 AND %q <= TaskList.DtDue AND TaskList.DtDue < %q)       /* Due date is set and falls in the date range */
+	          OR (TaskList.FLAGS&20 = 0 AND TaskList.DtDone <= %q)                               /* Task list does not set a due date and the task is not done */
+			)`
+	whr = fmt.Sprintf(whr, d.BID,
+		d.wsSearchReq.SearchDtStart, d.wsSearchReq.SearchDtStop,
+		d.wsSearchReq.SearchDtStart, d.wsSearchReq.SearchDtStop,
+		d.wsSearchReq.SearchDtStart, d.wsSearchReq.SearchDtStop,
+		rlib.TIME0.Format(rlib.RRDATEFMTSQL))
 	order := `TaskList.Name ASC` // default ORDER
 
 	// get where clause and order clause for sql query
