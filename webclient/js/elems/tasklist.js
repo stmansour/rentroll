@@ -398,10 +398,10 @@ window.buildTaskListElements = function () {
             { field: 'TLID',         type: 'text',     required: false },
             { field: 'TaskName',     type: 'text',     required: true  },
             { field: 'Worker',       type: 'text',     required: false },
-            { field: 'DtDue',        type: 'text',     required: false },
-            { field: 'DtPreDue',     type: 'text',     required: false },
-            { field: 'DtDone',       type: 'text',     required: false },
-            { field: 'DtPreDone',    type: 'text',     required: false },
+            { field: 'DtDue',        type: 'datetime', required: false },
+            { field: 'DtPreDue',     type: 'datetime', required: false },
+            { field: 'DtDone',       type: 'datetime', required: false },
+            { field: 'DtPreDone',    type: 'datetime', required: false },
             { field: 'FLAGS',        type: 'text',     required: false },
             { field: 'DoneUID',      type: 'text',     required: false },
             { field: 'PreDoneUID',   type: 'text',     required: false },
@@ -508,6 +508,9 @@ window.buildTaskListElements = function () {
                 if (r.DtPreDone === "") {
                     r.DtPreDone = new Date();
                 }
+
+                // now enable/disable as needed
+                taskFormDueDate1(f,r);
             };
         },
     });

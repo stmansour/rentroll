@@ -544,7 +544,7 @@ CREATE TABLE TaskList (
     DtPreDone DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- Task Pre Completion Date
     FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 1<<0 : 0 = active, 1 = inactive
                                                                 -- 1<<1 : 0 = task list definition does not have a PreDueDate, 1 = has a PreDueDate
-                                                                -- 1<<1 : 0 = task list definition does not have a DueDate, 1 = has a DueDate
+                                                                -- 1<<2 : 0 = task list definition does not have a DueDate, 1 = has a DueDate
                                                                 -- 1<<3 : 0 = DtPreDue has not been set, 1 = DtPreDue has been set
                                                                 -- 1<<4 : 0 = DtDue has not been set, 1 = DtDue has been set
                                                                 -- 1<<5 : 0 = no notification has been sent, 1 = Notification sent on DtLastNotify
@@ -570,6 +570,8 @@ CREATE TABLE TaskDescriptor (
     EpochDue DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',   -- Task Due Date
     EpochPreDue DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00', -- Pre Completion due date
     FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 1<<0 pre-completion required (if 0 then there is no pre-completion required)
+                                                                -- 1<<1 : 0 = task descriptor does not have a PreDueDate, 1 = has a PreDueDate
+                                                                -- 1<<2 : 0 = task descriptor does not have a DueDate,    1 = has a DueDate
     Comment VARCHAR(2048) NOT NULL DEFAULT '',                  -- any user comments
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it

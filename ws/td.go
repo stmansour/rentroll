@@ -218,6 +218,19 @@ func saveTaskDescriptor(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 	rlib.Console("*** AFTER UNMARSHAL *** foo.Record.Comment = %s\n", foo.Record.Comment)
 	var a rlib.TaskDescriptor
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
+
+	// Handle Flags...
+	// 1<<0 pre-completion required (if 0 then there is no pre-completion required)
+	// 1<<1 : 0 = task descriptor does not have a PreDueDate, 1 = has a PreDueDate
+	// 1<<2 : 0 = task descriptor does not have a DueDate,    1 = has a DueDate
+	flags := int64(0)
+	if foo.Record.ChkEpochPreDue {
+		flags |= 1 << 1
+	}
+	if foo.Record.ChkEpochDue {
+		flags |= 1 << 2
+	}
+	a.FLAGS = flags
 	a.Name = foo.Record.Name
 	a.BID = d.BID
 
