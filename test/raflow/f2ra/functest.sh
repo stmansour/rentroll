@@ -263,14 +263,14 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     # Set move-in date
     #----------------------------------------------------------------
     echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Mode%22%3A%22State%22%2C%22DocumentDate%22%3A%22${DTSTART}%22%7D" > request
-    dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}7"  "WebService--Approver2"
+    dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}7"  "WebService--MoveInDate"
 
 
     #----------------------------------------------------------------
     # Make the updated RefNo an Active RA
     #----------------------------------------------------------------
-    echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
-    dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}8"  "WebService--Activate-RefNo"
+    # echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
+    # dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}8"  "WebService--Activate-RefNo"
 fi
 
 #------------------------------------------------------------------------------
