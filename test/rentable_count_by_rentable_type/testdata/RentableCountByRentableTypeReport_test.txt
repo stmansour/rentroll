@@ -1,0 +1,18 @@
+REX Rentable Counts By Rentable Type
+Jan 1, 2018 - Sep 1, 2018
+JGM First, LLC
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+      No.  Rentable Type                                          Proration       
+Rentables  Name             Style  Custom Attributes  Rent Cycle  Cycle      GSRPC
+---------  ---------------  -----  -----------------  ----------  ---------  -----
+       20  Car Port 000     CP000                     monthly     daily      daily
+        8  Deluxe 3BR       3BR                       monthly     daily      daily
+           2.5BA                                                                  
+        5  Double 2BR 2BA   2BR                       monthly     daily      daily
+        7  Presidential     4BR                       monthly     daily      daily
+           4BR 3BA                                                                
+        5  Standard 1BR     1BR                       monthly     daily      daily
+           1BA                                                                    

@@ -1,0 +1,74 @@
+REX Rentables
+JGM First, LLC
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+                                         Rentable Type                Proration       
+RID        Name         Assignment Time  Name             Rent Cycle  Cycle      GSRPC
+---------  -----------  ---------------  ---------------  ----------  ---------  -----
+R00000001  Rentable001  unknown          Standard 1BR     monthly     daily      daily
+                                         1BA                                          
+R00000002  Rentable002  unknown          Standard 1BR     monthly     daily      daily
+                                         1BA                                          
+R00000003  Rentable003  unknown          Standard 1BR     monthly     daily      daily
+                                         1BA                                          
+R00000004  Rentable004  unknown          Standard 1BR     monthly     daily      daily
+                                         1BA                                          
+R00000005  Rentable005  unknown          Standard 1BR     monthly     daily      daily
+                                         1BA                                          
+R00000006  Rentable006  unknown          Double 2BR 2BA   monthly     daily      daily
+R00000007  Rentable007  unknown          Double 2BR 2BA   monthly     daily      daily
+R00000008  Rentable008  unknown          Double 2BR 2BA   monthly     daily      daily
+R00000009  Rentable009  unknown          Double 2BR 2BA   monthly     daily      daily
+R00000010  Rentable010  unknown          Double 2BR 2BA   monthly     daily      daily
+R00000011  Rentable011  unknown          Deluxe 3BR       monthly     daily      daily
+                                         2.5BA                                        
+R00000012  Rentable012  unknown          Deluxe 3BR       monthly     daily      daily
+                                         2.5BA                                        
+R00000013  Rentable013  unknown          Deluxe 3BR       monthly     daily      daily
+                                         2.5BA                                        
+R00000014  Rentable014  unknown          Deluxe 3BR       monthly     daily      daily
+                                         2.5BA                                        
+R00000015  Rentable015  unknown          Deluxe 3BR       monthly     daily      daily
+                                         2.5BA                                        
+R00000016  Rentable016  unknown          Deluxe 3BR       monthly     daily      daily
+                                         2.5BA                                        
+R00000017  Rentable017  unknown          Deluxe 3BR       monthly     daily      daily
+                                         2.5BA                                        
+R00000018  Rentable018  unknown          Deluxe 3BR       monthly     daily      daily
+                                         2.5BA                                        
+R00000019  Rentable019  unknown          Presidential     monthly     daily      daily
+                                         4BR 3BA                                      
+R00000020  Rentable020  unknown          Presidential     monthly     daily      daily
+                                         4BR 3BA                                      
+R00000021  Rentable021  unknown          Presidential     monthly     daily      daily
+                                         4BR 3BA                                      
+R00000022  Rentable022  unknown          Presidential     monthly     daily      daily
+                                         4BR 3BA                                      
+R00000023  Rentable023  unknown          Presidential     monthly     daily      daily
+                                         4BR 3BA                                      
+R00000024  Rentable024  unknown          Presidential     monthly     daily      daily
+                                         4BR 3BA                                      
+R00000025  Rentable025  unknown          Presidential     monthly     daily      daily
+                                         4BR 3BA                                      
+R00000026  CP001        unknown          Car Port 000     monthly     daily      daily
+R00000027  CP002        unknown          Car Port 000     monthly     daily      daily
+R00000028  CP003        unknown          Car Port 000     monthly     daily      daily
+R00000029  CP004        unknown          Car Port 000     monthly     daily      daily
+R00000030  CP005        unknown          Car Port 000     monthly     daily      daily
+R00000031  CP006        unknown          Car Port 000     monthly     daily      daily
+R00000032  CP007        unknown          Car Port 000     monthly     daily      daily
+R00000033  CP008        unknown          Car Port 000     monthly     daily      daily
+R00000034  CP009        unknown          Car Port 000     monthly     daily      daily
+R00000035  CP010        unknown          Car Port 000     monthly     daily      daily
+R00000036  CP011        unknown          Car Port 000     monthly     daily      daily
+R00000037  CP012        unknown          Car Port 000     monthly     daily      daily
+R00000038  CP013        unknown          Car Port 000     monthly     daily      daily
+R00000039  CP014        unknown          Car Port 000     monthly     daily      daily
+R00000040  CP015        unknown          Car Port 000     monthly     daily      daily
+R00000041  CP016        unknown          Car Port 000     monthly     daily      daily
+R00000042  CP017        unknown          Car Port 000     monthly     daily      daily
+R00000043  CP018        unknown          Car Port 000     monthly     daily      daily
+R00000044  CP019        unknown          Car Port 000     monthly     daily      daily
+R00000045  CP020        unknown          Car Port 000     monthly     daily      daily

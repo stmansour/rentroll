@@ -1,0 +1,13 @@
+REX Rentable Types
+"JGM First, LLC
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+"
+RTID,Style,Name,Rent Cycle,Proration Cycle,GSRPC,Available?,Manage To Budget,Is Child Type?,Dt1 - Dt2 : Market Rate,Total Counts of Rentable Type
+RT00000001,1BR,Standard 1BR 1BA,monthly,daily,daily,Yes,Yes,No,01/01/2018 - 12/31/3000: $ 1000.00,5        
+RT00000002,2BR,Double 2BR 2BA,monthly,daily,daily,Yes,Yes,No,01/01/2018 - 12/31/3000: $ 1500.00,"         "
+RT00000003,3BR,Deluxe 3BR 2.5BA,monthly,daily,daily,Yes,Yes,No,01/01/2018 - 12/31/3000: $ 1750.00,"         "
+RT00000004,4BR,Presidential 4BR 3BA,monthly,daily,daily,Yes,Yes,No,01/01/2018 - 12/31/3000: $ 2500.00,"         "
+RT00000005,CP000,Car Port 000,monthly,daily,daily,Yes,Yes,Yes,01/01/2018 - 12/31/3000: $   35.00,"         "

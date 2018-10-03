@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang=en>
+  <head>
+    <title>
+      REX Rentable Counts By Rentable Type
+    </title>
+    <style>
+      html,body{margin:0;padding:0;line-height:1.33333;font:100% Helvetica,sans-serif;font-size:14px}div{display:block}.container{padding:0 20px}div.rpt-table-container p.title{text-align:center;font-weight:bold;font-size:32px;margin-bottom:0}div.rpt-table-container p.section1{text-align:center;font-size:26px;margin-top:.5em;margin-bottom:.5em}div.rpt-table-container p.section2{text-align:center;font-size:16px;margin-top:.5em}div.rpt-table-container p.section3{text-align:center;font-size:14px}div.rpt-table-container p.no-headers{color:red;text-align:center}div.rpt-table-container table{border-collapse:collapse;table-layout:fixed;margin:0 auto;padding:0;min-width:90%;max-width:100%;page-break-after:always}div.rpt-table-container table td,div.rpt-table-container table th{padding:5px 10px;box-sizing:content-box}div.rpt-table-container table tr{page-break-inside:avoid}div.rpt-table-container table thead{display:table-header-group}div.rpt-table-container table thead tr th{border-bottom:2px solid #bbb;font-weight:bold;padding-top:20px}div.rpt-table-container table tbody tr.top-line td{border-top:1px solid #bbb}div.rpt-table-container table tbody tr.bottom-line td{border-bottom:1px solid #bbb}div.rpt-table-container table tbody tr td{vertical-align:top}div.rpt-table-container table tbody tr td.no-rows{color:red;text-align:center}
+    </style>
+    <style>
+      div.rpt-table-container table thead tr th.header-0{text-align:right;width:9ch;}div.rpt-table-container table thead tr th.header-1{text-align:left;width:15ch;}div.rpt-table-container table thead tr th.header-2{text-align:left;width:5ch;}div.rpt-table-container table thead tr th.header-3{text-align:left;width:17ch;}div.rpt-table-container table thead tr th.header-4{text-align:left;width:10ch;}div.rpt-table-container table thead tr th.header-5{text-align:left;width:9ch;}div.rpt-table-container table thead tr th.header-6{text-align:left;width:5ch;}div.rpt-table-container table tbody tr td.cell-row-0-col-0{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-0-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-5{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-6{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-0{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-1-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-5{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-6{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-0{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-2-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-5{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-6{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-3-col-0{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-3-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-3-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-3-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-3-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-3-col-5{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-3-col-6{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-4-col-0{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-4-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-4-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-4-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-4-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-4-col-5{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-4-col-6{text-align:left;}
+    </style>
+  </head>
+  <body>
+    <div class=container>
+      <div class="rpt-table-container">
+        <p class="title">
+          REX Rentable Counts By Rentable Type
+        </p>
+        <p class="section1">
+          Jan 1, 2018 - Sep 1, 2018
+        </p>
+        <p class="section2">
+          JGM First, LLC
+          11719 Bee Cave Road
+          Suite 301
+          Austin, TX 78738 USA
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th class="header-0">
+                No. Rentables
+              </th>
+              <th class="header-1">
+                Rentable Type Name
+              </th>
+              <th class="header-2">
+                Style
+              </th>
+              <th class="header-3">
+                Custom Attributes
+              </th>
+              <th class="header-4">
+                Rent Cycle
+              </th>
+              <th class="header-5">
+                Proration Cycle
+              </th>
+              <th class="header-6">
+                GSRPC
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="cell-row-0-col-0">
+                       20
+              </td>
+              <td class="cell-row-0-col-1">
+                Car Port 000
+              </td>
+              <td class="cell-row-0-col-2">
+                CP000
+              </td>
+              <td class="cell-row-0-col-3">
+              </td>
+              <td class="cell-row-0-col-4">
+                monthly
+              </td>
+              <td class="cell-row-0-col-5">
+                daily
+              </td>
+              <td class="cell-row-0-col-6">
+                daily
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-1-col-0">
+                        8
+              </td>
+              <td class="cell-row-1-col-1">
+                Deluxe 3BR 2.5BA
+              </td>
+              <td class="cell-row-1-col-2">
+                3BR
+              </td>
+              <td class="cell-row-1-col-3">
+              </td>
+              <td class="cell-row-1-col-4">
+                monthly
+              </td>
+              <td class="cell-row-1-col-5">
+                daily
+              </td>
+              <td class="cell-row-1-col-6">
+                daily
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-2-col-0">
+                        5
+              </td>
+              <td class="cell-row-2-col-1">
+                Double 2BR 2BA
+              </td>
+              <td class="cell-row-2-col-2">
+                2BR
+              </td>
+              <td class="cell-row-2-col-3">
+              </td>
+              <td class="cell-row-2-col-4">
+                monthly
+              </td>
+              <td class="cell-row-2-col-5">
+                daily
+              </td>
+              <td class="cell-row-2-col-6">
+                daily
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-3-col-0">
+                        7
+              </td>
+              <td class="cell-row-3-col-1">
+                Presidential 4BR 3BA
+              </td>
+              <td class="cell-row-3-col-2">
+                4BR
+              </td>
+              <td class="cell-row-3-col-3">
+              </td>
+              <td class="cell-row-3-col-4">
+                monthly
+              </td>
+              <td class="cell-row-3-col-5">
+                daily
+              </td>
+              <td class="cell-row-3-col-6">
+                daily
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-4-col-0">
+                        5
+              </td>
+              <td class="cell-row-4-col-1">
+                Standard 1BR 1BA
+              </td>
+              <td class="cell-row-4-col-2">
+                1BR
+              </td>
+              <td class="cell-row-4-col-3">
+              </td>
+              <td class="cell-row-4-col-4">
+                monthly
+              </td>
+              <td class="cell-row-4-col-5">
+                daily
+              </td>
+              <td class="cell-row-4-col-6">
+                daily
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </body>
+</html>
