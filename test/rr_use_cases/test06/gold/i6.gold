@@ -4,9 +4,10 @@ JGM First, LLC
 Suite 301
 Austin, TX 78738 USA
 
-                                                                         Manage  Is                                       
-                                  Rent     Proration                     To      Child                                    
-RTID        Style    Name         Cycle    Cycle      GSRPC  Available?  Budget  Type?  Dt1 - Dt2 : Market Rate           
-----------  -------  -----------  -------  ---------  -----  ----------  ------  -----  ----------------------------------
-RT00000001  Rex-312  312 Rexford  monthly  daily      daily  Yes         Yes     No     01/01/2016 - 12/31/9999: $ 2800.00
+                                                                                                                            Total    
+                                                                         Manage  Is                                         Counts of
+                                  Rent     Proration                     To      Child                                      Rentable 
+RTID        Style    Name         Cycle    Cycle      GSRPC  Available?  Budget  Type?  Dt1 - Dt2 : Market Rate             Type     
+----------  -------  -----------  -------  ---------  -----  ----------  ------  -----  ----------------------------------  ---------
+RT00000001  Rex-312  312 Rexford  monthly  daily      daily  Yes         Yes     No     01/01/2016 - 12/31/9999: $ 2800.00  1        
 

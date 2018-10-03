@@ -4,16 +4,21 @@ California Commerce Centre Owners Association
 Suite 301
 Austin, TX 78738 USA
 
-RID        Name      Assignment Time
----------  --------  ---------------
-R00000001  Unit A    pre-assign     
-R00000002  Unit B    pre-assign     
-R00000003  Unit C    pre-assign     
-R00000004  Unit D    pre-assign     
-R00000005  Unit E    pre-assign     
-R00000006  Roof      pre-assign     
-R00000007  Parcel B  pre-assign     
-R00000008  UNIT J    pre-assign     
-R00000009  P100      pre-assign     
-R00000010  P200      pre-assign     
+                                      Rentable Type                Proration       
+RID        Name      Assignment Time  Name             Rent Cycle  Cycle      GSRPC
+---------  --------  ---------------  ---------------  ----------  ---------  -----
+R00000001  Unit A    pre-assign       Condo A          monthly     daily      daily
+R00000002  Unit B    pre-assign       Condo B          monthly     daily      daily
+R00000003  Unit C    pre-assign       Condo C          monthly     daily      daily
+R00000004  Unit D    pre-assign       Condo D          monthly     daily      daily
+R00000005  Unit E    pre-assign       Condo E          monthly     daily      daily
+R00000006  Roof      pre-assign       Rooftop Lease    quarterly   daily      daily
+R00000007  Parcel B  pre-assign       Roof             monthly     daily      daily
+                                      Maintenance                                  
+                                      Agreement                                    
+R00000008  UNIT J    pre-assign       Condo J          monthly     daily      daily
+R00000009  P100      pre-assign       Parking Space    monthly     daily      daily
+                                      Inside                                       
+R00000010  P200      pre-assign       Parking Space    monthly     daily      daily
+                                      Outside                                      
 

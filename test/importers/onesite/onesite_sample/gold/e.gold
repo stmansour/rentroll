@@ -4,12 +4,13 @@ JGM First, LLC
 Suite 301
 Austin, TX 78738 USA
 
-RID        Name      Assignment Time
----------  --------  ---------------
-R00000001  6303-016  pre-assign     
-R00000002  6315-055  pre-assign     
-R00000003  6313-052  pre-assign     
-R00000004  6339-156  pre-assign     
-R00000005  6343-165  pre-assign     
-R00000006  6343-166  pre-assign     
+                                      Rentable Type              Proration       
+RID        Name      Assignment Time  Name           Rent Cycle  Cycle      GSRPC
+---------  --------  ---------------  -------------  ----------  ---------  -----
+R00000001  6303-016  pre-assign       A1-HOSP        monthly     daily      daily
+R00000002  6315-055  pre-assign       HRP2           monthly     daily      daily
+R00000003  6313-052  pre-assign       A2-Corp        monthly     daily      daily
+R00000004  6339-156  pre-assign       A6-HOSP        monthly     daily      daily
+R00000005  6343-165  pre-assign       A2-Corp        monthly     daily      daily
+R00000006  6343-166  pre-assign       A2-Corp        monthly     daily      daily
 

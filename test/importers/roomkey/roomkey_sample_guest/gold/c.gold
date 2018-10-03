@@ -3,27 +3,28 @@ Accord/OKC Members, LLC
 6303 NW 63rd Street
 Oklahoma City, OK 73132 USA
 
-                                                                                         Manage  Is                            
-                                                  Rent     Proration                     To      Child                         
-RTID        Style         Name                    Cycle    Cycle      GSRPC  Available?  Budget  Type?  Dt1 - Dt2 : Market Rate
-----------  ------------  ----------------------  -------  ---------  -----  ----------  ------  -----  -----------------------
-RT00000001  3 BDR 2.5     3 BDR 2.5 Bath TWNHM-   monthly  daily      daily  Yes         Yes     No                            
-            Bath TWNHM-                                                                                                        
-RT00000002  LS Deluxe     LS Deluxe 2bd 2bath-    monthly  daily      daily  Yes         Yes     No                            
-            2bd 2bath-                                                                                                         
-RT00000003  2 BDR 1 Bath  2 BDR 1 Bath Deluxe-    monthly  daily      daily  Yes         Yes     No                            
-            Deluxe-                                                                                                            
-RT00000004  1 BDR         1 BDR NSNP/POC-         monthly  daily      daily  Yes         Yes     No                            
-            NSNP/POC-                                                                                                          
-RT00000005  1 BDR         1 BDR NS/POC-Q/POC      monthly  daily      daily  Yes         Yes     No                            
-            NS/POC-Q/POC                                                                                                       
-RT00000006  1 BDR NSNP-Q  1 BDR NSNP-Q            monthly  daily      daily  Yes         Yes     No                            
-RT00000007  1 BDR         1 BDR Deluxe-Q/POC      monthly  daily      daily  Yes         Yes     No                            
-            Deluxe-Q/POC                                                                                                       
-RT00000008  2 BDR 1 Bath  2 BDR 1 Bath NS-QQ      monthly  daily      daily  Yes         Yes     No                            
-            NS-QQ                                                                                                              
-RT00000009  2 BDR 1 Bath  2 BDR 1 Bath NS/POC-    monthly  daily      daily  Yes         Yes     No                            
-            NS/POC-                                                                                                            
-RT00000010  4 BDR 2 Bath  4 BDR 2 Bath Flat-QQQQ  monthly  daily      daily  Yes         Yes     No                            
-            Flat-QQQQ                                                                                                          
+                                                                                                                                 Total    
+                                                                                         Manage  Is                              Counts of
+                                                  Rent     Proration                     To      Child                           Rentable 
+RTID        Style         Name                    Cycle    Cycle      GSRPC  Available?  Budget  Type?  Dt1 - Dt2 : Market Rate  Type     
+----------  ------------  ----------------------  -------  ---------  -----  ----------  ------  -----  -----------------------  ---------
+RT00000001  3 BDR 2.5     3 BDR 2.5 Bath TWNHM-   monthly  daily      daily  Yes         Yes     No                              10       
+            Bath TWNHM-                                                                                                                   
+RT00000002  LS Deluxe     LS Deluxe 2bd 2bath-    monthly  daily      daily  Yes         Yes     No                                       
+            2bd 2bath-                                                                                                                    
+RT00000003  2 BDR 1 Bath  2 BDR 1 Bath Deluxe-    monthly  daily      daily  Yes         Yes     No                                       
+            Deluxe-                                                                                                                       
+RT00000004  1 BDR         1 BDR NSNP/POC-         monthly  daily      daily  Yes         Yes     No                                       
+            NSNP/POC-                                                                                                                     
+RT00000005  1 BDR         1 BDR NS/POC-Q/POC      monthly  daily      daily  Yes         Yes     No                                       
+            NS/POC-Q/POC                                                                                                                  
+RT00000006  1 BDR NSNP-Q  1 BDR NSNP-Q            monthly  daily      daily  Yes         Yes     No                                       
+RT00000007  1 BDR         1 BDR Deluxe-Q/POC      monthly  daily      daily  Yes         Yes     No                                       
+            Deluxe-Q/POC                                                                                                                  
+RT00000008  2 BDR 1 Bath  2 BDR 1 Bath NS-QQ      monthly  daily      daily  Yes         Yes     No                                       
+            NS-QQ                                                                                                                         
+RT00000009  2 BDR 1 Bath  2 BDR 1 Bath NS/POC-    monthly  daily      daily  Yes         Yes     No                                       
+            NS/POC-                                                                                                                       
+RT00000010  4 BDR 2 Bath  4 BDR 2 Bath Flat-QQQQ  monthly  daily      daily  Yes         Yes     No                                       
+            Flat-QQQQ                                                                                                                     
 
