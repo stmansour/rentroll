@@ -185,6 +185,8 @@ func SvcSearchHandlerTaskList(w http.ResponseWriter, r *http.Request, d *Service
 	// 1<<3 : 0 = DtPreDue has not been set, 1 = DtPreDue has been set
 	// 1<<4 : 0 = DtDue    has not been set, 1 = DtDue has been set
 	// 1<<5 : 0 = no notification has been sent, 1 = Notification sent on DtLastNotify
+	// 1<<6 : TL self imposed PreDue date:  0 = no, 1 = yes
+	// 1<<7 : TL self imposed Due date:  0 = no, 1 = yes
 	//-----------------------------------------------------------------------------
 	whr := `TaskList.BID = %d AND TaskList.FLAGS & 1 = 0 AND (                                   /* biz is correct and it is active */
               (TaskList.FLAGS&20 != 0 AND %q <= TaskList.DtDue AND TaskList.DtDue < %q)          /* (Either the TaskListDefinition requires or the Task has set a due date) and due date falls in date range */
@@ -417,6 +419,21 @@ func saveTaskList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		a.DoneUID = 0
 	}
 
+	//--------------------------------------------------------------------------------------
+	// FLAGS bit definitions
+	//  1<<0 : 0 = active, 1 = inactive
+	//  1<<1 : 0 = task list definition does not have a PreDueDate, 1 = has a PreDueDate
+	//  1<<2 : 0 = task list definition does not have a DueDate, 1 = has a DueDate
+	//  1<<3 : 0 = DtPreDue has not been set, 1 = DtPreDue has been set
+	//  1<<4 : 0 = DtDue has not been set, 1 = DtDue has been set
+	//  1<<5 : 0 = no notification has been sent, 1 = Notification sent on DtLastNotify
+	//  1<<6 : task list imposed its own due pre date (tld did not have one)
+	//  1<<7 : task list imposed its own due date (tld did not have one)
+	//
+	// NOTE: even if the definition does not define a due date, the individual task list
+	// can define one.
+	//--------------------------------------------------------------------------------------
+
 	//-------------------------------------------------------
 	// Bizlogic checks done. Insert or update as needed...
 	//-------------------------------------------------------
@@ -433,6 +450,12 @@ func saveTaskList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			return
 		}
 		tl.Comment = foo.Record.Comment
+		if 0 == tl.FLAGS&(1<<1) && foo.Record.ChkDtPreDue {
+			tl.FLAGS |= (1 << 6)
+		}
+		if 0 == tl.FLAGS&(1<<1) && foo.Record.ChkDtDue {
+			tl.FLAGS |= (1 << 7)
+		}
 		err = rlib.UpdateTaskList(r.Context(), &tl)
 		if err != nil {
 			SvcErrorReturn(w, err, funcname)
@@ -471,6 +494,12 @@ func saveTaskList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			a.DtDone = rlib.TIME0
 			a.DoneUID = 0
 			a.FLAGS &= ^(1 << 4)
+		}
+		if 0 == a.FLAGS&(1<<1) && foo.Record.ChkDtPreDue {
+			a.FLAGS |= (1 << 6)
+		}
+		if 0 == a.FLAGS&(1<<1) && foo.Record.ChkDtDue {
+			a.FLAGS |= (1 << 7)
 		}
 		err = rlib.UpdateTaskList(r.Context(), &a)
 	}

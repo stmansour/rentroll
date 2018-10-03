@@ -542,12 +542,17 @@ CREATE TABLE TaskList (
     DtPreDue DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',   -- All tasks in task list pre-completion date
     DtDone DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',     -- Task completion Date
     DtPreDone DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- Task Pre Completion Date
-    FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 1<<0 : 0 = active, 1 = inactive
-                                                                -- 1<<1 : 0 = task list definition does not have a PreDueDate, 1 = has a PreDueDate
-                                                                -- 1<<2 : 0 = task list definition does not have a DueDate, 1 = has a DueDate
-                                                                -- 1<<3 : 0 = DtPreDue has not been set, 1 = DtPreDue has been set
-                                                                -- 1<<4 : 0 = DtDue has not been set, 1 = DtDue has been set
-                                                                -- 1<<5 : 0 = no notification has been sent, 1 = Notification sent on DtLastNotify
+    /*
+    -- 1<<0 : 0 = active, 1 = inactive
+    -- 1<<1 : 0 = task list definition does not have a PreDueDate, 1 = has a PreDueDate
+    -- 1<<2 : 0 = task list definition does not have a DueDate, 1 = has a DueDate
+    -- 1<<3 : 0 = DtPreDue has not been set, 1 = DtPreDue has been set
+    -- 1<<4 : 0 = DtDue has not been set, 1 = DtDue has been set
+    -- 1<<5 : 0 = no notification has been sent, 1 = Notification sent on DtLastNotify
+    -- 1<<6 : task list imposed its own due pre date (tld did not have one)
+	-- 1<<7 : task list imposed its own due date (tld did not have one)
+    */
+    FLAGS BIGINT NOT NULL DEFAULT 0,                            -- flags as defined above
     DoneUID BIGINT NOT NULL DEFAULT 0,                          -- user who marked this task done
     PreDoneUID BIGINT NOT NULL DEFAULT 0,                       -- user who marked this task predone
     EmailList VARCHAR(2048) NOT NULL DEFAULT '',                -- list of email addresses for when due date arrives
