@@ -59,11 +59,11 @@ Response( RAID: 6, UserRefNo: OVERRIDEEN1234567890 )
                 "dates": {
                     "CSAgent": 68,
                     "RentStop": "2/29/2020",
-                    "RentStart": "10/1/2018",
+                    "RentStart": "10/3/2018",
                     "AgreementStop": "2/29/2020",
-                    "AgreementStart": "10/1/2018",
+                    "AgreementStart": "10/3/2018",
                     "PossessionStop": "2/29/2020",
-                    "PossessionStart": "10/1/2018"
+                    "PossessionStart": "10/3/2018"
                 },
                 "people": [
                     {
@@ -156,13 +156,28 @@ Response( RAID: 6, UserRefNo: OVERRIDEEN1234567890 )
                         "Fees": [
                             {
                                 "ARID": 26,
+                                "Stop": "10/3/2018",
+                                "ASMID": 88,
+                                "Start": "10/3/2018",
+                                "ARName": "Rent Non-Taxable",
+                                "Comment": "prorated for 29 of 31 days",
+                                "SalesTax": 0,
+                                "TMPASMID": 5,
+                                "RentCycle": 0,
+                                "TransOccTax": 0,
+                                "ContractAmount": 1637.1,
+                                "ProrationCycle": 0,
+                                "AtSigningPreTax": 0
+                            },
+                            {
+                                "ARID": 26,
                                 "Stop": "2/29/2020",
                                 "ASMID": 88,
-                                "Start": "10/1/2018",
+                                "Start": "11/1/2018",
                                 "ARName": "Rent Non-Taxable",
                                 "Comment": "",
                                 "SalesTax": 0,
-                                "TMPASMID": 5,
+                                "TMPASMID": 6,
                                 "RentCycle": 6,
                                 "TransOccTax": 0,
                                 "ContractAmount": 1750,
@@ -181,9 +196,9 @@ Response( RAID: 6, UserRefNo: OVERRIDEEN1234567890 )
                 ],
                 "parentchild": []
             },
-            "LastModTime": "2018-10-01T14:02:14Z",
+            "LastModTime": "2018-10-02T20:35:27Z",
             "LastModBy": -99999,
-            "CreateTS": "2018-10-01T14:02:14Z",
+            "CreateTS": "2018-10-02T20:35:27Z",
             "CreateBy": -99999
         },
         "ValidationCheck": {

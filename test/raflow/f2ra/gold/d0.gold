@@ -24,7 +24,7 @@
                     "RentStop": "1/1/2019"
                 },
                 "meta": {
-                    "ActiveDate": "2018-09-19 05:03:00 UTC",
+                    "ActiveDate": "2018-10-03 03:31:00 UTC",
                     "ActiveName": "UID-0",
                     "ActiveUID": -99999,
                     "ApplicationReadyDate": "2018-09-13 23:41:00 UTC",
@@ -137,7 +137,7 @@
                             {
                                 "ARID": 23,
                                 "ARName": "Pet Fee",
-                                "ASMID": 26,
+                                "ASMID": 27,
                                 "AtSigningPreTax": 0,
                                 "Comment": "",
                                 "ContractAmount": 50,
@@ -152,7 +152,7 @@
                             {
                                 "ARID": 24,
                                 "ARName": "Pet Rent",
-                                "ASMID": 27,
+                                "ASMID": 28,
                                 "AtSigningPreTax": 0,
                                 "Comment": "",
                                 "ContractAmount": 10,

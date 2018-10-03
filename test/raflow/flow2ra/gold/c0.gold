@@ -24,7 +24,7 @@
                     "RentStop": "3/1/2020"
                 },
                 "meta": {
-                    "ActiveDate": "2018-09-19 05:21:00 UTC",
+                    "ActiveDate": "2018-10-03 03:29:00 UTC",
                     "ActiveName": "UID-0",
                     "ActiveUID": -99999,
                     "ApplicationReadyDate": "2018-08-28 22:37:00 UTC",
@@ -137,7 +137,7 @@
                             {
                                 "ARID": 24,
                                 "ARName": "Pet Rent",
-                                "ASMID": 23,
+                                "ASMID": 24,
                                 "AtSigningPreTax": 0,
                                 "Comment": "prorated for 4 of 31 days | Derived from RAID 1, ASMID 9",
                                 "ContractAmount": 1.29,
@@ -152,7 +152,7 @@
                             {
                                 "ARID": 24,
                                 "ARName": "Pet Rent",
-                                "ASMID": 24,
+                                "ASMID": 25,
                                 "AtSigningPreTax": 0,
                                 "Comment": "Derived from RAID 1, ASMID 9",
                                 "ContractAmount": 10,
