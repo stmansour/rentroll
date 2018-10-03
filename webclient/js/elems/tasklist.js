@@ -298,8 +298,7 @@ window.buildTaskListElements = function () {
     // addDateNavToToolbar('tlsInfoForm');
 
     //------------------------------------------------------------------------
-    //  tlsTaskGrid  -  lists all the assessments and receipts for
-    //                  the selected Rental Agreement from the stmtGrid
+    //  tlsTaskGrid  -  lists all the tasks associated with this tasklist
     //------------------------------------------------------------------------
     $().w2grid({
         name: 'tlsDetailGrid',
@@ -380,11 +379,11 @@ window.buildTaskListElements = function () {
                 event.onComplete = function() {
                     switch(event.target) {
                     case 'btnClose':
-                        var no_callBack = function() { return false; },
-                            yes_callBack = function() {
+                        var no_callBack = function() { return false; };
+                        var yes_callBack = function() {
                                 closeTaskForm();
                                 w2ui.tlLayout.render();
-                            };
+                        };
                         form_dirty_alert(yes_callBack, no_callBack);
                         break;
                     }
@@ -455,6 +454,7 @@ window.buildTaskListElements = function () {
                     // w2popup.close();
                     closeTaskForm();
                     setTaskButtonsState();
+                    w2ui.tlLayout.render();
                 })
                 .fail(function(/*data*/){
                     f.error("Save Tasklist failed.");
