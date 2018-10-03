@@ -49,6 +49,8 @@ func TaskListReportTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 		ApprovedBy    = iota
 	)
 
+	T0Year := rlib.TIME0.Year() + 1
+
 	// init and prepare some values before table init
 	ri.RptHeaderD1 = true
 	ri.RptHeaderD2 = false
@@ -86,12 +88,12 @@ func TaskListReportTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 
 	if tl.DoneUID > 0 {
 		s = fmt.Sprintf("Completed %s by %s", tl.DtDone.In(rlib.RRdb.Zone).Format(rlib.RRDATETIMERPTFMT), rlib.GetNameForUID(ctx, tl.DoneUID))
-		if tl.DtDone.After(tl.DtDue) && tl.DtDue.Year() > 1900 {
+		if tl.DtDone.After(tl.DtDue) && tl.DtDue.Year() > T0Year {
 			s = "LATE, " + s
 		}
 	} else {
 		s = "Not Yet Completed"
-		if now.After(tl.DtDue) && tl.DtDue.Year() > 1900 {
+		if now.After(tl.DtDue) && tl.DtDue.Year() > T0Year {
 			s = "OVERDUE, " + s
 		}
 	}
@@ -107,11 +109,11 @@ func TaskListReportTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 	for i := 0; i < len(m); i++ {
 		tbl.AddRow()
 		st := " "
-		if m[i].DtDue.Year() > 1970 { // is there a due date?
+		if m[i].DtDue.Year() > T0Year { // is there a due date?
 			if now.After(m[i].DtDue) {
 				st = "LATE"
 			}
-			if m[i].DtDone.Year() > 1970 { // is there a done date?
+			if m[i].DtDone.Year() > T0Year { // is there a done date?
 				if !m[i].DtDone.After(m[i].DtDue) {
 					st = "+"
 				}
@@ -120,17 +122,21 @@ func TaskListReportTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 		tbl.Puts(-1, Status, st)
 		tbl.Puts(-1, eTask, m[i].Name)
 
-		tbl.Puts(-1, PreDueDate, m[i].DtPreDue.In(rlib.RRdb.Zone).Format(rlib.RRDATETIMERPTFMT))
-		tbl.Puts(-1, DueDate, m[i].DtDue.In(rlib.RRdb.Zone).Format(rlib.RRDATETIMERPTFMT))
+		if m[i].DtPreDue.Year() > T0Year {
+			tbl.Puts(-1, PreDueDate, m[i].DtPreDue.In(rlib.RRdb.Zone).Format(rlib.RRDATETIMERPTFMT))
+		}
+		if m[i].DtDue.Year() > T0Year {
+			tbl.Puts(-1, DueDate, m[i].DtDue.In(rlib.RRdb.Zone).Format(rlib.RRDATETIMERPTFMT))
+		}
 
-		if m[i].DtPreDone.Year() > 1970 {
+		if m[i].DtPreDone.Year() > T0Year {
 			tbl.Puts(-1, PreDoneDate, m[i].DtPreDone.In(rlib.RRdb.Zone).Format(rlib.RRDATETIMERPTFMT))
 		}
 		if m[i].PreDoneUID > 0 {
 			tbl.Puts(-1, PreApprovedBy, rlib.GetNameForUID(ctx, m[i].PreDoneUID))
 		}
 
-		if m[i].DtDone.Year() > 1970 {
+		if m[i].DtDone.Year() > T0Year {
 			tbl.Puts(-1, DoneDate, m[i].DtDone.In(rlib.RRdb.Zone).Format(rlib.RRDATETIMERPTFMT))
 		}
 		if m[i].DoneUID > 0 {

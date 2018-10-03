@@ -474,7 +474,13 @@ CREATE TABLE Business (
     DefaultProrationCycle SMALLINT NOT NULL DEFAULT 0,          -- default for every rentable type - useful to initialize UI
     DefaultGSRPC SMALLINT NOT NULL DEFAULT 0,                   -- default for every rentable type - useful to initialize UI
     ClosePeriodTLID BIGINT NOT NULL DEFAULT 0,                  -- The tasklist needed for closing a period
-    FLAGS BIGINT NOT NULL DEFAULT 0,                            -- last bit =0(EDI disabled), =1(EDI enabled)
+    -- -------------------------------------------------------------------------
+    -- FLAGS
+    -- Bit    Description
+    -- 1<<0 = EDI Flag 0(EDI disabled), =1(EDI enabled) (End Date Includes)
+    -- 1<<1 = allow backdated Rental Agreements in closed periods 0 = no, 1 = yes
+    -- -------------------------------------------------------------------------
+    FLAGS BIGINT NOT NULL DEFAULT 0,
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,      -- when was this record created
@@ -536,12 +542,17 @@ CREATE TABLE TaskList (
     DtPreDue DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',   -- All tasks in task list pre-completion date
     DtDone DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',     -- Task completion Date
     DtPreDone DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- Task Pre Completion Date
-    FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 1<<0 : 0 = active, 1 = inactive
-                                                                -- 1<<1 : 0 = task list definition does not have a PreDueDate, 1 = has a PreDueDate
-                                                                -- 1<<1 : 0 = task list definition does not have a DueDate, 1 = has a DueDate
-                                                                -- 1<<3 : 0 = DtPreDue has not been set, 1 = DtPreDue has been set
-                                                                -- 1<<4 : 0 = DtDue has not been set, 1 = DtDue has been set
-                                                                -- 1<<5 : 0 = no notification has been sent, 1 = Notification sent on DtLastNotify
+    /*
+    -- 1<<0 : 0 = active, 1 = inactive
+    -- 1<<1 : 0 = task list definition does not have a PreDueDate, 1 = has a PreDueDate
+    -- 1<<2 : 0 = task list definition does not have a DueDate, 1 = has a DueDate
+    -- 1<<3 : 0 = DtPreDue has not been set, 1 = DtPreDue has been set
+    -- 1<<4 : 0 = DtDue has not been set, 1 = DtDue has been set
+    -- 1<<5 : 0 = no notification has been sent, 1 = Notification sent on DtLastNotify
+    -- 1<<6 : task list imposed its own due pre date (tld did not have one)
+	-- 1<<7 : task list imposed its own due date (tld did not have one)
+    */
+    FLAGS BIGINT NOT NULL DEFAULT 0,                            -- flags as defined above
     DoneUID BIGINT NOT NULL DEFAULT 0,                          -- user who marked this task done
     PreDoneUID BIGINT NOT NULL DEFAULT 0,                       -- user who marked this task predone
     EmailList VARCHAR(2048) NOT NULL DEFAULT '',                -- list of email addresses for when due date arrives
@@ -564,6 +575,8 @@ CREATE TABLE TaskDescriptor (
     EpochDue DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',   -- Task Due Date
     EpochPreDue DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00', -- Pre Completion due date
     FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 1<<0 pre-completion required (if 0 then there is no pre-completion required)
+                                                                -- 1<<1 : 0 = task descriptor does not have a PreDueDate, 1 = has a PreDueDate
+                                                                -- 1<<2 : 0 = task descriptor does not have a DueDate,    1 = has a DueDate
     Comment VARCHAR(2048) NOT NULL DEFAULT '',                  -- any user comments
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
@@ -581,6 +594,8 @@ CREATE TABLE TaskListDefinition (
     EpochDue DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',   -- Task Due Date
     EpochPreDue DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',-- Pre Completion due date
     FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 1<<0 : 0 = active, 1 = inactive
+                                                                -- 1<<1 : 0 = task list definition does not have a PreDueDate, 1 = has a PreDueDate
+                                                                -- 1<<1 : 0 = task list definition does not have a DueDate, 1 = has a DueDate
     EmailList VARCHAR(2048) NOT NULL DEFAULT '',                -- list of email addresses for when due date arrives - will apply to all TaskList instances
     DurWait BIGINT NOT NULL DEFAULT 86400000000000,             -- how long to wait after failure notification for next check (default: 1 day)
     Comment VARCHAR(2048) NOT NULL DEFAULT '',                  -- any user comments

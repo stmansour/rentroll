@@ -11,6 +11,7 @@ var noClose = rlib.ClosePeriod{
 	Dt:               rlib.TIME0,
 	OpenPeriodDt:     rlib.TIME0,
 	ExpandAsmDtStart: rlib.TIME0,
+	ExpandAsmDtStop:  rlib.ENDOFTIME,
 }
 
 // UpdateReceipt accepts an updated rlib.Receipt structure.  It will load the

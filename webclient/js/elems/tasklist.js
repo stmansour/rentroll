@@ -8,6 +8,7 @@
     createNewTaskList, getBUDfromBID, exportItemReportPDF, exportItemReportCSV,
     popupNewTaskListForm, getTLDs, getCurrentBID, getNewTaskListRecord,
     closeTaskForm, setTaskButtonsState, renderTaskGridDate, localtimeToUTC, TLD,
+    taskFormDueDate1,
 */
 
 var TL = {
@@ -16,6 +17,12 @@ var TL = {
     formBtnsDisabled: false,    // indicates whether the tasklist save/delete buttons should be on/off
     TIME0: '1/1/1970',          // value of time if date control returns an empty string
 };
+
+var TLData = {
+    sDtDue: '',
+    sDtPreDue: '',
+};
+
 
 window.getNewTaskListRecord = function (bid) {
     var rec = {
@@ -99,6 +106,43 @@ window.buildTaskListElements = function () {
 
     addDateNavToToolbar('tls'); // "Grid" is appended to the
 
+    //-----------------------------------------------------------------------------
+    // taskFormDueDate - form formatting
+    //
+    //  TaskList FLAG Field Definition
+    //    1<<0 : 0 = active, 1 = inactive
+    //    1<<1 : 0 = task list definition does not have a PreDueDate, 1 = has a PreDueDate
+    //    1<<2 : 0 = task list definition does not have a DueDate, 1 = has a DueDate
+    //    1<<3 : 0 = DtPreDue has not been set, 1 = DtPreDue has been set
+    //    1<<4 : 0 = DtDue has not been set, 1 = DtDue has been set
+    //    1<<5 : 0 = no notification has been sent, 1 = Notification sent on DtLastNotify
+    // @params
+    //       f = the form
+    //       r = data record to use for the form data
+    //
+    // @returns
+    //      updated value for ChkDt...  true if year >= 2000
+    //
+    //-----------------------------------------------------------------------------
+    window.taskFormDueDate1 = function (f,r) {
+
+        //-----------------------------------------------------------------------
+        // First, set the state of the toggle button. Whethere it can be set
+        // or not depends on whether the task or tasklist definition has set
+        // the PreDueDate and DueDate.  If it has, then the user cannot change
+        // the value of PreDue or Due.  If the definition does not set the
+        // due date then the user can set it to whatever they want. That
+        // includes leaving it unset.
+        //-----------------------------------------------------------------------
+        var disable;
+        if ( (r.FLAGS & 2) != 0 ) { disable = true;} else {disable=false;}
+        $(f.box).find("input[name=ChkDtPreDue]").prop( "disabled", disable );
+
+
+        if ( (r.FLAGS & 4) != 0 ) { disable = true;} else { disable=false; }
+        $(f.box).find("input[name=ChkDtDue]").prop( "disabled", disable );
+    };
+
     //------------------------------------------------------------------------
     //  tlsInfoForm
     //------------------------------------------------------------------------
@@ -174,12 +218,14 @@ window.buildTaskListElements = function () {
         ],
         onRefresh: function(event) {
             event.onComplete = function(event) {
-                var r = w2ui.tlsInfoForm.record;
+                var f = w2ui.tlsInfoForm;
+                var r = f.record;
                 if (typeof r.DtPreDue === "undefined") {
                     return;
                 }
-                r.ChkDtPreDue  = taskFormDueDate(r.DtPreDue,  r.ChkDtPreDue,'sDtPreDue','no pre-due date');
-                r.ChkDtDue     = taskFormDueDate(r.DtDue,     r.ChkDtDue,   'sDtDue',   'no due date');
+                // r.ChkDtPreDue  = taskFormDueDate(r.DtPreDue,  r.ChkDtPreDue,'sDtPreDue','no pre-due date');
+                // r.ChkDtDue     = taskFormDueDate(r.DtDue,     r.ChkDtDue,   'sDtDue',   'no due date');
+                taskFormDueDate1(f,r);
                 r.ChkDtDone    = taskFormDoneDate(r.ChkDtDone,    r.DtDone,   r.DtDue,      r.ChkDtDone,    r.DoneUID,    r.DoneName,    'sDtDone',   'tlDoneName',    'tlOverdue');
                 r.ChkDtPreDone = taskFormDoneDate(r.ChkDtPreDone, r.DtPreDone,r.DtPreDue,   r.ChkDtPreDone, r.PreDoneUID, r.PreDoneName, 'sDtPreDone','tlPreDoneName', 'tlPreOverdue');
             };
@@ -203,8 +249,7 @@ window.buildTaskListElements = function () {
                 }
 
                 // now enable/disable as needed
-                $(f.box).find("input[name=DtDue]").prop( "disabled", !r.ChkDtDue );
-                $(f.box).find("input[name=DtPreDue]").prop( "disabled", !r.ChkDtPreDue );
+                taskFormDueDate1(f,r);
             };
         },
         onChange: function(event) {
@@ -212,16 +257,42 @@ window.buildTaskListElements = function () {
                 var f = w2ui.tlsInfoForm;
                 var r = f.record;
                 var s = '';
-                if (event.target === "ChkDtPreDone") {
+                switch (event.target) {
+                case "ChkDtPreDone":
                     taskCompletionChange(event.value_new,"sDtPreDone");
                     r.DtPreDone = new Date();
-                } else if (event.target === "ChkDtDone") {
+                    break;
+                case "ChkDtDone":
                     taskCompletionChange(event.value_new,"sDtDone");
                     r.DtDone = new Date();
+                    break;
+                case "ChkDtPreDue":
+                    $(f.box).find("input[name=DtPreDue]").prop( "disabled", !r.ChkDtPreDue );
+                    if (r.ChkDtPreDue) {
+                        if (r.DtPreDue === "" && TLData.sDtPreDue.length > 1) {
+                            r.DtPreDue = TLData.sDtPreDue;
+                        }
+                    } else {
+                        TLData.sDtPreDue = r.DtPreDue;
+                        r.DtPreDue = '';
+                    }
+                    f.refresh();
+                    break;
+                case "ChkDtDue":
+                    $(f.box).find("input[name=DtDue]").prop( "disabled", !r.ChkDtDue );
+                    if (r.ChkDtDue) {
+                        if (r.DtDue === "" && TLData.sDtDue.length > 1) {
+                            r.DtDue = TLData.sDtDue;
+                        }
+                    } else {
+                        TLData.sDtDue = r.DtDue;
+                        r.DtDue = '';
+                    }
+                    f.refresh();
+                    break;
                 }
             };
         },
-
     });
 
     // addDateNavToToolbar('tlsInfoForm');
@@ -286,6 +357,13 @@ window.buildTaskListElements = function () {
 
     //------------------------------------------------------------------------
     //  taskForm
+    //  FLAG Field TaskListDefinition
+    //    1<<0 : 0 = active, 1 = inactive
+    //    1<<1 : 0 = task list definition does not have a PreDueDate, 1 = has a PreDueDate
+    //    1<<2 : 0 = task list definition does not have a DueDate, 1 = has a DueDate
+    //    1<<3 : 0 = DtPreDue has not been set, 1 = DtPreDue has been set
+    //    1<<4 : 0 = DtDue has not been set, 1 = DtDue has been set
+    //    1<<5 : 0 = no notification has been sent, 1 = Notification sent on DtLastNotify
     //------------------------------------------------------------------------
     $().w2form({
         name: 'taskForm',
@@ -320,10 +398,10 @@ window.buildTaskListElements = function () {
             { field: 'TLID',         type: 'text',     required: false },
             { field: 'TaskName',     type: 'text',     required: true  },
             { field: 'Worker',       type: 'text',     required: false },
-            { field: 'DtDue',        type: 'text',     required: false },
-            { field: 'DtPreDue',     type: 'text',     required: false },
-            { field: 'DtDone',       type: 'text',     required: false },
-            { field: 'DtPreDone',    type: 'text',     required: false },
+            { field: 'DtDue',        type: 'datetime', required: false },
+            { field: 'DtPreDue',     type: 'datetime', required: false },
+            { field: 'DtDone',       type: 'datetime', required: false },
+            { field: 'DtPreDone',    type: 'datetime', required: false },
             { field: 'FLAGS',        type: 'text',     required: false },
             { field: 'DoneUID',      type: 'text',     required: false },
             { field: 'PreDoneUID',   type: 'text',     required: false },
@@ -385,14 +463,15 @@ window.buildTaskListElements = function () {
             },
         },
        onRefresh: function(event) {
-            // var f = this;
+            var f = this;
             event.onComplete = function(event) {
-                var r = w2ui.taskForm.record;
+                var r = f.record;
                 if (typeof r.DtPreDue === "undefined") {
                     return;
                 }
-                r.ChkDtPreDue  = taskFormDueDate(r.DtPreDue,      r.ChkDtPreDue,'tskDtPreDue',  'no pre-due date'               );
-                r.ChkDtDue     = taskFormDueDate(r.DtDue,         r.ChkDtDue,   'tskDtDue',     'no due date'                   );
+                // r.ChkDtPreDue  = taskFormDueDate(r.DtPreDue,      r.ChkDtPreDue,'tskDtPreDue',  'no pre-due date'               );
+                // r.ChkDtDue     = taskFormDueDate(r.DtDue,         r.ChkDtDue,   'tskDtDue',     'no due date'                   );
+                taskFormDueDate1(f,r);
                 r.ChkDtPreDone = taskFormDoneDate(r.ChkDtPreDone, r.DtPreDone,  r.DtPreDue,   r.ChkDtPreDone, r.PreDoneUID, r.TaskPreDoneName, 'tskDtPreDone', 'tskPreDoneName', 'tskPreOverdue');
                 r.ChkDtDone    = taskFormDoneDate(r.ChkDtDone,    r.DtDone,     r.DtDue,      r.ChkDtDone,    r.DoneUID,    r.TaskDoneName,    'tskDtDone',    'tskDoneName',    'tskOverdue'   );
             };
@@ -429,6 +508,9 @@ window.buildTaskListElements = function () {
                 if (r.DtPreDone === "") {
                     r.DtPreDone = new Date();
                 }
+
+                // now enable/disable as needed
+                taskFormDueDate1(f,r);
             };
         },
     });

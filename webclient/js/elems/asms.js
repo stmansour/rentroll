@@ -3,7 +3,7 @@
     getCurrentBusiness, getBUDfromBID, w2popup, w2utils, rafinder, get2XReversalSymbolHTML,
     getGridReversalSymbolHTML, setDefaultFormFieldAsPreviousRecord, isDatePriorToCurrentDate,
     form_dirty_alert,setToForm,addDateNavToToolbar,getCurrentBID,formRefreshCallBack, renderReversalIcon,
-    getBusinessAssessmentRules, getAsmsInitRecord, popupAsmRevMode, asmFormRASelect
+    getBusinessAssessmentRules, getAsmsInitRecord, popupAsmRevMode, asmFormRASelect, fixExpandType
 
 */
 "use strict";
@@ -363,6 +363,7 @@ window.buildAssessmentElements = function () {
 
                 // unselect the record
                 grid.selectNone();
+                fixExpandType(this.record);
 
                 // first save the record
                 f.save({}, function (data) {
@@ -398,6 +399,7 @@ window.buildAssessmentElements = function () {
                 var grid = w2ui.asmsGrid;
 
                 grid.selectNone();
+                fixExpandType(this.record);
                 w2ui.asmEpochForm.url = '/v1/asm/' + x.value + '/' + w2ui.asmEpochForm.record.ASMID;
 
                 this.save({}, function (data) {
@@ -562,6 +564,7 @@ window.buildAssessmentElements = function () {
             // modify form data for server request
             getFormSubmitData(data.postData.record);
             console.log(data.postData.record);
+            fixExpandType(data.postData.record);
             app.cycleFreq.forEach(function(item, index) {
                 if (item == data.postData.record.RentCycle) {
                     data.postData.record.RentCycle = index;
@@ -653,6 +656,7 @@ window.buildAssessmentElements = function () {
 
                 // unselect the record
                 grid.selectNone();
+                fixExpandType(this.record);
 
                 // first save the record
                 f.save({}, function (data) {
@@ -685,9 +689,9 @@ window.buildAssessmentElements = function () {
                 });
             },
             save: function () {
-                var f = this,
-                    grid = w2ui.asmsGrid;
-
+                var f = this;
+                var grid = w2ui.asmsGrid;
+                fixExpandType(this.record);
                 grid.selectNone();
 
                 f.save({}, function (data) {
@@ -892,6 +896,7 @@ window.buildAssessmentElements = function () {
             delete data.postData.record.CreateBy;
             // modify form data for server request
             getFormSubmitData(data.postData.record);
+            fixExpandType(data.postData.record);
             app.cycleFreq.forEach(function(item, index) {
                 if (item == data.postData.record.RentCycle) {
                     data.postData.record.RentCycle = index;
@@ -957,6 +962,13 @@ window.buildAssessmentElements = function () {
             },
         },
     });
+};
+
+window.fixExpandType = function(record) {
+    if (typeof record.ExpandPastInst == "number") {
+        var b = record.ExpandPastInst == 1;
+        record.ExpandPastInst = b;
+    }
 };
 
 window.asmOpenRASelect = function () {

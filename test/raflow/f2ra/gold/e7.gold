@@ -1,0 +1,253 @@
+{
+    "record": {
+        "DataFulfilled": {
+            "dates": true,
+            "parentchild": true,
+            "people": true,
+            "pets": true,
+            "rentables": true,
+            "tie": true,
+            "vehicles": true
+        },
+        "Flow": {
+            "BID": 1,
+            "CreateBy": -99999,
+            "CreateTS": "2018-09-24T12:35:09Z",
+            "Data": {
+                "dates": {
+                    "AgreementStart": "12/1/2018",
+                    "AgreementStop": "12/1/2019",
+                    "CSAgent": 209,
+                    "PossessionStart": "12/1/2018",
+                    "PossessionStop": "12/1/2019",
+                    "RentStart": "12/1/2018",
+                    "RentStop": "12/1/2019"
+                },
+                "meta": {
+                    "ActiveDate": "1900-01-01 00:00:00 UTC",
+                    "ActiveName": "",
+                    "ActiveUID": 0,
+                    "ApplicationReadyDate": "2018-09-24 19:39:00 UTC",
+                    "ApplicationReadyName": "UID-0",
+                    "ApplicationReadyUID": -99999,
+                    "Approver1": -99999,
+                    "Approver1Name": "UID-0",
+                    "Approver2": -99999,
+                    "Approver2Name": "UID-0",
+                    "BID": 1,
+                    "DecisionDate1": "2018-09-24 19:39:00 UTC",
+                    "DecisionDate2": "2018-09-24 19:39:00 UTC",
+                    "DeclineReason1": 0,
+                    "DeclineReason2": 0,
+                    "DocumentDate": "2018-12-01 00:00:00 UTC",
+                    "HavePets": false,
+                    "HaveVehicles": false,
+                    "LastTMPASMID": 4,
+                    "LastTMPPETID": 1,
+                    "LastTMPTCID": 1,
+                    "LastTMPVID": 1,
+                    "LeaseTerminationReason": 0,
+                    "MoveInDate": "2018-09-24 19:39:00 UTC",
+                    "MoveInName": "UID-0",
+                    "MoveInUID": -99999,
+                    "NoticeToMoveDate": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveName": "",
+                    "NoticeToMoveReported": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveUID": 0,
+                    "RAFLAGS": 51,
+                    "RAID": 1,
+                    "TerminationDate": "1900-01-01 00:00:00 UTC",
+                    "TerminatorName": "",
+                    "TerminatorUID": 0
+                },
+                "parentchild": [],
+                "people": [
+                    {
+                        "Address": "45263 12th",
+                        "Address2": "",
+                        "AlternateEmailAddress": "88598 Birch,Riverside,PA 31847",
+                        "Bankruptcy": false,
+                        "BankruptcyDes": "",
+                        "CellPhone": "(615) 306-4762",
+                        "City": "Bethlehem",
+                        "Comment": "",
+                        "CompanyAddress": "83321 Evergreen",
+                        "CompanyCity": "Waterbury",
+                        "CompanyEmail": "CKERestaurantsIncWaterbury193@hotmail.com",
+                        "CompanyName": "CKE Restaurants Inc.",
+                        "CompanyPhone": "(401) 114-1910",
+                        "CompanyPostalCode": "84059",
+                        "CompanyState": "TN",
+                        "Convicted": false,
+                        "ConvictedDes": "",
+                        "Country": "USA",
+                        "CreditLimit": 17773,
+                        "CurrentAddress": "21059 Lincoln, Laredo, NV 02081",
+                        "CurrentLandLordName": "Nina Patrick",
+                        "CurrentLandLordPhoneNo": "(764) 127-4570",
+                        "CurrentLengthOfResidency": "6 years 2 months",
+                        "CurrentReasonForMoving": 94,
+                        "DateofBirth": "2/9/1957",
+                        "DriversLicense": "G9017884",
+                        "EligibleFuturePayor": true,
+                        "EligibleFutureUser": true,
+                        "EmergencyContactAddress": "6866 Redwood,Kenosha,IL 27887",
+                        "EmergencyContactEmail": "EmeldaAvery95@hotmail.com",
+                        "EmergencyContactName": "Emelda Avery",
+                        "EmergencyContactTelephone": "(420) 984-0140",
+                        "Evicted": false,
+                        "EvictedDes": "",
+                        "FirstName": "Cheryle",
+                        "GrossIncome": 57726,
+                        "Industry": 366,
+                        "IsCompany": false,
+                        "IsGuarantor": false,
+                        "IsOccupant": true,
+                        "IsRenter": true,
+                        "LastName": "Holland",
+                        "MiddleName": "Margo",
+                        "Occupation": "on-line customer services operator",
+                        "OtherPreferences": "",
+                        "Points": 0,
+                        "PostalCode": "98081",
+                        "PreferredName": "Johnathan",
+                        "PrimaryEmail": "CheryleH8293@abiz.com",
+                        "PriorAddress": "12414 Hickory, Green Bay, CO 41318",
+                        "PriorLandLordName": "Eloise Ayers",
+                        "PriorLandLordPhoneNo": "(952) 674-1135",
+                        "PriorLengthOfResidency": "4 years 8 months",
+                        "PriorReasonForMoving": 113,
+                        "SecondaryEmail": "CHolland5383@gmail.com",
+                        "SourceSLSID": 62,
+                        "SpecialNeeds": "",
+                        "State": "SD",
+                        "TCID": 1,
+                        "TMPTCID": 1,
+                        "TaxpayorID": "07961240",
+                        "ThirdPartySource": "Juana Blake",
+                        "Website": "",
+                        "WorkPhone": "(662) 273-6413"
+                    }
+                ],
+                "pets": [
+                    {
+                        "Breed": "Burmese cat",
+                        "Color": "Harlequin",
+                        "Fees": [],
+                        "Name": "Charlie ",
+                        "PETID": 1,
+                        "TMPPETID": 1,
+                        "TMPTCID": 1,
+                        "Type": "cat",
+                        "Weight": 9
+                    }
+                ],
+                "rentables": [
+                    {
+                        "AtSigningPreTax": 0,
+                        "Fees": [
+                            {
+                                "ARID": 40,
+                                "ARName": "Rent ST000",
+                                "ASMID": 0,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 1100,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "12/1/2018",
+                                "Stop": "12/1/2019",
+                                "TMPASMID": 4,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "RID": 1,
+                        "RTFLAGS": 4,
+                        "RTID": 1,
+                        "RentCycle": 6,
+                        "RentableName": "Rentable001",
+                        "SalesTax": 0,
+                        "TransOccTax": 0
+                    }
+                ],
+                "tie": {
+                    "people": [
+                        {
+                            "PRID": 1,
+                            "TMPTCID": 1
+                        }
+                    ]
+                },
+                "vehicles": [
+                    {
+                        "Fees": [],
+                        "LicensePlateNumber": "2M410XT",
+                        "LicensePlateState": "NY",
+                        "ParkingPermitNumber": "6221020",
+                        "TMPTCID": 1,
+                        "TMPVID": 1,
+                        "VID": 1,
+                        "VIN": "5T1S9UDWOLGEHZ3",
+                        "VehicleColor": "Metallic",
+                        "VehicleMake": "Buick",
+                        "VehicleModel": "Rendezvous",
+                        "VehicleType": "car",
+                        "VehicleYear": 2004
+                    }
+                ]
+            },
+            "FlowID": 1,
+            "FlowType": "RA",
+            "ID": 1,
+            "LastModBy": 211,
+            "LastModTime": "2018-09-24T12:39:33Z",
+            "UserRefNo": "DUO6X142Z3GC1597BHG0"
+        },
+        "ValidationCheck": {
+            "errors": {
+                "dates": {
+                    "errors": {},
+                    "total": 0
+                },
+                "parentchild": {
+                    "errors": [],
+                    "total": 0
+                },
+                "people": {
+                    "errors": [],
+                    "total": 0
+                },
+                "pets": {
+                    "errors": [],
+                    "total": 0
+                },
+                "rentables": {
+                    "errors": [],
+                    "total": 0
+                },
+                "tie": {
+                    "people": {
+                        "errors": [],
+                        "total": 0
+                    }
+                },
+                "vehicles": {
+                    "errors": [],
+                    "total": 0
+                }
+            },
+            "nonFieldsErrors": {
+                "dates": [],
+                "parentchild": [],
+                "people": [],
+                "pets": [],
+                "rentables": [],
+                "tie": [],
+                "vehicles": []
+            },
+            "total": 0
+        }
+    },
+    "status": "success"
+}

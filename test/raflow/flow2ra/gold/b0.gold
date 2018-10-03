@@ -24,7 +24,7 @@
                     "RentStop": "3/1/2020"
                 },
                 "meta": {
-                    "ActiveDate": "2018-09-04 00:48:00 UTC",
+                    "ActiveDate": "2018-10-03 03:29:00 UTC",
                     "ActiveName": "UID-0",
                     "ActiveUID": -99999,
                     "ApplicationReadyDate": "1900-01-01 00:00:00 UTC",
@@ -137,9 +137,9 @@
                             {
                                 "ARID": 24,
                                 "ARName": "Pet Rent",
-                                "ASMID": 413,
+                                "ASMID": 415,
                                 "AtSigningPreTax": 0,
-                                "Comment": "Continuation of ASMID 19 from RAID 2",
+                                "Comment": "prorated for 12 of 31 days | Derived from RAID 2, ASMID 19",
                                 "ContractAmount": 3.87,
                                 "ProrationCycle": 4,
                                 "RentCycle": 0,
@@ -152,9 +152,9 @@
                             {
                                 "ARID": 24,
                                 "ARName": "Pet Rent",
-                                "ASMID": 414,
+                                "ASMID": 416,
                                 "AtSigningPreTax": 0,
-                                "Comment": "Continuation of ASMID 19 from RAID 2",
+                                "Comment": "Derived from RAID 2, ASMID 19",
                                 "ContractAmount": 10,
                                 "ProrationCycle": 4,
                                 "RentCycle": 6,
@@ -180,9 +180,9 @@
                             {
                                 "ARID": 26,
                                 "ARName": "Rent Non-Taxable",
-                                "ASMID": 409,
+                                "ASMID": 410,
                                 "AtSigningPreTax": 0,
-                                "Comment": "Continuation of ASMID 11 from RAID 2",
+                                "Comment": "prorated for 12 of 31 days | Derived from RAID 2, ASMID 11",
                                 "ContractAmount": 387.1,
                                 "ProrationCycle": 4,
                                 "RentCycle": 0,
@@ -195,9 +195,9 @@
                             {
                                 "ARID": 26,
                                 "ARName": "Rent Non-Taxable",
-                                "ASMID": 410,
+                                "ASMID": 411,
                                 "AtSigningPreTax": 0,
-                                "Comment": "Continuation of ASMID 11 from RAID 2",
+                                "Comment": "Derived from RAID 2, ASMID 11",
                                 "ContractAmount": 1000,
                                 "ProrationCycle": 4,
                                 "RentCycle": 6,
@@ -210,9 +210,9 @@
                             {
                                 "ARID": 28,
                                 "ARName": "Security Deposit Assessment",
-                                "ASMID": 412,
+                                "ASMID": 414,
                                 "AtSigningPreTax": 0,
-                                "Comment": "Continuation of ASMID 402 from RAID 2",
+                                "Comment": "Derived from RAID 2, ASMID 402",
                                 "ContractAmount": 4500,
                                 "ProrationCycle": 0,
                                 "RentCycle": 0,

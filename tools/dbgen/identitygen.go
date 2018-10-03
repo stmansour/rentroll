@@ -10,6 +10,7 @@ import (
 	"math/rand"
 	"os"
 	"rentroll/rlib"
+	"runtime/debug"
 	"strconv"
 	"strings"
 )
@@ -83,6 +84,8 @@ func loadCars(fname string, c *[]CarInfo) {
 			break
 		} else if err != nil {
 			rlib.LogAndPrintError(funcname, err)
+			debug.PrintStack()
+			os.Exit(2)
 		}
 		// rlib.Console("line: [0] = %s, [1] = %s, [2] = %s\n", line[0], line[1], line[2])
 		var car CarInfo

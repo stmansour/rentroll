@@ -1,0 +1,269 @@
+{
+    "record": {
+        "DataFulfilled": {
+            "dates": true,
+            "parentchild": true,
+            "people": true,
+            "pets": true,
+            "rentables": true,
+            "tie": true,
+            "vehicles": true
+        },
+        "Flow": {
+            "BID": 1,
+            "CreateBy": 0,
+            "CreateTS": "0001-01-01T00:00:00Z",
+            "Data": {
+                "dates": {
+                    "AgreementStart": "1/1/2018",
+                    "AgreementStop": "12/31/2018",
+                    "CSAgent": 153,
+                    "PossessionStart": "1/1/2018",
+                    "PossessionStop": "8/31/2018",
+                    "RentStart": "1/1/2018",
+                    "RentStop": "8/31/2018"
+                },
+                "meta": {
+                    "ActiveDate": "2018-09-19 19:39:00 UTC",
+                    "ActiveName": "UID-0",
+                    "ActiveUID": -99999,
+                    "ApplicationReadyDate": "2018-09-19 18:26:00 UTC",
+                    "ApplicationReadyName": "Steve Mansour",
+                    "ApplicationReadyUID": 211,
+                    "Approver1": 211,
+                    "Approver1Name": "Steve Mansour",
+                    "Approver2": 211,
+                    "Approver2Name": "Steve Mansour",
+                    "BID": 1,
+                    "DecisionDate1": "2018-09-19 18:26:00 UTC",
+                    "DecisionDate2": "2018-09-19 18:26:00 UTC",
+                    "DeclineReason1": 0,
+                    "DeclineReason2": 0,
+                    "DocumentDate": "2018-01-01 00:00:00 UTC",
+                    "HavePets": false,
+                    "HaveVehicles": false,
+                    "LastTMPASMID": 2,
+                    "LastTMPPETID": 1,
+                    "LastTMPTCID": 1,
+                    "LastTMPVID": 1,
+                    "LeaseTerminationReason": 0,
+                    "MoveInDate": "2018-09-19 18:26:00 UTC",
+                    "MoveInName": "Steve Mansour",
+                    "MoveInUID": 211,
+                    "NoticeToMoveDate": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveName": "UID-0",
+                    "NoticeToMoveReported": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveUID": 0,
+                    "RAFLAGS": 52,
+                    "RAID": 2,
+                    "TerminationDate": "1900-01-01 00:00:00 UTC",
+                    "TerminatorName": "UID-0",
+                    "TerminatorUID": 0
+                },
+                "parentchild": [],
+                "people": [
+                    {
+                        "Address": "83981 Eleventh",
+                        "Address2": "",
+                        "AlternateEmailAddress": "74878 Bay,Marina,MD 31847",
+                        "Bankruptcy": false,
+                        "BankruptcyDes": "",
+                        "CellPhone": "(602) 395-3046",
+                        "City": "Thornton",
+                        "Comment": "",
+                        "CompanyAddress": "11844 Palo Verde",
+                        "CompanyCity": "Medford",
+                        "CompanyEmail": "PepsiBottlingGroupIncM9630@bdiddy.com",
+                        "CompanyName": "Pepsi Bottling Group Inc.",
+                        "CompanyPhone": "(597) 795-5524",
+                        "CompanyPostalCode": "84059",
+                        "CompanyState": "TX",
+                        "Convicted": false,
+                        "ConvictedDes": "",
+                        "Country": "USA",
+                        "CreditLimit": 5588,
+                        "CurrentAddress": "27305 North Dakota, Vallejo, HI 02081",
+                        "CurrentLandLordName": "Winston Mccarty",
+                        "CurrentLandLordPhoneNo": "(779) 151-3623",
+                        "CurrentLengthOfResidency": "8 years 2 months",
+                        "CurrentReasonForMoving": 101,
+                        "DateofBirth": "11/29/1994",
+                        "DriversLicense": "L2745464",
+                        "EligibleFuturePayor": true,
+                        "EligibleFutureUser": false,
+                        "EmergencyContactAddress": "65777 Lakeview,Duluth,NE 27887",
+                        "EmergencyContactEmail": "JanisFrench376@comcast.net",
+                        "EmergencyContactName": "Janis French",
+                        "EmergencyContactTelephone": "(946) 645-4558",
+                        "Evicted": false,
+                        "EvictedDes": "",
+                        "FirstName": "Milda",
+                        "GrossIncome": 58381,
+                        "Industry": 337,
+                        "IsCompany": false,
+                        "IsGuarantor": false,
+                        "IsOccupant": true,
+                        "IsRenter": true,
+                        "LastName": "Lynn",
+                        "MiddleName": "Jill",
+                        "Occupation": "fitter of steel structures",
+                        "OtherPreferences": "",
+                        "Points": 0,
+                        "PostalCode": "98081",
+                        "PreferredName": "Tula",
+                        "PrimaryEmail": "MildaLynn78@bdiddy.com",
+                        "PriorAddress": "33965 Lakeview, Bradenton, AZ 41318",
+                        "PriorLandLordName": "Lottie Castro",
+                        "PriorLandLordPhoneNo": "(673) 355-1219",
+                        "PriorLengthOfResidency": "10 years 9 months",
+                        "PriorReasonForMoving": 120,
+                        "SecondaryEmail": "MildaL3748@aol.com",
+                        "SourceSLSID": 70,
+                        "SpecialNeeds": "",
+                        "State": "WV",
+                        "TCID": 1,
+                        "TMPTCID": 1,
+                        "TaxpayorID": "06593442",
+                        "ThirdPartySource": "Han Lang",
+                        "Website": "",
+                        "WorkPhone": "(480) 759-9772"
+                    }
+                ],
+                "pets": [
+                    {
+                        "Breed": "Field Spaniel",
+                        "Color": "Grey",
+                        "Fees": [
+                            {
+                                "ARID": 24,
+                                "ARName": "Pet Rent",
+                                "ASMID": 20,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 10,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "1/1/2018",
+                                "Stop": "8/31/2018",
+                                "TMPASMID": 2,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "Name": "Otis",
+                        "PETID": 1,
+                        "TMPPETID": 1,
+                        "TMPTCID": 1,
+                        "Type": "dog",
+                        "Weight": 52
+                    }
+                ],
+                "rentables": [
+                    {
+                        "AtSigningPreTax": 0,
+                        "Fees": [
+                            {
+                                "ARID": 40,
+                                "ARName": "Rent ST000",
+                                "ASMID": 11,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 1000,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "1/1/2018",
+                                "Stop": "8/31/2018",
+                                "TMPASMID": 1,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "RID": 1,
+                        "RTFLAGS": 4,
+                        "RTID": 1,
+                        "RentCycle": 6,
+                        "RentableName": "Rentable001",
+                        "SalesTax": 0,
+                        "TransOccTax": 0
+                    }
+                ],
+                "tie": {
+                    "people": [
+                        {
+                            "PRID": 1,
+                            "TMPTCID": 1
+                        }
+                    ]
+                },
+                "vehicles": [
+                    {
+                        "Fees": [],
+                        "LicensePlateNumber": "43KF79J",
+                        "LicensePlateState": "CT",
+                        "ParkingPermitNumber": "4650488",
+                        "TMPTCID": 1,
+                        "TMPVID": 1,
+                        "VID": 1,
+                        "VIN": "WDAHISN0RGUKDX9X",
+                        "VehicleColor": "Red",
+                        "VehicleMake": "Jaguar",
+                        "VehicleModel": "XJ Series",
+                        "VehicleType": "car",
+                        "VehicleYear": 2003
+                    }
+                ]
+            },
+            "FlowID": 0,
+            "FlowType": "RA",
+            "ID": 2,
+            "LastModBy": 0,
+            "LastModTime": "0001-01-01T00:00:00Z",
+            "UserRefNo": ""
+        },
+        "ValidationCheck": {
+            "errors": {
+                "dates": {
+                    "errors": {},
+                    "total": 0
+                },
+                "parentchild": {
+                    "errors": [],
+                    "total": 0
+                },
+                "people": {
+                    "errors": [],
+                    "total": 0
+                },
+                "pets": {
+                    "errors": [],
+                    "total": 0
+                },
+                "rentables": {
+                    "errors": [],
+                    "total": 0
+                },
+                "tie": {
+                    "people": {
+                        "errors": [],
+                        "total": 0
+                    }
+                },
+                "vehicles": {
+                    "errors": [],
+                    "total": 0
+                }
+            },
+            "nonFieldsErrors": {
+                "dates": [],
+                "parentchild": [],
+                "people": [],
+                "pets": [],
+                "rentables": [],
+                "tie": [],
+                "vehicles": []
+            },
+            "total": 0
+        }
+    },
+    "status": "success"
+}

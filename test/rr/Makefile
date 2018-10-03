@@ -14,6 +14,10 @@ clean:
 	mv keepme rr.sql
 	@echo "*** CLEAN completed in ${THISDIR} ***"
 
+relink:
+	go build
+	@echo "*** RELINK completed in ${THISDIR} ***"
+
 config.json:
 	@/usr/local/accord/bin/getfile.sh accord/db/confdev.json
 	@cp confdev.json config.json

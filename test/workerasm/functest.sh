@@ -37,7 +37,7 @@ WLOG=workasm.log
 RRDATERANGE="-j 2018-02-01 -k 2018-03-01"
 ./workerasm -dt "2/1/2018" > ${WLOG}
 res=$(grep "Cannot add new assessment instance on Feb 1, 2018 after RentalAgreement (RA-2) stop date Feb 1, 2018" ${WLOG} | wc -l)
-if (( res != 1 )); then
+if (( res < 1 )); then
 	echo "ERROR: assessment instance for 2/1/2018 was not suppressed."
 	exit 2
 fi

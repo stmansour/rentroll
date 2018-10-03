@@ -157,6 +157,7 @@ var Svcs = []ServiceHandler{
 	{Cmd: "asm", Handler: SvcFormHandlerAssessment, NeedBiz: true, NeedSession: true},
 	{Cmd: "asms", Handler: SvcSearchHandlerAssessments, NeedBiz: true, NeedSession: true},
 	{Cmd: "authn", Handler: SvcAuthenticate, NeedBiz: false, NeedSession: false},
+	{Cmd: "closeinfo", Handler: SvcGetCloseInfo, NeedBiz: true, NeedSession: true},
 	{Cmd: "closeperiod", Handler: SvcHandlerClosePeriod, NeedBiz: true, NeedSession: true},
 	{Cmd: "dep", Handler: SvcHandlerDepository, NeedBiz: true, NeedSession: true},
 	{Cmd: "depmeth", Handler: SvcHandlerDepositMethod, NeedBiz: true, NeedSession: true},
@@ -618,7 +619,7 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 	rlib.Console("Client = %s\n", d.wsSearchReq.Client)
 
 	// if dateMode is on then change the stopDate value for search op
-	rlib.HandleFrontEndDates(d.BID, &d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
+	rlib.EDIHandleIncomingDateRange(d.BID, &d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
 
 	return err
 }

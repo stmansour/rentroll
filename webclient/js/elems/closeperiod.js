@@ -107,7 +107,7 @@ window.loadClosePeriodInfo = function (msg,mode) {
         var r = closePeriodData.record;
 
         //--------------------------------
-        //  TASK LIST 
+        //  TASK LIST
         //--------------------------------
         if (r.TLID === 0) {
             s = 'No TaskList defined. You must set a TaskList for ' + BUD + ' to enable Close Period.';
@@ -124,7 +124,7 @@ window.loadClosePeriodInfo = function (msg,mode) {
         document.getElementById("closePeriodTL").innerHTML = s;
 
         //--------------------------------
-        //  Last closed period 
+        //  Last closed period
         //--------------------------------
         s = dtFormatISOToW2ui(r.LastDtClose);
         if (s.length > 0 ) {
@@ -186,10 +186,10 @@ window.loadClosePeriodInfo = function (msg,mode) {
 window.submitClosePeriod = function() {
     console.log('close the period');
     var BID = getCurrentBID();
+    var BUD = getBUDfromBID(BID);
     var params = {cmd: 'save', record: closePeriodData.record };
     var dat = JSON.stringify(params);
 
-    // delete Depository request
     var url = '/v1/closeperiod/'+BID;
     $.post(url, dat, null, "json")
     .done( function(data) {
@@ -198,13 +198,10 @@ window.submitClosePeriod = function() {
             return;
         }
 
-        loadClosePeriodInfo('Successfully closed period ending ' + 
+        loadClosePeriodInfo('Successfully closed period ending ' +
             dtFormatISOToW2ui(closePeriodData.record.CloseTarget),0);
     })
     .fail( function() {
         loadClosePeriodInfo('error with post to: ' + url,1);
     });
 };
-
-
-

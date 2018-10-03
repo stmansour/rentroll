@@ -95,7 +95,7 @@ func PayorStatement(ctx context.Context, bid, tcid int64, d1, d2 *time.Time, int
 	// displayD2
 	// ALERT: d2 is pointer
 	displayD2 := *d2
-	rlib.HandleStopDateEDI(bid, &displayD2)
+	rlib.EDIHandleOutgoingDateRange(bid, d1, &displayD2)
 
 	section1 += fmt.Sprintf("Period: %s - %s <br>\n%s", d1.Format(rlib.RRDATEREPORTFMT), displayD2.Format(rlib.RRDATEREPORTFMT), addr)
 	t.SetSection1(section1)

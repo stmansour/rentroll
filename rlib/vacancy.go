@@ -7,7 +7,6 @@ import (
 
 func temporaryGetLTLAR(bid int64) string {
 	// "c ${GLGSRENT} _,d ${GLVAC} _"
-	// rlib.RRdb.
 	// QueryRow("SELECT ClassCode,CoCode,Name,Designation,Description,LastModTime,LastModBy FROM classes WHERE Designation=?",
 	var a, b GLAccount
 	q := "SELECT " + RRdb.DBFields["GLAccount"] + " FROM GLAccount WHERE Name LIKE \"%rent-not taxable%\""

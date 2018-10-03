@@ -1,7 +1,6 @@
 /*global
     app, w2ui, $, form_dirty_alert, jQuery, console, w2popup, number_format, getFullName, getTCIDName, finishReportCSV,
-    finishReportPDF
-
+    finishReportPDF, UpdateCloseInfo
 */
 
 "use strict";
@@ -154,6 +153,9 @@ window.switchToGrid = function (svc, svcOverride) {
     var websvc = svc;
     if (typeof svcOverride === "string") {
         websvc = svcOverride;
+        if (svcOverride === "flow") {
+            UpdateCloseInfo(x.value);
+        }
     }
     var url = '/v1/' + websvc + '/' + x.value;
     w2ui[grid].url = url;

@@ -1,10 +1,6 @@
 package rlib
 
 import "time"
-/*import (
-	"time"
-	"fmt"
-)*/
 
 // RentalPeriodToString takes an accrual recurrence value and returns its
 // name as a string
@@ -265,8 +261,8 @@ func NextPeriod(t *time.Time, cycle int64) time.Time {
 // or some instance of it, and we also have the new RentalAgreement which
 // contains the target date we need.
 //
-//     var asm rlib.Assessment
-//     var ra rlib.RentalAgreement
+//     var asm Assessment
+//     var ra RentalAgreement
 //     ...
 //     instanceStart := InstanceDateCoveringDate(&asm.Start, &ra.RentStart, &asm.RentCycle)
 //
@@ -337,19 +333,19 @@ func InstanceDateCoveringDate(epoch, t *time.Time, cycle int64) time.Time {
 		for i := 0; i < 3 && qoff != (int(dt.Month())%3); i++ { // i guarantees that we won't loop forever
 			dt = dt.AddDate(0, -1, 0)
 		}
-		if (dt.After(*t)) {//By Lina
-				dt = dt.AddDate(0,-3, 0)
+		if dt.After(*t) { //By Lina
+			dt = dt.AddDate(0, -3, 0)
 		}
 	}
-	if cycle == RECURYEARLY {//By Lina
+	if cycle == RECURYEARLY { //By Lina
 
 		if epoch.Month() != time.February || epoch.Day() != 29 {
 			dt = time.Date(t.Year(), epoch.Month(), epoch.Day(), epoch.Hour(), epoch.Minute(), epoch.Second(), epoch.Nanosecond(), epoch.Location())
-		} else {////handle the situations like "2/29/2020"
+		} else { ////handle the situations like "2/29/2020"
 			dayofFeb := LastDOM(epoch.Month(), t.Year())
 			dt = time.Date(t.Year(), epoch.Month(), dayofFeb, epoch.Hour(), epoch.Minute(), epoch.Second(), epoch.Nanosecond(), epoch.Location())
 		}
-		if (dt.After(*t)) {
+		if dt.After(*t) {
 			dt = dt.AddDate(-1, 0, 0)
 		}
 	}

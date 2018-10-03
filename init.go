@@ -47,7 +47,7 @@ func createStartupCtx() DispatchCtx {
 	rlib.GetXBiz(dCtx.xbiz.P.BID, &dCtx.xbiz)
 
 	// if dateMode is on then change the stopDate value for search op
-	rlib.HandleFrontEndDates(dCtx.xbiz.P.BID, &dCtx.DtStart, &dCtx.DtStop)
+	rlib.EDIHandleIncomingDateRange(dCtx.xbiz.P.BID, &dCtx.DtStart, &dCtx.DtStop)
 
 	// App.Report is a string, of the format:
 	//   n[,s1[,s2[...]]]

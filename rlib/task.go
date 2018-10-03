@@ -286,3 +286,54 @@ func LastDOM(m time.Month, y int) int {
 	dt := time.Date(y, m, 0, 0, 0, 0, 0, time.UTC)
 	return dt.Day()
 }
+
+// TaskListExpandPastInstances creates past instances in the range provided.
+//
+// INPUTS:
+//    ctx - db context
+//    tl  - the task list - will be updated on return to the last instance created
+//    tld - task list definition
+//    pivot - creation pivot date of original instance
+//    dstop - create instances up to this date
+//
+// RETURNS:
+//    any error encountered
+//------------------------------------------------------------------------------
+func TaskListExpandPastInstances(ctx context.Context, tl *TaskList, tld *TaskListDefinition, pivot, dstop *time.Time) error {
+	// Console("Entered TaskListExpandPastInstances\n")
+	var err error
+	dtNext := NextInstance(pivot, tl.Cycle)
+	if !dstop.After(dtNext) {
+		return nil // no instances need to be processed
+	}
+
+	ptlid := tl.TLID
+	for {
+		*pivot = dtNext
+		// Console("loop:  pivot = %s\n", pivot.Format(RRDATETIMERPTFMT))
+
+		newtl := *tl
+		// This is when it will be created
+		if err = NextTLInstanceDates(pivot, tld, &newtl); err != nil {
+			return err
+		}
+		// Console("tl.DtDue = %s,  newtl.DtDue = %s\n", tl.DtDue.Format(RRDATETIMERPTFMT), newtl.DtDue.Format(RRDATETIMERPTFMT))
+		if tl.DtDue.Equal(newtl.DtDue) {
+			break
+		}
+
+		*tl, err = CreateTaskListInstance(ctx, tld.TLDID, ptlid, pivot)
+		if err != nil {
+			return err
+		}
+		// Console("created instance: TLID=%d\n", tl.TLID)
+
+		dtNext = NextInstance(pivot, tl.Cycle)
+		// Console("loop: NextInstance(&pivot, tl.Cycle) --> dtNext = %s\n", dtNext.Format(RRDATETIMERPTFMT))
+		// Console("loop: dtNext = %s\n", dtNext.Format(RRDATETIMERPTFMT))
+		if dtNext.After(*dstop) {
+			break
+		}
+	}
+	return nil
+}

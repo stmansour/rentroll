@@ -1,4 +1,5 @@
 DIRS = db rtags rlib rrpt rcsv worker bizlogic ws admin importers webclient tools test
+RLNK = admin tools test
 TOP = .
 COUNTOL=${TOP}/tools/bashtools/countol.sh
 THISDIR=.
@@ -22,6 +23,12 @@ all: clean rentroll test stats
 config.json:
 	@/usr/local/accord/bin/getfile.sh accord/db/confdev.json
 	@cp confdev.json config.json
+
+relink: dolnk package
+
+dolnk:
+	@for dir in $(RLNK); do make -C $$dir relink;done
+	@go build
 
 jshint:
 	@touch fail

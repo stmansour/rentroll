@@ -4,8 +4,8 @@
     <div class="w2ui-field"><input type="hidden" name="TID" /></div>
     <div class="w2ui-field"><input type="hidden" name="TLID" /></div>
     <div class="w2ui-field"><input type="hidden" name="FLAGS" /></div>
-    <div class="w2ui-field"><input type="hidden" name="DtDue" /></div>
-    <div class="w2ui-field"><input type="hidden" name="DtPreDue" /></div>
+    <!-- <div class="w2ui-field"><input type="hidden" name="DtDue" /></div>
+    <div class="w2ui-field"><input type="hidden" name="DtPreDue" /></div> -->
     <div class="w2ui-field"><input type="hidden" name="DtDone" /></div>
     <div class="w2ui-field"><input type="hidden" name="DoneUID" /></div>
     <div class="w2ui-field"><input type="hidden" name="PreDoneUID" /></div>
@@ -26,15 +26,15 @@
     </div>
     <div class="w2ui-field">
         <label>Pre Due:</label>
-        <div><input name="ChkDtPreDue" type="checkbox" disabled></input>&nbsp;<span id="tskDtPreDue"></span></div>
+        <div><input name="ChkDtPreDue" type="checkbox" disabled></input>&nbsp;<input name="DtPreDue" type="us-datetime"></span></div>
     </div>
      <div class="w2ui-field">
         <label>Pre-Completed:</label>
         <div><input name="ChkDtPreDone" type="checkbox"></input>&nbsp;<span id="tskDtPreDone"></span>&nbsp;<span id="tskPreDoneName"></span>&nbsp;<span id="tskPreOverdue"></span></div>
     </div>
     <div class="w2ui-field">
-        <label>Due:</label> 
-        <div><input name="ChkDtDue" type="checkbox" disabled></input>&nbsp;<span id="tskDtDue"></span></div>
+        <label>Due:</label>
+        <div><input name="ChkDtDue" type="checkbox" disabled></input>&nbsp;<input name="DtDue" type="us-datetime"></span></div>
     </div>
     <div class="w2ui-field">
         <label>Completed:</label>

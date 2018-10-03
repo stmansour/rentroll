@@ -1,0 +1,253 @@
+{
+    "record": {
+        "DataFulfilled": {
+            "dates": true,
+            "parentchild": true,
+            "people": true,
+            "pets": true,
+            "rentables": true,
+            "tie": true,
+            "vehicles": true
+        },
+        "Flow": {
+            "BID": 1,
+            "CreateBy": 0,
+            "CreateTS": "0001-01-01T00:00:00Z",
+            "Data": {
+                "dates": {
+                    "AgreementStart": "1/1/2018",
+                    "AgreementStop": "12/31/2018",
+                    "CSAgent": 282,
+                    "PossessionStart": "1/1/2018",
+                    "PossessionStop": "7/31/2018",
+                    "RentStart": "1/1/2018",
+                    "RentStop": "7/31/2018"
+                },
+                "meta": {
+                    "ActiveDate": "2018-09-20 20:42:00 UTC",
+                    "ActiveName": "UID-0",
+                    "ActiveUID": -99999,
+                    "ApplicationReadyDate": "2018-09-20 00:37:00 UTC",
+                    "ApplicationReadyName": "Steve Mansour",
+                    "ApplicationReadyUID": 211,
+                    "Approver1": 211,
+                    "Approver1Name": "Steve Mansour",
+                    "Approver2": 211,
+                    "Approver2Name": "Steve Mansour",
+                    "BID": 1,
+                    "DecisionDate1": "2018-09-20 00:37:00 UTC",
+                    "DecisionDate2": "2018-09-20 00:37:00 UTC",
+                    "DeclineReason1": 0,
+                    "DeclineReason2": 0,
+                    "DocumentDate": "2018-01-01 00:00:00 UTC",
+                    "HavePets": false,
+                    "HaveVehicles": false,
+                    "LastTMPASMID": 2,
+                    "LastTMPPETID": 1,
+                    "LastTMPTCID": 1,
+                    "LastTMPVID": 0,
+                    "LeaseTerminationReason": 0,
+                    "MoveInDate": "2018-09-20 00:37:00 UTC",
+                    "MoveInName": "Steve Mansour",
+                    "MoveInUID": 211,
+                    "NoticeToMoveDate": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveName": "UID-0",
+                    "NoticeToMoveReported": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveUID": 0,
+                    "RAFLAGS": 52,
+                    "RAID": 2,
+                    "TerminationDate": "1900-01-01 00:00:00 UTC",
+                    "TerminatorName": "UID-0",
+                    "TerminatorUID": 0
+                },
+                "parentchild": [],
+                "people": [
+                    {
+                        "Address": "71378 Pecan",
+                        "Address2": "",
+                        "AlternateEmailAddress": "67713 Cedar,Santa Maria,DC 31847",
+                        "Bankruptcy": false,
+                        "BankruptcyDes": "",
+                        "CellPhone": "(570) 157-7982",
+                        "City": "Riverside",
+                        "Comment": "",
+                        "CompanyAddress": "17435 Holly",
+                        "CompanyCity": "Atlanta",
+                        "CompanyEmail": "NAtlanta2798@bdiddy.com",
+                        "CompanyName": "Nash Finch Company",
+                        "CompanyPhone": "(159) 105-8099",
+                        "CompanyPostalCode": "84059",
+                        "CompanyState": "TN",
+                        "Convicted": false,
+                        "ConvictedDes": "",
+                        "Country": "USA",
+                        "CreditLimit": 15326,
+                        "CurrentAddress": "61024 9th, Bradenton, CT 02081",
+                        "CurrentLandLordName": "Rodrigo Schroeder",
+                        "CurrentLandLordPhoneNo": "(246) 709-2020",
+                        "CurrentLengthOfResidency": "7 months",
+                        "CurrentReasonForMoving": 116,
+                        "DateofBirth": "6/25/1976",
+                        "DriversLicense": "U8785281",
+                        "EligibleFuturePayor": true,
+                        "EligibleFutureUser": false,
+                        "EmergencyContactAddress": "7663 10th,Hayward,DC 27887",
+                        "EmergencyContactEmail": "ElveraM5613@yahoo.com",
+                        "EmergencyContactName": "Elvera Morse",
+                        "EmergencyContactTelephone": "(940) 177-7491",
+                        "Evicted": false,
+                        "EvictedDes": "",
+                        "FirstName": "Alexia",
+                        "GrossIncome": 120655,
+                        "Industry": 226,
+                        "IsCompany": false,
+                        "IsGuarantor": false,
+                        "IsOccupant": true,
+                        "IsRenter": true,
+                        "LastName": "Dominguez",
+                        "MiddleName": "Tanisha",
+                        "Occupation": "masseur/masseuse",
+                        "OtherPreferences": "",
+                        "Points": 0,
+                        "PostalCode": "98081",
+                        "PreferredName": "Karine",
+                        "PrimaryEmail": "AlexiaDominguez326@hotmail.com",
+                        "PriorAddress": "70068 Aspen, Omaha, SD 41318",
+                        "PriorLandLordName": "Ramiro Floyd",
+                        "PriorLandLordPhoneNo": "(666) 641-4957",
+                        "PriorLengthOfResidency": "1 years 2 months",
+                        "PriorReasonForMoving": 113,
+                        "SecondaryEmail": "ADominguez6526@abiz.com",
+                        "SourceSLSID": 18,
+                        "SpecialNeeds": "",
+                        "State": "SD",
+                        "TCID": 1,
+                        "TMPTCID": 1,
+                        "TaxpayorID": "07024886",
+                        "ThirdPartySource": "Louise Ward",
+                        "Website": "",
+                        "WorkPhone": "(141) 140-6079"
+                    }
+                ],
+                "pets": [
+                    {
+                        "Breed": "Italian Greyhound",
+                        "Color": "Chocolate",
+                        "Fees": [
+                            {
+                                "ARID": 24,
+                                "ARName": "Pet Rent",
+                                "ASMID": 30,
+                                "AtSigningPreTax": 0,
+                                "Comment": "BL- Snapped definition 1/1/2018 to open period 9/1/2018",
+                                "ContractAmount": 10,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "9/1/2018",
+                                "Stop": "9/1/2018",
+                                "TMPASMID": 2,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "Name": "Max",
+                        "PETID": 1,
+                        "TMPPETID": 1,
+                        "TMPTCID": 1,
+                        "Type": "dog",
+                        "Weight": 41
+                    }
+                ],
+                "rentables": [
+                    {
+                        "AtSigningPreTax": 0,
+                        "Fees": [
+                            {
+                                "ARID": 40,
+                                "ARName": "Rent ST000",
+                                "ASMID": 22,
+                                "AtSigningPreTax": 0,
+                                "Comment": "BL- Snapped definition 1/1/2018 to open period 9/1/2018",
+                                "ContractAmount": 1000,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "9/1/2018",
+                                "Stop": "9/1/2018",
+                                "TMPASMID": 1,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "RID": 1,
+                        "RTFLAGS": 4,
+                        "RTID": 1,
+                        "RentCycle": 6,
+                        "RentableName": "Rentable001",
+                        "SalesTax": 0,
+                        "TransOccTax": 0
+                    }
+                ],
+                "tie": {
+                    "people": [
+                        {
+                            "PRID": 1,
+                            "TMPTCID": 1
+                        }
+                    ]
+                },
+                "vehicles": []
+            },
+            "FlowID": 0,
+            "FlowType": "RA",
+            "ID": 2,
+            "LastModBy": 0,
+            "LastModTime": "0001-01-01T00:00:00Z",
+            "UserRefNo": ""
+        },
+        "ValidationCheck": {
+            "errors": {
+                "dates": {
+                    "errors": {},
+                    "total": 0
+                },
+                "parentchild": {
+                    "errors": [],
+                    "total": 0
+                },
+                "people": {
+                    "errors": [],
+                    "total": 0
+                },
+                "pets": {
+                    "errors": [],
+                    "total": 0
+                },
+                "rentables": {
+                    "errors": [],
+                    "total": 0
+                },
+                "tie": {
+                    "people": {
+                        "errors": [],
+                        "total": 0
+                    }
+                },
+                "vehicles": {
+                    "errors": [],
+                    "total": 0
+                }
+            },
+            "nonFieldsErrors": {
+                "dates": [],
+                "parentchild": [],
+                "people": [],
+                "pets": [],
+                "rentables": [],
+                "tie": [],
+                "vehicles": []
+            },
+            "total": 0
+        }
+    },
+    "status": "success"
+}

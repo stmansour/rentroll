@@ -1,6 +1,6 @@
 ../tools/dbgen/empty.sql
 acctbal/baltest.sql
-closeperiod/rr.sql
+closeperiod/xa.sql
 payorstmt/pstmt.sql
 rfix/rcptfixed.sql
 rfix/receipts.sql
@@ -13,10 +13,15 @@ webclient/webclientTest.sql
 websvc1/asmtest.sql
 websvc3/tasks.sql
 workerasm/rr.sql
-raflow/initra/ra0.sql
+raflow/initraflow/ra0.sql
 raflow/actions/raflowactions.sql
 raflow/validation/validateraflow.sql
 raflow/flow2ra/rr.sql
 raflow/flow2ra/rrsm1.sql
-raflow/f2ra/x0.sql
-raflow/f2ra/x1.sql
+raflow/f2ra/xa.sql
+raflow/f2ra/xb.sql
+raflow/f2ra/xc.sql
+raflow/f2ra/xd.sql
+raflow/f2ra/xe.sql
+raflow/f2ra/xf.sql
+raflow/f2ra/xg.sql

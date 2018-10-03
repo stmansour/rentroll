@@ -1110,7 +1110,7 @@ func buildPreparedStatements() {
 	RRdb.DBFields["RentableStatus"] = flds
 	RRdb.Prepstmt.GetRentableStatus, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableStatus WHERE RSID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRentableStatusByRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableStatus WHERE RID=? AND DtStop>? AND DtStart<?")
+	RRdb.Prepstmt.GetRentableStatusByRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableStatus WHERE RID=? AND DtStop>? AND DtStart<=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetRentableStatusOnOrAfter, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableStatus WHERE RID=? AND DtStart>=?")
 	Errcheck(err)
@@ -1277,6 +1277,18 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.GetTaskListInstanceInRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM TaskList WHERE (PTLID=? OR (PTLID=0 AND TLID=?)) AND DtDue >= ? AND DtDue < ?")
 	Errcheck(err)
 
+	/*
+			   TaskList FLAGS bit definitions
+		       1<<0 : 0 = active, 1 = inactive
+		       1<<1 : 0 = task list definition does not have a PreDueDate, 1 = has a PreDueDate
+		       1<<2 : 0 = task list definition does not have a DueDate, 1 = has a DueDate
+		       1<<3 : 0 = DtPreDue has not been set, 1 = DtPreDue has been set
+		       1<<4 : 0 = DtDue has not been set, 1 = DtDue has been set
+		       1<<5 : 0 = no notification has been sent, 1 = Notification sent on DtLastNotify
+		       1<<6 : task list imposed its own due pre date (tld did not have one)
+			   1<<7 : task list imposed its own due date (tld did not have one)
+	*/
+
 	where := `WHERE
     -- the TaskList is enabled
     (FLAGS & 1 = 0)
@@ -1296,11 +1308,11 @@ func buildPreparedStatements() {
 		)
 		AND
 		(
-			-- PreDone check needed  No Due Date         due rqd                Done not set    DueDate passed   DueDate not passed   PreDone not set    PreDueDate has passed
-			((FLAGS & 2) > 0  AND  ((FLAGS & 4) = 0 OR ((FLAGS & 4) > 0 AND ( ((FLAGS & 16 = 0) AND ? > DtDue) OR ? < DtDue) ) ) AND ((FLAGS & 8 = 0) AND ? > DtPreDue))
+			-- PreDone check needed   No Due Date           due rqd                   Done not set    DueDate passed   DueDate not passed   PreDone not set    PreDueDate has passed
+			((FLAGS & 66) > 0  AND  ((FLAGS & 132) = 0 OR ((FLAGS & 132) != 0 AND ( ((FLAGS & 16 = 0) AND ? > DtDue) OR ? < DtDue) ) ) AND ((FLAGS & 8 = 0) AND ? > DtPreDue))
 			OR
 			--  Done check needed  Done is not set AND Due date has passed
-			((FLAGS & 4) > 0  AND  (FLAGS & 16 = 0) AND ? > DtDue)
+			((FLAGS & 132) > 0  AND  (FLAGS & 16 = 0) AND ? > DtDue)
 		)
 	);`
 	RRdb.Prepstmt.GetDueTaskLists, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM TaskList " + where)

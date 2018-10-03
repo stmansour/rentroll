@@ -61,7 +61,7 @@ func RentableMarketRates(ctx context.Context, xbiz *rlib.XBusiness, rid int64, d
 
 				// handling of end date inclusion on d2 if applicable
 				displayD2 := dt2
-				rlib.HandleStopDateEDI(xbiz.P.BID, &displayD2)
+				rlib.EDIHandleOutgoingDateRange(xbiz.P.BID, &dt1, &displayD2)
 
 				tbl.AddRow()
 				tbl.Putd(-1, 0, dt1)

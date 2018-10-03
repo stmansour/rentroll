@@ -1,4 +1,5 @@
 DIRS = initraflow validation actions f2ra flow2ra
+RLNK =
 
 raflow:
 	for dir in $(DIRS); do make -C $$dir;done
@@ -7,6 +8,10 @@ raflow:
 clean:
 	for dir in $(DIRS); do make -C $$dir clean;done
 	@echo "*** CLEAN completed in test/raflow ***"
+
+relink:
+	for dir in $(RLNK); do make -C $$dir relink;done
+	@echo "*** RELINK completed in ${THISDIR} ***"
 
 test:
 	for dir in $(DIRS); do make -C $$dir test;done

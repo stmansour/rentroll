@@ -1,0 +1,284 @@
+{
+    "record": {
+        "DataFulfilled": {
+            "dates": true,
+            "parentchild": true,
+            "people": true,
+            "pets": true,
+            "rentables": true,
+            "tie": true,
+            "vehicles": true
+        },
+        "Flow": {
+            "BID": 1,
+            "CreateBy": 0,
+            "CreateTS": "0001-01-01T00:00:00Z",
+            "Data": {
+                "dates": {
+                    "AgreementStart": "1/1/2018",
+                    "AgreementStop": "1/1/2019",
+                    "CSAgent": 220,
+                    "PossessionStart": "1/1/2018",
+                    "PossessionStop": "1/1/2019",
+                    "RentStart": "1/1/2018",
+                    "RentStop": "1/1/2019"
+                },
+                "meta": {
+                    "ActiveDate": "2018-10-03 03:31:00 UTC",
+                    "ActiveName": "UID-0",
+                    "ActiveUID": -99999,
+                    "ApplicationReadyDate": "2018-09-13 23:41:00 UTC",
+                    "ApplicationReadyName": "Steve Mansour",
+                    "ApplicationReadyUID": 211,
+                    "Approver1": 211,
+                    "Approver1Name": "Steve Mansour",
+                    "Approver2": 211,
+                    "Approver2Name": "Steve Mansour",
+                    "BID": 1,
+                    "DecisionDate1": "2018-09-13 23:41:00 UTC",
+                    "DecisionDate2": "2018-09-13 23:41:00 UTC",
+                    "DeclineReason1": 0,
+                    "DeclineReason2": 0,
+                    "DocumentDate": "2018-01-01 00:00:00 UTC",
+                    "HavePets": false,
+                    "HaveVehicles": false,
+                    "LastTMPASMID": 3,
+                    "LastTMPPETID": 1,
+                    "LastTMPTCID": 1,
+                    "LastTMPVID": 1,
+                    "LeaseTerminationReason": 0,
+                    "MoveInDate": "2018-09-13 23:41:00 UTC",
+                    "MoveInName": "Steve Mansour",
+                    "MoveInUID": 211,
+                    "NoticeToMoveDate": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveName": "UID-0",
+                    "NoticeToMoveReported": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveUID": 0,
+                    "RAFLAGS": 52,
+                    "RAID": 3,
+                    "TerminationDate": "1900-01-01 00:00:00 UTC",
+                    "TerminatorName": "UID-0",
+                    "TerminatorUID": 0
+                },
+                "parentchild": [],
+                "people": [
+                    {
+                        "Address": "56889 North Dakota",
+                        "Address2": "",
+                        "AlternateEmailAddress": "74805 2nd,Los Angeles,AZ 31847",
+                        "Bankruptcy": false,
+                        "BankruptcyDes": "",
+                        "CellPhone": "(292) 844-8128",
+                        "City": "Richland",
+                        "Comment": "",
+                        "CompanyAddress": "17003 Fourth",
+                        "CompanyCity": "Newburgh",
+                        "CompanyEmail": "AmazoncomIncNewburgh910@aol.com",
+                        "CompanyName": "Amazon.com, Inc.",
+                        "CompanyPhone": "(583) 319-9344",
+                        "CompanyPostalCode": "84059",
+                        "CompanyState": "NM",
+                        "Convicted": false,
+                        "ConvictedDes": "",
+                        "Country": "USA",
+                        "CreditLimit": 6553,
+                        "CurrentAddress": "87923 Thirteenth, Orlando, KS 02081",
+                        "CurrentLandLordName": "Leopoldo Richard",
+                        "CurrentLandLordPhoneNo": "(766) 301-0077",
+                        "CurrentLengthOfResidency": "2 years 4 months",
+                        "CurrentReasonForMoving": 108,
+                        "DateofBirth": "11/13/1987",
+                        "DriversLicense": "Y0386624",
+                        "EligibleFuturePayor": true,
+                        "EligibleFutureUser": false,
+                        "EmergencyContactAddress": "28392 Bay,Tyler,AK 27887",
+                        "EmergencyContactEmail": "MHatfield9887@aol.com",
+                        "EmergencyContactName": "Mina Hatfield",
+                        "EmergencyContactTelephone": "(290) 718-5184",
+                        "Evicted": false,
+                        "EvictedDes": "",
+                        "FirstName": "Chantell",
+                        "GrossIncome": 108070,
+                        "Industry": 223,
+                        "IsCompany": false,
+                        "IsGuarantor": false,
+                        "IsOccupant": true,
+                        "IsRenter": true,
+                        "LastName": "Joseph",
+                        "MiddleName": "Dixie",
+                        "Occupation": "craft ceramicist",
+                        "OtherPreferences": "",
+                        "Points": 0,
+                        "PostalCode": "98081",
+                        "PreferredName": "Wendy",
+                        "PrimaryEmail": "ChantellJoseph18@comcast.net",
+                        "PriorAddress": "19122 Aspen, Columbus, CA 41318",
+                        "PriorLandLordName": "Marjorie Mullen",
+                        "PriorLandLordPhoneNo": "(550) 757-2388",
+                        "PriorLengthOfResidency": "2 years 6 months",
+                        "PriorReasonForMoving": 117,
+                        "SecondaryEmail": "ChantellJ7741@comcast.net",
+                        "SourceSLSID": 66,
+                        "SpecialNeeds": "",
+                        "State": "GA",
+                        "TCID": 1,
+                        "TMPTCID": 1,
+                        "TaxpayorID": "03430324",
+                        "ThirdPartySource": "Jenice Newton",
+                        "Website": "",
+                        "WorkPhone": "(232) 694-7097"
+                    }
+                ],
+                "pets": [
+                    {
+                        "Breed": "Billcat",
+                        "Color": "beer color",
+                        "Fees": [
+                            {
+                                "ARID": 23,
+                                "ARName": "Pet Fee",
+                                "ASMID": 27,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 50,
+                                "ProrationCycle": 0,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "1/1/2018",
+                                "Stop": "1/1/2018",
+                                "TMPASMID": 2,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 24,
+                                "ARName": "Pet Rent",
+                                "ASMID": 28,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 10,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "1/1/2018",
+                                "Stop": "1/1/2019",
+                                "TMPASMID": 3,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "Name": "Bill the Cat",
+                        "PETID": 2,
+                        "TMPPETID": 1,
+                        "TMPTCID": 1,
+                        "Type": "Cat",
+                        "Weight": 13
+                    }
+                ],
+                "rentables": [
+                    {
+                        "AtSigningPreTax": 0,
+                        "Fees": [
+                            {
+                                "ARID": 40,
+                                "ARName": "Rent ST000",
+                                "ASMID": 16,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 1100,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "1/1/2018",
+                                "Stop": "1/1/2019",
+                                "TMPASMID": 1,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "RID": 1,
+                        "RTFLAGS": 4,
+                        "RTID": 1,
+                        "RentCycle": 6,
+                        "RentableName": "Rentable001",
+                        "SalesTax": 0,
+                        "TransOccTax": 0
+                    }
+                ],
+                "tie": {
+                    "people": [
+                        {
+                            "PRID": 1,
+                            "TMPTCID": 1
+                        }
+                    ]
+                },
+                "vehicles": [
+                    {
+                        "Fees": [],
+                        "LicensePlateNumber": "VFT3700",
+                        "LicensePlateState": "WI",
+                        "ParkingPermitNumber": "1838891",
+                        "TMPTCID": 1,
+                        "TMPVID": 1,
+                        "VID": 1,
+                        "VIN": "MNT3MKLHV3OJ7JAX",
+                        "VehicleColor": "Silver",
+                        "VehicleMake": "Chrysler",
+                        "VehicleModel": "Fifth Ave",
+                        "VehicleType": "car",
+                        "VehicleYear": 1992
+                    }
+                ]
+            },
+            "FlowID": 0,
+            "FlowType": "RA",
+            "ID": 3,
+            "LastModBy": 0,
+            "LastModTime": "0001-01-01T00:00:00Z",
+            "UserRefNo": ""
+        },
+        "ValidationCheck": {
+            "errors": {
+                "dates": {
+                    "errors": {},
+                    "total": 0
+                },
+                "parentchild": {
+                    "errors": [],
+                    "total": 0
+                },
+                "people": {
+                    "errors": [],
+                    "total": 0
+                },
+                "pets": {
+                    "errors": [],
+                    "total": 0
+                },
+                "rentables": {
+                    "errors": [],
+                    "total": 0
+                },
+                "tie": {
+                    "people": {
+                        "errors": [],
+                        "total": 0
+                    }
+                },
+                "vehicles": {
+                    "errors": [],
+                    "total": 0
+                }
+            },
+            "nonFieldsErrors": {
+                "dates": [],
+                "parentchild": [],
+                "people": [],
+                "pets": [],
+                "rentables": [],
+                "tie": [],
+                "vehicles": []
+            },
+            "total": 0
+        }
+    },
+    "status": "success"
+}

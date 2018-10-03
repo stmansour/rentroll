@@ -17,16 +17,6 @@
 	    		"IsTest": false
 	    	},
 	    	{
-	    		"UID": "pb01",
-	    		"Name": "phonebook",
-	    		"Repo": "jenkins-snapshot/phonebook/latest",
-	    		"UPort": 8250,
-	    		"IsTest": false,
-			"AppRes": {
-				"Cmd": "./sbsetup.sh"
-			}
-	    	},
-	    	{
 	    		"UID": "rr01",
 	    		"Name": "rentroll",
 	    		"Repo": "jenkins-snapshot/rentroll/latest",

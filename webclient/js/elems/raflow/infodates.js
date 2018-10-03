@@ -3,7 +3,7 @@
     HideAllSliderContent, SetlocalDataFromRADatesFormRecord,
     SetRADatesFormRecordFromLocalData, SetRAFlowCompLocalData,
     SetFormRecordFromData, SetDataFromFormRecord, SaveDatesCompData, displayRADatesFormError,
-    ElementFlash, cleanFormError
+    ElementFlash, cleanFormError, dtFormatISOToW2ui, UpdateCloseInfo,
 */
 
 "use strict";
@@ -99,6 +99,11 @@ window.loadRADatesForm = function () {
             },
             onRefresh: function (event) {
                 var form = this;
+
+                var x = getCurrentBusiness();
+                var BID=parseInt(x.value);
+                UpdateCloseInfo(BID); // start this now, we want the data to be as updated as possible.
+
                 event.onComplete = function() {
                     var t = new Date(),
                     nyd = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
@@ -110,6 +115,24 @@ window.loadRADatesForm = function () {
                    form.record.RentStop =form.record.RentStop || w2uiDateControlString(nyd);
                    form.record.PossessionStart =form.record.PossessionStart || w2uiDateControlString(t);
                    form.record.PossessionStop =form.record.PossessionStop || w2uiDateControlString(nyd);
+
+                   //----------------------------
+                   // show the close date...
+                   //----------------------------
+                   var x = getCurrentBusiness();
+                   var BID=parseInt(x.value);
+                   var BUD = getBUDfromBID(BID);
+                   var dt = new Date(app.CloseInfo[BUD].LastClose);
+                   var s = "N/A";
+                   if ( dt.getFullYear() > 2000) {
+                       s = dtFormatISOToW2ui(dt);
+                   } else {
+                       s = "no periods have been closed";
+                   }
+                   var ui = document.getElementById("rafClosePeriod");
+                   if (ui != null) {
+                       ui.innerHTML = s;
+                   }
 
                    // FREEZE THE INPUTS IF VERSION IS RAID
                    EnableDisableRAFlowVersionInputs(form);
@@ -199,4 +222,3 @@ window.SaveDatesCompData = function() {
     var compData = GetRAFlowCompLocalData("dates");
     return SaveCompDataAJAX(compData, "dates");
 };
-

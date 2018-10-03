@@ -139,6 +139,17 @@ func SimpleProrateAmount(amt float64, RentCycle, Prorate int64, d1, d2, epoch *t
 	return rounded, numPeriods, totalPeriods
 }
 
+// ProrateComment produces a common comment to be used for proration notes.
+//
+// INPUTS:
+//    np = the numerator part. The number of parts utilized in the cycle
+//    tp = the denominator part. The total number of parts in the cycle
+//    ProrationCycle = value defining the proration cycle:  RECURDAILY, RECURWEEKLY, ...
+//---------------------------------------------------------------------------
+func ProrateComment(np, tp, ProrationCycle int64) string {
+	return fmt.Sprintf("prorated for %d of %d %s", np, tp, ProrationUnits(ProrationCycle))
+}
+
 // SelectRentableStatusForPeriod returns a subset of Rentable states that
 // overlap the supplied range.
 //=============================================================================

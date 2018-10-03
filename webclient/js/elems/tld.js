@@ -1,7 +1,7 @@
 "use strict";
 /*global
     w2ui, $, app, console,setToTLDForm, w2alert,
-    form_dirty_alert, addDateNavToToolbar, w2utils, 
+    form_dirty_alert, addDateNavToToolbar, w2utils,
     openTaskDescForm, ensureSession, dtFormatISOToW2ui,
     dtFormatISOToW2ui, localtimeToUTC, setDefaultFormFieldAsPreviousRecord,
     getTLDInitRecord, getCurrentBID, getTDInitRecord, saveTaskListDefinition,
@@ -15,7 +15,7 @@ var TaskDescData = {
     sEpochPreDue: '',
 };
 
-var TLData = {
+var TLDData = {
     sEpoch: '',
     sEpochDue: '',
     sEpochPreDue: '',
@@ -33,7 +33,7 @@ window.getTLDInitRecord = function (BID, previousFormRecord){
     var y1 = new Date( y.getFullYear(), y.getMonth(), 1);
     var month = (y.getMonth() + 1) % 12;
     var epochPreDue = new Date(y.getFullYear(), y.getMonth(), 20);
-    var epochDue = new Date(y.getFullYear(), month, 0); 
+    var epochDue = new Date(y.getFullYear(), month, 0);
 
     // var Cycle;
     // for (var i = 0; i < app.cycleFreq.length; i++) {
@@ -79,7 +79,7 @@ window.getTDInitRecord = function (BID, TDID, previousFormRecord){
     var y1 = new Date( y.getFullYear(), y.getMonth(), 1);
     var month = (y.getMonth() + 1) % 12;
     var epochPreDue = new Date(y.getFullYear(), y.getMonth(), 20);
-    var epochDue = new Date(y.getFullYear(), month, 0); 
+    var epochDue = new Date(y.getFullYear(), month, 0);
 
     var defaultFormData = {
         TDID: 0,
@@ -185,7 +185,7 @@ window.buildTaskListDefElements = function () {
         },
     });
 
-    addDateNavToToolbar('tlds'); // "Grid" is appended to the 
+    addDateNavToToolbar('tlds'); // "Grid" is appended to the
 
     //------------------------------------------------------------------------
     //  tldsInfoForm
@@ -249,7 +249,7 @@ window.buildTaskListDefElements = function () {
                 if (typeof r.EpochPreDue === "undefined") {
                     return;
                 }
-                
+
                 // translate dates into a format that w2ui understands
                 r.EpochPreDue = dtFormatISOToW2ui(r.EpochPreDue);
                 r.EpochDue    = dtFormatISOToW2ui(r.EpochDue);
@@ -270,11 +270,11 @@ window.buildTaskListDefElements = function () {
                 case "ChkEpochPreDue":
                     $(f.box).find("input[name=EpochPreDue]").prop( "disabled", !r.ChkEpochPreDue );
                     if (r.ChkEpochPreDue) {
-                        if (r.EpochPreDue === "" && TLData.sEpochPreDue.length > 1) {
-                            r.EpochPreDue = TLData.sEpochPreDue;
+                        if (r.EpochPreDue === "" && TLDData.sEpochPreDue.length > 1) {
+                            r.EpochPreDue = TLDData.sEpochPreDue;
                         }
                     } else {
-                        TLData.sEpochPreDue = r.EpochPreDue;
+                        TLDData.sEpochPreDue = r.EpochPreDue;
                         r.EpochPreDue = '';
                     }
                     f.refresh();
@@ -282,11 +282,11 @@ window.buildTaskListDefElements = function () {
                 case "ChkEpochDue":
                     $(f.box).find("input[name=EpochDue]").prop( "disabled", !r.ChkEpochDue );
                     if (r.ChkEpochDue) {
-                        if (r.EpochDue === "" && TLData.sEpochDue.length > 1) {
-                            r.EpochDue = TLData.sEpochDue;
+                        if (r.EpochDue === "" && TLDData.sEpochDue.length > 1) {
+                            r.EpochDue = TLDData.sEpochDue;
                         }
                     } else {
-                        TLData.sEpochDue = r.EpochDue;
+                        TLDData.sEpochDue = r.EpochDue;
                         r.EpochDue = '';
                     }
                     f.refresh();
@@ -295,11 +295,11 @@ window.buildTaskListDefElements = function () {
                     b = r.Cycle.id < 4; // 4 is daily
                     $(f.box).find("input[name=Epoch]").prop( "disabled", b);
                     if (b && event.value_previous.id >= 4) {  // change from need date to don't need date
-                        TLData.sEpoch = r.Epoch;
+                        TLDData.sEpoch = r.Epoch;
                         r.Epoch = '';
                     } else if (!b && event.value_previous.id < 4 ) { // change from don't need date to need date
-                        if (r.Epoch === "" && TLData.sEpoch.length > 1) {
-                            r.Epoch = TLData.sEpoch;
+                        if (r.Epoch === "" && TLDData.sEpoch.length > 1) {
+                            r.Epoch = TLDData.sEpoch;
                         }
                     }
                     f.refresh();
@@ -473,7 +473,7 @@ window.buildTaskListDefElements = function () {
                 var r = f.record;
                 r.Worker = r.lstWorker.text;
                 if (r.TLDID === 0) {
-                    r.TLDID = w2ui.tldsInfoForm.record.TLDID;  // this should no longer be 
+                    r.TLDID = w2ui.tldsInfoForm.record.TLDID;  // this should no longer be
                 }
 
                 //------------------------------------------------
@@ -648,19 +648,19 @@ window.finishTLDForm = function () {
 };
 
 //-----------------------------------------------------------------------------
-// saveTaskListDefinition - save the task list definition, called from 
+// saveTaskListDefinition - save the task list definition, called from
 // multiple places.
-// 
+//
 // @params
 //     hide = boolean - indicates whether or not the dialog should close
 //            after the save is complete
 //     reloadTldsInfo = boolean - indicates if we need to explicitly reload
 //            w2ui.tldsInfoForm.record
-//  
+//
 // @returns
 //     0 = no errors, just continue
 //     1 = error message was popped up.
-//  
+//
 //-----------------------------------------------------------------------------
 window.saveTaskListDefinition = function (hide, reloadTldsInfo) {
     var tmp         = w2ui.tldsInfoForm.record;
@@ -712,13 +712,13 @@ window.saveTaskListDefinition = function (hide, reloadTldsInfo) {
 
 //-----------------------------------------------------------------------------
 // openTaskDescForm - Bring up the task descriptor edit form
-// 
+//
 // @params
 //     bid = business id
 //     tdid = task descriptor id
-//  
+//
 // @returns
-//  
+//
 //-----------------------------------------------------------------------------
 window.openTaskDescForm = function (bid,tdid) {
     TLD.formBtnsDisabled = true;
@@ -739,13 +739,13 @@ window.openTaskDescForm = function (bid,tdid) {
 
 //-----------------------------------------------------------------------------
 // closeTaskDescForm - Close the task descriptor edit form
-// 
+//
 // @params
 //     bid = business id
 //     tdid = task descriptor id
-//  
+//
 // @returns
-//  
+//
 //-----------------------------------------------------------------------------
 window.closeTaskDescForm = function (bid,tdid) {
     w2ui.tldLayout.hide('right');
@@ -788,13 +788,13 @@ window.setToTLDForm = function (bid, id, d1,d2) {
     app.form_is_dirty = false; // mark as no changes yet
 };
 //-----------------------------------------------------------------------------
-// setTaskDescButtonsState - set the form Save / Delete button state to 
+// setTaskDescButtonsState - set the form Save / Delete button state to
 //                       the value in TL.
-// 
+//
 // @params
-//  
-// @returns 
-//  
+//
+// @returns
+//
 //-----------------------------------------------------------------------------
 window.setTaskDescButtonsState = function() {
     $(w2ui.tldsCloseForm.box).find("button[name=save]").prop( "disabled", TLD.formBtnsDisabled );

@@ -40,7 +40,14 @@ func readCommandLineArgs() {
 	dbrrPtr := flag.String("M", "tws", "database name (tws)")
 	aptr := flag.String("a", "add", "add, wait, reschedule, or complete a work item")
 	noauth := flag.Bool("noauth", false, "run server in no-auth mode")
+	noconPtr := flag.Bool("nocon", false, "if specified, inhibit Console output")
 	flag.Parse()
+
+	if *noconPtr {
+		rlib.DisableConsole()
+	} else {
+		rlib.EnableConsole()
+	}
 
 	App.DBDir = *dbnmPtr
 	App.NoAuth = *noauth
@@ -90,13 +97,13 @@ func main() {
 		os.Exit(1)
 	}
 
+	rlib.SetNoAuthFlag(App.NoAuth)
 	rlib.InitDBHelpers(App.dbrr, App.dbdir)
 	rlib.SessionInit(10) // must be called before calling InitBizInternals
 
 	rlib.RpnInit()
 	bizlogic.InitBizLogic()
 	ws.InitReports()
-	rlib.SetNoAuthFlag(App.NoAuth)
 	ws.SvcInit(App.NoAuth)        // currently needed for testing
 	tws.Init(App.dbrr, App.dbdir) //
 	// worker.Init()              // don't init these, it introduces randomness

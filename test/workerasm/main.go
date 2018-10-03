@@ -36,7 +36,13 @@ func readCommandLineArgs() {
 	dbtwsPtr := flag.String("M", "tws", "database name (tws)")
 	aptr := flag.String("a", "add", "add, wait, reschedule, or complete a work item")
 	dtptr := flag.String("dt", "2018-03-01", "run assessment instance worker with this date")
+	noconPtr := flag.Bool("nocon", false, "if specified, inhibit Console output")
 	flag.Parse()
+	if *noconPtr {
+		rlib.DisableConsole()
+	} else {
+		rlib.EnableConsole()
+	}
 
 	App.DBDir = *dbnmPtr
 	App.DBtws = *dbtwsPtr

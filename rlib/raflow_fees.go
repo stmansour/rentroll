@@ -241,7 +241,8 @@ func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName s
 				tot, np, tp := SimpleProrateAmount(baseFee.ContractAmount, RentCycle, ProrationCycle, &rStart, &td2, &epoch)
 				cmt := ""
 				if tot < baseFee.ContractAmount {
-					cmt = fmt.Sprintf("prorated for %d of %d %s", np, tp, ProrationUnits(ProrationCycle))
+					// cmt = fmt.Sprintf("prorated for %d of %d %s", np, tp, ProrationUnits(ProrationCycle))
+					cmt = ProrateComment(np, tp, ProrationCycle)
 				}
 
 				// ADD FEE IN LIST

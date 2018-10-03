@@ -759,9 +759,9 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 		epoch = epoch.AddDate(0, 1, 0)
 
 	}
-	d2 := epoch.AddDate(2, 0, 0)
+	d2 := dbConf.DtStop
 	if d2.Day() != 1 {
-		d2 = time.Date(d2.Year(), d2.Month(), 1, 0, 0, 0, 0, time.UTC)
+		d2 = time.Date(d2.Year(), d2.Month(), d2.Day(), 0, 0, 0, 0, time.UTC)
 	}
 	rentableC, err := rlib.GetCountByTableName(ctx, "Rentable", BID)
 	if err != nil {
@@ -1016,9 +1016,6 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 					Stop:           d2,
 					ARID:           dbConf.VehicleFees[j].ARID,
 				}
-				rlib.Console("\n\n********\n")
-				rlib.Console("INSERTING VEHICLE FEE:  elem = %d, id = %d\n", asm.AssocElemType, asm.AssocElemID)
-				rlib.Console("\n********\n\n")
 				be := bizlogic.InsertAssessment(ctx, &asm, 1, &noClose) // bizlogic will not expand it if it is a single instanced assessment
 				if be != nil {
 					return bizlogic.BizErrorListToError(be)
@@ -1041,7 +1038,8 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 			tot, np, tp := rlib.SimpleProrateAmount(RIDMktRate, asmRent.RentCycle, asmRent.ProrationCycle, &d1, &td2, &epoch)
 			a.Amount = tot
 			if a.Amount < RIDMktRate {
-				a.Comment = fmt.Sprintf("prorated for %d of %d %s", np, tp, rlib.ProrationUnits(asmRent.ProrationCycle))
+				// a.Comment = fmt.Sprintf("prorated for %d of %d %s", np, tp, rlib.ProrationUnits(asmRent.ProrationCycle))
+				a.Comment = rlib.ProrateComment(np, tp, asmRent.ProrationCycle)
 			}
 			a.RentCycle = rlib.RECURNONE
 			a.ProrationCycle = rlib.RECURNONE
@@ -1085,7 +1083,9 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 					}
 					tot, np, tp := rlib.SimpleProrateAmount(dbConf.PetFees[j].DefaultAmount, rc, dbConf.xbiz.RT[rtr.RTID].Proration, &d1, &td2, &epoch)
 					if tot < dbConf.PetFees[j].DefaultAmount {
-						cmt = fmt.Sprintf("prorated for %d of %d %s", np, tp, rlib.ProrationUnits(dbConf.xbiz.RT[rtr.RTID].Proration))
+						// cmt = fmt.Sprintf("prorated for %d of %d %s", np, tp, rlib.ProrationUnits(dbConf.xbiz.RT[rtr.RTID].Proration))
+						cmt = rlib.ProrateComment(np, tp, dbConf.xbiz.RT[rtr.RTID].Proration)
+
 					}
 					var asm = rlib.Assessment{
 						BID:            BID,
@@ -1138,7 +1138,8 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 					}
 					tot, np, tp := rlib.SimpleProrateAmount(dbConf.VehicleFees[j].DefaultAmount, rc, dbConf.xbiz.RT[rtr.RTID].Proration, &d1, &td2, &epoch)
 					if tot < dbConf.VehicleFees[j].DefaultAmount {
-						cmt = fmt.Sprintf("prorated for %d of %d %s", np, tp, rlib.ProrationUnits(dbConf.xbiz.RT[rtr.RTID].Proration))
+						// cmt = fmt.Sprintf("prorated for %d of %d %s", np, tp, rlib.ProrationUnits(dbConf.xbiz.RT[rtr.RTID].Proration))
+						cmt = rlib.ProrateComment(np, tp, dbConf.xbiz.RT[rtr.RTID].Proration)
 					}
 					var asm = rlib.Assessment{
 						BID:            BID,
@@ -1337,33 +1338,9 @@ func CreateTaskLists(ctx context.Context, dbConf *GenDBConf) error {
 	//----------------------------------------------------------
 	// Create any past instances
 	//----------------------------------------------------------
-	dtNext := rlib.NextInstance(&pivot, tl.Cycle)
 	now := time.Now()
-	ptlid := tl.TLID
-	for {
-		pivot = dtNext
-		// rlib.Console("loop:  pivot = %s\n", pivot.Format(rlib.RRDATETIMERPTFMT))
-
-		newtl := tl
-		// This is when it will be created
-		if err = rlib.NextTLInstanceDates(&pivot, &tld, &newtl); err != nil {
-			return err
-		}
-		// rlib.Console("tl.DtDue = %s,  newtl.DtDue = %s\n", tl.DtDue.Format(rlib.RRDATETIMERPTFMT), newtl.DtDue.Format(rlib.RRDATETIMERPTFMT))
-		if tl.DtDue.Equal(newtl.DtDue) {
-			break
-		}
-
-		tl, err := rlib.CreateTaskListInstance(ctx, TLDID, ptlid, &pivot)
-		if err != nil {
-			return err
-		}
-		dtNext = rlib.NextInstance(&pivot, tl.Cycle)
-		// rlib.Console("loop: rlib.NextInstance(&pivot, tl.Cycle) --> dtNext = %s\n", dtNext.Format(rlib.RRDATETIMERPTFMT))
-		// rlib.Console("loop: dtNext = %s\n", dtNext.Format(rlib.RRDATETIMERPTFMT))
-		if dtNext.After(now) {
-			break
-		}
+	if err = rlib.TaskListExpandPastInstances(ctx, &tl, &tld, &pivot, &now); err != nil {
+		return err
 	}
 
 	return nil

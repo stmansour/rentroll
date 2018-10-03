@@ -1,4 +1,6 @@
 DIRS = onesite roomkey
+THISDIR = importers
+RLNK =
 
 importers:
 	for dir in $(DIRS); do make -C $$dir;done
@@ -7,6 +9,10 @@ importers:
 clean:
 	for dir in $(DIRS); do make -C $$dir clean;done
 	@echo "*** CLEAN completed in test/importers ***"
+
+relink:
+	for dir in $(RLNK); do make -C $$dir relink;done
+	@echo "*** RELINK completed in ${THISDIR} ***"
 
 test:
 	for dir in $(DIRS); do make -C $$dir test;done

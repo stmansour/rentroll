@@ -11,6 +11,7 @@ var noClose = rlib.ClosePeriod{
 	Dt:               rlib.TIME0,
 	OpenPeriodDt:     rlib.TIME0,
 	ExpandAsmDtStart: rlib.TIME0,
+	ExpandAsmDtStop:  rlib.ENDOFTIME,
 }
 
 // // ValidAssessmentDate determines whether the assessment type supplied can be assessed during the assessment's defined period

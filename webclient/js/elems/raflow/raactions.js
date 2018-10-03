@@ -301,7 +301,7 @@ window.refreshLabels = function () {
 
     x = document.getElementById("footerTerminatedBy");
     if (x !== null) {
-        if (meta.TerminatorUID == 0) {
+        if (meta.LeaseTerminationReason == 0) {
             x.innerHTML = '';
         } else {
             var tReason;
@@ -309,7 +309,10 @@ window.refreshLabels = function () {
             if (meta.DeclineReason1 > 0 || meta.DeclineReason2 > 0) {
                 tReason = app.RollerMsgs.find(function(t){if(t.id == meta.LeaseTerminationReason){return t;}});
             } else {
-                tReason = app.WhyLeaving.find(function(t){if(t.id == meta.LeaseTerminationReason){return t;}});
+                tReason = app.WhyLeaving.find( function(t){ if(t.id == meta.LeaseTerminationReason) {return t;} } );
+                if (typeof tReason === "undefined") {
+                    tReason = app.RollerMsgs.find( function(t){ if(t.id == meta.LeaseTerminationReason) {return t;} } );
+                }
             }
             tReasonText = tReason ? tReason.text : "";
             x.innerHTML = dtFormatISOToW2ui((meta.TerminationDate).replace(" ", "T").replace(" UTC", "Z")) + ' by '+ meta.TerminatorName + ' (' + tReasonText + ')';
@@ -331,7 +334,7 @@ window.refreshLabels = function () {
 
     x = document.getElementById("bannerTerminationReason");
     if (x !== null) {
-        if (meta.TerminatorUID > 0) {
+        if (meta.LeaseTerminationReason > 0) {
             var termination;
             var terminationReason;
             if (meta.DeclineReason1 > 0) {

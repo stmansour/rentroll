@@ -226,6 +226,7 @@ type ClosePeriod struct {
 	CreateBy         int64
 	OpenPeriodDt     time.Time // NOTE: this value is not saved to the db, it's just a convenience for keeping a date to use for snapping asms to an open period
 	ExpandAsmDtStart time.Time // NOTE: for use in ExpandAssessment. If asm.DtStart.Before(Dt) then it gets snapped to OpenPeriodDt, but we still want to expand from original asm.DtStart. Store it in this field.
+	ExpandAsmDtStop  time.Time // NOTE: for use in ExpandAssessment. If expansion date is > ExpandAsmDtStop then it gets snapped to ExpandAsmDtStop
 }
 
 // Task is an indivually tracked work item.

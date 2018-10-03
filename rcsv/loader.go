@@ -91,7 +91,7 @@ func InitRCSV(d1, d2 *time.Time, xbiz *rlib.XBusiness) {
 	Rcsv.Xbiz = xbiz
 
 	// if dateMode is on then change the stopDate value for search op
-	rlib.HandleFrontEndDates(Rcsv.Xbiz.P.BID, &Rcsv.DtStart, &Rcsv.DtStop)
+	rlib.EDIHandleIncomingDateRange(Rcsv.Xbiz.P.BID, &Rcsv.DtStart, &Rcsv.DtStop)
 }
 
 /*// DispatchCSV is the generic CSV loader call. It will call a csv loader with the supplied

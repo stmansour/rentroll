@@ -58,12 +58,12 @@ Response( RAID: 6, UserRefNo: OVERRIDEEN1234567890 )
                 "pets": [],
                 "dates": {
                     "CSAgent": 68,
-                    "RentStop": "3/1/2020",
-                    "RentStart": "8/28/2018",
-                    "AgreementStop": "3/1/2020",
-                    "AgreementStart": "8/28/2018",
-                    "PossessionStop": "3/1/2020",
-                    "PossessionStart": "8/28/2018"
+                    "RentStop": "2/29/2020",
+                    "RentStart": "10/3/2018",
+                    "AgreementStop": "2/29/2020",
+                    "AgreementStart": "10/3/2018",
+                    "PossessionStop": "2/29/2020",
+                    "PossessionStart": "10/3/2018"
                 },
                 "people": [
                     {
@@ -156,24 +156,24 @@ Response( RAID: 6, UserRefNo: OVERRIDEEN1234567890 )
                         "Fees": [
                             {
                                 "ARID": 26,
-                                "Stop": "8/28/2018",
+                                "Stop": "10/3/2018",
                                 "ASMID": 88,
-                                "Start": "8/28/2018",
+                                "Start": "10/3/2018",
                                 "ARName": "Rent Non-Taxable",
-                                "Comment": "prorated for 4 of 31 days",
+                                "Comment": "prorated for 29 of 31 days",
                                 "SalesTax": 0,
                                 "TMPASMID": 5,
                                 "RentCycle": 0,
                                 "TransOccTax": 0,
-                                "ContractAmount": 225.81,
+                                "ContractAmount": 1637.1,
                                 "ProrationCycle": 0,
                                 "AtSigningPreTax": 0
                             },
                             {
                                 "ARID": 26,
-                                "Stop": "3/1/2020",
+                                "Stop": "2/29/2020",
                                 "ASMID": 88,
-                                "Start": "9/1/2018",
+                                "Start": "11/1/2018",
                                 "ARName": "Rent Non-Taxable",
                                 "Comment": "",
                                 "SalesTax": 0,
@@ -196,9 +196,9 @@ Response( RAID: 6, UserRefNo: OVERRIDEEN1234567890 )
                 ],
                 "parentchild": []
             },
-            "LastModTime": "2018-08-28T15:30:28Z",
+            "LastModTime": "2018-10-02T20:35:27Z",
             "LastModBy": -99999,
-            "CreateTS": "2018-08-28T15:30:28Z",
+            "CreateTS": "2018-10-02T20:35:27Z",
             "CreateBy": -99999
         },
         "ValidationCheck": {

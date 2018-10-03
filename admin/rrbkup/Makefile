@@ -1,33 +1,38 @@
 TOP=../..
 COUNTOL=${TOP}/tools/bashtools/countol.sh
+THISDIR=rrbkup
+
 rrbkup: *.sh
 
 clean:
-	rm -f rrbkup fail
-	@echo "*** Clean completed in rrbkup ***"
+	rm -f ${THISDIR} fail
+	@echo "*** Clean completed in ${THISDIR} ***"
 
-install: rrbkup
-	@echo "*** Packaging completed in rrbkup ***"
+install: ${THISDIR}
+	@echo "*** Packaging completed in ${THISDIR} ***"
 
-package: rrbkup
+relink:
+	@echo "*** Relink completed in ${THISDIR} ***"
+
+package: ${THISDIR}
 	@touch fail
-	cp rrbkup ${TOP}/tmp/rentroll/
+	cp ${THISDIR} ${TOP}/tmp/rentroll/
 	cp *.1 ${TOP}/tmp/rentroll/man/man1/
-	@echo "*** Packaging completed in rrbkup ***"
+	@echo "*** Packaging completed in ${THISDIR} ***"
 	@rm -f fail
 
-packageqa: rrbkup
+packageqa: ${THISDIR}
 	@touch fail
-	cp rrbkup ${TOP}/tmp/rentroll/
+	cp ${THISDIR} ${TOP}/tmp/rentroll/
 	cp *.1 ${TOP}/tmp/rentrollqa/man/man1/
-	@echo "*** Packaging completed in rrbkup ***"
+	@echo "*** Packaging completed in ${THISDIR} ***"
 	@rm -f fail
 
 test:
-	@echo "*** Testing completed in rrbkup ***"
+	@echo "*** Testing completed in ${THISDIR} ***"
 
 man:
-	nroff -man rrbkup.1
+	nroff -man ${THISDIR}.1
 
 secure:
 	@rm -f config.json confdev.json confprod.json

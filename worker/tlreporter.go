@@ -24,7 +24,7 @@ import (
 // to be called again the next day.
 //-----------------------------------------------------------------------------
 func TLChecker(item *tws.Item) {
-	// rlib.Ulog("TLChecker\n") // log the fact that we're running
+	// rlib.Console("TLChecker\n") // log the fact that we're running
 
 	checkInterval := 2 * time.Minute // this may come from a config file in the future
 	tws.ItemWorking(item)
@@ -89,12 +89,13 @@ func TLCheckerCore(ctx context.Context) error {
 	}
 
 	if err != nil {
-		// rlib.Console("Error with GetDueTaskLists: %v\n", err)
+		// // rlib.Console("Error with GetDueTaskLists: %v\n", err)
 		rlib.Ulog("Error setting query GetDuTaskLists: %v\n", err)
 		return err
 	}
 	defer rows.Close()
 
+	// rlib.Console("Loop on TaskLists\n")
 	for rows.Next() {
 		var a rlib.TaskList
 		if err = rlib.ReadTaskLists(rows, &a); err != nil {
@@ -103,6 +104,7 @@ func TLCheckerCore(ctx context.Context) error {
 		}
 
 		// rlib.Console("Found: %s,  TLID = %d\n", a.Name, a.TLID)
+
 		s := strings.TrimSpace(a.EmailList)
 		if len(s) == 0 {
 			// rlib.Console("EmailList is blank. Skipping.\n")
@@ -116,7 +118,9 @@ func TLCheckerCore(ctx context.Context) error {
 		//----------------------------------------------------
 		ri.Bid = a.BID
 		ri.ID = a.TLID
+
 		// rlib.Console("ri.BID = %d, ri.ID = %d\n", ri.Bid, ri.ID)
+
 		var xbiz rlib.XBusiness
 		if err = rlib.GetXBiz(ri.Bid, &xbiz); err != nil {
 			rlib.LogAndPrintError(funcname, err)
@@ -125,16 +129,23 @@ func TLCheckerCore(ctx context.Context) error {
 		ri.Xbiz = &xbiz
 
 		sa := strings.Split(s, ",")
+		// rlib.Console("email string slice list len = %d\n", len(sa))
 		for i := 0; i < len(sa); i++ {
+			// rlib.Console("Processing sa[%d] = %s\n", i, sa[i])
 			to := strings.TrimSpace(sa[i])
+			// rlib.Console("to = %s\n", to)
 			if rlib.ValidEmailAddress(to) {
+				// rlib.Console("%s is a valid email address.  Sending...\n", to)
 				err = TLReporterSendEmail(ctx, to, &a, d, &ri)
 				if err != nil {
+					// rlib.Console("Error trying to send email regarding TLID %d, err: %s\n", a.TLID, err.Error())
 					rlib.LogAndPrintError(funcname, err)
 				}
+				rlib.Ulog("Sent email to %s regarding TaskList %d\n", to, a.TLID)
 			}
 		}
 	}
+	// rlib.Console("Loop on TaskLists done\n")
 
 	return rows.Err()
 }
@@ -188,7 +199,7 @@ func TLReporterSendEmail(ctx context.Context, e string, a *rlib.TaskList, d *gom
 	//-------------------------------------------------
 	// Template to use if Due date/time has arrived
 	//-------------------------------------------------
-	btmpl := `<html><body><p>TaskList {{.TLName}} was due on {{.DtDue}} and has not yet been 
+	btmpl := `<html><body><p>TaskList {{.TLName}} was due on {{.DtDue}} and has not yet been
 marked as completed. See the attached report for further details.
 </p><p>
 Next check for this task list: {{.DtNextNotify}}

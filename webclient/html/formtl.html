@@ -12,8 +12,8 @@
     <div class="w2ui-field"><input type="hidden" name="CreateBy" /></div>
     <div class="w2ui-field"><input type="hidden" name="LastModTime" /></div>
     <div class="w2ui-field"><input type="hidden" name="LastModBy" /></div>
-    <div class="w2ui-field"><input type="hidden" name="DtDue" /></div>
-    <div class="w2ui-field"><input type="hidden" name="DtPreDue" /></div>
+    <!-- <div class="w2ui-field"><input type="hidden" name="DtDue" /></div>
+    <div class="w2ui-field"><input type="hidden" name="DtPreDue" /></div> -->
     <div class="w2ui-field"><input type="hidden" name="DtDone" /></div>
     <div class="w2ui-field"><input type="hidden" name="DtPreDone" /></div>
     <div class="w2ui-field"><input type="hidden" name="DurWait" /></div>
@@ -34,7 +34,7 @@
     </div>
     <div class="w2ui-field">
         <label>Pre Due:</label>
-        <div><input name="ChkDtPreDue" type="checkbox" disabled></input>&nbsp;<span id="sDtPreDue"></span></div>
+        <div><input name="ChkDtPreDue" type="checkbox" disabled></input>&nbsp;<input type="us-datetime" name="DtPreDue"></div>
     </div>
      <div class="w2ui-field">
         <label>Pre-Complete:</label>
@@ -42,7 +42,7 @@
     </div>
     <div class="w2ui-field">
         <label>Due:</label>
-        <div><input name="ChkDtDue" type="checkbox" disabled></input>&nbsp;<span id="sDtDue"></span></div>
+        <div><input name="ChkDtDue" type="checkbox" disabled></input>&nbsp;<input type="us-datetime" name="DtDue"></div>
     </div>
     <div class="w2ui-field">
         <label>Complete:</label>
