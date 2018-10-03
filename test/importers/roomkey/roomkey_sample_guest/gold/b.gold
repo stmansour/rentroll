@@ -1,6 +1,6 @@
 Accord RentRoll RoomKey Importer
-Date: 6/18/2018
-Time: 1:54PM PDT
+Date: 9/27/2018
+Time: 12:07PM PDT
 Import File: ./roomkey.csv
 Guest Export File: ./guestdataexport.csv
 
@@ -22,58 +22,77 @@ Accord/OKC Members, LLC
 6303 NW 63rd Street
 Oklahoma City, OK 73132 USA
 
-                                                                                         Manage  Is                            
-                                                  Rent     Proration                     To      Child                         
-RTID        Style         Name                    Cycle    Cycle      GSRPC  Available?  Budget  Type?  Dt1 - Dt2 : Market Rate
-----------  ------------  ----------------------  -------  ---------  -----  ----------  ------  -----  -----------------------
-RT00000001  3 BDR 2.5     3 BDR 2.5 Bath TWNHM-   monthly  daily      daily  Yes         Yes     No                            
-            Bath TWNHM-                                                                                                        
-RT00000002  LS Deluxe     LS Deluxe 2bd 2bath-    monthly  daily      daily  Yes         Yes     No                            
-            2bd 2bath-                                                                                                         
-RT00000003  2 BDR 1 Bath  2 BDR 1 Bath Deluxe-    monthly  daily      daily  Yes         Yes     No                            
-            Deluxe-                                                                                                            
-RT00000004  1 BDR         1 BDR NSNP/POC-         monthly  daily      daily  Yes         Yes     No                            
-            NSNP/POC-                                                                                                          
-RT00000005  1 BDR         1 BDR NS/POC-Q/POC      monthly  daily      daily  Yes         Yes     No                            
-            NS/POC-Q/POC                                                                                                       
-RT00000006  1 BDR NSNP-Q  1 BDR NSNP-Q            monthly  daily      daily  Yes         Yes     No                            
-RT00000007  1 BDR         1 BDR Deluxe-Q/POC      monthly  daily      daily  Yes         Yes     No                            
-            Deluxe-Q/POC                                                                                                       
-RT00000008  2 BDR 1 Bath  2 BDR 1 Bath NS-QQ      monthly  daily      daily  Yes         Yes     No                            
-            NS-QQ                                                                                                              
-RT00000009  2 BDR 1 Bath  2 BDR 1 Bath NS/POC-    monthly  daily      daily  Yes         Yes     No                            
-            NS/POC-                                                                                                            
-RT00000010  4 BDR 2 Bath  4 BDR 2 Bath Flat-QQQQ  monthly  daily      daily  Yes         Yes     No                            
-            Flat-QQQQ                                                                                                          
+                                                                                                                                 Total    
+                                                                                         Manage  Is                              Counts of
+                                                  Rent     Proration                     To      Child                           Rentable 
+RTID        Style         Name                    Cycle    Cycle      GSRPC  Available?  Budget  Type?  Dt1 - Dt2 : Market Rate  Type     
+----------  ------------  ----------------------  -------  ---------  -----  ----------  ------  -----  -----------------------  ---------
+RT00000001  3 BDR 2.5     3 BDR 2.5 Bath TWNHM-   monthly  daily      daily  Yes         Yes     No                              10       
+            Bath TWNHM-                                                                                                                   
+RT00000002  LS Deluxe     LS Deluxe 2bd 2bath-    monthly  daily      daily  Yes         Yes     No                                       
+            2bd 2bath-                                                                                                                    
+RT00000003  2 BDR 1 Bath  2 BDR 1 Bath Deluxe-    monthly  daily      daily  Yes         Yes     No                                       
+            Deluxe-                                                                                                                       
+RT00000004  1 BDR         1 BDR NSNP/POC-         monthly  daily      daily  Yes         Yes     No                                       
+            NSNP/POC-                                                                                                                     
+RT00000005  1 BDR         1 BDR NS/POC-Q/POC      monthly  daily      daily  Yes         Yes     No                                       
+            NS/POC-Q/POC                                                                                                                  
+RT00000006  1 BDR NSNP-Q  1 BDR NSNP-Q            monthly  daily      daily  Yes         Yes     No                                       
+RT00000007  1 BDR         1 BDR Deluxe-Q/POC      monthly  daily      daily  Yes         Yes     No                                       
+            Deluxe-Q/POC                                                                                                                  
+RT00000008  2 BDR 1 Bath  2 BDR 1 Bath NS-QQ      monthly  daily      daily  Yes         Yes     No                                       
+            NS-QQ                                                                                                                         
+RT00000009  2 BDR 1 Bath  2 BDR 1 Bath NS/POC-    monthly  daily      daily  Yes         Yes     No                                       
+            NS/POC-                                                                                                                       
+RT00000010  4 BDR 2 Bath  4 BDR 2 Bath Flat-QQQQ  monthly  daily      daily  Yes         Yes     No                                       
+            Flat-QQQQ                                                                                                                     
 ==============================================================
 OKC Rentables
 Accord/OKC Members, LLC
 6303 NW 63rd Street
 Oklahoma City, OK 73132 USA
 
-RID        Name     Assignment Time
----------  -------  ---------------
-R00000001  6608118  pre-assign     
-R00000002  6383323  pre-assign     
-R00000003  6361239  pre-assign     
-R00000004  6381324  pre-assign     
-R00000005  6373285  pre-assign     
-R00000006  6377308  pre-assign     
-R00000007  6355215  pre-assign     
-R00000008  6307026  pre-assign     
-R00000009  6329118  pre-assign     
-R00000010  6373283  pre-assign     
-R00000011  6395371  pre-assign     
-R00000012  6337152  pre-assign     
-R00000013  6347186  pre-assign     
-R00000014  6391362  pre-assign     
-R00000015  6353216  pre-assign     
-R00000016  6381328  pre-assign     
-R00000017  6610123  pre-assign     
-R00000018  6359238  pre-assign     
-R00000019  6389345  pre-assign     
-R00000020  6331122  pre-assign     
-R00000021  6343172  pre-assign     
+                                     Rentable Type                Proration       
+RID        Name     Assignment Time  Name             Rent Cycle  Cycle      GSRPC
+---------  -------  ---------------  ---------------  ----------  ---------  -----
+R00000001  6608118  pre-assign       3 BDR 2.5 Bath   monthly     daily      daily
+                                     TWNHM-                                       
+R00000002  6383323  pre-assign       LS Deluxe 2bd    monthly     daily      daily
+                                     2bath-                                       
+R00000003  6361239  pre-assign       2 BDR 1 Bath     monthly     daily      daily
+                                     Deluxe-                                      
+R00000004  6381324  pre-assign       1 BDR NSNP/POC-  monthly     daily      daily
+R00000005  6373285  pre-assign       1 BDR            monthly     daily      daily
+                                     NS/POC-Q/POC                                 
+R00000006  6377308  pre-assign       1 BDR NSNP-Q     monthly     daily      daily
+R00000007  6355215  pre-assign       1 BDR            monthly     daily      daily
+                                     Deluxe-Q/POC                                 
+R00000008  6307026  pre-assign       2 BDR 1 Bath     monthly     daily      daily
+                                     NS-QQ                                        
+R00000009  6329118  pre-assign       1 BDR            monthly     daily      daily
+                                     Deluxe-Q/POC                                 
+R00000010  6373283  pre-assign       1 BDR            monthly     daily      daily
+                                     NS/POC-Q/POC                                 
+R00000011  6395371  pre-assign       2 BDR 1 Bath     monthly     daily      daily
+                                     NS/POC-                                      
+R00000012  6337152  pre-assign       2 BDR 1 Bath     monthly     daily      daily
+                                     Deluxe-                                      
+R00000013  6347186  pre-assign       2 BDR 1 Bath     monthly     daily      daily
+                                     Deluxe-                                      
+R00000014  6391362  pre-assign       1 BDR NSNP/POC-  monthly     daily      daily
+R00000015  6353216  pre-assign       1 BDR            monthly     daily      daily
+                                     Deluxe-Q/POC                                 
+R00000016  6381328  pre-assign       1 BDR NSNP/POC-  monthly     daily      daily
+R00000017  6610123  pre-assign       4 BDR 2 Bath     monthly     daily      daily
+                                     Flat-QQQQ                                    
+R00000018  6359238  pre-assign       1 BDR            monthly     daily      daily
+                                     Deluxe-Q/POC                                 
+R00000019  6389345  pre-assign       2 BDR 1 Bath     monthly     daily      daily
+                                     NS-QQ                                        
+R00000020  6331122  pre-assign       1 BDR            monthly     daily      daily
+                                     Deluxe-Q/POC                                 
+R00000021  6343172  pre-assign       1 BDR            monthly     daily      daily
+                                     Deluxe-Q/POC                                 
 ==============================================================
 OKC People
 Accord/OKC Members, LLC

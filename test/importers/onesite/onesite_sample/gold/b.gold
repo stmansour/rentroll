@@ -1,6 +1,6 @@
 Accord RentRoll Onesite Importer
-Date: 6/18/2018
-Time: 1:52PM PDT
+Date: 9/27/2018
+Time: 12:06PM PDT
 Import File: ./onesite.csv
 
 Summary
@@ -24,14 +24,15 @@ JGM First, LLC
 Suite 301
 Austin, TX 78738 USA
 
-                                                                     Manage  Is                                       
-                              Rent     Proration                     To      Child                                    
-RTID        Style    Name     Cycle    Cycle      GSRPC  Available?  Budget  Type?  Dt1 - Dt2 : Market Rate           
-----------  -------  -------  -------  ---------  -----  ----------  ------  -----  ----------------------------------
-RT00000001  A1-HOSP  A1-HOSP  monthly  daily      daily  Yes         Yes     No     06/18/2018 - 12/31/9999: $  700.00
-RT00000002  HRP2     HRP2     monthly  daily      daily  Yes         Yes     No     06/18/2018 - 12/31/9999: $  940.00
-RT00000003  A2-Corp  A2-Corp  monthly  daily      daily  Yes         Yes     No     06/18/2018 - 12/31/9999: $  700.00
-RT00000004  A6-HOSP  A6-HOSP  monthly  daily      daily  Yes         Yes     No     06/18/2018 - 12/31/9999: $  800.00
+                                                                                                                        Total    
+                                                                     Manage  Is                                         Counts of
+                              Rent     Proration                     To      Child                                      Rentable 
+RTID        Style    Name     Cycle    Cycle      GSRPC  Available?  Budget  Type?  Dt1 - Dt2 : Market Rate             Type     
+----------  -------  -------  -------  ---------  -----  ----------  ------  -----  ----------------------------------  ---------
+RT00000001  A1-HOSP  A1-HOSP  monthly  daily      daily  Yes         Yes     No     09/27/2018 - 12/31/9999: $  700.00  4        
+RT00000002  HRP2     HRP2     monthly  daily      daily  Yes         Yes     No     09/27/2018 - 12/31/9999: $  940.00           
+RT00000003  A2-Corp  A2-Corp  monthly  daily      daily  Yes         Yes     No     09/27/2018 - 12/31/9999: $  700.00           
+RT00000004  A6-HOSP  A6-HOSP  monthly  daily      daily  Yes         Yes     No     09/27/2018 - 12/31/9999: $  800.00           
 ==============================================================
 REX Rentables
 JGM First, LLC
@@ -39,14 +40,15 @@ JGM First, LLC
 Suite 301
 Austin, TX 78738 USA
 
-RID        Name      Assignment Time
----------  --------  ---------------
-R00000001  6303-016  pre-assign     
-R00000002  6315-055  pre-assign     
-R00000003  6313-052  pre-assign     
-R00000004  6339-156  pre-assign     
-R00000005  6343-165  pre-assign     
-R00000006  6343-166  pre-assign     
+                                      Rentable Type              Proration       
+RID        Name      Assignment Time  Name           Rent Cycle  Cycle      GSRPC
+---------  --------  ---------------  -------------  ----------  ---------  -----
+R00000001  6303-016  pre-assign       A1-HOSP        monthly     daily      daily
+R00000002  6315-055  pre-assign       HRP2           monthly     daily      daily
+R00000003  6313-052  pre-assign       A2-Corp        monthly     daily      daily
+R00000004  6339-156  pre-assign       A6-HOSP        monthly     daily      daily
+R00000005  6343-165  pre-assign       A2-Corp        monthly     daily      daily
+R00000006  6343-166  pre-assign       A2-Corp        monthly     daily      daily
 ==============================================================
 REX People
 JGM First, LLC

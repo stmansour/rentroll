@@ -25,6 +25,9 @@ func RRreportRentableTypesTable(ctx context.Context, ri *ReporterInfo) gotable.T
 	tbl.AddColumn("Manage To Budget", 3, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)         // 7
 	tbl.AddColumn("Is Child Type?", 3, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)           // 8
 	tbl.AddColumn("Dt1 - Dt2 : Market Rate", 96, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT) // 9
+	//-----------------ADD BY LINA BEGIN-----
+	tbl.AddColumn("Total Counts of Rentable Type", 9, gotable.CELLINT, gotable.COLJUSTIFYLEFT) // 10 TOTAL COUNTS
+	//-----------------ADD BY LINA END--------
 
 	// set table title, sections
 	err := TableReportHeaderBlock(ctx, &tbl, "Rentable Types", funcname, ri)
@@ -95,7 +98,11 @@ func RRreportRentableTypesTable(ctx context.Context, ri *ReporterInfo) gotable.T
 		}
 		tbl.Puts(-1, 9, s)
 	}
+
+	tbl.Puti(0, 10, int64(len(tbl.Row))) //add by lina, total counts of Rentable type, is it what the task requested?
+
 	tbl.TightenColumns()
+
 	return tbl
 }
 
@@ -121,7 +128,12 @@ func RentableCountByRentableTypeReportTable(ctx context.Context, ri *ReporterInf
 	tbl.AddColumn("Rentable Type Name", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Style", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Custom Attributes", 50, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
-
+	//-------------------add by lina ---begin
+	//tbl.AddColumn("GSR", 9, gotable.CELLINT, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Rent Cycle", 13, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Proration Cycle", 13, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("GSRPC", 13, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	//-----------------add by lina----end
 	// set table title, sections
 	err := TableReportHeaderBlock(ctx, &tbl, "Rentable Counts By Rentable Type", funcname, ri)
 	if err != nil {
@@ -158,7 +170,7 @@ func RentableCountByRentableTypeReportTable(ctx context.Context, ri *ReporterInf
 
 	for i := 0; i < len(keys); i++ {
 		j := int64(keys[i])
-		// fmt.Printf("%13d  %-20.20s  %-6s", m[j].Count, m[j].RT.Name, m[j].RT.Style)
+		//fmt.Printf("%13d  %-20.20s  %-6s", m[j].Count, m[j].RT.Name, m[j].RT.Style)
 		tbl.AddRow()
 		tbl.Puti(-1, 0, m[j].Count)
 		tbl.Puts(-1, 1, m[j].RT.Name)
@@ -171,6 +183,11 @@ func RentableCountByRentableTypeReportTable(ctx context.Context, ri *ReporterInf
 			s += fmt.Sprintf("%s: %s %s", k, v.Value, v.Units)
 		}
 		tbl.Puts(-1, 3, s)
+		//---------------------------add by lina ----begin
+		tbl.Puts(-1, 4, rlib.RentalPeriodToString(m[j].RT.RentCycle))
+		tbl.Puts(-1, 5, rlib.RentalPeriodToString(m[j].RT.Proration))
+		tbl.Puts(-1, 6, rlib.RentalPeriodToString(m[j].RT.GSRPC))
+		//----------------------------add by lina ---end
 	}
 	tbl.TightenColumns()
 	return tbl
