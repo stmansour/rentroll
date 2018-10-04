@@ -22,8 +22,8 @@ var TLDData = {
 };
 
 var TLD = {
-    FormWidth: 450,
-    TaskDescWidth: 400,
+    FormWidth: 550,
+    TaskDescWidth: 600,
     formBtnsDisabled: false,
     TIME0: '1/1/1970',
 };
@@ -325,8 +325,8 @@ window.buildTaskListDefElements = function () {
                     }
                     // we must always keep epoch at localtime 00:00
                     var ddt = new Date(r.Epoch);
-                    var dd1 = new Date(ddt.getFullYear(), ddt.getMonth(), ddt.getDate(), 0, 0 );
-                    r.Epoch = w2uiDateTimeControlString(dd1);
+                    //var dd1 = new Date(ddt.getFullYear(), ddt.getMonth(), ddt.getDate(), 0, 0 );
+                    r.Epoch = w2uiDateTimeControlString(ddt);
                     f.refresh();
                     break;
                 }
