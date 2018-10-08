@@ -107,7 +107,8 @@ window.buildTaskListElements = function () {
     addDateNavToToolbar('tls'); // "Grid" is appended to the
 
     //-----------------------------------------------------------------------------
-    // taskFormDueDate - form formatting
+    // taskFormDueDate - form formatting.  Can be used by either the TaskList or
+    //    Task forms. Both have  DtDu, DtPreDue, ChkDtDu, chk DtPreDue.
     //
     //  TaskList FLAG Field Definition
     //    1<<0 : 0 = active, 1 = inactive
@@ -135,13 +136,13 @@ window.buildTaskListElements = function () {
         // includes leaving it unset.
         //-----------------------------------------------------------------------
         var disable;
-        if ( (r.FLAGS & 2) != 0 ) { disable = true;} else {disable=false;}
+        if ( (r.FLAGS & 2) !== 0 ) { disable = true;} else {disable=false;}
         $(f.box).find("input[name=ChkDtPreDue]").prop( "disabled", disable );
 
-
-        if ( (r.FLAGS & 4) != 0 ) { disable = true;} else { disable=false; }
+        if ( (r.FLAGS & 4) !== 0 ) { disable = true;} else { disable=false; }
         $(f.box).find("input[name=ChkDtDue]").prop( "disabled", disable );
     };
+
 
     //------------------------------------------------------------------------
     //  tlsInfoForm
@@ -250,6 +251,8 @@ window.buildTaskListElements = function () {
 
                 // now enable/disable as needed
                 taskFormDueDate1(f,r);
+                $(f.box).find("input[name=DtDue]").prop( "disabled", !r.ChkDtDue );
+                $(f.box).find("input[name=DtPreDue]").prop( "disabled", !r.ChkDtPreDue );
             };
         },
         onChange: function(event) {
@@ -463,8 +466,8 @@ window.buildTaskListElements = function () {
             },
         },
        onRefresh: function(event) {
-            var f = this;
             event.onComplete = function(event) {
+                var f = w2ui.taskForm;
                 var r = f.record;
                 if (typeof r.DtPreDue === "undefined") {
                     return;
@@ -478,12 +481,41 @@ window.buildTaskListElements = function () {
         },
         onChange: function(event) {
             event.onComplete = function() {
-                var s = '';
-                if (event.target === "ChkDtPreDone") {
+                var f = w2ui.taskForm;
+                var r = f.record;
+                switch (event.target) {
+                case "ChkDtPreDone":
                     taskCompletionChange(event.value_new,"tskDtPreDone");
-                } else if (event.target === "ChkDtDone") {
+                    break;
+                case "ChkDtDue":
                     taskCompletionChange(event.value_new,"tskDtDone");
+                    break;
+                case "ChkDtPreDue":
+                    $(f.box).find("input[name=DtPreDue]").prop( "disabled", !r.ChkDtPreDue );
+                    if (r.ChkDtPreDue) {
+                        if (r.DtPreDue === "" && TLData.sDtPreDue.length > 1) {
+                            r.DtPreDue = TLData.sDtPreDue;
+                        }
+                    } else {
+                        TLData.sDtPreDue = r.DtPreDue;
+                        r.DtPreDue = '';
+                    }
+                    f.refresh();
+                    break;
+                case "ChkDtDue":
+                    $(f.box).find("input[name=DtDue]").prop( "disabled", !r.ChkDtDue );
+                    if (r.ChkDtDue) {
+                        if (r.DtDue === "" && TLData.sDtDue.length > 1) {
+                            r.DtDue = TLData.sDtDue;
+                        }
+                    } else {
+                        TLData.sDtDue = r.DtDue;
+                        r.DtDue = '';
+                    }
+                    f.refresh();
+                    break;
                 }
+
             };
         },
         onRender: function(event) {
@@ -511,6 +543,8 @@ window.buildTaskListElements = function () {
 
                 // now enable/disable as needed
                 taskFormDueDate1(f,r);
+                $(f.box).find("input[name=DtDue]").prop( "disabled", !r.ChkDtDue );
+                $(f.box).find("input[name=DtPreDue]").prop( "disabled", !r.ChkDtPreDue );
             };
         },
     });
