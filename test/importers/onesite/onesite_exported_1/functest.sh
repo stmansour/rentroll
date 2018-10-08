@@ -19,6 +19,8 @@ rm -f ${TEMPCSVSTORE}/rentalAgreement_*.csv ./rentalAgreement_*.csv
 rm -f ${TEMPCSVSTORE}/customAttribute_*.csv ./customAttribute_*.csv
 
 # call loader
+echo "cmd: ${RRBIN}/importers/onesite/onesiteload -noauth -csv ./onesite_1.csv -bud ${BUD} -testmode 1"
+
 doOnesiteTest "b" "-csv ./onesite_1.csv -bud ${BUD} -testmode 1" "OnesiteRentrollCSV"
 
 # Print out All the different data types for validation

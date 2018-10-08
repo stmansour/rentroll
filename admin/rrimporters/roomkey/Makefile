@@ -26,7 +26,7 @@ test:
 package: roomkey
 	@touch fail
 	mkdir -p ${TOP}/tmp/rentroll/importers/roomkey/
-	#cp ./config.json ${TOP}/tmp/rentroll/importers/roomkey/config.json
+	cp ./config.json ${TOP}/tmp/rentroll/importers/roomkey/config.json
 	rm -f ${TOP}/tmp/rentroll/importers/roomkey/mapper.json
 	cp ./mapper.json ${TOP}/tmp/rentroll/importers/roomkey/mapper.json
 	cp ./roomkey ${TOP}/tmp/rentroll/importers/roomkey/roomkeyload

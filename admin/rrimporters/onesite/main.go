@@ -201,10 +201,10 @@ func main() {
 	}
 
 	//----------------------------
-	// Open RentRoll database
+	// Open RentRoll config file
 	//----------------------------
 	if err = rlib.RRReadConfig(); err != nil {
-		fmt.Printf("sql.Open for database=%s, dbuser=%s: Error = %v\n", rlib.AppConfig.RRDbname, rlib.AppConfig.RRDbuser, err)
+		fmt.Printf("Error from RRReadConfig:  %v\n", err)
 		os.Exit(1)
 	}
 

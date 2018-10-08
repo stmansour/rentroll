@@ -27,7 +27,7 @@ test:
 
 #man:
 #	nroff -man importers/onesite.1
-#	cp importers/onesite.1 /usr/local/share/man/man1
+	cp importers/onesite.1 /usr/local/share/man/man1
 
 package: onesite
 	@echo "*** PACKAGE completed in importers/onesite ***"

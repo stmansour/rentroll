@@ -3,7 +3,6 @@ package rlib
 import (
 	"extres"
 	"fmt"
-	"log"
 	"path"
 	"time"
 
@@ -16,6 +15,7 @@ var AppConfig extres.ExternalResources
 // RRReadConfig will read the configuration file "config.json" if
 // it exists in the current directory
 func RRReadConfig(fPath ...string) error {
+	// Console("Entered RRReadConfig\n")
 	var (
 		folderPath string
 		err        error
@@ -25,8 +25,11 @@ func RRReadConfig(fPath ...string) error {
 	adjustEnv = false
 	expath, err = osext.ExecutableFolder()
 	if err != nil {
-		log.Fatal(err)
+		Ulog("RReadConfig encountered error from ExecutableFolder: %s\n", err.Error())
+		return err
 	}
+	// Console("RRReadConfig B\n")
+
 	// as of now, just limit the parameters upto 1 length only
 	if len(fPath) > 0 && len(fPath[0]) > 0 {
 		folderPath = fPath[0]
@@ -43,8 +46,10 @@ func RRReadConfig(fPath ...string) error {
 	fname := path.Join(folderPath, "config.json")
 	err = extres.ReadConfig(fname, &AppConfig)
 	if err != nil {
-		log.Fatal(err)
+		Ulog("RReadConfig encountered error from extres.ReadConfig: %s\n", err.Error())
+		return err
 	}
+	// Console("RRReadConfig C\n")
 
 	//----------------------------------------------------------------------
 	// This ensures that config.json in the server's directory is the only
@@ -58,7 +63,9 @@ func RRReadConfig(fPath ...string) error {
 	if err != nil {
 		fmt.Printf("Error loading timezone %s : %s\n", AppConfig.Timezone, err.Error())
 		Ulog("Error loading timezone %s : %s", AppConfig.Timezone, err.Error())
+		return err
 	}
+	// Console("RRReadConfig D\n")
 
 	RRdb.Key = []byte(AppConfig.CryptoKey)
 

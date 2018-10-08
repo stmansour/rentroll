@@ -120,7 +120,7 @@ pause() {
 	echo
 	read -p "Press [Enter] to continue, M to move ${2} to gold/${2}.gold, Q or X to quit..." x
 	x=$(echo "${x}" | tr "[:upper:]" "[:lower:]")
-	if [ "${x}" == "q" -o ${x} == "x" ]; then
+	if [ "${x}" == "q" -o "${x}" == "x" ]; then
 		exit 0
 	elif [[ ${x} == "m" ]]; then
 		echo "********************************************"
@@ -453,6 +453,9 @@ doCompareIgnoreDates() {
 #############################################################################
 doOnesiteTest () {
 	TESTCOUNT=$((TESTCOUNT + 1))
+	if [ ${SHOWCOMMAND} -eq 1 ]; then
+		echo "cmd: ${RRBIN}/importers/onesite/onesiteload -noauth ${2}"
+	fi
 	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} $1 $3
 
 	if [ "x${2}" != "x" ]; then
