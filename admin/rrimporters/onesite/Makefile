@@ -31,7 +31,7 @@ package: onesite
 	@touch fail
 	mkdir -p ${TOP}/tmp/rentroll/importers/onesite/
 	if [ -f ${TOP}/tmp/rentroll/importers/onesite/mapper.json ]; then rm -f ${TOP}/tmp/rentroll/importers/onesite/mapper.json; fi
-	cp ./config.json ${TOP}/tmp/rentroll/importers/onesite/config.json
+	if [ -f ./config.json ]; then cp ./config.json ${TOP}/tmp/rentroll/importers/roomkey/config.json; fi
 	cp ./mapper.json ${TOP}/tmp/rentroll/importers/onesite/
 	cp ./onesite ${TOP}/tmp/rentroll/importers/onesite/onesiteload
 	@echo "*** PACKAGE completed in ${THISDIR} ***"
