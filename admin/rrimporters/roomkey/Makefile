@@ -4,6 +4,7 @@ THISDIR=roomkey
 
 roomkey: *.go
 	@touch fail
+	mkdir -p ${TOP}/tmp/rentroll/importers/roomkey/
 	if [ ! -f ./config.json ]; then cp ${TOP}/confdev.json ./config.json; fi
 	if [ ! -f ./mapper.json ]; then cp ${TOP}/importers/roomkey/mapper.json .; fi
 	chmod 400 ./mapper.json
@@ -26,7 +27,7 @@ test:
 package: roomkey
 	@touch fail
 	mkdir -p ${TOP}/tmp/rentroll/importers/roomkey/
-	if [ -f ./config.json ]; then cp ./config.json ${TOP}/tmp/rentroll/importers/roomkey/config.json; fi
+	if [ -f config.json ]; then cp config.json ${TOP}/tmp/rentroll/importers/roomkey/config.json; fi
 	rm -f ${TOP}/tmp/rentroll/importers/roomkey/mapper.json
 	cp ./mapper.json ${TOP}/tmp/rentroll/importers/roomkey/mapper.json
 	cp ./roomkey ${TOP}/tmp/rentroll/importers/roomkey/roomkeyload

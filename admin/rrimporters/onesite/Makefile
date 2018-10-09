@@ -4,6 +4,7 @@ THISDIR=onesite
 
 onesite: *.go
 	@touch fail
+	mkdir -p ${TOP}/tmp/rentroll/importers/onesite/
 	if [ ! -f ./config.json ]; then cp ${TOP}/confdev.json ./config.json; fi
 	if [ ! -f ./mapper.json ]; then cp ${TOP}/importers/onesite/mapper.json .; fi
 	chmod 400 ./mapper.json
@@ -11,6 +12,7 @@ onesite: *.go
 	@${COUNTOL} golint
 	go build
 	@rm -f fail
+	@echo "*** Relink completed in ${THISDIR} ***"
 
 relink:
 	go build
