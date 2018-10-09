@@ -4,9 +4,9 @@ THISDIR=roomkey
 
 roomkey: *.go
 	@touch fail
-	mkdir -p ${TOP}/tmp/rentroll/importers/roomkey/
-	if [ ! -f ./config.json ]; then cp ${TOP}/confdev.json ./config.json; fi
-	if [ ! -f ./mapper.json ]; then cp ${TOP}/importers/roomkey/mapper.json .; fi
+	echo "room key >>>>**** AT POINT 1 ***<<<<"
+	if [ ! -f .${TOP}/confdev.json ]; then cp ${TOP}/confdev.json ./config.json; fi
+	if [ ! -f ./mapper.json ]; then cp ${TOP}/importers/${THISDIR}/mapper.json .; fi
 	chmod 400 ./mapper.json
 	@${COUNTOL} "go vet"
 	@${COUNTOL} golint
@@ -26,11 +26,12 @@ test:
 
 package: roomkey
 	@touch fail
-	mkdir -p ${TOP}/tmp/rentroll/importers/roomkey/
-	if [ -f config.json ]; then cp config.json ${TOP}/tmp/rentroll/importers/roomkey/config.json; fi
-	rm -f ${TOP}/tmp/rentroll/importers/roomkey/mapper.json
-	cp ./mapper.json ${TOP}/tmp/rentroll/importers/roomkey/mapper.json
-	cp ./roomkey ${TOP}/tmp/rentroll/importers/roomkey/roomkeyload
+	mkdir -p ${TOP}/tmp/rentroll/importers/${THISDIR}/
+	echo "room key >>>>**** AT POINT 2 ***<<<<"
+	if [ -f config.json ]; then cp config.json ${TOP}/tmp/rentroll/importers/${THISDIR}/; fi
+	rm -f ${TOP}/tmp/rentroll/importers/${THISDIR}/mapper.json
+	cp ./mapper.json ${TOP}/tmp/rentroll/importers/${THISDIR}/mapper.json
+	cp ./roomkey ${TOP}/tmp/rentroll/importers/${THISDIR}/roomkeyload
 	@echo "*** PACKAGE completed in ${THISDIR}  ***"
 	@rm -f fail
 

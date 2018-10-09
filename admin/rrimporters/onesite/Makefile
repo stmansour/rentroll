@@ -4,9 +4,8 @@ THISDIR=onesite
 
 onesite: *.go
 	@touch fail
-	mkdir -p ${TOP}/tmp/rentroll/importers/onesite/
 	if [ ! -f ./config.json ]; then cp ${TOP}/confdev.json ./config.json; fi
-	if [ ! -f ./mapper.json ]; then cp ${TOP}/importers/onesite/mapper.json .; fi
+	if [ ! -f ./mapper.json ]; then cp ${TOP}/importers/${THISDIR}/mapper.json .; fi
 	chmod 400 ./mapper.json
 	@${COUNTOL} "go vet"
 	@${COUNTOL} golint
@@ -31,11 +30,11 @@ test:
 
 package: onesite
 	@touch fail
-	mkdir -p ${TOP}/tmp/rentroll/importers/onesite/
-	if [ -f ${TOP}/tmp/rentroll/importers/onesite/mapper.json ]; then rm -f ${TOP}/tmp/rentroll/importers/onesite/mapper.json; fi
-	if [ -f ./config.json ]; then cp ./config.json ${TOP}/tmp/rentroll/importers/roomkey/config.json; fi
-	cp ./mapper.json ${TOP}/tmp/rentroll/importers/onesite/
-	cp ./onesite ${TOP}/tmp/rentroll/importers/onesite/onesiteload
+	mkdir -p ${TOP}/tmp/rentroll/importers/${THISDIR}/
+	if [ -f ${TOP}/tmp/rentroll/importers/${THISDIR}/mapper.json ]; then rm -f ${TOP}/tmp/rentroll/importers/${THISDIR}/mapper.json; fi
+	if [ -f ./config.json ]; then cp ./config.json ${TOP}/tmp/rentroll/importers/${THISDIR}/; fi
+	cp ./mapper.json ${TOP}/tmp/rentroll/importers/${THISDIR}/
+	cp ./onesite ${TOP}/tmp/rentroll/importers/${THISDIR}/onesiteload
 	@echo "*** PACKAGE completed in ${THISDIR} ***"
 	@rm -f fail
 
