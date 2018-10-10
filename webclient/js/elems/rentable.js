@@ -323,15 +323,16 @@ window.buildRentableElements = function () {
             delete data.postData.record.CreateTS;
             delete data.postData.record.CreateBy;
             getFormSubmitData(data.postData.record);
+            app.form_is_dirty = false;
         },
         onRefresh: function (event) {
             event.onComplete = function () {
-                var f = this,
-                    r = f.record,
-                    x = getCurrentBusiness(),
-                    BID = parseInt(x.value),
-                    BUD = getBUDfromBID(BID),
-                    header = "";
+                var f = this;
+                var r = f.record;
+                var x = getCurrentBusiness();
+                var BID = parseInt(x.value);
+                //var BUD = getBUDfromBID(BID);
+                var header = "";
 
                 /*// custom header, not common one!!
                 if (r.RID) {
