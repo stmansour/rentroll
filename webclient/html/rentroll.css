@@ -39,6 +39,22 @@ textarea.w2ui-input-focus {
     outline: 1px #72b2ff solid;
 }
 
+
+section[name="asmEpochForm"] .w2ui-form-box .w2ui-field > label,
+    div[name="asmInstForm"] .w2ui-form-box .w2ui-field > label,
+    div[name="arsForm"] .w2ui-form-box .w2ui-field > label {
+    width: 160px;
+}
+
+section[name="asmEpochForm"] .w2ui-form-box .w2ui-field > div, 
+    div[name="asmInstForm"] .w2ui-form-box .w2ui-field > div,
+    div[name="arsForm"] .w2ui-form-box .w2ui-field > div {
+    margin-left: 168px;
+}
+
+
+
+
 .bannerTitle {
     font-family: "Open Sans","Roboto", sans-serif;
     font-size: 12pt;
