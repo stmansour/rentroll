@@ -524,6 +524,7 @@ window.CloseRAFlowLayout = function() {
     w2ui.newraLayout.hide('right', true);
     w2ui.toplayout.hide('right', true);
     w2ui.raflowsGrid.render();
+    app.form_is_dirty = false;
 };
 
 //-----------------------------------------------------------------------------
