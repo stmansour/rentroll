@@ -1,0 +1,314 @@
+{
+    "record": {
+        "DataFulfilled": {
+            "dates": true,
+            "parentchild": true,
+            "people": true,
+            "pets": true,
+            "rentables": true,
+            "tie": true,
+            "vehicles": true
+        },
+        "Flow": {
+            "BID": 1,
+            "CreateBy": 0,
+            "CreateTS": "0001-01-01T00:00:00Z",
+            "Data": {
+                "dates": {
+                    "AgreementStart": "10/19/2018",
+                    "AgreementStop": "2/29/2020",
+                    "CSAgent": 283,
+                    "PossessionStart": "10/19/2018",
+                    "PossessionStop": "2/29/2020",
+                    "RentStart": "10/19/2018",
+                    "RentStop": "2/29/2020"
+                },
+                "meta": {
+                    "ActiveDate": "2018-10-19 06:41:00 UTC",
+                    "ActiveName": "UID-0",
+                    "ActiveUID": -99999,
+                    "ApplicationReadyDate": "2018-10-19 03:02:00 UTC",
+                    "ApplicationReadyName": "Steve Mansour",
+                    "ApplicationReadyUID": 211,
+                    "Approver1": 211,
+                    "Approver1Name": "Steve Mansour",
+                    "Approver2": 211,
+                    "Approver2Name": "Steve Mansour",
+                    "BID": 1,
+                    "DecisionDate1": "2018-10-19 03:02:00 UTC",
+                    "DecisionDate2": "2018-10-19 03:02:00 UTC",
+                    "DeclineReason1": 0,
+                    "DeclineReason2": 0,
+                    "DocumentDate": "2018-10-18 00:00:00 UTC",
+                    "HavePets": false,
+                    "HaveVehicles": false,
+                    "LastTMPASMID": 4,
+                    "LastTMPPETID": 1,
+                    "LastTMPTCID": 1,
+                    "LastTMPVID": 2,
+                    "LeaseTerminationReason": 0,
+                    "MoveInDate": "2018-10-19 03:02:00 UTC",
+                    "MoveInName": "Steve Mansour",
+                    "MoveInUID": 211,
+                    "NoticeToMoveDate": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveName": "UID-0",
+                    "NoticeToMoveReported": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveUID": 0,
+                    "RAFLAGS": 52,
+                    "RAID": 6,
+                    "TerminationDate": "1900-01-01 00:00:00 UTC",
+                    "TerminatorName": "UID-0",
+                    "TerminatorUID": 0
+                },
+                "parentchild": [],
+                "people": [
+                    {
+                        "Address": "59256 Apache",
+                        "Address2": "",
+                        "AlternateEmailAddress": "35824 Sycamore,Cathedral City,TX 31847",
+                        "Bankruptcy": false,
+                        "BankruptcyDes": "",
+                        "CellPhone": "(483) 719-8541",
+                        "City": "Chattanooga",
+                        "Comment": "",
+                        "CompanyAddress": "82595 Park",
+                        "CompanyCity": "FortWayne",
+                        "CompanyEmail": "CapitalOneFinancialCorpF3900@gmail.com",
+                        "CompanyName": "Capital One Financial Corp.",
+                        "CompanyPhone": "(895) 638-0659",
+                        "CompanyPostalCode": "84059",
+                        "CompanyState": "WV",
+                        "Convicted": false,
+                        "ConvictedDes": "",
+                        "Country": "USA",
+                        "CreditLimit": 5563,
+                        "CurrentAddress": "8144 Aloha, New Orleans, IL 02081",
+                        "CurrentLandLordName": "Otis Oliver",
+                        "CurrentLandLordPhoneNo": "(562) 975-6102",
+                        "CurrentLengthOfResidency": "7 years 8 months",
+                        "CurrentReasonForMoving": 84,
+                        "DateofBirth": "7/17/1974",
+                        "DriversLicense": "D1408541",
+                        "EligibleFuturePayor": true,
+                        "EligibleFutureUser": false,
+                        "EmergencyContactAddress": "30059 Aspen,Indianapolis,VA 27887",
+                        "EmergencyContactEmail": "SSanford3254@comcast.net",
+                        "EmergencyContactName": "Sigrid Sanford",
+                        "EmergencyContactTelephone": "(956) 631-6546",
+                        "Evicted": false,
+                        "EvictedDes": "",
+                        "FirstName": "Pablo",
+                        "GrossIncome": 73697,
+                        "Industry": 304,
+                        "IsCompany": false,
+                        "IsGuarantor": false,
+                        "IsOccupant": true,
+                        "IsRenter": true,
+                        "LastName": "Pearson",
+                        "MiddleName": "Chantell",
+                        "Occupation": "sound effects technician",
+                        "OtherPreferences": "",
+                        "Points": 0,
+                        "PostalCode": "98081",
+                        "PreferredName": "Shenita",
+                        "PrimaryEmail": "PabloPearson178@hotmail.com",
+                        "PriorAddress": "36865 Oak, Bethlehem, CO 41318",
+                        "PriorLandLordName": "Carolina Wyatt",
+                        "PriorLandLordPhoneNo": "(511) 768-4962",
+                        "PriorLengthOfResidency": "7 years 2 months",
+                        "PriorReasonForMoving": 128,
+                        "SecondaryEmail": "PabloPearson203@aol.com",
+                        "SourceSLSID": 26,
+                        "SpecialNeeds": "",
+                        "State": "VT",
+                        "TCID": 1,
+                        "TMPTCID": 1,
+                        "TaxpayorID": "01129584",
+                        "ThirdPartySource": "Laci Guthrie",
+                        "Website": "",
+                        "WorkPhone": "(597) 731-5597"
+                    }
+                ],
+                "pets": [
+                    {
+                        "Breed": "English Cocker Spaniel",
+                        "Color": "Grey",
+                        "Fees": [
+                            {
+                                "ARID": 24,
+                                "ARName": "Pet Rent",
+                                "ASMID": 46,
+                                "AtSigningPreTax": 0,
+                                "Comment": "prorated for 13 of 31 days | Derived from RAID 1, ASMID 3",
+                                "ContractAmount": 4.19,
+                                "ProrationCycle": 4,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "10/19/2018",
+                                "Stop": "10/19/2018",
+                                "TMPASMID": 3,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 24,
+                                "ARName": "Pet Rent",
+                                "ASMID": 47,
+                                "AtSigningPreTax": 0,
+                                "Comment": "Derived from RAID 1, ASMID 3",
+                                "ContractAmount": 10,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "11/1/2018",
+                                "Stop": "2/29/2020",
+                                "TMPASMID": 4,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "Name": "Oreo",
+                        "PETID": 1,
+                        "TMPPETID": 1,
+                        "TMPTCID": 1,
+                        "Type": "dog",
+                        "Weight": 40
+                    }
+                ],
+                "rentables": [
+                    {
+                        "AtSigningPreTax": 0,
+                        "Fees": [
+                            {
+                                "ARID": 26,
+                                "ARName": "Rent Non-Taxable",
+                                "ASMID": 44,
+                                "AtSigningPreTax": 0,
+                                "Comment": "prorated for 13 of 31 days | Derived from RAID 1, ASMID 1",
+                                "ContractAmount": 419.35,
+                                "ProrationCycle": 4,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "10/19/2018",
+                                "Stop": "10/19/2018",
+                                "TMPASMID": 1,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 26,
+                                "ARName": "Rent Non-Taxable",
+                                "ASMID": 45,
+                                "AtSigningPreTax": 0,
+                                "Comment": "Derived from RAID 1, ASMID 1",
+                                "ContractAmount": 1000,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "11/1/2018",
+                                "Stop": "2/29/2020",
+                                "TMPASMID": 2,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "RID": 1,
+                        "RTFLAGS": 4,
+                        "RTID": 1,
+                        "RentCycle": 6,
+                        "RentableName": "Rentable001",
+                        "SalesTax": 0,
+                        "TransOccTax": 0
+                    }
+                ],
+                "tie": {
+                    "people": [
+                        {
+                            "PRID": 1,
+                            "TMPTCID": 1
+                        }
+                    ]
+                },
+                "vehicles": [
+                    {
+                        "Fees": [],
+                        "LicensePlateNumber": "CUH0864",
+                        "LicensePlateState": "VA",
+                        "ParkingPermitNumber": "2860465",
+                        "TMPTCID": 1,
+                        "TMPVID": 1,
+                        "VID": 1,
+                        "VIN": "WAU2F7X8N9DLXDEM",
+                        "VehicleColor": "Turquoise",
+                        "VehicleMake": "Mazda",
+                        "VehicleModel": "B-Series",
+                        "VehicleType": "car",
+                        "VehicleYear": 1998
+                    },
+                    {
+                        "Fees": [],
+                        "LicensePlateNumber": "C3Q722U",
+                        "LicensePlateState": "MA",
+                        "ParkingPermitNumber": "6386881",
+                        "TMPTCID": 1,
+                        "TMPVID": 2,
+                        "VID": 2,
+                        "VIN": "X1MO1JIW0ZPPN3PK",
+                        "VehicleColor": "Navy",
+                        "VehicleMake": "Ford",
+                        "VehicleModel": "F-Series Super Duty",
+                        "VehicleType": "car",
+                        "VehicleYear": 2011
+                    }
+                ]
+            },
+            "FlowID": 0,
+            "FlowType": "RA",
+            "ID": 6,
+            "LastModBy": 0,
+            "LastModTime": "0001-01-01T00:00:00Z",
+            "UserRefNo": ""
+        },
+        "ValidationCheck": {
+            "errors": {
+                "dates": {
+                    "errors": {},
+                    "total": 0
+                },
+                "parentchild": {
+                    "errors": [],
+                    "total": 0
+                },
+                "people": {
+                    "errors": [],
+                    "total": 0
+                },
+                "pets": {
+                    "errors": [],
+                    "total": 0
+                },
+                "rentables": {
+                    "errors": [],
+                    "total": 0
+                },
+                "tie": {
+                    "people": {
+                        "errors": [],
+                        "total": 0
+                    }
+                },
+                "vehicles": {
+                    "errors": [],
+                    "total": 0
+                }
+            },
+            "nonFieldsErrors": {
+                "dates": [],
+                "parentchild": [],
+                "people": [],
+                "pets": [],
+                "rentables": [],
+                "tie": [],
+                "vehicles": []
+            },
+            "total": 0
+        }
+    },
+    "status": "success"
+}
