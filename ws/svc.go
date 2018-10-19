@@ -413,7 +413,7 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 	}
-	rlib.Console("%s:  A.  found = %t\n", found)
+	// rlib.Console("%s:  A.  found = %t\n", found)
 	if !found {
 		rlib.Console("**** YIPES! **** %s - Handler not found\n", r.RequestURI)
 		e := fmt.Errorf("Service not recognized: %s", d.Service)
@@ -421,9 +421,9 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 		SvcErrorReturn(w, e, funcname)
 		return
 	}
-	rlib.Console("%s: B\n", funcname)
+	// rlib.Console("%s: B\n", funcname)
 	svcDebugTxnEnd()
-	rlib.Console("%s: C\n", funcname)
+	// rlib.Console("%s: C\n", funcname)
 }
 
 // SvcHandlerPing is the most basic test that you can run against the server

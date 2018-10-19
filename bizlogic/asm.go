@@ -306,8 +306,9 @@ func ReverseAssessmentsAfterStop(ctx context.Context, aold *rlib.Assessment, dtS
 //    a slice of BizErrors
 //-------------------------------------------------------------------------------------
 func ReverseAssessmentInstance(ctx context.Context, aold *rlib.Assessment, dt *time.Time, lc *rlib.ClosePeriod) []BizError {
-	rlib.Console("Entered ReverseAssessmentInstance\n")
+	rlib.Console("Entered ReverseAssessmentInstance:  ASMID = %d, PASMID = %d, date = %s\n", aold.ASMID, aold.PASMID, aold.Start.Format(rlib.RRDATEFMT3))
 	if aold.FLAGS&0x4 != 0 {
+		rlib.Console("ReverseAssessmentInstance:  ASMID = %d has already been reversed!\n", aold.ASMID)
 		return nil // it's already reversed
 	}
 

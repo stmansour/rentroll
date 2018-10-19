@@ -97,14 +97,7 @@ func F2RAHandleOldAssessments(ctx context.Context, x *rlib.F2RAWriteHandlerConte
 	var err error
 	var n []rlib.Assessment
 	var skipASMID int64
-	// rlib.Console("Entered F2RAHandleOldAssessments\n")
-
-	// for _, ra := range x.RaChainOrig {
-	// 	// rlib.Console("%d ", ra.RAID)
-	// }
-
-	// rlib.Console("\n")
-	// rlib.Console("A2 - Processing RA Chain\n")
+	rlib.Console("Entered F2RAHandleOldAssessments\n")
 
 	//=========================================================================
 	//  FOR EVERY RENTAL AGREEMENT THAT IS IMPACTED BY THIS UPDATE...
@@ -167,6 +160,9 @@ func F2RAHandleOldAssessments(ctx context.Context, x *rlib.F2RAWriteHandlerConte
 				// Reverse the whole thing; all instances...
 				//---------------------------------------------
 				// rlib.Console("A7 -- REVERSE THE ASSESSMENT!! amended RA starts prior to ASM Start: %s\n", v.Start.Format(rlib.RRDATEREPORTFMT))
+				//---------------------------------------------------------------------
+				// This call reverses the supplied instances and all future instances
+				//---------------------------------------------------------------------
 				be := ReverseAssessment(ctx, &v, 2 /*from dt onward*/, &dt, &x.LastClose)
 				if len(be) > 0 {
 					// rlib.Console("A7 error\n")
@@ -182,14 +178,23 @@ func F2RAHandleOldAssessments(ctx context.Context, x *rlib.F2RAWriteHandlerConte
 				//-------------------------------------------------------------
 				target := rlib.InstanceDateCoveringDate(&v.Start, &x.Ra.RentStart, v.RentCycle)
 				t2 := target.AddDate(0, 0, 1)
-				n, err = rlib.GetAssessmentInstancesByRAIDRange(ctx, ra.RAID, &target, &t2)
+				// rlib.Console("A8.1  v.ASMID=%d, target=%s, t2=%s\n", v.ASMID, target.Format(rlib.RRDATEREPORTFMT), t2.Format(rlib.RRDATEREPORTFMT))
+				// n, err = rlib.GetAssessmentInstancesByRAIDRange(ctx, ra.RAID, &target, &t2)
+				n, err = rlib.GetInstancesByDateRange(ctx, v.ASMID, &target, &t2)
+				// rlib.Console("A8.12\n")
 				if err != nil {
+					// rlib.Console("A8.15 GetInstancesByDateRange returns err: %\n", err.Error())
 					return err
 				}
+				// rlib.Console("A8.2 GetInstancesByDateRange returns %d matches\n", len(n))
+
 				if len(n) == 0 {
-					// rlib.Console("A8.1 -- cannot find instance date near x.Ra.RentStart!!\n")
+					// rlib.Console("A8.5 -- cannot find instance date near x.Ra.RentStart!!\n")
 				} else {
 					// rlib.Console("A9 - reversing assessments from = %s forward, starting with ASMID = %d\n", n[0].Start.Format(rlib.RRDATEREPORTFMT), n[0].ASMID)
+					//---------------------------------------------------------------------
+					// This call reverses the supplied instances and all future instances
+					//---------------------------------------------------------------------
 					errlist := ReverseAssessment(ctx, &n[0], 1 /*this point forward*/, &dt, &x.LastClose)
 					if len(errlist) > 0 {
 						// rlib.Console("A9 error\n")

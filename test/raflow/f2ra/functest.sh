@@ -406,13 +406,51 @@ fi
 
 #------------------------------------------------------------------------------
 #  TEST i
-#  Move Agreement date only.  This should result in updating the existing RA.
-#  It could happen for insurance reasons - but no rent or occupancy
+#  The RentalAgreement (RAID=1) for Pablo Pearson (TCID=1) has 1 Pet, 2 cars,
+#  and 1 Rentable (RID=1).  It's term is 2/13/2018 - 2/29/2020.  The Assessments
+#  for October 2018 are:
+#      ASM 28   Rent Non-Taxable - $1000
+#      ASM 29   Pet Rent
+#
+#  Scenario
+#  Amend the rental agreement on 10/18/2018
+#
+#  Expected Results:
+#  1. Rental Agreement 1
+#      - Stop recurring assessments ASM 1,3 on 10/18/2018
+#      - Reverse both ASM 28 and 29
+#      - New prorated Rent NonTaxable for 17 of 31 days
+#      - New prorated Pet Rent for 17 of 31 days
+#  2. RA 6
+#      - New prorated Rent NonTaxable for 14 of 31 days
+#      - New prorated Pet Rent for 14 of 31 days
+#
+#
 #
 #------------------------------------------------------------------------------
 TFILES="i"
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
     echo "Test i"
+
+    echo "Create new database... x${TFILES}.sql"
+    mysql --no-defaults rentroll < x${TFILES}.sql
+    RAIDREFNO="FV9M2N2695EFPG795KQ4"
+
+    #----------------------------------------------------------------
+    # Make the updated RefNo an Active RA
+    #----------------------------------------------------------------
+    echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
+    dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}0"  "WebService--Activate-RefNo"
+
+
+    # Generate a payor statement -- ensure that 2 RAs are there and have correct
+    # info.
+    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%2210%2F1%2F2018%22%2C%22searchDtStop%22%3A%2210%2F31%2F2018%22%2C%22Bool1%22%3Afalse%7D" > request
+    dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "${TFILES}1"  "PayorStatement--StmtInfo"
+
+    # 1.  Generate text payor statement
+    RRDATERANGE="-j 2018-10-01 -k 2018-11-01"
+    dorrtest "${TFILES}2" "${RRDATERANGE} -x -b ${BUD} -r 23,1" "PayorReport"
 
 fi
 

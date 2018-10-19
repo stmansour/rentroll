@@ -1966,6 +1966,7 @@ type RRprepSQL struct {
 	InsertTBind                             *sql.Stmt
 	UpdateTBind                             *sql.Stmt
 	DeleteTBind                             *sql.Stmt
+	GetInstancesByDateRange                 *sql.Stmt
 	GetRentalAgreementChain                 *sql.Stmt
 }
 

@@ -624,6 +624,41 @@ func GetNorecurAssessmentsByRAIDRange(ctx context.Context, RAID int64, d1, d2 *t
 	return getAssessmentsByRows(ctx, rows)
 }
 
+// GetInstancesByDateRange returns the instances that match the
+// supplied PASMID that fall in the supplied date range
+//
+// INPUTS
+//    ctx  - context
+//    PASMID - the recurring parent ASMID
+//    d1,d2  - the date range
+//
+// RETURNS
+//    slice of assessment assessments
+//    any error encountered
+//-----------------------------------------------------------------------------
+func GetInstancesByDateRange(ctx context.Context, PASMID int64, d1, d2 *time.Time) ([]Assessment, error) {
+	var err error
+	var t []Assessment
+	if _, ok := SessionCheck(ctx); !ok {
+		return t, ErrSessionRequired
+	}
+
+	var rows *sql.Rows
+	fields := []interface{}{PASMID, d1, d2}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetInstancesByDateRange)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetInstancesByDateRange.Query(fields...)
+	}
+
+	if err != nil {
+		return t, err
+	}
+	return getAssessmentsByRows(ctx, rows)
+}
+
 // GetAssessmentsByRAIDRID gets all the Assessments associated with the
 // supplied BID/RAID/RID combination.  It returns the epoch instance of
 // recurring assessments. It will not return individual instances unless

@@ -329,8 +329,8 @@ func FlowSaveRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (int64, er
 
 		//------------------------------------------------------------------
 		//  Fix up the dates of the affected Rental Agreements. We only
-		//  want to change the stop dates of Rental Agreements the ACTIVE
-		//  RA; and only if its stop dates are AFTER the start date of the
+		//  want to change the stop dates of ACTIVE Rental Agreements,
+		//  and only if its stop dates are AFTER the start date of the
 		//  amended RA
 		//------------------------------------------------------------------
 		for i := 0; i < len(x.RaChainOrig); i++ {
