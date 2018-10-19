@@ -294,7 +294,7 @@ window.buildRAFlowElements = function() {
                         {                       type: 'break' },
                         { id: 'stateAction',    type: 'html' },
                         { id: 'remove-refno',   type: 'html',
-                            html: '<button id="remove_raflow" name="remove_raflow" class="w2ui-btn" style="min-width: 30px; padding: 6px 0px;"><i class="fas fa-trash"></i></button>' },
+                            html: '<button title="Delete" id="remove_raflow" name="remove_raflow" class="w2ui-btn" style="min-width: 30px; padding: 6px 0px;"><i class="fas fa-trash"></i></button>' },
                         {                       type: 'break' },
                         { id: 'editViewBtn',    type: 'html' },
                         {                       type: 'break' },
@@ -551,4 +551,3 @@ $(document).on("click", "button#remove_raflow", function(e) {
         }
     });
 });
-
