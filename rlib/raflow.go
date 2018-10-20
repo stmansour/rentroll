@@ -323,7 +323,7 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 	var (
 		raFlowData RAFlowJSONData
 	)
-	fmt.Printf("Entered in %s\n", funcname)
+	fmt.Printf("Entered %s\n", funcname)
 
 	// CHECK REQUESTED FLOW PART IS VALID
 	RAFlowPart, OK := RAFlowPartsMap[flowPart]
@@ -371,12 +371,10 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 					return
 				}
 			}
-
 		} else {
 			// IF DATA IS BLANK OR NULL THEN INITIAZE WITH IT SOME DEFAULTS
 			currentDateTime := time.Now()
 			nextYearDateTime := currentDateTime.AddDate(1, 0, 0)
-
 			a.RentStart = JSONDate(currentDateTime)
 			a.RentStop = JSONDate(nextYearDateTime)
 			a.AgreementStart = JSONDate(currentDateTime)
@@ -568,6 +566,7 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 		raFlowData.Tie = a
 
 	default:
+		Console("default\n")
 		err = fmt.Errorf("unrecognized part type in RA flow: %s", flowPart)
 		return
 	}
@@ -760,18 +759,19 @@ func SyncTieRecords(raFlowData *RAFlowJSONData) {
 // RentDateChangeRAFlowUpdates updates raflow json with required
 // modification if rent dates are changed
 func RentDateChangeRAFlowUpdates(ctx context.Context, BID int64, rStart, rStop time.Time, raFlowData *RAFlowJSONData) (err error) {
-
 	const (
 		bizPropName = "general"
 	)
 
+	Console("RentDateChangeRAFlowUpdates\n")
 	// -----------------------------------------------
 	// PET FEES MODIFICATION
 	// -----------------------------------------------
 	// LOOP OVER PET FEES IN RAFLOW
 	for pi := range raFlowData.Pets {
-
+		//-------------------------
 		// REMOVE PRORATED FEES
+		//-------------------------
 		baseFees := []RAFeesData{}
 		for fi := range raFlowData.Pets[pi].Fees {
 			// IF FEE IS PRORATED THEN IGNORE IT CHECK OUT THE NEXT ONE
@@ -841,21 +841,19 @@ func RentDateChangeRAFlowUpdates(ctx context.Context, BID int64, rStart, rStop t
 	// LOOP OVER RENTABLE FEES IN RAFLOW
 	for ri := range raFlowData.Rentables {
 
+		//------------------------
 		// REMOVE PRORATED FEES
+		//------------------------
 		baseFees := []RAFeesData{}
 		for fi := range raFlowData.Rentables[ri].Fees {
-			// IF FEE IS PRORATED THEN IGNORE IT CHECK OUT THE NEXT ONE
-			// SINCE IT'S ALREADY HANDLED BY RENT ASM CHARGE
-			if strings.Contains(raFlowData.Rentables[ri].Fees[fi].Comment, "prorated") {
-				continue
+			if !strings.Contains(raFlowData.Rentables[ri].Fees[fi].Comment, "prorated") {
+				baseFees = append(baseFees, raFlowData.Rentables[ri].Fees[fi])
 			}
-			baseFees = append(baseFees, raFlowData.Rentables[ri].Fees[fi])
 		}
 
 		// GET MODIFIED RENTABLE FEES FROM THIS FLOW DATA RENTABLE FEES AND RENT DATES
 		var modRentableFees []RAFeesData
-		modRentableFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName,
-			rStart, rStop, baseFees)
+		modRentableFees, err = GetCalculatedFeesFromBaseFees(ctx, BID, bizPropName, rStart, rStop, baseFees)
 		if err != nil {
 			return
 		}
@@ -868,6 +866,10 @@ func RentDateChangeRAFlowUpdates(ctx context.Context, BID int64, rStart, rStop t
 
 		// RE-ASSIGN FEES
 		raFlowData.Rentables[ri].Fees = modRentableFees
+
+		for i := 0; i < len(raFlowData.Rentables[ri].Fees); i++ {
+			Console("RentDateChangeRAFlowUpdates:  Fees[%d] Start / Stop = %s\n", i, ConsoleJSONDRange(&raFlowData.Rentables[ri].Fees[i].Start, &raFlowData.Rentables[ri].Fees[i].Stop))
+		}
 	}
 
 	return
@@ -1170,29 +1172,29 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement, EditFlag bool) (RA
 			//----------------------------------------------------------
 			// do any quick rejection needed
 			//----------------------------------------------------------
-			// Console("******************\n\nChecking ASMID %d\n", asms[j].ASMID)
+			Console("******************\n\nChecking ASMID %d\n", asms[j].ASMID)
 			if EditFlag {
-				// Console("Checking for EDIT AMENDING\n")
+				Console("Checking for EDIT AMENDING\n")
 				if asms[j].FLAGS&4 > 0 || asms[j].FLAGS&3 > 0 { // reversed or partially or fully paid
-					// Console("Rejected: reversed or partially or fully paid\n")
+					Console("Rejected: reversed or partially or fully paid\n")
 					continue
 				}
 				if !DateRangeOverlap(&now, &ra.AgreementStop, &asms[j].Start, &asms[j].Stop) {
-					// Console("Rejected: no overlap: %s - %s  with  %s - %s\n", now.Format(RRDATEREPORTFMT), ra.AgreementStop.Format(RRDATEREPORTFMT), asms[j].Start.Format(RRDATEREPORTFMT), asms[j].Stop.Format(RRDATEREPORTFMT))
+					Console("Rejected: no overlap: %s - %s  with  %s - %s\n", now.Format(RRDATEREPORTFMT), ra.AgreementStop.Format(RRDATEREPORTFMT), asms[j].Start.Format(RRDATEREPORTFMT), asms[j].Stop.Format(RRDATEREPORTFMT))
 					continue
 				}
 				if asms[j].RentCycle == RECURNONE && !DateRangeOverlap(&now, &ra.AgreementStop, &asms[j].Start, &asms[j].Stop) {
-					// Console("Rejected: norecur and no overlap: %s - %s  with  %s - %s\n", now.Format(RRDATEREPORTFMT), ra.AgreementStop.Format(RRDATEREPORTFMT), asms[j].Start.Format(RRDATEREPORTFMT), asms[j].Stop.Format(RRDATEREPORTFMT))
+					Console("Rejected: norecur and no overlap: %s - %s  with  %s - %s\n", now.Format(RRDATEREPORTFMT), ra.AgreementStop.Format(RRDATEREPORTFMT), asms[j].Start.Format(RRDATEREPORTFMT), asms[j].Stop.Format(RRDATEREPORTFMT))
 					continue
 				}
 			} else {
-				// Console("Checking for VIEWING\n")
+				Console("Checking for VIEWING\n")
 				if asms[j].FLAGS&4 > 0 { // reversed
-					// Console("Rejected: reversed\n")
+					Console("Rejected: reversed\n")
 					continue
 				}
 			}
-			// Console("Adding ASMID %d\n", asms[j].ASMID)
+			Console("Adding ASMID %d\n", asms[j].ASMID)
 
 			//----------------------------------------------------------
 			// Get the account rule for this assessment...

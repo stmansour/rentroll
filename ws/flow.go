@@ -230,7 +230,7 @@ func SaveFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		ctx     context.Context
 	)
 	rlib.Console("Entered %s\n", funcname)
-	rlib.Console("record data = %s\n", d.data)
+	// rlib.Console("record data = %s\n", d.data)
 
 	// ===============================================
 	// defer function to handle transactaion rollback
@@ -252,7 +252,7 @@ func SaveFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	// ------- unmarshal the request data  ---------------
 	if err = json.Unmarshal([]byte(d.data), &flowReq); err != nil {
-		return
+		return // the defer function reports the error and rolls back the tx
 	}
 
 	//-------------------------------------------------------
@@ -260,37 +260,67 @@ func SaveFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//-------------------------------------------------------
 	tx, ctx, err = rlib.NewTransactionWithContext(r.Context())
 	if err != nil {
-		return
+		return // the defer function reports the error and rolls back the tx
 	}
 
 	// check that such flow instance does exist or not
-	flow, _ := rlib.GetFlow(ctx, flowReq.FlowID)
+	flow, err := rlib.GetFlow(ctx, flowReq.FlowID)
 	if flow.FlowID == 0 {
 		err = fmt.Errorf("given flow with ID (%d) doesn't exist", flowReq.FlowID)
-		return
+		return // the defer function reports the error and rolls back the tx
 	}
 
+	// // DEBUG ONLY - DELETE AFTER FIX...
+	// // DEBUG ONLY - DELETE AFTER FIX...
+	// // DEBUG ONLY - DELETE AFTER FIX...
+	// // DEBUG ONLY - DELETE AFTER FIX...
+	// var xra rlib.RAFlowJSONData
+	// err = json.Unmarshal(flow.Data, &xra)
+	// if err != nil {
+	// 	rlib.Console("\n\nERROR IN Unmarshal: %s\n\n\n", err.Error())
+	// 	return // the defer function reports the error and rolls back the tx
+	// }
+	// rlib.Console("*********** <<<<<<<<<<<<  >>>>>>>>>>> *************\n")
+	// rlib.Console("Flow.Rentables[0].Fees BEFORE Update: %v\n", xra.Rentables[0].Fees)
+	// rlib.Console("*********** <<<<<<<<<<<<  >>>>>>>>>>> *************\n")
+
+	// ------------------------------------------------------
 	// handle data for update based on flow and part type
+	// ------------------------------------------------------
 	switch flowReq.FlowType {
 	case rlib.RAFlow:
 		err = rlib.UpdateRAFlowJSON(ctx, d.BID, flowReq.Data, flowReq.FlowPartKey, &flow)
 		if err != nil {
-			return
+			return // the defer function reports the error and rolls back the tx
 		}
 	default:
 		err = fmt.Errorf("unrecognized flow type: %s", flowReq.FlowType)
-		return
+		return // the defer function reports the error and rolls back the tx
 	}
 
 	// ----------------------------------------------
-	// RETURN RESPONSE
+	// get flow data and return it
 	// ----------------------------------------------
-
-	// get flow data in return it back
 	flow, err = rlib.GetFlow(ctx, flow.FlowID)
 	if err != nil {
-		return
+		return // the defer function reports the error and rolls back the tx
 	}
+
+	// // DEBUG ONLY - DELETE AFTER FIX...
+	// // DEBUG ONLY - DELETE AFTER FIX...
+	// // DEBUG ONLY - DELETE AFTER FIX...
+	// // DEBUG ONLY - DELETE AFTER FIX...
+	// err = json.Unmarshal(flow.Data, &xra)
+	// if err != nil {
+	// 	rlib.Console("\n\nERROR IN Unmarshal: %s\n\n\n", err.Error())
+	// 	return // the defer function reports the error and rolls back the tx
+	// }
+	// rlib.Console("*********** <<<<<<<<<<<<  >>>>>>>>>>> *************\n")
+	// rlib.Console("Flow.Rentables[0].Fees AFTER Update: %v\n", xra.Rentables[0].Fees)
+	// for i := 0; i < len(xra.Rentables[0].Fees); i++ {
+	// 	rlib.Console("Fee[%d] Start/Stop = %s\n", i, rlib.ConsoleJSONDRange(&xra.Rentables[0].Fees[i].Start, &xra.Rentables[0].Fees[i].Stop))
+	// }
+	// rlib.Console("*********** <<<<<<<<<<<<  >>>>>>>>>>> *************\n")
 
 	// -------------------
 	// WRITE FLOW RESPONSE

@@ -134,36 +134,32 @@ func GetRAFlowInitialVehicleFees(ctx context.Context,
 
 // GetCalculatedFeesFromBaseFees get the actual calculate fees based on
 // given base fees list
-func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName string,
-	rStart, rStop time.Time,
-	baseFees []RAFeesData,
-) (fees []RAFeesData, err error) {
-
+func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName string, rStart, rStop time.Time, baseFees []RAFeesData) (fees []RAFeesData, err error) {
 	const funcname = "GetCalculatedFeesFromBaseFees"
-	fmt.Printf("Entered in %s, \n", funcname)
+	Console("Entered %s,  rStart/rStop = %s\n", funcname, ConsoleDRange(&rStart, &rStop))
 
 	// INITIALIZE FEES
 	fees = []RAFeesData{}
 
 	// FOR EACH FEE FROM BASE FEES
 	for _, baseFee := range baseFees {
-
 		// if it doesn't overlap with given rent dates range
 		feeStart := (time.Time)(baseFee.Start)
-		feeStop := (time.Time)(baseFee.Stop)
 
-		// SINCE WE'RE LOOKING FOR RECURRING CHARGE, THE DEGREE OF OVERLAP CONDITION
-		// IS TO IGNORE STOP DATE AS SAME AS START DATE, IT COULD BE NOT APPLICABLE TO
-		// HOTEL ROOM CHARGES
-		// TODO(Steve): NEED CONFIRMATION ON THIS
-		// Console("%s: ARID: %d\n", funcname, baseFee.ARID)
-		if !DateRangeOverlap(&feeStart, &feeStop, &rStart, &rStop) {
-			// Console("%s: does not overlap, ARID: %d\n", funcname, baseFee.ARID)
-			/*Console("%s: feeStart: %s, feeStop: %s, rStart: %s, rStop: %s\n", funcname,
-			feeStart.Format(RRDATEFMT3), feeStop.Format(RRDATEFMT3),
-			rStart.Format(RRDATEFMT3), rStop.Format(RRDATEFMT3))*/
-			continue
-		}
+		// feeStop := (time.Time)(baseFee.Stop)
+		//
+		// // SINCE WE'RE LOOKING FOR RECURRING CHARGE, THE DEGREE OF OVERLAP CONDITION
+		// // IS TO IGNORE STOP DATE AS SAME AS START DATE, IT COULD BE NOT APPLICABLE TO
+		// // HOTEL ROOM CHARGES
+		// // TODO(Steve): NEED CONFIRMATION ON THIS
+		// // Console("%s: ARID: %d\n", funcname, baseFee.ARID)
+		// if !DateRangeOverlap(&feeStart, &feeStop, &rStart, &rStop) {
+		// 	// Console("%s: does not overlap, ARID: %d\n", funcname, baseFee.ARID)
+		// 	/*Console("%s: feeStart: %s, feeStop: %s, rStart: %s, rStop: %s\n", funcname,
+		// 	feeStart.Format(RRDATEFMT3), feeStop.Format(RRDATEFMT3),
+		// 	rStart.Format(RRDATEFMT3), rStop.Format(RRDATEFMT3))*/
+		// 	continue
+		// }
 
 		// GET AR FROM ARID IN FEES
 		var ar AR
@@ -225,9 +221,7 @@ func GetCalculatedFeesFromBaseFees(ctx context.Context, BID int64, bizPropName s
 				raFee.Stop = JSONDate(rStart)
 			}
 			fees = append(fees, raFee)
-
 		} else /*if rentAsmCharge*/ { // IT MUST BE RENT ASM ONE
-
 			// CHECK FOR PRORATED AMOUNT REQUIRED
 			// TODO(Sudip & Steve): WHAT ABOUT OTHER TYPE OF EPOCHS MODE (WEEKLY, QUARTERLY)
 			//                      WHAT SHOULD WE CONSIDER HERE FOR PRORATION IS NEEDY?

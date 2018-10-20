@@ -59,11 +59,11 @@ Response( RAID: 6, UserRefNo: OVERRIDEEN1234567890 )
                 "dates": {
                     "CSAgent": 68,
                     "RentStop": "2/29/2020",
-                    "RentStart": "10/3/2018",
+                    "RentStart": "10/20/2018",
                     "AgreementStop": "2/29/2020",
-                    "AgreementStart": "10/3/2018",
+                    "AgreementStart": "10/20/2018",
                     "PossessionStop": "2/29/2020",
-                    "PossessionStart": "10/3/2018"
+                    "PossessionStart": "10/20/2018"
                 },
                 "people": [
                     {
@@ -137,7 +137,23 @@ Response( RAID: 6, UserRefNo: OVERRIDEEN1234567890 )
                     {
                         "VID": 7,
                         "VIN": "JD4H3LE35Z8JVLY",
-                        "Fees": [],
+                        "Fees": [
+                            {
+                                "ARID": 39,
+                                "Stop": "10/20/2018",
+                                "ASMID": 97,
+                                "Start": "10/20/2018",
+                                "ARName": "Vehicle Registration Fee",
+                                "Comment": "",
+                                "SalesTax": 0,
+                                "TMPASMID": 5,
+                                "RentCycle": 0,
+                                "TransOccTax": 0,
+                                "ContractAmount": 10,
+                                "ProrationCycle": 0,
+                                "AtSigningPreTax": 0
+                            }
+                        ],
                         "TMPVID": 1,
                         "TMPTCID": 1,
                         "VehicleMake": "Toyota",
@@ -156,16 +172,16 @@ Response( RAID: 6, UserRefNo: OVERRIDEEN1234567890 )
                         "Fees": [
                             {
                                 "ARID": 26,
-                                "Stop": "10/3/2018",
+                                "Stop": "10/20/2018",
                                 "ASMID": 88,
-                                "Start": "10/3/2018",
+                                "Start": "10/20/2018",
                                 "ARName": "Rent Non-Taxable",
-                                "Comment": "prorated for 29 of 31 days",
+                                "Comment": "prorated for 12 of 31 days",
                                 "SalesTax": 0,
-                                "TMPASMID": 5,
+                                "TMPASMID": 6,
                                 "RentCycle": 0,
                                 "TransOccTax": 0,
-                                "ContractAmount": 1637.1,
+                                "ContractAmount": 677.42,
                                 "ProrationCycle": 0,
                                 "AtSigningPreTax": 0
                             },
@@ -177,11 +193,26 @@ Response( RAID: 6, UserRefNo: OVERRIDEEN1234567890 )
                                 "ARName": "Rent Non-Taxable",
                                 "Comment": "",
                                 "SalesTax": 0,
-                                "TMPASMID": 6,
+                                "TMPASMID": 7,
                                 "RentCycle": 6,
                                 "TransOccTax": 0,
                                 "ContractAmount": 1750,
                                 "ProrationCycle": 4,
+                                "AtSigningPreTax": 0
+                            },
+                            {
+                                "ARID": 28,
+                                "Stop": "10/20/2018",
+                                "ASMID": 95,
+                                "Start": "10/20/2018",
+                                "ARName": "Security Deposit Assessment",
+                                "Comment": "",
+                                "SalesTax": 0,
+                                "TMPASMID": 8,
+                                "RentCycle": 0,
+                                "TransOccTax": 0,
+                                "ContractAmount": 3500,
+                                "ProrationCycle": 0,
                                 "AtSigningPreTax": 0
                             }
                         ],
@@ -196,9 +227,9 @@ Response( RAID: 6, UserRefNo: OVERRIDEEN1234567890 )
                 ],
                 "parentchild": []
             },
-            "LastModTime": "2018-10-02T20:35:27Z",
+            "LastModTime": "2018-10-20T14:21:33Z",
             "LastModBy": -99999,
-            "CreateTS": "2018-10-02T20:35:27Z",
+            "CreateTS": "2018-10-20T14:21:33Z",
             "CreateBy": -99999
         },
         "ValidationCheck": {
