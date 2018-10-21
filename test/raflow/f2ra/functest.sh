@@ -425,8 +425,6 @@ fi
 #      - New prorated Rent NonTaxable for 14 of 31 days
 #      - New prorated Pet Rent for 14 of 31 days
 #
-#
-#
 #------------------------------------------------------------------------------
 TFILES="i"
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
@@ -452,6 +450,46 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     RRDATERANGE="-j 2018-10-01 -k 2018-11-01"
     dorrtest "${TFILES}2" "${RRDATERANGE} -x -b ${BUD} -r 23,1" "PayorReport"
 
+fi
+
+#------------------------------------------------------------------------------
+#  TEST j
+#  RA3 is being extended. It is set to stop on 2/29/2020.  We extend it for
+#  another year.  The extension term is 3/1/2020 to 2/28/2021.
+#
+#  Scenario
+#  Execute changes and cause the new RA to be created
+#
+#  Expected Results:
+#  1. Term dates on the new RA must be 3/1/2020 to 2/28/2021
+#
+#------------------------------------------------------------------------------
+TFILES="j"
+if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
+    echo "Test i"
+
+    echo "Create new database... x${TFILES}.sql"
+    mysql --no-defaults rentroll < x${TFILES}.sql
+    RAIDREFNO="K6HV8GB4E222RJX864F4"
+
+    #----------------------------------------------------------------
+    # Make the updated RefNo an Active RA
+    #----------------------------------------------------------------
+    echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
+    dojsonPOST "http://localhost:8270/v1/raactions/1/3" "request" "${TFILES}0"  "WebService--Activate-RefNo"
+
+    TESTCOUNT=$((TESTCOUNT + 1))
+    echo -n "PHASE  ${TESTCOUNT}: Checking start date... "
+    AGRSTART=$(cat serverreply | python -m json.tool | grep AgreementStart | sed 's/"//g' |sed 's/,//g' | awk '{print $2}')
+    if [ ${AGRSTART} != "3/1/2020" ]; then
+        failmsg
+        if [ "${ASKBEFOREEXIT}" = "1" ]; then
+            pause ${1}
+        else
+            exit 2
+        fi
+    fi
+    echo "PASSED"
 fi
 
 stopRentRollServer

@@ -78,21 +78,17 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 	}()
 
-	rlib.Console("%s: 1\n", funcname)
-
 	// HTTP METHOD CHECK
 	if r.Method != "POST" {
 		err = fmt.Errorf("only POST method is allowed")
 		return
 	}
-	rlib.Console("%s: 2\n", funcname)
 
 	// SEE IF WE CAN UNMARSHAL THE DATA
 	if err = json.Unmarshal([]byte(d.data), &foo); err != nil {
 		return
 	}
 
-	rlib.Console("%s: 3\n", funcname)
 	//-------------------------------------------------------
 	// GET THE NEW `tx`, UPDATED CTX FROM THE REQUEST CONTEXT
 	//-------------------------------------------------------
@@ -102,16 +98,13 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	var flow rlib.Flow
-	rlib.Console("%s: 4 foo.Version = %s\n", funcname, foo.Version)
 
 	switch foo.Version {
 	case "raid":
-		rlib.Console("%s: 5\n", funcname)
 		flow, err = handleRAIDVersion(ctx, d, foo, raFlowData)
 		if err != nil {
 			return
 		}
-		rlib.Console("%s: 6\n", funcname)
 
 		// -------------------
 		// WRITE FLOW RESPONSE
@@ -120,7 +113,6 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 
 	case "refno":
-		rlib.Console("%s: 7\n", funcname)
 		var resp FlowResponse
 		var raflowRespData RAFlowResponse
 
@@ -128,7 +120,6 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		if err != nil {
 			return
 		}
-		rlib.Console("%s: 8\n", funcname)
 
 		// -------------------
 		// WRITE FLOW RESPONSE
@@ -136,9 +127,7 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		resp.Record = raflowRespData
 		resp.Status = "success"
 		SvcWriteResponse(d.BID, &resp, w)
-		rlib.Console("%s: 9\n", funcname)
 	}
-	rlib.Console("%s: 10\n", funcname)
 
 }
 

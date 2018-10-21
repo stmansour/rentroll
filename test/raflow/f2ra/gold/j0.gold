@@ -1,0 +1,284 @@
+{
+    "record": {
+        "DataFulfilled": {
+            "dates": true,
+            "parentchild": true,
+            "people": true,
+            "pets": true,
+            "rentables": true,
+            "tie": true,
+            "vehicles": true
+        },
+        "Flow": {
+            "BID": 1,
+            "CreateBy": 0,
+            "CreateTS": "0001-01-01T00:00:00Z",
+            "Data": {
+                "dates": {
+                    "AgreementStart": "3/1/2020",
+                    "AgreementStop": "3/1/2021",
+                    "CSAgent": 101,
+                    "PossessionStart": "3/1/2020",
+                    "PossessionStop": "3/1/2021",
+                    "RentStart": "3/1/2020",
+                    "RentStop": "3/1/2021"
+                },
+                "meta": {
+                    "ActiveDate": "2018-10-21 05:12:00 UTC",
+                    "ActiveName": "UID-0",
+                    "ActiveUID": -99999,
+                    "ApplicationReadyDate": "2018-10-21 05:02:00 UTC",
+                    "ApplicationReadyName": "Steve Mansour",
+                    "ApplicationReadyUID": 211,
+                    "Approver1": 211,
+                    "Approver1Name": "Steve Mansour",
+                    "Approver2": 211,
+                    "Approver2Name": "Steve Mansour",
+                    "BID": 1,
+                    "DecisionDate1": "2018-10-21 05:02:00 UTC",
+                    "DecisionDate2": "2018-10-21 05:02:00 UTC",
+                    "DeclineReason1": 0,
+                    "DeclineReason2": 0,
+                    "DocumentDate": "2020-03-01 00:00:00 UTC",
+                    "HavePets": false,
+                    "HaveVehicles": false,
+                    "LastTMPASMID": 2,
+                    "LastTMPPETID": 1,
+                    "LastTMPTCID": 1,
+                    "LastTMPVID": 2,
+                    "LeaseTerminationReason": 0,
+                    "MoveInDate": "2018-10-21 05:03:00 UTC",
+                    "MoveInName": "Steve Mansour",
+                    "MoveInUID": 211,
+                    "NoticeToMoveDate": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveName": "UID-0",
+                    "NoticeToMoveReported": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveUID": 0,
+                    "RAFLAGS": 52,
+                    "RAID": 8,
+                    "TerminationDate": "1900-01-01 00:00:00 UTC",
+                    "TerminatorName": "UID-0",
+                    "TerminatorUID": 0
+                },
+                "parentchild": [],
+                "people": [
+                    {
+                        "Address": "75158 Third",
+                        "Address2": "",
+                        "AlternateEmailAddress": "52794 Cypress,Salem,NC 24728",
+                        "Bankruptcy": false,
+                        "BankruptcyDes": "",
+                        "CellPhone": "(853) 432-1974",
+                        "City": "Leominster",
+                        "Comment": "",
+                        "CompanyAddress": "2750 Ridge",
+                        "CompanyCity": "Chicago",
+                        "CompanyEmail": "ActernaCorpC7870@abiz.com",
+                        "CompanyName": "Acterna Corp.",
+                        "CompanyPhone": "(300) 109-6273",
+                        "CompanyPostalCode": "33274",
+                        "CompanyState": "WA",
+                        "Convicted": false,
+                        "ConvictedDes": "",
+                        "Country": "USA",
+                        "CreditLimit": 8355,
+                        "CurrentAddress": "97394 Main, Tallahassee, NM 11211",
+                        "CurrentLandLordName": "Julene Oneal",
+                        "CurrentLandLordPhoneNo": "(892) 198-0495",
+                        "CurrentLengthOfResidency": "3 years 9 months",
+                        "CurrentReasonForMoving": 92,
+                        "DateofBirth": "12/22/1966",
+                        "DriversLicense": "J3222259",
+                        "EligibleFuturePayor": true,
+                        "EligibleFutureUser": false,
+                        "EmergencyContactAddress": "34653 North,Sebastian,NC 55089",
+                        "EmergencyContactEmail": "ZenaidaC8804@hotmail.com",
+                        "EmergencyContactName": "Zenaida Cooke",
+                        "EmergencyContactTelephone": "(406) 574-3300",
+                        "Evicted": false,
+                        "EvictedDes": "",
+                        "FirstName": "Dannette",
+                        "GrossIncome": 12815,
+                        "Industry": 187,
+                        "IsCompany": false,
+                        "IsGuarantor": false,
+                        "IsOccupant": true,
+                        "IsRenter": true,
+                        "LastName": "Galloway",
+                        "MiddleName": "Marth",
+                        "Occupation": "safety and communication electrician",
+                        "OtherPreferences": "",
+                        "Points": 0,
+                        "PostalCode": "28162",
+                        "PreferredName": "Freeman",
+                        "PrimaryEmail": "DGalloway5134@bdiddy.com",
+                        "PriorAddress": "46350 South Carolina, Boulder, ME 31445",
+                        "PriorLandLordName": "Ashanti Steele",
+                        "PriorLandLordPhoneNo": "(660) 625-2127",
+                        "PriorLengthOfResidency": "9 months",
+                        "PriorReasonForMoving": 104,
+                        "SecondaryEmail": "DannetteG1424@abiz.com",
+                        "SourceSLSID": 43,
+                        "SpecialNeeds": "",
+                        "State": "NE",
+                        "TCID": 3,
+                        "TMPTCID": 1,
+                        "TaxpayorID": "04801638",
+                        "ThirdPartySource": "Carmella Garner",
+                        "Website": "",
+                        "WorkPhone": "(819) 591-4487"
+                    }
+                ],
+                "pets": [
+                    {
+                        "Breed": "Bullmastiff",
+                        "Color": "Harlequin",
+                        "Fees": [
+                            {
+                                "ARID": 24,
+                                "ARName": "Pet Rent",
+                                "ASMID": 61,
+                                "AtSigningPreTax": 0,
+                                "Comment": "Derived from RAID 3, ASMID 15",
+                                "ContractAmount": 10,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "3/1/2020",
+                                "Stop": "3/1/2021",
+                                "TMPASMID": 2,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "Name": "Gus",
+                        "PETID": 2,
+                        "TMPPETID": 1,
+                        "TMPTCID": 1,
+                        "Type": "dog",
+                        "Weight": 20
+                    }
+                ],
+                "rentables": [
+                    {
+                        "AtSigningPreTax": 0,
+                        "Fees": [
+                            {
+                                "ARID": 26,
+                                "ARName": "Rent Non-Taxable",
+                                "ASMID": 60,
+                                "AtSigningPreTax": 0,
+                                "Comment": "Derived from RAID 3, ASMID 13",
+                                "ContractAmount": 1000,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "3/1/2020",
+                                "Stop": "3/1/2021",
+                                "TMPASMID": 1,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "RID": 3,
+                        "RTFLAGS": 4,
+                        "RTID": 1,
+                        "RentCycle": 6,
+                        "RentableName": "Rentable003",
+                        "SalesTax": 0,
+                        "TransOccTax": 0
+                    }
+                ],
+                "tie": {
+                    "people": [
+                        {
+                            "PRID": 3,
+                            "TMPTCID": 1
+                        }
+                    ]
+                },
+                "vehicles": [
+                    {
+                        "Fees": [],
+                        "LicensePlateNumber": "Y3XO905",
+                        "LicensePlateState": "CO",
+                        "ParkingPermitNumber": "5343673",
+                        "TMPTCID": 1,
+                        "TMPVID": 1,
+                        "VID": 4,
+                        "VIN": "2WMT2YSOLB1LDFRL",
+                        "VehicleColor": "Turquoise",
+                        "VehicleMake": "Acura",
+                        "VehicleModel": "RL",
+                        "VehicleType": "car",
+                        "VehicleYear": 2004
+                    },
+                    {
+                        "Fees": [],
+                        "LicensePlateNumber": "6UWX824",
+                        "LicensePlateState": "MD",
+                        "ParkingPermitNumber": "5385094",
+                        "TMPTCID": 1,
+                        "TMPVID": 2,
+                        "VID": 5,
+                        "VIN": "TRAYLWDE9HSD918P",
+                        "VehicleColor": "Aluminum",
+                        "VehicleMake": "Infiniti",
+                        "VehicleModel": "G",
+                        "VehicleType": "car",
+                        "VehicleYear": 2003
+                    }
+                ]
+            },
+            "FlowID": 0,
+            "FlowType": "RA",
+            "ID": 8,
+            "LastModBy": 0,
+            "LastModTime": "0001-01-01T00:00:00Z",
+            "UserRefNo": ""
+        },
+        "ValidationCheck": {
+            "errors": {
+                "dates": {
+                    "errors": {},
+                    "total": 0
+                },
+                "parentchild": {
+                    "errors": [],
+                    "total": 0
+                },
+                "people": {
+                    "errors": [],
+                    "total": 0
+                },
+                "pets": {
+                    "errors": [],
+                    "total": 0
+                },
+                "rentables": {
+                    "errors": [],
+                    "total": 0
+                },
+                "tie": {
+                    "people": {
+                        "errors": [],
+                        "total": 0
+                    }
+                },
+                "vehicles": {
+                    "errors": [],
+                    "total": 0
+                }
+            },
+            "nonFieldsErrors": {
+                "dates": [],
+                "parentchild": [],
+                "people": [],
+                "pets": [],
+                "rentables": [],
+                "tie": [],
+                "vehicles": []
+            },
+            "total": 0
+        }
+    },
+    "status": "success"
+}

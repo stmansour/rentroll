@@ -284,7 +284,7 @@ func FlowSaveMetaDataChanges(ctx context.Context, x *rlib.F2RAWriteHandlerContex
 //     Any errors encountered
 //-----------------------------------------------------------------------------
 func FlowSaveRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (int64, error) {
-	// rlib.Console("Entered FlowSaveRA\n")
+	rlib.Console("Entered FlowSaveRA\n")
 	var err error
 	var nraid int64
 	var raOrig rlib.RentalAgreement
@@ -293,7 +293,9 @@ func FlowSaveRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (int64, er
 		return nraid, err
 	}
 
+	rlib.Console("A x.Raf.Dates.Term %s\n", rlib.ConsoleJSONDRange(&x.Raf.Dates.AgreementStart, &x.Raf.Dates.AgreementStop))
 	if x.Raf.Meta.RAID > 0 {
+		rlib.Console("A1\n")
 		//------------------------------------------------------------
 		// Get the rental agreement chain that will be updated by the
 		// one we're creating here. Update its stop dates accordingly
@@ -405,6 +407,7 @@ func FlowSaveRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (int64, er
 		x.Ra.RentCycleEpoch = x.RaChainOrig[i].RentCycleEpoch
 
 	} else {
+		rlib.Console("B1\n")
 		//-------------------------------------
 		// This is a new Rental Agreement...
 		//-------------------------------------
@@ -520,6 +523,8 @@ func initRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) {
 	AStop := time.Time(x.Raf.Dates.AgreementStop)
 	RStop := time.Time(x.Raf.Dates.RentStop)
 	PStop := time.Time(x.Raf.Dates.PossessionStop)
+
+	rlib.Console("initRA: Agreement start/stop = %s\n", rlib.ConsoleJSONDRange(&x.Raf.Dates.AgreementStart, &x.Raf.Dates.AgreementStop))
 
 	rlib.EDIHandleIncomingDateRange(x.Raf.Meta.BID, &AStart, &AStop)
 	rlib.EDIHandleIncomingDateRange(x.Raf.Meta.BID, &RStart, &RStop)
@@ -689,7 +694,7 @@ func F2RAUpdatePets(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (err e
 			return err
 		}
 
-		rlib.Console("petTCID = %d\n", petTCID)
+		// rlib.Console("petTCID = %d\n", petTCID)
 
 		// PET ENTRY
 		var pet rlib.Pet
@@ -706,12 +711,12 @@ func F2RAUpdatePets(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (err e
 
 		// If PET exists then update it
 		if x.Raf.Pets[i].PETID > 0 {
-			rlib.Console("Found existing pet %d\n", x.Raf.Pets[i].PETID)
+			// rlib.Console("Found existing pet %d\n", x.Raf.Pets[i].PETID)
 			pet, err = rlib.GetPet(ctx, x.Raf.Pets[i].PETID)
 			if err != nil {
 				return err
 			}
-			rlib.Console("A\n")
+			// rlib.Console("A\n")
 			//-----------------------------------------------------------------
 			// update it if necessary
 			//-----------------------------------------------------------------
@@ -770,35 +775,35 @@ func F2RAUpdatePets(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (err e
 			if err != nil {
 				return err
 			}
-			rlib.Console("B  tblist size = %d, pet.BID = %d, pet.PETID =%d\n", len(tblist), pet.BID, pet.PETID)
+			// rlib.Console("B  tblist size = %d, pet.BID = %d, pet.PETID =%d\n", len(tblist), pet.BID, pet.PETID)
 			//----------------------------------------------------
 			// if only 1 and person hasn't changed, we're done
 			//----------------------------------------------------
 			if len(tblist) == 1 && tblist[0].SourceElemType == rlib.ELEMPERSON && tblist[0].SourceElemID == petTCID {
-				rlib.Console("C\n")
+				// rlib.Console("C\n")
 				return nil
 			}
-			rlib.Console("D\n")
+			// rlib.Console("D\n")
 			//-------------------------------------------------------------
 			// Spin throught the records, update the overlapping record,
 			// and remove the rest.
 			//-------------------------------------------------------------
 			for _, tb := range tblist {
-				rlib.Console("E tb.TBID = %d\n", tb.TBID)
+				// rlib.Console("E tb.TBID = %d\n", tb.TBID)
 				if rlib.DateInRange(&bind.DtStart, &tb.DtStart, &tb.DtStop) { // overlaps amended RAID ??
 					tb.DtStop = bind.DtStart // YES: update its stop date
-					rlib.Console("F update TBind\n")
+					// rlib.Console("F update TBind\n")
 					if err = rlib.UpdateTBind(ctx, &tb); err != nil {
 						return err
 					}
 				} else {
-					rlib.Console("F delete TBind\n")
+					// rlib.Console("F delete TBind\n")
 					if err = rlib.DeleteTBind(ctx, tb.TBID); err != nil { // NO: delete it
 						return err
 					}
 				}
 			}
-			rlib.Console("G done with for loop\n")
+			// rlib.Console("G done with for loop\n")
 			//-------------------------------------------------------------
 			// Now add the TBind...
 			//-------------------------------------------------------------
@@ -807,11 +812,11 @@ func F2RAUpdatePets(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (err e
 				return err
 			}
 		} else {
-			rlib.Console("NEW PET\n")
+			// rlib.Console("NEW PET\n")
 			rlib.MigrateStructVals(&x.Raf.Pets[i], &pet)
 			pet.TCID = petTCID
 			pet.BID = x.Ra.BID
-			rlib.Console("NEW PET BID  = %d\n", pet.BID)
+			// rlib.Console("NEW PET BID  = %d\n", pet.BID)
 
 			// TODO: remove these soon, they are deprecated
 			pet.DtStart = bind.DtStart
@@ -854,8 +859,6 @@ func F2RAUpdateVehicles(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (e
 			return err
 		}
 
-		rlib.Console("VehicleTCID = %d\n", VehicleTCID)
-
 		// VEHICLE ENTRY
 		var v rlib.Vehicle
 		var bind rlib.TBind
@@ -871,12 +874,10 @@ func F2RAUpdateVehicles(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (e
 
 		// If VEHICLE exists then update it
 		if x.Raf.Vehicles[i].VID > 0 {
-			rlib.Console("Found existing Vehicle %d\n", x.Raf.Vehicles[i].VID)
 			err = rlib.GetVehicle(ctx, x.Raf.Vehicles[i].VID, &v)
 			if err != nil {
 				return err
 			}
-			rlib.Console("VEHICLE A\n")
 			//-----------------------------------------------------------------
 			// update it if necessary
 			//-----------------------------------------------------------------
@@ -946,35 +947,28 @@ func F2RAUpdateVehicles(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (e
 			if err != nil {
 				return err
 			}
-			rlib.Console("VEHICLE B  tblist size = %d, v.BID = %d, v.VID =%d\n", len(tblist), v.BID, v.VID)
 			//----------------------------------------------------
 			// if only 1 and person hasn't changed, we're done
 			//----------------------------------------------------
 			if len(tblist) == 1 && tblist[0].SourceElemType == rlib.ELEMPERSON && tblist[0].SourceElemID == VehicleTCID {
-				rlib.Console("VEHICLE C\n")
 				return nil
 			}
-			rlib.Console("VEHICLE D\n")
 			//-------------------------------------------------------------
 			// Spin throught the records, update the overlapping record,
 			// and remove the rest.
 			//-------------------------------------------------------------
 			for _, tb := range tblist {
-				rlib.Console("VEHICLE E tb.TBID = %d\n", tb.TBID)
 				if rlib.DateInRange(&bind.DtStart, &tb.DtStart, &tb.DtStop) { // overlaps amended RAID ??
 					tb.DtStop = bind.DtStart // YES: update its stop date
-					rlib.Console("VEHICLE F update TBind\n")
 					if err = rlib.UpdateTBind(ctx, &tb); err != nil {
 						return err
 					}
 				} else {
-					rlib.Console("VEHICLE F delete TBind\n")
 					if err = rlib.DeleteTBind(ctx, tb.TBID); err != nil { // NO: delete it
 						return err
 					}
 				}
 			}
-			rlib.Console("VEHICLE G done with for loop\n")
 			//-------------------------------------------------------------
 			// Now add the TBind...
 			//-------------------------------------------------------------
@@ -983,10 +977,8 @@ func F2RAUpdateVehicles(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (e
 				return err
 			}
 		} else {
-			rlib.Console("NEW VEHICLE\n")
 			rlib.MigrateStructVals(&x.Raf.Vehicles[i], &v)
 			v.BID = x.Ra.BID
-			rlib.Console("NEW VEHICLE BID  = %d\n", v.BID)
 
 			// TODO: remove these soon, they are deprecated
 			v.TCID = VehicleTCID

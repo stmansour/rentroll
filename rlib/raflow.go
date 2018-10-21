@@ -1172,29 +1172,29 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement, EditFlag bool) (RA
 			//----------------------------------------------------------
 			// do any quick rejection needed
 			//----------------------------------------------------------
-			Console("******************\n\nChecking ASMID %d\n", asms[j].ASMID)
+			// Console("******************\n\nChecking ASMID %d\n", asms[j].ASMID)
 			if EditFlag {
-				Console("Checking for EDIT AMENDING\n")
+				// Console("Checking for EDIT AMENDING\n")
 				if asms[j].FLAGS&4 > 0 || asms[j].FLAGS&3 > 0 { // reversed or partially or fully paid
-					Console("Rejected: reversed or partially or fully paid\n")
+					// Console("Rejected: reversed or partially or fully paid\n")
 					continue
 				}
 				if !DateRangeOverlap(&now, &ra.AgreementStop, &asms[j].Start, &asms[j].Stop) {
-					Console("Rejected: no overlap: %s - %s  with  %s - %s\n", now.Format(RRDATEREPORTFMT), ra.AgreementStop.Format(RRDATEREPORTFMT), asms[j].Start.Format(RRDATEREPORTFMT), asms[j].Stop.Format(RRDATEREPORTFMT))
+					// Console("Rejected: no overlap: %s - %s  with  %s - %s\n", now.Format(RRDATEREPORTFMT), ra.AgreementStop.Format(RRDATEREPORTFMT), asms[j].Start.Format(RRDATEREPORTFMT), asms[j].Stop.Format(RRDATEREPORTFMT))
 					continue
 				}
 				if asms[j].RentCycle == RECURNONE && !DateRangeOverlap(&now, &ra.AgreementStop, &asms[j].Start, &asms[j].Stop) {
-					Console("Rejected: norecur and no overlap: %s - %s  with  %s - %s\n", now.Format(RRDATEREPORTFMT), ra.AgreementStop.Format(RRDATEREPORTFMT), asms[j].Start.Format(RRDATEREPORTFMT), asms[j].Stop.Format(RRDATEREPORTFMT))
+					// Console("Rejected: norecur and no overlap: %s - %s  with  %s - %s\n", now.Format(RRDATEREPORTFMT), ra.AgreementStop.Format(RRDATEREPORTFMT), asms[j].Start.Format(RRDATEREPORTFMT), asms[j].Stop.Format(RRDATEREPORTFMT))
 					continue
 				}
 			} else {
-				Console("Checking for VIEWING\n")
+				// Console("Checking for VIEWING\n")
 				if asms[j].FLAGS&4 > 0 { // reversed
-					Console("Rejected: reversed\n")
+					// Console("Rejected: reversed\n")
 					continue
 				}
 			}
-			Console("Adding ASMID %d\n", asms[j].ASMID)
+			// Console("Adding ASMID %d\n", asms[j].ASMID)
 
 			//----------------------------------------------------------
 			// Get the account rule for this assessment...

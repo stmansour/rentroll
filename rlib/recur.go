@@ -370,18 +370,18 @@ func InstanceDateCoveringDate(epoch, t *time.Time, cycle int64) time.Time {
 //    false means it is not
 //------------------------------------------------------------------------------
 func IsInstanceDate(epoch, d *time.Time, cycle, proration int64) bool {
-	Console("Entered IsInstanceDate:  epoch = %s, d = %s, cycle = %d\n", epoch.Format(RRDATEREPORTFMT), d.Format(RRDATEREPORTFMT), cycle)
+	// Console("Entered IsInstanceDate:  epoch = %s, d = %s, cycle = %d\n", epoch.Format(RRDATEREPORTFMT), d.Format(RRDATEREPORTFMT), cycle)
 	ok, d2 := GetEpochFromBaseDate(*epoch, *d, ENDOFTIME, cycle)
 	if !ok { // should never happen
 		Ulog("IsInstanceDate received !ok unexpectedly\n")
-		Console("IsInstanceDate received !ok unexpectedly\n")
+		// Console("IsInstanceDate received !ok unexpectedly\n")
 	}
-	Console("d2 determined as %s\n", d2.Format(RRDATEREPORTFMT))
+	// Console("d2 determined as %s\n", d2.Format(RRDATEREPORTFMT))
 	dur := CycleDuration(proration, *epoch)
 	sep := d2.Sub(*d)
 	if sep < 0 {
 		sep = -sep
 	}
-	Console("sep = %d, return value = %t\n", sep, sep < dur)
+	// Console("sep = %d, return value = %t\n", sep, sep < dur)
 	return sep < dur
 }

@@ -402,18 +402,18 @@ func F2RASaveFee(ctx context.Context, x *rlib.F2RAWriteHandlerContext, fee *rlib
 		b.AssocElemType = eltype
 	}
 
-	rlib.Console("\n\n$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n")
-	rlib.Console("InsertAssessment: Amount = %8.2f, RentCycle = %d, Start = %s, Stop = %s\n", b.Amount, b.RentCycle, b.Start.Format(rlib.RRDATEFMT3), b.Stop.Format(rlib.RRDATEFMT3))
-	rlib.Console("x.LastClose.CPID = %d, x.LastClose.Dt = %s\n", x.LastClose.CPID, x.LastClose.Dt.Format(rlib.RRDATEREPORTFMT))
-	rlib.Console("x.LastClose.ExpandAsmDtStart = %s, x.LastClose.ExpandAsmDtStart = %s\n", x.LastClose.ExpandAsmDtStart.Format(rlib.RRDATEREPORTFMT), x.LastClose.ExpandAsmDtStart.Format(rlib.RRDATEREPORTFMT))
-	rlib.Console("x.LastClose.ExpandAsmDtStop  = %s, x.LastClose.ExpandAsmDtStop  = %s\n", x.LastClose.ExpandAsmDtStop.Format(rlib.RRDATEREPORTFMT), x.LastClose.ExpandAsmDtStop.Format(rlib.RRDATEREPORTFMT))
-	rlib.Console("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n")
+	// rlib.Console("\n\n$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n")
+	// rlib.Console("InsertAssessment: Amount = %8.2f, RentCycle = %d, Start = %s, Stop = %s\n", b.Amount, b.RentCycle, b.Start.Format(rlib.RRDATEFMT3), b.Stop.Format(rlib.RRDATEFMT3))
+	// rlib.Console("x.LastClose.CPID = %d, x.LastClose.Dt = %s\n", x.LastClose.CPID, x.LastClose.Dt.Format(rlib.RRDATEREPORTFMT))
+	// rlib.Console("x.LastClose.ExpandAsmDtStart = %s, x.LastClose.ExpandAsmDtStart = %s\n", x.LastClose.ExpandAsmDtStart.Format(rlib.RRDATEREPORTFMT), x.LastClose.ExpandAsmDtStart.Format(rlib.RRDATEREPORTFMT))
+	// rlib.Console("x.LastClose.ExpandAsmDtStop  = %s, x.LastClose.ExpandAsmDtStop  = %s\n", x.LastClose.ExpandAsmDtStop.Format(rlib.RRDATEREPORTFMT), x.LastClose.ExpandAsmDtStop.Format(rlib.RRDATEREPORTFMT))
+	// rlib.Console("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n")
 
 	if errlist := InsertAssessment(ctx, &b, 1 /*expand*/, &x.LastClose); len(errlist) > 0 {
 		return BizErrorListToError(errlist)
 	}
-	rlib.Console("just inserted ASMID = %d\n", b.ASMID)
-	rlib.Console("**********\n\n")
+	// rlib.Console("just inserted ASMID = %d\n", b.ASMID)
+	// rlib.Console("**********\n\n")
 
 	return nil
 }
