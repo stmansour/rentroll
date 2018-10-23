@@ -456,13 +456,18 @@ func FlowSaveRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (int64, er
 	for i := 0; i < len(x.RaChainOrig); i++ {
 		rlib.Console("Checking RAID %d\n", x.RaChainOrig[i].RAID)
 		if x.RaChainOrig[i].PRAID == 0 {
-			rlib.Console("RAID %d has PRAID == 0, setting to %d\n", x.RaChainOrig[i].RAID, x.Ra.RAID)
-			//---------------------------------------------------------------
-			// The agreement timespan overalps the agreement timespane of x.Ra
-			// so x.Ra either amends it or replaces it.  Either way, that's
-			// the new parent for this rental agreement...
-			//---------------------------------------------------------------
-			x.RaChainOrig[i].PRAID = x.Ra.RAID
+
+			// REMOVED 10/23/2018 sman
+			// Not sure why this was inserted in the first place.  It it
+			// definitely not correct for test k in test/raflow/f2ra
+			// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+			// rlib.Console("RAID %d has PRAID == 0, setting to %d\n", x.RaChainOrig[i].RAID, x.Ra.RAID)
+			// //---------------------------------------------------------------
+			// // The agreement timespan overalps the agreement timespan of x.Ra
+			// // so x.Ra either amends it or replaces it.  Either way, that's
+			// // the new parent for this rental agreement...
+			// //---------------------------------------------------------------
+			// x.RaChainOrig[i].PRAID = x.Ra.RAID
 
 			//---------------------------------------------------------------
 			// One last check before updating... if this RAID's State is not
