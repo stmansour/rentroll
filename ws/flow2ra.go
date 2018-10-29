@@ -85,20 +85,20 @@ func Flow2RA(ctx context.Context, flowid int64) (int64, error) {
 		//------------------------------------------------------------
 		// if there are meta data changes, then updated existing RAID
 		//------------------------------------------------------------
-		rlib.Console("Just before call to FlowSaveMetaDataChanges: nraid = %d, x.NewRAID = %d\n", nraid, x.NewRAID)
+		// rlib.Console("Just before call to FlowSaveMetaDataChanges: nraid = %d, x.NewRAID = %d\n", nraid, x.NewRAID)
 		nraid, err = FlowSaveMetaDataChanges(ctx, &x)
 		if err != nil {
 			rlib.Console("\n\nERROR IN FlowSaveMetaDataChanges: %s\n\n\n", err.Error())
 			return nraid, err
 		}
-		rlib.Console("\tMetaData data updated on RAID=%d\n", nraid)
+		// rlib.Console("\tMetaData data updated on RAID=%d\n", nraid)
 	} else { // this is a new origin RA
 		nraid, err = FlowSaveRA(ctx, &x)
 		if err != nil {
 			rlib.Console("\n\nERROR IN FlowSaveRA: %s\n\n\n", err.Error())
 			return nraid, err
 		}
-		rlib.Console("New ORIGIN = %d\n", nraid)
+		// rlib.Console("New ORIGIN = %d\n", nraid)
 		x.NewRAID = nraid
 		nraid, err = FlowSaveMetaDataChanges(ctx, &x)
 		if err != nil {
@@ -118,7 +118,7 @@ func Flow2RA(ctx context.Context, flowid int64) (int64, error) {
 		}
 	}
 
-	rlib.Console("\tx.OldRAID = %d, x.NewRAID = %d\n", x.OldRAID, x.NewRAID)
+	// rlib.Console("\tx.OldRAID = %d, x.NewRAID = %d\n", x.OldRAID, x.NewRAID)
 	return x.NewRAID, nil
 }
 

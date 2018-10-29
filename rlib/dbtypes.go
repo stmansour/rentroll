@@ -964,6 +964,11 @@ type Expense struct {
 //  1<<1 - populate on Rental Agreement,
 //  1<<2 = RAID required,
 //  1<<3 = subARIDs apply
+//  1<<4 = Is Rent Assessment
+//  1<<5 = Is Security Deposit Assessment
+//  1<<6 = Is NonRecur charge
+//  1<<7 = PETID required
+//  1<<8 = VID required
 type AR struct {
 	ARID                  int64
 	BID                   int64

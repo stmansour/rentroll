@@ -518,6 +518,33 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     mysqlverify "${TFILES}1" "RentalAgreements"	"select RAID,RATID,BID,PRAID,ORIGIN,AgreementStart,AgreementStop from RentalAgreement;" 
 fi
 
+#------------------------------------------------------------------------------
+#  TEST l
+#  Bug was found.  Original RA (1): Term is 1/1/2018 - 1/1/2019.  Amend it on
+#  10/15/2018.  Amend again on 10/23/2018 --- this resulted in all
+#  Assessments being reversed and we were left with no active assessments.
+#
+#  Scenario
+#  PRAID is updated on Original RA and incorrectly.
+#
+#  Expected Results:
+#  1. Original RA should retain PRAID = 0
+#------------------------------------------------------------------------------
+TFILES="l"
+if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
+    echo "Test ${TFILES}"
+    echo "Create new database... x${TFILES}.sql"
+    mysql --no-defaults rentroll < x${TFILES}.sql
+    RAIDREFNO="T0LVI9R4NH73DBS17008"
+
+    #----------------------------------------------------------------
+    # Make the updated RefNo an Active RA
+    #----------------------------------------------------------------
+    echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
+    dojsonPOST "http://localhost:8270/v1/raactions/1/3" "request" "${TFILES}0"  "WebService--Activate-RefNo"
+
+fi
+
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
 
