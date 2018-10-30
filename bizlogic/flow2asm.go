@@ -527,7 +527,7 @@ func F2RAHandleOldAssessments(ctx context.Context, x *rlib.F2RAWriteHandlerConte
 					// 		https://play.golang.org/p/VmX-07FWY40
 					//--------------------------------------------------------------------------
 					r := regexp.MustCompile(`(\d+)\s+of\s+(\d+)\s+(\S+)`)
-					m := r.FindStringSubmatch("prorated for 17 of 31 days | Derived from RAID 1, ASMID 1")
+					m := r.FindStringSubmatch(o[l].Comment)
 					if len(m) > 0 {
 						// rlib.Console("A15.6 - found comment proration indicator\n")
 						num, err := strconv.ParseFloat(m[1], 64)
