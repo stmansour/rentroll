@@ -208,7 +208,7 @@ func GetEpochListByBizPropName(ctx context.Context, BID int64, bizPropName strin
 //-----------------------------------------------------------------------------
 func GetEpochByBizPropName(ctx context.Context, BID int64, bizPropName string, d1, d2 time.Time, cycle int64) (ok bool, epoch time.Time, err error) {
 	const funcname = "GetEpochByBizPropName"
-	fmt.Printf("Entered in %s\n", funcname)
+	fmt.Printf("Entered %s\n", funcname)
 
 	// initialize epochs
 	var epochs BizPropsEpochs

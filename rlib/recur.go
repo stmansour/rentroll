@@ -1,61 +1,66 @@
 package rlib
 
-import "time"
+import (
+	"strings"
+	"time"
+)
+
+var recurUnits = []struct {
+	Name  string
+	Adj   string
+	Index int64
+}{
+	{"second", "secondly", RECURSECONDLY},
+	{"minute", "minutely", RECURMINUTELY},
+	{"hour", "hourly", RECURHOURLY},
+	{"day", "daily", RECURDAILY},
+	{"week", "weekly", RECURWEEKLY},
+	{"month", "monthly", RECURMONTHLY},
+	{"quarter", "quarterly", RECURQUARTERLY},
+	{"year", "yearly", RECURYEARLY},
+}
 
 // RentalPeriodToString takes an accrual recurrence value and returns its
 // name as a string
 //=============================================================================
 func RentalPeriodToString(a int64) string {
-	s := ""
-	switch a {
-	case RECURNONE:
-		s = "non-recurring"
-	case RECURSECONDLY:
-		s = "secondly"
-	case RECURMINUTELY:
-		s = "minutely"
-	case RECURHOURLY:
-		s = "hourly"
-	case RECURDAILY:
-		s = "daily"
-	case RECURWEEKLY:
-		s = "weekly"
-	case RECURMONTHLY:
-		s = "monthly"
-	case RECURQUARTERLY:
-		s = "quarterly"
-	case RECURYEARLY:
-		s = "yearly"
+	if a == int64(0) {
+		return "non-recurring"
 	}
-	return s
+	for i := 0; i < len(recurUnits); i++ {
+		if a == recurUnits[i].Index {
+			return recurUnits[i].Adj
+		}
+	}
+	return ""
 }
 
 // ProrationUnits returns a string for the supplied accrual duration value
 // suitable for use as units
 //=============================================================================
 func ProrationUnits(a int64) string {
-	s := ""
-	switch a {
-	case RECURNONE:
-		s = "!!nonrecur!!"
-	case RECURSECONDLY:
-		s = "seconds"
-	case RECURMINUTELY:
-		s = "minutes"
-	case RECURHOURLY:
-		s = "hours"
-	case RECURDAILY:
-		s = "days"
-	case RECURWEEKLY:
-		s = "weeks"
-	case RECURMONTHLY:
-		s = "months"
-	case RECURQUARTERLY:
-		s = "quarters"
-	case RECURYEARLY:
-		s = "years"
+	if a == int64(0) {
+		return "non-recurring"
 	}
-	return s
+	for i := 0; i < len(recurUnits); i++ {
+		if a == recurUnits[i].Index {
+			return recurUnits[i].Name + "s"
+		}
+	}
+	return ""
+}
+
+// RecurUnitsStringToIndex returns the index for the recur type that matches
+// the supplied string.  Since it matches only the core of the units name,
+// it can be suffixed with either "s" or "ly"
+//=============================================================================
+func RecurUnitsStringToIndex(a string) int64 {
+	for i := 0; i < len(recurUnits); i++ {
+		if strings.Contains(a, recurUnits[i].Name) || strings.Contains(a, recurUnits[i].Adj) {
+			return recurUnits[i].Index
+		}
+	}
+	return RECURNONE
 }
 
 // CycleDuration returns the prorateDuration in microseconds and the units as

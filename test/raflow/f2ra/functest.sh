@@ -521,14 +521,17 @@ fi
 #------------------------------------------------------------------------------
 #  TEST l
 #  Bug was found.  Original RA (1): Term is 1/1/2018 - 1/1/2019.  Amend it on
-#  10/15/2018.  Amend again on 10/23/2018 --- this resulted in all
-#  Assessments being reversed and we were left with no active assessments.
+#  10/15/2018.  Amend again on 10/23/2018 --- the bug found: all Assessments
+#  were reversed and we were left with no active assessments.  This test
+#  validates the fixes necessary to make this scenario work correctly
 #
 #  Scenario
-#  PRAID is updated on Original RA and incorrectly.
+#  Update the RA with an amendment on 10/27/2018
 #
 #  Expected Results:
-#  1. Original RA should retain PRAID = 0
+#  1. The month of October should have 3 Rental Agreements in the Payor
+#     Statement.
+#  2. Prorationed assessments should be identified for each agreement.
 #------------------------------------------------------------------------------
 TFILES="l"
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
@@ -543,6 +546,11 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
     dojsonPOST "http://localhost:8270/v1/raactions/1/3" "request" "${TFILES}0"  "WebService--Activate-RefNo"
 
+    #----------------------------------------------------------------
+    # Generate text payor statement
+    #----------------------------------------------------------------
+    RRDATERANGE="-j 2018-10-01 -k 2018-11-01"
+    dorrtest "${TFILES}1" "${RRDATERANGE} -x -b ${BUD} -r 23,1" "PayorReport"
 fi
 
 stopRentRollServer

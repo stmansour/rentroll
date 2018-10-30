@@ -145,6 +145,16 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetAssessmentInstancesByParent, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE PASMID=? AND Stop >= ? AND Start < ?")
 	Errcheck(err)
+
+	tmpfa := strings.Split(flds, ",")
+	for k := 0; k < len(tmpfa); k++ {
+		tmpfa[k] = "Assessments." + tmpfa[k]
+	}
+	fqflds := strings.Join(tmpfa, ",")
+	RRdb.Prepstmt.GetAssessmentInstancesByRAIDRIDRent, err = RRdb.Dbrr.Prepare("SELECT " + fqflds + ` FROM Assessments
+LEFT JOIN AR ON (Assessments.ARID = AR.ARID AND AR.FLAGS & 16 != 0)
+WHERE RAID=? AND RID=? AND Start >= ? AND Stop < ? AND RentCycle=0`)
+	Errcheck(err)
 	RRdb.Prepstmt.GetAssessmentFirstInstance, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE PASMID=? ORDER BY Start LIMIT 1")
 	Errcheck(err)
 	//    description -------->>>                                                                                 old RAID   it's recurring      an instance      happens in this period

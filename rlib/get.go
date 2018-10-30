@@ -453,6 +453,44 @@ func GetUnpaidAssessmentsByRAID(ctx context.Context, RAID int64) ([]Assessment, 
 	return getAssessmentsByRows(ctx, rows)
 }
 
+// GetAssessmentInstancesByRAIDRIDRent returns a list of assessment
+// instances for the supplied RAID that happen in the supplied time range
+// where the RID matches and the ARID points to an Account Rule with a FLAGS
+// bit set that indicates it is a Rent assesment.
+//
+// INPUTS
+//    ctx   - context
+//    RAID  - Rental Agreement id of interest
+//    RID   - Rentable of interest
+//    d1,d2 - Define the time period of interest, d1 = start, d2 = stop
+//
+// RETURNS
+//    array of assessment instances that match the conditions described above
+//    error = any error encountered
+//-----------------------------------------------------------------------------
+func GetAssessmentInstancesByRAIDRIDRent(ctx context.Context, RAID, RID int64, d1, d2 *time.Time) ([]Assessment, error) {
+	var err error
+	var t []Assessment
+	if _, ok := SessionCheck(ctx); !ok {
+		return t, ErrSessionRequired
+	}
+
+	var rows *sql.Rows
+	fields := []interface{}{RAID, RID, d1, d2}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAssessmentInstancesByRAIDRIDRent)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetAssessmentInstancesByRAIDRIDRent.Query(fields...)
+	}
+
+	if err != nil {
+		return t, err
+	}
+	return getAssessmentsByRows(ctx, rows)
+}
+
 // GetAssessmentInstancesByRAID returns a list of the recurring assessment
 // instances for the supplied RAID that happen in the supplied time range
 // INPUTS

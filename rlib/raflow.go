@@ -22,8 +22,9 @@ type F2RAWriteHandlerContext struct {
 	RaChainOrig          []RentalAgreement // the RA(s) we're amending with updated data
 	RaChainOrigUnchanged []RentalAgreement // the RA(s) we're amending with data as it was before we modified raChainOrig
 	RaOrigIndex          int               // index within raChainOrig (and raChainOrigUnchanged) of the Active RA at the time this change is being made
-	Raf                  RAFlowJSONData
-	Xbiz                 XBusiness
+	Raf                  RAFlowJSONData    // the flow data to convert
+	Xbiz                 XBusiness         // the business
+	Epochs               BizPropsEpochs    // epochs associatied with Xbiz
 }
 
 // RAFlow etc.. all are list of all flows exist in the system

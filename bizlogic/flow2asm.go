@@ -4,7 +4,9 @@ package bizlogic
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"rentroll/rlib"
+	"strconv"
 	"time"
 )
 
@@ -39,6 +41,14 @@ func Fees2RA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) error {
 	x.LastClose.OpenPeriodDt = x.LastClose.Dt.AddDate(0, 0, 1) // for our purposes, use the day after close
 	rlib.Console("x.LastClose.Dt = %s, x.LastClose.OpenPeriodDt = %s, x.LastClose.ExpandAsmDtStart = %s\n",
 		x.LastClose.Dt.Format(rlib.RRDATEREPORTFMT), x.LastClose.OpenPeriodDt.Format(rlib.RRDATEREPORTFMT), x.LastClose.ExpandAsmDtStop.Format(rlib.RRDATEREPORTFMT))
+
+	//-----------------------------------------------------------------------
+	// We need the epoch info in handling prior rental agreement assessments
+	//-----------------------------------------------------------------------
+	x.Epochs, err = rlib.GetEpochListByBizPropName(ctx, x.Ra.BID, "general")
+	if err != nil {
+		return err
+	}
 
 	//--------------------------------------------------
 	// Add Rentable fees to new RA first...
@@ -265,13 +275,13 @@ func F2RAHandleOldAssessments(ctx context.Context, x *rlib.F2RAWriteHandlerConte
 		if err != nil {
 			return err
 		}
-		rlib.Console("A5 - found %d recurring Assessments for RAID %d\n", len(n), ra.RAID)
+		// rlib.Console("A5 - found %d recurring Assessments for RAID %d\n", len(n), ra.RAID)
 
 		//=========================================================================
 		//  FOR EVERY RECURRING ASSESSMENT DEFINITION IN THIS RENTAL AGREEMENT...
 		//=========================================================================
 		for _, v := range n {
-			rlib.Console("A6 - ASMID=%d\n", v.ASMID)
+			// rlib.Console("A6 - ASMID=%d\n", v.ASMID)
 			if v.FLAGS&(1<<2) != 0 {
 				continue // skip it if it has already been Reversed
 			}
@@ -288,7 +298,7 @@ func F2RAHandleOldAssessments(ctx context.Context, x *rlib.F2RAWriteHandlerConte
 
 			// rlib.Console("A6.2 - dt for changes = %s\n", dt.Format(rlib.RRDATEREPORTFMT))
 
-			rlib.Console("A6.3 - v Start/Stop = %s\n", rlib.ConsoleDRange(&v.Start, &v.Stop))
+			// rlib.Console("A6.3 - v Start/Stop = %s\n", rlib.ConsoleDRange(&v.Start, &v.Stop))
 			//---------------------------------------------------------------
 			//  The assessment will be totally replaced if the new RA start
 			//  date is prior to the Assessment start date.
@@ -297,7 +307,7 @@ func F2RAHandleOldAssessments(ctx context.Context, x *rlib.F2RAWriteHandlerConte
 				//---------------------------------------------
 				// Reverse the whole thing; all instances...
 				//---------------------------------------------
-				rlib.Console("A7 -- REVERSE THE ASSESSMENT!! amended RA starts prior to ASM Start: %s\n", v.Start.Format(rlib.RRDATEREPORTFMT))
+				// rlib.Console("A7 -- REVERSE THE ASSESSMENT!! amended RA starts prior to ASM Start: %s\n", v.Start.Format(rlib.RRDATEREPORTFMT))
 				//---------------------------------------------------------------------
 				// This call reverses the supplied instances and all future instances
 				//---------------------------------------------------------------------
@@ -307,7 +317,7 @@ func F2RAHandleOldAssessments(ctx context.Context, x *rlib.F2RAWriteHandlerConte
 					return BizErrorListToError(be)
 				}
 			} else {
-				rlib.Console("A8 -- REVERSE from this time forward\n")
+				// rlib.Console("A8 -- REVERSE from this time forward\n")
 				//-------------------------------------------------------------
 				// Reverse the instances that occur in periods on or after
 				// x.Ra.RentStart.  We know the epoch as we have the  recurring
@@ -391,7 +401,7 @@ func F2RAHandleOldAssessments(ctx context.Context, x *rlib.F2RAWriteHandlerConte
 			}
 		}
 
-		rlib.Console("A10 - HANDLE INSTANCES\n")
+		// rlib.Console("A10 - HANDLE INSTANCES\n")
 		//-----------------------------------------------------------------------
 		// REVERSE ALL REMAINING INSTANCES IMPACTED BY THE NEW RENTAL AGREEMENT
 		//-----------------------------------------------------------------------
@@ -399,14 +409,14 @@ func F2RAHandleOldAssessments(ctx context.Context, x *rlib.F2RAWriteHandlerConte
 		if err != nil {
 			return err
 		}
-		rlib.Console("A11 -  Found %d instances for RAID %d in the range %s\n", len(n), ra.RAID, rlib.ConsoleDRange(&x.Ra.RentStart, &rlib.ENDOFTIME))
+		// rlib.Console("A11 -  Found %d instances for RAID %d in the range %s\n", len(n), ra.RAID, rlib.ConsoleDRange(&x.Ra.RentStart, &rlib.ENDOFTIME))
 		for _, v := range n {
 			if v.ASMID == skipASMID {
 				continue // this one is OK, we just added it
 			}
-			rlib.Console("A12 -  ASMID = %d\n", v.ASMID)
+			// rlib.Console("A12 -  ASMID = %d\n", v.ASMID)
 			if v.FLAGS&(1<<2) != 0 {
-				rlib.Console("A12.1 - reversed, skipping\n")
+				// rlib.Console("A12.1 - reversed, skipping\n")
 				continue // skip reversed assessments
 			}
 			if v.Start.Before(x.Ra.RentStart) {
@@ -421,16 +431,16 @@ func F2RAHandleOldAssessments(ctx context.Context, x *rlib.F2RAWriteHandlerConte
 			if v.Start.Before(x.LastClose.Dt) {
 				dt = x.LastClose.Dt
 			}
-			rlib.Console("A12.2 - Reversal dates will be as of: %s\n", dt.Format(rlib.RRDATEREPORTFMT))
+			// rlib.Console("A12.2 - Reversal dates will be as of: %s\n", dt.Format(rlib.RRDATEREPORTFMT))
 			//----------------------------
 			// Now process the instance
 			//----------------------------
 			if !v.Start.Before(x.Ra.RentStart) {
 				// Reverse the whole thing
-				rlib.Console("A13 - Reversing ASMID = %d\n", v.ASMID)
+				// rlib.Console("A13 - Reversing ASMID = %d\n", v.ASMID)
 				be := ReverseAssessment(ctx, &v, 0 /*this instance*/, &dt, &x.LastClose)
 				if len(be) > 0 {
-					rlib.Console("A13 error\n")
+					// rlib.Console("A13 error\n")
 					PrintBizErrorList(be)
 					return BizErrorListToError(be)
 				}
@@ -444,13 +454,116 @@ func F2RAHandleOldAssessments(ctx context.Context, x *rlib.F2RAWriteHandlerConte
 			}
 		}
 	}
-	rlib.Console("A14\n")
+	// rlib.Console("A14\n")
 	//--------------------------------------------------------------------
 	// There is one more edge case to check.  If the old RA ends in the
 	// same rental period as the new RA begins then we need to handle
-	// proration correctly.
+	// proration correctly.  This must be done for each Rentable
 	//--------------------------------------------------------------------
-	// rlib.InstanceDateCoveringDate(epoch, t, cycle)
+	for i := 0; i < len(x.RaChainOrig); i++ {
+		separation := x.RaChainOrig[i].RentStop.Sub(x.Ra.RentStart) // time duration between stop of old and start of new
+		if separation < 0 {
+			separation = -separation // ensure positive separation duration
+		}
+		if separation > 2*time.Hour { // if it's not the adjacent rental agreement (time sep < 2hrs)...
+			continue // ... then just keep looking
+		}
+		rlib.Console("A15:   Found adjacent Rental Agreement.  RAID = %d\n", x.RaChainOrig[i].RAID)
+		rlib.Console("A15.1: Loop for Rentables in that agreement\n")
+
+		//------------------------------------------------
+		// we'll start by looking at all the rentables...
+		//------------------------------------------------
+		d1 := x.RaChainOrig[i].RentStart
+		d2 := x.RaChainOrig[i].RentStop
+		m, err := rlib.GetRentalAgreementRentables(ctx, x.RaChainOrig[i].RAID, &d1, &d2)
+		if err != nil {
+			return err
+		}
+		//----------------------------
+		// Get the rentable type(s)...
+		//----------------------------
+		for j := 0; j < len(m); j++ {
+			// rlib.Console("A15.2:  Rentable - RID = %d\n", m[j].RID)
+			n, err := rlib.GetRentableTypeRefsByRange(ctx, m[j].RID, &d1, &d2)
+			if err != nil {
+				return err
+			}
+			for k := 0; k < len(n); k++ {
+				// rlib.Console("A15.3:  Rentable type for %s = %d\n", rlib.ConsoleDRange(&n[k].DtStart, &n[k].DtStop), n[k].RTID)
+				// rlib.Console("        Default RentCycle = %d, default proration cycle = %d\n", x.Xbiz.RT[n[k].RTID].RentCycle, x.Xbiz.RT[n[k].RTID].Proration)
+
+				//-----------------------------------------------------------
+				// Now we know the rent cycle.  we need to compute the start
+				// date for the the last rent cycle of this RA.
+				//-----------------------------------------------------------
+				t0 := rlib.InstanceDateCoveringDate(&x.RaChainOrig[i].RentCycleEpoch, &x.RaChainOrig[i].RentStop, x.Xbiz.RT[n[k].RTID].RentCycle)
+
+				// rlib.Console("A15.4:  t0 = %s\n", rlib.ConsoleDate(&t0))
+
+				//----------------------------------------------------------------------------
+				// Now get all the assessments that are Rent and that are for
+				// retnable m[j].RID that fall between t0 and d2 (x.RaChainOrig[i].RentStop)
+				//----------------------------------------------------------------------------
+				o, err := rlib.GetAssessmentInstancesByRAIDRIDRent(ctx, x.RaChainOrig[i].RAID, m[j].RID, &t0, &d2)
+				if err != nil {
+					return err
+				}
+				//----------------------------------------------------------------------------
+				// For each assessment in o, if it does not fall on the epoch then
+				// we need to reverse it and create a prorated assessment to cover
+				// the new / shorter period of time...
+				//----------------------------------------------------------------------------
+				for l := 0; l < len(o); l++ {
+					rlib.Console("A15.5:  found ASMID = %d on %s\n", o[l].ASMID, rlib.ConDt(&o[l].Start))
+					if o[l].Start.Equal(t0) {
+						continue // quick reject
+					}
+					//--------------------------------------------------------------------------
+					// First, determine the rent amount.  At the moment, we make
+					// an assumption that the auto-gen comment will be there.
+					// If we don't match it, we need other options for determining the amount.
+					// To see what this code is doing, look at:
+					// 		https://play.golang.org/p/VmX-07FWY40
+					//--------------------------------------------------------------------------
+					r := regexp.MustCompile(`(\d+)\s+of\s+(\d+)\s+(\S+)`)
+					m := r.FindStringSubmatch("prorated for 17 of 31 days | Derived from RAID 1, ASMID 1")
+					if len(m) > 0 {
+						// rlib.Console("A15.6 - found comment proration indicator\n")
+						num, err := strconv.ParseFloat(m[1], 64)
+						if err != nil {
+							return err
+						}
+						den, err := strconv.ParseFloat(m[2], 64)
+						if err != nil {
+							return err
+						}
+						amount := den * o[l].Amount / num
+						units := rlib.RecurUnitsStringToIndex(m[3])
+						// rlib.Console("Determined units to be: %d\n", units)
+						// rlib.Console("Determined amount to be: %8.2f\n", amount)
+
+						// Now determine the new Numerator =  (start of new RA) - (Asm.Start)
+						// rlib.Console("Start of new RA: %s,  start of old assessment: %s\n", rlib.ConsoleDate(&x.Ra.RentStart), rlib.ConsoleDate(&o[l].Start))
+						num1 := float64(x.Ra.RentStart.Sub(o[l].Start) / rlib.CycleDuration(x.Xbiz.RT[n[k].RTID].Proration, t0))
+						newAmt := num1 / den * amount
+						// rlib.Console("New numerator = %8.2f\n", num1)
+						// rlib.Console("New Prorated Amount = %8.2f\n", newAmt)
+
+						o[l].Amount = newAmt
+						o[l].AppendComment(fmt.Sprintf("prorated for %d of %d %s", int(num1), int(den), rlib.ProrationUnits(units)))
+						// rlib.Console("Updated comment: %s\n", o[l].Comment)
+						be := UpdateAssessment(ctx, &o[l], 0, &x.Ra.RentStart, &x.LastClose, 0 /*no expansion*/)
+						if len(be) > 0 {
+							return BizErrorListToError(be)
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// rlib.InstanceDateCoveringDate(x.Ra.RentCycleEpoch, x.Ra.RentStart, x.Ra.)
 	// rlib.Console("x.Ra.Meta.RAID = %d\n", x.Raf.Meta.RAID)
 	// for i := 0; i < len(x.RaChainOrig); i++ {
 	// 	rlib.Console("raChain[%d] = RAID = %d, start/stop = %s\n", i, x.RaChainOrig[i].RAID, rlib.ConsoleDRange(&x.RaChainOrig[i].RentStart, &x.RaChainOrig[i].RentStop))
