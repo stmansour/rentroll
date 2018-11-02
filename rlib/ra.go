@@ -32,7 +32,7 @@ var RAActions = []string{
 	"Set To First Approval",
 	"Set To Second Approval",
 	"Set To Move-In",
-	"Complete Move-In / Execute",
+	"Make Active / Execute",
 	"Received Notice-To-Move",
 	"Terminate",
 }

@@ -543,7 +543,9 @@ func F2RAHandleOldAssessments(ctx context.Context, x *rlib.F2RAWriteHandlerConte
 						// rlib.Console("Determined units to be: %d\n", units)
 						// rlib.Console("Determined amount to be: %8.2f\n", amount)
 
+						//--------------------------------------------------------------------------
 						// Now determine the new Numerator =  (start of new RA) - (Asm.Start)
+						//--------------------------------------------------------------------------
 						// rlib.Console("Start of new RA: %s,  start of old assessment: %s\n", rlib.ConsoleDate(&x.Ra.RentStart), rlib.ConsoleDate(&o[l].Start))
 						num1 := float64(x.Ra.RentStart.Sub(o[l].Start) / rlib.CycleDuration(x.Xbiz.RT[n[k].RTID].Proration, t0))
 						newAmt := num1 / den * amount
