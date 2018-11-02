@@ -21,10 +21,10 @@ type SearchTask struct {
 	TLID        int64             // the TaskList to which this task belongs
 	Name        string            `json:"TaskName"` // Task text
 	Worker      string            // Name of the associated work function
-	DtDue       rlib.JSONDate     // Task Due Date
-	DtPreDue    rlib.JSONDate     // Pre Completion due date
-	DtDone      rlib.JSONDate     // Task completion Date
-	DtPreDone   rlib.JSONDate     // Task Pre Completion Date
+	DtDue       rlib.JSONDateTime // Task Due Date
+	DtPreDue    rlib.JSONDateTime // Pre Completion due date
+	DtDone      rlib.JSONDateTime // Task completion Date
+	DtPreDone   rlib.JSONDateTime // Task Pre Completion Date
 	FLAGS       int64             // special circumstance indicators
 	DoneUID     int64             // user who marked task as done
 	PreDoneUID  int64             // user who marked task as predone

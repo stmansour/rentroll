@@ -315,19 +315,31 @@ window.buildTaskListElements = function () {
             { field: 'TLID',        caption: 'TLID',        size: '35px', sotrable: true, hidden: true},
             { field: 'TaskName',    caption: 'Name',        size: '300px',sotrable: true, hidden: false},
             { field: 'Worker',      caption: 'Worker',      size: '75px', sotrable: true, hidden: false},
+            // { field: 'DtPreDue',    caption: 'DtPreDue',    size: '80px', sotrable: true, hidden: false,
+            //     render: function(record, index, col_index) {return renderTaskGridDate(record.DtPreDue); }
+            // },
+            // { field: 'DtPreDone',   caption: 'DtPreDone',   size: '80px', sotrable: true, hidden: false,
+            //     render: function(record, index, col_index) {return renderTaskGridDate(record.DtPreDone); }
+            // },
+            // { field: 'DtDue',       caption: 'DtDue',       size: '80px', sotrable: true, hidden: false,
+            //     render: function(record, index, col_index) {return renderTaskGridDate(record.DtDue); }
+            // },
+            // { field: 'DtDone',      caption: 'DtDone',      size: '80px', sotrable: true, hidden: false,
+            //     render: function(record, index, col_index) {
+            //         return renderTaskGridDate(record.DtDone);
+            //     }
+            // },
             { field: 'DtPreDue',    caption: 'DtPreDue',    size: '80px', sotrable: true, hidden: false,
-                render: function(record, index, col_index) {return renderTaskGridDate(record.DtPreDue); }
+                render: function(record, index, col_index) {return taskDateRender(record.DtPreDue); }
             },
             { field: 'DtPreDone',   caption: 'DtPreDone',   size: '80px', sotrable: true, hidden: false,
-                render: function(record, index, col_index) {return renderTaskGridDate(record.DtPreDone); }
+                render: function(record, index, col_index) {return taskDateRender(record.DtPreDone); }
             },
             { field: 'DtDue',       caption: 'DtDue',       size: '80px', sotrable: true, hidden: false,
-                render: function(record, index, col_index) {return renderTaskGridDate(record.DtDue); }
+                render: function(record, index, col_index) {return taskDateRender(record.DtDue); }
             },
             { field: 'DtDone',      caption: 'DtDone',      size: '80px', sotrable: true, hidden: false,
-                render: function(record, index, col_index) {
-                    return renderTaskGridDate(record.DtDone);
-                }
+                render: function(record, index, col_index) { return taskDateRender(record.DtDone); }
             },
             { field: 'FLAGS',       caption: 'FLAGS',       size: '35px', sotrable: true, hidden: true},
             { field: 'DoneUID',     caption: 'DoneUID',     size: '35px', sotrable: true, hidden: true},
