@@ -118,7 +118,7 @@
             "Assessment": 1000,
             "Balance": 233.33000000000038,
             "Date": "8/1/2018",
-            "Description": "REVERSAL: Rent Non-Taxable (Reversed by ASM00000019)",
+            "Description": "REVERSAL: Rent Non-Taxable (Reversed by ASM00000020)",
             "Payor": "",
             "RAID": "RA-1",
             "RCPTID": "",
@@ -129,7 +129,7 @@
             "recid": 7
         },
         {
-            "ASMID": "ASM-19",
+            "ASMID": "ASM-20",
             "AppliedAmount": 0,
             "Assessment": -1000,
             "Balance": 233.33000000000038,
