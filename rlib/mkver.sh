@@ -1,6 +1,6 @@
 #!/bin/bash
 MAJVER=1
-MINVER=2
+MINVER=3
 if [ "${BUILD_NUMBER}x" = "x" -a -f "./buildno" ]; then
 	BLDNOFILE="./buildno"
 	BUILDNO=$(cat ${BLDNOFILE})
