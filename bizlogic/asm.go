@@ -301,7 +301,7 @@ func ReverseAssessmentsAfterStop(ctx context.Context, aold *rlib.Assessment, dtS
 		return bizErrSys(&err)
 	}
 
-	now := time.Now()
+	now := rlib.Now()
 
 	rlib.Console("Number of instances to reverse: %d\n", len(m))
 	for i := 0; i < len(m); i++ {
@@ -334,7 +334,7 @@ func ReverseAssessmentInstance(ctx context.Context, aold *rlib.Assessment, dt *t
 		// debug.PrintStack()
 		return nil // it's already reversed
 	}
-	now := time.Now()
+	now := rlib.Now()
 	if aold.Start.After(now) {
 		rlib.Console("ReverseAssessmentInstance: ATTEMPT TO REVERSE FUTURE ASSESSMENT: aold - ASMID = %d Start = %s\n", aold.ASMID, aold.Start.Format(rlib.RRDATEFMT3))
 		return nil
@@ -818,7 +818,7 @@ func InsertAssessment(ctx context.Context, a *rlib.Assessment, exp int, lc *rlib
 		rlib.ExpandAssessment(ctx, a, &xbiz, &d1, &d2, true, lc) // generates assessment instances
 	} else if exp != 0 && a.PASMID == 0 && 0 == (a.FLAGS&(1<<6)) { // only expand if we're asked and if we're not an instance, and not a single instanced assessment
 		// rlib.Console("C1\n")
-		now := rlib.DateAtTimeZero(time.Now())
+		now := rlib.DateAtTimeZero(rlib.Now())
 		dt := rlib.DateAtTimeZero(a.Start)
 		if !dt.After(now) {
 			// rlib.Console("C2  lc.ExpandAsmDtStart = %s\n", lc.ExpandAsmDtStart)
@@ -975,7 +975,7 @@ func createInstancesToDate(ctx context.Context, a *rlib.Assessment, xbiz *rlib.X
 	// handle expanding the instances and snapping to open period dates as necessary.
 	//-------------------------------------------------------------------------
 	d1 := *start
-	d2 := time.Now()                                                          // never go further in the future than the current time
+	d2 := rlib.Now()                                                          // never go further in the future than the current time
 	if lc.ExpandAsmDtStop.After(rlib.TIME0) && d2.After(lc.ExpandAsmDtStop) { // snap to expansion stop date if needed
 		d2 = a.Stop
 	}

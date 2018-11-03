@@ -502,7 +502,8 @@ func setRATerminator(ctx context.Context, ra *rlib.RentalAgreement) error {
 	}
 
 	ra.TerminatorUID = sess.UID
-	ra.TerminationDate = time.Now()
+	// ra.TerminationDate = time.Now()
+	ra.TerminationDate = rlib.Now()
 	return nil
 }
 

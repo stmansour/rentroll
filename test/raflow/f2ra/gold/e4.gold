@@ -27,7 +27,7 @@
                     "ActiveDate": "1900-01-01 00:00:00 UTC",
                     "ActiveName": "",
                     "ActiveUID": 0,
-                    "ApplicationReadyDate": "2018-10-20 21:16:00 UTC",
+                    "ApplicationReadyDate": "2018-11-03 01:15:00 UTC",
                     "ApplicationReadyName": "UID-0",
                     "ApplicationReadyUID": -99999,
                     "Approver1": 0,
@@ -201,7 +201,7 @@
             "FlowType": "RA",
             "ID": 1,
             "LastModBy": 211,
-            "LastModTime": "2018-10-20T14:16:56Z",
+            "LastModTime": "2018-11-02T18:15:20Z",
             "UserRefNo": "DUO6X142Z3GC1597BHG0"
         },
         "ValidationCheck": {

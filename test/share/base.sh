@@ -783,9 +783,9 @@ genericlogcheck() {
 startRentRollServer() {
 	if [ ${MANAGESERVER} -eq 1 ]; then
 		stopRentRollServer
-		cmd="${RRBIN}/rentroll -p ${RRPORT} ${RSD} ${RENTROLLSERVERAUTH} ${RRCONFIGPATH} > ${RRBIN}/rrlog 2>&1 &"
+		cmd="${RRBIN}/rentroll -p ${RRPORT} ${RSD} ${RENTROLLSERVERAUTH} ${RENTROLLSERVERNOW} ${RRCONFIGPATH} > ${RRBIN}/rrlog 2>&1 &"
 		echo "${cmd}"
-		${RRBIN}/rentroll -p ${RRPORT} ${RSD} ${RENTROLLSERVERAUTH} ${RRCONFIGPATH} > ${RRBIN}/rrlog 2>&1 &
+		${RRBIN}/rentroll -p ${RRPORT} ${RSD} ${RENTROLLSERVERAUTH} ${RENTROLLSERVERNOW} ${RRCONFIGPATH} > ${RRBIN}/rrlog 2>&1 &
 		sleep 1
 		rm -f rrlog
 		ln -s ${RRBIN}/rrlog

@@ -30,35 +30,23 @@ Date        Payor(s)                   Description                          RAID
 10/15/2018  Son Joshua Prince          REVERSAL: Rent Non-Taxable           RA-2        ASM-6                   Rentable001                                        548.39          0.00
                                        (prorated for 17 of 31 days |                                                                                                                   
                                        Derived from RAID 1, ASMID 1 |                                                                                                                  
-                                       Reversed by ASM00000024)                                                                                                                        
+                                       Reversed by ASM00000018)                                                                                                                        
 10/15/2018  Son Joshua Prince          REVERSAL: Pet Rent (prorated for 17  RA-2        ASM-8                   Rentable001                                          5.48          0.00
                                        of 31 days | Derived from RAID 1,                                                                                                               
-                                       ASMID 3 | Reversed by ASM00000026)                                                                                                              
-10/15/2018  Son Joshua Prince          REVERSAL: Pet Rent (Reversal of      RA-2        ASM-26                  Rentable001                                         -5.48          0.00
-                                       ASM00000008)                                                                                                                                    
-10/15/2018  Son Joshua Prince          Pet Rent                             RA-2        ASM-27                  Rentable001                                          3.87          3.87
-10/15/2018  Son Joshua Prince          REVERSAL: Rent Non-Taxable           RA-2        ASM-24                  Rentable001                                       -548.39          3.87
+                                       ASMID 3 | Reversed by ASM00000020)                                                                                                              
+10/15/2018  Son Joshua Prince          REVERSAL: Rent Non-Taxable           RA-2        ASM-18                  Rentable001                                       -548.39          0.00
                                        (Reversal of ASM00000006)                                                                                                                       
-10/15/2018  Son Joshua Prince          Rent Non-Taxable                     RA-2        ASM-25                  Rentable001                                        387.10        390.97
-11/01/2018  Son Joshua Prince          REVERSAL: Rent Non-Taxable           RA-2        ASM-22                  Rentable001                                     -1,000.00        390.97
-                                       (Reversal of ASM00000014)                                                                                                                       
-11/01/2018  Son Joshua Prince          REVERSAL: Pet Rent (Reversal of      RA-2        ASM-23                  Rentable001                                        -10.00        390.97
-                                       ASM00000015)                                                                                                                                    
-11/01/2018  Son Joshua Prince          REVERSAL: Rent Non-Taxable (Derived  RA-2        ASM-14                  Rentable001                                      1,000.00        390.97
-                                       from RAID 1, ASMID 1 | Reversed by                                                                                                              
-                                       ASM00000022)                                                                                                                                    
-11/01/2018  Son Joshua Prince          REVERSAL: Pet Rent (Derived from     RA-2        ASM-15                  Rentable001                                         10.00        390.97
-                                       RAID 1, ASMID 3 | Reversed by                                                                                                                   
-                                       ASM00000023)                                                                                                                                    
+10/15/2018  Son Joshua Prince          Rent Non-Taxable                     RA-2        ASM-19                  Rentable001                                        387.10        387.10
+10/15/2018  Son Joshua Prince          REVERSAL: Pet Rent (Reversal of      RA-2        ASM-20                  Rentable001                                         -5.48        387.10
+                                       ASM00000008)                                                                                                                                    
+10/15/2018  Son Joshua Prince          Pet Rent                             RA-2        ASM-21                  Rentable001                                          3.87        390.97
 ----------  -------------------------  -----------------------------------  ----------  ----------  ----------  ---------------  ------------  ------------  ------------  ------------
 11/02/2018                             Closing balance                                                                                                 0.00        390.97        390.97
                                                                                                                                                                                        
                                        *** RENTAL AGREEMENT 3 ***                                                                                                                      
 10/01/2018                             Opening balance                                                                                                                             0.00
-10/27/2018  Son Joshua Prince          Rent Non-Taxable                     RA-3        ASM-16                  Rentable001                                        161.29        161.29
-10/27/2018  Son Joshua Prince          Pet Rent                             RA-3        ASM-19                  Rentable001                                          1.61        162.90
-11/01/2018  Son Joshua Prince          Rent Non-Taxable                     RA-3        ASM-18                  Rentable001                                      1,000.00      1,162.90
-11/01/2018  Son Joshua Prince          Pet Rent                             RA-3        ASM-21                  Rentable001                                         10.00      1,172.90
+10/27/2018  Son Joshua Prince          Rent Non-Taxable                     RA-3        ASM-14                  Rentable001                                        161.29        161.29
+10/27/2018  Son Joshua Prince          Pet Rent                             RA-3        ASM-16                  Rentable001                                          1.61        162.90
 ----------  -------------------------  -----------------------------------  ----------  ----------  ----------  ---------------  ------------  ------------  ------------  ------------
-11/02/2018                             Closing balance                                                                                                 0.00      1,172.90      1,172.90
+11/02/2018                             Closing balance                                                                                                 0.00        162.90        162.90
                                                                                                                                                                                        

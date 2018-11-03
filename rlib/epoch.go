@@ -12,7 +12,8 @@ func GetRoundingDate(t time.Time) (n time.Time) {
 
 // GetTodayUTCRoundingDate returns Today's date with rounding in UTC timezone
 func GetTodayUTCRoundingDate() (t time.Time) {
-	now := time.Now().UTC()
+	// now := time.Now().UTC()
+	now := Now().UTC()
 	t = GetRoundingDate(now)
 	return
 }

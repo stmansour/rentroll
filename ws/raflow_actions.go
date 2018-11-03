@@ -479,7 +479,8 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 
 		// get current time in UTC
 		var today time.Time
-		today = time.Now().In(location)
+		// today = time.Now().In(location)
+		today = rlib.Now().In(location)
 
 		// take latest RAFLAGS value at this point(in case flag bits are reset)
 		clearedState := modRAFlowMeta.RAFLAGS & ^uint64(0xF)
@@ -762,7 +763,8 @@ func SetActionMetaData(ctx context.Context, d *ServiceData, Action int64, modRAF
 
 	// get current time in UTC
 	var today time.Time
-	today = time.Now().In(location)
+	// today = time.Now().In(location)
+	today = rlib.Now().In(location)
 
 	//--------------------------------------------------------------------------
 	// In noauth mode, it still have tester session

@@ -374,8 +374,11 @@ func UpdateRAFlowJSON(ctx context.Context, BID int64, dataToUpdate json.RawMessa
 			}
 		} else {
 			// IF DATA IS BLANK OR NULL THEN INITIAZE WITH IT SOME DEFAULTS
-			currentDateTime := time.Now()
+
+			// currentDateTime := time.Now()
+			currentDateTime := Now()
 			nextYearDateTime := currentDateTime.AddDate(1, 0, 0)
+
 			a.RentStart = JSONDate(currentDateTime)
 			a.RentStop = JSONDate(nextYearDateTime)
 			a.AgreementStart = JSONDate(currentDateTime)
@@ -885,7 +888,8 @@ func InsertInitialRAFlow(ctx context.Context, BID, UID int64) (int64, error) {
 	)
 
 	// current date and next year date
-	currentDateTime := time.Now()
+	// currentDateTime := time.Now()
+	currentDateTime := Now()
 	nextYearDateTime := currentDateTime.AddDate(1, 0, 0)
 
 	// rental agreement flow data
@@ -1132,7 +1136,8 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement, EditFlag bool) (RA
 	//-------------------------------------------------------------------------
 	// Add Rentables
 	//-------------------------------------------------------------------------
-	now := time.Now()
+	// now := time.Now()
+	now := Now()
 	o, err := GetRentalAgreementRentables(ctx, ra.RAID, &ra.AgreementStart, &ra.AgreementStop)
 	if err != nil {
 		return raf, nil

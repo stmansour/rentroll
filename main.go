@@ -78,6 +78,7 @@ func readCommandLineArgs() {
 	verPtr := flag.Bool("v", false, "prints the version to stdout")
 	rptPtr := flag.String("r", "0", "report: 0 = generate Journal records, 1 = Journal, 2 = Rentable, 4=Rentroll, 5=AssessmentCheck, 6=LedgerBalance, 7=RentableCountByType, 8=Statement, 9=Invoice, 10=LedgerActivity, 11=RentableGSR, 12-RALedgerBalanceOnDate,LID,RAID,Date, 13-RAAcctActivity,LID,RAID, 14,Date=delinqRpt")
 	pLoad := flag.String("L", "", "CSV Load index,filename")
+	pTN := flag.String("testDtNow", "", "Override time.Now with the supplied datetime string value")
 	portPtr := flag.Int("p", 8270, "port on which RentRoll server listens")
 	bPtr := flag.Bool("A", false, "if specified run as a batch process, do not start http")
 	xPtr := flag.Bool("x", false, "if specified, inhibit vacancy checking")
@@ -96,6 +97,16 @@ func readCommandLineArgs() {
 		rlib.DisableConsole()
 	} else {
 		rlib.EnableConsole()
+	}
+
+	if len(*pTN) > 0 {
+		var err error
+		rlib.QAInfra.Now, err = rlib.StringToDate(*pTN)
+		if err != nil {
+			fmt.Printf("Error from StringToDate %q - %s\n", *pTN, err.Error())
+			os.Exit(1)
+		}
+		fmt.Printf("QAInfra.Now set to %s\n", rlib.QAInfra.Now.Format(rlib.RRDATETIMEFMT))
 	}
 
 	App.DBDir = *dbnmPtr
@@ -206,8 +217,9 @@ func main() {
 	}
 
 	rlib.InitDBHelpers(App.dbrr, App.dbdir)
-	rlib.SessionInit(10) // must be called before calling InitBizInternals
-	initRentRoll()
+	rlib.SessionInit(10)   // must be called before calling InitBizInternals
+	rlib.InitQAInfra()     // makes rlib.Now() faster
+	initRentRoll()         //
 	ws.SvcInit(App.NoAuth) // currently needed for testing
 
 	if App.BatchMode {

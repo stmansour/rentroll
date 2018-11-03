@@ -13,7 +13,7 @@ source ../../share/base.sh
 
 echo "STARTING RENTROLL SERVER"
 RENTROLLSERVERAUTH="-noauth"
-startRentRollServer
+RENTROLLSERVERNOW="-testDtNow 10/24/2018"
 
 # echo "SINGLETEST = ${SINGLETEST}"
 
@@ -58,7 +58,9 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     RAIDAMENDEDID="2"
 
     echo "Create new database... x${TFILES}.sql"
+    stopRentRollServer
     mysql --no-defaults rentroll < x${TFILES}.sql
+    startRentRollServer
 
     # Send the command to change the flow to Active:
     echo "%7B%22UserRefNo%22%3A%22${RAID1REFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
@@ -102,7 +104,11 @@ fi
 TFILES="b"
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
     echo "Create new database... x${TFILES}.sql"
+
+    stopRentRollServer
     mysql --no-defaults rentroll < x${TFILES}.sql
+    startRentRollServer
+
 
     RAIDREFNO="5R6I7HQM1M1922LD35HH"
     RAIDAMENDEDID="2"
@@ -140,7 +146,11 @@ fi
 TFILES="c"
 # if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
 #     echo "Create new database... x${TFILES}.sql"
-#     mysql --no-defaults rentroll < x${TFILES}.sql
+
+stopRentRollServer
+mysql --no-defaults rentroll < x${TFILES}.sql
+startRentRollServer
+
 #
 #     RAIDREFNO="V91682OU9DNAST5K262A"
 #     RAIDAMENDEDID="3"
@@ -176,7 +186,11 @@ TFILES="c"
 TFILES="d"
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
     echo "Create new database... x${TFILES}.sql"
+
+    stopRentRollServer
     mysql --no-defaults rentroll < x${TFILES}.sql
+    startRentRollServer
+
 
     RAIDREFNO="1RQTH0A0EO2JD003475M"
     RAIDAMENDEDID="3"
@@ -210,7 +224,11 @@ fi
 TFILES="e"
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
     echo "Create new database... x${TFILES}.sql"
+
+    stopRentRollServer
     mysql --no-defaults rentroll < x${TFILES}.sql
+    startRentRollServer
+
 
     # #----------------------------------------------------------------
     # # put RA 1 into Edit mode...
@@ -293,7 +311,11 @@ fi
 TFILES="f"
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
     echo "Create new database... x${TFILES}.sql"
+
+    stopRentRollServer
     mysql --no-defaults rentroll < x${TFILES}.sql
+    startRentRollServer
+
 
     RAIDREFNO="C8VV07E4FJI983MC5Z76"
 
@@ -344,7 +366,11 @@ fi
 TFILES="g"
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
     echo "Create new database... x${TFILES}.sql"
+
+    stopRentRollServer
     mysql --no-defaults rentroll < x${TFILES}.sql
+    startRentRollServer
+
     RAIDREFNO="VYGPF6A5V81V9S66H032"
 
     #----------------------------------------------------------------
@@ -386,7 +412,11 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     echo "Test ${TFILES}"
 
     echo "Create new database... x${TFILES}.sql"
+
+    stopRentRollServer
     mysql --no-defaults rentroll < x${TFILES}.sql
+    startRentRollServer
+
     RAIDREFNO="227ZM0HGT05MQC41XM89"
 
     #----------------------------------------------------------------
@@ -430,7 +460,11 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     echo "Test ${TFILES}"
 
     echo "Create new database... x${TFILES}.sql"
+
+    stopRentRollServer
     mysql --no-defaults rentroll < x${TFILES}.sql
+    startRentRollServer
+
     RAIDREFNO="FV9M2N2695EFPG795KQ4"
 
     #----------------------------------------------------------------
@@ -468,7 +502,11 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     echo "Test ${TFILES}"
 
     echo "Create new database... x${TFILES}.sql"
+
+    stopRentRollServer
     mysql --no-defaults rentroll < x${TFILES}.sql
+    startRentRollServer
+
     RAIDREFNO="K6HV8GB4E222RJX864F4"
 
     #----------------------------------------------------------------
@@ -506,7 +544,11 @@ TFILES="k"
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
     echo "Test ${TFILES}"
     echo "Create new database... x${TFILES}.sql"
+
+    stopRentRollServer
     mysql --no-defaults rentroll < x${TFILES}.sql
+    startRentRollServer
+
     RAIDREFNO="WK4UD23XJ9S41831YZ6Y"
 
     #----------------------------------------------------------------
@@ -515,7 +557,7 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
     dojsonPOST "http://localhost:8270/v1/raactions/1/3" "request" "${TFILES}0"  "WebService--Activate-RefNo"
 
-    mysqlverify "${TFILES}1" "RentalAgreements"	"select RAID,RATID,BID,PRAID,ORIGIN,AgreementStart,AgreementStop from RentalAgreement;" 
+    mysqlverify "${TFILES}1" "RentalAgreements"	"select RAID,RATID,BID,PRAID,ORIGIN,AgreementStart,AgreementStop from RentalAgreement;"
 fi
 
 #------------------------------------------------------------------------------
@@ -537,7 +579,11 @@ TFILES="l"
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
     echo "Test ${TFILES}"
     echo "Create new database... x${TFILES}.sql"
+
+    stopRentRollServer
     mysql --no-defaults rentroll < x${TFILES}.sql
+    startRentRollServer
+
     RAIDREFNO="T0LVI9R4NH73DBS17008"
 
     #----------------------------------------------------------------

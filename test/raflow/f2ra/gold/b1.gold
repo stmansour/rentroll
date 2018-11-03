@@ -438,7 +438,7 @@
             "Assessment": 1000,
             "Balance": 0,
             "Date": "6/1/2018",
-            "Description": "REVERSAL: Rent Non-Taxable (Reversed by ASM00000018)",
+            "Description": "REVERSAL: Rent Non-Taxable (Reversed by ASM00000017)",
             "Payor": "Hilaria Rosaline Moody",
             "RAID": "RA-1",
             "RCPTID": "",
@@ -486,7 +486,7 @@
             "Assessment": 1000,
             "Balance": 0,
             "Date": "7/1/2018",
-            "Description": "REVERSAL: Rent Non-Taxable (Reversed by ASM00000019)",
+            "Description": "REVERSAL: Rent Non-Taxable (Reversed by ASM00000018)",
             "Payor": "Hilaria Rosaline Moody",
             "RAID": "RA-1",
             "RCPTID": "",
@@ -561,7 +561,7 @@
             "recid": 34
         },
         {
-            "ASMID": "ASM-20",
+            "ASMID": "ASM-19",
             "AppliedAmount": 0,
             "Assessment": -1000,
             "Balance": 0,
@@ -582,7 +582,7 @@
             "Assessment": 1000,
             "Balance": 0,
             "Date": "8/1/2018",
-            "Description": "REVERSAL: Rent Non-Taxable (Reversed by ASM00000020)",
+            "Description": "REVERSAL: Rent Non-Taxable (Reversed by ASM00000019)",
             "Payor": "Hilaria Rosaline Moody",
             "RAID": "RA-1",
             "RCPTID": "",
@@ -593,7 +593,7 @@
             "recid": 36
         },
         {
-            "ASMID": "ASM-19",
+            "ASMID": "ASM-18",
             "AppliedAmount": 0,
             "Assessment": -1000,
             "Balance": 0,
@@ -609,7 +609,7 @@
             "recid": 37
         },
         {
-            "ASMID": "ASM-18",
+            "ASMID": "ASM-17",
             "AppliedAmount": 0,
             "Assessment": -1000,
             "Balance": 0,
@@ -625,7 +625,7 @@
             "recid": 38
         },
         {
-            "ASMID": "ASM-21",
+            "ASMID": "ASM-20",
             "AppliedAmount": 0,
             "Assessment": 400,
             "Balance": 400,
