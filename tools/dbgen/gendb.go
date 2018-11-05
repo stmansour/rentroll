@@ -973,6 +973,8 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 					Stop:           d2,
 					ARID:           dbConf.PetFees[j].ARID,
 				}
+				noClose.ExpandAsmDtStart = asm.Start                    // this is necessary
+				noClose.ExpandAsmDtStop = asm.Stop                      // this is necessary
 				be := bizlogic.InsertAssessment(ctx, &asm, 1, &noClose) // bizlogic will not expand it if it is a single instanced assessment
 				if be != nil {
 					return bizlogic.BizErrorListToError(be)

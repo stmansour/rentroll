@@ -821,7 +821,7 @@ func InsertAssessment(ctx context.Context, a *rlib.Assessment, exp int, lc *rlib
 		now := rlib.DateAtTimeZero(rlib.Now())
 		dt := rlib.DateAtTimeZero(a.Start)
 		if !dt.After(now) {
-			// rlib.Console("C2  lc.ExpandAsmDtStart = %s\n", lc.ExpandAsmDtStart)
+			// rlib.Console("C2  lc.ExpandAsmDtStart = %s\n", rlib.ConDt(&lc.ExpandAsmDtStart))
 			err := createInstancesToDate(ctx, a, &xbiz, lc, &originalStart)
 			if err != nil {
 				return bizErrSys(&err)

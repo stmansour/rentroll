@@ -119,8 +119,10 @@ func ExpandAssessment(ctx context.Context, a *Assessment, xbiz *XBusiness, d1, d
 		// the closed periods. The limit dates will force those instances onto
 		// acceptable dates.
 		//-----------------------------------------------------------------------------
-		// Console("%s: GetRecurrences(%s, %s, %d) =\n", funcname, // ConsoleDRange(&dtLimitStart, &dtLimitStop), // ConsoleDRange(&dtLimitStart, &dtLimitStop), a.RentCycle)
+		// Console("%s: dtLimitStart = %s, dtLimitStop = %s\n", funcname, ConDt(&dtLimitStart), ConDt(&dtLimitStop))
+		// Console("%s: GetRecurrences(%s, %s, %d) =\n", funcname, ConsoleDRange(&dtLimitStart, &dtLimitStop), ConsoleDRange(&dtLimitStart, &dtLimitStop), a.RentCycle)
 		dl := GetRecurrences(&dtLimitStart, &dtLimitStop, &dtLimitStart, &dtLimitStop, a.RentCycle)
+		// Console("%s: GetRecurrences returned %d dates\n", funcname, len(dl))
 		for i := 0; i < len(dl); i++ {
 			// Console("%s\n", dl[i].Format(RRDATEFMT3))
 		}
