@@ -44,7 +44,7 @@ Developers: Please add notes here to anything that is missing.
 
 10. The files sqlschema/fixprod.sh and sqlschema/fixrcpts.sh are scripts
     that update the production databases based on all the changes we make.
-    You will need to update them as well as dbmod.sh. 
+    You will need to update them as well as dbmod.sh.
 
 11. All test cases should be documented. Describe what the test
     does and what the expected results are.  If you don't do this
@@ -56,6 +56,31 @@ Developers: Please add notes here to anything that is missing.
     convention.  Individual tests within functest.sh can be created
     in sections referred to by name. This makes them easier to
     document, and it makes it possible to run them individually
-    for debugging purposes. an example of this can be seen in
+    for debugging purposes. A good example of this can be seen in
     ./raflow/f2ra/functest.sh
 
+    * There are many environment variables used within the functions in
+      base.sh. You can set these variables prior to calling the functions
+      as needed.  They need to all be documented, but as of this writing
+      they are not.  Here are some important env vars that you must understand
+      before writing or debugging tests.
+
+      - RENTROLLSERVERNOW
+        This one can cause considerable confusion if you are not aware of it.
+        There is a function called rlib.Now() which is used in some places as
+        a replacement for time.Now().  Under VERY special conditions, it can
+        return a value which is NOT the system time.  Safeguards have been
+        put in place so that this cannot happen in production. But it will
+        happen in the development environment. For testing it is used to
+        control the "current" date that is used when expanding past instances
+        of repeating sequences (assessments, tasklists, ...).  The problem
+        with expanding past instances is that as time progresses -- days, weeks,
+        and months-- after the tests have been written the number of instances
+        created will change. This will cause ASMIDs to change, it will cause
+        report output and other output to change significantly over time. Thus,
+        the "good" files no longer work (or they would need to be constantly
+        updated). To address this, you can set the date that you want
+        rlib.Now() to return.  This will cause the expansions to return a
+        predictable number of instances and the tests will not need to be
+        updated as time progresses.  This variable is used extensively in
+        ./raflow/f2ra/functest.sh

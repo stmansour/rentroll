@@ -918,6 +918,8 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 		asmRent.Start = epoch
 		asmRent.Stop = d2
 		asmRent.ARID = dbConf.ARIDrent
+		noClose.ExpandAsmDtStart = asmRent.Start // this is necessary
+		noClose.ExpandAsmDtStop = asmRent.Stop   // this is necessary
 		be := bizlogic.InsertAssessment(ctx, &asmRent, 1, &noClose)
 		if be != nil {
 			return bizlogic.BizErrorListToError(be)
@@ -1018,6 +1020,8 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 					Stop:           d2,
 					ARID:           dbConf.VehicleFees[j].ARID,
 				}
+				noClose.ExpandAsmDtStart = asm.Start                    // this is necessary
+				noClose.ExpandAsmDtStop = asm.Stop                      // this is necessary
 				be := bizlogic.InsertAssessment(ctx, &asm, 1, &noClose) // bizlogic will not expand it if it is a single instanced assessment
 				if be != nil {
 					return bizlogic.BizErrorListToError(be)
@@ -1048,6 +1052,8 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 			a.Start = d1
 			a.Stop = d1
 			a.ARID = dbConf.ARIDrent
+			noClose.ExpandAsmDtStart = a.Start // this is necessary
+			noClose.ExpandAsmDtStop = a.Stop   // this is necessary
 			be = bizlogic.InsertAssessment(ctx, &a, 1, &noClose)
 			if be != nil {
 				return bizlogic.BizErrorListToError(be)

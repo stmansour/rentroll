@@ -118,7 +118,7 @@
             "Assessment": 1000,
             "Balance": 233.33000000000038,
             "Date": "8/1/2018",
-            "Description": "REVERSAL: Rent Non-Taxable (Reversed by ASM00000019)",
+            "Description": "REVERSAL: Rent Non-Taxable (Reversed by ASM00000018)",
             "Payor": "",
             "RAID": "RA-1",
             "RCPTID": "",
@@ -129,7 +129,7 @@
             "recid": 7
         },
         {
-            "ASMID": "ASM-19",
+            "ASMID": "ASM-18",
             "AppliedAmount": 0,
             "Assessment": -1000,
             "Balance": 233.33000000000038,
@@ -161,17 +161,17 @@
             "recid": 9
         },
         {
-            "ASMID": "",
-            "AppliedAmount": 0,
+            "ASMID": "ASM-7",
+            "AppliedAmount": -1000,
             "Assessment": 0,
             "Balance": 233.33000000000038,
-            "Date": "9/1/2018",
-            "Description": "Closing balance",
-            "Payor": "",
-            "RAID": "",
-            "RCPTID": "",
+            "Date": "8/1/2018",
+            "Description": "REVERSAL: Receipt allocation (payment for ASM-7)",
+            "Payor": "Asa Lara Bean",
+            "RAID": "RA-1",
+            "RCPTID": "RCPT-6",
             "RentableName": "",
-            "Reverse": false,
+            "Reverse": true,
             "TCID": 0,
             "UnappliedAmount": 0,
             "recid": 10
@@ -180,9 +180,9 @@
             "ASMID": "",
             "AppliedAmount": 0,
             "Assessment": 0,
-            "Balance": 0,
-            "Date": "1/1/1900",
-            "Description": "",
+            "Balance": 233.33000000000038,
+            "Date": "9/1/2018",
+            "Description": "Closing balance",
             "Payor": "",
             "RAID": "",
             "RCPTID": "",
@@ -198,7 +198,7 @@
             "Assessment": 0,
             "Balance": 0,
             "Date": "1/1/1900",
-            "Description": "*** RENTAL AGREEMENT 2 ***",
+            "Description": "",
             "Payor": "",
             "RAID": "",
             "RCPTID": "",
@@ -207,6 +207,22 @@
             "TCID": 0,
             "UnappliedAmount": 0,
             "recid": 12
+        },
+        {
+            "ASMID": "",
+            "AppliedAmount": 0,
+            "Assessment": 0,
+            "Balance": 0,
+            "Date": "1/1/1900",
+            "Description": "*** RENTAL AGREEMENT 2 ***",
+            "Payor": "",
+            "RAID": "",
+            "RCPTID": "",
+            "RentableName": "",
+            "Reverse": false,
+            "TCID": 0,
+            "UnappliedAmount": 0,
+            "recid": 13
         },
         {
             "ASMID": "",
@@ -222,7 +238,7 @@
             "Reverse": false,
             "TCID": 0,
             "UnappliedAmount": 0,
-            "recid": 13
+            "recid": 14
         },
         {
             "ASMID": "ASM-14",
@@ -238,7 +254,7 @@
             "Reverse": false,
             "TCID": 0,
             "UnappliedAmount": 0,
-            "recid": 14
+            "recid": 15
         },
         {
             "ASMID": "",
@@ -254,9 +270,9 @@
             "Reverse": false,
             "TCID": 0,
             "UnappliedAmount": 0,
-            "recid": 15
+            "recid": 16
         }
     ],
     "status": "success",
-    "total": 15
+    "total": 16
 }

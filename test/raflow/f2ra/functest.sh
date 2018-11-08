@@ -599,6 +599,49 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     dorrtest "${TFILES}1" "${RRDATERANGE} -x -b ${BUD} -r 23,1" "PayorReport"
 fi
 
+#------------------------------------------------------------------------------
+#  TEST m
+#  Bug was found. Backdate rental agreement into closed period. When the
+#  assessments were created during the Flow2RA conversion, the prorated rent
+#  assessment for the month of October for the amendment was missed. And
+#  the rent assessments for the month of November were missed.  This test is
+#  used to verify that bug fixes to make this scenario work.
+#
+#  Scenario
+#  RA 1 is from 7/1/2018 to 6/30/2019
+#  Periods for 7/31, 8/31, 9/30, and 10/31 have been closed.
+#  Amend RA 1 on Nov 6. backdate the amendment to 10/15/2018
+#
+#  Expected Results:
+#  1. Ensure that Prorated assessments for October Rent and PetRent are
+#     created October for both RA 1 and RA 2. 
+#  2. Ensure that the rent assessments for November are created for RA 2
+#------------------------------------------------------------------------------
+TFILES="m"
+if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
+    echo "Test ${TFILES}"
+    echo "Create new database... x${TFILES}.sql"
+
+    RENTROLLSERVERNOW="-testDtNow 11/6/2018"
+    stopRentRollServer
+    mysql --no-defaults rentroll < x${TFILES}.sql
+    startRentRollServer
+
+    RAIDREFNO="5R86U008G1WNM7MU3FQ7"
+
+    #----------------------------------------------------------------
+    # Make the updated RefNo an Active RA
+    #----------------------------------------------------------------
+    echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
+    dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}0"  "WebService--Activate-RefNo"
+
+    #----------------------------------------------------------------
+    # Generate text payor statement
+    #----------------------------------------------------------------
+    RRDATERANGE="-j 2018-10-01 -k 2018-12-01"
+    dorrtest "${TFILES}1" "${RRDATERANGE} -x -b ${BUD} -r 23,1" "PayorReport"
+fi
+
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
 

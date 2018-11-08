@@ -118,7 +118,7 @@
             "Assessment": 1000,
             "Balance": 0,
             "Date": "8/1/2018",
-            "Description": "REVERSAL: Rent Non-Taxable (Reversed by ASM00000408)",
+            "Description": "REVERSAL: Rent Non-Taxable (Reversed by ASM00000409)",
             "Payor": "Louann Lezlie Mejia",
             "RAID": "RA-1",
             "RCPTID": "",
@@ -129,7 +129,7 @@
             "recid": 7
         },
         {
-            "ASMID": "ASM-408",
+            "ASMID": "ASM-409",
             "AppliedAmount": 0,
             "Assessment": -1000,
             "Balance": 0,
@@ -145,7 +145,7 @@
             "recid": 8
         },
         {
-            "ASMID": "ASM-409",
+            "ASMID": "ASM-410",
             "AppliedAmount": 0,
             "Assessment": 612.9,
             "Balance": 612.9,
@@ -182,7 +182,7 @@
             "Assessment": 4000,
             "Balance": 612.9,
             "Date": "9/20/2018",
-            "Description": "REVERSAL: Security Deposit Assessment (Reversed by ASM00000410)",
+            "Description": "REVERSAL: Security Deposit Assessment (Reversed by ASM00000408)",
             "Payor": "Louann Lezlie Mejia",
             "RAID": "RA-1",
             "RCPTID": "",
@@ -193,7 +193,7 @@
             "recid": 11
         },
         {
-            "ASMID": "ASM-410",
+            "ASMID": "ASM-408",
             "AppliedAmount": 0,
             "Assessment": -4000,
             "Balance": 612.9,

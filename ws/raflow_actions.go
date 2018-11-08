@@ -81,11 +81,13 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// HTTP METHOD CHECK
 	if r.Method != "POST" {
 		err = fmt.Errorf("only POST method is allowed")
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
 	// SEE IF WE CAN UNMARSHAL THE DATA
 	if err = json.Unmarshal([]byte(d.data), &foo); err != nil {
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -94,15 +96,21 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//-------------------------------------------------------
 	tx, ctx, err = rlib.NewTransactionWithContext(r.Context())
 	if err != nil {
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
 	var flow rlib.Flow
 
+	rlib.Console("%s: foo = %#v\n", funcname, foo)
+	rlib.Console("%s: d = %#v\n", funcname, d)
+
 	switch foo.Version {
 	case "raid":
+		rlib.Console("%s: handleRAIDVersion\n", funcname)
 		flow, err = handleRAIDVersion(ctx, d, foo, raFlowData)
 		if err != nil {
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 
@@ -113,11 +121,13 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 
 	case "refno":
+		rlib.Console("%s: handleRefNoVersion\n", funcname)
 		var resp FlowResponse
 		var raflowRespData RAFlowResponse
 
 		raflowRespData, err = handleRefNoVersion(ctx, d, foo, raFlowData)
 		if err != nil {
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 

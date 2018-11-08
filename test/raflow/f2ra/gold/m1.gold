@@ -1,0 +1,64 @@
+Colton Krissy Beard - Statement
+Period: Oct 1, 2018 - Dec 1, 2018 <br>
+79181 Maple, Tallahassee, NE 98081, USA
+                                                                                                                                    Unapplied       Applied                            
+Date        Payor(s)                   Description                          RAID        ASMID       RCPTID      Rentable                Funds         Funds    Assessment       Balance
+----------  -------------------------  -----------------------------------  ----------  ----------  ----------  ---------------  ------------  ------------  ------------  ------------
+                                       *** RECEIPT SUMMARY ***                                                                                                                         
+10/01/2018  Colton Krissy Beard        Receipt 669287                                               RCPT-4                           1,000.00          0.00                    1,000.00
+10/01/2018  Colton Krissy Beard        Receipt 584091                                               RCPT-10                             10.00          0.00                       10.00
+11/01/2018  Colton Krissy Beard        Receipt 491574                                               RCPT-5                           1,000.00          0.00                    1,000.00
+11/01/2018  Colton Krissy Beard        Receipt 110790                                               RCPT-11                             10.00          0.00                       10.00
+                                                                                                                                                                                       
+                                       *** UNAPPLIED FUNDS ***                                                                                                                         
+                                                                                                                                                                                       
+                                       *** RENTAL AGREEMENT 1 ***                                                                                                                      
+10/01/2018                             Opening balance                                                                                                                             0.00
+10/01/2018  Colton Krissy Beard        REVERSAL: Rent Non-Taxable           RA-1        ASM-5                   Rentable001                                      1,000.00          0.00
+                                       (Reversed by ASM00000022)                                                                                                                       
+10/01/2018  Colton Krissy Beard        REVERSAL: Pet Rent (Reversed by      RA-1        ASM-12                  Rentable001                                         10.00          0.00
+                                       ASM00000024)                                                                                                                                    
+10/01/2018  Colton Krissy Beard        REVERSAL: Receipt allocation         RA-1        ASM-12      RCPT-10     Rentable001                           10.00                        0.00
+                                       (payment for ASM-12)                                                                                                                            
+10/01/2018  Colton Krissy Beard        REVERSAL: Receipt allocation         RA-1        ASM-5       RCPT-4      Rentable001                        1,000.00                        0.00
+                                       (payment for ASM-5)                                                                                                                             
+10/31/2018  Colton Krissy Beard        REVERSAL: Receipt allocation         RA-1        ASM-12      RCPT-10     Rentable001                          -10.00                        0.00
+                                       (payment for ASM-12)                                                                                                                            
+10/31/2018  Colton Krissy Beard        REVERSAL: Receipt allocation         RA-1        ASM-5       RCPT-4      Rentable001                       -1,000.00                        0.00
+                                       (payment for ASM-5)                                                                                                                             
+11/01/2018  Colton Krissy Beard        REVERSAL: Receipt allocation         RA-1        ASM-13      RCPT-11     Rentable001                          -10.00                        0.00
+                                       (payment for ASM-13)                                                                                                                            
+11/01/2018  Colton Krissy Beard        REVERSAL: Receipt allocation         RA-1        ASM-13      RCPT-11     Rentable001                           10.00                        0.00
+                                       (payment for ASM-13)                                                                                                                            
+11/01/2018  Colton Krissy Beard        REVERSAL: Receipt allocation         RA-1        ASM-6       RCPT-5      Rentable001                        1,000.00                        0.00
+                                       (payment for ASM-6)                                                                                                                             
+11/01/2018  Colton Krissy Beard        REVERSAL: Receipt allocation         RA-1        ASM-6       RCPT-5      Rentable001                       -1,000.00                        0.00
+                                       (payment for ASM-6)                                                                                                                             
+11/01/2018  Colton Krissy Beard        REVERSAL: Pet Rent (Reversal of      RA-1        ASM-21                  Rentable001                                        -10.00          0.00
+                                       ASM00000013)                                                                                                                                    
+11/01/2018  Colton Krissy Beard        REVERSAL: Rent Non-Taxable           RA-1        ASM-20                  Rentable001                                     -1,000.00          0.00
+                                       (Reversal of ASM00000006)                                                                                                                       
+11/01/2018  Colton Krissy Beard        REVERSAL: Pet Rent (Reversed by      RA-1        ASM-13                  Rentable001                                         10.00          0.00
+                                       ASM00000021)                                                                                                                                    
+11/01/2018  Colton Krissy Beard        REVERSAL: Rent Non-Taxable           RA-1        ASM-6                   Rentable001                                      1,000.00          0.00
+                                       (Reversed by ASM00000020)                                                                                                                       
+11/01/2018  Colton Krissy Beard        REVERSAL: Pet Rent (Reversal of      RA-1        ASM-24                  Rentable001                                        -10.00          0.00
+                                       ASM00000012 | Snapping 10/1/2018                                                                                                                
+                                       open period 11/1/2018)                                                                                                                          
+11/01/2018  Colton Krissy Beard        Rent Non-Taxable                     RA-1        ASM-23                  Rentable001                                        451.61        451.61
+11/01/2018  Colton Krissy Beard        REVERSAL: Rent Non-Taxable           RA-1        ASM-22                  Rentable001                                     -1,000.00        451.61
+                                       (Reversal of ASM00000005 | Snapping                                                                                                             
+                                       10/1/2018 open period 11/1/2018)                                                                                                                
+11/01/2018  Colton Krissy Beard        Pet Rent                             RA-1        ASM-25                  Rentable001                                          4.52        456.13
+----------  -------------------------  -----------------------------------  ----------  ----------  ----------  ---------------  ------------  ------------  ------------  ------------
+12/02/2018                             Closing balance                                                                                                 0.00        456.13        456.13
+                                                                                                                                                                                       
+                                       *** RENTAL AGREEMENT 2 ***                                                                                                                      
+10/01/2018                             Opening balance                                                                                                                             0.00
+11/01/2018  Colton Krissy Beard        Rent Non-Taxable                     RA-2        ASM-16                  Rentable001                                      1,000.00      1,000.00
+11/01/2018  Colton Krissy Beard        Pet Rent                             RA-2        ASM-19                  Rentable001                                         10.00      1,010.00
+11/01/2018  Colton Krissy Beard        Rent Non-Taxable                     RA-2        ASM-14                  Rentable001                                        548.39      1,558.39
+11/01/2018  Colton Krissy Beard        Pet Rent                             RA-2        ASM-17                  Rentable001                                          5.48      1,563.87
+----------  -------------------------  -----------------------------------  ----------  ----------  ----------  ---------------  ------------  ------------  ------------  ------------
+12/02/2018                             Closing balance                                                                                                 0.00      1,563.87      1,563.87
+                                                                                                                                                                                       

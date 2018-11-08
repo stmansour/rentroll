@@ -13,6 +13,6 @@ ASM00000007  RA00000001  Rentable001  monthly     daily        1,000.00         
 ASM00000010  RA00000001  Rentable001  monthly     daily        1,000.00           Rent Non-Taxable
 ASM00000014  RA00000002  Rentable001  monthly     daily        1,000.00           Rent Non-Taxable
 ASM00000015  RA00000002  Rentable001  monthly     daily        1,000.00           Rent Non-Taxable
+ASM00000018  RA00000001  Rentable001  monthly     daily       -1,000.00           Rent Non-Taxable
 ASM00000019  RA00000001  Rentable001  monthly     daily       -1,000.00           Rent Non-Taxable
-ASM00000020  RA00000001  Rentable001  monthly     daily       -1,000.00           Rent Non-Taxable
 
