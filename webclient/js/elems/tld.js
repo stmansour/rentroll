@@ -6,7 +6,7 @@
     dtFormatISOToW2ui, localtimeToUTC, setDefaultFormFieldAsPreviousRecord,
     getTLDInitRecord, getCurrentBID, getTDInitRecord, saveTaskListDefinition,
     closeTaskDescForm, setTaskDescButtonsState, newDateKeepOldTime,
-    w2uiDateTimeControlString,
+    w2uiDateTimeControlString, tldsLoadEventCB,
 */
 
 // Temporary storage for when a date is toggled off
@@ -700,7 +700,7 @@ window.saveTaskListDefinition = function (hide, reloadTldsInfo) {
         w2ui.tldsGrid.render();
         w2ui.tldsInfoForm.record.TLDID = data.recid;
         if (reloadTldsInfo) {
-            w2ui.tldsInfoForm.reload();
+            w2ui.tldsInfoForm.reload(tldsLoadEventCB);
         }
     })
     .fail(function(/*data*/){
@@ -708,6 +708,57 @@ window.saveTaskListDefinition = function (hide, reloadTldsInfo) {
         return;
     });
     return 0;
+};
+
+//-----------------------------------------------------------------------------
+// tldsLoadEventCB - handle ui updates when info is loaded
+//
+// @params
+//     bid = business id
+//     tdid = task descriptor id
+//
+// @returns
+//
+//-----------------------------------------------------------------------------
+window.tldsLoadEventCB = function () {
+    var f = w2ui.tldsInfoForm;
+    var r = f.record;
+    if (typeof r.EpochPreDue === "undefined") {
+        return;
+    }
+
+    /*****************************************************************
+     * Without the next 3 checks, the interface will show the Epoch,
+     * PreDue and Due dates as "1/1/1970" when those controls should
+     * be initialized with an empty string
+     *****************************************************************/
+    if (typeof r.Epoch == "string" && r.Epoch === "1/1/1970") {
+        r.Epoch = "";
+        f.fields[f.get("Epoch",true)].el.value = "";
+    }
+    if (typeof r.EpochDue == "string" && r.EpochDue === "1/1/1970") {
+        r.EpochDue = "";
+        f.fields[f.get("EpochDue",true)].el.value = "";
+    }
+    if (typeof r.EpochPreDue == "string" && r.EpochPreDue === "1/1/1970") {
+        r.EpochPreDue = "";
+        f.fields[f.get("EpochPreDue",true)].el.value = "";
+    }
+
+    if (typeof r.Cycle === "object") {
+        var c = r.Cycle.id;
+        r.Cycle = c;
+    }
+
+    // translate dates into a format that w2ui understands
+    r.EpochPreDue = dtFormatISOToW2ui(r.EpochPreDue);
+    r.EpochDue    = dtFormatISOToW2ui(r.EpochDue);
+    r.Epoch       = dtFormatISOToW2ui(r.Epoch);
+
+    // now enable/disable as needed
+    $(f.box).find("input[name=EpochDue]").prop( "disabled", !r.ChkEpochDue );
+    $(f.box).find("input[name=EpochPreDue]").prop( "disabled", !r.ChkEpochPreDue );
+    $(f.box).find("input[name=Epoch]").prop( "disabled", r.Cycle < 4);  // enable if recur is Daily, Weekly, Monthlhy, quarterly or yearly
 };
 
 //-----------------------------------------------------------------------------
