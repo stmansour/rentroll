@@ -282,8 +282,7 @@ window.buildTaskListElements = function () {
                     f.refresh();
                     break;
                 case "ChkDtDue":
-                    $(f.box).find("input[name=DtDue]").prop( "disabled", !r.ChkDtDue );
-                    if (r.ChkDtDue) {
+                    $(f.box).find("input[name=DtDue]").prop( "disabled", !r.ChkDtDue ); if (r.ChkDtDue) {
                         if (r.DtDue === "" && TLData.sDtDue.length > 1) {
                             r.DtDue = TLData.sDtDue;
                         }
@@ -499,7 +498,7 @@ window.buildTaskListElements = function () {
                 case "ChkDtPreDone":
                     taskCompletionChange(event.value_new,"tskDtPreDone");
                     break;
-                case "ChkDtDue":
+                case "ChkDtDone":
                     taskCompletionChange(event.value_new,"tskDtDone");
                     break;
                 case "ChkDtPreDue":
