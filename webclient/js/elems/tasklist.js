@@ -448,11 +448,19 @@ window.buildTaskListElements = function () {
                 var d = {cmd: "save", record: r};
                 r.DtDone = localtimeToUTC(r.DtDone);
                 r.DtPreDone = localtimeToUTC(r.DtPreDone);
+                r.DtDue = localtimeToUTC(r.DtDue);
+                r.DtPreDue = localtimeToUTC(r.DtPreDue);
                 if (r.DtDone.length === 0) {
                     r.DtDone = TLD.TIME0;
                 }
                 if (r.DtPreDone.length === 0) {
                     r.DtPreDone = TLD.TIME0;
+                }
+                if (r.DtDue.length === 0) {
+                    r.DtDue = TLD.TIME0;
+                }
+                if (r.DtPreDue.length === 0) {
+                    r.DtPreDue = TLD.TIME0;
                 }
                 r.TZOffset = app.TZOffset;
                 var dat=JSON.stringify(d);
