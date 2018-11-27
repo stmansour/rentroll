@@ -479,6 +479,7 @@ CREATE TABLE Business (
     -- Bit    Description
     -- 1<<0 = EDI Flag 0(EDI disabled), =1(EDI enabled) (End Date Includes)
     -- 1<<1 = allow backdated Rental Agreements in closed periods 0 = no, 1 = yes
+    -- 1<<2 = business is disabled
     -- -------------------------------------------------------------------------
     FLAGS BIGINT NOT NULL DEFAULT 0,
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written

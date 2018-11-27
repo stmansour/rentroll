@@ -1008,16 +1008,23 @@ type Business struct {
 	BID                   int64
 	Designation           string // reference to designation in Phonebook db
 	Name                  string
-	DefaultRentCycle      int64     // Default for every Rentable Type, useful in initializing the UI for new RentableTypes
-	DefaultProrationCycle int64     // Default for every Rentable Type, useful in initializing the UI for new RentableTypes
-	DefaultGSRPC          int64     // Default for every Rentable Type, useful in initializing the UI for new RentableTypes
-	ClosePeriodTLID       int64     // TaskList used for closing a period
-	FLAGS                 int64     // FLAGS -- 1<<0 = 0 - EDI disabled, 1=EDI enabled
-	LastModTime           time.Time // when was this record last written
-	LastModBy             int64     // employee UID (from phonebook) that modified it
+	DefaultRentCycle      int64 // Default for every Rentable Type, useful in initializing the UI for new RentableTypes
+	DefaultProrationCycle int64 // Default for every Rentable Type, useful in initializing the UI for new RentableTypes
+	DefaultGSRPC          int64 // Default for every Rentable Type, useful in initializing the UI for new RentableTypes
+	ClosePeriodTLID       int64 // TaskList used for closing a period
+	//-------------------------------------------------------------------------
+	// FLAGS
+	// Bit    Description
+	// 1<<0 = EDI Flag 0(EDI disabled), =1(EDI enabled) (End Date Includes)
+	// 1<<1 = allow backdated Rental Agreements in closed periods 0 = no, 1 = yes
+	// 1<<2 = business is disabled
+	//-------------------------------------------------------------------------
+	FLAGS       int64     // flags as defined above
+	LastModTime time.Time // when was this record last written
+	LastModBy   int64     // employee UID (from phonebook) that modified it
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 	// ParkingPermitInUse    int64     // yes/no  0 = no, 1 = yes
-	CreateTS time.Time // when was this record created
-	CreateBy int64     // employee UID (from phonebook) that created it
 }
 
 // BusinessProperties defines properties for a business. The value
