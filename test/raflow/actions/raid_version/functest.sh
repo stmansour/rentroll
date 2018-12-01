@@ -16,6 +16,7 @@ source ../actions_base.sh
 
 echo "STARTING RENTROLL SERVER"
 RENTROLLSERVERAUTH="-noauth"
+RENTROLLSERVERNOW="-testDtNow 10/15/2018"
 startRentRollServer
 
 execute ${THISDIR}
