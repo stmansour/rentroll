@@ -96,6 +96,7 @@ window.buildSidebar = function(flag) {
                 },
                 { id: 'setup', text: 'Setup', img: 'icon-wrench', expanded: true, group: true,
                     nodes: [
+                            { id: 'business',    text: 'Business Unit',                    icon: 'far fa-building' },
                             { id: 'accounts',    text: 'Chart Of Accounts',                icon: 'fas fa-list' },
                             { id: 'pmts',        text: 'Payment Types',                    icon: 'far fa-credit-card' },
                             { id: 'dep',         text: 'Depository Accounts',              icon: 'fas fa-university' },
@@ -176,6 +177,7 @@ window.buildSidebar = function(flag) {
                         case 'tls':
                         case 'tlds':
                         case 'rr':
+                        case 'business':
                             switchToGrid(target);
                             break;
                         case 'raflows':

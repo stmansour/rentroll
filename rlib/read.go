@@ -903,6 +903,11 @@ func ReadTaskLists(rows *sql.Rows, a *TaskList) error {
 	return rows.Scan(&a.TLID, &a.BID, &a.PTLID, &a.TLDID, &a.Name, &a.Cycle, &a.DtDue, &a.DtPreDue, &a.DtDone, &a.DtPreDone, &a.FLAGS, &a.DoneUID, &a.PreDoneUID, &a.EmailList, &a.DtLastNotify, &a.DurWait, &a.Comment, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 
+// ReadTaskListTypeDown reads a full TaskListTypeDown structure of data from the database based on the supplied Row pointer.
+func ReadTaskListTypeDown(rows *sql.Rows, a *TaskListTypeDown) error {
+	return rows.Scan(&a.TLID, &a.Name)
+}
+
 // ReadTaskDescriptor reads a full TaskDescriptor structure from the database based on the supplied row object
 func ReadTaskDescriptor(row *sql.Row, a *TaskDescriptor) error {
 	err := row.Scan(&a.TDID, &a.BID, &a.TLDID, &a.Name, &a.Worker, &a.EpochDue, &a.EpochPreDue, &a.FLAGS, &a.Comment, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)

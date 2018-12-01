@@ -1329,6 +1329,8 @@ WHERE RAID=? AND RID=? AND Start >= ? AND Stop < ? AND RentCycle=0`)
 	);`
 	RRdb.Prepstmt.GetDueTaskLists, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM TaskList " + where)
 	Errcheck(err)
+	RRdb.Prepstmt.GetTaskListTypeDown, err = RRdb.Dbrr.Prepare("SELECT TLID,Name FROM TaskList WHERE BID=? AND PTLID=0 AND (Name LIKE ?) LIMIT ?")
+	Errcheck(err)
 
 	RRdb.Prepstmt.CheckForTLDInstances, err = RRdb.Dbrr.Prepare("SELECT COUNT(*) FROM TaskList WHERE TLDID=?")
 	Errcheck(err)

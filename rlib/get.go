@@ -7265,7 +7265,54 @@ func GetTaskListInstanceInRange(ctx context.Context, id int64, dt1, dt2 *time.Ti
 	return a, ReadTaskList(row, &a)
 }
 
+// GetTaskListTypeDown returns the values needed for typedown controls:
+//
+// INPUTS   bid - business
+//            s - string or substring to search for
+//        limit - return no more than this many matches
+//
+// RETURNS a slice of TaskListTypeDowns and an error.
+//----------------------------------------------------------------------------
+func GetTaskListTypeDown(ctx context.Context, bid int64, s string, limit int) ([]TaskListTypeDown, error) {
+	var err error
+	var m []TaskListTypeDown
+
+	if _, ok := SessionCheck(ctx); !ok {
+		return m, ErrSessionRequired
+	}
+
+	s = "%" + s + "%"
+
+	var rows *sql.Rows
+	fields := []interface{}{bid, s, limit}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetTaskListTypeDown)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetTaskListTypeDown.Query(fields...)
+	}
+
+	if err != nil {
+		return m, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var t TaskListTypeDown
+		err = ReadTaskListTypeDown(rows, &t)
+		if err != nil {
+			return m, err
+		}
+		t.Recid = t.TLID
+		m = append(m, t)
+	}
+
+	return m, rows.Err()
+}
+
 // GetTaskDescriptor returns the tasklist with the supplied id
+//----------------------------------------------------------------------------
 func GetTaskDescriptor(ctx context.Context, id int64) (TaskDescriptor, error) {
 	var a TaskDescriptor
 	if _, ok := SessionCheck(ctx); !ok {

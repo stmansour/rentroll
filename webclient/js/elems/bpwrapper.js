@@ -10,7 +10,8 @@
     buildROVReceiptElements,buildTaskListElements,buildTaskListDefElements,
     finishTaskListForm, createDepositForm, createPayorStmtForm,
     createStmtForm, finishForms, finishTLDForm,
-    buildClosePeriodElements,buildRAFlowElements
+    buildClosePeriodElements,buildRAFlowElements,buildBusinessElements,
+    finishBizForm, 
 */
 
 "use strict";
@@ -24,11 +25,13 @@
 //
 // RETURNS:
 //  nothing
+//-----------------------------------------------------------------
 window.buildPageElementsWrapper = function (uitype) {
     buildAppLayout();
     buildSidebar(uitype);
     buildAllocFundsGrid();
     buildAccountElements();
+    buildBusinessElements();
     buildTransactElements();
     buildRentableTypeElements();
     buildRentableElements();
@@ -57,10 +60,24 @@ window.buildPageElementsWrapper = function (uitype) {
     finishForms();
 };
 
+// finishForms is something that needs to be done after all the
+// UI elements have been created. In particular, we use this call
+// to add UI elements to w2layout objects.  I'm still not sure why
+// we need to wait to do this, but I do know that if we add these
+// elements to the layouts right after the elements have been
+// created then it doesn't work. By waiting a little bit, it all
+// seems to work.
+//
+// INPUTS:
+//
+// RETURNS:
+//  nothing
+//-----------------------------------------------------------------
 window.finishForms = function () {
     createStmtForm();
     createPayorStmtForm();
     createDepositForm();
     finishTaskListForm();
     finishTLDForm();
+    finishBizForm();
 };

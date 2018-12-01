@@ -640,7 +640,7 @@ window.buildTaskListElements = function () {
     });
 
     //------------------------------------------------------------------------
-    //  payorstmtlayout - The layout to contain the stmtForm and tlsDetailGrid
+    //  tlLayout - The layout to contain the stmtForm and tlsDetailGrid
     //               top  - stmtForm
     //               main - tlsDetailGrid
     //------------------------------------------------------------------------

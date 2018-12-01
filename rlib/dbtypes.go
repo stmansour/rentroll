@@ -882,6 +882,13 @@ type RentableTypeDown struct {
 	RentableName string
 }
 
+// TaskListTypeDown is the struct needed to match names in typedown controls
+type TaskListTypeDown struct {
+	Recid int64 `json:"recid"` // this will hold the TLID
+	TLID  int64
+	Name  string
+}
+
 // Vehicle contains all the vehicle information for a User's vehicld
 type Vehicle struct {
 	VID                 int64
@@ -1981,6 +1988,7 @@ type RRprepSQL struct {
 	GetInstancesByDateRange                 *sql.Stmt
 	GetRentalAgreementChain                 *sql.Stmt
 	GetAssessmentInstancesByRAIDRIDRent     *sql.Stmt
+	GetTaskListTypeDown                     *sql.Stmt
 }
 
 // DeleteBusinessFromDB deletes information from all tables if it is part of the supplied BID.

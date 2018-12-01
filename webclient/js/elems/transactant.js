@@ -517,6 +517,7 @@ window.getStringListData = function (BID, BUD) {
     // return promise
     return $.get("/v1/uival/" + BID + "/app.Applicants", null, null, "json").done(function(data) {
         // if it doesn't meet this condition, then save the data
+        if (data == null) {return;}
         if (!('status' in data && data.status !== "success")) {
             app.StringList[BUD] = data;
         }

@@ -55,6 +55,13 @@ type SearchTLResponse struct {
 	Records []SvcTaskList `json:"records"`
 }
 
+// TaskListTypedownResponse is the data structure for the response to a search for people
+type TaskListTypedownResponse struct {
+	Status  string                  `json:"status"`
+	Total   int64                   `json:"total"`
+	Records []rlib.TaskListTypeDown `json:"records"`
+}
+
 //-------------------------------------------------------------------
 //  SAVE
 //-------------------------------------------------------------------
@@ -143,6 +150,38 @@ var tlQuerySelectFields = []string{
 	"TaskList.CreateBy",
 	"TaskList.LastModTime",
 	"TaskList.LastModBy",
+}
+
+// SvcTaskListTypeDown handles typedown requests for TaskLists.  It returns
+// Name, and TLID
+// wsdoc {
+//  @Title  Get TaskLists Typedown
+//	@URL /v1/TaskListtd/:BUI?request={"search":"The search string","max":"Maximum number of return items"}
+//	@Method GET
+//	@Synopsis Fast Search for TaskLists matching typed characters
+//  @Desc Returns TLID, FirstName, Middlename, and LastName of TaskLists that
+//  @Desc match supplied chars at the beginning of FirstName or LastName
+//  @Input WebTypeDownRequest
+//  @Response TaskListsTypedownResponse
+// wsdoc }
+//----------------------------------------------------------------------------
+func SvcTaskListTypeDown(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcTaskListTypeDown"
+	var g TaskListTypedownResponse
+	var err error
+
+	rlib.Console("Entered %s\n", funcname)
+	rlib.Console("handle typedown: GetTaskListsTypeDown( bid=%d, search=%s, limit=%d\n", d.BID, d.wsTypeDownReq.Search, d.wsTypeDownReq.Max)
+	g.Records, err = rlib.GetTaskListTypeDown(r.Context(), d.BID, d.wsTypeDownReq.Search, d.wsTypeDownReq.Max)
+	if err != nil {
+		e := fmt.Errorf("Error getting typedown matches: %s", err.Error())
+		SvcErrorReturn(w, e, funcname)
+		return
+	}
+	rlib.Console("GetTaskListTypeDown returned %d matches\n", len(g.Records))
+	g.Total = int64(len(g.Records))
+	g.Status = "success"
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // TaskListRowScan scans a result from sql row and dump it in a

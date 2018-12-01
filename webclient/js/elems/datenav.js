@@ -17,7 +17,7 @@
 // @return  <no return value>
 //-----------------------------------------------------------------------------
 window.handleDateToolbarAction = function (event,prefix) {
-    console.log('handleDateToolbarAction: target = ' + event.target + ' prefix = ' + prefix);
+    // console.log('handleDateToolbarAction: target = ' + event.target + ' prefix = ' + prefix);
     var xd1 = document.getElementsByName(prefix + 'D1')[0];
     var xd2 = document.getElementsByName(prefix + 'D2')[0];
     switch (event.target) {
@@ -59,7 +59,6 @@ window.handleDateToolbarAction = function (event,prefix) {
             app.D2 = dayFwd(xd2);
             break;
     }
-    console.log('handleDateToolbarAction:  D1 = ' + app.D1 + '  D2 = ' + app.D2);
 };
 
 //-----------------------------------------------------------------------------

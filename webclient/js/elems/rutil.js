@@ -157,7 +157,10 @@ window.switchToGrid = function (svc, svcOverride) {
             UpdateCloseInfo(x.value);
         }
     }
-    var url = '/v1/' + websvc + '/' + x.value;
+    var url = '/v1/' + websvc + '/';
+    if (svc != 'business') {
+        url += x.value;
+    }
     w2ui[grid].url = url;
     w2ui[grid].last.sel_recid = null; // whenever switch grid, erase last selected record
     app.last.grid_sel_recid = -1;
