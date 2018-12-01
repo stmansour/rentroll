@@ -1,0 +1,59 @@
+<div class="w2ui-page page-0"> <!-- Main -->
+    <div class="w2ui-field"><input type="hidden" name="FLAGS"/></div>
+    <div class="w2ui-field"><input type="hidden" name="TCID"/></div>
+    <div class="w2ui-field"><input type="hidden" name="BID"/></div>
+    <div class="w2ui-field"><input type="hidden" name="CPTLID"/></div>
+    <div class="w2ui-field"><input type="hidden" name="LastModTime"/></div>
+    <div class="w2ui-field"><input type="hidden" name="LastModBy"/></div>
+    <div class="w2ui-field"><input type="hidden" name="CreateTS"/></div>
+    <div class="w2ui-field"><input type="hidden" name="CreateBy"/></div>
+
+    <div class="w2ui-field">
+        <label>Name:</label>
+        <div><input name="Name" type="text" tabindex="1" maxlength="100" style="width: 100%"/></div>
+    </div>
+    <div class="w2ui-field">
+        <label>BUD:</label>
+        <div><input name="BUD" type="text" maxlength="4" tabindex="2" style="width: 50px"/> Business Unit Descriptor</div>
+    </div>
+
+    <div class="w2ui-field">
+        <label>Rent Cycle:</label>
+        <div><input name="DefaultRentCycle" type="list" maxlength="100" tabindex="3" style="width: 75px" /> default rent cycle</div>
+    </div>
+
+    <div class="w2ui-field">
+        <label>Proration Cycle:</label>
+        <div><input name="DefaultProrationCycle" type="list" maxlength="100" tabindex="4" style="width: 75px" /> default proration cycle</div>
+    </div>
+
+    <div class="w2ui-field">
+        <label>DefaultGSRPC:</label>
+        <div><input name="DefaultGSRPC" type="list" maxlength="100" tabindex="5" style="width: 75px" /> default gross rent proration cycle</div>
+    </div>
+
+    <div class="w2ui-field">
+        <label>EDI:</label>
+        <div><input name="EDIenabled" class="w2ui-input" type="checkbox" tabindex="6"/> time range end date inclusive</div>
+    </div>
+    <div class="w2ui-field">
+        <label>Backdated RA:</label>
+        <div><input name="AllowBackdatedRA" class="w2ui-input" type="checkbox" tabindex="7"/> allow back-dated Rental Agreements</div>
+    </div>
+    <div class="w2ui-field">
+        <label>Disable:</label>
+        <div><input name="Disabled" class="w2ui-input" type="checkbox" tabindex="8"/> disable this business</div>
+    </div>
+    <div class="w2ui-field">
+        <label>Close TaskList:</label>
+        <div><input type="enum" id="CPTLName" name="CPTLName" size="40" tabindex="9" /></div>
+    </div>
+
+</div>  <!-- end of page 0, Main -->
+
+<div class="w2ui-page page-1">  <!-- Fees -->
+    <div class="w2ui-field">
+        <label>Points</label>
+        <div><input name="Points" type="w2int" style="width: 100%" tabindex="10"/></div>
+    </div>
+</div>  <!-- end of page 1, User -->
