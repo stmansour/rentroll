@@ -1,0 +1,63 @@
+{
+    "records": [
+        {
+            "AllowBackdatedRA": false,
+            "BID": 3,
+            "BUD": "CCC",
+            "CPTLName": "",
+            "ClosePeriodTLID": 0,
+            "CreateBy": 0,
+            "CreateTS": "2018-11-27 20:00:00 UTC",
+            "DefaultGSRPC": 4,
+            "DefaultProrationCycle": 4,
+            "DefaultRentCycle": 6,
+            "Disabled": false,
+            "EDIenabled": false,
+            "FLAGS": 1,
+            "LastModBy": 0,
+            "LastModTime": "2018-11-30 12:38:00 UTC",
+            "Name": "CALIFORNIA COMMERCE CENTRE OWNERS ASSOCIATION",
+            "recid": 0
+        },
+        {
+            "AllowBackdatedRA": false,
+            "BID": 1,
+            "BUD": "REX",
+            "CPTLName": "",
+            "ClosePeriodTLID": 1,
+            "CreateBy": 0,
+            "CreateTS": "2017-11-10 15:24:00 UTC",
+            "DefaultGSRPC": 4,
+            "DefaultProrationCycle": 4,
+            "DefaultRentCycle": 6,
+            "Disabled": false,
+            "EDIenabled": false,
+            "FLAGS": 1,
+            "LastModBy": 0,
+            "LastModTime": "2018-06-05 16:06:00 UTC",
+            "Name": "JGM First, LLC",
+            "recid": 1
+        },
+        {
+            "AllowBackdatedRA": false,
+            "BID": 2,
+            "BUD": "401",
+            "CPTLName": "",
+            "ClosePeriodTLID": 0,
+            "CreateBy": 0,
+            "CreateTS": "2018-11-27 20:00:00 UTC",
+            "DefaultGSRPC": 4,
+            "DefaultProrationCycle": 4,
+            "DefaultRentCycle": 6,
+            "Disabled": false,
+            "EDIenabled": false,
+            "FLAGS": 1,
+            "LastModBy": 0,
+            "LastModTime": "2018-11-30 12:38:00 UTC",
+            "Name": "JGM First, LLC",
+            "recid": 2
+        }
+    ],
+    "status": "success",
+    "total": 3
+}

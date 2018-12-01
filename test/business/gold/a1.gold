@@ -1,0 +1,22 @@
+{
+    "record": {
+        "AllowBackdatedRA": false,
+        "BID": 2,
+        "BUD": "401",
+        "CPTLName": "",
+        "ClosePeriodTLID": 0,
+        "CreateBy": 0,
+        "CreateTS": "2018-11-27 20:00:00 UTC",
+        "DefaultGSRPC": 4,
+        "DefaultProrationCycle": 4,
+        "DefaultRentCycle": 6,
+        "Disabled": false,
+        "EDIenabled": true,
+        "FLAGS": 1,
+        "LastModBy": 0,
+        "LastModTime": "2018-11-30 12:38:00 UTC",
+        "Name": "JGM First, LLC",
+        "recid": 0
+    },
+    "status": "success"
+}
