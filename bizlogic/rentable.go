@@ -42,9 +42,9 @@ func InsertRentable(ctx context.Context, r *rlib.Rentable) []BizError {
 	return nil
 }
 
-// ValidateRentableStatus checks for validity of a given rentable status
+// ValidateRentableUseStatus checks for validity of a given rentable status
 // while insert and update in db
-func ValidateRentableStatus(ctx context.Context, rs *rlib.RentableStatus) []BizError {
+func ValidateRentableUseStatus(ctx context.Context, rs *rlib.RentableUseStatus) []BizError {
 	var errlist []BizError
 
 	// 1. First check BID is valid or not
@@ -77,9 +77,9 @@ func ValidateRentableStatus(ctx context.Context, rs *rlib.RentableStatus) []BizE
 
 	// 4. Stopdate should not be before startDate
 	if rs.DtStop.Before(rs.DtStart) {
-		s := fmt.Sprintf(BizErrors[InvalidRentableStatusDates].Message,
+		s := fmt.Sprintf(BizErrors[InvalidRentableUseStatusDates].Message,
 			rs.RSID, rs.DtStop.Format(rlib.RRDATEFMT4), rs.DtStart.Format(rlib.RRDATEFMT4))
-		b := BizError{Errno: InvalidRentableStatusDates, Message: s}
+		b := BizError{Errno: InvalidRentableUseStatusDates, Message: s}
 		errlist = append(errlist, b)
 	}
 
@@ -88,7 +88,7 @@ func ValidateRentableStatus(ctx context.Context, rs *rlib.RentableStatus) []BizE
 	overLappingRSQuery := `
 	SELECT
 		RSID
-	FROM RentableStatus
+	FROM RentableUseStatus
 	WHERE
 		RSID <> {{.RSID}} AND
 		DtStart < "{{.stopDate}}" AND
@@ -115,8 +115,8 @@ func ValidateRentableStatus(ctx context.Context, rs *rlib.RentableStatus) []BizE
 		panic(err.Error()) // BOOM!
 	}
 	if overLappingRSID > 0 {
-		s := fmt.Sprintf(BizErrors[RentableStatusDatesOverlap].Message, rs.RSID, overLappingRSID)
-		b := BizError{Errno: RentableStatusDatesOverlap, Message: s}
+		s := fmt.Sprintf(BizErrors[RentableUseStatusDatesOverlap].Message, rs.RSID, overLappingRSID)
+		b := BizError{Errno: RentableUseStatusDatesOverlap, Message: s}
 		errlist = append(errlist, b)
 	}
 	return errlist
@@ -194,7 +194,7 @@ func ValidateRentableTypeRef(ctx context.Context, rtr *rlib.RentableTypeRef) []B
 
 	/*// 3. check that DtStart and DtStop don't overlap/fall in with other object
 	// associated with the same RID
-	rsList := rlib.GetAllRentableStatus(ctx, rtr.RID)
+	rsList := rlib.GetAllRentableUseStatus(ctx, rtr.RID)
 
 	for _, rsRow := range rsList {
 		// if same object then continue
@@ -203,8 +203,8 @@ func ValidateRentableTypeRef(ctx context.Context, rtr *rlib.RentableTypeRef) []B
 		}
 		// start date should not sit between other market rate's time span
 		if rlib.DateRangeOverlap(&rtr.DtStart, &rtr.DtStop, &rsRow.DtStart, &rsRow.DtStop) {
-			s := fmt.Sprintf(BizErrors[RentableStatusDatesOverlap].Message, rtr.RMRID, rsRow.RMRID)
-			b := BizError{Errno: RentableStatusDatesOverlap, Message: s}
+			s := fmt.Sprintf(BizErrors[RentableUseStatusDatesOverlap].Message, rtr.RMRID, rsRow.RMRID)
+			b := BizError{Errno: RentableUseStatusDatesOverlap, Message: s}
 			errlist = append(errlist, b)
 		}
 	}*/

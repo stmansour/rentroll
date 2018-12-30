@@ -1745,40 +1745,6 @@ LOCK TABLES `RentableSpecialtyRef` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `RentableStatus`
---
-
-DROP TABLE IF EXISTS `RentableStatus`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `RentableStatus` (
-  `RSID` bigint(20) NOT NULL AUTO_INCREMENT,
-  `RID` bigint(20) NOT NULL DEFAULT '0',
-  `BID` bigint(20) NOT NULL DEFAULT '0',
-  `UseStatus` smallint(6) NOT NULL DEFAULT '0',
-  `LeaseStatus` smallint(6) NOT NULL DEFAULT '0',
-  `DtStart` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
-  `DtStop` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
-  `DtNoticeToVacate` date NOT NULL DEFAULT '1970-01-01',
-  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
-  `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`RSID`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `RentableStatus`
---
-
-LOCK TABLES `RentableStatus` WRITE;
-/*!40000 ALTER TABLE `RentableStatus` DISABLE KEYS */;
-INSERT INTO `RentableStatus` VALUES (3,1,1,1,0,'2017-01-01 00:00:00','9999-01-01 00:00:00','0000-00-00','2017-08-31 17:54:28',0,'2017-08-31 17:54:28',0),(4,2,1,1,0,'2017-01-01 00:00:00','9999-01-01 00:00:00','0000-00-00','2017-08-31 19:18:55',0,'2017-08-31 19:18:55',0);
-/*!40000 ALTER TABLE `RentableStatus` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `RentableTypeRef`
 --
 
@@ -1874,6 +1840,40 @@ LOCK TABLES `RentableTypes` WRITE;
 /*!40000 ALTER TABLE `RentableTypes` DISABLE KEYS */;
 INSERT INTO `RentableTypes` VALUES (1,1,'U1','Unit Type 1',6,4,4,0,0,'2017-08-31 17:51:54',0,'2017-08-31 17:51:54',0),(2,1,'U2','Unit Type 2',6,4,4,0,0,'2017-08-31 17:52:21',0,'2017-08-31 17:52:21',0);
 /*!40000 ALTER TABLE `RentableTypes` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `RentableUseStatus`
+--
+
+DROP TABLE IF EXISTS `RentableUseStatus`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `RentableUseStatus` (
+  `RSID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `RID` bigint(20) NOT NULL DEFAULT '0',
+  `BID` bigint(20) NOT NULL DEFAULT '0',
+  `UseStatus` smallint(6) NOT NULL DEFAULT '0',
+  `LeaseStatus` smallint(6) NOT NULL DEFAULT '0',
+  `DtStart` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
+  `DtStop` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
+  `Comment` varchar(2048) NOT NULL DEFAULT '',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
+  `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`RSID`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `RentableUseStatus`
+--
+
+LOCK TABLES `RentableUseStatus` WRITE;
+/*!40000 ALTER TABLE `RentableUseStatus` DISABLE KEYS */;
+INSERT INTO `RentableUseStatus` VALUES (3,1,1,1,0,'2017-01-01 00:00:00','9999-01-01 00:00:00','','2017-08-31 17:54:28',0,'2017-08-31 17:54:28',0),(4,2,1,1,0,'2017-01-01 00:00:00','9999-01-01 00:00:00','','2017-08-31 19:18:55',0,'2017-08-31 19:18:55',0);
+/*!40000 ALTER TABLE `RentableUseStatus` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -2617,4 +2617,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-08-21 20:29:30
+-- Dump completed on 2018-12-30 11:52:49

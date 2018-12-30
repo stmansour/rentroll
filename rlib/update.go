@@ -724,8 +724,8 @@ func UpdateRentable(ctx context.Context, a *Rentable) error {
 	return updateError(err, "Rentable", *a)
 }
 
-// UpdateRentableStatus updates a RentableStatus record in the database
-func UpdateRentableStatus(ctx context.Context, a *RentableStatus) error {
+// UpdateRentableUseStatus updates a RentableUseStatus record in the database
+func UpdateRentableUseStatus(ctx context.Context, a *RentableUseStatus) error {
 	var err error
 
 	// session... context
@@ -738,15 +738,16 @@ func UpdateRentableStatus(ctx context.Context, a *RentableStatus) error {
 		a.LastModBy = sess.UID
 	}
 
-	fields := []interface{}{a.RID, a.BID, a.DtStart, a.DtStop, a.DtNoticeToVacate, a.UseStatus, a.LeaseStatus, a.LastModBy, a.RSID}
+	fields := []interface{}{a.RID, a.BID, a.DtStart, a.DtStop, a.Comment, a.UseStatus, a.LeaseStatus, a.LastModBy, a.RSID}
+
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.UpdateRentableStatus)
+		stmt := tx.Stmt(RRdb.Prepstmt.UpdateRentableUseStatus)
 		defer stmt.Close()
 		_, err = stmt.Exec(fields...)
 	} else {
-		_, err = RRdb.Prepstmt.UpdateRentableStatus.Exec(fields...)
+		_, err = RRdb.Prepstmt.UpdateRentableUseStatus.Exec(fields...)
 	}
-	return updateError(err, "RentableStatus", *a)
+	return updateError(err, "RentableUseStatus", *a)
 }
 
 // UpdateRatePlan updates a RatePlan record in the database

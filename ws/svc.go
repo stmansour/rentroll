@@ -191,7 +191,7 @@ var Svcs = []ServiceHandler{
 	{Cmd: "receipts", Handler: SvcSearchHandlerReceipts, NeedBiz: true, NeedSession: true},
 	{Cmd: "rentable", Handler: SvcFormHandlerRentable, NeedBiz: true, NeedSession: true},
 	{Cmd: "rentables", Handler: SvcSearchHandlerRentables, NeedBiz: true, NeedSession: true},
-	{Cmd: "rentablestatus", Handler: SvcHandlerRentableStatus, NeedBiz: true, NeedSession: true},
+	{Cmd: "rentablestatus", Handler: SvcHandlerRentableUseStatus, NeedBiz: true, NeedSession: true},
 	{Cmd: "rentablestd", Handler: SvcRentableTypeDown, NeedBiz: true, NeedSession: true},
 	{Cmd: "rentabletyperef", Handler: SvcHandlerRentableTypeRef, NeedBiz: true, NeedSession: true},
 	{Cmd: "rentalagrtd", Handler: SvcRentalAgreementTypeDown, NeedBiz: true, NeedSession: true},

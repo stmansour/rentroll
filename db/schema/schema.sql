@@ -797,19 +797,20 @@ CREATE TABLE MRHistory (
     PRIMARY KEY (MRHID)
 );
 
-CREATE TABLE RentableStatus (
+CREATE TABLE RentableUseStatus (
     RSID BIGINT NOT NULL AUTO_INCREMENT,                            -- unique id for Rentable Status
     RID BIGINT NOT NULL DEFAULT 0,                                  -- associated Rentable
     BID BIGINT NOT NULL DEFAULT 0,                                  -- Business
-    UseStatus SMALLINT NOT NULL DEFAULT 0,                          -- 1=InService, 2=Administrative, 3=Employee, 4=OwnerOccupied, 5=OfflineRennovation, 6=OfflineMaintenance, 7=Model, 8=Inactive
-    LeaseStatus SMALLINT NOT NULL DEFAULT 0,                        -- 1=Vacant-rented, 2=VacantNotRented, 3=OnNoticePreLeased, 4=OnNoticeAvailable, 5=Leased, 6=Unavailable, 7=Inactive
+    UseStatus SMALLINT NOT NULL DEFAULT 0,                          -- 0 = Ready, 1=InService, 2=Administrative, 3=Employee, 4=OwnerOccupied, 5=OfflineRennovation, 6=OfflineMaintenance, 7=Inactive(no longer a valid rentable)
+    LeaseStatus SMALLINT NOT NULL DEFAULT 0,                        -- 1=VacantRented, 2=VacantNotRented, 3=OnNoticePreLeased, 4=OnNoticeAvailable, 5=Leased, 6=Unavailable, 7=Inactive
     DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',        -- start time for this state
     DtStop DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',         -- stop time for this state
-    DtNoticeToVacate DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- user has indicated they will vacate on this date
+    Comment VARCHAR(2048) NOT NULL DEFAULT '',                      -- company notes for this person
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                            -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,          -- when was this record created
     CreateBy BIGINT NOT NULL DEFAULT 0,                             -- employee UID (from phonebook) that created this record
+    -- DtNoticeToVacate DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- TODO - THIS BELONGS IN RENTAL AGREEMENT (already there) user has indicated they will vacate on this date
     PRIMARY KEY (RSID)
 );
 

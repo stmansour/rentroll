@@ -101,7 +101,7 @@ var rentRollStaticInfoFieldsMap = SelectQueryFieldMap{
 	"RTID":            {"RentableTypes.RTID"},
 	"RentableType":    {"RentableTypes.Name"},
 	"RentCycle":       {"RentableTypes.RentCycle"},
-	"Status":          {"RentableStatus.UseStatus"},
+	"Status":          {"RentableUseStatus.UseStatus"},
 	"Users":           {"User.FirstName", "User.LastName", "User.CompanyName"},
 	"RAID":            {"Rentable_CUM_RA.RAID"},
 	"AgreementStart":  {"Rentable_CUM_RA.AgreementStart"},
@@ -125,7 +125,7 @@ var rentRollStaticInfoFields = SelectQueryFields{
 	"RentableTypes.RTID",
 	"RentableTypes.Name AS RentableType",
 	"RentableTypes.RentCycle",
-	"RentableStatus.UseStatus AS Status",
+	"RentableUseStatus.UseStatus AS Status",
 	"GROUP_CONCAT(DISTINCT CASE WHEN User.IsCompany > 0 THEN User.CompanyName ELSE CONCAT(User.FirstName, ' ', User.LastName) END ORDER BY User.LastName ASC, User.FirstName ASC, User.CompanyName ASC SEPARATOR ', ' ) AS Users",
 	"Rentable_CUM_RA.RARID",
 	"Rentable_CUM_RA.RAID",
@@ -230,15 +230,15 @@ FROM
         LEFT JOIN RentableTypes ON (RentableTypes.RTID = RentableTypeRef.RTID
             AND RentableTypes.BID = RentableTypeRef.BID)
         /*
-         *  RentableStatus join to get the status
+         *  RentableUseStatus join to get the status
          */
-        LEFT JOIN RentableStatus ON (RentableStatus.RID = Rentable_CUM_RA.RID
-            AND RentableStatus.BID = Rentable_CUM_RA.BID
-            AND "{{.DtStart}}" <= RentableStatus.DtStop
-            AND "{{.DtStop}}" > RentableStatus.DtStart
+        LEFT JOIN RentableUseStatus ON (RentableUseStatus.RID = Rentable_CUM_RA.RID
+            AND RentableUseStatus.BID = Rentable_CUM_RA.BID
+            AND "{{.DtStart}}" <= RentableUseStatus.DtStop
+            AND "{{.DtStop}}" > RentableUseStatus.DtStart
             -- Should we consider agreement dates too for comparison?
-            /*AND RentableStatus.DtStart >= Rentable_CUM_RA.AgreementStart
-            AND RentableStatus.DtStop <= Rentable_CUM_RA.AgreementStop*/)
+            /*AND RentableUseStatus.DtStart >= Rentable_CUM_RA.AgreementStart
+            AND RentableUseStatus.DtStop <= Rentable_CUM_RA.AgreementStop*/)
         /*
          *  get Users list through RentableUsers with Transactant join
          */

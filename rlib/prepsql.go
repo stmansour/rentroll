@@ -1116,25 +1116,25 @@ WHERE RAID=? AND RID=? AND Start >= ? AND Stop < ? AND RentCycle=0`)
 	Errcheck(err)
 
 	//===============================
-	//  RentableStatus
+	//  RentableUseStatus
 	//===============================
-	flds = "RSID,RID,BID,DtStart,DtStop,DtNoticeToVacate,UseStatus,LeaseStatus,CreateTS,CreateBy,LastModTime,LastModBy"
-	RRdb.DBFields["RentableStatus"] = flds
-	RRdb.Prepstmt.GetRentableStatus, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableStatus WHERE RSID=?")
+	flds = "RSID,RID,BID,DtStart,DtStop,Comment,UseStatus,LeaseStatus,CreateTS,CreateBy,LastModTime,LastModBy"
+	RRdb.DBFields["RentableUseStatus"] = flds
+	RRdb.Prepstmt.GetRentableUseStatus, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableUseStatus WHERE RSID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRentableStatusByRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableStatus WHERE RID=? AND DtStop>? AND DtStart<=?")
+	RRdb.Prepstmt.GetRentableUseStatusByRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableUseStatus WHERE RID=? AND DtStop>? AND DtStart<=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRentableStatusOnOrAfter, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableStatus WHERE RID=? AND DtStart>=?")
+	RRdb.Prepstmt.GetRentableUseStatusOnOrAfter, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableUseStatus WHERE RID=? AND DtStart>=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAllRentableStatus, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableStatus WHERE RID=?")
+	RRdb.Prepstmt.GetAllRentableUseStatus, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableUseStatus WHERE RID=?")
 	Errcheck(err)
 
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
-	RRdb.Prepstmt.InsertRentableStatus, err = RRdb.Dbrr.Prepare("INSERT INTO RentableStatus (" + s1 + ") VALUES(" + s2 + ")")
+	RRdb.Prepstmt.InsertRentableUseStatus, err = RRdb.Dbrr.Prepare("INSERT INTO RentableUseStatus (" + s1 + ") VALUES(" + s2 + ")")
 	Errcheck(err)
-	RRdb.Prepstmt.UpdateRentableStatus, err = RRdb.Dbrr.Prepare("UPDATE RentableStatus SET " + s3 + " WHERE RSID=?")
+	RRdb.Prepstmt.UpdateRentableUseStatus, err = RRdb.Dbrr.Prepare("UPDATE RentableUseStatus SET " + s3 + " WHERE RSID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.DeleteRentableStatus, err = RRdb.Dbrr.Prepare("DELETE from RentableStatus WHERE RSID=?")
+	RRdb.Prepstmt.DeleteRentableUseStatus, err = RRdb.Dbrr.Prepare("DELETE from RentableUseStatus WHERE RSID=?")
 	Errcheck(err)
 
 	//===============================

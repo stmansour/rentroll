@@ -39,23 +39,23 @@ var RSMakeReadyStatus = []string{
 	"Ready",
 }
 
-// RStatInfo encapsulates a RentableStatus structure along with t
+// RStatInfo encapsulates a RentableUseStatus structure along with t
 // the associated amount for DtStart - DtStop
 type RStatInfo struct {
 	Amount float64
-	RS     RentableStatus
+	RS     RentableUseStatus
 }
 
 // RStat returns the status for the supplied rentable during the Periods
-// in gaps.  If the status is defined by RentableStatus entries those
+// in gaps.  If the status is defined by RentableUseStatus entries those
 // values will be used.
 //
 // If there is no database status available for the rentable during the
-// requested period, a RentableStatus struct will be returned with the
+// requested period, a RentableUseStatus struct will be returned with the
 // following values:
 //   RSID:        0 (which further reinforces that it's not in the database)
 //   LeaseStatus: VacantNotRented or VacantRented, depending on whether
-//                there is a RentableStatus record for the rentable.
+//                there is a RentableUseStatus record for the rentable.
 //   UseStatus:   InService
 //
 // INPUTS
@@ -65,7 +65,7 @@ type RStatInfo struct {
 //   gaps      - slice of Periods of interest
 //
 // RETURNS
-//   []RentableStatus
+//   []RentableUseStatus
 //             - slice of RStatus structs that defines the state
 //               of the rentable during each Period in gaps
 //   error     - any error encountered
@@ -81,7 +81,7 @@ func RStat(ctx context.Context, bid, rid int64, gaps []Period) ([]RStatInfo, err
 		// Check for any special rentable status during the gap.
 		// Reflect what's happening if we find anything
 		//-------------------------------------------------------------
-		rsa, err := GetRentableStatusByRange(ctx, rid, &gaps[i].D1, &gaps[i].D2)
+		rsa, err := GetRentableUseStatusByRange(ctx, rid, &gaps[i].D1, &gaps[i].D2)
 		if err != nil {
 			return m, err
 		}
@@ -96,7 +96,7 @@ func RStat(ctx context.Context, bid, rid int64, gaps []Period) ([]RStatInfo, err
 			}
 		} else {
 			var rs = RStatInfo{
-				RS: RentableStatus{
+				RS: RentableUseStatus{
 					BID:         bid,
 					RID:         rid,
 					DtStart:     gaps[i].D1,
@@ -108,7 +108,7 @@ func RStat(ctx context.Context, bid, rid int64, gaps []Period) ([]RStatInfo, err
 			//----------------------------------------------------------------
 			// If there is a RentalAgreement in the future, modify the status
 			//----------------------------------------------------------------
-			r, err := GetRentableStatusOnOrAfter(ctx, rid, &gaps[i].D1)
+			r, err := GetRentableUseStatusOnOrAfter(ctx, rid, &gaps[i].D1)
 			if err != nil {
 				return m, err
 			}
@@ -153,7 +153,7 @@ func VacancyGSR(ctx context.Context, xbiz *XBusiness, rid int64, d1, d2 *time.Ti
 // LeaseStatusStringer returns the string associated with the LeaseStatus
 // in struct t.
 //-----------------------------------------------------------------------------
-func (t *RentableStatus) LeaseStatusStringer() string {
+func (t *RentableUseStatus) LeaseStatusStringer() string {
 	return LeaseStatusString(t.LeaseStatus)
 }
 
@@ -170,7 +170,7 @@ func LeaseStatusString(ls int64) string {
 // UseStatusStringer returns the string associated with the UseStatus
 // in struct t.
 //-----------------------------------------------------------------------------
-func (t *RentableStatus) UseStatusStringer() string {
+func (t *RentableUseStatus) UseStatusStringer() string {
 	return UseStatusString(t.UseStatus)
 }
 

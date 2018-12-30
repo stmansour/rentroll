@@ -12,7 +12,7 @@ import (
 // CSV file format:
 //   0  1     2               3                       4                                 5
 //                            "usr1;usr2;..usrN"      "S1,Strt1,Stp1;S2,Strt2,Stp2...", “A2,1/10/16,6/1/16;B2,6/1/16,”
-// BUD, Name, AssignmentTime, RentableUsers,          RentableStatus,                   RentableTypeRef
+// BUD, Name, AssignmentTime, RentableUsers,          RentableUseStatus,                   RentableTypeRef
 // REX, 101,  1,              "bill@x.com;sue@x.com"  "1,1/1/14,6/15/16;2,6/15/16,",    "A2,1/1/14,6/1/16;B2,6/1/16,"
 // REX, 102,  1,                                      "1,1/1/14,6/15/16;2,6/15/16,",    "A2,1/1/14,6/1/16;B2,6/1/16,"
 // REX, 103,  1,                                      "1,1/1/14,6/15/16;2,6/15/16,",    "A2,1/1/14,6/1/16;B2,6/1/16,"
@@ -57,7 +57,7 @@ func CreateRentables(ctx context.Context, sa []string, lineno int) (int, error) 
 		Name            = iota
 		AssignmentTime  = iota
 		RUserSpec       = iota
-		RentableStatus  = iota
+		RentableUseStatus  = iota
 		RentableTypeRef = iota
 	)
 
@@ -67,7 +67,7 @@ func CreateRentables(ctx context.Context, sa []string, lineno int) (int, error) 
 		{"Name", Name},
 		{"AssignmentTime", AssignmentTime},
 		{"RUserSpec", RUserSpec},
-		{"RentableStatus", RentableStatus},
+		{"RentableUseStatus", RentableUseStatus},
 		{"RentableTypeRef", RentableTypeRef},
 	}
 
@@ -162,12 +162,12 @@ func CreateRentables(ctx context.Context, sa []string, lineno int) (int, error) 
 	// STATUS 3-TUPLEs
 	// "S1,Strt1,Stp1;S2,Strt2,Stp2 ..."
 	//-----------------------------------------------------------------------------------
-	if 0 == len(strings.TrimSpace(sa[RentableStatus])) {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - rlib.RentableStatus value is required",
+	if 0 == len(strings.TrimSpace(sa[RentableUseStatus])) {
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - rlib.RentableUseStatus value is required",
 			funcname, lineno)
 	}
-	var m []rlib.RentableStatus                  // keep every rlib.RentableStatus we find in an array
-	st := strings.Split(sa[RentableStatus], ";") // split it on Status 3-tuple separator (;)
+	var m []rlib.RentableUseStatus                  // keep every rlib.RentableUseStatus we find in an array
+	st := strings.Split(sa[RentableUseStatus], ";") // split it on Status 3-tuple separator (;)
 	for i := 0; i < len(st); i++ {               //spin through the 3-tuples
 		ss := strings.Split(st[i], ",")
 		if len(ss) != 3 {
@@ -175,7 +175,7 @@ func CreateRentables(ctx context.Context, sa []string, lineno int) (int, error) 
 				funcname, lineno, len(ss), ss)
 		}
 
-		var rst rlib.RentableStatus // struct for the data in this 3-tuple
+		var rst rlib.RentableUseStatus // struct for the data in this 3-tuple
 		ix, err := strconv.Atoi(ss[0])
 		if err != nil || ix < rlib.USESTATUSunknown || ix > rlib.USESTATUSLAST {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid Status value: %s.  Must be in the range %d to %d",
@@ -183,14 +183,14 @@ func CreateRentables(ctx context.Context, sa []string, lineno int) (int, error) 
 		}
 		rst.UseStatus = int64(ix)
 
-		rst.DtStart, rst.DtStop, err = readTwoDates(ss[1], ss[2], funcname, lineno, "RentableStatus")
+		rst.DtStart, rst.DtStop, err = readTwoDates(ss[1], ss[2], funcname, lineno, "RentableUseStatus")
 		if err != nil {
 			return CsvErrorSensitivity, err
 		}
 		m = append(m, rst) // add this struct to the list
 	}
 	if len(m) == 0 {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - RentableStatus value is required",
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - RentableUseStatus value is required",
 			funcname, lineno)
 	}
 
@@ -249,9 +249,9 @@ func CreateRentables(ctx context.Context, sa []string, lineno int) (int, error) 
 		for i := 0; i < len(m); i++ {
 			m[i].RID = rid
 			m[i].BID = r.BID
-			_, err := rlib.InsertRentableStatus(ctx, &m[i])
+			_, err := rlib.InsertRentableUseStatus(ctx, &m[i])
 			if err != nil {
-				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error saving rlib.RentableStatus: %s", funcname, lineno, err.Error())
+				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error saving rlib.RentableUseStatus: %s", funcname, lineno, err.Error())
 			}
 		}
 		for i := 0; i < len(n); i++ {
@@ -259,7 +259,7 @@ func CreateRentables(ctx context.Context, sa []string, lineno int) (int, error) 
 			n[i].BID = r.BID
 			_, err := rlib.InsertRentableTypeRef(ctx, &n[i])
 			if err != nil {
-				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error saving rlib.RentableStatus: %s", funcname, lineno, err.Error())
+				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error saving rlib.RentableUseStatus: %s", funcname, lineno, err.Error())
 			}
 		}
 	}

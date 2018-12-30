@@ -2093,8 +2093,8 @@ func InsertRentableSpecialtyRef(ctx context.Context, a *RentableSpecialtyRef) (i
 	return rid, err
 }
 
-// InsertRentableStatus writes a new RentableStatus record to the database
-func InsertRentableStatus(ctx context.Context, a *RentableStatus) (int64, error) {
+// InsertRentableUseStatus writes a new RentableUseStatus record to the database
+func InsertRentableUseStatus(ctx context.Context, a *RentableUseStatus) (int64, error) {
 
 	var (
 		rid = int64(0)
@@ -2115,13 +2115,13 @@ func InsertRentableStatus(ctx context.Context, a *RentableStatus) (int64, error)
 	}
 
 	// transaction... context
-	fields := []interface{}{a.RID, a.BID, a.DtStart, a.DtStop, a.DtNoticeToVacate, a.UseStatus, a.LeaseStatus, a.CreateBy, a.LastModBy}
+	fields := []interface{}{a.RID, a.BID, a.DtStart, a.DtStop, a.Comment, a.UseStatus, a.LeaseStatus, a.CreateBy, a.LastModBy}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.InsertRentableStatus)
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertRentableUseStatus)
 		defer stmt.Close()
 		res, err = stmt.Exec(fields...)
 	} else {
-		res, err = RRdb.Prepstmt.InsertRentableStatus.Exec(fields...)
+		res, err = RRdb.Prepstmt.InsertRentableUseStatus.Exec(fields...)
 	}
 
 	// After getting result...
@@ -2132,7 +2132,7 @@ func InsertRentableStatus(ctx context.Context, a *RentableStatus) (int64, error)
 			a.RSID = rid
 		}
 	} else {
-		err = insertError(err, "RentableStatus", *a)
+		err = insertError(err, "RentableUseStatus", *a)
 	}
 	return rid, err
 

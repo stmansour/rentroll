@@ -13,6 +13,8 @@ source ../../share/base.sh
 
 echo "STARTING RENTROLL SERVER"
 RENTROLLSERVERAUTH="-noauth"
+RENTROLLSERVERNOW="-testDtNow 10/24/2018"
+
 startRentRollServer
 
 #------------------------------------------------------------------------------

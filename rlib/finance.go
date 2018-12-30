@@ -150,14 +150,14 @@ func ProrateComment(np, tp, ProrationCycle int64) string {
 	return fmt.Sprintf("prorated for %d of %d %s", np, tp, ProrationUnits(ProrationCycle))
 }
 
-// SelectRentableStatusForPeriod returns a subset of Rentable states that
+// SelectRentableUseStatusForPeriod returns a subset of Rentable states that
 // overlap the supplied range.
 //=============================================================================
-func SelectRentableStatusForPeriod(rsa *[]RentableStatus, dt1, dt2 time.Time) []RentableStatus {
-	var m []RentableStatus
+func SelectRentableUseStatusForPeriod(rsa *[]RentableUseStatus, dt1, dt2 time.Time) []RentableUseStatus {
+	var m []RentableUseStatus
 	for i := 0; i < len(*rsa); i++ {
 		if DateRangeOverlap(&(*rsa)[i].DtStart, &(*rsa)[i].DtStop, &dt1, &dt2) {
-			var rs RentableStatus
+			var rs RentableUseStatus
 			rs = (*rsa)[i]
 			m = append(m, rs)
 		}
@@ -172,7 +172,7 @@ func GetRentableStateForDate(ctx context.Context, rid int64, dt *time.Time) (int
 	status := int64(RENTABLESTATUSUNKNOWN)
 	d2 := dt.Add(24 * time.Hour)
 
-	m, err := GetRentableStatusByRange(ctx, rid, dt, &d2)
+	m, err := GetRentableUseStatusByRange(ctx, rid, dt, &d2)
 	if err != nil {
 		return status, err
 	}

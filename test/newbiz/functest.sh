@@ -54,7 +54,7 @@ mysqlverify "q"     "Prospects"	            		"select TCID,CompanyAddress,Compan
 mysqlverify "na"    "Vehicles"	            		"select VID,TCID,VehicleType,VehicleMake,VehicleModel,VehicleColor,VehicleYear,LicensePlateState,LicensePlateNumber,ParkingPermitNumber,DtStart,DtStop,LastModBy from Vehicle;"
 mysqlverify "k"     "Rentables"	            		"select RID,BID,RentableName,AssignmentTime,LastModBy from Rentable;"
 mysqlverify "l"     "RentableTypeRef"	    		"select RID,BID,RTID,OverrideRentCycle,OverrideProrationCycle,DtStart,DtStop,LastModBy from RentableTypeRef;"
-mysqlverify "m"     "RentableStatus"	        	"select RID,UseStatus,LeaseStatus,DtStart,DtStop,LastModBy from RentableStatus;"
+mysqlverify "m"     "RentableUseStatus"	        	"select RID,UseStatus,LeaseStatus,DtStart,DtStop,LastModBy from RentableUseStatus;"
 mysqlverify "r"     "RentalAgreementTemplates"   	"select RATID,BID,RATemplateName,LastModBy from RentalAgreementTemplate;"
 mysqlverify "s"     "RentalAgreements"	    		"select RAID,RATID,BID,AgreementStart,AgreementStop,Renewal,SpecialProvisions,UnspecifiedAdults,UnspecifiedChildren,LastModBy from RentalAgreement;"
 mysqlverify "t"     "Pets"	                    	"select PETID,BID,RAID,Type,Breed,Color,Weight,Name,DtStart,DtStop,LastModBy from Pets;"

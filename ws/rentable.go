@@ -208,7 +208,7 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
     ) RT ON RTR.RTID=RT.RTID
     LEFT JOIN (
         SELECT UseStatus, LeaseStatus, RID, RSID
-        FROM RentableStatus
+        FROM RentableUseStatus
         WHERE DtStop > "{{.searchStart}}" AND DtStart <= "{{.searchStop}}" AND BID={{.BID}}
         GROUP BY RSID
         ORDER BY RSID DESC
@@ -440,12 +440,12 @@ func AdjustRTRTimeList(ctx context.Context, rtr *rlib.RentableTypeRef, r *rlib.R
 	return R, m
 }
 
-// AdjustRSTimeList - just like AdjustRTRTimeList except for RentableStatus records.  There's probably a better
+// AdjustRSTimeList - just like AdjustRTRTimeList except for RentableUseStatus records.  There's probably a better
 // way to make both these functions into one.
-func AdjustRSTimeList(ctx context.Context, rs *rlib.RentableStatus, r *rlib.Rentable) ([]rlib.RentableStatus, []rlib.RentableStatus) {
+func AdjustRSTimeList(ctx context.Context, rs *rlib.RentableUseStatus, r *rlib.Rentable) ([]rlib.RentableUseStatus, []rlib.RentableUseStatus) {
 	const funcname = "AdjustRSTimeList"
-	var m []rlib.RentableStatus
-	R, _ := rlib.GetAllRentableStatus(ctx, r.RID)
+	var m []rlib.RentableUseStatus
+	R, _ := rlib.GetAllRentableUseStatus(ctx, r.RID)
 	l := len(R)
 	rsAdded := false // flag to mark whether rs still needs to be added after loop
 	for i := 0; i < l; i++ {
@@ -536,7 +536,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var (
 		ok       bool
 		rentable rlib.Rentable
-		/*rs          rlib.RentableStatus
+		/*rs          rlib.RentableUseStatus
 		rtr         rlib.RentableTypeRef
 		currentTime = time.Now()*/
 	)
@@ -564,7 +564,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// }
 	// // StopDate should not be before Today's date
 	// if !(rlib.IsDateBefore((time.Time)(rfRecord.RSDtStart), (time.Time)(rfRecord.RSDtStop))) {
-	// 	e := fmt.Errorf("RentableStatus Stop Date should not be before Start Date")
+	// 	e := fmt.Errorf("RentableUseStatus Stop Date should not be before Start Date")
 	// 	SvcErrorReturn(w, e, funcname)
 	// 	return
 	// }
@@ -636,7 +636,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// ---------------- UPDATE RENTABLE STATUS ------------------------
 
 		// get rental status record associated with this rentable
-		rs, err := rlib.GetRentableStatus(r.Context(), rfRecord.RSID)
+		rs, err := rlib.GetRentableUseStatus(r.Context(), rfRecord.RSID)
 		if err != nil {
 			SvcErrorReturn(w, err, funcname)
 			return
@@ -646,20 +646,20 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		rs1 := rs
 		rs1.DtStart = (time.Time)(rfRecord.RSDtStart)
 		rs1.DtStop = (time.Time)(rfRecord.RSDtStop)
-		rs1.UseStatus = rlib.RentableStatusToNumber(rfRecord.RentableStatus)
+		rs1.UseStatus = rlib.RentableUseStatusToNumber(rfRecord.RentableUseStatus)
 
 		// if anything changed, remake the list of RTRs
 		if !rs1.DtStart.Equal(rs.DtStart) || !rs1.DtStop.Equal(rs.DtStop) || rs1.UseStatus != rs.UseStatus {
 			m, n := AdjustRSTimeList(r.Context(), &rs1, &rt) // returns current list and new list
 			for i := 0; i < len(m); i++ {                    // delete the current list
-				err = rlib.DeleteRentableStatus(r.Context(), m[i].RSID)
+				err = rlib.DeleteRentableUseStatus(r.Context(), m[i].RSID)
 				if err != nil {
 					SvcErrorReturn(w, err, funcname)
 					return
 				}
 			}
 			for i := 0; i < len(n); i++ { // insert the new list
-				_, err = rlib.InsertRentableStatus(r.Context(), &n[i])
+				_, err = rlib.InsertRentableUseStatus(r.Context(), &n[i])
 				if err != nil {
 					SvcErrorReturn(w, err, funcname)
 					return
@@ -693,15 +693,15 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// insert rentable status for this Rentable
 		rs.RID = rt.RID
 		rs.BID = rt.BID
-		rs.UseStatus = rlib.RentableStatusToNumber(rfRecord.RentableStatus)
+		rs.UseStatus = rlib.RentableUseStatusToNumber(rfRecord.RentableUseStatus)
 		rs.DtStart = currentTime
 		rs.DtStop = (time.Time)(rfRecord.RSDtStop)
-		_, err = rlib.InsertRentableStatus(r.Context(), &rs)
+		_, err = rlib.InsertRentableUseStatus(r.Context(), &rs)
 		if err != nil {
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
-		rlib.Console("RentableStatus has been saved for Rentable(%d), RSID: %d\n", rt.RID, rs.RSID)
+		rlib.Console("RentableUseStatus has been saved for Rentable(%d), RSID: %d\n", rt.RID, rs.RSID)
 
 		// ---------------------------- INSERT RENTABLE TYPE REF ---------------------
 
@@ -760,72 +760,71 @@ func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	SvcWriteResponse(d.BID, &g, w)
 }
 
-// RentableStatusGridResponse to a response of grid
-type RentableStatusGridResponse struct {
-	Status  string                  `json:"status"`
-	Total   int64                   `json:"total"`
-	Records []RentableStatusGridRec `json:"records"`
+// RentableUseStatusGridResponse to a response of grid
+type RentableUseStatusGridResponse struct {
+	Status  string                     `json:"status"`
+	Total   int64                      `json:"total"`
+	Records []RentableUseStatusGridRec `json:"records"`
 }
 
-// RentableStatusGridRec to a row record of the grid
-type RentableStatusGridRec struct {
-	Recid                 int64 `json:"recid"`
-	RSID                  int64
-	BID                   int64
-	BUD                   string
-	RID                   int64
-	UseStatus             int64
-	LeaseStatus           int64
-	DtStart               rlib.JSONDate
-	DtStop                rlib.JSONDate
-	DtNoticeToVacate      rlib.JSONDate
-	DtNoticeToVacateIsSet bool
-	CreateBy              int64
-	LastModBy             int64
-	Comment               string
+// RentableUseStatusGridRec to a row record of the grid
+type RentableUseStatusGridRec struct {
+	Recid       int64 `json:"recid"`
+	RSID        int64
+	BID         int64
+	BUD         string
+	RID         int64
+	UseStatus   int64
+	LeaseStatus int64
+	DtStart     rlib.JSONDate
+	DtStop      rlib.JSONDate
+	Comment     string
+	CreateBy    int64
+	LastModBy   int64
+	// DtNoticeToVacateIsSet bool
 }
 
 // rsGridRowScan scans a result from sql row and dump it in a struct for rentableStatusGridRec
-func rsGridRowScan(rows *sql.Rows, q RentableStatusGridRec) (RentableStatusGridRec, error) {
-	err := rows.Scan(&q.RSID, &q.RID, &q.UseStatus, &q.LeaseStatus, &q.DtStart, &q.DtStop, &q.DtNoticeToVacate, &q.CreateBy, &q.LastModBy)
-	if err == nil {
-		// Year 2000 date in UTC
-		Y2KDt := time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC)
-		if (time.Time)(q.DtNoticeToVacate).After(Y2KDt) {
-			q.DtNoticeToVacateIsSet = true
-		}
-	}
+func rsGridRowScan(rows *sql.Rows, q RentableUseStatusGridRec) (RentableUseStatusGridRec, error) {
+	err := rows.Scan(&q.RSID, &q.RID, &q.UseStatus, &q.LeaseStatus, &q.DtStart, &q.DtStop, &q.Comment, &q.CreateBy, &q.LastModBy)
+	// if err == nil {
+	// 	// Year 2000 date in UTC
+	// 	Y2KDt := time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC)
+	// 	if (time.Time)(q.DtNoticeToVacate).After(Y2KDt) {
+	// 		q.DtNoticeToVacateIsSet = true
+	// 	}
+	// }
 	return q, err
 }
 
 var rentableStatusSearchFieldMap = rlib.SelectQueryFieldMap{
-	"RSID":             {"RentableStatus.RSID"},
-	"RID":              {"RentableStatus.RID"},
-	"UseStatus":        {"RentableStatus.UseStatus"},
-	"LeaseStatus":      {"RentableStatus.LeaseStatus"},
-	"DtStart":          {"RentableStatus.DtStart"},
-	"DtStop":           {"RentableStatus.DtStop"},
-	"DtNoticeToVacate": {"RentableStatus.DtNoticeToVacate"},
-	"CreateBy":         {"RentableStatus.CreateBy"},
-	"LastModBy":        {"RentableStatus.LastModBy"},
+	"RSID":        {"RentableUseStatus.RSID"},
+	"RID":         {"RentableUseStatus.RID"},
+	"UseStatus":   {"RentableUseStatus.UseStatus"},
+	"LeaseStatus": {"RentableUseStatus.LeaseStatus"},
+	"DtStart":     {"RentableUseStatus.DtStart"},
+	"DtStop":      {"RentableUseStatus.DtStop"},
+	"Comment":     {"RentableUseStatus.Comment"},
+	"CreateBy":    {"RentableUseStatus.CreateBy"},
+	"LastModBy":   {"RentableUseStatus.LastModBy"},
 }
 
 // which fields needs to be fetch to satisfy the struct
 var rentableStatusSearchSelectQueryFields = rlib.SelectQueryFields{
-	"RentableStatus.RSID",
-	"RentableStatus.RID",
-	"RentableStatus.UseStatus",
-	"RentableStatus.LeaseStatus",
-	"RentableStatus.DtStart",
-	"RentableStatus.DtStop",
-	"RentableStatus.DtNoticeToVacate",
-	"RentableStatus.CreateBy",
-	"RentableStatus.LastModBy",
+	"RentableUseStatus.RSID",
+	"RentableUseStatus.RID",
+	"RentableUseStatus.UseStatus",
+	"RentableUseStatus.LeaseStatus",
+	"RentableUseStatus.DtStart",
+	"RentableUseStatus.DtStop",
+	"RentableUseStatus.Comment",
+	"RentableUseStatus.CreateBy",
+	"RentableUseStatus.LastModBy",
 }
 
-// SvcHandlerRentableStatus returns the list of status for the rentable
-func SvcHandlerRentableStatus(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	const funcname = "SvcHandlerRentableStatus"
+// SvcHandlerRentableUseStatus returns the list of status for the rentable
+func SvcHandlerRentableUseStatus(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcHandlerRentableUseStatus"
 	var (
 		err error
 	)
@@ -842,13 +841,13 @@ func SvcHandlerRentableStatus(w http.ResponseWriter, r *http.Request, d *Service
 
 	switch d.wsSearchReq.Cmd {
 	case "get":
-		svcSearchHandlerRentableStatus(w, r, d) // it is a query for the grid.
+		svcSearchHandlerRentableUseStatus(w, r, d) // it is a query for the grid.
 		break
 	case "save":
-		saveRentableStatus(w, r, d)
+		saveRentableUseStatus(w, r, d)
 		break
 	case "delete":
-		deleteRentableStatus(w, r, d)
+		deleteRentableUseStatus(w, r, d)
 		break
 	default:
 		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
@@ -857,16 +856,16 @@ func SvcHandlerRentableStatus(w http.ResponseWriter, r *http.Request, d *Service
 	}
 }
 
-// svcSearchHandlerRentableStatus handles market rate grid request/response
-func svcSearchHandlerRentableStatus(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+// svcSearchHandlerRentableUseStatus handles market rate grid request/response
+func svcSearchHandlerRentableUseStatus(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
-	const funcname = "svcSearchHandlerRentableStatus"
+	const funcname = "svcSearchHandlerRentableUseStatus"
 
 	var (
-		g     RentableStatusGridResponse
+		g     RentableUseStatusGridResponse
 		err   error
-		order = `RentableStatus.RSID ASC`
-		whr   = fmt.Sprintf("RentableStatus.RID=%d", d.ID)
+		order = `RentableUseStatus.RSID ASC`
+		whr   = fmt.Sprintf("RentableUseStatus.RID=%d", d.ID)
 	)
 	fmt.Printf("Entered %s\n", funcname)
 
@@ -882,7 +881,7 @@ func svcSearchHandlerRentableStatus(w http.ResponseWriter, r *http.Request, d *S
 	statusQuery := `
 	SELECT
 		{{.SelectClause}}
-	FROM RentableStatus
+	FROM RentableUseStatus
 	WHERE {{.WhereClause}}
 	ORDER BY {{.OrderClause}}`
 
@@ -931,7 +930,7 @@ func svcSearchHandlerRentableStatus(w http.ResponseWriter, r *http.Request, d *S
 	i := int64(d.wsSearchReq.Offset)
 	count := 0
 	for rows.Next() {
-		var q RentableStatusGridRec
+		var q RentableUseStatusGridRec
 		q.Recid = i
 		q.BID = d.BID
 		q.BUD = string(rlib.GetBUDFromBIDList(q.BID))
@@ -961,22 +960,22 @@ func svcSearchHandlerRentableStatus(w http.ResponseWriter, r *http.Request, d *S
 	SvcWriteResponse(d.BID, &g, w)
 }
 
-// RentableStatusGridSave is the input data format for a Save command
-type RentableStatusGridSave struct {
-	Cmd      string                  `json:"cmd"`
-	Selected []int64                 `json:"selected"`
-	Limit    int64                   `json:"limit"`
-	Offset   int64                   `json:"offset"`
-	Changes  []RentableStatusGridRec `json:"changes"`
-	RID      int64                   `json:"RID"`
+// RentableUseStatusGridSave is the input data format for a Save command
+type RentableUseStatusGridSave struct {
+	Cmd      string                     `json:"cmd"`
+	Selected []int64                    `json:"selected"`
+	Limit    int64                      `json:"limit"`
+	Offset   int64                      `json:"offset"`
+	Changes  []RentableUseStatusGridRec `json:"changes"`
+	RID      int64                      `json:"RID"`
 }
 
-// saveRentableStatus save/update rentable status associated with Rentable
-func saveRentableStatus(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+// saveRentableUseStatus save/update rentable status associated with Rentable
+func saveRentableUseStatus(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var (
-		funcname = "saveRentableStatus"
+		funcname = "saveRentableUseStatus"
 		err      error
-		foo      RentableStatusGridSave
+		foo      RentableUseStatusGridSave
 	)
 	fmt.Printf("Entered %s\n", funcname)
 	rlib.Console("record data: %s\n", d.data)
@@ -1007,10 +1006,10 @@ func saveRentableStatus(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 
 	var bizErrs []bizlogic.BizError
 	for _, rs := range foo.Changes {
-		var a rlib.RentableStatus
+		var a rlib.RentableUseStatus
 		rlib.MigrateStructVals(&rs, &a) // the variables that don't need special handling
 
-		errs := bizlogic.ValidateRentableStatus(r.Context(), &a)
+		errs := bizlogic.ValidateRentableUseStatus(r.Context(), &a)
 		if len(errs) > 0 {
 			bizErrs = append(bizErrs, errs...)
 			continue
@@ -1018,14 +1017,14 @@ func saveRentableStatus(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 
 		// if RSID = 0 then insert new record
 		if a.RSID == 0 {
-			_, err = rlib.InsertRentableStatus(r.Context(), &a)
+			_, err = rlib.InsertRentableUseStatus(r.Context(), &a)
 			if err != nil {
 				e := fmt.Errorf("Error while inserting rentable status:  %s", err.Error())
 				SvcErrorReturn(w, e, funcname)
 				return
 			}
 		} else { // else update existing one
-			err = rlib.UpdateRentableStatus(r.Context(), &a)
+			err = rlib.UpdateRentableUseStatus(r.Context(), &a)
 			if err != nil {
 				e := fmt.Errorf("Error with updating rentable status (%d), RID=%d : %s", a.RSID, a.RID, err.Error())
 				SvcErrorReturn(w, e, funcname)
@@ -1043,19 +1042,19 @@ func saveRentableStatus(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 	SvcWriteSuccessResponse(d.BID, w)
 }
 
-// RentableStatusGridRecDelete is a struct used in delete request for rentable status
-type RentableStatusGridRecDelete struct {
+// RentableUseStatusGridRecDelete is a struct used in delete request for rentable status
+type RentableUseStatusGridRecDelete struct {
 	Cmd      string  `json:"cmd"`
 	RSIDList []int64 `json:"RSIDList"`
 	RID      int64   `json:"RID"`
 }
 
-// deleteRentableStatus used to delete rentable status records associated with rentable
-func deleteRentableStatus(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+// deleteRentableUseStatus used to delete rentable status records associated with rentable
+func deleteRentableUseStatus(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var (
-		funcname = "deleteRentableStatus"
+		funcname = "deleteRentableUseStatus"
 		err      error
-		foo      RentableStatusGridRecDelete
+		foo      RentableUseStatusGridRecDelete
 	)
 	rlib.Console("Entered %s\n", funcname)
 	rlib.Console("record data: %s\n", d.data)
@@ -1069,7 +1068,7 @@ func deleteRentableStatus(w http.ResponseWriter, r *http.Request, d *ServiceData
 
 	// TODO(Sudip): better should delete batch under atomic transaction
 	for _, rsid := range foo.RSIDList {
-		err = rlib.DeleteRentableStatus(r.Context(), rsid)
+		err = rlib.DeleteRentableUseStatus(r.Context(), rsid)
 		if err != nil {
 			e := fmt.Errorf("Error with deleting Rentable Status(%d) for Rentable(%d): %s",
 				rsid, foo.RID, err.Error())

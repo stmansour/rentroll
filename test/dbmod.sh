@@ -550,10 +550,15 @@ DBNAME="rentroll"
 # );
 # ALTER TABLE TBind ADD COLUMN BID BIGINT NOT NULL DEFAULT 0 AFTER TBID;
 
+# Dec 30, 2018
+# RENAME TABLE RentableStatus TO RentableUseStatus;
+
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================
 cat >${MODFILE} <<EOF
+ALTER TABLE RentableUseStatus ADD Comment VARCHAR(2048) NOT NULL DEFAULT '' AFTER DtStop;
+ALTER TABLE RentableUseStatus DROP Column DtNoticeToVacate;
 EOF
 
 #==============================================================================

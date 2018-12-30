@@ -1397,20 +1397,20 @@ type RentableSpecialtyRef struct {
 	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
-// RentableStatus archives the state of a Rentable during the specified period of time
-type RentableStatus struct {
-	RSID             int64     // unique ID for this Rentable Status
-	RID              int64     // associated Rentable
-	BID              int64     // associated business
-	DtStart          time.Time // start of period
-	DtStop           time.Time // end of period
-	DtNoticeToVacate time.Time // user has indicated they will vacate on this date
-	UseStatus        int64     // 1-Administrative, 2=InService, 3=Employee, 4=Model, 5=OfflineRennovation, 6=OfflineMaintenance
-	LeaseStatus      int64     // 1-Vacant-rented, 2=VacantNotRented, 3=OnNoticePreLeased, 4=OnNoticeAvailable, 5=Leased, 6=Unavailable
-	LastModTime      time.Time // time of last update to the db record
-	LastModBy        int64     // who made the update (Phonebook UID)
-	CreateTS         time.Time // when was this record created
-	CreateBy         int64     // employee UID (from phonebook) that created it
+// RentableUseStatus archives the state of a Rentable during the specified period of time
+type RentableUseStatus struct {
+	RSID        int64     // unique ID for this Rentable Status
+	RID         int64     // associated Rentable
+	BID         int64     // associated business
+	DtStart     time.Time // start of period
+	DtStop      time.Time // end of period
+	Comment     string    // comment
+	UseStatus   int64     // 1-Administrative, 2=InService, 3=Employee, 4=Model, 5=OfflineRennovation, 6=OfflineMaintenance
+	LeaseStatus int64     // 1-Vacant-rented, 2=VacantNotRented, 3=OnNoticePreLeased, 4=OnNoticeAvailable, 5=Leased, 6=Unavailable
+	LastModTime time.Time // time of last update to the db record
+	LastModBy   int64     // who made the update (Phonebook UID)
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // XBusiness combines the Business struct and a map of the Business's Rentable types
@@ -1604,7 +1604,7 @@ type RRprepSQL struct {
 	DeleteReceiptAllocations                *sql.Stmt
 	DeleteRentableMarketRateInstance        *sql.Stmt
 	DeleteRentableSpecialtyRef              *sql.Stmt
-	DeleteRentableStatus                    *sql.Stmt
+	DeleteRentableUseStatus                 *sql.Stmt
 	DeleteRentableTypeRef                   *sql.Stmt
 	DeleteRentableTypeRefWithRTID           *sql.Stmt
 	DeleteRentableUser                      *sql.Stmt
@@ -1755,8 +1755,8 @@ type RRprepSQL struct {
 	GetRentableSpecialtyRefsByRange         *sql.Stmt
 	GetRentableSpecialtyType                *sql.Stmt
 	GetRentableSpecialtyTypeByName          *sql.Stmt
-	GetRentableStatus                       *sql.Stmt
-	GetRentableStatusByRange                *sql.Stmt
+	GetRentableUseStatus                    *sql.Stmt
+	GetRentableUseStatusByRange             *sql.Stmt
 	GetRentableType                         *sql.Stmt
 	GetRentableTypeByStyle                  *sql.Stmt
 	GetRentableTypeDown                     *sql.Stmt
@@ -1836,7 +1836,7 @@ type RRprepSQL struct {
 	InsertRentableMarketRates               *sql.Stmt
 	InsertRentableSpecialtyRef              *sql.Stmt
 	InsertRentableSpecialtyType             *sql.Stmt
-	InsertRentableStatus                    *sql.Stmt
+	InsertRentableUseStatus                 *sql.Stmt
 	InsertRentableType                      *sql.Stmt
 	InsertRentableTypeRef                   *sql.Stmt
 	InsertRentableUser                      *sql.Stmt
@@ -1881,7 +1881,7 @@ type RRprepSQL struct {
 	UpdateRentable                          *sql.Stmt
 	UpdateRentableMarketRateInstance        *sql.Stmt
 	UpdateRentableSpecialtyRef              *sql.Stmt
-	UpdateRentableStatus                    *sql.Stmt
+	UpdateRentableUseStatus                 *sql.Stmt
 	UpdateRentableType                      *sql.Stmt
 	UpdateRentableTypeToActive              *sql.Stmt
 	UpdateRentableTypeToInactive            *sql.Stmt
@@ -1904,7 +1904,7 @@ type RRprepSQL struct {
 	GetAssessmentInstancesByParent          *sql.Stmt
 	GetJournalAllocationsByASMID            *sql.Stmt
 	GetRentableTypeRefs                     *sql.Stmt
-	GetAllRentableStatus                    *sql.Stmt
+	GetAllRentableUseStatus                 *sql.Stmt
 	GetRentalAgreementTypeDown              *sql.Stmt
 	GetLedgerEntriesByJAID                  *sql.Stmt
 	GetLedgersForGrid                       *sql.Stmt
@@ -1925,7 +1925,7 @@ type RRprepSQL struct {
 	GetRARentableLedgerMarkerOnOrBefore     *sql.Stmt
 	GetAssessmentsByRARRange                *sql.Stmt
 	GetASMReceiptAllocationsInRARDateRange  *sql.Stmt
-	GetRentableStatusOnOrAfter              *sql.Stmt
+	GetRentableUseStatusOnOrAfter           *sql.Stmt
 	InsertSubAR                             *sql.Stmt
 	GetSubAR                                *sql.Stmt
 	GetSubARs                               *sql.Stmt

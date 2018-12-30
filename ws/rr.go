@@ -28,7 +28,7 @@ package ws
 //    Assessments and Receipts are shown with the largest amounts on the top
 //    and the lowest amounts on the bottom.  The time gaps between the end
 //    of one RentalAgreement and the beginning of the next may or may not
-//    have associate RentableStatus records.  If no rentable status records
+//    have associate RentableUseStatus records.  If no rentable status records
 //    exist, the report will show a UseStatus of InService and a LeaseStatus
 //    of VacantRented if there is no RentalAgreement in the future or
 //    VacantNotRented if there is.

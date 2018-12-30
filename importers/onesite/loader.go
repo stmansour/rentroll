@@ -312,7 +312,7 @@ func loadOneSiteCSV(
 		// rowLoaded successfully then do rest of the operation
 
 		// get rentable status from csv data
-		csvRentableStatus := csvRow.UnitLeaseStatus
+		csvRentableUseStatus := csvRow.UnitLeaseStatus
 
 		// get unit from csv data
 		csvUnit := csvRow.Unit
@@ -320,7 +320,7 @@ func loadOneSiteCSV(
 		// for rentable status exists in csvRow, get set of csv types which can be allowed
 		// to perform write data for csv
 		// need to call validation function as in to get the values
-		_, rrUseStatus, _ := IsValidRentableUseStatus(csvRentableStatus)
+		_, rrUseStatus, _ := IsValidRentableUseStatus(csvRentableUseStatus)
 		csvTypesSet := canWriteCSVStatusMap[rrUseStatus]
 		var canWriteData bool
 

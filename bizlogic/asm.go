@@ -909,7 +909,7 @@ func ValidateAssessment(ctx context.Context, a *rlib.Assessment) []BizError {
 		//--------------------------------------------------------------------------
 		// rlib.Console("ValidateAssessment: G0\n")
 		// rlib.Console("ValidateAssessment: a.Start-Stop = %s - %s\n", a.Start.Format(rlib.RRDATEINPFMT), a.Stop.Format(rlib.RRDATEINPFMT))
-		rsl, err := rlib.GetRentableStatusByRange(ctx, a.RID, &a.Start, &a.Stop)
+		rsl, err := rlib.GetRentableUseStatusByRange(ctx, a.RID, &a.Start, &a.Stop)
 		if err != nil {
 			elist := bizErrSys(&err)
 			// rlib.Console("ValidateAssessment: G\n")
@@ -920,14 +920,14 @@ func ValidateAssessment(ctx context.Context, a *rlib.Assessment) []BizError {
 		l = len(rsl)
 		if l == 0 {
 			// rlib.Console("ValidateAssessment: H\n")
-			rlib.Console("ValidateAssessment: l=0 --> GetRentableStatusByRange( a.RID=%d, %s)\n", a.RID, rlib.ConsoleDRange(&a.Start, &a.Stop))
-			e = append(e, BizErrors[RentableStatusUnknown])
+			rlib.Console("ValidateAssessment: l=0 --> GetRentableUseStatusByRange( a.RID=%d, %s)\n", a.RID, rlib.ConsoleDRange(&a.Start, &a.Stop))
+			e = append(e, BizErrors[RentableUseStatusUnknown])
 		} else {
 			// rlib.Console("ValidateAssessment: H1\n")
 			// rlib.Console("ValidateAssessment: rtl = %s - %s\n", rtl[0].DtStart.Format(rlib.RRDATEINPFMT), rtl[l-1].DtStop.Format(rlib.RRDATEINPFMT))
 			if a.Stop.Before(rtl[0].DtStart) || a.Start.After(rtl[l-1].DtStop) {
 				// rlib.Console("ValidateAssessment: I\n")
-				e = append(e, BizErrors[RentableStatusUnknown])
+				e = append(e, BizErrors[RentableUseStatusUnknown])
 			}
 		}
 

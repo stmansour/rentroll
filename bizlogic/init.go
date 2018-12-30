@@ -22,7 +22,7 @@ var BizErrors []BizError
 // RentableTypeUnknown, et al, are the error numbers for us in BizErrors
 const (
 	RentableTypeUnknown             = 0
-	RentableStatusUnknown           = 1
+	RentableUseStatusUnknown           = 1
 	InvalidField                    = 2
 	EditReversal                    = 3
 	PostToSummaryAcct               = 4
@@ -48,8 +48,8 @@ const (
 	UnknownBUD                      = 24 // Unknown BUD
 	InvalidRentableUseStatus        = 25 // invalid rentable use status
 	InvalidRentableLeaseStatus      = 26 // invalid rentable lease status
-	InvalidRentableStatusDates      = 27 // invalid rentable status dates
-	RentableStatusDatesOverlap      = 28 // rentable status dates overlapping
+	InvalidRentableUseStatusDates      = 27 // invalid rentable status dates
+	RentableUseStatusDatesOverlap      = 28 // rentable status dates overlapping
 	InvalidRentableTypeRefDates     = 29 // invalid rentable type ref dates
 	RentableTypeRefDatesOverlap     = 30 // rentable type ref dates overlapping
 	UnknownRID                      = 31 // Unknown Rentable

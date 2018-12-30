@@ -1004,8 +1004,8 @@ func DeleteRentableSpecialtyRef(ctx context.Context, rid int64, dtstart, dtstop 
 	return err
 }
 
-// DeleteRentableStatus deletes RentableStatus records with the supplied rsid
-func DeleteRentableStatus(ctx context.Context, rsid int64) error {
+// DeleteRentableUseStatus deletes RentableUseStatus records with the supplied rsid
+func DeleteRentableUseStatus(ctx context.Context, rsid int64) error {
 	var err error
 
 	// session... context
@@ -1018,14 +1018,14 @@ func DeleteRentableStatus(ctx context.Context, rsid int64) error {
 
 	fields := []interface{}{rsid}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.DeleteRentableStatus)
+		stmt := tx.Stmt(RRdb.Prepstmt.DeleteRentableUseStatus)
 		defer stmt.Close()
 		_, err = stmt.Exec(fields...)
 	} else {
-		_, err = RRdb.Prepstmt.DeleteRentableStatus.Exec(fields...)
+		_, err = RRdb.Prepstmt.DeleteRentableUseStatus.Exec(fields...)
 	}
 	if err != nil {
-		Ulog("Error deleting RentableStatus with rsid=%d\n", rsid, err)
+		Ulog("Error deleting RentableUseStatus with rsid=%d\n", rsid, err)
 	}
 	return err
 }

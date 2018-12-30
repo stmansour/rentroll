@@ -34,7 +34,7 @@ func VacancyDetect(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time, rid 
 	// considered vacant. So, the first thing to do is cache the
 	// Rentable state over the period
 	//==================================================================
-	rsa, err := GetRentableStatusByRange(ctx, rid, d1, d2)
+	rsa, err := GetRentableUseStatusByRange(ctx, rid, d1, d2)
 	if err != nil {
 		return m, err
 	}
@@ -87,7 +87,7 @@ func VacancyDetect(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time, rid 
 
 		// rlib.Console("VacancyDetect:  %s (%d), period %s - %s\n", r.Name, rid, dt.Format(RRDATEINPFMT), dtNext.Format(RRDATEINPFMT))
 
-		rs := SelectRentableStatusForPeriod(&rsa, dt, dtNext)
+		rs := SelectRentableUseStatusForPeriod(&rsa, dt, dtNext)
 		useState = USESTATUSinService // if there is no state info, we'll assume online
 		if len(rs) > 0 {
 			useState = rs[0].UseStatus // If this turns out to be a problem, maybe we'll choose the state with the greatest percentage of time

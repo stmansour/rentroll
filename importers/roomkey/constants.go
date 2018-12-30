@@ -29,9 +29,9 @@ var prefixCSVFile = map[string]string{
 	"rentable":         "rentable_",
 }
 
-// RoomKeyOnlineRentableStatus is rentroll rentable status for online
+// RoomKeyOnlineRentableUseStatus is rentroll rentable status for online
 // in roomkey consider all data has online status
-var RoomKeyOnlineRentableStatus = "1"
+var RoomKeyOnlineRentableUseStatus = "1"
 
 // CSVLoadHandler struct is for routines that want to table-ize their loading.
 type csvLoadHandler struct {

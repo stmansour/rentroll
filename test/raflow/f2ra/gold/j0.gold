@@ -137,7 +137,7 @@
                             {
                                 "ARID": 24,
                                 "ARName": "Pet Rent",
-                                "ASMID": 61,
+                                "ASMID": 71,
                                 "AtSigningPreTax": 0,
                                 "Comment": "Derived from RAID 3, ASMID 15",
                                 "ContractAmount": 10,
@@ -165,7 +165,7 @@
                             {
                                 "ARID": 26,
                                 "ARName": "Rent Non-Taxable",
-                                "ASMID": 60,
+                                "ASMID": 70,
                                 "AtSigningPreTax": 0,
                                 "Comment": "Derived from RAID 3, ASMID 13",
                                 "ContractAmount": 1000,

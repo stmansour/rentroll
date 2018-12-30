@@ -161,9 +161,9 @@ func GetRentableCSVRow(
 			// format is user, startDate, stopDate
 			dataMap[i] = GetRUserSpec(oneSiteRow, DefaultValues)
 		}
-		if rentableField.Name == "RentableStatus" {
+		if rentableField.Name == "RentableUseStatus" {
 			// format is status, startDate, stopDate
-			status, _ := GetRentableStatus(oneSiteRow, DefaultValues)
+			status, _ := GetRentableUseStatus(oneSiteRow, DefaultValues)
 			// TODO: verify that what to do in false case
 			// should return its original value or raise error???
 			dataMap[i] = status
@@ -233,8 +233,8 @@ func GetRUserSpec(
 	// return strings.Join(orderedFields, ",")
 }
 
-// GetRentableStatus used to get rentable status in format of rentroll system
-func GetRentableStatus(csvRow *CSVRow,
+// GetRentableUseStatus used to get rentable status in format of rentroll system
+func GetRentableUseStatus(csvRow *CSVRow,
 	defaults map[string]string) (string, bool) {
 
 	var rrUseStatus string

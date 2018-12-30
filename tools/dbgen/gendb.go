@@ -573,14 +573,14 @@ func createChildRentableTypes(ctx context.Context, dbConf *GenDBConf) error {
 		//-----------------------------
 		// RENTABLE STATUS
 		//-----------------------------
-		var rs rlib.RentableStatus
+		var rs rlib.RentableUseStatus
 		rs.DtStart = dbConf.DtBOT
 		rs.DtStop = dbConf.DtEOT
 		rs.BID = dbConf.BIZ[0].BID
 		rs.RID = r.RID
 		rs.LeaseStatus = rlib.LEASESTATUSvacantNotRented
 		rs.UseStatus = rlib.USESTATUSinService
-		_, err = rlib.InsertRentableStatus(ctx, &rs)
+		_, err = rlib.InsertRentableUseStatus(ctx, &rs)
 		if err != nil {
 			return err
 		}
@@ -615,14 +615,14 @@ func createRentables(ctx context.Context, dbConf *GenDBConf, rt *RType, mr *rlib
 			return err
 		}
 
-		var rs rlib.RentableStatus
+		var rs rlib.RentableUseStatus
 		rs.DtStart = dbConf.DtBOT
 		rs.DtStop = dbConf.DtEOT
 		rs.BID = dbConf.BIZ[0].BID
 		rs.RID = r.RID
 		rs.LeaseStatus = rlib.LEASESTATUSleased
 		rs.UseStatus = rlib.USESTATUSinService
-		_, err = rlib.InsertRentableStatus(ctx, &rs)
+		_, err = rlib.InsertRentableUseStatus(ctx, &rs)
 		if err != nil {
 			return err
 		}

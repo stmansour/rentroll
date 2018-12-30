@@ -24,7 +24,7 @@
                     "RentStop": "3/1/2020"
                 },
                 "meta": {
-                    "ActiveDate": "2018-11-07 07:27:00 UTC",
+                    "ActiveDate": "2018-10-24 00:00:00 UTC",
                     "ActiveName": "UID-0",
                     "ActiveUID": -99999,
                     "ApplicationReadyDate": "2018-08-23 22:47:00 UTC",
@@ -137,7 +137,7 @@
                             {
                                 "ARID": 24,
                                 "ARName": "Pet Rent",
-                                "ASMID": 438,
+                                "ASMID": 434,
                                 "AtSigningPreTax": 0,
                                 "Comment": "prorated for 16 of 28 days | Derived from RAID 4, ASMID 57",
                                 "ContractAmount": 5.71,
@@ -152,7 +152,7 @@
                             {
                                 "ARID": 24,
                                 "ARName": "Pet Rent",
-                                "ASMID": 439,
+                                "ASMID": 435,
                                 "AtSigningPreTax": 0,
                                 "Comment": "Derived from RAID 4, ASMID 57",
                                 "ContractAmount": 10,
@@ -180,7 +180,7 @@
                             {
                                 "ARID": 26,
                                 "ARName": "Rent Non-Taxable",
-                                "ASMID": 427,
+                                "ASMID": 424,
                                 "AtSigningPreTax": 0,
                                 "Comment": "prorated for 16 of 28 days | Derived from RAID 4, ASMID 49",
                                 "ContractAmount": 571.43,
@@ -195,7 +195,7 @@
                             {
                                 "ARID": 26,
                                 "ARName": "Rent Non-Taxable",
-                                "ASMID": 428,
+                                "ASMID": 425,
                                 "AtSigningPreTax": 0,
                                 "Comment": "Derived from RAID 4, ASMID 49",
                                 "ContractAmount": 1000,
