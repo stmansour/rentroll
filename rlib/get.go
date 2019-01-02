@@ -9,6 +9,16 @@ import (
 	"time"
 )
 
+// getSessionCheck
+// RETURNS  false if session is found, true if not
+func getSessionCheck(ctx context.Context) bool {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		_, ok := SessionFromContext(ctx)
+		return !ok
+	}
+	return false
+}
+
 // GetCountByTableName returns the count of records in table t
 // that belong to business bid
 //------------------------------------------------------------------
@@ -55,11 +65,7 @@ func GetAR(ctx context.Context, id int64) (AR, error) {
 
 // GetARByName reads a AR the structure for the supplied bid and name
 func GetARByName(ctx context.Context, bid int64, name string) (AR, error) {
-
-	var (
-		// err error
-		a AR
-	)
+	var a AR
 
 	// session... context
 	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
@@ -5773,18 +5779,10 @@ func GetRentableTypeRefForDate(ctx context.Context, RID int64, d1 *time.Time) (R
 
 // GetRentableUseStatus gets RentableUseStatus record for given RSID -- RentableUseStatus ID (unique ID)
 func GetRentableUseStatus(ctx context.Context, rsid int64) (RentableUseStatus, error) {
+	var rs RentableUseStatus
 
-	var (
-		// err error
-		rs RentableUseStatus
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return rs, ErrSessionRequired
-		}
+	if getSessionCheck(ctx) {
+		return rs, ErrSessionRequired
 	}
 
 	var row *sql.Row
@@ -5801,25 +5799,17 @@ func GetRentableUseStatus(ctx context.Context, rsid int64) (RentableUseStatus, e
 
 // getRentableUseStatusRows loads all the RentableUseStatus records for rows
 func getRentableUseStatusRows(ctx context.Context, rows *sql.Rows) ([]RentableUseStatus, error) {
+	var err error
+	var rs []RentableUseStatus
 
-	var (
-		err error
-		rs  []RentableUseStatus
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return rs, ErrSessionRequired
-		}
+	if getSessionCheck(ctx) {
+		return rs, ErrSessionRequired
 	}
 	defer rows.Close()
 
 	for rows.Next() {
 		var a RentableUseStatus
-		err = ReadRentableUseStatuss(rows, &a)
-		if err != nil {
+		if err = ReadRentableUseStatuses(rows, &a); err != nil {
 			return rs, err
 		}
 		rs = append(rs, a)
@@ -5830,20 +5820,10 @@ func getRentableUseStatusRows(ctx context.Context, rows *sql.Rows) ([]RentableUs
 
 // GetRentableUseStatusOnOrAfter loads all the RentableUseStatus records that overlap the supplied time range
 func GetRentableUseStatusOnOrAfter(ctx context.Context, RID int64, dt *time.Time) (RentableUseStatus, error) {
-
-	var (
-		// err error
-		a RentableUseStatus
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return a, ErrSessionRequired
-		}
+	var a RentableUseStatus
+	if getSessionCheck(ctx) {
+		return a, ErrSessionRequired
 	}
-
 	var row *sql.Row
 	fields := []interface{}{RID, dt}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
@@ -5864,12 +5844,8 @@ func GetRentableUseStatusByRange(ctx context.Context, RID int64, d1, d2 *time.Ti
 		rs  []RentableUseStatus
 	)
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return rs, ErrSessionRequired
-		}
+	if getSessionCheck(ctx) {
+		return rs, ErrSessionRequired
 	}
 
 	var rows *sql.Rows
@@ -5896,12 +5872,8 @@ func GetAllRentableUseStatus(ctx context.Context, RID int64) ([]RentableUseStatu
 		rs  []RentableUseStatus
 	)
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return rs, ErrSessionRequired
-		}
+	if getSessionCheck(ctx) {
+		return rs, ErrSessionRequired
 	}
 
 	var rows *sql.Rows
@@ -5920,6 +5892,132 @@ func GetAllRentableUseStatus(ctx context.Context, RID int64) ([]RentableUseStatu
 	return getRentableUseStatusRows(ctx, rows)
 }
 
+// GetRentableLeaseStatus gets RentableLeaseStatus record for given RSID -- RentableLeaseStatus ID (unique ID)
+func GetRentableLeaseStatus(ctx context.Context, rsid int64) (RentableLeaseStatus, error) {
+
+	var (
+		// err error
+		rs RentableLeaseStatus
+	)
+
+	if getSessionCheck(ctx) {
+		return rs, ErrSessionRequired
+	}
+
+	var row *sql.Row
+	fields := []interface{}{rsid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentableLeaseStatus)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRentableLeaseStatus.QueryRow(fields...)
+	}
+	return rs, ReadRentableLeaseStatus(row, &rs)
+}
+
+// getRentableLeaseStatusRows loads all the RentableLeaseStatus records for rows
+func getRentableLeaseStatusRows(ctx context.Context, rows *sql.Rows) ([]RentableLeaseStatus, error) {
+
+	var (
+		err error
+		rs  []RentableLeaseStatus
+	)
+
+	if getSessionCheck(ctx) {
+		return rs, ErrSessionRequired
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var a RentableLeaseStatus
+		err = ReadRentableLeaseStatuses(rows, &a)
+		if err != nil {
+			return rs, err
+		}
+		rs = append(rs, a)
+	}
+
+	return rs, rows.Err()
+}
+
+// GetRentableLeaseStatusOnOrAfter loads all the RentableLeaseStatus records that overlap the supplied time range
+func GetRentableLeaseStatusOnOrAfter(ctx context.Context, RID int64, dt *time.Time) (RentableLeaseStatus, error) {
+
+	var a RentableLeaseStatus
+
+	if getSessionCheck(ctx) {
+		return a, ErrSessionRequired
+	}
+
+	var row *sql.Row
+	fields := []interface{}{RID, dt}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentableLeaseStatusOnOrAfter)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRentableLeaseStatusOnOrAfter.QueryRow(fields...)
+	}
+	return a, ReadRentableLeaseStatus(row, &a)
+}
+
+// GetRentableLeaseStatusByRange loads all the RentableLeaseStatus records that overlap the supplied time range
+func GetRentableLeaseStatusByRange(ctx context.Context, RID int64, d1, d2 *time.Time) ([]RentableLeaseStatus, error) {
+
+	var (
+		err error
+		rs  []RentableLeaseStatus
+	)
+
+	if getSessionCheck(ctx) {
+		return rs, ErrSessionRequired
+	}
+
+	var rows *sql.Rows
+	fields := []interface{}{RID, d1, d2}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentableLeaseStatusByRange)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetRentableLeaseStatusByRange.Query(fields...)
+	}
+
+	if err != nil {
+		return rs, err
+	}
+	return getRentableLeaseStatusRows(ctx, rows)
+}
+
+// GetAllRentableLeaseStatus loads all the RentableLeaseStatus records that overlap the supplied time range
+func GetAllRentableLeaseStatus(ctx context.Context, RID int64) ([]RentableLeaseStatus, error) {
+
+	var (
+		err error
+		rs  []RentableLeaseStatus
+	)
+
+	if getSessionCheck(ctx) {
+		return rs, ErrSessionRequired
+	}
+
+	var rows *sql.Rows
+	fields := []interface{}{RID}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAllRentableLeaseStatus)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetAllRentableLeaseStatus.Query(fields...)
+	}
+
+	if err != nil {
+		return rs, err
+	}
+	return getRentableLeaseStatusRows(ctx, rows)
+}
+
 //=======================================================
 //  R E N T A B L E   T Y P E
 //=======================================================
@@ -5931,12 +6029,8 @@ func GetRentableType(ctx context.Context, rtid int64, rt *RentableType) error {
 		err error
 	)
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if getSessionCheck(ctx) {
+		return ErrSessionRequired
 	}
 
 	var row *sql.Row
@@ -5970,12 +6064,8 @@ func GetRentableTypeByStyle(ctx context.Context, name string, bid int64) (Rentab
 		rt RentableType
 	)
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return rt, ErrSessionRequired
-		}
+	if getSessionCheck(ctx) {
+		return rt, ErrSessionRequired
 	}
 
 	var row *sql.Row
@@ -5998,12 +6088,8 @@ func GetRentableTypeByName(ctx context.Context, name string, bid int64) (Rentabl
 		rt RentableType
 	)
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return rt, ErrSessionRequired
-		}
+	if getSessionCheck(ctx) {
+		return rt, ErrSessionRequired
 	}
 
 	var row *sql.Row
@@ -6066,12 +6152,8 @@ func GetBusinessRentableTypes(ctx context.Context, bid int64) (map[int64]Rentabl
 		t = make(map[int64]RentableType)
 	)
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return t, ErrSessionRequired
-		}
+	if getSessionCheck(ctx) {
+		return t, ErrSessionRequired
 	}
 
 	return getBizRentableTypes(bid)
@@ -6121,17 +6203,8 @@ func getRentableMarketRates(rt *RentableType) error {
 
 // GetRentableMarketRates loads all the MarketRate rent information for this Rentable into an array
 func GetRentableMarketRates(ctx context.Context, rt *RentableType) error {
-
-	var (
-	// err error
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if getSessionCheck(ctx) {
+		return ErrSessionRequired
 	}
 
 	return getRentableMarketRates(rt)
@@ -6145,12 +6218,8 @@ func GetRentableMarketRateInstance(ctx context.Context, rmrid int64) (RentableMa
 		rmr RentableMarketRate
 	)
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return rmr, ErrSessionRequired
-		}
+	if getSessionCheck(ctx) {
+		return rmr, ErrSessionRequired
 	}
 
 	var row *sql.Row
@@ -6178,12 +6247,8 @@ func GetRentableMarketRate(ctx context.Context, xbiz *XBusiness, RID int64, d1, 
 		marketRateValue float64
 	)
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return marketRateValue, ErrSessionRequired
-		}
+	if getSessionCheck(ctx) {
+		return marketRateValue, ErrSessionRequired
 	}
 
 	rtid, err := GetRTIDForDate(ctx, RID, d1) // first thing... find the RTID for this time range
@@ -6251,12 +6316,8 @@ func GetRentalAgreement(ctx context.Context, raid int64) (RentalAgreement, error
 		r RentalAgreement
 	)
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return r, ErrSessionRequired
-		}
+	if getSessionCheck(ctx) {
+		return r, ErrSessionRequired
 	}
 
 	var row *sql.Row
@@ -6279,12 +6340,8 @@ func LoadXRentalAgreement(ctx context.Context, raid int64, r *RentalAgreement, d
 		err error
 	)
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if getSessionCheck(ctx) {
+		return ErrSessionRequired
 	}
 
 	if r.RAID != raid {
@@ -6402,12 +6459,8 @@ func GetRentalAgreementsFromList(ctx context.Context, raa *[]RentalAgreementRent
 		t   = make(map[int64]RentalAgreement)
 	)
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return t, ErrSessionRequired
-		}
+	if getSessionCheck(ctx) {
+		return t, ErrSessionRequired
 	}
 
 	for i := 0; i < len(*raa); i++ {
@@ -6430,12 +6483,8 @@ func GetAgreementsForRentable(ctx context.Context, rid int64, d1, d2 *time.Time)
 	var err error
 	var t []RentalAgreementRentable
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return t, ErrSessionRequired
-		}
+	if getSessionCheck(ctx) {
+		return t, ErrSessionRequired
 	}
 
 	var rows *sql.Rows
@@ -6472,12 +6521,8 @@ func GetRentalAgreementChain(ctx context.Context, origin int64) ([]RentalAgreeme
 	var err error
 	var t []RentalAgreement
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return t, ErrSessionRequired
-		}
+	if getSessionCheck(ctx) {
+		return t, ErrSessionRequired
 	}
 
 	var rows *sql.Rows
@@ -6515,12 +6560,8 @@ func GetRARentableForDate(ctx context.Context, raid int64, d1 *time.Time, rar *R
 	// err error
 	)
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if getSessionCheck(ctx) {
+		return ErrSessionRequired
 	}
 
 	var row *sql.Row
@@ -6543,12 +6584,8 @@ func GetRentalAgreementRentable(ctx context.Context, rarid int64) (RentalAgreeme
 		r RentalAgreementRentable
 	)
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return r, ErrSessionRequired
-		}
+	if getSessionCheck(ctx) {
+		return r, ErrSessionRequired
 	}
 
 	var row *sql.Row
@@ -6572,12 +6609,8 @@ func GetRentalAgreementRentables(ctx context.Context, raid int64, d1, d2 *time.T
 		t   []RentalAgreementRentable
 	)
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return t, ErrSessionRequired
-		}
+	if getSessionCheck(ctx) {
+		return t, ErrSessionRequired
 	}
 
 	var rows *sql.Rows
@@ -6625,12 +6658,8 @@ func GetAllRentalAgreementRentables(ctx context.Context, raid int64) ([]RentalAg
 		t   []RentalAgreementRentable
 	)
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return t, ErrSessionRequired
-		}
+	if getSessionCheck(ctx) {
+		return t, ErrSessionRequired
 	}
 
 	var rows *sql.Rows
@@ -6669,12 +6698,8 @@ func GetRentalAgreementPayorByRBT(ctx context.Context, raid, bid, tcid int64) (R
 		r RentalAgreementPayor
 	)
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return r, ErrSessionRequired
-		}
+	if getSessionCheck(ctx) {
+		return r, ErrSessionRequired
 	}
 
 	var row *sql.Row
@@ -6697,12 +6722,8 @@ func GetRentalAgreementPayor(ctx context.Context, id int64) (RentalAgreementPayo
 		r RentalAgreementPayor
 	)
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return r, ErrSessionRequired
-		}
+	if getSessionCheck(ctx) {
+		return r, ErrSessionRequired
 	}
 
 	var row *sql.Row
@@ -6726,12 +6747,8 @@ func GetRentalAgreementPayorsInRange(ctx context.Context, raid int64, d1, d2 *ti
 		t   []RentalAgreementPayor
 	)
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return t, ErrSessionRequired
-		}
+	if getSessionCheck(ctx) {
+		return t, ErrSessionRequired
 	}
 
 	var rows *sql.Rows

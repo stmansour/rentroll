@@ -177,9 +177,9 @@ func CreateRentables(ctx context.Context, sa []string, lineno int) (int, error) 
 
 		var rst rlib.RentableUseStatus // struct for the data in this 3-tuple
 		ix, err := strconv.Atoi(ss[0])
-		if err != nil || ix < rlib.USESTATUSunknown || ix > rlib.USESTATUSLAST {
+		if err != nil || ix < rlib.USESTATUSready || ix > rlib.USESTATUSLAST {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid Status value: %s.  Must be in the range %d to %d",
-				funcname, lineno, ss[0], rlib.USESTATUSunknown, rlib.USESTATUSLAST)
+				funcname, lineno, ss[0], rlib.USESTATUSready, rlib.USESTATUSLAST)
 		}
 		rst.UseStatus = int64(ix)
 

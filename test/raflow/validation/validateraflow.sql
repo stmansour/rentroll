@@ -1657,6 +1657,38 @@ INSERT INTO `Rentable` VALUES (1,1,0,'Rentable001',0,0,'0000-00-00 00:00:00','20
 UNLOCK TABLES;
 
 --
+-- Table structure for table `RentableLeaseStatus`
+--
+
+DROP TABLE IF EXISTS `RentableLeaseStatus`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `RentableLeaseStatus` (
+  `RLID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `RID` bigint(20) NOT NULL DEFAULT '0',
+  `BID` bigint(20) NOT NULL DEFAULT '0',
+  `LeaseStatus` smallint(6) NOT NULL DEFAULT '0',
+  `DtStart` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
+  `DtStop` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
+  `Comment` varchar(2048) NOT NULL DEFAULT '',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
+  `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`RLID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `RentableLeaseStatus`
+--
+
+LOCK TABLES `RentableLeaseStatus` WRITE;
+/*!40000 ALTER TABLE `RentableLeaseStatus` DISABLE KEYS */;
+/*!40000 ALTER TABLE `RentableLeaseStatus` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `RentableMarketRate`
 --
 
@@ -2632,4 +2664,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-12-30 11:49:46
+-- Dump completed on 2019-01-02 10:53:36

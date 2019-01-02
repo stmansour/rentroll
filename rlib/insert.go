@@ -2138,6 +2138,51 @@ func InsertRentableUseStatus(ctx context.Context, a *RentableUseStatus) (int64, 
 
 }
 
+// InsertRentableLeaseStatus writes a new RentableLeaseStatus record to the database
+func InsertRentableLeaseStatus(ctx context.Context, a *RentableLeaseStatus) (int64, error) {
+
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
+
+	// session... context
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.RID, a.BID, a.DtStart, a.DtStop, a.Comment, a.LeaseStatus, a.LeaseStatus, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertRentableLeaseStatus)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertRentableLeaseStatus.Exec(fields...)
+	}
+
+	// After getting result...
+	if nil == err {
+		x, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(x)
+			a.RLID = rid
+		}
+	} else {
+		err = insertError(err, "RentableLeaseStatus", *a)
+	}
+	return rid, err
+
+}
+
 // InsertRentableTypeRef writes a new RentableTypeRef record to the database
 func InsertRentableTypeRef(ctx context.Context, a *RentableTypeRef) (int64, error) {
 

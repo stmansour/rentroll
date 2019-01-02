@@ -1138,6 +1138,28 @@ WHERE RAID=? AND RID=? AND Start >= ? AND Stop < ? AND RentCycle=0`)
 	Errcheck(err)
 
 	//===============================
+	//  RentableLeaseStatus
+	//===============================
+	flds = "RLID,RID,BID,DtStart,DtStop,Comment,LeaseStatus,CreateTS,CreateBy,LastModTime,LastModBy"
+	RRdb.DBFields["RentableLeaseStatus"] = flds
+	RRdb.Prepstmt.GetRentableLeaseStatus, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableLeaseStatus WHERE RLID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetRentableLeaseStatusByRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableLeaseStatus WHERE RID=? AND DtStop>? AND DtStart<=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetRentableLeaseStatusOnOrAfter, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableLeaseStatus WHERE RID=? AND DtStart>=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetAllRentableLeaseStatus, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableLeaseStatus WHERE RID=?")
+	Errcheck(err)
+
+	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
+	RRdb.Prepstmt.InsertRentableLeaseStatus, err = RRdb.Dbrr.Prepare("INSERT INTO RentableLeaseStatus (" + s1 + ") VALUES(" + s2 + ")")
+	Errcheck(err)
+	RRdb.Prepstmt.UpdateRentableLeaseStatus, err = RRdb.Dbrr.Prepare("UPDATE RentableLeaseStatus SET " + s3 + " WHERE RLID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteRentableLeaseStatus, err = RRdb.Dbrr.Prepare("DELETE from RentableLeaseStatus WHERE RLID=?")
+	Errcheck(err)
+
+	//===============================
 	//  Rentable Type
 	//===============================
 	flds = "RTID,BID,Style,Name,RentCycle,Proration,GSRPC,ARID,FLAGS,CreateTS,CreateBy,LastModTime,LastModBy"

@@ -112,7 +112,7 @@ func VacancyDetect(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time, rid 
 			fallthrough
 		case USESTATUSofflineMaintenance:
 			fallthrough
-		case USESTATUSmodel:
+		case USESTATUSinactive:
 			// rlib.Console("\t{admin|employee|ownerocc|offline}...\n")
 		}
 

@@ -1004,6 +1004,32 @@ func DeleteRentableSpecialtyRef(ctx context.Context, rid int64, dtstart, dtstop 
 	return err
 }
 
+// DeleteRentableLeaseStatus deletes RentableLeaseStatus records with the supplied rsid
+func DeleteRentableLeaseStatus(ctx context.Context, rlid int64) error {
+	var err error
+
+	// session... context
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+	}
+
+	fields := []interface{}{rlid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.DeleteRentableLeaseStatus)
+		defer stmt.Close()
+		_, err = stmt.Exec(fields...)
+	} else {
+		_, err = RRdb.Prepstmt.DeleteRentableLeaseStatus.Exec(fields...)
+	}
+	if err != nil {
+		Ulog("Error deleting RentableLeaseStatus with rlid=%d\n", rlid, err)
+	}
+	return err
+}
+
 // DeleteRentableUseStatus deletes RentableUseStatus records with the supplied rsid
 func DeleteRentableUseStatus(ctx context.Context, rsid int64) error {
 	var err error
