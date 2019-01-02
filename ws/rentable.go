@@ -864,7 +864,7 @@ func svcSearchHandlerRentableUseStatus(w http.ResponseWriter, r *http.Request, d
 	var (
 		g     RentableUseStatusGridResponse
 		err   error
-		order = `RentableUseStatus.RSID ASC`
+		order = `RentableUseStatus.DtStart ASC`
 		whr   = fmt.Sprintf("RentableUseStatus.RID=%d", d.ID)
 	)
 	fmt.Printf("Entered %s\n", funcname)

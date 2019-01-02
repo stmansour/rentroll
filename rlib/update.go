@@ -724,6 +724,32 @@ func UpdateRentable(ctx context.Context, a *Rentable) error {
 	return updateError(err, "Rentable", *a)
 }
 
+// UpdateRentableLeaseStatus updates a RentableLeaseStatus record in the database
+func UpdateRentableLeaseStatus(ctx context.Context, a *RentableLeaseStatus) error {
+	var err error
+
+	// session... context
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+		// user from session, CreateBy, LastModBy
+		a.LastModBy = sess.UID
+	}
+
+	fields := []interface{}{a.RID, a.BID, a.DtStart, a.DtStop, a.Comment, a.LeaseStatus, a.LastModBy, a.RLID}
+
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.UpdateRentableLeaseStatus)
+		defer stmt.Close()
+		_, err = stmt.Exec(fields...)
+	} else {
+		_, err = RRdb.Prepstmt.UpdateRentableLeaseStatus.Exec(fields...)
+	}
+	return updateError(err, "RentableLeaseStatus", *a)
+}
+
 // UpdateRentableUseStatus updates a RentableUseStatus record in the database
 func UpdateRentableUseStatus(ctx context.Context, a *RentableUseStatus) error {
 	var err error

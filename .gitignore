@@ -13,6 +13,7 @@ webclient/js/bundle*
 test/webclient/node_modules
 test/webclient/coverage
 test/webclient/.nyc_output
+test/webclient/cypress/videos
 
 # other stuff
 ws/buildno

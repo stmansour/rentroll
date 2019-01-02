@@ -571,16 +571,29 @@ func createChildRentableTypes(ctx context.Context, dbConf *GenDBConf) error {
 		}
 
 		//-----------------------------
-		// RENTABLE STATUS
+		// RENTABLE USE STATUS
 		//-----------------------------
 		var rs rlib.RentableUseStatus
 		rs.DtStart = dbConf.DtBOT
 		rs.DtStop = dbConf.DtEOT
 		rs.BID = dbConf.BIZ[0].BID
 		rs.RID = r.RID
-		rs.LeaseStatus = rlib.LEASESTATUSvacantNotRented
-		rs.UseStatus = rlib.USESTATUSinService
+		rs.LeaseStatus = rlib.LEASESTATUSnotleased
+		rs.UseStatus = rlib.USESTATUSready
 		_, err = rlib.InsertRentableUseStatus(ctx, &rs)
+		if err != nil {
+			return err
+		}
+		//-----------------------------
+		// RENTABLE LEASE STATUS
+		//-----------------------------
+		var rl rlib.RentableLeaseStatus
+		rl.DtStart = dbConf.DtBOT
+		rl.DtStop = dbConf.DtEOT
+		rl.BID = dbConf.BIZ[0].BID
+		rl.RID = r.RID
+		rl.LeaseStatus = rlib.LEASESTATUSnotleased
+		_, err = rlib.InsertRentableLeaseStatus(ctx, &rl)
 		if err != nil {
 			return err
 		}
@@ -620,8 +633,8 @@ func createRentables(ctx context.Context, dbConf *GenDBConf, rt *RType, mr *rlib
 		rs.DtStop = dbConf.DtEOT
 		rs.BID = dbConf.BIZ[0].BID
 		rs.RID = r.RID
-		rs.LeaseStatus = rlib.LEASESTATUSleased
-		rs.UseStatus = rlib.USESTATUSinService
+		rs.LeaseStatus = rlib.LEASESTATUSnotleased
+		rs.UseStatus = rlib.USESTATUSready
 		_, err = rlib.InsertRentableUseStatus(ctx, &rs)
 		if err != nil {
 			return err
@@ -855,6 +868,17 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 		if err != nil {
 			return err
 		}
+
+		//----------------------------------------------------------
+		// set its use and lease status...
+		//----------------------------------------------------------
+		if err = rlib.SetRentableUseStatus(ctx, BID, RID, rlib.USESTATUSinService, &d1, &d2); err != nil {
+			return err
+		}
+		if err = rlib.SetRentableLeaseStatus(ctx, BID, RID, rlib.LEASESTATUSleased, &d1, &d2); err != nil {
+			return err
+		}
+
 		//----------------------------------------------------------
 		// Create the LedgerMarker for this RID, RAID combination
 		//----------------------------------------------------------

@@ -114,15 +114,16 @@ const (
 	RENTABLESTATUSOFFLINE  = 5
 	RENTABLESTATUSLAST     = 5 // keep in sync with last
 
-	// USESTATUSunknown etc all Rentable Use Status
-	USESTATUSunknown            = 0
+	// USESTATUSready etc all Rentable Use Status
+	//0 = Ready, 1=InService, 2=Administrative, 3=Employee, 4=OwnerOccupied, 5=OfflineRennovation, 6=OfflineMaintenance, 7=Inactive(no longer a valid rentable)
+	USESTATUSready              = 0
 	USESTATUSinService          = 1
 	USESTATUSadmin              = 2
 	USESTATUSemployee           = 3
 	USESTATUSownerOccupied      = 4
 	USESTATUSofflineRenovation  = 5
 	USESTATUSofflineMaintenance = 6
-	USESTATUSmodel              = 7
+	USESTATUSinactive           = 7
 	USESTATUSLAST               = 7
 
 	// MRSTATUShouseKeeping etc all Rentable Make Ready Status
@@ -131,13 +132,11 @@ const (
 	MRSTATUSinspection   = 3
 	MRSTATUSready        = 4
 
-	// LEASESTATUSvacantRented etc all Rentable Lease Status
-	LEASESTATUSvacantRented      = 1
-	LEASESTATUSvacantNotRented   = 2
-	LEASESTATUSonNoticePreleased = 3
-	LEASESTATUSonNoticeAvailable = 4
-	LEASESTATUSleased            = 5
-	LEASESTATUSunavailable       = 6
+	// LEASESTATUSnotleased etc all Rentable Lease Status
+	// -- 0 = Not Leased, 1 = Leased, 2 = Reserved
+	LEASESTATUSnotleased = 1
+	LEASESTATUSleased    = 2
+	LEASESTATUSreserved  = 3
 
 	CREDIT = 0
 	DEBIT  = 1

@@ -134,6 +134,8 @@ func ProrateAssessment(ctx context.Context, xbiz *XBusiness, a *Assessment, d, d
 	// Console("ProrateAssessment: C\n")
 	// Console("GetRentableStateForDate( %d, %s ) = %d\n", r.RID, d.Format(RRDATEINPFMT), useStatus)
 	switch useStatus {
+	case USESTATUSready:
+		fallthrough
 	case USESTATUSemployee:
 		fallthrough
 	case USESTATUSinService:
