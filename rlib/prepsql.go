@@ -1118,7 +1118,7 @@ WHERE RAID=? AND RID=? AND Start >= ? AND Stop < ? AND RentCycle=0`)
 	//===============================
 	//  RentableUseStatus
 	//===============================
-	flds = "RSID,RID,BID,DtStart,DtStop,Comment,UseStatus,LeaseStatus,CreateTS,CreateBy,LastModTime,LastModBy"
+	flds = "RSID,RID,BID,DtStart,DtStop,Comment,UseStatus,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["RentableUseStatus"] = flds
 	RRdb.Prepstmt.GetRentableUseStatus, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableUseStatus WHERE RSID=?")
 	Errcheck(err)

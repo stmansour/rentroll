@@ -1405,11 +1405,11 @@ type RentableUseStatus struct {
 	DtStop      time.Time // end of period
 	Comment     string    // comment
 	UseStatus   int64     // 1-Administrative, 2=InService, 3=Employee, 4=Model, 5=OfflineRennovation, 6=OfflineMaintenance
-	LeaseStatus int64     // 1-Vacant-rented, 2=VacantNotRented, 3=OnNoticePreLeased, 4=OnNoticeAvailable, 5=Leased, 6=Unavailable
 	LastModTime time.Time // time of last update to the db record
 	LastModBy   int64     // who made the update (Phonebook UID)
 	CreateTS    time.Time // when was this record created
 	CreateBy    int64     // employee UID (from phonebook) that created it
+	// LeaseStatus int64     // 1-Vacant-rented, 2=VacantNotRented, 3=OnNoticePreLeased, 4=OnNoticeAvailable, 5=Leased, 6=Unavailable
 }
 
 // RentableLeaseStatus archives the state of a Rentable during the specified period of time

@@ -578,7 +578,7 @@ func createChildRentableTypes(ctx context.Context, dbConf *GenDBConf) error {
 		rs.DtStop = dbConf.DtEOT
 		rs.BID = dbConf.BIZ[0].BID
 		rs.RID = r.RID
-		rs.LeaseStatus = rlib.LEASESTATUSnotleased
+		//rs.LeaseStatus = rlib.LEASESTATUSnotleased
 		rs.UseStatus = rlib.USESTATUSready
 		_, err = rlib.InsertRentableUseStatus(ctx, &rs)
 		if err != nil {
@@ -633,7 +633,7 @@ func createRentables(ctx context.Context, dbConf *GenDBConf, rt *RType, mr *rlib
 		rs.DtStop = dbConf.DtEOT
 		rs.BID = dbConf.BIZ[0].BID
 		rs.RID = r.RID
-		rs.LeaseStatus = rlib.LEASESTATUSnotleased
+		//rs.LeaseStatus = rlib.LEASESTATUSnotleased
 		rs.UseStatus = rlib.USESTATUSready
 		_, err = rlib.InsertRentableUseStatus(ctx, &rs)
 		if err != nil {

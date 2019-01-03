@@ -93,25 +93,24 @@ func RStat(ctx context.Context, bid, rid int64, gaps []Period) ([]RStatInfo, err
 		} else {
 			var rs = RStatInfo{
 				RS: RentableUseStatus{
-					BID:         bid,
-					RID:         rid,
-					DtStart:     gaps[i].D1,
-					DtStop:      gaps[i].D2,
-					UseStatus:   USESTATUSready,
-					LeaseStatus: LEASESTATUSnotleased,
+					BID:       bid,
+					RID:       rid,
+					DtStart:   gaps[i].D1,
+					DtStop:    gaps[i].D2,
+					UseStatus: USESTATUSready,
 				},
 			}
-			//----------------------------------------------------------------
-			// If there is a RentalAgreement in the future, modify the status
-			//----------------------------------------------------------------
-			r, err := GetRentableUseStatusOnOrAfter(ctx, rid, &gaps[i].D1)
-			if err != nil {
-				return m, err
-			}
-
-			if r.RSID > 0 {
-				rs.RS.LeaseStatus = LEASESTATUSnotleased
-			}
+			// //----------------------------------------------------------------
+			// // If there is a RentalAgreement in the future, modify the status
+			// //----------------------------------------------------------------
+			// r, err := GetRentableLeaseStatusOnOrAfter(ctx, rid, &gaps[i].D1)
+			// if err != nil {
+			// 	return m, err
+			// }
+			//
+			// if r.RLID > 0 {
+			// 	rs.RS.LeaseStatus = LEASESTATUSnotleased
+			// }
 			m = append(m, rs)
 		}
 	}
@@ -149,7 +148,7 @@ func VacancyGSR(ctx context.Context, xbiz *XBusiness, rid int64, d1, d2 *time.Ti
 // LeaseStatusStringer returns the string associated with the LeaseStatus
 // in struct t.
 //-----------------------------------------------------------------------------
-func (t *RentableUseStatus) LeaseStatusStringer() string {
+func (t *RentableLeaseStatus) LeaseStatusStringer() string {
 	return LeaseStatusString(t.LeaseStatus)
 }
 

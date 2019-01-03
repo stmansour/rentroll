@@ -802,7 +802,7 @@ CREATE TABLE RentableUseStatus (
     RID BIGINT NOT NULL DEFAULT 0,                                  -- associated Rentable
     BID BIGINT NOT NULL DEFAULT 0,                                  -- Business
     UseStatus SMALLINT NOT NULL DEFAULT 0,                          -- 0 = Ready, 1=InService, 2=Administrative, 3=Employee, 4=OwnerOccupied, 5=OfflineRennovation, 6=OfflineMaintenance, 7=Inactive(no longer a valid rentable)
-    LeaseStatus SMALLINT NOT NULL DEFAULT 0,                        -- deprecated
+    -- LeaseStatus SMALLINT NOT NULL DEFAULT 0,                        -- deprecated
     DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',        -- start time for this state
     DtStop DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',         -- stop time for this state
     Comment VARCHAR(2048) NOT NULL DEFAULT '',                      -- company notes for this person

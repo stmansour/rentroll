@@ -568,6 +568,7 @@ DBNAME="rentroll"
 #     CreateBy BIGINT NOT NULL DEFAULT 0,                             -- employee UID (from phonebook) that created this record
 #     PRIMARY KEY (RLID)
 # );
+# ALTER TABLE RentableUseStatus DROP LeaseStatus;
 
 #=====================================================
 #  Put modifications to schema in the lines below

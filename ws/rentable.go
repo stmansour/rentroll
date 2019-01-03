@@ -25,16 +25,16 @@ import (
 // PrRentableOther is a structure specifically for the UI. It will be
 // automatically populated from an rlib.Rentable struct
 type PrRentableOther struct {
-	Recid                int64 `json:"recid"` // this is to support the w2ui form
-	BID                  rlib.XJSONBud
-	RID                  int64
-	RentableName         string
-	RTRID                rlib.NullInt64
-	RentableType         rlib.NullString
-	RTID                 rlib.NullInt64
-	RSID                 rlib.NullInt64
-	UseStatus            rlib.NullInt64
-	LeaseStatus          rlib.NullInt64
+	Recid        int64 `json:"recid"` // this is to support the w2ui form
+	BID          rlib.XJSONBud
+	RID          int64
+	RentableName string
+	RTRID        rlib.NullInt64
+	RentableType rlib.NullString
+	RTID         rlib.NullInt64
+	RSID         rlib.NullInt64
+	UseStatus    rlib.NullInt64
+	//	LeaseStatus          rlib.NullInt64
 	RARID                rlib.NullInt64
 	RAID                 rlib.NullInt64
 	RentalAgreementStart rlib.NullDate
@@ -113,14 +113,14 @@ func SvcRentableTypeDown(w http.ResponseWriter, r *http.Request, d *ServiceData)
 // rentablesGridFields holds the map of field (to be shown on grid)
 // to actual database fields, multiple db fields means combine those
 var rentablesGridFieldsMap = map[string][]string{
-	"RID":                  {"R.RID"},
-	"RentableName":         {"R.RentableName"},
-	"RTRID":                {"RTR.RTRID"},
-	"RTID":                 {"RT.RTID"},
-	"RentableType":         {"RT.Name"},
-	"RSID":                 {"RS.RSID"},
-	"UseStatus":            {"RS.UseStatus"},
-	"LeaseStatus":          {"RS.LeaseStatus"},
+	"RID":          {"R.RID"},
+	"RentableName": {"R.RentableName"},
+	"RTRID":        {"RTR.RTRID"},
+	"RTID":         {"RT.RTID"},
+	"RentableType": {"RT.Name"},
+	"RSID":         {"RS.RSID"},
+	"UseStatus":    {"RS.UseStatus"},
+	//"LeaseStatus":          {"RS.LeaseStatus"},
 	"RARID":                {"RAR.RARID"},
 	"RAID":                 {"RAR.RAID"},
 	"RentalAgreementStart": {"RAR.RARDtStart"},
@@ -136,7 +136,7 @@ var rentablesQuerySelectFields = []string{
 	"RT.RTID",
 	"RS.RSID",
 	"RS.UseStatus",
-	"RS.LeaseStatus",
+	// "RS.LeaseStatus",
 	"RAR.RARID",
 	"RAR.RAID",
 	"RAR.RARDtStart as RentalAgreementStart",
@@ -145,7 +145,7 @@ var rentablesQuerySelectFields = []string{
 
 // rentablesRowScan scans a result from sql row and dump it in a PrRentableOther struct
 func rentablesRowScan(rows *sql.Rows, q PrRentableOther) (PrRentableOther, error) {
-	err := rows.Scan(&q.RID, &q.RentableName, &q.RTRID, &q.RentableType, &q.RTID, &q.RSID, &q.UseStatus, &q.LeaseStatus, &q.RARID, &q.RAID, &q.RentalAgreementStart, &q.RentalAgreementStop)
+	err := rows.Scan(&q.RID, &q.RentableName, &q.RTRID, &q.RentableType, &q.RTID, &q.RSID, &q.UseStatus /*&q.LeaseStatus,*/, &q.RARID, &q.RAID, &q.RentalAgreementStart, &q.RentalAgreementStop)
 	return q, err
 }
 
@@ -207,7 +207,7 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
         ORDER BY RTID DESC
     ) RT ON RTR.RTID=RT.RTID
     LEFT JOIN (
-        SELECT UseStatus, LeaseStatus, RID, RSID
+        SELECT UseStatus, RID, RSID
         FROM RentableUseStatus
         WHERE DtStop > "{{.searchStart}}" AND DtStart <= "{{.searchStop}}" AND BID={{.BID}}
         GROUP BY RSID
@@ -786,7 +786,7 @@ type RentableUseStatusGridRec struct {
 
 // rsGridRowScan scans a result from sql row and dump it in a struct for rentableStatusGridRec
 func rsGridRowScan(rows *sql.Rows, q RentableUseStatusGridRec) (RentableUseStatusGridRec, error) {
-	err := rows.Scan(&q.RSID, &q.RID, &q.UseStatus, &q.LeaseStatus, &q.DtStart, &q.DtStop, &q.Comment, &q.CreateBy, &q.LastModBy)
+	err := rows.Scan(&q.RSID, &q.RID, &q.UseStatus /*&q.LeaseStatus,*/, &q.DtStart, &q.DtStop, &q.Comment, &q.CreateBy, &q.LastModBy)
 	// if err == nil {
 	// 	// Year 2000 date in UTC
 	// 	Y2KDt := time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC)
@@ -798,15 +798,15 @@ func rsGridRowScan(rows *sql.Rows, q RentableUseStatusGridRec) (RentableUseStatu
 }
 
 var rentableStatusSearchFieldMap = rlib.SelectQueryFieldMap{
-	"RSID":        {"RentableUseStatus.RSID"},
-	"RID":         {"RentableUseStatus.RID"},
-	"UseStatus":   {"RentableUseStatus.UseStatus"},
-	"LeaseStatus": {"RentableUseStatus.LeaseStatus"},
-	"DtStart":     {"RentableUseStatus.DtStart"},
-	"DtStop":      {"RentableUseStatus.DtStop"},
-	"Comment":     {"RentableUseStatus.Comment"},
-	"CreateBy":    {"RentableUseStatus.CreateBy"},
-	"LastModBy":   {"RentableUseStatus.LastModBy"},
+	"RSID":      {"RentableUseStatus.RSID"},
+	"RID":       {"RentableUseStatus.RID"},
+	"UseStatus": {"RentableUseStatus.UseStatus"},
+	// "LeaseStatus": {"RentableUseStatus.LeaseStatus"},
+	"DtStart":   {"RentableUseStatus.DtStart"},
+	"DtStop":    {"RentableUseStatus.DtStop"},
+	"Comment":   {"RentableUseStatus.Comment"},
+	"CreateBy":  {"RentableUseStatus.CreateBy"},
+	"LastModBy": {"RentableUseStatus.LastModBy"},
 }
 
 // which fields needs to be fetch to satisfy the struct
@@ -814,7 +814,7 @@ var rentableStatusSearchSelectQueryFields = rlib.SelectQueryFields{
 	"RentableUseStatus.RSID",
 	"RentableUseStatus.RID",
 	"RentableUseStatus.UseStatus",
-	"RentableUseStatus.LeaseStatus",
+	// "RentableUseStatus.LeaseStatus",
 	"RentableUseStatus.DtStart",
 	"RentableUseStatus.DtStop",
 	"RentableUseStatus.Comment",

@@ -69,11 +69,11 @@ func ValidateRentableUseStatus(ctx context.Context, rs *rlib.RentableUseStatus) 
 	}
 
 	// 3. check LeaseStatus is valid or not
-	if !(0 <= rs.LeaseStatus && rs.LeaseStatus < int64(len(rlib.RSLeaseStatus))) {
-		s := fmt.Sprintf(BizErrors[InvalidRentableLeaseStatus].Message, rs.LeaseStatus)
-		b := BizError{Errno: InvalidRentableLeaseStatus, Message: s}
-		errlist = append(errlist, b)
-	}
+	// if !(0 <= rs.LeaseStatus && rs.LeaseStatus < int64(len(rlib.RSLeaseStatus))) {
+	// 	s := fmt.Sprintf(BizErrors[InvalidRentableLeaseStatus].Message, rs.LeaseStatus)
+	// 	b := BizError{Errno: InvalidRentableLeaseStatus, Message: s}
+	// 	errlist = append(errlist, b)
+	// }
 
 	// 4. Stopdate should not be before startDate
 	if rs.DtStop.Before(rs.DtStart) {

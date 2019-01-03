@@ -1890,7 +1890,6 @@ CREATE TABLE `RentableUseStatus` (
   `RID` bigint(20) NOT NULL DEFAULT '0',
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `UseStatus` smallint(6) NOT NULL DEFAULT '0',
-  `LeaseStatus` smallint(6) NOT NULL DEFAULT '0',
   `DtStart` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `DtStop` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `Comment` varchar(2048) NOT NULL DEFAULT '',
@@ -1908,7 +1907,7 @@ CREATE TABLE `RentableUseStatus` (
 
 LOCK TABLES `RentableUseStatus` WRITE;
 /*!40000 ALTER TABLE `RentableUseStatus` DISABLE KEYS */;
-INSERT INTO `RentableUseStatus` VALUES (1,1,1,1,5,'2018-01-01 00:00:00','3001-01-01 00:00:00','','2018-08-29 23:09:00',0,'2018-08-29 23:09:00',0);
+INSERT INTO `RentableUseStatus` VALUES (1,1,1,1,'2018-01-01 00:00:00','3001-01-01 00:00:00','','2018-08-29 23:09:00',0,'2018-08-29 23:09:00',0);
 /*!40000 ALTER TABLE `RentableUseStatus` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2662,4 +2661,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-01-02 10:53:41
+-- Dump completed on 2019-01-02 16:39:50

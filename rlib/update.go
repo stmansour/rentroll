@@ -764,7 +764,7 @@ func UpdateRentableUseStatus(ctx context.Context, a *RentableUseStatus) error {
 		a.LastModBy = sess.UID
 	}
 
-	fields := []interface{}{a.RID, a.BID, a.DtStart, a.DtStop, a.Comment, a.UseStatus, a.LeaseStatus, a.LastModBy, a.RSID}
+	fields := []interface{}{a.RID, a.BID, a.DtStart, a.DtStop, a.Comment, a.UseStatus /*a.LeaseStatus,*/, a.LastModBy, a.RSID}
 
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateRentableUseStatus)

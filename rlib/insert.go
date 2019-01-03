@@ -2115,7 +2115,7 @@ func InsertRentableUseStatus(ctx context.Context, a *RentableUseStatus) (int64, 
 	}
 
 	// transaction... context
-	fields := []interface{}{a.RID, a.BID, a.DtStart, a.DtStop, a.Comment, a.UseStatus, a.LeaseStatus, a.CreateBy, a.LastModBy}
+	fields := []interface{}{a.RID, a.BID, a.DtStart, a.DtStop, a.Comment, a.UseStatus /*a.LeaseStatus,*/, a.CreateBy, a.LastModBy}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertRentableUseStatus)
 		defer stmt.Close()

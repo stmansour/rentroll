@@ -635,7 +635,7 @@ func ReadRentableLeaseStatuses(rows *sql.Rows, a *RentableLeaseStatus) error {
 
 // ReadRentableUseStatus reads a full RentableUseStatus structure of data from the database based on the supplied Row pointer.
 func ReadRentableUseStatus(row *sql.Row, a *RentableUseStatus) error {
-	err := row.Scan(&a.RSID, &a.RID, &a.BID, &a.DtStart, &a.DtStop, &a.Comment, &a.UseStatus, &a.LeaseStatus,
+	err := row.Scan(&a.RSID, &a.RID, &a.BID, &a.DtStart, &a.DtStop, &a.Comment, &a.UseStatus, /*&a.LeaseStatus,*/
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	SkipSQLNoRowsError(&err)
 	return err
@@ -643,7 +643,7 @@ func ReadRentableUseStatus(row *sql.Row, a *RentableUseStatus) error {
 
 // ReadRentableUseStatuses reads a full RentableUseStatus structure of data from the database based on the supplied Rows pointer.
 func ReadRentableUseStatuses(rows *sql.Rows, a *RentableUseStatus) error {
-	return rows.Scan(&a.RSID, &a.RID, &a.BID, &a.DtStart, &a.DtStop, &a.Comment, &a.UseStatus, &a.LeaseStatus,
+	return rows.Scan(&a.RSID, &a.RID, &a.BID, &a.DtStart, &a.DtStop, &a.Comment, &a.UseStatus, /*&a.LeaseStatus,*/
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 

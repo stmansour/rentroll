@@ -1874,7 +1874,6 @@ CREATE TABLE `RentableUseStatus` (
   `RID` bigint(20) NOT NULL DEFAULT '0',
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `UseStatus` smallint(6) NOT NULL DEFAULT '0',
-  `LeaseStatus` smallint(6) NOT NULL DEFAULT '0',
   `DtStart` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `DtStop` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `Comment` varchar(2048) NOT NULL DEFAULT '',
@@ -2637,4 +2636,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-01-02 10:53:04
+-- Dump completed on 2019-01-02 16:39:10
