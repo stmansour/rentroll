@@ -64,8 +64,14 @@ export function closeInsideFormTests(formSelector) {
 // -- perform test on grid cells --
 export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConfig) {
     let appSettings = win.app;
-
     // Iterate through each row
+    //debugger
+    if (testConfig.module === "tls") {
+      cy.log("tlsGrid !!!!-----------------------------------------------gridCellsTest")
+    } else {
+      cy.log("tlsDetailGrid !!!!-----------------------------------------gridCellsTest")
+    }
+
     recordsAPIResponse.forEach(function (record, rowNo) {
 
         if (testConfig.grid === "rrGrid") {
@@ -137,6 +143,7 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
 
 
                 let items;
+
                 switch (w2uiGridColumn.field) {
                     case "ARType":
                         // Account Rules
@@ -232,7 +239,7 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                         valueForCell = appSettings.RSUseStatus[valueForCell];
                         break;
                     case "LeaseStatus":
-                        valueForCell = appSettings.RSLeaseStatus[valueForCell];
+                        //valueForCell = appSettings.RSLeaseStatus[valueForCell];
                         break;
                     case "EpochDue":
                     case "EpochPreDue":
@@ -240,6 +247,8 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                     case "DtPreDone":
                     case "DtDue":
                     case "DtDone":
+                        //valueForCell = win.localtimeToUTC(record[w2uiGridColumn.field]);
+                        //valueForCell = win.dtFormatISOToW2ui(valueForCell);
                         valueForCell = win.dtFormatISOToW2ui(record[w2uiGridColumn.field]);
                         break;
                     case "TMPTCID":
@@ -303,10 +312,17 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                 }
 
                 // Check visibility and default value of cell in the grid
-                cy.get(selectors.getCellSelector(testConfig.grid, rowNo, columnNo))
+                if (w2uiGridColumn.field !== "LeaseStatus") {//add this if because we don't need to check LeaseStatus here anymore
+                    cy.get(selectors.getCellSelector(testConfig.grid, rowNo, columnNo))
                     .scrollIntoView()
                     .should('be.visible')
                     .should('contain', valueForCell);
+                }
+                /*cy.get(selectors.getCellSelector(testConfig.grid, rowNo, columnNo))
+                .scrollIntoView()
+                .should('be.visible')
+                .should('contain', valueForCell);*/ //commented by lina
+
             }
         });
 
@@ -390,6 +406,7 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                     fieldValue = win.w2utils.formatters.money(recordDetailFromAPIResponse[fieldID]);
 
                 } else if(field.type === "datetime") {
+                    //fieldValue = win.localtimeToUTC(recordDetailFromAPIResponse[fieldID]);
                     fieldValue = win.dtFormatISOToW2ui(recordDetailFromAPIResponse[fieldID]);
                 }
 
@@ -477,7 +494,7 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                         fieldValue = appSettings.RSUseStatus[fieldValue];
                         break;
                     case "LeaseStatus":
-                        fieldValue = appSettings.RSLeaseStatus[fieldValue];
+                        //fieldValue = appSettings.RSLeaseStatus[fieldValue];
                         break;
                     case "AssignmentTime":
                         types = appSettings.renewalMap;
@@ -529,6 +546,7 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                 }
 
                 // check fields visibility and respective value
+                //debugger;
                 if (!isInArray(fieldID, testConfig.skipFields)) {
                     // Check visibility and match the default value of the fields.
                     switch (fieldID){
@@ -579,9 +597,14 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                             }
                             break;
                         default:
-                            cy.get(selectors.getFieldSelector(formSelector, fieldID))
+                            if (fieldID !== "LeaseStatus"){//add this if because we don't need to check LeaseStatus here anymore
+                                cy.get(selectors.getFieldSelector(formSelector, fieldID))
                                 .should('be.visible')
                                 .should('have.value', fieldValue);
+                            }
+                            /*cy.get(selectors.getFieldSelector(formSelector, fieldID))
+                                .should('be.visible')
+                                .should('have.value', fieldValue);*/ //commented by lina
                             break;
                     }
                 }
@@ -869,7 +892,6 @@ export function testGridInTabbedDetailForm(gridName, layoutName, routeName, test
 
 export function testDetailFormWithGrid(recordsAPIResponse, testConfig, testConfig2) {
     cy.log("Tests for detail record form");
-
     // -- detail record testing --
     const id = recordsAPIResponse[0][testConfig.primaryId];
 
@@ -894,6 +916,7 @@ export function testDetailFormWithGrid(recordsAPIResponse, testConfig, testConfi
             break;
         case "tlsGrid":
             cy.route(testConfig.methodType, getDetailRecordAPIEndPoint('tl', id)).as('getDetailRecord');
+            //cy.log("Lina : -----------------!!!!!getDetailRecordAPIEndPoint:%s",getDetailRecordAPIEndPoint('tasks', id));
             cy.route(testConfig.methodType, getDetailRecordAPIEndPoint('tasks', id)).as('getGridRecordsInDetailedForm');
             break;
     }
@@ -908,6 +931,7 @@ export function testDetailFormWithGrid(recordsAPIResponse, testConfig, testConfi
 
 
         if(testConfig.grid === "tldsGrid" || testConfig.grid === "tlsGrid"){
+            //debugger
             detailFormTest(recordDetailFromAPIResponse,testConfig);
         } else {
             cy.get("#RAInfo").within(() => {
@@ -936,6 +960,7 @@ export function testDetailFormWithGrid(recordsAPIResponse, testConfig, testConfi
         if (recordDetailFromAPIResponse.length > 0) {
 
             cy.log(testConfig.grid);
+            //cy.log("Lina : Second testGridRecords-----------------!!!!!")
             testGridRecords(recordDetailFromAPIResponse, recordDetailFromAPIResponse.length, testConfig2);
 
             if (testConfig2.grid === "tldsDetailGrid" || testConfig2.grid === "tlsDetailGrid"){
@@ -954,7 +979,7 @@ export function testDetailFormWithGrid(recordsAPIResponse, testConfig, testConfi
 
 export function testRecordDetailForm(recordsAPIResponse, testConfig) {
     cy.log("Tests for detail record form");
-
+    //debugger;
     // -- detail record testing --
     const id = recordsAPIResponse[0][testConfig.primaryId];
 
@@ -1024,6 +1049,7 @@ export function testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, test
             // Match grid record length with total rows in receiptsGrid
             cy.get(selectors.getRowsInGridSelector(testConfig.grid)).should(($trs) => {
                 expect($trs).to.have.length(noRecordsInAPIResponse);
+
             });
 
             // Perform test only if there is/are record(s) exists in API response.
