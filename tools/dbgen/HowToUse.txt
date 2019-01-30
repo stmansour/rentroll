@@ -43,6 +43,18 @@ DtStop  (required)
     This is a date value used as the stopping date for periods. It is the
     counterpart of DtStart.
 
+HotelReserveDtStart  (optional)
+    This is the start date for future hotel reservations.  The default value is
+    one day after DtStart
+
+HotelReserveDtStop  (optional)
+    This is the stop date for future hotel reservations. The default value is
+    one year after DtStart
+
+HotelReservePct  (optional)
+    This specifies the percent of hotel rooms that are reserved in the future.
+    The default is 50%
+
 RT  (required)
     This is an array of RentableType structures.
 

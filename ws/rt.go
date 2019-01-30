@@ -14,8 +14,9 @@ import (
 
 // RentableTypeTD is struct to list down individual rentable type
 type RentableTypeTD struct {
-	RTID int64  `json:"id"`
-	Name string `json:"text"`
+	RTID  int64  `json:"id"`
+	FLAGS uint64 `json:"FLAGS"`
+	Name  string `json:"text"`
 }
 
 // RentableTypesTDResponse - (TD: TypeDown) is the response to a GetRentable request
@@ -103,7 +104,7 @@ func SvcRentableTypesTD(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 	// append records in ascending order
 	var rentableTypesList []RentableTypeTD
 	for _, rtid := range keys {
-		rentableTypesList = append(rentableTypesList, RentableTypeTD{RTID: m[rtid].RTID, Name: m[rtid].Name})
+		rentableTypesList = append(rentableTypesList, RentableTypeTD{RTID: m[rtid].RTID, FLAGS: m[rtid].FLAGS, Name: m[rtid].Name})
 	}
 	g.Records = rentableTypesList
 	fmt.Printf("GetBusinessRentableTypes returned %d records\n", len(g.Records))

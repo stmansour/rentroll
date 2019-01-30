@@ -44,10 +44,11 @@ window.getRentableInitRecord = function (BID, BUD, previousFormRecord) {
 //-----------------------------------------------------------------------------
 // getRentableTypes - return the RentableTypes list with respect of BUD
 // @params
-//      - BUD: current business designation
+//      BUD - current business designation
+//      cb  - callback routine (optional param)
 // @return  the Rentable Types List
 //-----------------------------------------------------------------------------
-window.getRentableTypes = function (BUD) {
+window.getRentableTypes = function (BUD,cb) {
     return jQuery.ajax({
         type: "GET",
         url: "/v1/rtlist/" + BUD,
@@ -58,6 +59,9 @@ window.getRentableTypes = function (BUD) {
                 app.rt_list[BUD] = data.records;
             } else {
                 app.rt_list[BUD] = [];
+            }
+            if (typeof cb === "function") {
+                cb(BUD);
             }
         }
     });

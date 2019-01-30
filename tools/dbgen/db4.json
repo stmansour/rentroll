@@ -1,30 +1,69 @@
 {
-    "DtStart": "2/13/2018",
+    "DtStart": "1/3/2019",
     "DtStop": "3/1/2020",
     "RT": [
         {
+            "Name": "Standard",
+            "Style": "1BR1BA",
             "Count": 2,
             "MarketRate": 1000,
+            "Reserve": true,
             "RentCycle": 6,
             "ProrateCycle": 4
         },
         {
+            "Name": "Deluxe",
+            "Style": "2BR1BA",
             "Count": 2,
             "MarketRate": 1500,
+            "Reserve": true,
             "RentCycle": 6,
             "ProrateCycle": 4
         },
         {
+            "Name": "Gold",
+            "Style": "2BR2BA",
             "Count": 2,
             "MarketRate": 1750,
+            "Reserve": true,
             "RentCycle": 6,
             "ProrateCycle": 4
         },
         {
+            "Name": "Platinum",
+            "Style": "3BR2BA",
             "Count": 2,
             "MarketRate": 2500,
+            "Reserve": true,
             "RentCycle": 6,
             "ProrateCycle": 4
+        },
+        {
+            "Name": "HotelStd",
+            "Style": "H11",
+            "Count": 2,
+            "MarketRate": 65,
+            "Reserve": false,
+            "RentCycle": 4,
+            "ProrateCycle": 0
+        },
+        {
+            "Name": "HotelGold",
+            "Style": "H21",
+            "Count": 2,
+            "MarketRate": 75,
+            "Reserve": false,
+            "RentCycle": 4,
+            "ProrateCycle": 0
+        },
+        {
+            "Name": "HotelPlatinum",
+            "Style": "H22",
+            "Count": 2,
+            "MarketRate": 85,
+            "Reserve": false,
+            "RentCycle": 4,
+            "ProrateCycle": 0
         }
     ],
     "OpDepositoryName": "Wells Fargo",

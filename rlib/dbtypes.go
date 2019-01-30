@@ -134,9 +134,9 @@ const (
 
 	// LEASESTATUSnotleased etc all Rentable Lease Status
 	// -- 0 = Not Leased, 1 = Leased, 2 = Reserved
-	LEASESTATUSnotleased = 1
-	LEASESTATUSleased    = 2
-	LEASESTATUSreserved  = 3
+	LEASESTATUSnotleased = 0
+	LEASESTATUSleased    = 1
+	LEASESTATUSreserved  = 2
 
 	CREDIT = 0
 	DEBIT  = 1

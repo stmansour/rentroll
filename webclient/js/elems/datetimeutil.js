@@ -1,9 +1,25 @@
 "use strict";
 /*global
   app, setDateControl, dateMonthBack, getDateFromDT, getTimeFromDT, dateFromString,
-  dateFmtStr, zeroPad, 
+  dateFmtStr, zeroPad,
 */
 
+//-----------------------------------------------------------------------------
+// daysBetweenDates - returns the number of days between 2 dates.
+//
+// @params
+//   d1 = first date
+//   d2 = second date
+//
+// @return number of days between the dates
+//-----------------------------------------------------------------------------
+window.daysBetweenDates = function(d1,d2) {
+    var oneDay = 24*60*60*1000; // hours*minutes*seconds*milliseconds
+    var firstDate = new Date(d1.getFullYear(),d1.getMonth(),d1.getDate());
+    var secondDate = new Date(d2.getFullYear(),d2.getMonth(),d2.getDate());
+
+    return Math.round(Math.abs((firstDate.getTime() - secondDate.getTime())/(oneDay)));
+};
 //-----------------------------------------------------------------------------
 // newDateKeepOldTime - create a new date keeping the hour and minute equal
 //           to the supplied "orig" values, and using the supplied year, month,
@@ -23,9 +39,9 @@ window.newDateKeepOldTime = function(orig,y,m,d) {
 };
 
 //-----------------------------------------------------------------------------
-// zeroPad - if the string value of the number is < size, 
+// zeroPad - if the string value of the number is < size,
 //           left pad it with '0' to make it the requested size.
-//           LIMITATION - at most, it will pad 10 '0's.  This is 
+//           LIMITATION - at most, it will pad 10 '0's.  This is
 //           extreme overkill for working with date/time strings.
 // @params
 //   n    = the number of interest
@@ -40,7 +56,7 @@ window.zeroPad = function (n, size) {
 
 //-----------------------------------------------------------------------------
 // dtFormatISOToW2ui - return a w2ui datetime string from the provided
-//          ISO 8601 formatted date string -- the format of JSONDateTIme 
+//          ISO 8601 formatted date string -- the format of JSONDateTIme
 //          strings.  The returned string is in the format:
 //          m/dd/yyyy H:MM {am|pm} . It is suitable for use in a w2ui
 //          form control of type 'datetime'. For example:
@@ -51,7 +67,7 @@ window.zeroPad = function (n, size) {
 //          If the year is prior to year 2000, it returns a 0 length string.
 // @params
 //   s    = JSONDateTime string
-// @return 
+// @return
 //         localtime string
 //-----------------------------------------------------------------------------
 window.dtFormatISOToW2ui = function (ds) {
@@ -86,7 +102,7 @@ window.dtFormatISOToW2ui = function (ds) {
 window.localtimeToUTC = function (s) {
     if (typeof s === "string" && s.length > 0) {
         var dt = new Date(s);
-        return dt.toUTCString(); 
+        return dt.toUTCString();
     }
     return '';
 };
@@ -355,10 +371,10 @@ window.setDateControl = function (dc, dt) {
 //           - If the string is a datetime string, this function will return
 //             the time portion. If there is no time portion, it returns null.
 //             Datetime strings come in this format: 2018-02-28T17:00:00Z
-//             if the T is present it will return 17:00:00Z .  
+//             if the T is present it will return 17:00:00Z .
 // @params
 //   dt = a datetime string
-// @return time portion of datetime string 
+// @return time portion of datetime string
 //         or the original string if no time is present
 //-----------------------------------------------------------------------------
 window.getTimeFromDT = function (dt) {
@@ -377,7 +393,7 @@ window.getTimeFromDT = function (dt) {
 //           - If the string is a datetime string, this function will return
 //             the date portion. If there is no date portion, it returns null.
 //             Datetime strings come in this format: 2018-02-28T17:00:00Z
-//             if the T is present it will return 2018-02-28.  
+//             if the T is present it will return 2018-02-28.
 // @params
 //   dt = a datetime string
 // @return date portion of datetime string

@@ -1,46 +1,57 @@
 {
     "records": [
         {
+            "FLAGS": 4,
             "id": 5,
             "text": "Condo A"
         },
         {
+            "FLAGS": 4,
             "id": 6,
             "text": "Condo B"
         },
         {
+            "FLAGS": 4,
             "id": 7,
             "text": "Condo C"
         },
         {
+            "FLAGS": 4,
             "id": 8,
             "text": "Condo D"
         },
         {
+            "FLAGS": 4,
             "id": 9,
             "text": "Condo E"
         },
         {
+            "FLAGS": 4,
             "id": 10,
             "text": "Rooftop Lease"
         },
         {
+            "FLAGS": 4,
             "id": 11,
             "text": "Parcel B"
         },
         {
+            "FLAGS": 4,
             "id": 12,
             "text": "Roof Maintenance Agreement"
         },
         {
+            "FLAGS": 4,
             "id": 13,
             "text": "Parking Space Inside"
         },
         {
+            "FLAGS": 4,
             "id": 14,
             "text": "Parking Space Outside"
         },
         {
+            "FLAGS": 4,
             "id": 15,
             "text": "Condo J"
         }

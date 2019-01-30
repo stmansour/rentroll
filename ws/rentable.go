@@ -507,9 +507,7 @@ func AdjustRSTimeList(ctx context.Context, rs *rlib.RentableUseStatus, r *rlib.R
 // wsdoc }
 func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "saveRentable"
-	var (
-		err error
-	)
+	var err error
 	rlib.Console("Entered %s\n", funcname)
 	rlib.Console("record data = %s\n", d.data)
 

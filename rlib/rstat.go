@@ -332,7 +332,7 @@ func SetRentableLeaseStatus(ctx context.Context, bid, rid, us int64, d1, d2 *tim
 //     ctx - db context
 //     bid - which business
 //     rid - which rentable
-//     us  - new lease status
+//     us  - new use status
 //     d1  - start time for status us
 //     d2  - stop time for status us
 //-----------------------------------------------------------------------------

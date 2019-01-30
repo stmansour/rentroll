@@ -11,7 +11,7 @@
     finishTaskListForm, createDepositForm, createPayorStmtForm,
     createStmtForm, finishForms, finishTLDForm,
     buildClosePeriodElements,buildRAFlowElements,buildBusinessElements,
-    finishBizForm, 
+    finishBizForm, buildReservationsElements, finishReservationsForm,
 */
 
 "use strict";
@@ -43,6 +43,7 @@ window.buildPageElementsWrapper = function (uitype) {
     }
     buildAssessmentElements();
     buildExpenseElements();
+    buildReservationsElements();
     buildARElements();
     buildPaymentTypeElements();
     buildDepositoryElements();
@@ -80,4 +81,5 @@ window.finishForms = function () {
     finishTaskListForm();
     finishTLDForm();
     finishBizForm();
+    finishReservationsForm();
 };

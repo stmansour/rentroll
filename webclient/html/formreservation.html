@@ -1,0 +1,33 @@
+<div class="w2ui-page page-0">
+    <div class="w2ui-field"><input type="hidden" name="recid" /></div>
+    <div class="w2ui-field"><input type="hidden" name="BID" /></div>
+    <div class="w2ui-field"><input type="hidden" name="LastModTime" /></div>
+    <div class="w2ui-field"><input type="hidden" name="LastModBy" /></div>
+    <div class="w2ui-field"><input type="hidden" name="CreateTS" /></div>
+    <div class="w2ui-field"><input type="hidden" name="CreateBy" /></div>
+    <div class="w2ui-field">
+        <label>Business Unit:</label>
+        <div><input name="BUD" type="list" disabled /></div>
+    </div>
+    <div class="w2ui-field">
+        <label>Rentable Type:</label>
+        <div><input name="RTID" type="list" /></div>
+    </div>
+    <div class="w2ui-field">
+        <label>Start Date:</label>
+        <div>
+            <input name="DtStart" type="us-date1" size="11" tabindex="1">
+            &nbsp;&nbsp;&nbsp;&nbsp;Nights:&nbsp;
+            <input name="Nights" type="int" tabindex="2" size="3">
+        </div>
+    </div>
+    <div class="w2ui-field">
+        <label>Stop Date:</label>
+        <div>
+            <input name="DtStop" type="us-date1" size="11" tabindex="3">
+        </div>
+    </div>
+    <div>
+        <button class="w2ui-btn" onclick='reservationSrch();' tabindex="4" >Search</button>
+    </div>
+</div>

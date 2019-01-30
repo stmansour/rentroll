@@ -20,6 +20,7 @@ type RType struct {
 	SQFT         int64   // square feed for this rentable
 	Name         string  //
 	Style        string  // very short but functionally descriptive name
+	Reserve      bool    // indicates whether rentable should be reserved when RA ends
 }
 
 // GenDBConf provides attribute information for what is used by the code in
@@ -57,6 +58,9 @@ type GenDBConf struct {
 	PetFees              []rlib.AR           // account rules applied to new Rental Agreements for pets
 	VehicleFees          []rlib.AR           // account rules applied to new Rental Agreements for vehicles
 	Epochs               rlib.BizPropsEpochs // default epochs (triggers)
+	HotelReserveDtStart  time.Time           // start of date range for reservations.  Default is DtStop + 1 day
+	HotelReserveDtStop   time.Time           // stop of date range for reservations.  Default is DtStart + 1 year
+	HotelReservePct      float64             // the percent of hotel rooms that are reserved from (HotelReserveDtStart,HotelReserveDtStop)
 }
 
 // GenDBRead is struct that gets loaded from the -f json file specified when
@@ -81,6 +85,9 @@ type GenDBRead struct {
 	RT                   []RType  `json:"RT"` // defines the rentable types and the count of Rentables
 	PetFees              []string // array of Account Rule names for pet fees on a new Rental Agreement
 	VehicleFees          []string // array of Account Rule names for vehicle fees on a new Rental Agreement
+	HotelReserveDtStart  string   `json:"HotelReserveDtStart"` // start of date range for reservations.  Default is DtStop + 1 day
+	HotelReserveDtStop   string   `json:"HotelReserveDtStop"`  // stop of date range for reservations.  Default is DtStart + 1 year
+	HotelReservePct      float64  // the percent of hotel rooms that are reserved from (HotelReserveDtStart,HotelReserveDtStop)
 }
 
 // ReadConfig will read the configuration file  if
@@ -128,8 +135,27 @@ func ReadConfig(fname string) (GenDBConf, error) {
 	if err != nil {
 		return b, fmt.Errorf("Error converting date string %s: %s", a.DtStop, err.Error())
 	}
+	if len(a.HotelReserveDtStart) > 0 {
+		b.HotelReserveDtStart, err = rlib.StringToDate(a.HotelReserveDtStart)
+		if err != nil {
+			return b, fmt.Errorf("Error converting date string %s: %s", a.HotelReserveDtStart, err.Error())
+		}
+	} else {
+		b.HotelReserveDtStart = b.DtStart.Add(24 * time.Hour)
+	}
+	if len(a.HotelReserveDtStop) > 0 {
+		b.HotelReserveDtStop, err = rlib.StringToDate(a.HotelReserveDtStop)
+		if err != nil {
+			return b, fmt.Errorf("Error converting date string %s: %s", a.HotelReserveDtStop, err.Error())
+		}
+	} else {
+		b.HotelReserveDtStop = b.DtStart.AddDate(1, 0, 0)
+	}
+	if a.HotelReservePct == float64(0) {
+		b.HotelReservePct = float64(0.5)
+	}
 	b.DtBOT = time.Date(b.DtStart.Year(), time.January, 1, 0, 0, 0, 0, time.UTC)
-	b.DtEOT = time.Date(3001, time.January, 1, 0, 0, 0, 0, time.UTC)
+	b.DtEOT = rlib.ENDOFTIME
 	if b.RandomizePayments {
 		b.RSeed = a.RSeed
 		b.RandMissApply = a.RandMissApply
@@ -137,8 +163,6 @@ func ReadConfig(fname string) (GenDBConf, error) {
 		rlib.Console("*** RandomizePayments is in effect ***\n")
 		rlib.Console("Seed = %d, MissPayments = %d%%, MissApply = %d%%\n", b.RSeed, b.RandMissPayment, b.RandMissApply)
 	}
-
-	rlib.Console("DtStart = %s, DtStop = %s\n", b.DtStart.Format(rlib.RRDATEFMT4), b.DtStop.Format(rlib.RRDATEFMT4))
 
 	//--------------------------------
 	// BUSINESS PROPERTIES
@@ -187,12 +211,15 @@ func ReadConfig(fname string) (GenDBConf, error) {
 	if a.RSeed == int64(0) {
 		a.RSeed = time.Now().UnixNano()
 	}
-	rlib.Console("RSeed = %d\n", a.RSeed)
 	b.RSource = rand.NewSource(a.RSeed)
 	b.RSeed = a.RSeed
 	b.RRand = rand.New(b.RSource)
 
-	rlib.Console("Date Range:  %s\n\n", rlib.ConsoleDRange(&b.DtStart, &b.DtStop))
+	// rlib.Console("Date Range:  %s\n\n", rlib.ConsoleDRange(&b.DtStart, &b.DtStop))
+	rlib.Console("Rental Agreement range: %s\n", rlib.ConsoleDRange(&b.DtStart, &b.DtStop))
+	rlib.Console("          HotelReserve: %s\n", rlib.ConsoleDRange(&b.HotelReserveDtStart, &b.HotelReserveDtStop))
+	rlib.Console(" Hotel Reserve Percent: %2.1f%%\n", float64(100)*b.HotelReservePct)
+	rlib.Console("                 RSeed: %d\n", a.RSeed)
 
 	return b, nil
 }

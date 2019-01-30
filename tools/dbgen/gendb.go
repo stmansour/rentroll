@@ -27,6 +27,7 @@ var handlers = []tableMaker{
 	{"ApplyReceipts", applyReceipts},
 	{"Deposits", CreateDeposits},
 	{"TaskLists", CreateTaskLists},
+	{"HotelBookings", HotelBookings},
 }
 
 var noClose = rlib.ClosePeriod{
@@ -432,6 +433,9 @@ func createRentableTypesAndRentables(ctx context.Context, dbConf *GenDBConf) err
 		rt.Proration = dbConf.RT[i].ProrateCycle
 		rt.GSRPC = dbConf.RT[i].ProrateCycle
 		rt.FLAGS |= 0x4 /*manage to budget*/
+		if dbConf.RT[i].Reserve {
+			rt.FLAGS |= 1 << 3 // Reserve after RA.  Used for hotel rooms
+		}
 		rt.ARID = ar.ARID
 		_, err = rlib.InsertRentableType(ctx, &rt)
 		if err != nil {
@@ -633,12 +637,24 @@ func createRentables(ctx context.Context, dbConf *GenDBConf, rt *RType, mr *rlib
 		rs.DtStop = dbConf.DtEOT
 		rs.BID = dbConf.BIZ[0].BID
 		rs.RID = r.RID
-		//rs.LeaseStatus = rlib.LEASESTATUSnotleased
 		rs.UseStatus = rlib.USESTATUSready
 		_, err = rlib.InsertRentableUseStatus(ctx, &rs)
 		if err != nil {
 			return err
 		}
+
+		var rl rlib.RentableLeaseStatus
+		rl.DtStart = dbConf.DtBOT
+		rl.DtStop = dbConf.DtEOT
+		rl.BID = dbConf.BIZ[0].BID
+		rl.RID = r.RID
+		rl.LeaseStatus = rlib.LEASESTATUSnotleased
+		_, err = rlib.InsertRentableLeaseStatus(ctx, &rl)
+		if err != nil {
+			return err
+		}
+		// rlib.Console("Just saved LeasedStatus\n")
+
 		iRID++
 	}
 	return nil
@@ -758,7 +774,23 @@ func applyReceipts(ctx context.Context, dbConf *GenDBConf) error {
 	return nil
 }
 
-// createRentalAgreements
+func getStartDateFromRange(dbConf *GenDBConf) time.Time {
+	return dbConf.DtStart
+}
+
+func getStopDateFromRange(dbConf *GenDBConf, dtmpStart *time.Time) time.Time {
+	dt := dbConf.DtStop
+	// validate that dt is after dtmpStart
+	if !dt.After(*dtmpStart) {
+		fmt.Printf("FATAL ERROR: in getStopDateFromRange - stop date must be after start date\n")
+		fmt.Printf("             dtmpStart = %s,   stop = %s\n", rlib.ConsoleDate(dtmpStart), rlib.ConsoleDate(&dt))
+		panic("FATAL")
+	}
+	return dt
+}
+
+// createRentalAgreements - this creates long term rental agreements -- for
+// apartment renters.
 //-----------------------------------------------------------------------------
 func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 	BID := dbConf.BIZ[0].BID
@@ -766,13 +798,15 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 	if err != nil {
 		return err
 	}
-	d1 := time.Date(dbConf.DtStart.Year(), dbConf.DtStart.Month(), dbConf.DtStart.Day(), 0, 0, 0, 0, time.UTC)
-	epoch := time.Date(dbConf.DtStart.Year(), dbConf.DtStart.Month(), 1, 0, 0, 0, 0, time.UTC)
-	if dbConf.DtStart.Day() > 1 {
+	dtmpStart := getStartDateFromRange(dbConf)
+	dtmpStop := getStopDateFromRange(dbConf, &dtmpStart)
+	d1 := time.Date(dtmpStart.Year(), dtmpStart.Month(), dtmpStart.Day(), 0, 0, 0, 0, time.UTC)
+	epoch := time.Date(dtmpStart.Year(), dtmpStart.Month(), 1, 0, 0, 0, 0, time.UTC)
+	if dtmpStart.Day() > 1 {
 		epoch = epoch.AddDate(0, 1, 0)
 
 	}
-	d2 := dbConf.DtStop
+	d2 := dtmpStop
 	if d2.Day() != 1 {
 		d2 = time.Date(d2.Year(), d2.Month(), d2.Day(), 0, 0, 0, 0, time.UTC)
 	}
@@ -842,6 +876,7 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 			return err
 		}
 
+	tryRID:
 		RIDMktRate, err := rlib.GetRentableMarketRate(ctx, &dbConf.xbiz, RID, &d1, &d2)
 		if err != nil {
 			return err
@@ -858,6 +893,19 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 		if err != nil {
 			return err
 		}
+		//-----------------------------------------------------------
+		// If the rentable type is for a hotel, we don't want to
+		// use it here.
+		//-----------------------------------------------------------
+		if dbConf.xbiz.RT[rtr.RTID].FLAGS&(1<<3) == 0 {
+			RID++
+			if RID > MaxRID {
+				fmt.Printf("Halting Rental Agreement creation at RAID = %d because no more Rentables of RentableType where FLAGS (1<<3) is set.\n", ra.RAID)
+				break
+			}
+			goto tryRID
+		}
+
 		rar.BID = BID
 		rar.RAID = ra.RAID
 		rar.RARDtStart = d1
@@ -876,6 +924,10 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 			return err
 		}
 		if err = rlib.SetRentableLeaseStatus(ctx, BID, RID, rlib.LEASESTATUSleased, &d1, &d2); err != nil {
+			return err
+		}
+		// now reserve this rentable forever past the Rental Agreement end date...
+		if err = rlib.SetRentableLeaseStatus(ctx, BID, RID, rlib.LEASESTATUSreserved, &d2, &rlib.ENDOFTIME); err != nil {
 			return err
 		}
 

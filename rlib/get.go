@@ -3466,7 +3466,7 @@ func GetLedgerEntriesByJAID(ctx context.Context, bid, jaid int64) ([]LedgerEntry
 	return m, rows.Err()
 }
 
-// GetCountLedgerEntries get total count for RentableTypes
+// GetCountLedgerEntries get total count for LedgerEntries
 // with particular associated business
 func GetCountLedgerEntries(ctx context.Context, lid, bid int64) (int64, error) {
 

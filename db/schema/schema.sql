@@ -614,7 +614,7 @@ CREATE TABLE TaskListDefinition (
 CREATE TABLE RentableTypes (
     RTID BIGINT NOT NULL AUTO_INCREMENT,
     BID BIGINT NOT NULL DEFAULT 0,                              -- associated Business id
-    Style CHAR(255) NOT NULL DEFAULT '',                        -- need not be unique
+    Style CHAR(255) NOT NULL DEFAULT '',                        -- does not need to be unique
     Name VARCHAR(256) NOT NULL DEFAULT '',                      -- must be unique
     RentCycle BIGINT NOT NULL DEFAULT 0,                        -- rent accrual frequency
     Proration BIGINT NOT NULL DEFAULT 0,                        -- prorate frequency
@@ -623,6 +623,7 @@ CREATE TABLE RentableTypes (
                                                                 -- 1<<1:  0=cannot be a child rentable, 1 = can be a child
                                                                 -- 1<<2:  0=No(do not manage this category of Rentable to budget)
                                                                 --        1=Yes(manage to budget defined by MarketRate & MRs are required)
+                                                                -- 1<<3:  0-DO NOT, 1=DO reserve rentable in the future after a RentalAgreement terminates
     ARID BIGINT NOT NULL DEFAULT 0,                             -- ARID reference, for default rent amount for this rentable types
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it

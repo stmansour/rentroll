@@ -196,6 +196,7 @@ var Svcs = []ServiceHandler{
 	{Cmd: "rentabletyperef", Handler: SvcHandlerRentableTypeRef, NeedBiz: true, NeedSession: true},
 	{Cmd: "rentalagrtd", Handler: SvcRentalAgreementTypeDown, NeedBiz: true, NeedSession: true},
 	{Cmd: "report", Handler: ReportServiceHandler, NeedBiz: true, NeedSession: true},
+	{Cmd: "reservation", Handler: SvcReservationDispatch, NeedBiz: true, NeedSession: true},
 	{Cmd: "resetpw", Handler: SvcResetPW, NeedBiz: false, NeedSession: false},
 	{Cmd: "rmr", Handler: SvcHandlerRentableMarketRates, NeedBiz: true, NeedSession: true},
 	{Cmd: "rr", Handler: SvcRR, NeedBiz: true, NeedSession: true},
