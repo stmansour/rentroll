@@ -574,6 +574,23 @@ DBNAME="rentroll"
 #  Put modifications to schema in the lines below
 #=====================================================
 cat >${MODFILE} <<EOF
+
+ALTER TABLE RentableLeaseStatus ADD FirstName VARCHAR(50) NOT NULL DEFAULT '' AFTER Comment;
+ALTER TABLE RentableLeaseStatus ADD LastName VARCHAR(50) NOT NULL DEFAULT '' AFTER FirstName;
+ALTER TABLE RentableLeaseStatus ADD Email VARCHAR(100) NOT NULL DEFAULT '' AFTER LastName;
+ALTER TABLE RentableLeaseStatus ADD Phone VARCHAR(100) NOT NULL DEFAULT '' AFTER Email;
+ALTER TABLE RentableLeaseStatus ADD Address VARCHAR(100) NOT NULL DEFAULT '' AFTER Phone;
+ALTER TABLE RentableLeaseStatus ADD Address2 VARCHAR(100) NOT NULL DEFAULT '' AFTER Address;
+ALTER TABLE RentableLeaseStatus ADD City VARCHAR(100) NOT NULL DEFAULT '' AFTER Address2;
+ALTER TABLE RentableLeaseStatus ADD State CHAR(25) NOT NULL DEFAULT '' AFTER City;
+ALTER TABLE RentableLeaseStatus ADD PostalCode VARCHAR(100) NOT NULL DEFAULT '' AFTER State;
+ALTER TABLE RentableLeaseStatus ADD Country VARCHAR(100) NOT NULL DEFAULT '' AFTER PostalCode;
+ALTER TABLE RentableLeaseStatus ADD CCName VARCHAR(100) NOT NULL DEFAULT '' AFTER Country;
+ALTER TABLE RentableLeaseStatus ADD CCType VARCHAR(100) NOT NULL DEFAULT '' AFTER CCName;
+ALTER TABLE RentableLeaseStatus ADD CCNumber VARCHAR(100) NOT NULL DEFAULT '' AFTER CCType;
+ALTER TABLE RentableLeaseStatus ADD CCExpMonth VARCHAR(100) NOT NULL DEFAULT '' AFTER CCNumber;
+ALTER TABLE RentableLeaseStatus ADD CCExpYear VARCHAR(100) NOT NULL DEFAULT '' AFTER CCExpMonth;
+
 EOF
 
 #==============================================================================

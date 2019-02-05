@@ -1,7 +1,8 @@
 /*global
     parseInt, w2ui, getDepMeth, getReservation, $, app, getBUDfromBID, getCurrentBusiness, console,
     saveReservationForm, switchToReservationss, finishReservationsForm, reservationsUpdateRTList,
-    getReservationInitRecord, reservationSrch, daysBetweenDates,
+    getReservationInitRecord, reservationSrch, daysBetweenDates, switchToBookRes,
+    getBookResInitRecord,
 */
 
 "use strict";
@@ -17,6 +18,7 @@ window.getReservationInitRecord = function (BID, BUD, previousFormRecord){
         Nights:         1,
         DtStart:        dateControlString(y),
         DtStop:         dateControlString(y1),
+        PromoCode:      '',
         LastModTime:    y.toISOString(),
         LastModBy:      0,
         CreateTS:       y.toISOString(),
@@ -27,8 +29,56 @@ window.getReservationInitRecord = function (BID, BUD, previousFormRecord){
         defaultFormData.RTID = app.rt_list[BUD][0].id;
     }
 
-    // if it called after 'save and add another' action there previous form record is passed as Object
-    // else it is null
+    // if it called after 'save and add another' action there previous form
+    // record is passed as Object else it is null
+    if ( previousFormRecord ) {
+        defaultFormData = setDefaultFormFieldAsPreviousRecord(
+            [ 'FLAGS', 'Amount', 'ClearedAmount', 'LastModTime', 'Comment'], // Fields to Reset
+            defaultFormData,
+            previousFormRecord
+        );
+    }
+
+    return defaultFormData;
+};
+
+// Record used by bookResForm
+window.getBookResInitRecord = function (BID, BUD, previousFormRecord){
+    var f = w2ui.reservationForm;
+    var r = f.record;
+
+    var y = new Date(r.DtStart);
+    var y1 = new Date(r.DtStop);
+
+    var defaultFormData = {
+        BID:            BID,
+        BUD:            BUD,
+        RTID:           0,
+        RID:            0,
+        Nights:         1,
+        DtStart:        dateControlString(y),
+        DtStop:         dateControlString(y1),
+        RLID:           0,
+        FirstName:      '',
+        LastName:       '',
+        Email:          '',
+        Phone:          '',
+        Street:         '',
+        City:           '',
+        Country:        '',
+        State:          '',
+        PostalCode:     '',
+        CCName:         '',
+        CCType:         '',
+        CCNumber:       '',
+        CCExpMonth:     '',
+        CCExpYear:      '',
+        Comment:        '',
+    };
+
+
+    // if it called after 'save and add another' action there previous form
+    // record is passed as Object else it is null
     if ( previousFormRecord ) {
         defaultFormData = setDefaultFormFieldAsPreviousRecord(
             [ 'FLAGS', 'Amount', 'ClearedAmount', 'LastModTime', 'Comment'], // Fields to Reset
@@ -61,6 +111,7 @@ window.buildReservationsElements = function () {
             { field: 'RTID',          type: 'list',  required: true },
             { field: 'DtStart',       type: 'date',  required: true },
             { field: 'DtStop',        type: 'date',  required: true },
+            { field: 'PromoCode',     type: 'text',  required: true },
             { field: 'LastModTime',   type: 'time',  required: false, html: { page: 0, column: 0 } },
             { field: 'LastModBy',     type: 'int',   required: false, html: { page: 0, column: 0 } },
             { field: 'CreateTS',      type: 'time',  required: false, html: { page: 0, column: 0 } },
@@ -224,7 +275,7 @@ window.buildReservationsElements = function () {
                 if(w2ui.reservationGrid.getColumn("Book", true) == event.column) {
                     var rec = w2ui.reservationGrid.get(event.recid);
                     console.log('book RID = ' + rec.RID);
-
+                    switchToBookRes();
                     return;
                 }
             };
@@ -258,97 +309,93 @@ window.buildReservationsElements = function () {
     //------------------------------------------------------------------------
     //         bookResForm
     //------------------------------------------------------------------------
-    // $().w2form({
-    //     name: 'bookResForm',
-    //     style: 'border: 0px; background-color: transparent;',
-    //     header: 'Book A Reservations',
-    //     url: '/v1/reservation',
-    //     formURL: '/webclient/html/formbookres.html',
-    //
-    //     fields: [
-    //         { field: 'Nights',        type: 'int',   required: false, html: { page: 0, column: 0 } },
-    //         { field: 'RTID',          type: 'list',  required: true },
-    //         { field: 'DtStart',       type: 'date',  required: true },
-    //         { field: 'DtStop',        type: 'date',  required: true },
-    //         { field: 'LastModTime',   type: 'time',  required: false, html: { page: 0, column: 0 } },
-    //         { field: 'LastModBy',     type: 'int',   required: false, html: { page: 0, column: 0 } },
-    //         { field: 'CreateTS',      type: 'time',  required: false, html: { page: 0, column: 0 } },
-    //         { field: 'CreateBy',      type: 'int',   required: false, html: { page: 0, column: 0 } },
-    //     ],
-    //     toolbar: {
-    //         items: [
-    //             // { id: 'btnNotes', type: 'button', icon: 'far fa-sticky-note' },
-    //             // { id: 'formSave', type: 'button', caption: 'Save', icon: 'fas fa-check'},
-    //             { id: 'bt3', type: 'spacer' },
-    //             { id: 'btnClose', type: 'button', icon: 'fas fa-times' },
-    //         ],
-    //         onClick: function (event) {
-    //             switch(event.target) {
-    //             case 'btnClose':
-    //                 var no_callBack = function() { return false; },
-    //                     yes_callBack = function() {
-    //                         w2ui.toplayout.hide('right',true);
-    //                         w2ui.reservationGrid.render();
-    //                     };
-    //                 form_dirty_alert(yes_callBack, no_callBack);
-    //                 break;
-    //             case 'formSave':
-    //                 saveBookResForm();
-    //             }
-    //         },
-    //     },
-    //     onRender: function(event) {
-    //         var BID = getCurrentBID();
-    //         var BUD = getBUDfromBID(BID);
-    //         if (typeof w2ui.reservationForm.get('RTID').options != "undefined") {
-    //             w2ui.reservationForm.get('RTID').options.items = app.rt_list[BUD];
-    //         }
-    //         if (typeof w2ui.reservationForm.get('BUD').options != "undefined") {
-    //             w2ui.reservationForm.get('BUD').options.items = app.businesses;
-    //         }
-    //     },
-    //     onRefresh: function(event) {
-    //         event.onComplete = function() {
-    //             var f = this;
-    //             // var r = f.record;
-    //             // var x = getCurrentBusiness(),
-    //             //     BID=parseInt(x.value),
-    //             //     BUD = getBUDfromBID(BID);
-    //             //
-    //             // var header = "Edit Reservation ({0})";
-    //             // f.get("DPMName").options.selected = getDepMeth(BUD, dpmid);
-    //             // f.get("DEPName").options.selected = getReservation(BUD, depid);
-    //             //
-    //             // formRefreshCallBack(f, "DID", header);
-    //             var BID = getCurrentBID();
-    //             var BUD = getBUDfromBID(BID);
-    //             w2ui.reservationForm.get('RTID').options.items = app.rt_list[BUD];
-    //             w2ui.reservationForm.get('BUD').options.items = app.businesses;
-    //         };
-    //     },
-    //     onChange: function(event) {
-    //         // event.onComplete = function() {
-    //         // };
-    //     },
-    //     onSubmit: function(target, data) {
-    //         delete data.postData.record.LastModTime;
-    //         delete data.postData.record.LastModBy;
-    //         delete data.postData.record.CreateTS;
-    //         delete data.postData.record.CreateBy;
-    //         // modify form data for server request
-    //         //getFormSubmitData(data.postData.record);
-    //     },
-    // });
+    $().w2form({
+        name: 'bookResForm',
+        style: 'border: 0px; background-color: transparent;',
+        header: 'Book A Reservations',
+        url: '/v1/reservation',
+        formURL: '/webclient/html/formbookres.html',
+
+        fields: [
+            { field: 'BID',           type: 'int',  required: false },
+            { field: 'BUD',           type: 'int',  required: false },
+            { field: 'RTID',          type: 'int',  required: false },
+            { field: 'RID',           type: 'int',  required: false },
+            { field: 'Nights',        type: 'int',  required: false },
+            { field: 'DtStart',       type: 'date', required: false },
+            { field: 'DtStop',        type: 'date', required: false },
+            { field: 'RLID',          type: 'int',  required: false, html: { page: 0, column: 0 } },
+            { field: 'FirstName',     type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'LastName',      type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'Email',         type: 'text', required: true },
+            { field: 'Phone',         type: 'text', required: true },
+            { field: 'Address',       type: 'text', required: true },
+            { field: 'Address2',      type: 'text', required: true },
+            { field: 'City',          type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'Country',       type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'State',         type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'PostalCode',    type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'CCName',        type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'CCType',        type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'CCNumber',      type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'CCExpMonth',    type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'CCExpYear',     type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'Comment',       type: 'text', required: false, html: { page: 0, column: 0 } },
+        ],
+        toolbar: {
+            items: [
+                { id: 'bt3', type: 'spacer' },
+                { id: 'btnClose', type: 'button', icon: 'fas fa-times' },
+            ],
+            onClick: function (event) {
+                switch(event.target) {
+                case 'btnClose':
+                    w2ui.reservationLayout.hide('right');
+                    break;
+                }
+            },
+        },
+        onRender: function(event) {
+            // var BID = getCurrentBID();
+            // var BUD = getBUDfromBID(BID);
+            var f = w2ui.bookResForm;
+            var r = f.record;
+            //$(f.box).find("input[name=Stop]").prop( "disabled", true );
+        },
+        onRefresh: function(event) {
+            event.onComplete = function() {
+                var f = this;
+                var r = f.record;
+                // var BID = getCurrentBID();
+                // var BUD = getBUDfromBID(BID);
+                if (typeof r.RLID == "undefined" || r.RLID == 0) {
+                    $(f.box).find("button[name=delete]").addClass("hidden");
+                } else {
+                    $(f.box).find("button[name=delete]").removeClass("hidden");
+                }
+                document.getElementById("bookResDtStart").innerHTML = r.DtStart;
+                document.getElementById("bookResDtStop").innerHTML = r.DtStop;
+                document.getElementById("bookResNights").innerHTML = '' + r.Nights;
+            };
+        },
+        onChange: function(event) {
+            // event.onComplete = function() {
+            // };
+        },
+        onSubmit: function(target, data) {
+            //getFormSubmitData(data.postData.record);
+        },
+    });
 
     $().w2layout({
         name: 'reservationLayout',
         padding: 0,
         panels: [
             { type: 'left',    size: 0,     hidden: true,  content: 'left'    },
-            { type: 'top',     size: 0,     hidden: true,  content: 'top',    resizable: true, style: app.pstyle },
-            { type: 'main',    size: '25%', hidden: false, content: 'main',   resizable: true, style: app.pstyle },
+            { type: 'top',     size: '25%', hidden: false, content: 'top',    resizable: true, style: app.pstyle },
+            { type: 'main',    size: '75%', hidden: false, content: 'main',   resizable: true, style: app.pstyle },
             { type: 'preview', size: 0,     hidden: true,  content: 'preview' },
-            { type: 'bottom',  size: '75%', hidden: false, content: 'bottom', resizable: true, style: app.pstyle },
+            { type: 'bottom',  size: 0,     hidden: true,  content: 'bottom', resizable: true, style: app.pstyle },
             { type: 'right',   size: 0,     hidden: true,  content: 'right',  resizable: true, style: app.pstyle }
         ]
     });
@@ -403,6 +450,8 @@ window.reservationSrch = function() {
 //
 // @params  BUD - business unit descriptor where we got the rentable types
 //
+// @return
+//
 //---------------------------------------------------------------------------------
 window.reservationsUpdateRTList = function (BUD) {
     if (typeof w2ui.reservationForm.get('RTID').options != "undefined") {
@@ -425,25 +474,14 @@ window.reservationsUpdateRTList = function (BUD) {
 // switchToReservations - changes the main view of the program to the
 //                        Reservations form
 //
-// @params  svc = prefix of grid name
+// @params
 //          svcOverride = name of webservice to call if the name does not
 //                match the name of the svc
 //
+// @return
+//
 //---------------------------------------------------------------------------------
 window.switchToReservations = function (svcOverride) {
-    // var grid = svc + 'Grid'; // this builds the name of the w2ui grid we want
-    // var x = getCurrentBusiness();
-    // // var websvc = svc;
-    // // if (typeof svcOverride === "string") {
-    // //     websvc = svcOverride;
-    // //     if (svcOverride === "flow") {
-    // //         UpdateCloseInfo(x.value);
-    // //     }
-    // // }
-    // // var url = '/v1/' + websvc + '/';
-    // // if (svc != 'business') {
-    // //     url += x.value;
-    // // }
     // w2ui[grid].url = url;
     w2ui.reservationForm.last.sel_recid = null; // whenever switch grid, erase last selected record
     app.last.grid_sel_recid = -1;
@@ -458,14 +496,31 @@ window.switchToReservations = function (svcOverride) {
 };
 
 //---------------------------------------------------------------------------------
-// finishReservationsForm - load the layout properly.
+// switchToBookRes - turns on the bookres form
 //
-// @params  svc = prefix of grid name
-//          svcOverride = name of webservice to call if the name does not
-//                match the name of the svc
+// @params
+//
+// @return
+//
+//---------------------------------------------------------------------------------
+window.switchToBookRes = function () {
+    var BID = getCurrentBID();
+    var BUD = getBUDfromBID(BID);
+    w2ui.reservationLayout.sizeTo('right',500);
+    w2ui.reservationLayout.show('right');
+    w2ui.bookResForm.record = getBookResInitRecord(BID,BUD);
+    w2ui.bookResForm.refresh();
+};
+
+//---------------------------------------------------------------------------------
+// finishReservationsForm - load the layout properly.
+// @params
+//
+// @return
 //
 //---------------------------------------------------------------------------------
 window.finishReservationsForm = function () {
-    w2ui.reservationLayout.content('main',w2ui.reservationForm);
-    w2ui.reservationLayout.content('bottom', w2ui.reservationGrid);
+    w2ui.reservationLayout.content('top',w2ui.reservationForm);
+    w2ui.reservationLayout.content('main', w2ui.reservationGrid);
+    w2ui.reservationLayout.content('right', w2ui.bookResForm);
 };

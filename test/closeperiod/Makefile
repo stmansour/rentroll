@@ -7,7 +7,7 @@ closeperiod:
 	@echo "*** Completed in ${THISDIR} ***"
 
 clean:
-	rm -f rentroll.log log llog *.g ./gold/*.g err.txt [a-z] [a-z][a-z0-9] [a-z][A-Za-z0-9][A-Za-z0-9] request serverreply
+	rm -f rentroll.log log llog *.g ./gold/*.g err.txt [a-z] [a-z][a-z0-9] [a-z][A-Za-z0-9][A-Za-z0-9] request serverreply fail
 	@echo "*** CLEAN completed in ${THISDIR} ***"
 
 test:

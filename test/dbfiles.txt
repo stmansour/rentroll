@@ -1,3 +1,4 @@
+reservation/xa.sql
 ../tools/dbgen/empty.sql
 acctbal/baltest.sql
 closeperiod/xa.sql
@@ -24,4 +25,5 @@ raflow/f2ra/xc.sql
 raflow/f2ra/xd.sql
 raflow/f2ra/xe.sql
 raflow/f2ra/xf.sql
+raflow/f2ra/xg.sql
 raflow/f2ra/xg.sql
