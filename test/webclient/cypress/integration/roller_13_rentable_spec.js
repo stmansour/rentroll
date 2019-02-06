@@ -94,7 +94,7 @@ describe('AIR Roller UI Tests - Rentables', function () {
         cy.window().then((win) => {
             appSettings = win.app;
         });
-
+        debugger;
         cy.log(appSettings);
 
     });
@@ -112,6 +112,7 @@ describe('AIR Roller UI Tests - Rentables', function () {
     * Cell value must be same as record's field value from API Response.
     ***********************/
     it('Grid Records', function () {
+        //debugger;
         common.testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, testConfig);
     });
 
@@ -135,6 +136,8 @@ describe('AIR Roller UI Tests - Rentables', function () {
         common.testRecordDetailForm(recordsAPIResponse, testConfig);
 
         common.testGridInTabbedDetailForm('rentableStatusGrid', 'rentableDetailLayout', 'getRentableStatusRecords',testConfig);
+        //add by lina to test Rentable Lease Status Tab
+        common.testGridInTabbedDetailForm('rentableLeaseStatusGrid', 'rentableDetailLayout', 'getRentableLeaseStatusRecords',testConfig);
         common.testGridInTabbedDetailForm('rentableTypeRefGrid', 'rentableDetailLayout', 'getRentableTypeRef',testConfig);
 
         // -- Close the form. And assert that form isn't visible. --
