@@ -22,7 +22,7 @@ var BizErrors []BizError
 // RentableTypeUnknown, et al, are the error numbers for us in BizErrors
 const (
 	RentableTypeUnknown             = 0
-	RentableUseStatusUnknown        = 1
+	RentableUseStatusUnknown           = 1
 	InvalidField                    = 2
 	EditReversal                    = 3
 	PostToSummaryAcct               = 4
@@ -48,8 +48,8 @@ const (
 	UnknownBUD                      = 24 // Unknown BUD
 	InvalidRentableUseStatus        = 25 // invalid rentable use status
 	InvalidRentableLeaseStatus      = 26 // invalid rentable lease status
-	InvalidRentableUseStatusDates   = 27 // invalid rentable status dates
-	RentableUseStatusDatesOverlap   = 28 // rentable status dates overlapping
+	InvalidRentableUseStatusDates      = 27 // invalid rentable status dates
+	RentableUseStatusDatesOverlap      = 28 // rentable status dates overlapping
 	InvalidRentableTypeRefDates     = 29 // invalid rentable type ref dates
 	RentableTypeRefDatesOverlap     = 30 // rentable type ref dates overlapping
 	UnknownRID                      = 31 // Unknown Rentable
@@ -63,8 +63,6 @@ const (
 	TaskDescrMissingName            = 39 // task descriptor missing name
 	RecurAsmEpochInClosedPeriod     = 40 // attempt to create a recurring definition in a closed period
 	RecurStartAfterStopAfterRelo    = 41 // after moving start date of recurring asmt def to open period, start date occurs after stop date
-	InvalidRentableLeaseStatusDates = 42 //invalid rentable Lease status dates ,add by lina, !!!!!maybe need to update later!!
-	RentableLeaseStatusDatesOverlap = 43 // rentable Lease status dates overlapping,add by lina, !!!!!maybe need to update later!!
 )
 
 // InitBizLogic loads the error messages needed for validation errors

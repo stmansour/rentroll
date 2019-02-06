@@ -239,7 +239,7 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                         valueForCell = appSettings.RSUseStatus[valueForCell];
                         break;
                     case "LeaseStatus":
-                        valueForCell = appSettings.RSLeaseStatus[valueForCell];//lina rentableGrid
+                        //valueForCell = appSettings.RSLeaseStatus[valueForCell];
                         break;
                     case "EpochDue":
                     case "EpochPreDue":
@@ -312,16 +312,16 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                 }
 
                 // Check visibility and default value of cell in the grid
-                /*if (w2uiGridColumn.field !== "LeaseStatus") {//add this if because we don't need to check LeaseStatus here anymore
+                if (w2uiGridColumn.field !== "LeaseStatus") {//add this if because we don't need to check LeaseStatus here anymore
                     cy.get(selectors.getCellSelector(testConfig.grid, rowNo, columnNo))
                     .scrollIntoView()
                     .should('be.visible')
                     .should('contain', valueForCell);
-                }*/
-                cy.get(selectors.getCellSelector(testConfig.grid, rowNo, columnNo))
+                }
+                /*cy.get(selectors.getCellSelector(testConfig.grid, rowNo, columnNo))
                 .scrollIntoView()
                 .should('be.visible')
-                .should('contain', valueForCell);
+                .should('contain', valueForCell);*/ //commented by lina
 
             }
         });
@@ -494,7 +494,7 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                         fieldValue = appSettings.RSUseStatus[fieldValue];
                         break;
                     case "LeaseStatus":
-                        fieldValue = appSettings.RSLeaseStatus[fieldValue];
+                        //fieldValue = appSettings.RSLeaseStatus[fieldValue];
                         break;
                     case "AssignmentTime":
                         types = appSettings.renewalMap;
@@ -597,14 +597,14 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                             }
                             break;
                         default:
-                            /*if (fieldID !== "LeaseStatus"){//add this if because we don't need to check LeaseStatus here anymore
+                            if (fieldID !== "LeaseStatus"){//add this if because we don't need to check LeaseStatus here anymore
                                 cy.get(selectors.getFieldSelector(formSelector, fieldID))
                                 .should('be.visible')
                                 .should('have.value', fieldValue);
-                            }*/
-                            cy.get(selectors.getFieldSelector(formSelector, fieldID))
+                            }
+                            /*cy.get(selectors.getFieldSelector(formSelector, fieldID))
                                 .should('be.visible')
-                                .should('have.value', fieldValue);
+                                .should('have.value', fieldValue);*/ //commented by lina
                             break;
                     }
                 }
@@ -638,7 +638,6 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
 export function addNewFormTest(testConfig) {
 
     // record list in w2ui form
-    debugger;
     let getW2UIFormRecords;
 
     // field list in w2ui form
@@ -869,13 +868,7 @@ export function testGridInTabbedDetailForm(gridName, layoutName, routeName, test
 
     // Test on `Add New` and `Delete` button
     cy.get('#tb_' + gridName + '_toolbar_item_w2ui-add').should('be.visible');
-    debugger;
-
-    //lina update this to skip the `Delete` button checking for `Rentable Lease Status` Tab
-    if (gridName !== 'rentableLeaseStatusGrid') {
-        cy.get('#tb_' + gridName + '_toolbar_item_w2ui-delete').should('be.visible').should('have.class', 'disabled');
-    }
-    //cy.get('#tb_' + gridName + '_toolbar_item_w2ui-delete').should('be.visible').should('have.class', 'disabled');
+    cy.get('#tb_' + gridName + '_toolbar_item_w2ui-delete').should('be.visible').should('have.class', 'disabled');
 
 
     // check response status of API end point
@@ -888,15 +881,11 @@ export function testGridInTabbedDetailForm(gridName, layoutName, routeName, test
         cy.log(recordsFromAPIResponse);
         testConfig.grid = gridName;
         if (recordsFromAPIResponse.length > 0) {
-            debugger;
             testGridRecords(recordsFromAPIResponse, recordsFromAPIResponse.length, testConfig);
 
             // Click on first record and check delete button is enabled.
             cy.get(selectors.getFirstRecordInGridSelector(gridName)).click();
-            if (gridName !== 'rentableLeaseStatusGrid') {
-                cy.get('#tb_' + gridName + '_toolbar_item_w2ui-delete').should('be.visible').should('not.have.class', 'disabled');
-            }
-            //cy.get('#tb_' + gridName + '_toolbar_item_w2ui-delete').should('be.visible').should('not.have.class', 'disabled');
+            cy.get('#tb_' + gridName + '_toolbar_item_w2ui-delete').should('be.visible').should('not.have.class', 'disabled');
         }
     });
 }
@@ -1006,8 +995,6 @@ export function testRecordDetailForm(recordsAPIResponse, testConfig) {
             break;
         case "rentable":
             cy.route(testConfig.methodType, getDetailRecordAPIEndPoint('rentablestatus', id)).as('getRentableStatusRecords');
-            //add by lina to test Rentable Lease Status Tab
-            cy.route(testConfig.methodType, getDetailRecordAPIEndPoint('rentableleasestatus', id)).as('getRentableLeaseStatusRecords');
             cy.route(testConfig.methodType, getDetailRecordAPIEndPoint('rentabletyperef', id)).as('getRentableTypeRef');
             break;
     }
