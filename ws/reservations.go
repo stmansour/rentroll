@@ -83,6 +83,7 @@ type ResDet struct {
 	RTRID        int64
 	RTID         int64
 	RID          int64
+	LeaseStatus  int64
 	Nights       int64 // computed field
 	RentableName string
 	FirstName    string
@@ -159,12 +160,11 @@ func resRowScan(rows *sql.Rows, q Reservation) (Reservation, error) {
 
 // SvcReservationSearch searches for available rentables
 // wsdoc {
-//  @Title  Statement Detail
+//  @Title  SearchReservation
 //	@URL /v1/reservation/:BUI/[RLID]
 //  @Method  POST
 //	@Synopsis Returns a list of RIDs
-//  @Description  Returns the list of RIDs that are available during the
-//  @Description  specified time range.
+//  @Description  Finds the rentables that are availabe betwee DtStart and DtStop.
 //	@Input WebGridSearchRequest
 //  @Response Reservation
 // wsdoc }
@@ -334,6 +334,18 @@ func getReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.Console("Entered %s\n", funcname)
 }
 
+// saveReservation
+// wsdoc {
+//  @Title  SaveReservation
+//	@URL /v1/reservation/:BUI/[RLID]
+//  @Method  POST
+//	@Synopsis Returns a list of RIDs
+//  @Description  Saves the ReleaseStatus. If RLID is 0, a new status is created.
+//  @Description  If RLID is > 0 it is simply updated
+//	@Input WebGridSearchRequest
+//  @Response Reservation
+// wsdoc }
+//------------------------------------------------------------------------------
 func saveReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "saveReservation"
 	rlib.Console("Entered %s\n", funcname)
@@ -366,7 +378,7 @@ func saveReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		BID:         res.BID,
 		DtStart:     time.Time(res.DtStart),
 		DtStop:      time.Time(res.DtStop),
-		LeaseStatus: rlib.LEASESTATUSreserved,
+		LeaseStatus: res.LeaseStatus,
 		Comment:     res.Comment,
 		FirstName:   res.FirstName,
 		LastName:    res.LastName,
@@ -383,7 +395,7 @@ func saveReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		CCExpMonth:  res.CCExpMonth,
 	}
 
-	err = rlib.SetRentableLeaseStatusWorker(ctx, &rls)
+	err = rlib.SetRentableLeaseStatus(ctx, &rls)
 	if err != nil {
 		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
 		SvcErrorReturn(w, e, funcname)

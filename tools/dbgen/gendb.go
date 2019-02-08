@@ -920,14 +920,14 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 		//----------------------------------------------------------
 		// set its use and lease status...
 		//----------------------------------------------------------
-		if err = rlib.SetRentableUseStatus(ctx, BID, RID, rlib.USESTATUSinService, &d1, &d2); err != nil {
+		if err = rlib.SetRentableUseStatusAbbr(ctx, BID, RID, rlib.USESTATUSinService, &d1, &d2); err != nil {
 			return err
 		}
-		if err = rlib.SetRentableLeaseStatus(ctx, BID, RID, rlib.LEASESTATUSleased, &d1, &d2); err != nil {
+		if err = rlib.SetRentableLeaseStatusAbbr(ctx, BID, RID, rlib.LEASESTATUSleased, &d1, &d2); err != nil {
 			return err
 		}
 		// now reserve this rentable forever past the Rental Agreement end date...
-		if err = rlib.SetRentableLeaseStatus(ctx, BID, RID, rlib.LEASESTATUSreserved, &d2, &rlib.ENDOFTIME); err != nil {
+		if err = rlib.SetRentableLeaseStatusAbbr(ctx, BID, RID, rlib.LEASESTATUSreserved, &d2, &rlib.ENDOFTIME); err != nil {
 			return err
 		}
 

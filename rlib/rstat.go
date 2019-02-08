@@ -196,28 +196,8 @@ func MakeReadyStatusString(mr int64) string {
 	return RSMakeReadyStatus[i]
 }
 
-// SetRentableLeaseStatus changes the use status from d1 to d2 to the supplied
-// status, us. It adds and modifies existing records as needed.  If the
-// rentable is already in the supplied use state for time range d1-d2 then
-// no changes are made to the database.
-//
-// In the diagram, dt1 = lease status DtStart, dt2 = Dt
-//                     d1               d2
-//   +--------+        |   +--------+   |         +--------+
-//   | case 1 |        |   | case 2 |   |         | case 3 |
-//   +--------+        |   +--------+   |         +--------+
-//  dt2      dt2       |  dt1      dt2  |        dt1      dt2
-//                     |                |
-//        +---------------+         +------------------+
-//        |    case 4     |         |       case 5     |
-//        +---------------+         +------------------+
-//       dt1           | dt2       dt1  |             dt2
-//                     |                |
-//        +--------------------------------------------+
-//        |                  case 6                    |
-//        +--------------------------------------------+
-//       dt1           |                |             dt2
-//                     |                |
+// SetRentableLeaseStatusAbbr changes the use status from d1 to d2 to the supplied
+// status, us. It adds and modifies existing records as needed.
 //
 // INPUTS
 //     ctx - db context
@@ -227,85 +207,20 @@ func MakeReadyStatusString(mr int64) string {
 //     d1  - start time for status us
 //     d2  - stop time for status us
 //-----------------------------------------------------------------------------
-func SetRentableLeaseStatus(ctx context.Context, bid, rid, us int64, d1, d2 *time.Time) error {
-	a, err := GetRentableLeaseStatusByRange(ctx, rid, d1, d2)
-	if err != nil {
-		return err
+func SetRentableLeaseStatusAbbr(ctx context.Context, bid, rid, us int64, d1, d2 *time.Time) error {
+	var b = RentableLeaseStatus{
+		RID:         rid,
+		BID:         bid,
+		DtStart:     *d1,
+		DtStop:      *d2,
+		Comment:     "",
+		LeaseStatus: us,
 	}
 
-	if len(a) == 0 {
-		var b = RentableLeaseStatus{
-			RID:         rid,
-			BID:         bid,
-			DtStart:     *d1,
-			DtStop:      *d2,
-			Comment:     "",
-			LeaseStatus: us,
-		}
-		_, err = InsertRentableLeaseStatus(ctx, &b)
-		return err
-	}
-
-	if len(a) == 1 {
-		b := a[0]
-		dtStartPrior := b.DtStart.Before(*d1)
-		dtStartEqual := b.DtStart.Equal(*d1)
-		dtStartAfter := b.DtStart.After(*d1)
-		dtStopPrior := b.DtStop.Before(*d2)
-		dtStopEqual := b.DtStop.Equal(*d2)
-		dtStopAfter := b.DtStop.After(*d2)
-
-		b.DtStart = *d1
-		b.DtStop = *d2
-		b.LeaseStatus = us
-
-		if (dtStartEqual || dtStartAfter) && (dtStopPrior || dtStopEqual) { // case 2
-			return UpdateRentableLeaseStatus(ctx, &b)
-		}
-
-		if a[0].DtStop.Before(*d1) || a[0].DtStop.Equal(*d1) || a[0].DtStart.After(*d2) || a[0].DtStart.Equal(*d2) { // case 1 or case 3
-			_, err = InsertRentableLeaseStatus(ctx, &b)
-			return err
-		}
-
-		if dtStartPrior && dtStopPrior { // case 4
-			a[0].DtStop = *d1
-			if err = UpdateRentableLeaseStatus(ctx, &a[0]); err != nil {
-				return err
-			}
-			_, err = InsertRentableLeaseStatus(ctx, &b)
-			return err
-		}
-
-		if dtStopAfter && dtStartAfter { // case 5
-			a[0].DtStart = *d2
-			if err = UpdateRentableLeaseStatus(ctx, &a[0]); err != nil {
-				return err
-			}
-			_, err = InsertRentableLeaseStatus(ctx, &b)
-			return err
-		}
-
-		if dtStartPrior && dtStopAfter { // case 6
-			tmp := a[0].DtStop
-			a[0].DtStop = *d1
-			if err = UpdateRentableLeaseStatus(ctx, &a[0]); err != nil {
-				return err
-			}
-			a[0].DtStop = tmp
-			a[0].DtStart = *d2
-			_, err = InsertRentableLeaseStatus(ctx, &a[0])
-			if err != nil {
-				return err
-			}
-			_, err = InsertRentableLeaseStatus(ctx, &b)
-			return err
-		}
-	}
-	return nil
+	return SetRentableLeaseStatus(ctx, &b)
 }
 
-// SetRentableLeaseStatusWorker implements the proper insertion of a reservation
+// SetRentableLeaseStatus implements the proper insertion of a reservation
 //     under all the circumstances considered (these are described in detail in
 //     https://docs.google.com/presentation/d/1v3eEvATppP501MVM6vjv4VoQBDgZo-gq_wPPqUhblV4/edit#slide=id.g4f52e75848_0_0
 //     in the slide Inserting A Reservation [d1-d2] Into LeaseStatus).
@@ -314,7 +229,10 @@ func SetRentableLeaseStatus(ctx context.Context, bid, rid, us int64, d1, d2 *tim
 //     ctx - db context
 //     rls - the new reservation structure
 //-----------------------------------------------------------------------------
-func SetRentableLeaseStatusWorker(ctx context.Context, rls *RentableLeaseStatus) error {
+func SetRentableLeaseStatus(ctx context.Context, rls *RentableLeaseStatus) error {
+	// funcname := "SetRentableLeaseStatus"
+	// Console("Entered %s\n", funcname)
+
 	var err error
 	d1 := rls.DtStart
 	d2 := rls.DtStop
@@ -323,12 +241,16 @@ func SetRentableLeaseStatusWorker(ctx context.Context, rls *RentableLeaseStatus)
 		return err
 	}
 
+	// Console("%s: Range = %s    found %d records\n", funcname, ConsoleDRange(&d1, &d2), len(a))
+
 	//--------------------------------------------------------------------------
 	// If a has more than 2 entries, we can simply delete all but the first and
 	// last entries.
 	//--------------------------------------------------------------------------
-	if len(a) > 2 {
-		for i := 1; i < len(a)-2; i++ {
+	la := len(a) // save original length
+	if la > 2 {
+		for i := 1; i <= la-2; i++ {
+			// Console("%s: deleting RLID = %d\n", funcname, a[i].RLID)
 			if err = DeleteRentableLeaseStatus(ctx, a[i].RLID); err != nil {
 				return err
 			}
@@ -336,8 +258,12 @@ func SetRentableLeaseStatusWorker(ctx context.Context, rls *RentableLeaseStatus)
 	}
 
 	// Deal with some edge cases...
-	switch len(a) {
+	switch la {
+	case 0:
+		// nothing to do
+		break
 	case 1:
+		// Console("%s: case 1\n", funcname)
 		before := a[0].DtStart.Before(d1)
 		after := a[0].DtStop.After(d2)
 		//--------------------------------------------------------------------------
@@ -376,33 +302,30 @@ func SetRentableLeaseStatusWorker(ctx context.Context, rls *RentableLeaseStatus)
 				return err
 			}
 		}
-	case 2:
-		before := a[0].DtStart.Before(d1)
-		after := a[1].DtStop.After(d2)
-		if before {
-			// set its stop date to d1
-			b1 := a[0]
-			b1.DtStop = d1
-			err := UpdateRentableLeaseStatus(ctx, &b1)
+	default: // there were at least 3, trim first and last...
+		if a[0].DtStart.Before(d1) {
+			a[0].DtStop = d1
+			err = UpdateRentableLeaseStatus(ctx, &a[0])
 			if err != nil {
 				return err
 			}
-		} else if after {
-			// set its stop date to d1
-			b1 := a[1]
-			b1.DtStart = d2
-			err := UpdateRentableLeaseStatus(ctx, &b1)
+		}
+		if a[la-1].DtStop.After(d2) {
+			a[la-1].DtStart = d2
+			err = UpdateRentableLeaseStatus(ctx, &a[la-1])
 			if err != nil {
 				return err
 			}
 		}
 	}
 
+	// Console("%s: Inserting RentableLeaseStatus = %d, %s\n", funcname, rls.LeaseStatus, ConsoleDRange(&rls.DtStart, &rls.DtStop))
+
 	_, err = InsertRentableLeaseStatus(ctx, rls)
 	return err
 }
 
-// SetRentableUseStatus changes the use status from d1 to d2 to the supplied
+// SetRentableUseStatusAbbr changes the use status from d1 to d2 to the supplied
 // status, us. It adds and modifies existing records as needed.  If the
 // rentable is already in the supplied use state for time range d1-d2 then
 // no changes are made to the database.
@@ -433,80 +356,196 @@ func SetRentableLeaseStatusWorker(ctx context.Context, rls *RentableLeaseStatus)
 //     d1  - start time for status us
 //     d2  - stop time for status us
 //-----------------------------------------------------------------------------
-func SetRentableUseStatus(ctx context.Context, bid, rid, us int64, d1, d2 *time.Time) error {
-	a, err := GetRentableUseStatusByRange(ctx, rid, d1, d2)
+func SetRentableUseStatusAbbr(ctx context.Context, bid, rid, us int64, d1, d2 *time.Time) error {
+	var b = RentableUseStatus{
+		RID:       rid,
+		BID:       bid,
+		DtStart:   *d1,
+		DtStop:    *d2,
+		Comment:   "",
+		UseStatus: us,
+	}
+	return SetRentableUseStatus(ctx, &b)
+
+	// a, err := GetRentableUseStatusByRange(ctx, rid, d1, d2)
+	// if err != nil {
+	// 	return err
+	// }
+	//
+	// if len(a) == 0 {
+	// 	var b = RentableUseStatus{
+	// 		RID:       rid,
+	// 		BID:       bid,
+	// 		DtStart:   *d1,
+	// 		DtStop:    *d2,
+	// 		Comment:   "",
+	// 		UseStatus: us,
+	// 	}
+	// 	_, err = InsertRentableUseStatus(ctx, &b)
+	// 	return err
+	// }
+	//
+	// if len(a) == 1 {
+	// 	b := a[0]
+	// 	dtStartPrior := b.DtStart.Before(*d1)
+	// 	dtStartEqual := b.DtStart.Equal(*d1)
+	// 	dtStartAfter := b.DtStart.After(*d1)
+	// 	dtStopPrior := b.DtStop.Before(*d2)
+	// 	dtStopEqual := b.DtStop.Equal(*d2)
+	// 	dtStopAfter := b.DtStop.After(*d2)
+	//
+	// 	b.DtStart = *d1
+	// 	b.DtStop = *d2
+	// 	b.UseStatus = us
+	//
+	// 	if (dtStartEqual || dtStartAfter) && (dtStopPrior || dtStopEqual) { // case 2
+	// 		return UpdateRentableUseStatus(ctx, &b)
+	// 	}
+	//
+	// 	if a[0].DtStop.Before(*d1) || a[0].DtStop.Equal(*d1) || a[0].DtStart.After(*d2) || a[0].DtStart.Equal(*d2) { // case 1 or case 3
+	// 		_, err = InsertRentableUseStatus(ctx, &b)
+	// 		return err
+	// 	}
+	//
+	// 	if dtStartPrior && dtStopPrior { // case 4
+	// 		a[0].DtStop = *d1
+	// 		if err = UpdateRentableUseStatus(ctx, &a[0]); err != nil {
+	// 			return err
+	// 		}
+	// 		_, err = InsertRentableUseStatus(ctx, &b)
+	// 		return err
+	// 	}
+	//
+	// 	if dtStopAfter && dtStartAfter { // case 5
+	// 		a[0].DtStart = *d2
+	// 		if err = UpdateRentableUseStatus(ctx, &a[0]); err != nil {
+	// 			return err
+	// 		}
+	// 		_, err = InsertRentableUseStatus(ctx, &b)
+	// 		return err
+	// 	}
+	//
+	// 	if dtStartPrior && dtStopAfter { // case 6
+	// 		tmp := a[0].DtStop
+	// 		a[0].DtStop = *d1
+	// 		if err = UpdateRentableUseStatus(ctx, &a[0]); err != nil {
+	// 			return err
+	// 		}
+	// 		a[0].DtStop = tmp
+	// 		a[0].DtStart = *d2
+	// 		_, err = InsertRentableUseStatus(ctx, &a[0])
+	// 		if err != nil {
+	// 			return err
+	// 		}
+	// 		_, err = InsertRentableUseStatus(ctx, &b)
+	// 		return err
+	// 	}
+	// }
+	// return nil
+}
+
+// SetRentableUseStatus implements the proper insertion of a use status
+//     under all the circumstances considered (these are described in detail in
+//     https://docs.google.com/presentation/d/1v3eEvATppP501MVM6vjv4VoQBDgZo-gq_wPPqUhblV4/edit#slide=id.g4f52e75848_0_0
+//     in the slide Inserting A Reservation [d1-d2] Into LeaseStatus). UseStatus
+//     works exactly the same w2layout
+//
+// INPUTS
+//     ctx - db context
+//     rls - the new RentableUseStatus structure
+//-----------------------------------------------------------------------------
+func SetRentableUseStatus(ctx context.Context, rls *RentableUseStatus) error {
+	// funcname := "SetRentableUseStatus"
+	// Console("Entered %s\n", funcname)
+
+	var err error
+	d1 := rls.DtStart
+	d2 := rls.DtStop
+	a, err := GetRentableUseStatusByRange(ctx, rls.RID, &d1, &d2)
 	if err != nil {
 		return err
 	}
 
-	if len(a) == 0 {
-		var b = RentableUseStatus{
-			RID:       rid,
-			BID:       bid,
-			DtStart:   *d1,
-			DtStop:    *d2,
-			Comment:   "",
-			UseStatus: us,
+	// Console("%s: Range = %s    found %d records\n", funcname, ConsoleDRange(&d1, &d2), len(a))
+
+	//--------------------------------------------------------------------------
+	// If a has more than 2 entries, we can simply delete all but the first and
+	// last entries.
+	//--------------------------------------------------------------------------
+	la := len(a) // save original length
+	if la > 2 {
+		for i := 1; i <= la-2; i++ {
+			// Console("%s: deleting RLID = %d\n", funcname, a[i].RLID)
+			if err = DeleteRentableUseStatus(ctx, a[i].RSID); err != nil {
+				return err
+			}
 		}
-		_, err = InsertRentableUseStatus(ctx, &b)
-		return err
 	}
 
-	if len(a) == 1 {
-		b := a[0]
-		dtStartPrior := b.DtStart.Before(*d1)
-		dtStartEqual := b.DtStart.Equal(*d1)
-		dtStartAfter := b.DtStart.After(*d1)
-		dtStopPrior := b.DtStop.Before(*d2)
-		dtStopEqual := b.DtStop.Equal(*d2)
-		dtStopAfter := b.DtStop.After(*d2)
-
-		b.DtStart = *d1
-		b.DtStop = *d2
-		b.UseStatus = us
-
-		if (dtStartEqual || dtStartAfter) && (dtStopPrior || dtStopEqual) { // case 2
-			return UpdateRentableUseStatus(ctx, &b)
-		}
-
-		if a[0].DtStop.Before(*d1) || a[0].DtStop.Equal(*d1) || a[0].DtStart.After(*d2) || a[0].DtStart.Equal(*d2) { // case 1 or case 3
-			_, err = InsertRentableUseStatus(ctx, &b)
-			return err
-		}
-
-		if dtStartPrior && dtStopPrior { // case 4
-			a[0].DtStop = *d1
-			if err = UpdateRentableUseStatus(ctx, &a[0]); err != nil {
-				return err
-			}
-			_, err = InsertRentableUseStatus(ctx, &b)
-			return err
-		}
-
-		if dtStopAfter && dtStartAfter { // case 5
-			a[0].DtStart = *d2
-			if err = UpdateRentableUseStatus(ctx, &a[0]); err != nil {
-				return err
-			}
-			_, err = InsertRentableUseStatus(ctx, &b)
-			return err
-		}
-
-		if dtStartPrior && dtStopAfter { // case 6
-			tmp := a[0].DtStop
-			a[0].DtStop = *d1
-			if err = UpdateRentableUseStatus(ctx, &a[0]); err != nil {
-				return err
-			}
-			a[0].DtStop = tmp
-			a[0].DtStart = *d2
-			_, err = InsertRentableUseStatus(ctx, &a[0])
+	// Deal with some edge cases...
+	switch la {
+	case 0:
+		// nothing to do
+		break
+	case 1:
+		// Console("%s: case 1\n", funcname)
+		before := a[0].DtStart.Before(d1)
+		after := a[0].DtStop.After(d2)
+		//--------------------------------------------------------------------------
+		// If the LeaseStatus extends before AND after d1,d2 then split into two
+		// statuses -- one before and one after d1,d2
+		//--------------------------------------------------------------------------
+		if before && after {
+			b1 := a[0]     // earlier split
+			b1.DtStop = d1 // update existing and stop it at the reservation start
+			err = UpdateRentableUseStatus(ctx, &b1)
 			if err != nil {
 				return err
 			}
-			_, err = InsertRentableUseStatus(ctx, &b)
-			return err
+
+			b2 := a[0]      // later split
+			b2.DtStart = d2 // start it at the reservation end
+			b2.RSID = 0     // this is a new record
+			_, err = InsertRentableUseStatus(ctx, &b2)
+			if err != nil {
+				return err
+			}
+		} else if before {
+			// set its stop date to d1
+			b1 := a[0]
+			b1.DtStop = d1
+			err = UpdateRentableUseStatus(ctx, &b1)
+			if err != nil {
+				return err
+			}
+		} else if after {
+			// set its stop date to d1
+			b1 := a[0]
+			b1.DtStart = d2
+			err = UpdateRentableUseStatus(ctx, &b1)
+			if err != nil {
+				return err
+			}
+		}
+	default: // there were at least 3, trim first and last...
+		if a[0].DtStart.Before(d1) {
+			a[0].DtStop = d1
+			err = UpdateRentableUseStatus(ctx, &a[0])
+			if err != nil {
+				return err
+			}
+		}
+		if a[la-1].DtStop.After(d2) {
+			a[la-1].DtStart = d2
+			err = UpdateRentableUseStatus(ctx, &a[la-1])
+			if err != nil {
+				return err
+			}
 		}
 	}
-	return nil
+
+	// Console("%s: Inserting RentableUseStatus = %d, %s\n", funcname, rls.LeaseStatus, ConsoleDRange(&rls.DtStart, &rls.DtStop))
+
+	_, err = InsertRentableUseStatus(ctx, rls)
+	return err
 }

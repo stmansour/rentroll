@@ -29,7 +29,7 @@ func HotelBookings(ctx context.Context, dbConf *GenDBConf) error {
 	totaldays := int(dbConf.HotelReserveDtStop.Sub(dbConf.HotelReserveDtStart) / (time.Hour * 24))
 	bookdays := int(float64(totaldays) * dbConf.HotelReservePct)
 	rlib.Console("Days in booking period: %d\n", totaldays)
-	rlib.Console("Rarget days to book each hotel room: = %d\n", bookdays)
+	rlib.Console("Target days to book each hotel room: = %d\n", bookdays)
 
 	for rows.Next() {
 		var r rlib.Rentable
@@ -90,7 +90,7 @@ func HotelBookings(ctx context.Context, dbConf *GenDBConf) error {
 				}
 				// rlib.Console("Found date range that works: %s\n", rlib.ConsoleDRange(&ls.DtStart, &ls.DtStop))
 				m = append(m, ls) // we'll use this time
-				if err := rlib.SetRentableLeaseStatus(ctx, ls.BID, ls.RID, ls.LeaseStatus, &ls.DtStart, &ls.DtStop); err != nil {
+				if err := rlib.SetRentableLeaseStatusAbbr(ctx, ls.BID, ls.RID, ls.LeaseStatus, &ls.DtStart, &ls.DtStop); err != nil {
 					return err
 				}
 				// // rlib.Console("Scheduled: RID: %d,  %s\n", ls.RID, rlib.ConsoleDRange(&ls.DtStart, &ls.DtStop))

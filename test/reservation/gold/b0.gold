@@ -1,0 +1,17 @@
+{
+    "records": [
+        {
+            "BID": 1,
+            "DtStart": "2019-01-15 00:00:00 UTC",
+            "DtStop": "2019-03-11 00:00:00 UTC",
+            "RID": 10,
+            "RLID": 117,
+            "RTID": 5,
+            "RTRID": 10,
+            "RentableName": "Rentable010",
+            "recid": 0
+        }
+    ],
+    "status": "success",
+    "total": 1
+}

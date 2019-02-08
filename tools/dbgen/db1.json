@@ -1,10 +1,13 @@
 {
     "DtStart": "7/1/2018",
     "DtStop": "7/1/2019",
+    "HotelReserveDtStart": "1/1/2018",
+    "HotelReserveDtStop": "1/1/2018",
     "RT": [
         {
             "Count": 1,
             "MarketRate": 1000,
+            "Reserve": false,
             "RentCycle": 6,
             "ProrateCycle": 4
         }
