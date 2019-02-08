@@ -8,25 +8,40 @@
     <div class="w2ui-field"><input type="hidden" name="DtStop" /></div>
     <div class="w2ui-field"><input type="hidden" name="Nights" /></div>
 
-    <div class="w2ui-field">
-        <label>Business Unit:</label>
-        <div><input name="BUD" type="list" disabled /></div>
-    </div>
-
     <div align="center">
-        <table >
+        <table>
             <tr><td>&nbsp;</td></tr>
             <tr>
-                <td>Check in: <span id="bookResDtStart"></span></td>
+                <td>Check in:&nbsp;</td><td><span id="bookResDtStart"></span></td>
                 <td width="20"></td>
-                <td>Check out: <span id="bookResDtStop"></span></td>
+                <td style="white-space:nowrap;">Rentable Type:&nbsp;</td><td><span id="bookResRType"></span></td>
                 <td width="20"></td>
-                <td>Nights: <span id="bookResNights"></span></td>
+                <td width="20"></td>
+            </tr>
+            <tr><td>&nbsp;</td></tr>
+            <tr>
+                <td>Check out:&nbsp;</td><td><span id="bookResDtStop"></span></td>
+                <td width="20"></td>
+                <td>Rentable:&nbsp;</td><td><span id="bookResRName"></span></td>
+                <td width="20"></td>
+                <td width="20"></td>
+            </tr>
+            <tr><td>&nbsp;</td></tr>
+            <tr>
+                <td>Nights:</td><td><span id="bookResNights"></span></td>
+                <td width="20"></td>
+                <td width="20"></td>
+                <td width="20"></td>
+                <td width="20"></td>
             </tr>
             <tr><td>&nbsp;</td></tr>
         </table>
     </div>
 
+    <div class="w2ui-field">
+        <label>Business Unit:</label>
+        <div><input name="BUD" type="list" disabled /></div>
+    </div>
     <div class="w2ui-field">
         <label>FirstName:</label>
         <div><input name="FirstName" type="text" style="width: 100%" /></div>
@@ -44,8 +59,12 @@
         <div><input name="Phone" type="text" style="width: 100%" /></div>
     </div>
     <div class="w2ui-field">
-        <label>Street Address:</label>
-        <div><input name="StreetAddress" type="text" style="width: 100%" /></div>
+        <label>Address:</label>
+        <div><input name="Address" type="text" style="width: 100%" /></div>
+    </div>
+    <div class="w2ui-field">
+        <label>Address2:</label>
+        <div><input name="Address2" type="text" style="width: 100%" /></div>
     </div>
     <div class="w2ui-field">
         <label>City:</label>

@@ -2,7 +2,7 @@
     parseInt, w2ui, getDepMeth, getReservation, $, app, getBUDfromBID, getCurrentBusiness, console,
     saveReservationForm, switchToReservationss, finishReservationsForm, reservationsUpdateRTList,
     getReservationInitRecord, reservationSrch, daysBetweenDates, switchToBookRes,
-    getBookResInitRecord,
+    getBookResInitRecord, resSaveCB,
 */
 
 "use strict";
@@ -53,9 +53,9 @@ window.getBookResInitRecord = function (BID, BUD, previousFormRecord){
     var defaultFormData = {
         BID:            BID,
         BUD:            BUD,
-        RTID:           0,
-        RID:            0,
-        Nights:         1,
+        RTID:           r.RTID,
+        RID:            r.RID,
+        Nights:         r.Nights,
         DtStart:        dateControlString(y),
         DtStop:         dateControlString(y1),
         RLID:           0,
@@ -203,7 +203,7 @@ window.buildReservationsElements = function () {
                 }
                 if (draw) { f.refresh(); }
 
-                console.log('event = ' + event);
+                //console.log('event = ' + event);
                 // formRecDiffer: 1=current record, 2=original record, 3=diff object
                 // var diff = formRecDiffer(this.record, app.active_form_original, {});
                 // // if diff == {} then make dirty flag as false, else true
@@ -275,7 +275,7 @@ window.buildReservationsElements = function () {
                 if(w2ui.reservationGrid.getColumn("Book", true) == event.column) {
                     var rec = w2ui.reservationGrid.get(event.recid);
                     console.log('book RID = ' + rec.RID);
-                    switchToBookRes();
+                    switchToBookRes(rec.RID,rec.RentableName);
                     return;
                 }
             };
@@ -313,7 +313,6 @@ window.buildReservationsElements = function () {
         name: 'bookResForm',
         style: 'border: 0px; background-color: transparent;',
         header: 'Book A Reservations',
-        url: '/v1/reservation',
         formURL: '/webclient/html/formbookres.html',
 
         fields: [
@@ -321,16 +320,17 @@ window.buildReservationsElements = function () {
             { field: 'BUD',           type: 'int',  required: false },
             { field: 'RTID',          type: 'int',  required: false },
             { field: 'RID',           type: 'int',  required: false },
+            { field: 'RentableName',  type: 'text', required: false },
             { field: 'Nights',        type: 'int',  required: false },
             { field: 'DtStart',       type: 'date', required: false },
             { field: 'DtStop',        type: 'date', required: false },
             { field: 'RLID',          type: 'int',  required: false, html: { page: 0, column: 0 } },
-            { field: 'FirstName',     type: 'text', required: false, html: { page: 0, column: 0 } },
-            { field: 'LastName',      type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'FirstName',     type: 'text', required: true,  html: { page: 0, column: 0 } },
+            { field: 'LastName',      type: 'text', required: true,  html: { page: 0, column: 0 } },
             { field: 'Email',         type: 'text', required: true },
             { field: 'Phone',         type: 'text', required: true },
             { field: 'Address',       type: 'text', required: true },
-            { field: 'Address2',      type: 'text', required: true },
+            { field: 'Address2',      type: 'text', required: false },
             { field: 'City',          type: 'text', required: false, html: { page: 0, column: 0 } },
             { field: 'Country',       type: 'text', required: false, html: { page: 0, column: 0 } },
             { field: 'State',         type: 'text', required: false, html: { page: 0, column: 0 } },
@@ -355,6 +355,21 @@ window.buildReservationsElements = function () {
                 }
             },
         },
+        actions: {
+                save: function() {
+                    var BID = getCurrentBID();
+                    var BUD = getBUDfromBID(BID);
+                    var f = w2ui.bookResForm;
+                    var r = f.record;
+                    f.url = '/v1/reservation/' + BID;
+                    var rtid = r.RTID.id;
+                    r.RTID = rtid;
+                    if (typeof r.RID === "undefined") {
+                        r.RID = 0;
+                    }
+                    this.save({},resSaveCB);
+                }
+        },
         onRender: function(event) {
             // var BID = getCurrentBID();
             // var BUD = getBUDfromBID(BID);
@@ -374,8 +389,15 @@ window.buildReservationsElements = function () {
                     $(f.box).find("button[name=delete]").removeClass("hidden");
                 }
                 document.getElementById("bookResDtStart").innerHTML = r.DtStart;
-                document.getElementById("bookResDtStop").innerHTML = r.DtStop;
-                document.getElementById("bookResNights").innerHTML = '' + r.Nights;
+                document.getElementById("bookResDtStop").innerHTML  = r.DtStop;
+                document.getElementById("bookResNights").innerHTML  = '' + r.Nights;
+                if (r.RTID == null) {
+                    r.RTID = w2ui.reservationForm.record.RTID;
+                }
+                if (r.RTID.text != "undefined") {
+                    document.getElementById("bookResRType").innerHTML = r.RTID.text;
+                }
+                document.getElementById("bookResRName").innerHTML = ''+r.RentableName;
             };
         },
         onChange: function(event) {
@@ -383,7 +405,7 @@ window.buildReservationsElements = function () {
             // };
         },
         onSubmit: function(target, data) {
-            //getFormSubmitData(data.postData.record);
+            getFormSubmitData(data.postData.record);
         },
     });
 
@@ -401,6 +423,10 @@ window.buildReservationsElements = function () {
     });
 
     //addDateNavToToolbar('reservation');
+};
+
+window.resSaveCB = function(data) {
+    console.log('save callback status:  ' + data.status);
 };
 
 window.saveReservationForm = function (BID, BUD, DtStart, DtStop, RTID) {
@@ -499,16 +525,19 @@ window.switchToReservations = function (svcOverride) {
 // switchToBookRes - turns on the bookres form
 //
 // @params
-//
+//     RID - Rentable ID
+//     n   - Rentable Name
 // @return
 //
 //---------------------------------------------------------------------------------
-window.switchToBookRes = function () {
+window.switchToBookRes = function (RID,n) {
     var BID = getCurrentBID();
     var BUD = getBUDfromBID(BID);
     w2ui.reservationLayout.sizeTo('right',500);
     w2ui.reservationLayout.show('right');
     w2ui.bookResForm.record = getBookResInitRecord(BID,BUD);
+    w2ui.bookResForm.record.RID = RID;
+    w2ui.bookResForm.record.RentableName = n;
     w2ui.bookResForm.refresh();
 };
 

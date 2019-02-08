@@ -29,9 +29,10 @@ window.buildSidebar = function(flag) {
                 },
                 { id: 'rentagr', text: plural(app.sRentalAgreement), img: 'icon-folder', expanded: true, group: true,
                     nodes: [
-                            { id: 'raflows',      text: plural(app.sRentalAgreement),    icon: 'fas fa-certificate', hint: 'Rental Agreements' },
-                            { id: 'reservation',  text: plural(app.sReservation),       icon: 'fas fa-calendar-check', hint: 'Rental Agreements' },
-                            { id: 'transactants', text: plural(app.sTransactant),        icon: 'fas fa-users' },
+                            { id: 'raflows',          text: plural(app.sRentalAgreement),         icon: 'fas fa-certificate', hint: 'Rental Agreements' },
+                            { id: 'bookReservation',  text: 'Book ' + plural(app.sReservation),   icon: 'fas fa-calendar-check', hint: 'Rental Agreements' },
+                            { id: 'changeReservation',text: 'Change ' + plural(app.sReservation), icon: 'fas fa-calendar-check', hint: 'Rental Agreements' },
+                            { id: 'transactants',     text: plural(app.sTransactant),             icon: 'fas fa-users' },
                             // { id: 'assignrnt',    text: 'Assign A ' + app.sRentable,     icon: 'far fa-check-square' },
                             // { id: 'movein',       text: app.sTransactant + ' Arrival',   icon: 'fas fa-sign-in-alt' },
                             // { id: 'moveout',      text: app.sTransactant + ' Departure', icon: 'fas fa-sign-out-alt' },
@@ -187,7 +188,7 @@ window.buildSidebar = function(flag) {
                         case 'closePeriod':
                             switchToClosePeriod();
                             break;
-                        case 'reservation':
+                        case 'bookReservation':
                             switchToReservations();
                             break;
 

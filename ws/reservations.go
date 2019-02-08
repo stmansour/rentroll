@@ -73,13 +73,39 @@ var resSelectFields = []string{
 //                         **** SAVE ****
 //-------------------------------------------------------------------
 
-// The "button" in the UI in this case is
-// pressed to close a period
+// ResDet is the structure that fully describes a reservation
+type ResDet struct {
+	Recid        int64 `json:"recid"`
+	BID          int64
+	DtStart      rlib.JSONDateTime
+	DtStop       rlib.JSONDateTime
+	RLID         int64
+	RTRID        int64
+	RTID         int64
+	RID          int64
+	Nights       int64 // computed field
+	RentableName string
+	FirstName    string
+	LastName     string
+	Email        string
+	Phone        string
+	Street       string
+	City         string
+	Country      string
+	State        string
+	PostalCode   string
+	CCName       string
+	CCType       string
+	CCNumber     string
+	CCExpMonth   string
+	CCExpYear    string
+	Comment      string
+}
 
 // SaveReservation is sent to save one of open time slots as a reservation
 type SaveReservation struct {
-	Cmd    string      `json:"cmd"`
-	Record Reservation `json:"record"`
+	Cmd    string `json:"cmd"`
+	Record ResDet `json:"record"`
 }
 
 //-------------------------------------------------------------------
@@ -311,6 +337,60 @@ func getReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 func saveReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "saveReservation"
 	rlib.Console("Entered %s\n", funcname)
+	target := `"record":`
+	i := strings.Index(d.data, target)
+	if i < 0 {
+		e := fmt.Errorf("%s: cannot find %s in form json", funcname, target)
+		SvcErrorReturn(w, e, funcname)
+		return
+	}
+	s := d.data[i+len(target):]
+	s = s[:len(s)-1]
+
+	// Reservation
+	var res ResDet
+	err := json.Unmarshal([]byte(s), &res)
+	rlib.Errcheck(err)
+	if err != nil {
+		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
+		SvcErrorReturn(w, e, funcname)
+		return
+	}
+
+	rlib.Console("Successfully unmarshaled reservation: %s %s\n", res.FirstName, res.LastName)
+	ctx := rlib.SetSessionContextKey(r.Context(), d.sess)
+
+	var rls = rlib.RentableLeaseStatus{
+		RLID:        res.RLID,
+		RID:         res.RID,
+		BID:         res.BID,
+		DtStart:     time.Time(res.DtStart),
+		DtStop:      time.Time(res.DtStop),
+		LeaseStatus: rlib.LEASESTATUSreserved,
+		Comment:     res.Comment,
+		FirstName:   res.FirstName,
+		LastName:    res.LastName,
+		Email:       res.Email,
+		Phone:       res.Phone,
+		Address:     res.Street,
+		City:        res.City,
+		State:       res.State,
+		PostalCode:  res.PostalCode,
+		Country:     res.Country,
+		CCName:      res.CCName,
+		CCType:      res.CCType,
+		CCNumber:    res.CCNumber,
+		CCExpMonth:  res.CCExpMonth,
+	}
+
+	err = rlib.SetRentableLeaseStatusWorker(ctx, &rls)
+	if err != nil {
+		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
+		SvcErrorReturn(w, e, funcname)
+		return
+	}
+
+	SvcWriteSuccessResponse(rls.BID, w)
 }
 
 func deleteReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {

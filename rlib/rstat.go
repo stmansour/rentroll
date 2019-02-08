@@ -305,6 +305,103 @@ func SetRentableLeaseStatus(ctx context.Context, bid, rid, us int64, d1, d2 *tim
 	return nil
 }
 
+// SetRentableLeaseStatusWorker implements the proper insertion of a reservation
+//     under all the circumstances considered (these are described in detail in
+//     https://docs.google.com/presentation/d/1v3eEvATppP501MVM6vjv4VoQBDgZo-gq_wPPqUhblV4/edit#slide=id.g4f52e75848_0_0
+//     in the slide Inserting A Reservation [d1-d2] Into LeaseStatus).
+//
+// INPUTS
+//     ctx - db context
+//     rls - the new reservation structure
+//-----------------------------------------------------------------------------
+func SetRentableLeaseStatusWorker(ctx context.Context, rls *RentableLeaseStatus) error {
+	var err error
+	d1 := rls.DtStart
+	d2 := rls.DtStop
+	a, err := GetRentableLeaseStatusByRange(ctx, rls.RID, &d1, &d2)
+	if err != nil {
+		return err
+	}
+
+	//--------------------------------------------------------------------------
+	// If a has more than 2 entries, we can simply delete all but the first and
+	// last entries.
+	//--------------------------------------------------------------------------
+	if len(a) > 2 {
+		for i := 1; i < len(a)-2; i++ {
+			if err = DeleteRentableLeaseStatus(ctx, a[i].RLID); err != nil {
+				return err
+			}
+		}
+	}
+
+	// Deal with some edge cases...
+	switch len(a) {
+	case 1:
+		before := a[0].DtStart.Before(d1)
+		after := a[0].DtStop.After(d2)
+		//--------------------------------------------------------------------------
+		// If the LeaseStatus extends before AND after d1,d2 then split into two
+		// statuses -- one before and one after d1,d2
+		//--------------------------------------------------------------------------
+		if before && after {
+			b1 := a[0]     // earlier split
+			b1.DtStop = d1 // update existing and stop it at the reservation start
+			err = UpdateRentableLeaseStatus(ctx, &b1)
+			if err != nil {
+				return err
+			}
+
+			b2 := a[0]      // later split
+			b2.DtStart = d2 // start it at the reservation end
+			b2.RLID = 0     // this is a new record
+			_, err = InsertRentableLeaseStatus(ctx, &b2)
+			if err != nil {
+				return err
+			}
+		} else if before {
+			// set its stop date to d1
+			b1 := a[0]
+			b1.DtStop = d1
+			err = UpdateRentableLeaseStatus(ctx, &b1)
+			if err != nil {
+				return err
+			}
+		} else if after {
+			// set its stop date to d1
+			b1 := a[0]
+			b1.DtStart = d2
+			err = UpdateRentableLeaseStatus(ctx, &b1)
+			if err != nil {
+				return err
+			}
+		}
+	case 2:
+		before := a[0].DtStart.Before(d1)
+		after := a[1].DtStop.After(d2)
+		if before {
+			// set its stop date to d1
+			b1 := a[0]
+			b1.DtStop = d1
+			err := UpdateRentableLeaseStatus(ctx, &b1)
+			if err != nil {
+				return err
+			}
+		} else if after {
+			// set its stop date to d1
+			b1 := a[1]
+			b1.DtStart = d2
+			err := UpdateRentableLeaseStatus(ctx, &b1)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	_, err = InsertRentableLeaseStatus(ctx, rls)
+	return err
+}
+
 // SetRentableUseStatus changes the use status from d1 to d2 to the supplied
 // status, us. It adds and modifies existing records as needed.  If the
 // rentable is already in the supplied use state for time range d1-d2 then
