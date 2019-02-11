@@ -1690,7 +1690,7 @@ CREATE TABLE `RentableLeaseStatus` (
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`RLID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1699,6 +1699,7 @@ CREATE TABLE `RentableLeaseStatus` (
 
 LOCK TABLES `RentableLeaseStatus` WRITE;
 /*!40000 ALTER TABLE `RentableLeaseStatus` DISABLE KEYS */;
+INSERT INTO `RentableLeaseStatus` VALUES (1,1,1,0,'2018-01-01 00:00:00','2018-02-13 00:00:00','','','','','','','','','','','','','','','','','2019-02-08 22:26:31',0,'2019-02-08 22:26:31',0),(2,1,1,1,'2018-02-13 00:00:00','2020-03-01 00:00:00','','','','','','','','','','','','','','','','','2019-02-08 22:26:31',0,'2019-02-08 22:26:31',0),(3,1,1,2,'2020-03-01 00:00:00','9999-12-31 00:00:00','','','','','','','','','','','','','','','','','2019-02-11 05:03:00',0,'2019-02-08 22:26:31',0);
 /*!40000 ALTER TABLE `RentableLeaseStatus` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2676,4 +2677,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-02-04 15:42:27
+-- Dump completed on 2019-02-10 21:03:08

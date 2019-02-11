@@ -90,10 +90,10 @@ func HotelBookings(ctx context.Context, dbConf *GenDBConf) error {
 				}
 				// rlib.Console("Found date range that works: %s\n", rlib.ConsoleDRange(&ls.DtStart, &ls.DtStop))
 				m = append(m, ls) // we'll use this time
-				if err := rlib.SetRentableLeaseStatusAbbr(ctx, ls.BID, ls.RID, ls.LeaseStatus, &ls.DtStart, &ls.DtStop); err != nil {
+				if err := rlib.SetRentableLeaseStatusAbbr(ctx, ls.BID, ls.RID, ls.LeaseStatus, &ls.DtStart, &ls.DtStop, false); err != nil {
 					return err
 				}
-				// // rlib.Console("Scheduled: RID: %d,  %s\n", ls.RID, rlib.ConsoleDRange(&ls.DtStart, &ls.DtStop))
+				// rlib.Console("Scheduled: RID: %d,  %s\n", ls.RID, rlib.ConsoleDRange(&ls.DtStart, &ls.DtStop))
 				booked += bk
 			}
 		}

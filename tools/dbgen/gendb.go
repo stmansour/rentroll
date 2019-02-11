@@ -923,11 +923,11 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 		if err = rlib.SetRentableUseStatusAbbr(ctx, BID, RID, rlib.USESTATUSinService, &d1, &d2); err != nil {
 			return err
 		}
-		if err = rlib.SetRentableLeaseStatusAbbr(ctx, BID, RID, rlib.LEASESTATUSleased, &d1, &d2); err != nil {
+		if err = rlib.SetRentableLeaseStatusAbbr(ctx, BID, RID, rlib.LEASESTATUSleased, &d1, &d2, true); err != nil {
 			return err
 		}
 		// now reserve this rentable forever past the Rental Agreement end date...
-		if err = rlib.SetRentableLeaseStatusAbbr(ctx, BID, RID, rlib.LEASESTATUSreserved, &d2, &rlib.ENDOFTIME); err != nil {
+		if err = rlib.SetRentableLeaseStatusAbbr(ctx, BID, RID, rlib.LEASESTATUSreserved, &d2, &rlib.ENDOFTIME, false); err != nil {
 			return err
 		}
 

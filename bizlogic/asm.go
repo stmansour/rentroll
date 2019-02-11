@@ -150,7 +150,7 @@ func ReverseAssessment(ctx context.Context, aold *rlib.Assessment, mode int, dt 
 	if aold.PASMID == 0 && aold.RentCycle > 0 {
 		mode = 2 // force behavior on the epoch
 	}
-	rlib.Console("ReverseAssessment: processing forward with mode = %d,  dt = %s\n", mode, dt.Format(rlib.RRDATEFMTSQL))
+	// rlib.Console("ReverseAssessment: processing forward with mode = %d,  dt = %s\n", mode, dt.Format(rlib.RRDATEFMTSQL))
 	switch mode {
 	case 0:
 		errlist = ReverseAssessmentInstance(ctx, aold, dt, lc)
@@ -242,14 +242,14 @@ func ReverseAssessmentsGoingForward(ctx context.Context, aold *rlib.Assessment, 
 	}
 
 	d2 := rlib.ENDOFTIME
-	rlib.Console("aold.PASMID = %d, dtStart = %s, dt = %s\n", aold.PASMID, dtStart.Format(rlib.RRDATEREPORTFMT), dt.Format(rlib.RRDATEREPORTFMT))
+	// rlib.Console("aold.PASMID = %d, dtStart = %s, dt = %s\n", aold.PASMID, dtStart.Format(rlib.RRDATEREPORTFMT), dt.Format(rlib.RRDATEREPORTFMT))
 
 	m, err := rlib.GetAssessmentInstancesByParent(ctx, RecurringAsmDefID, dtStart, &d2)
 	if err != nil {
 		return bizErrSys(&err)
 	}
 
-	rlib.Console("Number of instances to reverse: %d\n", len(m))
+	// rlib.Console("Number of instances to reverse: %d\n", len(m))
 	for i := 0; i < len(m); i++ {
 		errlist = ReverseAssessmentInstance(ctx, &m[i], dt, lc)
 		if len(errlist) > 0 {
@@ -294,7 +294,7 @@ func ReverseAssessmentsAfterStop(ctx context.Context, aold *rlib.Assessment, dtS
 	rlib.Console("ENTERED: ReverseAssessmentsAfterStop\n")
 
 	d2 := rlib.ENDOFTIME
-	rlib.Console("aold.ASMID = %d, dtStop = %s, dt = %s\n", aold.ASMID, dtStop.Format(rlib.RRDATEREPORTFMT), dt.Format(rlib.RRDATEREPORTFMT))
+	// rlib.Console("aold.ASMID = %d, dtStop = %s, dt = %s\n", aold.ASMID, dtStop.Format(rlib.RRDATEREPORTFMT), dt.Format(rlib.RRDATEREPORTFMT))
 
 	m, err := rlib.GetAssessmentInstancesByParent(ctx, aold.ASMID, dtStop, &d2)
 	if err != nil {
@@ -303,10 +303,10 @@ func ReverseAssessmentsAfterStop(ctx context.Context, aold *rlib.Assessment, dtS
 
 	now := rlib.Now()
 
-	rlib.Console("Number of instances to reverse: %d\n", len(m))
+	// rlib.Console("Number of instances to reverse: %d\n", len(m))
 	for i := 0; i < len(m); i++ {
 		if m[i].Start.After(now) {
-			rlib.Console("ReverseAssessmentsAfterStop: ATTEMPT TO REVERSE FUTURE ASSESSMENT: m[i] - ASMID = %d Start = %s\n", m[i].ASMID, m[i].Start.Format(rlib.RRDATEFMT3))
+			// rlib.Console("ReverseAssessmentsAfterStop: ATTEMPT TO REVERSE FUTURE ASSESSMENT: m[i] - ASMID = %d Start = %s\n", m[i].ASMID, m[i].Start.Format(rlib.RRDATEFMT3))
 			continue
 		}
 		errlist = ReverseAssessmentInstance(ctx, &m[i], dt, lc)
@@ -330,13 +330,13 @@ func ReverseAssessmentsAfterStop(ctx context.Context, aold *rlib.Assessment, dtS
 func ReverseAssessmentInstance(ctx context.Context, aold *rlib.Assessment, dt *time.Time, lc *rlib.ClosePeriod) []BizError {
 	rlib.Console("Entered ReverseAssessmentInstance:  ASMID = %d, PASMID = %d, date = %s\n", aold.ASMID, aold.PASMID, aold.Start.Format(rlib.RRDATEFMT3))
 	if aold.FLAGS&0x4 != 0 {
-		rlib.Console("ReverseAssessmentInstance:  ASMID = %d has already been reversed!\n", aold.ASMID)
+		// rlib.Console("ReverseAssessmentInstance:  ASMID = %d has already been reversed!\n", aold.ASMID)
 		// debug.PrintStack()
 		return nil // it's already reversed
 	}
 	now := rlib.Now()
 	if aold.Start.After(now) {
-		rlib.Console("ReverseAssessmentInstance: ATTEMPT TO REVERSE FUTURE ASSESSMENT: aold - ASMID = %d Start = %s\n", aold.ASMID, aold.Start.Format(rlib.RRDATEFMT3))
+		// rlib.Console("ReverseAssessmentInstance: ATTEMPT TO REVERSE FUTURE ASSESSMENT: aold - ASMID = %d Start = %s\n", aold.ASMID, aold.Start.Format(rlib.RRDATEFMT3))
 		return nil
 	}
 
@@ -353,7 +353,7 @@ func ReverseAssessmentInstance(ctx context.Context, aold *rlib.Assessment, dt *t
 	//-----------------------------------------------------------
 	// If the Start/stop dates are prior to lc, snap them to LC
 	//-----------------------------------------------------------
-	rlib.Console("LC Check: anew.Start = %s,  lc.Dt = %s\n", anew.Start.Format(rlib.RRDATEREPORTFMT), lc.Dt.Format(rlib.RRDATEREPORTFMT))
+	// rlib.Console("LC Check: anew.Start = %s,  lc.Dt = %s\n", anew.Start.Format(rlib.RRDATEREPORTFMT), lc.Dt.Format(rlib.RRDATEREPORTFMT))
 	if anew.Start.Before(lc.Dt) {
 		anew.AppendComment(fmt.Sprintf("Snapping %s open period %s", anew.Start.Format(rlib.RRDATEFMT3), lc.OpenPeriodDt.Format(rlib.RRDATEFMT3)))
 		anew.Start = lc.OpenPeriodDt
@@ -362,7 +362,7 @@ func ReverseAssessmentInstance(ctx context.Context, aold *rlib.Assessment, dt *t
 
 	errlist := InsertAssessment(ctx, &anew, 1, lc)
 	if len(errlist) > 0 {
-		rlib.Console("RAI: err 1\n")
+		// rlib.Console("RAI: err 1\n")
 		return errlist
 	}
 
@@ -370,14 +370,14 @@ func ReverseAssessmentInstance(ctx context.Context, aold *rlib.Assessment, dt *t
 	aold.FLAGS |= 0x4 // set bit 2 to mark that this assessment is void
 	err := rlib.UpdateAssessment(ctx, aold)
 	if err != nil {
-		rlib.Console("RAI: err 2\n")
+		// rlib.Console("RAI: err 2\n")
 		return bizErrSys(&err)
 	}
 
 	if aold.AGRCPTID == 0 {
 		err = DeallocateAppliedFunds(ctx, aold, anew.ASMID, dt)
 		if err != nil {
-			rlib.Console("RAI: err 3\n")
+			// rlib.Console("RAI: err 3\n")
 			return bizErrSys(&err)
 		}
 	} else {
@@ -387,11 +387,11 @@ func ReverseAssessmentInstance(ctx context.Context, aold *rlib.Assessment, dt *t
 		//---------------------------------------------------------
 		be := ReverseAutoGenAsmt(ctx, aold)
 		if len(be) > 0 {
-			rlib.Console("RAI: err 4\n")
+			// rlib.Console("RAI: err 4\n")
 			return be
 		}
 	}
-	rlib.Console("Exiting ReverseAssessmentInstance\n")
+	// rlib.Console("Exiting ReverseAssessmentInstance\n")
 	return nil
 }
 

@@ -590,6 +590,45 @@ func FlowSaveRentables(ctx context.Context, x *rlib.F2RAWriteHandlerContext) err
 			return err
 		}
 		for _, v := range rarl {
+			//----------------------------------------------------------------
+			// Fix up the LeaseStatus on the rentable.
+			//----------------------------------------------------------------
+			d1 := x.RaChainOrig[x.RaOrigIndex].RentStart
+			if x.RaChainOrig[x.RaOrigIndex].PossessionStart.Before(d1) {
+				d1 = x.RaChainOrig[x.RaOrigIndex].PossessionStart
+			}
+			d2 := x.Ra.RentStop
+			if x.RaChainOrig[x.RaOrigIndex].PossessionStop.After(d2) {
+				d2 = x.RaChainOrig[x.RaOrigIndex].PossessionStop
+			}
+			if x.RaChainOrig[x.RaOrigIndex].RentStop.After(d2) {
+				d2 = x.RaChainOrig[x.RaOrigIndex].RentStop
+			}
+			d3 := x.Ra.RentStart
+			if d2.After(x.Ra.PossessionStart) {
+				d3 = x.Ra.PossessionStart
+			}
+
+			lstat, err := rlib.GetRentableLeaseStatusByRange(ctx, v.RID, &d1, &d2)
+			if err != nil {
+				return err
+			}
+			// for this list of records, set LeaseStatus to "notleased" if the
+			// time as after x.Ra.RentStart
+			for i := 0; i < len(lstat); i++ {
+				if lstat[i].DtStart.Equal(x.Ra.RentStart) || lstat[i].DtStart.Equal(x.Ra.RentStart) { // if this record is on or after the new RA start time
+					lstat[i].LeaseStatus = rlib.LEASESTATUSnotleased // then set its status to "notleased"
+					if err = rlib.UpdateRentableLeaseStatus(ctx, &lstat[i]); err != nil {
+						return err
+					}
+				} else if lstat[i].DtStop.After(x.Ra.RentStart) { // if this record goes past the new RA start time
+					lstat[i].DtStop = d3 // then set its stop time where the new RA takes over
+					if err = rlib.UpdateRentableLeaseStatus(ctx, &lstat[i]); err != nil {
+						return err
+					}
+				}
+			}
+
 			v.RARDtStop = time.Time(x.Raf.Dates.AgreementStart)
 			if err = rlib.UpdateRentalAgreementRentable(ctx, &v); err != nil {
 				return err
@@ -626,6 +665,18 @@ func FlowSaveRentables(ctx context.Context, x *rlib.F2RAWriteHandlerContext) err
 	}
 
 	//----------------------------------------------------------------
+	// Set the range of time to show the rentable as leased...
+	//----------------------------------------------------------------
+	d1 := x.Ra.RentStart
+	d2 := x.Ra.RentStop
+
+	if x.Ra.PossessionStart.Before(d1) {
+		d1 = x.Ra.PossessionStart
+	}
+	if x.Ra.PossessionStop.Before(d2) {
+		d2 = x.Ra.PossessionStop
+	}
+	//----------------------------------------------------------------
 	// Add a RentalAgreementRentable entry for each Rentable
 	//----------------------------------------------------------------
 	for _, v := range x.Raf.Rentables {
@@ -640,6 +691,20 @@ func FlowSaveRentables(ctx context.Context, x *rlib.F2RAWriteHandlerContext) err
 		}
 		_, err := rlib.InsertRentalAgreementRentable(ctx, &rar)
 		if err != nil {
+			return err
+		}
+
+		//----------------------------------------------------------------
+		// Mark this rentable as leased...
+		//----------------------------------------------------------------
+		var rls = rlib.RentableLeaseStatus{
+			DtStart:     d1,
+			DtStop:      d2,
+			BID:         x.Ra.BID,
+			RID:         v.RID,
+			LeaseStatus: rlib.LEASESTATUSleased,
+		}
+		if err = rlib.SetRentableLeaseStatus(ctx, &rls, true); err != nil {
 			return err
 		}
 

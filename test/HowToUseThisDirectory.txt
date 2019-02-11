@@ -35,12 +35,14 @@ Developers: Please add notes here to anything that is missing.
    This will ensure that the schema is correct before any of the
    functional tests are run during 'make test'.
 
-8. If you want to check the schemas to see that they are in sync
-   you can run localcmp.sh .  This script compares the schema of all
-   the database file names in the script's array. It generates
-   dbreport.txt .
+8. You should always check the schema of your .sql files to ensure that they
+   are in sync with the latest schema.  There is a general purpose script for
+   this: localcmp.sh .  This script compares the schema of all
+   the database files listed in dbfiles.txt.  Whenever you add a db file to
+   a test directory, always be sure to add it into dbfiles.txt. localcmp.sh
+   generates dbreport.txt .
 
-9. Do not push files to the repo if localcmp.sh fails, fix them.
+9. Do not push updates to the github repo if localcmp.sh fails, fix them.
 
 10. The files sqlschema/fixprod.sh and sqlschema/fixrcpts.sh are scripts
     that update the production databases based on all the changes we make.
@@ -84,3 +86,55 @@ Developers: Please add notes here to anything that is missing.
         predictable number of instances and the tests will not need to be
         updated as time progresses.  This variable is used extensively in
         ./raflow/f2ra/functest.sh
+
+13. Within functest.sh there is typically a statement that pulls in all the
+    functions in share/base.sh .  You should make use of these functions as they
+    will save you a lot of time. There are a few command line options that can
+    also save you a lot of time when you are developing the tests or when you
+    run them and you find errors. The command-line options will be listed if
+    you run ./functest.sh -help .  Here is the output as of this writing. Always
+    use the -h option to ensure you see the latest option list.
+
+    $ ./functest.sh -h
+
+    SYNOPSIS
+    	./functest.sh [-a -c -f -m -n -o -p  -r -t]
+
+    	Rentroll test script. Compare the output of each step to its associated
+    	.gold known-good output. If they miscompare, fail and stop the script.
+    	If they match, keep going until all tasks are completed.
+
+    OPTIONS
+    	-a  If a test fails, pause after showing diffs from gold files, prompt
+    	    for what to do next:  [Enter] to continue, m to move the output file
+    	    into gold/ , or Q / X to exit.
+
+    	-c  Show each command that was executed.
+
+    	-f  Executes all the steps of the test but does not compare the output
+    	    to the known-good files. This is useful when making a slight change
+    	    to something just to see how it will work.
+
+    	-m  Do not run any server mgmt commands. Typically, this is used to
+    		run the test commands against an already-running server.
+
+    	-n  Do not create a new database, use the current database and simply
+    	    add to it.
+
+    	-o  Regenerate the .gold files based on the output from this run. Only
+    	    use this option if you're sure the output is correct. This option
+    	    can be a huge time saver, but use it with caution. All .gold files
+    	    are maintained in the ././gold/ directory.
+
+    	-p  Causes execution to pause between tests so that you can perform
+    	    checks in the database, or in logfiles, or any other output that
+    	    the tests cause.
+
+    	-t  Sets the environment variable RUNSINGLETEST to the supplied value. By
+    	    default, "x" == "x" and this should cause all of the
+    	    tests in the script to run. But if you would like to be able to run
+    	    an individual test by name, you can use  to check and
+    	    see if the user has requested a specific test. So, to run a single
+            test, "b" for example, you would use the following command:
+
+            $ ./functest.sh -t b

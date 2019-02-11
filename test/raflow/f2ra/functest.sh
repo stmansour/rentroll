@@ -146,11 +146,11 @@ fi
 TFILES="c"
 # if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
 #     echo "Create new database... x${TFILES}.sql"
-
-stopRentRollServer
-mysql --no-defaults rentroll < x${TFILES}.sql
-startRentRollServer
-
+#
+# stopRentRollServer
+# mysql --no-defaults rentroll < x${TFILES}.sql
+# startRentRollServer
+#
 #
 #     RAIDREFNO="V91682OU9DNAST5K262A"
 #     RAIDAMENDEDID="3"
@@ -614,7 +614,7 @@ fi
 #
 #  Expected Results:
 #  1. Ensure that Prorated assessments for October Rent and PetRent are
-#     created October for both RA 1 and RA 2. 
+#     created October for both RA 1 and RA 2.
 #  2. Ensure that the rent assessments for November are created for RA 2
 #------------------------------------------------------------------------------
 TFILES="m"

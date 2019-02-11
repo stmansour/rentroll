@@ -395,7 +395,7 @@ func saveReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		CCExpMonth:  res.CCExpMonth,
 	}
 
-	err = rlib.SetRentableLeaseStatus(ctx, &rls)
+	err = rlib.SetRentableLeaseStatus(ctx, &rls, false)
 	if err != nil {
 		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
 		SvcErrorReturn(w, e, funcname)

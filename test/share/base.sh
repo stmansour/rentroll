@@ -166,7 +166,7 @@ usage() {
 	cat <<EOF
 
 SYNOPSIS
-	$0 [-c -f -o -r]
+	$0 [-a -c -f -m -n -o -p  -r -t]
 
 	Rentroll test script. Compare the output of each step to its associated
 	.gold known-good output. If they miscompare, fail and stop the script.
@@ -200,9 +200,9 @@ OPTIONS
 
 	-t  Sets the environment variable RUNSINGLETEST to the supplied value. By
 	    default, "${RUNSINGLETEST}x" == "x" and this should cause all of the
-		tests in the script to run. But if you would like to be able to run
-		an individual test by name, you can use ${RUNSINGLETEST} to check and
-		see if the user has requested a specific test.
+	    tests in the script to run. But if you would like to be able to run
+	    an individual test by name, you can use ${RUNSINGLETEST} to check and
+	    see if the user has requested a specific test.
 EOF
 }
 
@@ -256,8 +256,8 @@ goldpath() {
 
 #############################################################################
 # docsvtest()
-#    The purpose of this routine is to call rrloadcsv with the
-#     parameters supplied in $2 and send its output to a file
+#           The purpose of this routine is to call rrloadcsv with the
+#                   parameters supplied in $2 and send its output to a file
 #     named $1. After trrloadcsv completes, the output in $1 will
 #     be compared with the output in gold/$1.gold.  If there are
 #     no diffs, then the test passes.  If there are diffs, then
@@ -1289,7 +1289,7 @@ function loadPhoneBookDB() {
 #  Handle command line options...
 #--------------------------------------------------------------------------
 tdir
-while getopts "acfmoprnt:" o; do
+while getopts "acfhmoprnt:" o; do
 	echo "o = ${o}"
 	case "${o}" in
 		a)	ASKBEFOREEXIT=1
@@ -1298,6 +1298,10 @@ while getopts "acfmoprnt:" o; do
 		c | C)
 			SHOWCOMMAND=1
 			echo "SHOWCOMMAND"
+			;;
+		h | H)
+			usage
+			exit 1
 			;;
 		r | R)
 			doReport
