@@ -53,12 +53,12 @@ func CreateRentables(ctx context.Context, sa []string, lineno int) (int, error) 
 	)
 
 	const (
-		BUD             = 0
-		Name            = iota
-		AssignmentTime  = iota
-		RUserSpec       = iota
-		RentableUseStatus  = iota
-		RentableTypeRef = iota
+		BUD               = 0
+		Name              = iota
+		AssignmentTime    = iota
+		RUserSpec         = iota
+		RentableUseStatus = iota
+		RentableTypeRef   = iota
 	)
 
 	// csvCols is an array that defines all the columns that should be in this csv file
@@ -168,7 +168,7 @@ func CreateRentables(ctx context.Context, sa []string, lineno int) (int, error) 
 	}
 	var m []rlib.RentableUseStatus                  // keep every rlib.RentableUseStatus we find in an array
 	st := strings.Split(sa[RentableUseStatus], ";") // split it on Status 3-tuple separator (;)
-	for i := 0; i < len(st); i++ {               //spin through the 3-tuples
+	for i := 0; i < len(st); i++ {                  //spin through the 3-tuples
 		ss := strings.Split(st[i], ",")
 		if len(ss) != 3 {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid Rentable Status. Each semi-colon separated field must have 3 values. Found %d in \"%s\"",
@@ -252,6 +252,16 @@ func CreateRentables(ctx context.Context, sa []string, lineno int) (int, error) 
 			_, err := rlib.InsertRentableUseStatus(ctx, &m[i])
 			if err != nil {
 				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error saving rlib.RentableUseStatus: %s", funcname, lineno, err.Error())
+			}
+			var ls = rlib.RentableLeaseStatus{
+				BID:         m[i].BID,
+				RID:         m[i].RID,
+				LeaseStatus: rlib.LEASESTATUSnotleased,
+				DtStart:     m[i].DtStart,
+				DtStop:      m[i].DtStop,
+			}
+			if _, err = rlib.InsertRentableLeaseStatus(ctx, &ls); err != nil {
+				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error saving rlib.RentableLeaseStatus: %s", funcname, lineno, err.Error())
 			}
 		}
 		for i := 0; i < len(n); i++ {

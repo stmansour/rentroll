@@ -58,12 +58,15 @@ describe('AIR Roller UI Tests - Rentables', function () {
 
         // If have date navigation bar than change from and to Date to get in between data
         if (testConfig.haveDateValue) {
+            debugger;
             common.changeDate(testConfig.sidebarID, testConfig.fromDate, testConfig.toDate);
         }
 
-        // Check http status
-        cy.wait('@getRecords').its('status').should('eq', constants.HTTP_OK_STATUS);
+        cy.log('Start to GEt getRecords!!!!!!!!!!!!!!!!--------');
 
+        // Check http status
+        cy.wait('@getRecords', {requestTimeout: 10000}).its('status').should('eq', constants.HTTP_OK_STATUS);
+        cy.log('after GEt getRecords!!!!!!!!!!!!!!!!--------');
         // get API endpoint's responseBody
         cy.get('@getRecords').then(function (xhr) {
 
@@ -101,6 +104,7 @@ describe('AIR Roller UI Tests - Rentables', function () {
 
     // -- Change business to REX --
     it('Change business to REX', function () {
+        debugger;
         // onSuccessful test set BID value. If above test get fail below code will not be executed.
         constants.BID = common.changeBU(appSettings);
     });
@@ -135,6 +139,8 @@ describe('AIR Roller UI Tests - Rentables', function () {
         common.testRecordDetailForm(recordsAPIResponse, testConfig);
 
         common.testGridInTabbedDetailForm('rentableStatusGrid', 'rentableDetailLayout', 'getRentableStatusRecords',testConfig);
+        //add by lina to test Rentable Lease Status Tab
+        common.testGridInTabbedDetailForm('rentableLeaseStatusGrid', 'rentableDetailLayout', 'getRentableLeaseStatusRecords',testConfig);
         common.testGridInTabbedDetailForm('rentableTypeRefGrid', 'rentableDetailLayout', 'getRentableTypeRef',testConfig);
 
         // -- Close the form. And assert that form isn't visible. --
