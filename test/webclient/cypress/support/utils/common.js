@@ -65,7 +65,6 @@ export function closeInsideFormTests(formSelector) {
 export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConfig) {
     let appSettings = win.app;
     // Iterate through each row
-    //debugger
     if (testConfig.module === "tls") {
       cy.log("tlsGrid !!!!-----------------------------------------------gridCellsTest")
     } else {
@@ -546,7 +545,6 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                 }
 
                 // check fields visibility and respective value
-                //debugger;
                 if (!isInArray(fieldID, testConfig.skipFields)) {
                     // Check visibility and match the default value of the fields.
                     switch (fieldID){
@@ -815,8 +813,6 @@ export function changeBU(appSettings) {
             constants.testBizID = item.BID;
         }
     });
-
-    debugger;
     // Now change the business to REX
     cy.get('[name="BusinessSelect"]').select(constants.testBiz);
 
@@ -939,7 +935,6 @@ export function testDetailFormWithGrid(recordsAPIResponse, testConfig, testConfi
 
 
         if(testConfig.grid === "tldsGrid" || testConfig.grid === "tlsGrid"){
-            //debugger
             detailFormTest(recordDetailFromAPIResponse,testConfig);
         } else {
             cy.get("#RAInfo").within(() => {
@@ -987,7 +982,6 @@ export function testDetailFormWithGrid(recordsAPIResponse, testConfig, testConfi
 
 export function testRecordDetailForm(recordsAPIResponse, testConfig) {
     cy.log("Tests for detail record form");
-    //debugger;
     // -- detail record testing --
     const id = recordsAPIResponse[0][testConfig.primaryId];
 

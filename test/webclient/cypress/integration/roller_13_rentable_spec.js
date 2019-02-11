@@ -58,7 +58,7 @@ describe('AIR Roller UI Tests - Rentables', function () {
 
         // If have date navigation bar than change from and to Date to get in between data
         if (testConfig.haveDateValue) {
-            debugger;
+            //debugger;
             common.changeDate(testConfig.sidebarID, testConfig.fromDate, testConfig.toDate);
         }
 
@@ -104,7 +104,7 @@ describe('AIR Roller UI Tests - Rentables', function () {
 
     // -- Change business to REX --
     it('Change business to REX', function () {
-        debugger;
+        //debugger;
         // onSuccessful test set BID value. If above test get fail below code will not be executed.
         constants.BID = common.changeBU(appSettings);
     });
