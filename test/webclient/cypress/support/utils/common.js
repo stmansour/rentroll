@@ -65,7 +65,6 @@ export function closeInsideFormTests(formSelector) {
 export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConfig) {
     let appSettings = win.app;
     // Iterate through each row
-    //debugger
     if (testConfig.module === "tls") {
       cy.log("tlsGrid !!!!-----------------------------------------------gridCellsTest")
     } else {
@@ -239,7 +238,7 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                         valueForCell = appSettings.RSUseStatus[valueForCell];
                         break;
                     case "LeaseStatus":
-                        //valueForCell = appSettings.RSLeaseStatus[valueForCell];
+                        valueForCell = appSettings.RSLeaseStatus[valueForCell];
                         break;
                     case "EpochDue":
                     case "EpochPreDue":
@@ -312,16 +311,16 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                 }
 
                 // Check visibility and default value of cell in the grid
-                if (w2uiGridColumn.field !== "LeaseStatus") {//add this if because we don't need to check LeaseStatus here anymore
+                /*if (w2uiGridColumn.field !== "LeaseStatus") {//add this if because we don't need to check LeaseStatus here anymore
                     cy.get(selectors.getCellSelector(testConfig.grid, rowNo, columnNo))
                     .scrollIntoView()
                     .should('be.visible')
                     .should('contain', valueForCell);
-                }
-                /*cy.get(selectors.getCellSelector(testConfig.grid, rowNo, columnNo))
+                }*/
+                cy.get(selectors.getCellSelector(testConfig.grid, rowNo, columnNo))
                 .scrollIntoView()
                 .should('be.visible')
-                .should('contain', valueForCell);*/ //commented by lina
+                .should('contain', valueForCell);
 
             }
         });
@@ -494,7 +493,7 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                         fieldValue = appSettings.RSUseStatus[fieldValue];
                         break;
                     case "LeaseStatus":
-                        //fieldValue = appSettings.RSLeaseStatus[fieldValue];
+                        fieldValue = appSettings.RSLeaseStatus[fieldValue];
                         break;
                     case "AssignmentTime":
                         types = appSettings.renewalMap;
@@ -546,7 +545,6 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                 }
 
                 // check fields visibility and respective value
-                //debugger;
                 if (!isInArray(fieldID, testConfig.skipFields)) {
                     // Check visibility and match the default value of the fields.
                     switch (fieldID){
@@ -597,14 +595,14 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                             }
                             break;
                         default:
-                            if (fieldID !== "LeaseStatus"){//add this if because we don't need to check LeaseStatus here anymore
+                            /*if (fieldID !== "LeaseStatus"){//add this if because we don't need to check LeaseStatus here anymore
                                 cy.get(selectors.getFieldSelector(formSelector, fieldID))
                                 .should('be.visible')
                                 .should('have.value', fieldValue);
-                            }
-                            /*cy.get(selectors.getFieldSelector(formSelector, fieldID))
+                            }*/
+                            cy.get(selectors.getFieldSelector(formSelector, fieldID))
                                 .should('be.visible')
-                                .should('have.value', fieldValue);*/ //commented by lina
+                                .should('have.value', fieldValue);
                             break;
                     }
                 }
@@ -815,7 +813,6 @@ export function changeBU(appSettings) {
             constants.testBizID = item.BID;
         }
     });
-
     // Now change the business to REX
     cy.get('[name="BusinessSelect"]').select(constants.testBiz);
 
@@ -868,7 +865,11 @@ export function testGridInTabbedDetailForm(gridName, layoutName, routeName, test
 
     // Test on `Add New` and `Delete` button
     cy.get('#tb_' + gridName + '_toolbar_item_w2ui-add').should('be.visible');
-    cy.get('#tb_' + gridName + '_toolbar_item_w2ui-delete').should('be.visible').should('have.class', 'disabled');
+    // skip the `Delete` button checking for `Rentable Lease Status` Tab
+    if (gridName !== 'rentableLeaseStatusGrid') {
+        cy.get('#tb_' + gridName + '_toolbar_item_w2ui-delete').should('be.visible').should('have.class', 'disabled');
+    }
+    //cy.get('#tb_' + gridName + '_toolbar_item_w2ui-delete').should('be.visible').should('have.class', 'disabled');
 
 
     // check response status of API end point
@@ -885,7 +886,10 @@ export function testGridInTabbedDetailForm(gridName, layoutName, routeName, test
 
             // Click on first record and check delete button is enabled.
             cy.get(selectors.getFirstRecordInGridSelector(gridName)).click();
-            cy.get('#tb_' + gridName + '_toolbar_item_w2ui-delete').should('be.visible').should('not.have.class', 'disabled');
+            if (gridName !== 'rentableLeaseStatusGrid') {
+                cy.get('#tb_' + gridName + '_toolbar_item_w2ui-delete').should('be.visible').should('not.have.class', 'disabled');
+            }
+            //cy.get('#tb_' + gridName + '_toolbar_item_w2ui-delete').should('be.visible').should('not.have.class', 'disabled');
         }
     });
 }
@@ -931,7 +935,6 @@ export function testDetailFormWithGrid(recordsAPIResponse, testConfig, testConfi
 
 
         if(testConfig.grid === "tldsGrid" || testConfig.grid === "tlsGrid"){
-            //debugger
             detailFormTest(recordDetailFromAPIResponse,testConfig);
         } else {
             cy.get("#RAInfo").within(() => {
@@ -979,7 +982,6 @@ export function testDetailFormWithGrid(recordsAPIResponse, testConfig, testConfi
 
 export function testRecordDetailForm(recordsAPIResponse, testConfig) {
     cy.log("Tests for detail record form");
-    //debugger;
     // -- detail record testing --
     const id = recordsAPIResponse[0][testConfig.primaryId];
 
@@ -995,6 +997,8 @@ export function testRecordDetailForm(recordsAPIResponse, testConfig) {
             break;
         case "rentable":
             cy.route(testConfig.methodType, getDetailRecordAPIEndPoint('rentablestatus', id)).as('getRentableStatusRecords');
+            //add by lina to test Rentable Lease Status Tab
+            cy.route(testConfig.methodType, getDetailRecordAPIEndPoint('rentableleasestatus', id)).as('getRentableLeaseStatusRecords');
             cy.route(testConfig.methodType, getDetailRecordAPIEndPoint('rentabletyperef', id)).as('getRentableTypeRef');
             break;
     }
