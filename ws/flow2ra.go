@@ -285,6 +285,8 @@ func FlowSaveMetaDataChanges(ctx context.Context, x *rlib.F2RAWriteHandlerContex
 //-----------------------------------------------------------------------------
 func FlowSaveRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (int64, error) {
 	rlib.Console("Entered FlowSaveRA\n")
+	rlib.Console("x.Ra.RentStop = %s, x.Ra.PossessionStop = %s\n", x.Ra.RentStop, x.Ra.PossessionStop)
+	rlib.Console("x.Raf.Dates.RentStop, x.Raf.Dates.PossessionStop = %s\n", rlib.ConsoleJSONDRange(&x.Raf.Dates.RentStop, &x.Raf.Dates.PossessionStop))
 	var err error
 	var nraid int64
 	var raOrig rlib.RentalAgreement
@@ -394,6 +396,8 @@ func FlowSaveRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (int64, er
 		// Now start the new RAID.  Link it to x.RaChainOrig[i]
 		//------------------------------------------------------------
 		initRA(ctx, x)
+		rlib.Console("B0: After call to initRA: x.Ra.RentStop = %s, x.Ra.PossessionStop = %s\n", x.Ra.RentStop, x.Ra.PossessionStop)
+
 		i := x.RaOrigIndex // makes it easier to read the following lines
 		rlib.Console("After updates x.RaOrigIndex = %d  -> RAID = %d.  x.RaChainOrig[i]: AgreementStart = %s, AgreementStop = %s\n", i, x.RaChainOrig[i].RAID, x.RaChainOrig[i].AgreementStart.Format(rlib.RRDATEFMT3), x.RaChainOrig[i].AgreementStop.Format(rlib.RRDATEFMT3))
 		rlib.Console("x.RaChainOrigUnchanged[i]: AgreementStart = %s, AgreementStop = %s\n", x.RaChainOrigUnchanged[i].AgreementStart.Format(rlib.RRDATEFMT3), x.RaChainOrigUnchanged[i].AgreementStop.Format(rlib.RRDATEFMT3))
@@ -412,6 +416,7 @@ func FlowSaveRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (int64, er
 		// This is a new Rental Agreement...
 		//-------------------------------------
 		initRA(ctx, x)
+		rlib.Console("B1: After call to initRA: x.Ra.RentStop = %s, x.Ra.PossessionStop = %s\n", x.Ra.RentStop, x.Ra.PossessionStop)
 	}
 
 	nraid, err = rlib.InsertRentalAgreement(ctx, &x.Ra)
@@ -440,7 +445,8 @@ func FlowSaveRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (int64, er
 	// into the permanent tables...
 	//---------------------------------------------------------------
 	for i := 0; i < len(ehandlers); i++ {
-		// rlib.Console("FlowSaveRA: running handler %s\n", ehandlers[i].Name)
+		rlib.Console("FlowSaveRA: running handler %s\n", ehandlers[i].Name)
+		rlib.Console("before: x.Ra.RentStop = %s, x.Ra.PossessionStop = %s\n", x.Ra.RentStop, x.Ra.PossessionStop)
 		if err = ehandlers[i].Handler(ctx, x); err != nil {
 			rlib.Console("error returned from handler %s: %s\n", ehandlers[i].Name, err.Error())
 			return nraid, err
@@ -580,7 +586,7 @@ func initRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) {
 //     Any errors encountered
 //-----------------------------------------------------------------------------
 func FlowSaveRentables(ctx context.Context, x *rlib.F2RAWriteHandlerContext) error {
-	// rlib.Console("Entered FlowSaveRentables\n")
+	rlib.Console("Entered FlowSaveRentables: x.Ra.RentStop = %s, x.Ra.PossessionStop = %s\n", rlib.ConDt(&x.Ra.RentStop), rlib.ConDt(&x.Ra.PossessionStop))
 	//----------------------------------------------------------------
 	// Update the stop date on any existing RentalAgreementRentables
 	//----------------------------------------------------------------
@@ -604,30 +610,31 @@ func FlowSaveRentables(ctx context.Context, x *rlib.F2RAWriteHandlerContext) err
 			if x.RaChainOrig[x.RaOrigIndex].RentStop.After(d2) {
 				d2 = x.RaChainOrig[x.RaOrigIndex].RentStop
 			}
-			d3 := x.Ra.RentStart
-			if d2.After(x.Ra.PossessionStart) {
-				d3 = x.Ra.PossessionStart
-			}
 
-			lstat, err := rlib.GetRentableLeaseStatusByRange(ctx, v.RID, &d1, &d2)
-			if err != nil {
-				return err
-			}
+			// d3 := x.Ra.RentStart
+			// if d2.After(x.Ra.PossessionStart) {
+			// 	d3 = x.Ra.PossessionStart
+			// }
+			//
+			// lstat, err := rlib.GetRentableLeaseStatusByRange(ctx, v.RID, &d1, &d2)
+			// if err != nil {
+			// 	return err
+			// }
 			// for this list of records, set LeaseStatus to "notleased" if the
 			// time as after x.Ra.RentStart
-			for i := 0; i < len(lstat); i++ {
-				if lstat[i].DtStart.Equal(x.Ra.RentStart) || lstat[i].DtStart.Equal(x.Ra.RentStart) { // if this record is on or after the new RA start time
-					lstat[i].LeaseStatus = rlib.LEASESTATUSnotleased // then set its status to "notleased"
-					if err = rlib.UpdateRentableLeaseStatus(ctx, &lstat[i]); err != nil {
-						return err
-					}
-				} else if lstat[i].DtStop.After(x.Ra.RentStart) { // if this record goes past the new RA start time
-					lstat[i].DtStop = d3 // then set its stop time where the new RA takes over
-					if err = rlib.UpdateRentableLeaseStatus(ctx, &lstat[i]); err != nil {
-						return err
-					}
-				}
-			}
+			// for i := 0; i < len(lstat); i++ {
+			// 	if lstat[i].DtStart.Equal(x.Ra.RentStart) || lstat[i].DtStart.Equal(x.Ra.RentStart) { // if this record is on or after the new RA start time
+			// 		lstat[i].LeaseStatus = rlib.LEASESTATUSnotleased // then set its status to "notleased"
+			// 		if err = rlib.UpdateRentableLeaseStatus(ctx, &lstat[i]); err != nil {
+			// 			return err
+			// 		}
+			// 	} else if lstat[i].DtStop.After(x.Ra.RentStart) { // if this record goes past the new RA start time
+			// 		lstat[i].DtStop = d3 // then set its stop time where the new RA takes over
+			// 		if err = rlib.UpdateRentableLeaseStatus(ctx, &lstat[i]); err != nil {
+			// 			return err
+			// 		}
+			// 	}
+			// }
 
 			v.RARDtStop = time.Time(x.Raf.Dates.AgreementStart)
 			if err = rlib.UpdateRentalAgreementRentable(ctx, &v); err != nil {
@@ -667,6 +674,7 @@ func FlowSaveRentables(ctx context.Context, x *rlib.F2RAWriteHandlerContext) err
 	//----------------------------------------------------------------
 	// Set the range of time to show the rentable as leased...
 	//----------------------------------------------------------------
+	rlib.Console("FlowSaveRentables: x.Ra.RentStop = %s, x.Ra.PossessionStop = %s\n", rlib.ConDt(&x.Ra.RentStop), rlib.ConDt(&x.Ra.PossessionStop))
 	d1 := x.Ra.RentStart
 	d2 := x.Ra.RentStop
 
@@ -704,6 +712,7 @@ func FlowSaveRentables(ctx context.Context, x *rlib.F2RAWriteHandlerContext) err
 			RID:         v.RID,
 			LeaseStatus: rlib.LEASESTATUSleased,
 		}
+		rlib.Console("FlowSaveRentables: calling SetRentableLeaseStatus\n")
 		if err = rlib.SetRentableLeaseStatus(ctx, &rls, true); err != nil {
 			return err
 		}

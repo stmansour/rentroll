@@ -16,18 +16,18 @@
             "Data": {
                 "dates": {
                     "AgreementStart": "6/13/2018",
-                    "AgreementStop": "3/1/2020",
+                    "AgreementStop": "2/29/2020",
                     "CSAgent": 126,
                     "PossessionStart": "6/13/2018",
-                    "PossessionStop": "3/1/2020",
+                    "PossessionStop": "2/29/2020",
                     "RentStart": "6/13/2018",
-                    "RentStop": "3/1/2020"
+                    "RentStop": "2/29/2020"
                 },
                 "meta": {
-                    "ActiveDate": "2018-11-03 01:13:00 UTC",
+                    "ActiveDate": "2018-10-24 00:00:00 UTC",
                     "ActiveName": "UID-0",
                     "ActiveUID": -99999,
-                    "ApplicationReadyDate": "2018-08-30 19:38:00 UTC",
+                    "ApplicationReadyDate": "2019-02-11 23:06:00 UTC",
                     "ApplicationReadyName": "Steve Mansour",
                     "ApplicationReadyUID": 211,
                     "Approver1": 211,
@@ -35,8 +35,8 @@
                     "Approver2": 211,
                     "Approver2Name": "Steve Mansour",
                     "BID": 1,
-                    "DecisionDate1": "2018-08-30 19:38:00 UTC",
-                    "DecisionDate2": "2018-08-30 19:38:00 UTC",
+                    "DecisionDate1": "2019-02-11 23:06:00 UTC",
+                    "DecisionDate2": "2019-02-11 23:06:00 UTC",
                     "DeclineReason1": 0,
                     "DeclineReason2": 0,
                     "DocumentDate": "2018-06-13 00:00:00 UTC",
@@ -47,7 +47,7 @@
                     "LastTMPTCID": 1,
                     "LastTMPVID": 1,
                     "LeaseTerminationReason": 0,
-                    "MoveInDate": "2018-08-30 19:39:00 UTC",
+                    "MoveInDate": "2019-02-11 23:09:00 UTC",
                     "MoveInName": "Steve Mansour",
                     "MoveInUID": 211,
                     "NoticeToMoveDate": "1900-01-01 00:00:00 UTC",
@@ -137,7 +137,7 @@
                             {
                                 "ARID": 26,
                                 "ARName": "Rent Non-Taxable",
-                                "ASMID": 11,
+                                "ASMID": 12,
                                 "AtSigningPreTax": 0,
                                 "Comment": "prorated for 18 of 30 days | Derived from RAID 1, ASMID 1 | BL- Snapped instance 6/13/2018 to open period 8/1/2018",
                                 "ContractAmount": 600,
@@ -152,7 +152,7 @@
                             {
                                 "ARID": 26,
                                 "ARName": "Rent Non-Taxable",
-                                "ASMID": 12,
+                                "ASMID": 13,
                                 "AtSigningPreTax": 0,
                                 "Comment": "Derived from RAID 1, ASMID 1 | BL- Snapped definition 7/1/2018 to open period 8/1/2018",
                                 "ContractAmount": 1000,
@@ -160,7 +160,7 @@
                                 "RentCycle": 6,
                                 "SalesTax": 0,
                                 "Start": "8/1/2018",
-                                "Stop": "3/1/2020",
+                                "Stop": "2/29/2020",
                                 "TMPASMID": 2,
                                 "TransOccTax": 0
                             }

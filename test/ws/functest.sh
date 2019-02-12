@@ -17,7 +17,6 @@ CREATENEWDB=0
 #---------------------------------------------------------------
 echo "Create new database..."
 mysql --no-defaults rentroll < restore.sql
-
 source ../share/base.sh
 
 echo "STARTING RENTROLL SERVER"

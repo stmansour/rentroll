@@ -728,14 +728,12 @@ func UpdateRentable(ctx context.Context, a *Rentable) error {
 func UpdateRentableLeaseStatus(ctx context.Context, a *RentableLeaseStatus) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
+	}
+
+	if a.DtStop.Before(a.DtStart) {
+		debug.PrintStack()
 	}
 
 	fields := []interface{}{a.RID, a.BID, a.DtStart, a.DtStop, a.LeaseStatus, a.Comment, a.FirstName, a.LastName, a.Email, a.Phone, a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.CCName, a.CCType, a.CCNumber, a.CCExpMonth, a.LastModBy, a.RLID}

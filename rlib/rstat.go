@@ -233,7 +233,7 @@ func SetRentableLeaseStatusAbbr(ctx context.Context, bid, rid, us int64, d1, d2 
 //-----------------------------------------------------------------------------
 func SetRentableLeaseStatus(ctx context.Context, rls *RentableLeaseStatus, res bool) error {
 	funcname := "SetRentableLeaseStatus"
-	Console("Entered %s\n", funcname)
+	Console("Entered %s.  range = %s, LeaseStatus = %d\n", funcname, ConsoleDRange(&rls.DtStart, &rls.DtStop), rls.LeaseStatus)
 
 	var err error
 	d1 := rls.DtStart
@@ -263,12 +263,14 @@ func SetRentableLeaseStatus(ctx context.Context, rls *RentableLeaseStatus, res b
 	Console("%s: la = %d\n", funcname, la)
 	switch la {
 	case 0:
+		Console("%s: case 0\n", funcname)
 		// nothing to do
 		break
 	case 1:
-		Console("%s: case 1\n", funcname)
+		Console("%s: case 1, RLID=%d, %s LeaseStatus = %d\n", funcname, a[0].RLID, ConsoleDRange(&a[0].DtStart, &a[0].DtStop), a[0].LeaseStatus)
 		before := a[0].DtStart.Before(d1)
 		after := a[0].DtStop.After(d2)
+		Console("before = %t, after = %t\n", before, after)
 		//--------------------------------------------------------------------------
 		// If the LeaseStatus extends before AND after d1,d2 then split into two
 		// statuses -- one before and one after d1,d2
@@ -276,6 +278,7 @@ func SetRentableLeaseStatus(ctx context.Context, rls *RentableLeaseStatus, res b
 		if before && after {
 			b1 := a[0]     // earlier split
 			b1.DtStop = d1 // update existing and stop it at the reservation start
+			Console("A: Updating RLID=%d, %s  LeaseStatus = %d\n", b1.RLID, ConsoleDRange(&b1.DtStart, &b1.DtStop), b1.LeaseStatus)
 			err = UpdateRentableLeaseStatus(ctx, &b1)
 			if err != nil {
 				return err
@@ -288,6 +291,7 @@ func SetRentableLeaseStatus(ctx context.Context, rls *RentableLeaseStatus, res b
 				b2.LeaseStatus = LEASESTATUSreserved
 			}
 
+			Console("B: Inserting %s  LeaseStatus = %d\n", ConsoleDRange(&b2.DtStart, &b2.DtStop), b2.LeaseStatus)
 			_, err = InsertRentableLeaseStatus(ctx, &b2)
 			if err != nil {
 				return err
@@ -296,6 +300,7 @@ func SetRentableLeaseStatus(ctx context.Context, rls *RentableLeaseStatus, res b
 			// set its stop date to d1
 			b1 := a[0]
 			b1.DtStop = d1
+			Console("C: Updating RLID=%d, %s  LeaseStatus = %d\n", b1.RLID, ConsoleDRange(&b1.DtStart, &b1.DtStop), b1.LeaseStatus)
 			err = UpdateRentableLeaseStatus(ctx, &b1)
 			if err != nil {
 				return err
@@ -307,32 +312,56 @@ func SetRentableLeaseStatus(ctx context.Context, rls *RentableLeaseStatus, res b
 			if res {
 				b1.LeaseStatus = LEASESTATUSreserved
 			}
+			Console("D: Updating RLID=%d, %s  LeaseStatus = %d\n", b1.RLID, ConsoleDRange(&b1.DtStart, &b1.DtStop), b1.LeaseStatus)
 			err = UpdateRentableLeaseStatus(ctx, &b1)
 			if err != nil {
 				return err
 			}
-		}
-	default: // there were at least 3, trim first and last...
-		if a[0].DtStart.Before(d1) {
-			a[0].DtStop = d1
-			err = UpdateRentableLeaseStatus(ctx, &a[0])
-			if err != nil {
+		} else {
+			// if we hit this point, then the record that was found is totally
+			// overwritten by the new record. So, we will just delete this one.
+			Console("E: Deleting RLID=%d, %s  LeaseStatus = %d\n", a[0].RLID, ConsoleDRange(&a[0].DtStart, &a[0].DtStop), a[0].LeaseStatus)
+			if err = DeleteRentableLeaseStatus(ctx, a[0].RLID); err != nil {
 				return err
 			}
 		}
-		if a[la-1].DtStop.After(d2) {
-			a[la-1].DtStart = d2
-			if res {
-				a[la-1].LeaseStatus = LEASESTATUSreserved
+	default: // there were at least 2, trim first and last...
+		Console("%s: case (default)\n", funcname)
+		if la == 2 {
+			for i := 0; i < 2; i++ {
+				Console("[%d] - %s\n", i, ConsoleDRange(&a[i].DtStart, &a[i].DtStop))
 			}
-			err = UpdateRentableLeaseStatus(ctx, &a[la-1])
-			if err != nil {
+		}
+		if la == 2 &&
+			(a[0].DtStart.Equal(d1) || a[0].DtStart.After(d1)) &&
+			(a[0].DtStop.Equal(d2) || a[0].DtStop.Before(d2)) {
+			if err = DeleteRentableLeaseStatus(ctx, a[0].RLID); err != nil {
 				return err
+			}
+		} else {
+			if a[0].DtStart.Before(d1) {
+				a[0].DtStop = d1
+				Console("F: Updating RLID=%d, %s  LeaseStatus = %d\n", a[0].RLID, ConsoleDRange(&a[0].DtStart, &a[0].DtStop), a[0].LeaseStatus)
+				err = UpdateRentableLeaseStatus(ctx, &a[0])
+				if err != nil {
+					return err
+				}
+			}
+			if a[la-1].DtStop.After(d2) {
+				a[la-1].DtStart = d2
+				if res {
+					a[la-1].LeaseStatus = LEASESTATUSreserved
+				}
+				Console("F: Updating RLID=%d, %s  LeaseStatus = %d\n", a[la-1].RLID, ConsoleDRange(&a[la-1].DtStart, &a[la-1].DtStop), a[la-1].LeaseStatus)
+				err = UpdateRentableLeaseStatus(ctx, &a[la-1])
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}
 
-	Console("%s: Inserting RentableLeaseStatus = %d, %s\n", funcname, rls.LeaseStatus, ConsoleDRange(&rls.DtStart, &rls.DtStop))
+	Console("%s: Inserting %s LeaseStatus = %d\n", funcname, ConsoleDRange(&rls.DtStart, &rls.DtStop), rls.LeaseStatus)
 
 	_, err = InsertRentableLeaseStatus(ctx, rls)
 	return err
