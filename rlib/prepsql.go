@@ -1144,7 +1144,7 @@ WHERE RAID=? AND RID=? AND Start >= ? AND Stop < ? AND RentCycle=0`)
 	RRdb.DBFields["RentableLeaseStatus"] = flds
 	RRdb.Prepstmt.GetRentableLeaseStatus, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableLeaseStatus WHERE RLID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRentableLeaseStatusByRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableLeaseStatus WHERE RID=? AND DtStop>? AND DtStart<=? ORDER BY DtStart ASC")
+	RRdb.Prepstmt.GetRentableLeaseStatusByRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableLeaseStatus WHERE RID=? AND DtStop>? AND DtStart<? ORDER BY DtStart ASC")
 	Errcheck(err)
 	RRdb.Prepstmt.GetRentableLeaseStatusOnOrAfter, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableLeaseStatus WHERE RID=? AND DtStart>=? ORDER BY DtStart ASC")
 	Errcheck(err)

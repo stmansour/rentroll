@@ -16,18 +16,18 @@
             "Data": {
                 "dates": {
                     "AgreementStart": "3/1/2020",
-                    "AgreementStop": "3/1/2021",
+                    "AgreementStop": "2/28/2021",
                     "CSAgent": 101,
                     "PossessionStart": "3/1/2020",
-                    "PossessionStop": "3/1/2021",
+                    "PossessionStop": "2/28/2021",
                     "RentStart": "3/1/2020",
-                    "RentStop": "3/1/2021"
+                    "RentStop": "2/28/2021"
                 },
                 "meta": {
                     "ActiveDate": "2018-10-24 00:00:00 UTC",
                     "ActiveName": "UID-0",
                     "ActiveUID": -99999,
-                    "ApplicationReadyDate": "2018-10-21 05:02:00 UTC",
+                    "ApplicationReadyDate": "2019-02-12 18:04:00 UTC",
                     "ApplicationReadyName": "Steve Mansour",
                     "ApplicationReadyUID": 211,
                     "Approver1": 211,
@@ -35,8 +35,8 @@
                     "Approver2": 211,
                     "Approver2Name": "Steve Mansour",
                     "BID": 1,
-                    "DecisionDate1": "2018-10-21 05:02:00 UTC",
-                    "DecisionDate2": "2018-10-21 05:02:00 UTC",
+                    "DecisionDate1": "2019-02-12 18:04:00 UTC",
+                    "DecisionDate2": "2019-02-12 18:04:00 UTC",
                     "DeclineReason1": 0,
                     "DeclineReason2": 0,
                     "DocumentDate": "2020-03-01 00:00:00 UTC",
@@ -47,7 +47,7 @@
                     "LastTMPTCID": 1,
                     "LastTMPVID": 2,
                     "LeaseTerminationReason": 0,
-                    "MoveInDate": "2018-10-21 05:03:00 UTC",
+                    "MoveInDate": "2019-02-12 18:04:00 UTC",
                     "MoveInName": "Steve Mansour",
                     "MoveInUID": 211,
                     "NoticeToMoveDate": "1900-01-01 00:00:00 UTC",
@@ -137,7 +137,7 @@
                             {
                                 "ARID": 24,
                                 "ARName": "Pet Rent",
-                                "ASMID": 71,
+                                "ASMID": 81,
                                 "AtSigningPreTax": 0,
                                 "Comment": "Derived from RAID 3, ASMID 15",
                                 "ContractAmount": 10,
@@ -145,7 +145,7 @@
                                 "RentCycle": 6,
                                 "SalesTax": 0,
                                 "Start": "3/1/2020",
-                                "Stop": "3/1/2021",
+                                "Stop": "2/28/2021",
                                 "TMPASMID": 2,
                                 "TransOccTax": 0
                             }
@@ -165,7 +165,7 @@
                             {
                                 "ARID": 26,
                                 "ARName": "Rent Non-Taxable",
-                                "ASMID": 70,
+                                "ASMID": 80,
                                 "AtSigningPreTax": 0,
                                 "Comment": "Derived from RAID 3, ASMID 13",
                                 "ContractAmount": 1000,
@@ -173,7 +173,7 @@
                                 "RentCycle": 6,
                                 "SalesTax": 0,
                                 "Start": "3/1/2020",
-                                "Stop": "3/1/2021",
+                                "Stop": "2/28/2021",
                                 "TMPASMID": 1,
                                 "TransOccTax": 0
                             }

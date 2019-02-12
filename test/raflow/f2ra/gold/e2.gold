@@ -16,12 +16,12 @@
             "Data": {
                 "dates": {
                     "AgreementStart": "12/1/2018",
-                    "AgreementStop": "12/1/2019",
+                    "AgreementStop": "11/30/2019",
                     "CSAgent": 209,
                     "PossessionStart": "12/1/2018",
-                    "PossessionStop": "12/1/2019",
+                    "PossessionStop": "11/30/2019",
                     "RentStart": "12/1/2018",
-                    "RentStop": "12/1/2019"
+                    "RentStop": "11/30/2019"
                 },
                 "meta": {
                     "ActiveDate": "1900-01-01 00:00:00 UTC",
@@ -157,7 +157,7 @@
                                 "RentCycle": 6,
                                 "SalesTax": 0,
                                 "Start": "12/1/2018",
-                                "Stop": "12/1/2019",
+                                "Stop": "11/30/2019",
                                 "TMPASMID": 5,
                                 "TransOccTax": 0
                             }
@@ -201,7 +201,7 @@
             "FlowType": "RA",
             "ID": 1,
             "LastModBy": 211,
-            "LastModTime": "2018-11-02T18:15:18Z",
+            "LastModTime": "2019-02-11T21:19:47Z",
             "UserRefNo": "DUO6X142Z3GC1597BHG0"
         },
         "ValidationCheck": {

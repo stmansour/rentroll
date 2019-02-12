@@ -285,8 +285,8 @@ func FlowSaveMetaDataChanges(ctx context.Context, x *rlib.F2RAWriteHandlerContex
 //-----------------------------------------------------------------------------
 func FlowSaveRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (int64, error) {
 	rlib.Console("Entered FlowSaveRA\n")
-	rlib.Console("x.Ra.RentStop = %s, x.Ra.PossessionStop = %s\n", x.Ra.RentStop, x.Ra.PossessionStop)
-	rlib.Console("x.Raf.Dates.RentStop, x.Raf.Dates.PossessionStop = %s\n", rlib.ConsoleJSONDRange(&x.Raf.Dates.RentStop, &x.Raf.Dates.PossessionStop))
+	// rlib.Console("x.Ra.RentStop = %s, x.Ra.PossessionStop = %s\n", x.Ra.RentStop, x.Ra.PossessionStop)
+	// rlib.Console("x.Raf.Dates.RentStop, x.Raf.Dates.PossessionStop = %s\n", rlib.ConsoleJSONDRange(&x.Raf.Dates.RentStop, &x.Raf.Dates.PossessionStop))
 	var err error
 	var nraid int64
 	var raOrig rlib.RentalAgreement
@@ -344,19 +344,19 @@ func FlowSaveRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (int64, er
 			}
 
 			x.RaOrigIndex = i // keep track of the RA currently active.
-			rlib.Console("RAChain[%d] = RAID %d. Date mods...\n", i, x.RaChainOrig[i].RAID)
+			// rlib.Console("RAChain[%d] = RAID %d. Date mods...\n", i, x.RaChainOrig[i].RAID)
 			if x.RaChainOrig[i].AgreementStop.After(AStart) {
-				rlib.Console("\tsetting AgreementStop to %s\n", AStart.Format(rlib.RRDATEFMT3))
+				// rlib.Console("\tsetting AgreementStop to %s\n", AStart.Format(rlib.RRDATEFMT3))
 				x.RaChainOrig[i].AgreementStop = AStart
 				chgs++
 			}
 			if x.RaChainOrig[i].RentStop.After(RStart) {
-				rlib.Console("\tsetting RentStop to %s\n", RStart.Format(rlib.RRDATEFMT3))
+				// rlib.Console("\tsetting RentStop to %s\n", RStart.Format(rlib.RRDATEFMT3))
 				x.RaChainOrig[i].RentStop = RStart
 				chgs++
 			}
 			if x.RaChainOrig[i].PossessionStop.After(PStart) {
-				rlib.Console("\tsetting PossessionStop to %s\n", PStart.Format(rlib.RRDATEFMT3))
+				// rlib.Console("\tsetting PossessionStop to %s\n", PStart.Format(rlib.RRDATEFMT3))
 				x.RaChainOrig[i].PossessionStop = PStart
 				chgs++
 			}
@@ -375,7 +375,7 @@ func FlowSaveRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (int64, er
 					return nraid, err
 				}
 
-				rlib.Console("Updating RAID %d.  AgreementStart = %s, AgreementStop = %s\n", x.RaChainOrig[i].RAID, x.RaChainOrig[i].AgreementStart.Format(rlib.RRDATEFMT3), x.RaChainOrig[i].AgreementStop.Format(rlib.RRDATEFMT3))
+				// rlib.Console("Updating RAID %d.  AgreementStart = %s, AgreementStop = %s\n", x.RaChainOrig[i].RAID, x.RaChainOrig[i].AgreementStart.Format(rlib.RRDATEFMT3), x.RaChainOrig[i].AgreementStop.Format(rlib.RRDATEFMT3))
 				err = rlib.UpdateRentalAgreement(ctx, &x.RaChainOrig[i])
 				if err != nil {
 					return nraid, err
@@ -396,11 +396,11 @@ func FlowSaveRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (int64, er
 		// Now start the new RAID.  Link it to x.RaChainOrig[i]
 		//------------------------------------------------------------
 		initRA(ctx, x)
-		rlib.Console("B0: After call to initRA: x.Ra.RentStop = %s, x.Ra.PossessionStop = %s\n", x.Ra.RentStop, x.Ra.PossessionStop)
+		// rlib.Console("B0: After call to initRA: x.Ra.RentStop = %s, x.Ra.PossessionStop = %s\n", x.Ra.RentStop, x.Ra.PossessionStop)
 
 		i := x.RaOrigIndex // makes it easier to read the following lines
-		rlib.Console("After updates x.RaOrigIndex = %d  -> RAID = %d.  x.RaChainOrig[i]: AgreementStart = %s, AgreementStop = %s\n", i, x.RaChainOrig[i].RAID, x.RaChainOrig[i].AgreementStart.Format(rlib.RRDATEFMT3), x.RaChainOrig[i].AgreementStop.Format(rlib.RRDATEFMT3))
-		rlib.Console("x.RaChainOrigUnchanged[i]: AgreementStart = %s, AgreementStop = %s\n", x.RaChainOrigUnchanged[i].AgreementStart.Format(rlib.RRDATEFMT3), x.RaChainOrigUnchanged[i].AgreementStop.Format(rlib.RRDATEFMT3))
+		// rlib.Console("After updates x.RaOrigIndex = %d  -> RAID = %d.  x.RaChainOrig[i]: AgreementStart = %s, AgreementStop = %s\n", i, x.RaChainOrig[i].RAID, x.RaChainOrig[i].AgreementStart.Format(rlib.RRDATEFMT3), x.RaChainOrig[i].AgreementStop.Format(rlib.RRDATEFMT3))
+		// rlib.Console("x.RaChainOrigUnchanged[i]: AgreementStart = %s, AgreementStop = %s\n", x.RaChainOrigUnchanged[i].AgreementStart.Format(rlib.RRDATEFMT3), x.RaChainOrigUnchanged[i].AgreementStop.Format(rlib.RRDATEFMT3))
 		x.Ra.PRAID = x.RaChainOrig[i].RAID
 		x.Ra.ORIGIN = x.RaChainOrig[i].ORIGIN
 		x.Ra.BID = x.RaChainOrig[i].BID
@@ -411,12 +411,12 @@ func FlowSaveRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (int64, er
 		x.Ra.RentCycleEpoch = x.RaChainOrig[i].RentCycleEpoch
 
 	} else {
-		rlib.Console("B1\n")
+		// rlib.Console("B1\n")
 		//-------------------------------------
 		// This is a new Rental Agreement...
 		//-------------------------------------
 		initRA(ctx, x)
-		rlib.Console("B1: After call to initRA: x.Ra.RentStop = %s, x.Ra.PossessionStop = %s\n", x.Ra.RentStop, x.Ra.PossessionStop)
+		// rlib.Console("B1: After call to initRA: x.Ra.RentStop = %s, x.Ra.PossessionStop = %s\n", x.Ra.RentStop, x.Ra.PossessionStop)
 	}
 
 	nraid, err = rlib.InsertRentalAgreement(ctx, &x.Ra)
@@ -446,7 +446,7 @@ func FlowSaveRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (int64, er
 	//---------------------------------------------------------------
 	for i := 0; i < len(ehandlers); i++ {
 		rlib.Console("FlowSaveRA: running handler %s\n", ehandlers[i].Name)
-		rlib.Console("before: x.Ra.RentStop = %s, x.Ra.PossessionStop = %s\n", x.Ra.RentStop, x.Ra.PossessionStop)
+		// rlib.Console("before: x.Ra.RentStop = %s, x.Ra.PossessionStop = %s\n", x.Ra.RentStop, x.Ra.PossessionStop)
 		if err = ehandlers[i].Handler(ctx, x); err != nil {
 			rlib.Console("error returned from handler %s: %s\n", ehandlers[i].Name, err.Error())
 			return nraid, err
@@ -458,9 +458,9 @@ func FlowSaveRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (int64, er
 	// must use x.RaChainOrig because its agreement dates may have been
 	// modified and we don't want to lose that.
 	//-------------------------------------------------------------------------
-	rlib.Console("FINAL STEP\n")
+	// rlib.Console("FINAL STEP\n")
 	for i := 0; i < len(x.RaChainOrig); i++ {
-		rlib.Console("Checking RAID %d\n", x.RaChainOrig[i].RAID)
+		// rlib.Console("Checking RAID %d\n", x.RaChainOrig[i].RAID)
 		if x.RaChainOrig[i].PRAID == 0 {
 
 			// REMOVED 10/23/2018 sman
@@ -487,13 +487,13 @@ func FlowSaveRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (int64, er
 					return nraid, err
 				}
 			}
-			rlib.Console("UPDATING x.RaChainOrig[i]\n")
+			// rlib.Console("UPDATING x.RaChainOrig[i]\n")
 			if err = rlib.UpdateRentalAgreement(ctx, &x.RaChainOrig[i]); err != nil {
 				return nraid, err
 			}
 		}
 	}
-	rlib.Console("DONE\n")
+	// rlib.Console("DONE\n")
 
 	return nraid, nil
 }

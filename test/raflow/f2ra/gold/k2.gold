@@ -1,0 +1,58 @@
+{
+    "records": [
+        {
+            "BID": 1,
+            "BUD": "REX",
+            "Comment": "",
+            "CreateBy": 211,
+            "DtStart": "1/1/2017",
+            "DtStop": "1/1/2018",
+            "LastModBy": 211,
+            "LeaseStatus": 0,
+            "RID": 1,
+            "RLID": 18,
+            "recid": 0
+        },
+        {
+            "BID": 1,
+            "BUD": "REX",
+            "Comment": "",
+            "CreateBy": 211,
+            "DtStart": "1/1/2018",
+            "DtStop": "10/15/2018",
+            "LastModBy": 211,
+            "LeaseStatus": 1,
+            "RID": 1,
+            "RLID": 19,
+            "recid": 1
+        },
+        {
+            "BID": 1,
+            "BUD": "REX",
+            "Comment": "",
+            "CreateBy": 0,
+            "DtStart": "10/15/2018",
+            "DtStop": "1/1/2019",
+            "LastModBy": 0,
+            "LeaseStatus": 1,
+            "RID": 1,
+            "RLID": 21,
+            "recid": 2
+        },
+        {
+            "BID": 1,
+            "BUD": "REX",
+            "Comment": "",
+            "CreateBy": 211,
+            "DtStart": "1/1/2019",
+            "DtStop": "12/31/9999",
+            "LastModBy": 211,
+            "LeaseStatus": 2,
+            "RID": 1,
+            "RLID": 20,
+            "recid": 3
+        }
+    ],
+    "status": "success",
+    "total": 4
+}

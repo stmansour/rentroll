@@ -16,18 +16,18 @@
             "Data": {
                 "dates": {
                     "AgreementStart": "1/1/2018",
-                    "AgreementStop": "1/1/2019",
+                    "AgreementStop": "12/31/2018",
                     "CSAgent": 220,
                     "PossessionStart": "1/1/2018",
-                    "PossessionStop": "1/1/2019",
+                    "PossessionStop": "12/31/2018",
                     "RentStart": "1/1/2018",
-                    "RentStop": "1/1/2019"
+                    "RentStop": "12/31/2018"
                 },
                 "meta": {
-                    "ActiveDate": "2018-11-03 01:13:00 UTC",
+                    "ActiveDate": "2018-10-24 00:00:00 UTC",
                     "ActiveName": "UID-0",
                     "ActiveUID": -99999,
-                    "ApplicationReadyDate": "2018-09-13 23:41:00 UTC",
+                    "ApplicationReadyDate": "2019-02-12 04:21:00 UTC",
                     "ApplicationReadyName": "Steve Mansour",
                     "ApplicationReadyUID": 211,
                     "Approver1": 211,
@@ -35,8 +35,8 @@
                     "Approver2": 211,
                     "Approver2Name": "Steve Mansour",
                     "BID": 1,
-                    "DecisionDate1": "2018-09-13 23:41:00 UTC",
-                    "DecisionDate2": "2018-09-13 23:41:00 UTC",
+                    "DecisionDate1": "2019-02-12 04:21:00 UTC",
+                    "DecisionDate2": "2019-02-12 04:21:00 UTC",
                     "DeclineReason1": 0,
                     "DeclineReason2": 0,
                     "DocumentDate": "2018-01-01 00:00:00 UTC",
@@ -47,7 +47,7 @@
                     "LastTMPTCID": 1,
                     "LastTMPVID": 1,
                     "LeaseTerminationReason": 0,
-                    "MoveInDate": "2018-09-13 23:41:00 UTC",
+                    "MoveInDate": "2019-02-12 04:23:00 UTC",
                     "MoveInName": "Steve Mansour",
                     "MoveInUID": 211,
                     "NoticeToMoveDate": "1900-01-01 00:00:00 UTC",
@@ -160,7 +160,7 @@
                                 "RentCycle": 6,
                                 "SalesTax": 0,
                                 "Start": "1/1/2018",
-                                "Stop": "1/1/2019",
+                                "Stop": "12/31/2018",
                                 "TMPASMID": 3,
                                 "TransOccTax": 0
                             }
@@ -188,7 +188,7 @@
                                 "RentCycle": 6,
                                 "SalesTax": 0,
                                 "Start": "1/1/2018",
-                                "Stop": "1/1/2019",
+                                "Stop": "12/31/2018",
                                 "TMPASMID": 1,
                                 "TransOccTax": 0
                             }

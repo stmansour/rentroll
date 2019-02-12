@@ -24,7 +24,7 @@
                     "RentStop": "2/29/2020"
                 },
                 "meta": {
-                    "ActiveDate": "2018-11-03 01:15:00 UTC",
+                    "ActiveDate": "2018-10-24 00:00:00 UTC",
                     "ActiveName": "UID-0",
                     "ActiveUID": -99999,
                     "ApplicationReadyDate": "2018-10-19 03:02:00 UTC",
@@ -137,7 +137,7 @@
                             {
                                 "ARID": 24,
                                 "ARName": "Pet Rent",
-                                "ASMID": 46,
+                                "ASMID": 56,
                                 "AtSigningPreTax": 0,
                                 "Comment": "prorated for 13 of 31 days | Derived from RAID 1, ASMID 3",
                                 "ContractAmount": 4.19,
@@ -152,7 +152,7 @@
                             {
                                 "ARID": 24,
                                 "ARName": "Pet Rent",
-                                "ASMID": 47,
+                                "ASMID": 57,
                                 "AtSigningPreTax": 0,
                                 "Comment": "Derived from RAID 1, ASMID 3",
                                 "ContractAmount": 10,
@@ -180,7 +180,7 @@
                             {
                                 "ARID": 26,
                                 "ARName": "Rent Non-Taxable",
-                                "ASMID": 44,
+                                "ASMID": 54,
                                 "AtSigningPreTax": 0,
                                 "Comment": "prorated for 13 of 31 days | Derived from RAID 1, ASMID 1",
                                 "ContractAmount": 419.35,
@@ -195,7 +195,7 @@
                             {
                                 "ARID": 26,
                                 "ARName": "Rent Non-Taxable",
-                                "ASMID": 45,
+                                "ASMID": 55,
                                 "AtSigningPreTax": 0,
                                 "Comment": "Derived from RAID 1, ASMID 1",
                                 "ContractAmount": 1000,

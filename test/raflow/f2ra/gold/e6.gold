@@ -16,18 +16,18 @@
             "Data": {
                 "dates": {
                     "AgreementStart": "12/1/2018",
-                    "AgreementStop": "12/1/2019",
+                    "AgreementStop": "11/30/2019",
                     "CSAgent": 209,
                     "PossessionStart": "12/1/2018",
-                    "PossessionStop": "12/1/2019",
+                    "PossessionStop": "11/30/2019",
                     "RentStart": "12/1/2018",
-                    "RentStop": "12/1/2019"
+                    "RentStop": "11/30/2019"
                 },
                 "meta": {
                     "ActiveDate": "1900-01-01 00:00:00 UTC",
                     "ActiveName": "",
                     "ActiveUID": 0,
-                    "ApplicationReadyDate": "2018-10-20 21:16:00 UTC",
+                    "ApplicationReadyDate": "2018-10-24 00:00:00 UTC",
                     "ApplicationReadyName": "UID-0",
                     "ApplicationReadyUID": -99999,
                     "Approver1": -99999,
@@ -35,8 +35,8 @@
                     "Approver2": -99999,
                     "Approver2Name": "UID-0",
                     "BID": 1,
-                    "DecisionDate1": "2018-10-20 21:16:00 UTC",
-                    "DecisionDate2": "2018-10-20 21:17:00 UTC",
+                    "DecisionDate1": "2018-10-24 00:00:00 UTC",
+                    "DecisionDate2": "2018-10-24 00:00:00 UTC",
                     "DeclineReason1": 0,
                     "DeclineReason2": 0,
                     "DocumentDate": "1900-01-01 00:00:00 UTC",
@@ -47,7 +47,7 @@
                     "LastTMPTCID": 1,
                     "LastTMPVID": 1,
                     "LeaseTerminationReason": 0,
-                    "MoveInDate": "2018-10-20 21:17:00 UTC",
+                    "MoveInDate": "2018-10-24 00:00:00 UTC",
                     "MoveInName": "UID-0",
                     "MoveInUID": -99999,
                     "NoticeToMoveDate": "1900-01-01 00:00:00 UTC",
@@ -157,7 +157,7 @@
                                 "RentCycle": 6,
                                 "SalesTax": 0,
                                 "Start": "12/1/2018",
-                                "Stop": "12/1/2019",
+                                "Stop": "11/30/2019",
                                 "TMPASMID": 5,
                                 "TransOccTax": 0
                             }
@@ -201,7 +201,7 @@
             "FlowType": "RA",
             "ID": 1,
             "LastModBy": 211,
-            "LastModTime": "2018-10-20T14:17:01Z",
+            "LastModTime": "2019-02-11T21:19:52Z",
             "UserRefNo": "DUO6X142Z3GC1597BHG0"
         },
         "ValidationCheck": {

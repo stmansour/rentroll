@@ -51,6 +51,7 @@ RENTROLLSERVERNOW="-testDtNow 10/24/2018"
 #       assessment must be added for June, July, and August. The transition
 #       month's rent in this case will need to be  prorated to account for
 #       days June 8 thru June 30.
+#   7.  Lease Status should be updated to reflect the new RA
 #------------------------------------------------------------------------------
 TFILES="a"
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
@@ -74,6 +75,10 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     # info.
     echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%228%2F1%2F2018%22%2C%22searchDtStop%22%3A%228%2F31%2F2018%22%2C%22Bool1%22%3Afalse%7D" > request
     dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "a2"  "PayorStatement--StmtInfo"
+
+    # validate lease status
+    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%221%2F1%2F2017%22%2C%22searchDtStop%22%3A%221%2F1%2F2021%22%2C%22Bool1%22%3Afalse%7D" > request
+    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}3"  "LeaseStatus"
 fi
 
 #------------------------------------------------------------------------------
@@ -100,6 +105,8 @@ fi
 #   3.  August rent assessment created on Aug 1.
 #
 #   4.  September rent assessment created on Sep 1
+#
+#   5   Lease Status should be updated to reflect the new RA.
 #------------------------------------------------------------------------------
 TFILES="b"
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
@@ -115,12 +122,16 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
 
     # Send the command to change the RefNo to Active:
     echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
-    dojsonPOST "http://localhost:8270/v1/raactions/1/" "request" "b0"  "WebService--Backdated-RA-Amendment"
+    dojsonPOST "http://localhost:8270/v1/raactions/1/" "request" "${TFILES}0"  "WebService--Backdated-RA-Amendment"
 
     # Generate a payor statement -- ensure that 2 RAs are there and have correct
     # info.
     echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%222%2F1%2F2018%22%2C%22searchDtStop%22%3A%229%2F30%2F2018%22%2C%22Bool1%22%3Afalse%7D" > request
-    dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "b1"  "PayorStatement--StmtInfo"
+    dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "${TFILES}1"  "PayorStatement--StmtInfo"
+
+    # validate lease status
+    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%221%2F1%2F2017%22%2C%22searchDtStop%22%3A%221%2F1%2F2021%22%2C%22Bool1%22%3Afalse%7D" > request
+    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}3"  "LeaseStatus"
 fi
 
 
@@ -182,6 +193,7 @@ TFILES="c"
 #   3.  Pet Rent assessment for $10/month
 #   4.  RAID 1 is terminated
 #   5.  The payor statement for 9/1 - 9/30 should show $10,040 as the Balance
+#   6.  Lease Status should be updated to reflect the new RA.
 #------------------------------------------------------------------------------
 TFILES="d"
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
@@ -202,6 +214,10 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     # Payor statement -- 2 RAs, Balance should be 0 for RA1, $10,040 for RA3
     echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%229%2F1%2F2018%22%2C%22searchDtStop%22%3A%229%2F30%2F2018%22%2C%22Bool1%22%3Afalse%7D" > request
     dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "${TFILES}1"  "PayorStatement--StmtInfo"
+
+    # validate lease status
+    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%221%2F1%2F2017%22%2C%22searchDtStop%22%3A%221%2F1%2F2021%22%2C%22Bool1%22%3Afalse%7D" > request
+    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}2"  "LeaseStatus"
 fi
 
 #------------------------------------------------------------------------------
@@ -219,7 +235,17 @@ fi
 #  Amend the existing rental agreement so that the amended RA starts immediately
 #  after the old RA stops
 #
+#  Expected Results:
+#   1. Walk through the entire approval flow...
+#      a) changes the dates on the refno version
+#      b) Add a rent assessment
+#      c) go to first approval
+#      d) approve to go to second approval
+#      e) approve to set move in date
+#      f) set the move in date
+#      g) activate the new rental agreement
 #
+#   2. Validate Lease Status
 #------------------------------------------------------------------------------
 TFILES="e"
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
@@ -238,7 +264,7 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     # RAIDREFNO=$(cat ${TFILES}0 | grep UserRefNo | awk '{print $2}'|sed 's/"//g')
 
     DTSTART="12%2F1%2F2018"
-    DTSTOP="12%2F1%2F2019"
+    DTSTOP="11%2F30%2F2019"
     RAIDREFNO="DUO6X142Z3GC1597BHG0"
 
     #----------------------------------------------------------------
@@ -286,8 +312,13 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     #----------------------------------------------------------------
     # Make the updated RefNo an Active RA
     #----------------------------------------------------------------
-    # echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
-    # dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}8"  "WebService--Activate-RefNo"
+    echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
+    dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}8"  "WebService--Activate-RefNo"
+
+    # validate lease status
+    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%221%2F1%2F2017%22%2C%22searchDtStop%22%3A%221%2F1%2F2021%22%2C%22Bool1%22%3Afalse%7D" > request
+    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}9"  "LeaseStatus"
+
 fi
 
 #------------------------------------------------------------------------------
@@ -332,6 +363,9 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%222%2F1%2F2018%22%2C%22searchDtStop%22%3A%229%2F30%2F2018%22%2C%22Bool1%22%3Afalse%7D" > request
     dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "${TFILES}1"  "PayorStatement--StmtInfo"
 
+    # validate lease status
+    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%221%2F1%2F2017%22%2C%22searchDtStop%22%3A%221%2F1%2F2021%22%2C%22Bool1%22%3Afalse%7D" > request
+    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}9"  "LeaseStatus"
 fi
 
 #------------------------------------------------------------------------------
@@ -362,6 +396,7 @@ fi
 #     assessments should be charged to RAID 2. The extra $80 is due to
 #     the addidion of the pet.
 #  4. There should be $9000 of unallocated funds for RA 2
+#  5. Recurring assessments end on the RentStop date
 #------------------------------------------------------------------------------
 TFILES="g"
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
@@ -385,6 +420,10 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     #---------------------------------------------------------------------------
     echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%222%2F1%2F2018%22%2C%22searchDtStop%22%3A%229%2F30%2F2018%22%2C%22Bool1%22%3Afalse%7D" > request
     dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "${TFILES}1"  "PayorStatement--StmtInfo"
+
+    # validate lease status
+    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%221%2F1%2F2017%22%2C%22searchDtStop%22%3A%221%2F1%2F2021%22%2C%22Bool1%22%3Afalse%7D" > request
+    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}2"  "LeaseStatus"
 fi
 
 #------------------------------------------------------------------------------
@@ -429,8 +468,12 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     # Generate a payor statement -- ensure that 2 RAs are there and have correct
     # info.
     #---------------------------------------------------------------------------
-    # echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%222%2F1%2F2018%22%2C%22searchDtStop%22%3A%229%2F30%2F2018%22%2C%22Bool1%22%3Afalse%7D" > request
-    # dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "${TFILES}1"  "PayorStatement--StmtInfo"
+    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%222%2F1%2F2018%22%2C%22searchDtStop%22%3A%229%2F30%2F2018%22%2C%22Bool1%22%3Afalse%7D" > request
+    dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "${TFILES}1"  "PayorStatement--StmtInfo"
+
+    # validate lease status
+    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%221%2F1%2F2017%22%2C%22searchDtStop%22%3A%221%2F1%2F2021%22%2C%22Bool1%22%3Afalse%7D" > request
+    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}2"  "LeaseStatus"
 fi
 
 #------------------------------------------------------------------------------
@@ -453,6 +496,8 @@ fi
 #  2. RA 6
 #      - New prorated Rent NonTaxable for 14 of 31 days
 #      - New prorated Pet Rent for 14 of 31 days
+#
+#  3. Validate Lease Status
 #
 #------------------------------------------------------------------------------
 TFILES="i"
@@ -483,6 +528,9 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     RRDATERANGE="-j 2018-10-01 -k 2018-11-01"
     dorrtest "${TFILES}2" "${RRDATERANGE} -x -b ${BUD} -r 23,1" "PayorReport"
 
+    # validate lease status
+    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%221%2F1%2F2017%22%2C%22searchDtStop%22%3A%221%2F1%2F2021%22%2C%22Bool1%22%3Afalse%7D" > request
+    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}3"  "LeaseStatus"
 fi
 
 #------------------------------------------------------------------------------
@@ -527,6 +575,10 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
         fi
     fi
     echo "PASSED"
+
+    # validate lease status
+    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%221%2F1%2F2017%22%2C%22searchDtStop%22%3A%221%2F1%2F2021%22%2C%22Bool1%22%3Afalse%7D" > request
+    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/3" "request" "${TFILES}1"  "LeaseStatus"
 fi
 
 #------------------------------------------------------------------------------
@@ -558,6 +610,10 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     dojsonPOST "http://localhost:8270/v1/raactions/1/3" "request" "${TFILES}0"  "WebService--Activate-RefNo"
 
     mysqlverify "${TFILES}1" "RentalAgreements"	"select RAID,RATID,BID,PRAID,ORIGIN,AgreementStart,AgreementStop from RentalAgreement;"
+
+    # validate lease status
+    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%221%2F1%2F2017%22%2C%22searchDtStop%22%3A%221%2F1%2F2021%22%2C%22Bool1%22%3Afalse%7D" > request
+    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}2"  "LeaseStatus"
 fi
 
 #------------------------------------------------------------------------------
@@ -597,6 +653,10 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     #----------------------------------------------------------------
     RRDATERANGE="-j 2018-10-01 -k 2018-11-01"
     dorrtest "${TFILES}1" "${RRDATERANGE} -x -b ${BUD} -r 23,1" "PayorReport"
+
+    # validate lease status
+    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%221%2F1%2F2017%22%2C%22searchDtStop%22%3A%221%2F1%2F2021%22%2C%22Bool1%22%3Afalse%7D" > request
+    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}2"  "LeaseStatus"
 fi
 
 #------------------------------------------------------------------------------
@@ -640,6 +700,10 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     #----------------------------------------------------------------
     RRDATERANGE="-j 2018-10-01 -k 2018-12-01"
     dorrtest "${TFILES}1" "${RRDATERANGE} -x -b ${BUD} -r 23,1" "PayorReport"
+
+    # validate lease status
+    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%221%2F1%2F2017%22%2C%22searchDtStop%22%3A%221%2F1%2F2021%22%2C%22Bool1%22%3Afalse%7D" > request
+    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}2"  "LeaseStatus"
 fi
 
 stopRentRollServer
