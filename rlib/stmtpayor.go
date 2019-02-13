@@ -120,7 +120,7 @@ func ReceiptSummary(ctx context.Context, raidlist []int64, d1, d2 *time.Time) ([
 	FROM Receipt
 	WHERE
 		((FLAGS & 4)=0) AND BID={{.BID}} AND "{{.d1}}" <= Dt AND Dt < "{{.d2}}" AND ({{.Payors}})
-	ORDER BY Dt ASC;`
+	ORDER BY Dt ASC, Amount DESC;`
 
 	qc := QueryClause{
 		"SelectClause": RRdb.DBFields["Receipt"],
