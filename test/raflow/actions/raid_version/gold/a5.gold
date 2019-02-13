@@ -12,11 +12,11 @@ Response( RAID: 5, UserRefNo:  )
             "Data": {
                 "dates": {
                     "AgreementStart": "2/13/2018",
-                    "AgreementStop": "3/1/2020",
+                    "AgreementStop": "2/29/2020",
                     "RentStart": "2/13/2018",
-                    "RentStop": "3/1/2020",
+                    "RentStop": "2/29/2020",
                     "PossessionStart": "2/13/2018",
-                    "PossessionStop": "3/1/2020",
+                    "PossessionStop": "2/29/2020",
                     "CSAgent": 55
                 },
                 "people": [
@@ -104,7 +104,7 @@ Response( RAID: 5, UserRefNo:  )
                         "ParkingPermitNumber": "0172237",
                         "Fees": [
                             {
-                                "TMPASMID": 4,
+                                "TMPASMID": 3,
                                 "ASMID": 87,
                                 "ARID": 39,
                                 "ARName": "Vehicle Registration Fee",
@@ -134,21 +134,6 @@ Response( RAID: 5, UserRefNo:  )
                         "Fees": [
                             {
                                 "TMPASMID": 1,
-                                "ASMID": 78,
-                                "ARID": 26,
-                                "ARName": "Rent Non-Taxable",
-                                "ContractAmount": 1500,
-                                "RentCycle": 6,
-                                "ProrationCycle": 4,
-                                "Start": "3/1/2018",
-                                "Stop": "3/1/2020",
-                                "AtSigningPreTax": 0,
-                                "SalesTax": 0,
-                                "TransOccTax": 0,
-                                "Comment": ""
-                            },
-                            {
-                                "TMPASMID": 2,
                                 "ASMID": 85,
                                 "ARID": 28,
                                 "ARName": "Security Deposit Assessment",
@@ -163,7 +148,7 @@ Response( RAID: 5, UserRefNo:  )
                                 "Comment": ""
                             },
                             {
-                                "TMPASMID": 3,
+                                "TMPASMID": 2,
                                 "ASMID": 86,
                                 "ARID": 26,
                                 "ARName": "Rent Non-Taxable",
@@ -176,6 +161,21 @@ Response( RAID: 5, UserRefNo:  )
                                 "SalesTax": 0,
                                 "TransOccTax": 0,
                                 "Comment": "prorated for 16 of 28 days"
+                            },
+                            {
+                                "TMPASMID": 4,
+                                "ASMID": 78,
+                                "ARID": 26,
+                                "ARName": "Rent Non-Taxable",
+                                "ContractAmount": 1500,
+                                "RentCycle": 6,
+                                "ProrationCycle": 4,
+                                "Start": "3/1/2018",
+                                "Stop": "2/29/2020",
+                                "AtSigningPreTax": 0,
+                                "SalesTax": 0,
+                                "TransOccTax": 0,
+                                "Comment": ""
                             }
                         ]
                     }
@@ -215,7 +215,7 @@ Response( RAID: 5, UserRefNo:  )
                     "MoveInDate": "2018-02-13 00:00:00 UTC",
                     "ActiveUID": -99999,
                     "ActiveName": "UID-0",
-                    "ActiveDate": "2018-08-28 09:28:00 UTC",
+                    "ActiveDate": "2018-10-15 00:00:00 UTC",
                     "TerminatorUID": 0,
                     "TerminatorName": "UID-0",
                     "TerminationDate": "1900-01-01 00:00:00 UTC",

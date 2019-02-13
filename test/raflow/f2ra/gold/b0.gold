@@ -137,21 +137,6 @@
                             {
                                 "ARID": 26,
                                 "ARName": "Rent Non-Taxable",
-                                "ASMID": 12,
-                                "AtSigningPreTax": 0,
-                                "Comment": "prorated for 18 of 30 days | Derived from RAID 1, ASMID 1 | BL- Snapped instance 6/13/2018 to open period 8/1/2018",
-                                "ContractAmount": 600,
-                                "ProrationCycle": 4,
-                                "RentCycle": 0,
-                                "SalesTax": 0,
-                                "Start": "8/1/2018",
-                                "Stop": "8/1/2018",
-                                "TMPASMID": 1,
-                                "TransOccTax": 0
-                            },
-                            {
-                                "ARID": 26,
-                                "ARName": "Rent Non-Taxable",
                                 "ASMID": 13,
                                 "AtSigningPreTax": 0,
                                 "Comment": "Derived from RAID 1, ASMID 1 | BL- Snapped definition 7/1/2018 to open period 8/1/2018",
@@ -161,6 +146,21 @@
                                 "SalesTax": 0,
                                 "Start": "8/1/2018",
                                 "Stop": "2/29/2020",
+                                "TMPASMID": 1,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 26,
+                                "ARName": "Rent Non-Taxable",
+                                "ASMID": 12,
+                                "AtSigningPreTax": 0,
+                                "Comment": "prorated for 18 of 30 days | Derived from RAID 1, ASMID 1 | BL- Snapped instance 6/13/2018 to open period 8/1/2018",
+                                "ContractAmount": 600,
+                                "ProrationCycle": 4,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "8/1/2018",
+                                "Stop": "8/1/2018",
                                 "TMPASMID": 2,
                                 "TransOccTax": 0
                             }

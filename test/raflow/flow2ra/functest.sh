@@ -14,13 +14,14 @@ source ../../share/base.sh
 echo "STARTING RENTROLL SERVER"
 RENTROLLSERVERAUTH="-noauth"
 RENTROLLSERVERNOW="-testDtNow 10/24/2018"
+DB2LOADED=0
 
 startRentRollServer
 
 #------------------------------------------------------------------------------
 #  TEST a
 #  An existing rental agreement (RAID=1) is being amended. This test
-#  verifies that all assessments from RAID=1 to the new RAID (2) are correct.
+#  verifies that all assessments from RAID=1 to the new RAID (24) are correct.
 #  It also verifies that payments are properly filtered. For example,
 #  if the original agreement there is a Security Deposit request in
 #  September. This security deposit is not in the fees for the amended
@@ -45,30 +46,25 @@ startRentRollServer
 #       old rental agreement. It is not in the fees list for the RefNo, so it
 #       should be reversed in RAID 1 and not present in RAID 24
 #------------------------------------------------------------------------------
-RAID1REFNO="T7LYN5K18Z7F756KE64C"
-RAIDAMENDEDID="24"
+TFILES="a"
+if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
+    echo "Test ${TFILES}"
+    RAID1REFNO="T7LYN5K18Z7F756KE64C"
+    RAIDAMENDEDID="24"
 
-# Send the command to change the flow to Active:
-echo "%7B%22UserRefNo%22%3A%22${RAID1REFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
-dojsonPOST "http://localhost:8270/v1/raactions/1/" "request" "a0"  "WebService--Action-setTo-ACTIVE"
+    # Send the command to change the flow to Active:
+    echo "%7B%22UserRefNo%22%3A%22${RAID1REFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
+    dojsonPOST "http://localhost:8270/v1/raactions/1/" "request" "a0"  "WebService--Action-setTo-ACTIVE"
 
-# RAID1REFNO="8VMAH0O53D6R4W25P5V0"
-# RAIDAMENDEDID="2"
-#
-# # Send the command to change the flow to Active:
-# echo "%7B%22UserRefNo%22%3A%22${RAID1REFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
-# dojsonPOST "http://localhost:8270/v1/raactions/1/" "request" "a0"  "WebService--Action-setTo-ACTIVE"
-# stopRentRollServer
-# exit 0
+    # Generate an assessment report from Aug 1 to Oct 1. The security deposit
+    # assessment for RAID 1 should no longer be present
+    docsvtest "a1" "-G ${BUD} -g 8/1/18,10/1/18 -L 11,${BUD}" "Assessments-2018-AUG"
 
-# Generate an assessment report from Aug 1 to Oct 1. The security deposit
-# assessment for RAID 1 should no longer be present
-docsvtest "a1" "-G ${BUD} -g 8/1/18,10/1/18 -L 11,${BUD}" "Assessments-2018-AUG"
-
-# Generate a payor statement -- ensure that 2 RAs are there and have correct
-# info.
-echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%228%2F1%2F2018%22%2C%22searchDtStop%22%3A%228%2F31%2F2018%22%2C%22Bool1%22%3Afalse%7D" > request
-dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "a2"  "PayorStatement--StmtInfo"
+    # Generate a payor statement -- ensure that 2 RAs are there and have correct
+    # info.
+    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%228%2F1%2F2018%22%2C%22searchDtStop%22%3A%228%2F31%2F2018%22%2C%22Bool1%22%3Afalse%7D" > request
+    dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "a2"  "PayorStatement--StmtInfo"
+fi
 
 #------------------------------------------------------------------------------
 #  TEST b
@@ -93,17 +89,21 @@ dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "a2"  "PayorStatem
 #       old rental agreement. It is not in the fees list for the RefNo, so it
 #       should be reversed
 #------------------------------------------------------------------------------
-RAIDREFNO="NZXY8FS6NHJ34N383950"
-RAIDAMENDEDID="25"
+TFILES="a"
+if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
+    echo "Test ${TFILES}"
+    RAIDREFNO="NZXY8FS6NHJ34N383950"
+    RAIDAMENDEDID="25"
 
-# Send the command to change the RefNo to Active:
-echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
-dojsonPOST "http://localhost:8270/v1/raactions/1/" "request" "b0"  "WebService--Action-setTo-ACTIVE"
+    # Send the command to change the RefNo to Active:
+    echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
+    dojsonPOST "http://localhost:8270/v1/raactions/1/" "request" "b0"  "WebService--Action-setTo-ACTIVE"
 
-# Generate a payor statement -- ensure that 2 RAs are there and have correct
-# info.
-echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%228%2F1%2F2018%22%2C%22searchDtStop%22%3A%229%2F30%2F2018%22%2C%22Bool1%22%3Afalse%7D" > request
-dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "b1"  "PayorStatement--StmtInfo"
+    # Generate a payor statement -- ensure that 2 RAs are there and have correct
+    # info.
+    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%228%2F1%2F2018%22%2C%22searchDtStop%22%3A%229%2F30%2F2018%22%2C%22Bool1%22%3Afalse%7D" > request
+    dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "b1"  "PayorStatement--StmtInfo"
+fi
 
 #------------------------------------------------------------------------------
 #  TEST d
@@ -129,17 +129,21 @@ dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "b1"  "PayorStatem
 #       old rental agreement. It is not in the fees list for the RefNo, so it
 #       should be reversed
 #------------------------------------------------------------------------------
-RAIDREFNO="7K9B2FD9293R0RN67PSE"
-RAIDAMENDEDID="25"
+TFILES="a"
+if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
+    echo "Test ${TFILES}"
+    RAIDREFNO="7K9B2FD9293R0RN67PSE"
+    RAIDAMENDEDID="25"
 
-# Send the command to change the RefNo to Active:
-echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
-dojsonPOST "http://localhost:8270/v1/raactions/1/" "request" "d0"  "WebService--Action-setTo-ACTIVE"
+    # Send the command to change the RefNo to Active:
+    echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
+    dojsonPOST "http://localhost:8270/v1/raactions/1/" "request" "d0"  "WebService--Action-setTo-ACTIVE"
 
-# Generate a payor statement -- ensure that 2 RAs are there and have correct
-# info.
-echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%228%2F1%2F2018%22%2C%22searchDtStop%22%3A%229%2F30%2F2018%22%2C%22Bool1%22%3Afalse%7D" > request
-dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "d1"  "PayorStatement--StmtInfo"
+    # Generate a payor statement -- ensure that 2 RAs are there and have correct
+    # info.
+    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%228%2F1%2F2018%22%2C%22searchDtStop%22%3A%229%2F30%2F2018%22%2C%22Bool1%22%3Afalse%7D" > request
+    dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "d1"  "PayorStatement--StmtInfo"
+fi
 
 #------------------------------------------------------------------------------
 #  TEST c
@@ -161,27 +165,35 @@ dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "d1"  "PayorStatem
 #   4.  TBind record for Vehicle 1 will be split at 8/23/2018. TCID 1 was the
 #       contact person before the split.  TCID 2 is the contact going forward.
 #------------------------------------------------------------------------------
-echo "Create new database..."
-mysql --no-defaults rentroll < rrsm1.sql
+TFILES="a"
+if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
+    echo "Test ${TFILES}"
+    echo "Create new database..."
+    mysql --no-defaults rentroll < rrsm1.sql
+    DB2LOADED=1
 
-RAIDREFNO="8VMAH0O53D6R4W25P5V0"
+    RAIDREFNO="8VMAH0O53D6R4W25P5V0"
 
-# Send the command to change the RefNo to Active:
-echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
-dojsonPOST "http://localhost:8270/v1/raactions/1/" "request" "c0"  "WebService--Action-setTo-ACTIVE"
+    # Send the command to change the RefNo to Active:
+    echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
+    dojsonPOST "http://localhost:8270/v1/raactions/1/" "request" "c0"  "WebService--Action-setTo-ACTIVE"
 
-# make sure the TBinds are correct
-mysqlverify "c1" "TBind-Pets" "SELECT TBID,BID,SourceElemType,SourceElemID,AssocElemType,AssocElemID,DtStart,DtStop,FLAGS FROM TBind;"
+    # make sure the TBinds are correct
+    mysqlverify "c1" "TBind-Pets" "SELECT TBID,BID,SourceElemType,SourceElemID,AssocElemType,AssocElemID,DtStart,DtStop,FLAGS FROM TBind;"
 
-# make sure the transactants are correct
-mysqlverify "c2" "flow2ra-Transactants" "SELECT TCID,BID,PreferredName,LastName FROM Transactant;"
-
+    # make sure the transactants are correct
+    mysqlverify "c2" "flow2ra-Transactants" "SELECT TCID,BID,PreferredName,LastName FROM Transactant;"
+fi
 
 # import rr.sql again to test update existing RA
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
-echo "Create new database..."
-mysql --no-defaults rentroll < rr.sql
+
+if [ "${DB2LOADED}" = "1" ]; then
+    echo "Create new database..."
+    mysql --no-defaults rentroll < rr.sql
+fi
+
 RENTROLLSERVERAUTH="-noauth"
 startRentRollServer
 
@@ -198,8 +210,11 @@ startRentRollServer
 # Check same RA Application flow's data. It must be match with the updated information
 # Outdated RA Application must be terminated
 #---------------------------------------------------------------------------------
+TFILES="a"
+if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
+    echo "Test ${TFILES}"
 
-RAID3REFNO="A02QXP7Z2D5SC8U74Y79"
+    RAID3REFNO="A02QXP7Z2D5SC8U74Y79"
 
 # send command to Edit existing Rental Agreement with RAID: 3
 #echo "%7B%22cmd%22%3A%22get%22%2C%22FlowType%22%3A%22RA%22%2C%22RAID%22%3A3%2C%22UserRefNo%22%3Anull%2C%22Version%22%3A%22refno%22%7D" > request
@@ -217,23 +232,25 @@ dojsonPOST "http://localhost:8270/v1/flow/1/3/" "request" "z1" "Rental Agreement
 echo "%7B%22cmd%22%3A%22save%22%2C%22FlowType%22%3A%22RA%22%2C%22FlowID%22%3A3%2C%22FlowPartKey%22%3A%22people%22%2C%22BID%22%3A1%2C%22Data%22%3A%5B%7B%22City%22%3A%22Denton%22%2C%22TCID%22%3A3%2C%22State%22%3A%22ME%22%2C%22Points%22%3A0%2C%22Address%22%3A%2266789%20Shore%22%2C%22Comment%22%3A%22%22%2C%22Country%22%3A%22USA%22%2C%22Evicted%22%3Afalse%2C%22TMPTCID%22%3A1%2C%22Website%22%3A%22%22%2C%22Address2%22%3A%22%22%2C%22Industry%22%3A344%2C%22IsRenter%22%3Atrue%2C%22LastName%22%3A%22Bosamiya%22%2C%22CellPhone%22%3A%22(314)%20860-0587%22%2C%22Convicted%22%3Afalse%2C%22FirstName%22%3A%22Akshay%22%2C%22IsCompany%22%3Afalse%2C%22WorkPhone%22%3A%22(607)%20954-3966%22%2C%22Bankruptcy%22%3Afalse%2C%22EvictedDes%22%3A%22%22%2C%22IsOccupant%22%3Atrue%2C%22MiddleName%22%3A%22%22%2C%22Occupation%22%3A%22the%20hygiene%20service%20assistant%20(hygiene%20service%20assistant)%22%2C%22PostalCode%22%3A%2228162%22%2C%22TaxpayorID%22%3A%2208114320%22%2C%22CompanyCity%22%3A%22Elizabeth%22%2C%22CompanyName%22%3A%22Western%20Digital%20Inc%22%2C%22CreditLimit%22%3A15343%2C%22DateofBirth%22%3A%222%2F15%2F1957%22%2C%22GrossIncome%22%3A22028%2C%22IsGuarantor%22%3Afalse%2C%22SourceSLSID%22%3A17%2C%22CompanyEmail%22%3A%22WElizabeth7089%40aol.com%22%2C%22CompanyPhone%22%3A%22(255)%20339-0248%22%2C%22CompanyState%22%3A%22VA%22%2C%22ConvictedDes%22%3A%22%22%2C%22PrimaryEmail%22%3A%22akshay%40yopmail.com%22%2C%22PriorAddress%22%3A%2266787%20Hampton%2C%20Cambridge%2C%20NC%2031445%22%2C%22SpecialNeeds%22%3A%22%22%2C%22BankruptcyDes%22%3A%22%22%2C%22PreferredName%22%3A%22Denisha%22%2C%22CompanyAddress%22%3A%2271590%20Fifth%22%2C%22CurrentAddress%22%3A%2281062%20Wood%2C%20Santa%20Rosa%2C%20FL%2011211%22%2C%22DriversLicense%22%3A%22D7626933%22%2C%22SecondaryEmail%22%3A%22akshay%40yopmail.com%22%2C%22OtherPreferences%22%3A%22%22%2C%22ThirdPartySource%22%3A%22Stacia%20Robertson%22%2C%22CompanyPostalCode%22%3A%2233274%22%2C%22PriorLandLordName%22%3A%22Kali%20Graves%22%2C%22EligibleFutureUser%22%3Afalse%2C%22CurrentLandLordName%22%3A%22Eugenia%20Dunn%22%2C%22EligibleFuturePayor%22%3Atrue%2C%22EmergencyContactName%22%3A%22Reyna%20Ramirez%22%2C%22PriorLandLordPhoneNo%22%3A%22(823)%20260-2871%22%2C%22PriorReasonForMoving%22%3A117%2C%22AlternateEmailAddress%22%3A%2214557%20Lakeview%2CJefferson%2CGA%2024728%22%2C%22EmergencyContactEmail%22%3A%22RRamirez8989%40bdiddy.com%22%2C%22CurrentLandLordPhoneNo%22%3A%22(510)%20858-4871%22%2C%22CurrentReasonForMoving%22%3A129%2C%22PriorLengthOfResidency%22%3A%228%20years%206%20months%22%2C%22EmergencyContactAddress%22%3A%2284390%20Rhode%20Island%2CDurham%2CAK%2055089%22%2C%22CurrentLengthOfResidency%22%3A%222%20years%207%20months%22%2C%22EmergencyContactTelephone%22%3A%22(506)%20681-2584%22%2C%22recid%22%3A1%2C%22w2ui%22%3A%7B%22class%22%3A%22%22%2C%22style%22%3A%7B%7D%7D%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22NLID%22%3A%22%22%2C%22CreateBy%22%3A%22%22%2C%22CreateTS%22%3A%22%22%2C%22LastModBy%22%3A%22%22%2C%22LastModTime%22%3A%22%22%7D%5D%7D" > request
 dojsonPOST "http://localhost:8270/v1/flow/1/3/" "request" "z2" "Rental Agreement--RAID:3--Update People Information"
 
-# validate updated flow's data
-echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A3%7D" > request
-dojsonPOST "http://localhost:8270/v1/validate-raflow/1/3/" "request" "z3" "Rental Agreement--RAID:3--Validate update RAFlow"
+    # validate updated flow's data
+    echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A3%7D" > request
+    dojsonPOST "http://localhost:8270/v1/validate-raflow/1/3/" "request" "z3" "Rental Agreement--RAID:3--Validate update RAFlow"
 
-# RAAction: Complete to Move In
-echo "%7B%22UserRefNo%22%3A%22${RAID3REFNO}%22%2C%22RAID%22%3A3%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
-dojsonPOST "http://localhost:8270/v1/raactions/1/3/" "request" "z4" "Rental Agreement--RAID:3--Complete Move In"
+    # RAAction: Complete to Move In
+    echo "%7B%22UserRefNo%22%3A%22${RAID3REFNO}%22%2C%22RAID%22%3A3%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
+    dojsonPOST "http://localhost:8270/v1/raactions/1/3/" "request" "z4" "Rental Agreement--RAID:3--Complete Move In"
 
-# Get updated flow: It'll have new RAID: 24
-# TODO: z5.gold must require to update after fixing bug in the code Bug: Duplicate entry of the pets/vehicles
-echo "%7B%22cmd%22%3A%22get%22%2C%22UserRefNo%22%3Anull%2C%22RAID%22%3A24%2C%22Version%22%3A%22raid%22%2C%22FlowType%22%3A%22RA%22%7D" > request
-dojsonPOST "http://localhost:8270/v1/flow/1/0/" "request" "z5" "Rental Agreement--RAID:24--Get updated flow"
+    # Get updated flow: It'll have new RAID: 24
+    # TODO: z5.gold must require to update after fixing bug in the code Bug: Duplicate entry of the pets/vehicles
+    echo "%7B%22cmd%22%3A%22get%22%2C%22UserRefNo%22%3Anull%2C%22RAID%22%3A24%2C%22Version%22%3A%22raid%22%2C%22FlowType%22%3A%22RA%22%7D" > request
+    dojsonPOST "http://localhost:8270/v1/flow/1/0/" "request" "z5" "Rental Agreement--RAID:24--Get updated flow"
 
-# Check old RAID:3 Rental agreement must be terminated due to update rental agreement
-# TODO: z6.gold must require to update after fixing bug in the code Bug: Duplicate entry of the pets/vehicles
-echo "%7B%22cmd%22%3A%22get%22%2C%22UserRefNo%22%3Anull%2C%22RAID%22%3A3%2C%22Version%22%3A%22raid%22%2C%22FlowType%22%3A%22RA%22%7D" > request
-dojsonPOST "http://localhost:8270/v1/flow/1/0/" "request" "z6" "Rental Agreement--RAID:3--Terminated"
+    # Check old RAID:3 Rental agreement must be terminated due to update rental agreement
+    # TODO: z6.gold must require to update after fixing bug in the code Bug: Duplicate entry of the pets/vehicles
+    echo "%7B%22cmd%22%3A%22get%22%2C%22UserRefNo%22%3Anull%2C%22RAID%22%3A3%2C%22Version%22%3A%22raid%22%2C%22FlowType%22%3A%22RA%22%7D" > request
+    dojsonPOST "http://localhost:8270/v1/flow/1/0/" "request" "z6" "Rental Agreement--RAID:3--Terminated"
+fi
+
 
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"

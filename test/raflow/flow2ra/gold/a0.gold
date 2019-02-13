@@ -24,7 +24,7 @@
                     "RentStop": "3/1/2020"
                 },
                 "meta": {
-                    "ActiveDate": "2018-09-19 05:21:00 UTC",
+                    "ActiveDate": "2018-10-24 00:00:00 UTC",
                     "ActiveName": "UID-0",
                     "ActiveUID": -99999,
                     "ApplicationReadyDate": "2018-08-20 23:46:00 UTC",
@@ -137,7 +137,7 @@
                             {
                                 "ARID": 26,
                                 "ARName": "Rent Non-Taxable",
-                                "ASMID": 403,
+                                "ASMID": 445,
                                 "AtSigningPreTax": 0,
                                 "Comment": "prorated for 12 of 31 days | Derived from RAID 1, ASMID 1",
                                 "ContractAmount": 387.1,
@@ -152,7 +152,7 @@
                             {
                                 "ARID": 26,
                                 "ARName": "Rent Non-Taxable",
-                                "ASMID": 404,
+                                "ASMID": 446,
                                 "AtSigningPreTax": 0,
                                 "Comment": "Derived from RAID 1, ASMID 1",
                                 "ContractAmount": 1000,

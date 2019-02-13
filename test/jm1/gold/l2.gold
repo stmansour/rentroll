@@ -8,33 +8,33 @@ Austin, TX 78738 USA
 
 Journal ID  Rev  Description                                                             Date        RntAgr      Rentable         GLAccount        Amount
 ----------  ---  ----------------------------------------------------------------------  ----------  ----------  ---------------  ---------  ------------
-J-17               309 Rexford [Rex1, monthly]                                                                                                           
-                 Accounts Receivable                                                     02/01/2016  RA-1        309 Rexford      12000          3,500.00
-                 Gross Scheduled Rent-Not Taxable                                        02/01/2016  RA-1        309 Rexford      41000         -3,500.00
+J-17              (7/29 days)  311 Rexford [Rex3, monthly]                                                                                               
+                 Accounts Receivable                                                     02/01/2016  RA-3        311 Rexford      12000          1,062.07
+                 Gross Scheduled Rent-Not Taxable                                        02/01/2016  RA-3        311 Rexford      41000         -1,062.07
                                                                                                                                                          
 J-18               309 1/2 Rexford [Rex2, monthly]                                                                                                       
                  Accounts Receivable                                                     02/01/2016  RA-2        309 1/2 Rexford  12000          3,550.00
                  Gross Scheduled Rent-Not Taxable                                        02/01/2016  RA-2        309 1/2 Rexford  41000         -3,550.00
                                                                                                                                                          
-J-19              (7/29 days)  311 Rexford [Rex3, monthly]                                                                                               
-                 Accounts Receivable                                                     02/01/2016  RA-3        311 Rexford      12000          1,062.07
-                 Gross Scheduled Rent-Not Taxable                                        02/01/2016  RA-3        311 Rexford      41000         -1,062.07
+J-19               309 Rexford [Rex1, monthly]                                                                                                           
+                 Accounts Receivable                                                     02/01/2016  RA-1        309 Rexford      12000          3,500.00
+                 Gross Scheduled Rent-Not Taxable                                        02/01/2016  RA-1        309 Rexford      41000         -3,500.00
                                                                                                                                                          
 J-20               311 Rexford [Rex3]                                                                                                                    
                  Accounts Receivable                                                     02/01/2016  RA-3        311 Rexford      12000            111.26
                  Food Services                                                           02/01/2016  RA-3        311 Rexford      41202           -111.26
                                                                                                                                                          
 J-21             Payment - Aaron Read   #1193  3500.00                                                                                                   
-                 Accounts Receivable                                                     02/01/2016  RA-1        309 Rexford      12000         -3,500.00
-                 Cash                                                                    02/01/2016  RA-1        309 Rexford      10000          3,500.00
+                 Accounts Receivable                                                     02/01/2016  RA-3        311 Rexford      12000         -3,500.00
+                 Cash                                                                    02/01/2016  RA-3        311 Rexford      10000          3,500.00
                                                                                                                                                          
 J-22             Payment - Rita Costea   #1652  3550.00                                                                                                  
                  Accounts Receivable                                                     02/02/2016  RA-2        309 1/2 Rexford  12000         -3,550.00
                  Cash                                                                    02/02/2016  RA-2        309 1/2 Rexford  10000          3,550.00
                                                                                                                                                          
 J-23             Payment - Gagik Haroutunian   #268  1173.33                                                                                             
-                 Accounts Receivable                                                     02/16/2016  RA-3        311 Rexford      12000         -1,062.07
-                 Cash                                                                    02/16/2016  RA-3        311 Rexford      10000          1,062.07
+                 Accounts Receivable                                                     02/16/2016  RA-1        309 Rexford      12000         -1,062.07
+                 Cash                                                                    02/16/2016  RA-1        309 Rexford      10000          1,062.07
                  Accounts Receivable                                                     02/16/2016  RA-3        311 Rexford      12000           -111.26
                  Cash                                                                    02/16/2016  RA-3        311 Rexford      10000            111.26
                                                                                                                                                          

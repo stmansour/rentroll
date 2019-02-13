@@ -9,6 +9,6 @@ Austin, TX 78738 USA
                                                      Proration                                                                        
 ASMID        RAID        Rentable     Rent Cycle     Cycle              Amount  AsmType  AR Name                                      
 -----------  ----------  -----------  -------------  -------------  ----------  -------  ---------------------------------------------
-ASM00000026  RA00000004  311 Rexford  monthly        daily            4,150.00           d 12000 _, c 41000 ${GSR}, d 41102 ${GSR} _ -
 ASM00000027  RA00000004  311 Rexford  non-recurring  non-recurring    8,300.00           d 12000 _, c 30000 _                         
+ASM00000026  RA00000004  311 Rexford  monthly        daily            4,150.00           d 12000 _, c 41000 ${GSR}, d 41102 ${GSR} _ -
 

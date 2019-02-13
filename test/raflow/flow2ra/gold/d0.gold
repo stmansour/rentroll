@@ -137,7 +137,7 @@
                             {
                                 "ARID": 24,
                                 "ARName": "Pet Rent",
-                                "ASMID": 434,
+                                "ASMID": 476,
                                 "AtSigningPreTax": 0,
                                 "Comment": "prorated for 16 of 28 days | Derived from RAID 4, ASMID 57",
                                 "ContractAmount": 5.71,
@@ -146,13 +146,13 @@
                                 "SalesTax": 0,
                                 "Start": "2/13/2018",
                                 "Stop": "2/13/2018",
-                                "TMPASMID": 3,
+                                "TMPASMID": 2,
                                 "TransOccTax": 0
                             },
                             {
                                 "ARID": 24,
                                 "ARName": "Pet Rent",
-                                "ASMID": 435,
+                                "ASMID": 477,
                                 "AtSigningPreTax": 0,
                                 "Comment": "Derived from RAID 4, ASMID 57",
                                 "ContractAmount": 10,
@@ -180,7 +180,7 @@
                             {
                                 "ARID": 26,
                                 "ARName": "Rent Non-Taxable",
-                                "ASMID": 424,
+                                "ASMID": 466,
                                 "AtSigningPreTax": 0,
                                 "Comment": "prorated for 16 of 28 days | Derived from RAID 4, ASMID 49",
                                 "ContractAmount": 571.43,
@@ -195,7 +195,7 @@
                             {
                                 "ARID": 26,
                                 "ARName": "Rent Non-Taxable",
-                                "ASMID": 425,
+                                "ASMID": 467,
                                 "AtSigningPreTax": 0,
                                 "Comment": "Derived from RAID 4, ASMID 49",
                                 "ContractAmount": 1000,
@@ -204,7 +204,7 @@
                                 "SalesTax": 0,
                                 "Start": "3/1/2018",
                                 "Stop": "3/1/2020",
-                                "TMPASMID": 2,
+                                "TMPASMID": 3,
                                 "TransOccTax": 0
                             }
                         ],

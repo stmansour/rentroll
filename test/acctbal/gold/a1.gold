@@ -49,22 +49,6 @@
             "recid": 1
         },
         {
-            "AsmtAmount": -15,
-            "BID": 1,
-            "BUD": "REX",
-            "Balance": 4000,
-            "Descr": "Bank Services (Reversal of ASM00000054)",
-            "Dt": "11/11/2016",
-            "FLAGS": 6,
-            "ID": "ASM-62",
-            "RAID": 5,
-            "RcptAmount": 0,
-            "Receipt": 0,
-            "RentableName": "309 1/2 S Rexford",
-            "Reverse": true,
-            "recid": 2
-        },
-        {
             "AsmtAmount": 15,
             "BID": 1,
             "BUD": "REX",
@@ -78,6 +62,22 @@
             "Receipt": 0,
             "RentableName": "309 1/2 S Rexford",
             "Reverse": false,
+            "recid": 2
+        },
+        {
+            "AsmtAmount": -15,
+            "BID": 1,
+            "BUD": "REX",
+            "Balance": 4015,
+            "Descr": "Bank Services (Reversal of ASM00000054)",
+            "Dt": "11/11/2016",
+            "FLAGS": 6,
+            "ID": "ASM-62",
+            "RAID": 5,
+            "RcptAmount": 0,
+            "Receipt": 0,
+            "RentableName": "309 1/2 S Rexford",
+            "Reverse": true,
             "recid": 3
         },
         {

@@ -146,7 +146,7 @@
                                 "SalesTax": 0,
                                 "Start": "10/19/2018",
                                 "Stop": "10/19/2018",
-                                "TMPASMID": 3,
+                                "TMPASMID": 2,
                                 "TransOccTax": 0
                             },
                             {
@@ -204,7 +204,7 @@
                                 "SalesTax": 0,
                                 "Start": "11/1/2018",
                                 "Stop": "2/29/2020",
-                                "TMPASMID": 2,
+                                "TMPASMID": 3,
                                 "TransOccTax": 0
                             }
                         ],

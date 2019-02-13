@@ -14,14 +14,14 @@ Date        Payor(s)                   Description                          RAID
 10/01/2018                             Opening balance                                                                                                                             0.00
 10/01/2018  Pablo Chantell Pearson     REVERSAL: Rent Non-Taxable           RA-1        ASM-28                  Rentable001                                      1,000.00          0.00
                                        (Reversed by ASM00000058)                                                                                                                       
-10/01/2018  Pablo Chantell Pearson     REVERSAL: Pet Rent (Reversed by      RA-1        ASM-29                  Rentable001                                         10.00          0.00
-                                       ASM00000060)                                                                                                                                    
-10/01/2018  Pablo Chantell Pearson     REVERSAL: Rent Non-Taxable           RA-1        ASM-58                  Rentable001                                     -1,000.00          0.00
-                                       (Reversal of ASM00000028)                                                                                                                       
 10/01/2018  Pablo Chantell Pearson     Rent Non-Taxable                     RA-1        ASM-59                  Rentable001                                        580.65        580.65
-10/01/2018  Pablo Chantell Pearson     REVERSAL: Pet Rent (Reversal of      RA-1        ASM-60                  Rentable001                                        -10.00        580.65
-                                       ASM00000029)                                                                                                                                    
+10/01/2018  Pablo Chantell Pearson     REVERSAL: Pet Rent (Reversed by      RA-1        ASM-29                  Rentable001                                         10.00        580.65
+                                       ASM00000060)                                                                                                                                    
 10/01/2018  Pablo Chantell Pearson     Pet Rent                             RA-1        ASM-61                  Rentable001                                          5.81        586.46
+10/01/2018  Pablo Chantell Pearson     REVERSAL: Pet Rent (Reversal of      RA-1        ASM-60                  Rentable001                                        -10.00        586.46
+                                       ASM00000029)                                                                                                                                    
+10/01/2018  Pablo Chantell Pearson     REVERSAL: Rent Non-Taxable           RA-1        ASM-58                  Rentable001                                     -1,000.00        586.46
+                                       (Reversal of ASM00000028)                                                                                                                       
 ----------  -------------------------  -----------------------------------  ----------  ----------  ----------  ---------------  ------------  ------------  ------------  ------------
 11/02/2018                             Closing balance                                                                                                 0.00        586.46        586.46
                                                                                                                                                                                        

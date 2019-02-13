@@ -99,7 +99,7 @@ Response( RAID: 2, UserRefNo:  )
                         "Weight": 10,
                         "Fees": [
                             {
-                                "TMPASMID": 3,
+                                "TMPASMID": 2,
                                 "ASMID": 24,
                                 "ARID": 24,
                                 "ARName": "Pet Rent",
@@ -175,7 +175,7 @@ Response( RAID: 2, UserRefNo:  )
                                 "Comment": "prorated for 9 of 31 days | Derived from RAID 1, ASMID 1"
                             },
                             {
-                                "TMPASMID": 2,
+                                "TMPASMID": 3,
                                 "ASMID": 21,
                                 "ARID": 26,
                                 "ARName": "Rent Non-Taxable",
@@ -232,7 +232,7 @@ Response( RAID: 2, UserRefNo:  )
                     "TerminatorName": "UID-0",
                     "TerminationDate": "1900-01-01 00:00:00 UTC",
                     "LeaseTerminationReason": 0,
-                    "DocumentDate": "2018-12-05 00:00:00 UTC",
+                    "DocumentDate": "2019-02-17 00:00:00 UTC",
                     "NoticeToMoveUID": 0,
                     "NoticeToMoveName": "UID-0",
                     "NoticeToMoveDate": "1900-01-01 00:00:00 UTC",

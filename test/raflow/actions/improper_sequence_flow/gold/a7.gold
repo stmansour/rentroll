@@ -114,7 +114,7 @@ Response( RAID: 3, UserRefNo:  )
                                 "Comment": ""
                             },
                             {
-                                "TMPASMID": 4,
+                                "TMPASMID": 5,
                                 "ASMID": 39,
                                 "ARID": 24,
                                 "ARName": "Pet Rent",
@@ -129,7 +129,7 @@ Response( RAID: 3, UserRefNo:  )
                                 "Comment": "prorated for 9 of 31 days"
                             },
                             {
-                                "TMPASMID": 5,
+                                "TMPASMID": 6,
                                 "ASMID": 40,
                                 "ARID": 24,
                                 "ARName": "Pet Rent",
@@ -162,7 +162,7 @@ Response( RAID: 3, UserRefNo:  )
                         "ParkingPermitNumber": "3944525",
                         "Fees": [
                             {
-                                "TMPASMID": 6,
+                                "TMPASMID": 4,
                                 "ASMID": 43,
                                 "ARID": 39,
                                 "ARName": "Vehicle Registration Fee",
@@ -192,10 +192,10 @@ Response( RAID: 3, UserRefNo:  )
                         "Fees": [
                             {
                                 "TMPASMID": 1,
-                                "ASMID": 32,
-                                "ARID": 16,
-                                "ARName": "Gas Base Fee",
-                                "ContractAmount": 50,
+                                "ASMID": 35,
+                                "ARID": 45,
+                                "ARName": "Rent ST000",
+                                "ContractAmount": 1000,
                                 "RentCycle": 6,
                                 "ProrationCycle": 4,
                                 "Start": "8/23/2018",
@@ -207,10 +207,10 @@ Response( RAID: 3, UserRefNo:  )
                             },
                             {
                                 "TMPASMID": 2,
-                                "ASMID": 35,
-                                "ARID": 45,
-                                "ARName": "Rent ST000",
-                                "ContractAmount": 1000,
+                                "ASMID": 32,
+                                "ARID": 16,
+                                "ARName": "Gas Base Fee",
+                                "ContractAmount": 50,
                                 "RentCycle": 6,
                                 "ProrationCycle": 4,
                                 "Start": "8/23/2018",
@@ -263,7 +263,7 @@ Response( RAID: 3, UserRefNo:  )
                     "TerminatorName": "UID-0",
                     "TerminationDate": "1900-01-01 00:00:00 UTC",
                     "LeaseTerminationReason": 0,
-                    "DocumentDate": "2018-12-05 00:00:00 UTC",
+                    "DocumentDate": "2019-02-17 00:00:00 UTC",
                     "NoticeToMoveUID": 0,
                     "NoticeToMoveName": "UID-0",
                     "NoticeToMoveDate": "1900-01-01 00:00:00 UTC",

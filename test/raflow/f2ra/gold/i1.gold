@@ -145,38 +145,6 @@
             "recid": 8
         },
         {
-            "ASMID": "ASM-29",
-            "AppliedAmount": 0,
-            "Assessment": 10,
-            "Balance": -7.815970093361102e-14,
-            "Date": "10/1/2018",
-            "Description": "REVERSAL: Pet Rent (Reversed by ASM00000060)",
-            "Payor": "Pablo Chantell Pearson",
-            "RAID": "RA-1",
-            "RCPTID": "",
-            "RentableName": "Rentable001",
-            "Reverse": true,
-            "TCID": 0,
-            "UnappliedAmount": 0,
-            "recid": 9
-        },
-        {
-            "ASMID": "ASM-58",
-            "AppliedAmount": 0,
-            "Assessment": -1000,
-            "Balance": -7.815970093361102e-14,
-            "Date": "10/1/2018",
-            "Description": "REVERSAL: Rent Non-Taxable (Reversal of ASM00000028)",
-            "Payor": "Pablo Chantell Pearson",
-            "RAID": "RA-1",
-            "RCPTID": "",
-            "RentableName": "Rentable001",
-            "Reverse": true,
-            "TCID": 0,
-            "UnappliedAmount": 0,
-            "recid": 10
-        },
-        {
             "ASMID": "ASM-59",
             "AppliedAmount": 0,
             "Assessment": 580.65,
@@ -190,15 +158,15 @@
             "Reverse": false,
             "TCID": 0,
             "UnappliedAmount": 0,
-            "recid": 11
+            "recid": 9
         },
         {
-            "ASMID": "ASM-60",
+            "ASMID": "ASM-29",
             "AppliedAmount": 0,
-            "Assessment": -10,
+            "Assessment": 10,
             "Balance": 580.6499999999999,
             "Date": "10/1/2018",
-            "Description": "REVERSAL: Pet Rent (Reversal of ASM00000029)",
+            "Description": "REVERSAL: Pet Rent (Reversed by ASM00000060)",
             "Payor": "Pablo Chantell Pearson",
             "RAID": "RA-1",
             "RCPTID": "",
@@ -206,7 +174,7 @@
             "Reverse": true,
             "TCID": 0,
             "UnappliedAmount": 0,
-            "recid": 12
+            "recid": 10
         },
         {
             "ASMID": "ASM-61",
@@ -220,6 +188,38 @@
             "RCPTID": "",
             "RentableName": "Rentable001",
             "Reverse": false,
+            "TCID": 0,
+            "UnappliedAmount": 0,
+            "recid": 11
+        },
+        {
+            "ASMID": "ASM-60",
+            "AppliedAmount": 0,
+            "Assessment": -10,
+            "Balance": 586.4599999999998,
+            "Date": "10/1/2018",
+            "Description": "REVERSAL: Pet Rent (Reversal of ASM00000029)",
+            "Payor": "Pablo Chantell Pearson",
+            "RAID": "RA-1",
+            "RCPTID": "",
+            "RentableName": "Rentable001",
+            "Reverse": true,
+            "TCID": 0,
+            "UnappliedAmount": 0,
+            "recid": 12
+        },
+        {
+            "ASMID": "ASM-58",
+            "AppliedAmount": 0,
+            "Assessment": -1000,
+            "Balance": 586.4599999999998,
+            "Date": "10/1/2018",
+            "Description": "REVERSAL: Rent Non-Taxable (Reversal of ASM00000028)",
+            "Payor": "Pablo Chantell Pearson",
+            "RAID": "RA-1",
+            "RCPTID": "",
+            "RentableName": "Rentable001",
+            "Reverse": true,
             "TCID": 0,
             "UnappliedAmount": 0,
             "recid": 13

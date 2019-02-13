@@ -137,21 +137,6 @@
                             {
                                 "ARID": 24,
                                 "ARName": "Pet Rent",
-                                "ASMID": 19,
-                                "AtSigningPreTax": 0,
-                                "Comment": "prorated for 17 of 31 days | Derived from RAID 1, ASMID 8 | BL- Snapped instance 10/15/2018 to open period 11/1/2018",
-                                "ContractAmount": 5.48,
-                                "ProrationCycle": 4,
-                                "RentCycle": 0,
-                                "SalesTax": 0,
-                                "Start": "11/1/2018",
-                                "Stop": "11/1/2018",
-                                "TMPASMID": 3,
-                                "TransOccTax": 0
-                            },
-                            {
-                                "ARID": 24,
-                                "ARName": "Pet Rent",
                                 "ASMID": 20,
                                 "AtSigningPreTax": 0,
                                 "Comment": "Derived from RAID 1, ASMID 8",
@@ -161,6 +146,21 @@
                                 "SalesTax": 0,
                                 "Start": "11/1/2018",
                                 "Stop": "6/30/2019",
+                                "TMPASMID": 2,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 24,
+                                "ARName": "Pet Rent",
+                                "ASMID": 19,
+                                "AtSigningPreTax": 0,
+                                "Comment": "prorated for 17 of 31 days | Derived from RAID 1, ASMID 8 | BL- Snapped instance 10/15/2018 to open period 11/1/2018",
+                                "ContractAmount": 5.48,
+                                "ProrationCycle": 4,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "11/1/2018",
+                                "Stop": "11/1/2018",
                                 "TMPASMID": 4,
                                 "TransOccTax": 0
                             }
@@ -180,21 +180,6 @@
                             {
                                 "ARID": 26,
                                 "ARName": "Rent Non-Taxable",
-                                "ASMID": 16,
-                                "AtSigningPreTax": 0,
-                                "Comment": "prorated for 17 of 31 days | Derived from RAID 1, ASMID 1 | BL- Snapped instance 10/15/2018 to open period 11/1/2018",
-                                "ContractAmount": 548.39,
-                                "ProrationCycle": 4,
-                                "RentCycle": 0,
-                                "SalesTax": 0,
-                                "Start": "11/1/2018",
-                                "Stop": "11/1/2018",
-                                "TMPASMID": 1,
-                                "TransOccTax": 0
-                            },
-                            {
-                                "ARID": 26,
-                                "ARName": "Rent Non-Taxable",
                                 "ASMID": 17,
                                 "AtSigningPreTax": 0,
                                 "Comment": "Derived from RAID 1, ASMID 1",
@@ -204,7 +189,22 @@
                                 "SalesTax": 0,
                                 "Start": "11/1/2018",
                                 "Stop": "6/30/2019",
-                                "TMPASMID": 2,
+                                "TMPASMID": 1,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 26,
+                                "ARName": "Rent Non-Taxable",
+                                "ASMID": 16,
+                                "AtSigningPreTax": 0,
+                                "Comment": "prorated for 17 of 31 days | Derived from RAID 1, ASMID 1 | BL- Snapped instance 10/15/2018 to open period 11/1/2018",
+                                "ContractAmount": 548.39,
+                                "ProrationCycle": 4,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "11/1/2018",
+                                "Stop": "11/1/2018",
+                                "TMPASMID": 3,
                                 "TransOccTax": 0
                             }
                         ],

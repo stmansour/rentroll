@@ -338,6 +338,7 @@ fi
 #     extended out to the end of Feb 2018.
 #
 #  2. Recurring assessments end on the RentStop date
+#  3. Validate Lease Status
 #------------------------------------------------------------------------------
 TFILES="f"
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
@@ -397,6 +398,7 @@ fi
 #     the addidion of the pet.
 #  4. There should be $9000 of unallocated funds for RA 2
 #  5. Recurring assessments end on the RentStop date
+#  6. Validate Lease Status
 #------------------------------------------------------------------------------
 TFILES="g"
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
@@ -444,6 +446,7 @@ fi
 #     all the RAs should be for RAID 2.
 #  3. $9000 of rent should be reversed on RAID 1, $8080 should be charged
 #     to RAID 2 due to the addidion of the pet.
+#  4. Validate Lease Status
 #
 #------------------------------------------------------------------------------
 TFILES="h"
@@ -544,6 +547,7 @@ fi
 #  Expected Results:
 #  1. Term dates on the new RA must be 3/1/2020 to 2/28/2021
 #
+#  2. Validate Lease Status
 #------------------------------------------------------------------------------
 TFILES="j"
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
@@ -591,6 +595,7 @@ fi
 #
 #  Expected Results:
 #  1. Original RA should retain PRAID = 0
+#  2. Validate Lease Status
 #------------------------------------------------------------------------------
 TFILES="k"
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
@@ -630,6 +635,7 @@ fi
 #  1. The month of October should have 3 Rental Agreements in the Payor
 #     Statement.
 #  2. Prorationed assessments should be identified for each agreement.
+#  3. Validate Lease Status
 #------------------------------------------------------------------------------
 TFILES="l"
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
@@ -676,6 +682,7 @@ fi
 #  1. Ensure that Prorated assessments for October Rent and PetRent are
 #     created October for both RA 1 and RA 2.
 #  2. Ensure that the rent assessments for November are created for RA 2
+#  3. Validate Lease Status
 #------------------------------------------------------------------------------
 TFILES="m"
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
