@@ -89,7 +89,7 @@ fi
 #       old rental agreement. It is not in the fees list for the RefNo, so it
 #       should be reversed
 #------------------------------------------------------------------------------
-TFILES="a"
+TFILES="b"
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
     echo "Test ${TFILES}"
     RAIDREFNO="NZXY8FS6NHJ34N383950"
@@ -165,7 +165,7 @@ fi
 #   4.  TBind record for Vehicle 1 will be split at 8/23/2018. TCID 1 was the
 #       contact person before the split.  TCID 2 is the contact going forward.
 #------------------------------------------------------------------------------
-TFILES="a"
+TFILES="c"
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
     echo "Test ${TFILES}"
     echo "Create new database..."
@@ -210,7 +210,7 @@ startRentRollServer
 # Check same RA Application flow's data. It must be match with the updated information
 # Outdated RA Application must be terminated
 #---------------------------------------------------------------------------------
-TFILES="a"
+TFILES="z"
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
     echo "Test ${TFILES}"
 

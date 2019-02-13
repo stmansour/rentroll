@@ -151,7 +151,7 @@ func buildPreparedStatements() {
 	fqflds := strings.Join(tmpfa, ",")
 	RRdb.Prepstmt.GetAssessmentInstancesByRAIDRIDRent, err = RRdb.Dbrr.Prepare("SELECT " + fqflds + ` FROM Assessments
 LEFT JOIN AR ON (Assessments.ARID = AR.ARID AND AR.FLAGS & 16 != 0)
-WHERE RAID=? AND RID=? AND Start >= ? AND Stop < ? AND RentCycle=0`)
+WHERE RAID=? AND RID=? AND Start >= ? AND Stop < ? AND RentCycle=0 ORDER By Assessments.Start ASC, Assessments.Amount DESC`)
 	Errcheck(err)
 	RRdb.Prepstmt.GetAssessmentFirstInstance, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE PASMID=? ORDER BY Start LIMIT 1")
 	Errcheck(err)
