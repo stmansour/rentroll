@@ -343,3 +343,4 @@ dorrtest  "p12" "${RRDATERANGE} -b ${BUD} -r 8" "Statements"
 #dorrtest  "q12" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
 
 logcheck
+echo "JM1 - normal exit" >> ${LOGFILE}
