@@ -22,18 +22,18 @@ Date        Payor(s)                   Description                          RAID
                                        (payment for ASM-12)                                                                                                                            
 10/01/2018  Colton Krissy Beard        REVERSAL: Receipt allocation         RA-1        ASM-5       RCPT-4      Rentable001                        1,000.00                        0.00
                                        (payment for ASM-5)                                                                                                                             
-10/31/2018  Colton Krissy Beard        REVERSAL: Receipt allocation         RA-1        ASM-12      RCPT-10     Rentable001                          -10.00                        0.00
-                                       (payment for ASM-12)                                                                                                                            
 10/31/2018  Colton Krissy Beard        REVERSAL: Receipt allocation         RA-1        ASM-5       RCPT-4      Rentable001                       -1,000.00                        0.00
                                        (payment for ASM-5)                                                                                                                             
-11/01/2018  Colton Krissy Beard        REVERSAL: Receipt allocation         RA-1        ASM-13      RCPT-11     Rentable001                          -10.00                        0.00
-                                       (payment for ASM-13)                                                                                                                            
+10/31/2018  Colton Krissy Beard        REVERSAL: Receipt allocation         RA-1        ASM-12      RCPT-10     Rentable001                          -10.00                        0.00
+                                       (payment for ASM-12)                                                                                                                            
+11/01/2018  Colton Krissy Beard        REVERSAL: Receipt allocation         RA-1        ASM-6       RCPT-5      Rentable001                       -1,000.00                        0.00
+                                       (payment for ASM-6)                                                                                                                             
 11/01/2018  Colton Krissy Beard        REVERSAL: Receipt allocation         RA-1        ASM-13      RCPT-11     Rentable001                           10.00                        0.00
                                        (payment for ASM-13)                                                                                                                            
 11/01/2018  Colton Krissy Beard        REVERSAL: Receipt allocation         RA-1        ASM-6       RCPT-5      Rentable001                        1,000.00                        0.00
                                        (payment for ASM-6)                                                                                                                             
-11/01/2018  Colton Krissy Beard        REVERSAL: Receipt allocation         RA-1        ASM-6       RCPT-5      Rentable001                       -1,000.00                        0.00
-                                       (payment for ASM-6)                                                                                                                             
+11/01/2018  Colton Krissy Beard        REVERSAL: Receipt allocation         RA-1        ASM-13      RCPT-11     Rentable001                          -10.00                        0.00
+                                       (payment for ASM-13)                                                                                                                            
 11/01/2018  Colton Krissy Beard        REVERSAL: Rent Non-Taxable           RA-1        ASM-22                  Rentable001                                     -1,000.00          0.00
                                        (Reversal of ASM00000006)                                                                                                                       
 11/01/2018  Colton Krissy Beard        REVERSAL: Pet Rent (Reversal of      RA-1        ASM-23                  Rentable001                                        -10.00          0.00

@@ -14,8 +14,8 @@ Date        Payor(s)                   Description                          RAID
 03/01/2017                             Opening balance                                                                                                                             0.00
 03/01/2017  Bill Williams,Sally        Rent Non-Taxable                     RA-1        ASM-4                   Unit 1                                           3,000.00      3,000.00
             Struthers,Mark Markson                                                                                                                                                     
-03/03/2017  Sally Struthers            Receipt allocation                   RA-1        ASM-4       RCPT-2      Unit 1                               500.00                    2,500.00
-03/03/2017  Mark Markson               Receipt allocation                   RA-1        ASM-4       RCPT-3      Unit 1                               750.00                    1,750.00
+03/03/2017  Mark Markson               Receipt allocation                   RA-1        ASM-4       RCPT-3      Unit 1                               750.00                    2,250.00
+03/03/2017  Sally Struthers            Receipt allocation                   RA-1        ASM-4       RCPT-2      Unit 1                               500.00                    1,750.00
 ----------  -------------------------  -----------------------------------  ----------  ----------  ----------  ---------------  ------------  ------------  ------------  ------------
 04/01/2017                             Closing balance                                                                                             1,250.00      3,000.00      1,750.00
                                                                                                                                                                                        

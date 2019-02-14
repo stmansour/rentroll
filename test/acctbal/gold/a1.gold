@@ -100,22 +100,6 @@
             "AsmtAmount": 0,
             "BID": 1,
             "BUD": "REX",
-            "Balance": 15,
-            "Descr": "Bank Services (ASM-54) (pre-pay 3 months; less $15 wire fee)",
-            "Dt": "11/11/2016",
-            "FLAGS": 4,
-            "ID": "RCPT-38",
-            "RAID": 5,
-            "RcptAmount": 15,
-            "Receipt": 0,
-            "RentableName": "309 1/2 S Rexford",
-            "Reverse": true,
-            "recid": 5
-        },
-        {
-            "AsmtAmount": 0,
-            "BID": 1,
-            "BUD": "REX",
             "Balance": -3985,
             "Descr": "Non-Taxable Rent Assessment (ASM-36)",
             "Dt": "11/11/2016",
@@ -126,7 +110,7 @@
             "Receipt": 0,
             "RentableName": "309 1/2 S Rexford",
             "Reverse": false,
-            "recid": 6
+            "recid": 5
         },
         {
             "AsmtAmount": 0,
@@ -142,6 +126,22 @@
             "Receipt": 0,
             "RentableName": "309 1/2 S Rexford",
             "Reverse": false,
+            "recid": 6
+        },
+        {
+            "AsmtAmount": 0,
+            "BID": 1,
+            "BUD": "REX",
+            "Balance": -7955,
+            "Descr": "Bank Services (ASM-54) (pre-pay 3 months; less $15 wire fee)",
+            "Dt": "11/11/2016",
+            "FLAGS": 4,
+            "ID": "RCPT-38",
+            "RAID": 5,
+            "RcptAmount": 15,
+            "Receipt": 0,
+            "RentableName": "309 1/2 S Rexford",
+            "Reverse": true,
             "recid": 7
         },
         {
