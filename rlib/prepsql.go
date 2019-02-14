@@ -866,7 +866,7 @@ WHERE RAID=? AND RID=? AND Start >= ? AND Stop < ? AND RentCycle=0 ORDER By Asse
 	Errcheck(err)
 	RRdb.Prepstmt.GetReceiptAllocationsThroughDate, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM ReceiptAllocation WHERE ASMID>0 AND RCPTID=? AND Dt <= ? ORDER BY Dt ASC, Amount DESC")
 	Errcheck(err)
-	RRdb.Prepstmt.GetASMReceiptAllocationsInRAIDDateRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM ReceiptAllocation WHERE ASMID>0 AND RAID=? AND Dt >= ? and Dt < ? ORDER BY Dt ASC, Amount DESC")
+	RRdb.Prepstmt.GetASMReceiptAllocationsInRAIDDateRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM ReceiptAllocation WHERE ASMID>0 AND RAID=? AND Dt >= ? and Dt < ? ORDER BY Dt ASC, Amount DESC, RCPTID ASC")
 	Errcheck(err)
 	RRdb.Prepstmt.GetASMReceiptAllocationsInRARDateRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM ReceiptAllocation WHERE ASMID>0 AND RAID=? AND ASMID=? AND ?<=Dt AND Dt<? ORDER BY Dt ASC")
 	Errcheck(err)

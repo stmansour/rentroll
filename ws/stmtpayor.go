@@ -313,6 +313,35 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	//------------------------------------------------------
+	//
+	// DEBUGGING...
+	//
+	//------------------------------------------------------
+	rlib.Console("m.RAB size = %d\n", len(m.RAB))
+	for i := 0; i < len(m.RAB); i++ {
+		rlib.Console("m.RAB[%d]: RAID=%d, %s, opn %8.2f   cls %8.2f\n", i, m.RAB[i].RAID, rlib.ConsoleDRange(&m.RAB[i].DtStart, &m.RAB[i].DtStart), m.RAB[i].OpeningBal, m.RAB[i].ClosingBal)
+		for j := 0; j < len(m.RAB[i].Stmt); j++ {
+			rlib.Console("i=%d, j=%d\n", i, j)
+			o := m.RAB[i].Stmt[j]
+			rlib.Console("o.TCID = %d\n", o.TCID)
+			//rlib.Console("m.RAB[%d].Stmt[%d]: RCPTID=%d,  amt=%8.2f   %s\n", i, j, o.R.RCPTID, o.Amt, rlib.ConDt(&o.Dt))
+			ot := ""
+			switch o.T {
+			case 1:
+				ot = fmt.Sprintf("ASMID = %d", o.A.ASMID)
+			case 2:
+				ot = fmt.Sprintf("RCPTID = %d", o.R.RCPTID)
+			}
+			rlib.Console("m.RAB[%d].Stmt[%d]: T = %d, %s amt = %6.2f\n", i, j, o.T, ot, o.Amt)
+		}
+	}
+
+	rlib.Console("m.RL size = %d\n", len(m.RL))
+	for i := 0; i < len(m.RL); i++ {
+		rlib.Console("m.RL[%d]: RCPTID=%d  alloc %8.2f   unalloc %8.2f\n", i, m.RL[i].R.RCPTID, m.RL[i].Allocated, m.RL[i].Unallocated)
+	}
+
+	//------------------------------------------------------
 	// Generate the Receipt Summary
 	//------------------------------------------------------
 	// Identify section
