@@ -310,15 +310,38 @@ func findSession(w http.ResponseWriter, r **http.Request, d *ServiceData) error 
 // V1ServiceHandler is the main dispatch point for WEB SERVICE requests
 //
 // The expected input is of the form:
+//
 //		request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D
-// This is exactly what the w2ui grid sends as a request.
 //
 // Decoded, this message looks something like this:
+//
 //		request={"cmd":"get","selected":[],"limit":100,"offset":0}
+//   or
+//      {"cmd":"get","selected":[],"limit":100,"offset":0}
+//
+// Either form is permissible. When the service handler is called, d.data will
+// contain a string that begins with the opening brace ({) and containing the
+// remainder of the message.  That is, it trims off "request=" if it is present.
+// So handlers can Unmarshal the data into an appropriate structure.
 //
 // The leading "request=" is optional. This routine parses the basic
 // information, then contacts an appropriate handler for more detailed
 // processing.  It will set the Cmd member variable.
+//
+// This is exactly what the w2ui grid sends as a request.  This routine will
+// unmarshal the data into a ServiceData struct, which includes a member called
+// ws -- if is type WebGridSearchRequest containing several key fields
+// of this struct are:
+//
+//    Cmd - the command -- typically one of "get", "save", "delete"
+//    SearchDtStart - application start of visible date range
+//    SearchDtStop  - application start of visible date range (depending on
+//                    the businiess EDI value, 24hrs may need to be added)
+//    Limit - to support virtual scrolling, indicates the maximum number of
+//            matching search items to return
+//    Offset - to support virtual scrolling, indicates offset into the solution
+//             set where return values must start.
+//
 //
 // W2UI sometimes sends requests that look like this:
 //	request=%7B%22search%22%3A%22s%22%2C%22max%22%3A250%7D

@@ -51,14 +51,16 @@ window.getBookResInitRecord = function (BID, BUD, previousFormRecord){
     var y1 = new Date(r.DtStop);
 
     var defaultFormData = {
-        BID:            BID,
-        BUD:            BUD,
-        RTID:           r.RTID,
+        RLID:           0,
+        rdBID:          BID,
+        rdBUD:          BUD,
+        rdRTID:         r.RTID,
         RID:            r.RID,
+        LeaseStatus:    0,
         Nights:         r.Nights,
         DtStart:        dateControlString(y),
         DtStop:         dateControlString(y1),
-        RLID:           0,
+        RentableName:   '',
         FirstName:      '',
         LastName:       '',
         Email:          '',
@@ -312,18 +314,19 @@ window.buildReservationsElements = function () {
     $().w2form({
         name: 'bookResForm',
         style: 'border: 0px; background-color: transparent;',
-        header: 'Book A Reservations',
+        header: 'Book A Reservation',
         formURL: '/webclient/html/formbookres.html',
 
         fields: [
-            { field: 'BID',           type: 'int',  required: false },
-            { field: 'BUD',           type: 'int',  required: false },
-            { field: 'RTID',          type: 'int',  required: false },
+            { field: 'rdBID',           type: 'int',  required: false },
+            { field: 'rdBUD',           type: 'text', required: false },
+            { field: 'rdRTID',          type: 'int',  required: false },
             { field: 'RID',           type: 'int',  required: false },
             { field: 'RentableName',  type: 'text', required: false },
             { field: 'Nights',        type: 'int',  required: false },
             { field: 'DtStart',       type: 'date', required: false },
             { field: 'DtStop',        type: 'date', required: false },
+            { field: 'LeaseStatus',   type: 'date', required: false },
             { field: 'RLID',          type: 'int',  required: false, html: { page: 0, column: 0 } },
             { field: 'FirstName',     type: 'text', required: true,  html: { page: 0, column: 0 } },
             { field: 'LastName',      type: 'text', required: true,  html: { page: 0, column: 0 } },
@@ -362,8 +365,9 @@ window.buildReservationsElements = function () {
                     var f = w2ui.bookResForm;
                     var r = f.record;
                     f.url = '/v1/reservation/' + BID;
-                    var rtid = r.RTID.id;
-                    r.RTID = rtid;
+                    var rtid = r.rdRTID.id;
+                    r.LeaseStatus = 2; // 2 = Reserved
+                    r.rdRTID = rtid;
                     if (typeof r.RID === "undefined") {
                         r.RID = 0;
                     }
@@ -391,13 +395,14 @@ window.buildReservationsElements = function () {
                 document.getElementById("bookResDtStart").innerHTML = r.DtStart;
                 document.getElementById("bookResDtStop").innerHTML  = r.DtStop;
                 document.getElementById("bookResNights").innerHTML  = '' + r.Nights;
-                if (r.RTID == null) {
-                    r.RTID = w2ui.reservationForm.record.RTID;
+                if (r.rdRTID == null) {
+                    r.rdRTID = w2ui.reservationForm.record.RTID;
                 }
-                if (r.RTID.text != "undefined") {
-                    document.getElementById("bookResRType").innerHTML = r.RTID.text;
+                if (r.rdRTID.text != "undefined") {
+                    document.getElementById("bookResRType").innerHTML = r.rdRTID.text;
                 }
                 document.getElementById("bookResRName").innerHTML = ''+r.RentableName;
+                document.getElementById("bookResBUD").innerHTML = r.rdBUD;
             };
         },
         onChange: function(event) {
@@ -427,6 +432,7 @@ window.buildReservationsElements = function () {
 
 window.resSaveCB = function(data) {
     console.log('save callback status:  ' + data.status);
+    w2ui.reservationLayout.hide('right');
 };
 
 window.saveReservationForm = function (BID, BUD, DtStart, DtStop, RTID) {

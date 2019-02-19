@@ -75,32 +75,32 @@ var resSelectFields = []string{
 
 // ResDet is the structure that fully describes a reservation
 type ResDet struct {
-	Recid        int64 `json:"recid"`
-	BID          int64
-	DtStart      rlib.JSONDateTime
-	DtStop       rlib.JSONDateTime
-	RLID         int64
-	RTRID        int64
-	RTID         int64
-	RID          int64
-	LeaseStatus  int64
-	Nights       int64 // computed field
-	RentableName string
-	FirstName    string
-	LastName     string
-	Email        string
-	Phone        string
-	Street       string
-	City         string
-	Country      string
-	State        string
-	PostalCode   string
-	CCName       string
-	CCType       string
-	CCNumber     string
-	CCExpMonth   string
-	CCExpYear    string
-	Comment      string
+	Recid        int64             `json:"recid"`
+	BID          int64             `json:"rdBID"`
+	DtStart      rlib.JSONDateTime `json:"DtStart"`
+	DtStop       rlib.JSONDateTime `json:"DtStop"`
+	RLID         int64             `json:"RLID"`
+	RTRID        int64             `json:"RTRID"`
+	RTID         int64             `json:"rdRTID"`
+	RID          int64             `json:"RID"`
+	LeaseStatus  int64             `json:"LeaseStatus"`
+	Nights       int64             // computed field `json:"Nights"`
+	RentableName string            `json:"RentableName"`
+	FirstName    string            `json:"FirstName"`
+	LastName     string            `json:"LastName"`
+	Email        string            `json:"Email"`
+	Phone        string            `json:"Phone"`
+	Street       string            `json:"Street"`
+	City         string            `json:"City"`
+	Country      string            `json:"Country"`
+	State        string            `json:"State"`
+	PostalCode   string            `json:"PostalCode"`
+	CCName       string            `json:"CCName"`
+	CCType       string            `json:"CCType"`
+	CCNumber     string            `json:"CCNumber"`
+	CCExpMonth   string            `json:"CCExpMonth"`
+	CCExpYear    string            `json:"CCExpYear"`
+	Comment      string            `json:"Comment"`
 }
 
 // SaveReservation is sent to save one of open time slots as a reservation
