@@ -1,7 +1,7 @@
 /*global
     setDefaultFormFieldAsPreviousRecord, w2uiDateControlString, $, w2ui, app, getCurrentBusiness, parseInt, getBUDfromBID,
     getRentableTypes, setToForm, form_dirty_alert, console, getFormSubmitData, addDateNavToToolbar, setRentableLayout,
-    getRentableInitRecord, saveRentableLeaseStatus, buildRentableUseStatuElements, buildRentableLeaseStatuElements,
+    getRentableInitRecord, saveRentableLeaseStatus, buildRentableUseStatusElements, buildRentableUseStatusElements,
     saveRentableUseStatus,
 */
 /*jshint esversion: 6 */
@@ -9,7 +9,8 @@
 "use strict";
 var RentableEdits = {
     LeaseStatusChgList: [], // an array of indeces to LeaseStatus changes
-    UseStatusChgList: [], // an array of indeces to UseStatus changes
+    UseStatusChgList: [],   // an array of indeces to UseStatus changes
+    TypeRefChgList: [],     // an array of indeces to type ref changes
 };
 
 window.getRentableInitRecord = function (BID, BUD, previousFormRecord) {
@@ -219,6 +220,7 @@ window.buildRentableElements = function () {
                         BUD = getBUDfromBID(BID);
 
                     w2ui.rentableForm.record = getRentableInitRecord(BID, BUD, null);
+                    RentableEdits.TypeRefChgList.push(w2ui.rentableForm.record.recid);
                     w2ui.rentableForm.refresh();
 
                     getRentableTypes(BUD)
@@ -386,8 +388,9 @@ window.buildRentableElements = function () {
         },
     });
 
-    buildRentableUseStatuElements();
-    buildRentableLeaseStatuElements();
+    buildRentableUseStatusElements();
+    buildRentableUseStatusElements();
+    buildRentableTypeRefElements();
 
     //------------------------------------------------------------------------
     //          rentable Type Ref Grid
@@ -672,36 +675,25 @@ window.buildRentableElements = function () {
                         console.log('RentableSave: when failed.');
                     });
 
-                    // // now set the url of status grid so that it can save the record on server side
-                    // w2ui.rentableUseStatusGrid.url = '/v1/rentableusestatus/' + BID + '/' + w2ui.rentableForm.record.RID;
-                    //
-                    // w2ui.rentableUseStatusGrid.save(function (data) {
-                    //     // whether it succeed or not, just reset it, we're already
-                    //     // setting it before save call
-                    //     w2ui.rentableUseStatusGrid.url = ""; // after save, remove it
-                    //     if (data.status == "success") {
-                            console.log('data.status = '+data.status);
+                    w2ui.rentableTypeRefGrid.url = '/v1/rentabletyperef/' + BID + '/' + w2ui.rentableForm.record.RID;
+                    w2ui.rentableTypeRefGrid.save(function (data) {
+                        // no matter, if it was succeed or not, just reset it, we already setting it before save call
+                        //w2ui.rentableTypeRefGrid.url = ""; // after save, remove it
+                        if (data.status === "success") {
+
+                            // clear the rentabletyperef grid, as we're going to add new record
+                            //w2ui.rentableTypeRefGrid.clear();
                             w2ui.rentableTypeRefGrid.url = '/v1/rentabletyperef/' + BID + '/' + w2ui.rentableForm.record.RID;
-                            w2ui.rentableTypeRefGrid.save(function (data) {
-                                // no matter, if it was succeed or not, just reset it, we already setting it before save call
-                                //w2ui.rentableTypeRefGrid.url = ""; // after save, remove it
-                                if (data.status === "success") {
+                            w2ui.rentableTypeRefGrid.reload();
 
-                                    // clear the rentabletyperef grid, as we're going to add new record
-                                    //w2ui.rentableTypeRefGrid.clear();
-                                    w2ui.rentableTypeRefGrid.url = '/v1/rentabletyperef/' + BID + '/' + w2ui.rentableForm.record.RID;
-                                    w2ui.rentableTypeRefGrid.reload();
+                            // JUST RENDER THE MAIN GRID ONLY
+                            w2ui.rentablesGrid.render();
 
-                                    // JUST RENDER THE MAIN GRID ONLY
-                                    w2ui.rentablesGrid.render();
-
-                                    w2ui.rentableForm.record = getRentableInitRecord(BID, BUD, w2ui.rentableForm.record);
-                                    // w2ui.rentableForm.header = "Edit {0} ({1}) as of {2}".format(app.sRentable, "new", w2uiDateControlString(w2ui.rentableForm.record.CurrentDate));
-                                    w2ui.rentableForm.url = '/v1/rentable/' + BID + '/0';
-                                    w2ui.rentableForm.refresh();
-                                }
-                        //     });
-                        // }
+                            w2ui.rentableForm.record = getRentableInitRecord(BID, BUD, w2ui.rentableForm.record);
+                            // w2ui.rentableForm.header = "Edit {0} ({1}) as of {2}".format(app.sRentable, "new", w2uiDateControlString(w2ui.rentableForm.record.CurrentDate));
+                            w2ui.rentableForm.url = '/v1/rentable/' + BID + '/0';
+                            w2ui.rentableForm.refresh();
+                        }
                     });
                 });
             },
