@@ -206,10 +206,12 @@ func ValidateRentableUseStatus(ctx context.Context, rs *rlib.RentableUseStatus) 
 // ValidateRentableTypeRef checks for validity of a given rentable type ref
 // while insert and update in db
 func ValidateRentableTypeRef(ctx context.Context, rtr *rlib.RentableTypeRef) []BizError {
+	rlib.Console("Entered ValidateRentableTypeRef\n")
 	var errlist []BizError
 
 	// 1. First check BID is valid or not
 	if !(rlib.BIDExists(rtr.BID)) {
+		rlib.Console("ValidateRentableTypeRef: BIDExists error]\n")
 		s := fmt.Sprintf(BizErrors[UnknownBID].Message, rtr.BID)
 		b := BizError{Errno: UnknownBID, Message: s}
 		errlist = append(errlist, b)
@@ -217,6 +219,7 @@ func ValidateRentableTypeRef(ctx context.Context, rtr *rlib.RentableTypeRef) []B
 
 	// check for RID as well
 	if rtr.RID < 1 {
+		rlib.Console("ValidateRentableTypeRef: RID < 1 error].  rtr.RID = %d\n", rtr.RID)
 		s := fmt.Sprintf(BizErrors[UnknownRID].Message, rtr.RID)
 		b := BizError{Errno: UnknownRID, Message: s}
 		errlist = append(errlist, b)
@@ -224,6 +227,7 @@ func ValidateRentableTypeRef(ctx context.Context, rtr *rlib.RentableTypeRef) []B
 
 	// check for RTID as well
 	if rtr.RTID < 1 {
+		rlib.Console("ValidateRentableTypeRef: RTID < 1 error].  rtr.RTID = %d\n", rtr.RTID)
 		s := fmt.Sprintf(BizErrors[UnknownRTID].Message, rtr.RTID)
 		b := BizError{Errno: UnknownRTID, Message: s}
 		errlist = append(errlist, b)
@@ -231,6 +235,7 @@ func ValidateRentableTypeRef(ctx context.Context, rtr *rlib.RentableTypeRef) []B
 
 	// 2. Stopdate should not be before startDate
 	if rtr.DtStop.Before(rtr.DtStart) {
+		rlib.Console("ValidateRentableTypeRef: stop before start error]\n")
 		s := fmt.Sprintf(BizErrors[InvalidRentableTypeRefDates].Message,
 			rtr.RTRID, rtr.DtStop.Format(rlib.RRDATEFMT4), rtr.DtStart.Format(rlib.RRDATEFMT4))
 		b := BizError{Errno: InvalidRentableTypeRefDates, Message: s}
@@ -268,6 +273,7 @@ func ValidateRentableTypeRef(ctx context.Context, rtr *rlib.RentableTypeRef) []B
 		panic(err.Error()) // BOOM!
 	}
 	if overLappingRTRID > 0 {
+		rlib.Console("ValidateRentableTypeRef: overlapping RTRID error]\n")
 		s := fmt.Sprintf(BizErrors[RentableTypeRefDatesOverlap].Message, rtr.RTRID, overLappingRTRID)
 		b := BizError{Errno: RentableTypeRefDatesOverlap, Message: s}
 		errlist = append(errlist, b)

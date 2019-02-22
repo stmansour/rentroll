@@ -136,7 +136,7 @@ window.buildRentableTypeRefElements = function () {
                 DtStart: dateFmtStr(ndStart),
                 DtStop: "12/31/9999"
             };
-            // RentableEdits.LeaseStatusChgList.push(newRec.recid);
+            RentableEdits.RTRChgList.push(newRec.recid);
             g.add(newRec);
         },
         onSave: function (event) {
@@ -184,10 +184,12 @@ window.buildRentableTypeRefElements = function () {
         },
         onChange: function (event) {
             event.preventDefault();
-            var g = this,
-                field = g.columns[event.column].field,
-                chgRec = g.get(event.recid),
-                changeIsValid = true;
+            var g = this;
+            var field = g.columns[event.column].field;
+            var chgRec = g.get(event.recid);
+            var changeIsValid = true;
+
+            RentableEdits.RTRChgList.push(chgRec.recid);
 
             // if fields are DtStart or DtStop
             if (field === "DtStart" || field === "DtStop") {
@@ -222,19 +224,68 @@ window.buildRentableTypeRefElements = function () {
             }
 
             if (changeIsValid) {
-                // if everything is ok, then mark this as false
-                event.isCancelled = false;
+                event.isCancelled = false; // if everything is ok, then don't cancel
             } else {
                 event.isCancelled = true;
             }
 
             event.onComplete = function () {
                 if (!event.isCancelled) { // if event not cancelled then invoke save method
-                    // save automatically locally
-                    this.save();
+                    this.save();          // save automatically locally
                 }
             };
         }
     });
+};
 
+// saveRentableTypeRef - creates a list of RentableTypeRef entries that have
+// been changed, then calls the webservice to save them.
+//
+// @params
+//     BID = business id
+//     BUD = business designator
+//
+// @return
+//     a Promise object:
+//           if there are no changes to the Rentable's TypeRefs the return a resolved Promise
+//           if we need to call the server, return the $.post() Promise
+//---------------------------------------------------------------------------
+window.saveRentableTypeRef = function(BID,RID) {
+    var reclist = Array.from(new Set(RentableEdits.RTRChgList));
+
+    if (reclist.length == 0) {
+        return Promise.resolve('{"status": "success"}');
+    }
+
+    var chgrec = [];
+    for (var i = 0; i < reclist.length; i++) {
+        var nrec =  w2ui.rentableTypeRefGrid.get(reclist[i]);
+        chgrec.push(nrec);
+    }
+
+    var params = {
+        cmd: "save",
+        selected: [],
+        limit: 0,
+        offset: 0,
+        changes: chgrec,
+        RID: w2ui.rentableForm.record.RID
+    };
+
+    var dat = JSON.stringify(params);
+    var url = '/v1/rentabletyperef/' + BID + '/' + w2ui.rentableForm.record.RID;
+    return $.post(url, dat, null, "json")
+    .done(function(data) {
+        if (data.status === "success") {
+            RentableEdits.RTRChgList = []; // reset the change list now, because we've saved them
+            // w2ui.toplayout.hide('right', true);
+            // w2ui.rentablesGrid.render();
+            w2ui.rentableTypeRefGrid.url = '/v1/rentabletyperef/' + BID + '/' + w2ui.rentableForm.record.RID;
+            w2ui.rentableTypeRefGrid.reload();
+            w2ui.rentablesGrid.render();  // this maay need changing
+        }
+    })
+    .fail(function(data){
+        console.log("Save RentableLeaseStatus failed.");
+    });
 };

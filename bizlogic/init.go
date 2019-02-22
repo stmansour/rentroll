@@ -54,7 +54,7 @@ const (
 	RentableTypeRefDatesOverlap     = 30 // rentable type ref dates overlapping
 	UnknownRID                      = 31 // Unknown Rentable
 	InvalidRTFlag                   = 32
-	UnknownRTID                     = 33 // Unknown Rentable Type
+	UnknownRTID                     = 32 // Unknown Rentable Type
 	UnknownRAID                     = 34 // Unknown Rental Agreement
 	UnknownARType                   = 35 // Unknown ARType
 	InvalidARFlag                   = 36 // Invalid AR Flag
