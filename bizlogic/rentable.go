@@ -46,7 +46,7 @@ func InsertRentable(ctx context.Context, r *rlib.Rentable) []BizError {
 // while insert and update in db
 func ValidateRentableLeaseStatus(ctx context.Context, rl *rlib.RentableLeaseStatus) []BizError {
 	var errlist []BizError
-
+	rlib.Console("VRLS: 0\n")
 	// 1. First check BID is valid or not
 	if !(rlib.BIDExists(rl.BID)) {
 		s := fmt.Sprintf(BizErrors[UnknownBID].Message, rl.BID)
@@ -54,6 +54,7 @@ func ValidateRentableLeaseStatus(ctx context.Context, rl *rlib.RentableLeaseStat
 		errlist = append(errlist, b)
 	}
 
+	rlib.Console("VRLS: 1\n")
 	// check for RID as well
 	if rl.RID < 1 {
 		s := fmt.Sprintf(BizErrors[UnknownRID].Message, rl.RID)
@@ -61,6 +62,7 @@ func ValidateRentableLeaseStatus(ctx context.Context, rl *rlib.RentableLeaseStat
 		errlist = append(errlist, b)
 	}
 
+	rlib.Console("VRLS: 2\n")
 	// 2. check UseStatus is valid or not
 	//if !(0 <= rs.UseStatus && rs.UseStatus < int64(len(rlib.RSUseStatus))) {
 	//	s := fmt.Sprintf(BizErrors[InvalidRentableUseStatus].Message, rs.UseStatus)
@@ -68,6 +70,7 @@ func ValidateRentableLeaseStatus(ctx context.Context, rl *rlib.RentableLeaseStat
 	//	errlist = append(errlist, b)
 	//}
 
+	rlib.Console("VRLS: 3\n")
 	// 3. check LeaseStatus is valid or not
 	if !(0 <= rl.LeaseStatus && rl.LeaseStatus < int64(len(rlib.RSLeaseStatus))) {
 		s := fmt.Sprintf(BizErrors[InvalidRentableLeaseStatus].Message, rl.LeaseStatus)
@@ -75,15 +78,18 @@ func ValidateRentableLeaseStatus(ctx context.Context, rl *rlib.RentableLeaseStat
 		errlist = append(errlist, b)
 	}
 
+	rlib.Console("VRLS: 4\n")
+	rlib.Console("VRLS: 4\n")
 	// 4. Stopdate should not be before startDate
 	//please check bizlogic/init.go line 66 to check if const InvalidRentableLeaseStatusDates need to update the number
 	if rl.DtStop.Before(rl.DtStart) {
 		s := fmt.Sprintf(BizErrors[InvalidRentableLeaseStatusDates].Message,
-			rl.RLID, rl.DtStop.Format(rlib.RRDATEFMT4), rl.DtStart.Format(rlib.RRDATEFMT4))
+			rl.RLID, rl.DtStart.Format(rlib.RRDATEFMT4), rl.DtStop.Format(rlib.RRDATEFMT4))
 		b := BizError{Errno: InvalidRentableLeaseStatusDates, Message: s}
 		errlist = append(errlist, b)
 	}
 
+	rlib.Console("VRLS: 5\n")
 	// 5. check that DtStart and DtStop don't overlap/fall in with other object
 	// associated with the same RID
 	overLappingRLQuery := `
@@ -107,19 +113,32 @@ func ValidateRentableLeaseStatus(ctx context.Context, rl *rlib.RentableLeaseStat
 	}
 
 	qry := rlib.RenderSQLQuery(overLappingRLQuery, qc)
+
+	rlib.Console("Rentable Lease Status overlap qry = %s\n", qry)
 	row := rlib.RRdb.Dbrr.QueryRow(qry)
 
 	var overLappingRLID int64
 	err := row.Scan(&overLappingRLID)
 	rlib.SkipSQLNoRowsError(&err)
 	if err != nil {
-		panic(err.Error()) // BOOM!
+		b := BizError{Errno: -1, Message: err.Error()}
+		errlist = append(errlist, b)
+		return errlist // we're done if this happens
 	}
+	rlib.Console("VRLS: 6\n")
+
 	if overLappingRLID > 0 {
-		s := fmt.Sprintf(BizErrors[RentableLeaseStatusDatesOverlap].Message, rl.RLID, overLappingRLID)
+		rlib.Console("VRLS: 6.1  -  RentableLeaseStatusDatesOverlap %d\n", RentableLeaseStatusDatesOverlap)
+		s := fmt.Sprintf(BizErrors[RentableLeaseStatusDatesOverlap].Message,
+			rl.RLID,
+			rlib.ConsoleDate(&rl.DtStart),
+			rlib.ConsoleDate(&rl.DtStop),
+			overLappingRLID)
+		rlib.Console("VRLS: 6.2\n")
 		b := BizError{Errno: RentableLeaseStatusDatesOverlap, Message: s}
 		errlist = append(errlist, b)
 	}
+	rlib.Console("VRLS: 7\n")
 	return errlist
 }
 

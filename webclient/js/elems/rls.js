@@ -106,7 +106,7 @@ window.buildRentableLeaseStatusElements = function () {
                 RLID: 0,
                 LeaseStatus: 0,
                 DtStart: dateFmtStr(ndStart),
-                DtStop: "12/31/9999"
+                DtStop: "12/1/9999"
             };
             RentableEdits.LeaseStatusChgList.push(newRec.recid);
             g.add(newRec);
@@ -182,35 +182,35 @@ window.buildRentableLeaseStatusElements = function () {
                     if (chgDStop <= chgDStart) {
                         changeIsValid = false;
                     } else {
-
                         // TODO: This date verification code needs to be rewritten!!!
                         // make sure date values don't overlap with other market rate dates
-                        for (var i in g.records) {
-                            var rec = g.records[i];
-                            if (rec.recid === chgRec.recid) { // if same record then continue to next one
-                                i = g.records.length;
-                                continue;
-                            }
-
-                            var rDStart = new Date(rec.DtStart),
-                                rDStop = new Date(rec.DtStop);
-
-                            // return if changed record startDate falls in other MR time span
-                            if (rDStart < chgDStart && chgDStart < rDStop) {
-                                changeIsValid = false;
-                            } else if (rDStart < chgDStop && chgDStop < rDStop) {
-                                changeIsValid = false;
-                            } else if (chgDStart < rDStart && rDStop < chgDStop) {
-                                changeIsValid = false;
-                            }
-                        }
+                        // for (var i = 0; i< g.records.length; i++) {
+                        //     var rec = g.records[i];
+                        //     if (rec.recid === chgRec.recid) { // if same record then continue to next one
+                        //         i = g.records.length;
+                        //         continue;
+                        //     }
+                        //
+                        //     var rDStart = new Date(rec.DtStart),
+                        //         rDStop = new Date(rec.DtStop);
+                        //
+                        //     // return if changed record startDate falls in other MR time span
+                        //     if (rDStart < chgDStart && chgDStart < rDStop) {
+                        //         changeIsValid = false;
+                        //     } else if (rDStart < chgDStop && chgDStop < rDStop) {
+                        //         changeIsValid = false;
+                        //     } else if (chgDStart < rDStart && rDStop < chgDStop) {
+                        //         changeIsValid = false;
+                        //     }
+                        //
+                        // }
                         if (changeIsValid) {
                             // for some reason, there are cases where changeIsValid is true yet the value is not changed.
                             // this is a temporary fix to
                             if (field == "DtStart") {
-                                w2ui.rentableLeaseStatusGrid.records[i].DtStart = event.value_new;
+                                w2ui.rentableLeaseStatusGrid.records[event.recid].DtStart = event.value_new;
                             } else {
-                                w2ui.rentableLeaseStatusGrid.records[i].DtStop = event.value_new;
+                                w2ui.rentableLeaseStatusGrid.records[event.recid].DtStop = event.value_new;
                             }
                         }
                     }

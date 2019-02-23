@@ -1,0 +1,4 @@
+{
+    "message": "Error: Rentable Lease Status records overlap: RLID-1 = 0 (3/4/2020 - 12/2/9999), RLID-2 = 25. \n\n",
+    "status": "error"
+}

@@ -64,7 +64,7 @@ const (
 	RecurAsmEpochInClosedPeriod     = 40 // attempt to create a recurring definition in a closed period
 	RecurStartAfterStopAfterRelo    = 41 // after moving start date of recurring asmt def to open period, start date occurs after stop date
 	InvalidRentableLeaseStatusDates = 42 //invalid rentable Lease status dates ,add by lina, !!!!!maybe need to update later!!
-	RentableLeaseStatusDatesOverlap = 43 // rentable Lease status dates overlapping,add by lina, !!!!!maybe need to update later!!
+	RentableLeaseStatusDatesOverlap = 43 // rentable Lease status dates overlapping, add by lina, !!!!!maybe need to update later!!
 )
 
 // InitBizLogic loads the error messages needed for validation errors

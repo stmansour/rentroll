@@ -71,12 +71,15 @@ var form_dirty_alert_options = {
 };
 
 //-----------------------------------------------------------------------------
-// form_dirty_alert - alert the user if form content has been changed and he leaves the form at five times as follows
+// form_dirty_alert - alert the user if form content has been changed then
+// leaves the form under any of these circumstances:
+//
 // 1. When user change the business
 // 2. When he clicks on the sidebar that load something else
 // 3. When closing the form
 // 4. When click on other record
 // 5. When user closing the whole window
+//
 // NOTE: if form is dirty then only alert the user, otherwise always return true;
 // @params
 //   yes callback = what to do if user agree (Yes)

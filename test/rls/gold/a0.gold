@@ -5,8 +5,8 @@
             "BUD": "REX",
             "Comment": "",
             "CreateBy": 0,
-            "DtStart": "1/1/2017",
-            "DtStop": "12/31/2017",
+            "DtStart": "1/1/2019",
+            "DtStop": "1/2/2019",
             "LastModBy": 0,
             "LeaseStatus": 0,
             "RID": 1,
@@ -18,12 +18,12 @@
             "BUD": "REX",
             "Comment": "",
             "CreateBy": 0,
-            "DtStart": "1/1/2018",
-            "DtStop": "7/31/2018",
+            "DtStart": "1/3/2019",
+            "DtStop": "2/29/2020",
             "LastModBy": 0,
             "LeaseStatus": 1,
             "RID": 1,
-            "RLID": 12,
+            "RLID": 24,
             "recid": 1
         },
         {
@@ -31,28 +31,15 @@
             "BUD": "REX",
             "Comment": "",
             "CreateBy": 0,
-            "DtStart": "8/1/2018",
-            "DtStop": "12/31/2018",
-            "LastModBy": 0,
-            "LeaseStatus": 2,
-            "RID": 1,
-            "RLID": 2,
-            "recid": 2
-        },
-        {
-            "BID": 1,
-            "BUD": "REX",
-            "Comment": "",
-            "CreateBy": 0,
-            "DtStart": "1/1/2019",
+            "DtStart": "3/1/2020",
             "DtStop": "12/30/9999",
             "LastModBy": 0,
             "LeaseStatus": 2,
             "RID": 1,
-            "RLID": 3,
-            "recid": 3
+            "RLID": 25,
+            "recid": 2
         }
     ],
     "status": "success",
-    "total": 4
+    "total": 3
 }

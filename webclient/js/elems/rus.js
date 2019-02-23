@@ -241,9 +241,9 @@ window.buildRentableUseStatusElements = function () {
                         changeIsValid = false;
                     } else {
                         // make sure date values don't overlap with other market rate dates
-                        for (var i in g.records) {
+                        for (var i = 0; i< g.records.length; i++) {
                             var rec = g.records[i];
-                            if (rec.recid === chgRec.recid) { // if same record then continue to next one
+                            if (rec.recid >= chgRec.recid) { // if same record then continue to next one
                                 continue;
                             }
 

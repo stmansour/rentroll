@@ -408,9 +408,6 @@ window.buildRentableElements = function () {
                 var BUD = getBUDfromBID();
                 w2ui.rentablesGrid.selectNone();
                 saveRentableCore();
-                // w2ui.rentableForm.record = getRentableInitRecord(BID, BUD, w2ui.rentableForm.record);
-                // w2ui.rentableForm.url = '/v1/rentable/' + BID + '/0';
-                // w2ui.rentableForm.refresh();
                 app.form_is_dirty = false;
                 closeRentableForm();
             },
@@ -469,10 +466,13 @@ window.saveRentableCore = function (BID, BUD) {
             w2ui.rentableTypeRefGrid.records[i].RID = w2ui.rentableForm.record.RID;
         }
 
+        var BID = w2ui.rentableForm.record.BID;
+        var RID = w2ui.rentableForm.record.RID;
+
         $.when(
-            saveRentableLeaseStatus(BID,w2ui.rentableForm.record.RID),
-            saveRentableUseStatus(BID,w2ui.rentableForm.record.RID),
-            saveRentableTypeRef(BID,w2ui.rentableForm.record.RID)
+            saveRentableLeaseStatus(BID,RID),
+            saveRentableUseStatus(BID,RID),
+            saveRentableTypeRef(BID,RID)
         )
         .done(function(){
             console.log('RentableSave: when completed, no errors');

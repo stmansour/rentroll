@@ -118,8 +118,8 @@ func SvcHandlerRentableLeaseStatus(w http.ResponseWriter, r *http.Request, d *Se
 		err error
 	)
 
-	fmt.Printf("Entered %s\n", funcname)
-	fmt.Printf("Request: %s:  BID = %d,  RID = %d\n", d.wsSearchReq.Cmd, d.BID, d.ID)
+	rlib.Console("Entered %s\n", funcname)
+	rlib.Console("Request: %s:  BID = %d,  RID = %d\n", d.wsSearchReq.Cmd, d.BID, d.ID)
 
 	// This operation requires Rentable ID
 	if d.ID < 0 {
@@ -155,7 +155,7 @@ func svcSearchHandlerRentableLeaseStatus(w http.ResponseWriter, r *http.Request,
 		order = `RentableLeaseStatus.DtStart ASC`
 		whr   = fmt.Sprintf("RentableLeaseStatus.RID=%d", d.ID)
 	)
-	fmt.Printf("Entered %s\n", funcname)
+	rlib.Console("Entered %s\n", funcname)
 
 	// get where clause and order clause for sql query
 	whereClause, orderClause := GetSearchAndSortSQL(d, rentableLeaseStatusSearchFieldMap)
@@ -183,11 +183,11 @@ func svcSearchHandlerRentableLeaseStatus(w http.ResponseWriter, r *http.Request,
 	countQuery := rlib.RenderSQLQuery(statusQuery, qc)
 	g.Total, err = rlib.GetQueryCount(countQuery)
 	if err != nil {
-		fmt.Printf("%s: Error from rlib.GetQueryCount: %s\n", funcname, err.Error())
+		rlib.Console("%s: Error from rlib.GetQueryCount: %s\n", funcname, err.Error())
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
-	fmt.Printf("g.Total = %d\n", g.Total)
+	rlib.Console("g.Total = %d\n", g.Total)
 
 	// FETCH the records WITH LIMIT AND OFFSET
 	// limit the records to fetch from server, page by page
@@ -205,11 +205,11 @@ func svcSearchHandlerRentableLeaseStatus(w http.ResponseWriter, r *http.Request,
 
 	// get formatted query with substitution of select, where, order clause
 	qry := rlib.RenderSQLQuery(queryWithLimit, qc)
-	fmt.Printf("db query = %s\n", qry)
+	rlib.Console("db query = %s\n", qry)
 
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
-		fmt.Printf("%s: Error from DB Query: %s\n", funcname, err.Error())
+		rlib.Console("%s: Error from DB Query: %s\n", funcname, err.Error())
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
@@ -228,6 +228,12 @@ func svcSearchHandlerRentableLeaseStatus(w http.ResponseWriter, r *http.Request,
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
+
+		//----------------
+		// Handle EDI...
+		//----------------
+		// rlib.Console("%s: EDIHandleOutgoingJSONDateRange\n", funcname)
+		rlib.EDIHandleOutgoingJSONDateRange(q.BID, &q.DtStart, &q.DtStop)
 
 		g.Records = append(g.Records, q)
 		count++ // update the count only after adding the record
@@ -255,7 +261,7 @@ func saveRentableLeaseStatus(w http.ResponseWriter, r *http.Request, d *ServiceD
 		err      error
 		foo      RentableLeaseStatusGridSave
 	)
-	fmt.Printf("Entered %s\n", funcname)
+	rlib.Console("Entered %s\n", funcname)
 	rlib.Console("record data: %s\n", d.data)
 
 	// get data
@@ -266,7 +272,7 @@ func saveRentableLeaseStatus(w http.ResponseWriter, r *http.Request, d *ServiceD
 		SvcErrorReturn(w, e, funcname)
 		return
 	}
-	fmt.Printf("foo Changes: %v\n", foo.Changes)
+	rlib.Console("A: foo Changes (len = %d): %v\n", len(foo.Changes), foo.Changes)
 
 	// first check that given such rentable exists or not
 	if _, err = rlib.GetRentable(r.Context(), foo.RID); err != nil {
@@ -274,6 +280,7 @@ func saveRentableLeaseStatus(w http.ResponseWriter, r *http.Request, d *ServiceD
 		SvcErrorReturn(w, e, funcname)
 		return
 	}
+	rlib.Console("B: loaded RID = %d\n", foo.RID)
 
 	// if there are no changes then nothing to do
 	if len(foo.Changes) == 0 {
@@ -283,17 +290,35 @@ func saveRentableLeaseStatus(w http.ResponseWriter, r *http.Request, d *ServiceD
 		// SvcErrorReturn(w, e, funcname)
 		return
 	}
+	rlib.Console("C:\n")
 
+	var biz rlib.Business
+	if err = rlib.GetBusiness(r.Context(), d.BID, &biz); err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	rlib.Console("D:\n")
+	var EDIadjust = (biz.FLAGS & 1) != 0
 	var bizErrs []bizlogic.BizError
 	for _, rl := range foo.Changes {
+		rlib.Console("E:\n")
 		var a rlib.RentableLeaseStatus
 		rlib.MigrateStructVals(&rl, &a) // the variables that don't need special handlingsman
 
+		rlib.Console("F:\n")
+		if EDIadjust {
+			rlib.EDIHandleIncomingDateRange(a.BID, &a.DtStart, &a.DtStop)
+		}
+
+		rlib.Console("F1:\n")
 		errs := bizlogic.ValidateRentableLeaseStatus(r.Context(), &a)
+		rlib.Console("F2:\n")
 		if len(errs) > 0 {
 			bizErrs = append(bizErrs, errs...)
 			continue
 		}
+		rlib.Console("G:\n")
 
 		// if RSID = 0 then insert new record
 		if a.RLID == 0 {
@@ -311,6 +336,7 @@ func saveRentableLeaseStatus(w http.ResponseWriter, r *http.Request, d *ServiceD
 				return
 			}
 		}
+		rlib.Console("H:\n")
 	}
 
 	// if any rentable status has problem in bizlogic then return list

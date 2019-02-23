@@ -41,8 +41,8 @@ func SvcHandlerRentableUseStatus(w http.ResponseWriter, r *http.Request, d *Serv
 		err error
 	)
 
-	fmt.Printf("Entered %s\n", funcname)
-	fmt.Printf("Request: %s:  BID = %d,  RID = %d\n", d.wsSearchReq.Cmd, d.BID, d.ID)
+	rlib.Console("Entered %s\n", funcname)
+	rlib.Console("Request: %s:  BID = %d,  RID = %d\n", d.wsSearchReq.Cmd, d.BID, d.ID)
 
 	// This operation requires Rentable ID
 	if d.ID < 0 {
@@ -79,7 +79,7 @@ func svcSearchHandlerRentableUseStatus(w http.ResponseWriter, r *http.Request, d
 		order = `RentableUseStatus.DtStart ASC`
 		whr   = fmt.Sprintf("RentableUseStatus.RID=%d", d.ID)
 	)
-	fmt.Printf("Entered %s\n", funcname)
+	rlib.Console("Entered %s\n", funcname)
 
 	// get where clause and order clause for sql query
 	whereClause, orderClause := GetSearchAndSortSQL(d, rentableStatusSearchFieldMap)
@@ -107,11 +107,11 @@ func svcSearchHandlerRentableUseStatus(w http.ResponseWriter, r *http.Request, d
 	countQuery := rlib.RenderSQLQuery(statusQuery, qc)
 	g.Total, err = rlib.GetQueryCount(countQuery)
 	if err != nil {
-		fmt.Printf("%s: Error from rlib.GetQueryCount: %s\n", funcname, err.Error())
+		rlib.Console("%s: Error from rlib.GetQueryCount: %s\n", funcname, err.Error())
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
-	fmt.Printf("g.Total = %d\n", g.Total)
+	rlib.Console("g.Total = %d\n", g.Total)
 
 	// FETCH the records WITH LIMIT AND OFFSET
 	// limit the records to fetch from server, page by page
@@ -129,11 +129,11 @@ func svcSearchHandlerRentableUseStatus(w http.ResponseWriter, r *http.Request, d
 
 	// get formatted query with substitution of select, where, order clause
 	qry := rlib.RenderSQLQuery(queryWithLimit, qc)
-	fmt.Printf("db query = %s\n", qry)
+	rlib.Console("db query = %s\n", qry)
 
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
-		fmt.Printf("%s: Error from DB Query: %s\n", funcname, err.Error())
+		rlib.Console("%s: Error from DB Query: %s\n", funcname, err.Error())
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
@@ -226,7 +226,7 @@ func saveRentableUseStatus(w http.ResponseWriter, r *http.Request, d *ServiceDat
 		err      error
 		foo      RentableUseStatusGridSave
 	)
-	fmt.Printf("Entered %s\n", funcname)
+	rlib.Console("Entered %s\n", funcname)
 	rlib.Console("record data: %s\n", d.data)
 
 	// get data
@@ -237,11 +237,7 @@ func saveRentableUseStatus(w http.ResponseWriter, r *http.Request, d *ServiceDat
 		SvcErrorReturn(w, e, funcname)
 		return
 	}
-	fmt.Printf("foo Changes: %v\n", foo.Changes)
-
-	// rlib.EDIHandleIncomingDateRange(, &AStart, &AStop)
-	// rlib.EDIHandleIncomingDateRange(x.Raf.Meta.BID, &RStart, &RStop)
-	// rlib.EDIHandleIncomingDateRange(x.Raf.Meta.BID, &PStart, &PStop)
+	rlib.Console("foo Changes: %v\n", foo.Changes)
 
 	// first check that given such rentable exists or not
 	if _, err = rlib.GetRentable(r.Context(), foo.RID); err != nil {
@@ -258,10 +254,22 @@ func saveRentableUseStatus(w http.ResponseWriter, r *http.Request, d *ServiceDat
 		return
 	}
 
+	var biz rlib.Business
+	if err = rlib.GetBusiness(r.Context(), d.BID, &biz); err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	var EDIadjust = (biz.FLAGS & 1) != 0
 	var bizErrs []bizlogic.BizError
 	for _, rs := range foo.Changes {
+
 		var a rlib.RentableUseStatus
 		rlib.MigrateStructVals(&rs, &a) // the variables that don't need special handling
+
+		if EDIadjust {
+			rlib.EDIHandleIncomingDateRange(a.BID, &a.DtStart, &a.DtStop)
+		}
 
 		errs := bizlogic.ValidateRentableUseStatus(r.Context(), &a)
 		if len(errs) > 0 {

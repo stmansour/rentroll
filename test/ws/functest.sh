@@ -142,10 +142,10 @@ dojsonPOST "http://localhost:8270/v1/rentable/1/0" "request" "ws39"  "WebService
 
 # save rentable Use status with usestatus: 2(Administrative)
 echo "%7B%22cmd%22%3A%22save%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22changes%22%3A%5B%7B%22recid%22%3A0%2C%22RSID%22%3A0%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22RID%22%3A1129%2C%22UseStatus%22%3A2%2C%22LeaseStatus%22%3A5%2C%22DtStart%22%3A%221%2F1%2F2016%22%2C%22DtStop%22%3A%221%2F1%2F9999%22%2C%22DtNoticeToVacate%22%3A%221%2F1%2F1900%22%2C%22DtNoticeToVacateIsSet%22%3Afalse%2C%22CreateBy%22%3A0%2C%22LastModBy%22%3A0%7D%5D%7D" > request
-dojsonPOST "http://localhost:8270/v1/rentablestatus/1/1129" "request" "ws40"  "WebService--SaveRentableUseStatus-Rentable(1129)"
+dojsonPOST "http://localhost:8270/v1/rentableusestatus/1/1129" "request" "ws40"  "WebService--SaveRentableUseStatus-Rentable(1129)"
 
 # save rentable Lease status with LeaseStatus: Reserved
-echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22bookResForm%22%2C%22record%22%3A%7B%22BID%22%3A1%2C%22BUD%22%3A%22%22%2C%22RTID%22%3A1%2C%22RID%22%3A1129%2C%22Nights%22%3A1%2C%22DtStart%22%3A%221%2F1%2F2016%22%2C%22DtStop%22%3A%2212%2F31%2F9999%22%2C%22RLID%22%3A0%2C%22FirstName%22%3A%22Steve%22%2C%22LastName%22%3A%22Mansour%22%2C%22Email%22%3A%22sman%40stevemansour.com%22%2C%22Phone%22%3A%224089219957%22%2C%22Street%22%3A%22%22%2C%22City%22%3A%22Milpitas%22%2C%22Country%22%3A%22United%2BStates%22%2C%22State%22%3A%22CA%22%2C%22PostalCode%22%3A%2295035%22%2C%22CCName%22%3A%22STEVE%20MANSOUR%22%2C%22CCType%22%3A%22VISA%22%2C%22CCNumber%22%3A%221234111112341111%22%2C%22CCExpMonth%22%3A%2209%22%2C%22CCExpYear%22%3A%222014%22%2C%22Comment%22%3A%22%22%2C%22RentableName%22%3A%22Rentable010%22%2C%22Address%22%3A%222215%2BWellington%2BDrive%22%2C%22Address2%22%3A%22%22%7D%7D" > request
+echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22bookResForm%22%2C%22record%22%3A%7B%22BID%22%3A1%2C%22BUD%22%3A%22%22%2C%22RTID%22%3A1%2C%22RID%22%3A1129%2C%22Nights%22%3A1%2C%22DtStart%22%3A%221%2F1%2F2014%22%2C%22DtStop%22%3A%2212%2F31%2F9999%22%2C%22RLID%22%3A0%2C%22FirstName%22%3A%22Steve%22%2C%22LastName%22%3A%22Mansour%22%2C%22Email%22%3A%22sman%40stevemansour.com%22%2C%22Phone%22%3A%224089219957%22%2C%22Street%22%3A%22%22%2C%22City%22%3A%22Milpitas%22%2C%22Country%22%3A%22United%2BStates%22%2C%22State%22%3A%22CA%22%2C%22PostalCode%22%3A%2295035%22%2C%22CCName%22%3A%22STEVE%20MANSOUR%22%2C%22CCType%22%3A%22VISA%22%2C%22CCNumber%22%3A%221234111112341111%22%2C%22CCExpMonth%22%3A%2209%22%2C%22CCExpYear%22%3A%222014%22%2C%22Comment%22%3A%22%22%2C%22RentableName%22%3A%22Rentable010%22%2C%22Address%22%3A%222215%2BWellington%2BDrive%22%2C%22Address2%22%3A%22%22%7D%7D" > request
 dojsonPOST "http://localhost:8270/v1/reservation/1/1129" "request" "ws40b"  "WebService--SaveRentableLeaseStatus-Rentable(1129)"
 
 # save rentable type ref
@@ -159,15 +159,15 @@ dojsonPOST "http://localhost:8270/v1/rentables/1" "request" "ws42"  "WebService-
 
 # Get Rentable Status list for Rentable(1129)
 echo "request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D" > request
-dojsonPOST "http://localhost:8270/v1/rentablestatus/1/1129" "request" "ws43"  "WebService--GetRentableStatus"
+dojsonPOST "http://localhost:8270/v1/rentableusestatus/1/1129" "request" "ws43"  "WebService--GetRentableUseStatus"
 
 # Get Rentable Type ref list for Rentable(1129)
 echo "request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D" > request
 dojsonPOST "http://localhost:8270/v1/rentabletyperef/1/1129" "request" "ws44"  "WebService--GetRentableTypeRef"
 
-# delete rentable status recently created (1129)
+# delete rentable use status recently created (1129)
 echo "%7B%22cmd%22%3A%22delete%22%2C%22RSIDList%22%3A%5B1129%5D%7D" > request
-dojsonPOST "http://localhost:8270/v1/rentablestatus/1/1129" "request" "ws45" "WebService--DeleteRentableStatus(1129)"
+dojsonPOST "http://localhost:8270/v1/rentableusestatus/1/1129" "request" "ws45" "WebService--DeleteRentableUseStatus(1129)"
 
 # delete rentable type ref recently created (1129)
 echo "%7B%22cmd%22%3A%22delete%22%2C%22RTRIDList%22%3A%5B1129%5D%7D" > request

@@ -43,7 +43,7 @@ var ediKnownStructMap = map[string]bool{
 	"rlib.RentableTypeRef":         true,
 	"rlib.RentCycleRef":            true,
 	"rlib.RentableSpecialtyRef":    true,
-	"rlib.RentableUseStatus":          true,
+	"rlib.RentableUseStatus":       true,
 	"rlib.XRentable":               true,
 	"rlib.JournalMarker":           true,
 	"rlib.RAFlowJSONData":          true,
@@ -57,7 +57,7 @@ var ediKnownStructMap = map[string]bool{
 	"ws.RAPeople":                  true,
 	"ws.RAR":                       true,
 	"ws.PrRentableOther":           true,
-	"ws.RentableUseStatusGridRec":     true,
+	"ws.RentableUseStatusGridRec":  true,
 	"ws.RentableTypeRefGridRec":    true,
 	"ws.RentableMarketRateGridRec": true,
 	"ws.StatementInfoGridRecord":   true,
@@ -302,4 +302,36 @@ func EDIHandleNDOutgoingDateRange(BID int64, d1, stopDate *NullDate) {
 		return
 	}
 	EDIHandleOutgoingDateRange(BID, &d1.Time, &stopDate.Time)
+}
+
+// EDIHandleOutgoingJSONDateTimeRange will modify give stopDate if EDI is enabled for
+// the given business
+// -----------------------------------------------------------------------------
+func EDIHandleOutgoingJSONDateTimeRange(BID int64, DtStart, DtStop *JSONDateTime) {
+	var d1 = time.Time(*DtStart)
+	var d2 = time.Time(*DtStop)
+
+	if EDIEnabledForBID(BID) {
+		d2 = d2.AddDate(0, 0, -1)
+		*DtStop = JSONDateTime(d2)
+		if d2.Before(d1) {
+			*DtStop = *DtStart
+		}
+	}
+}
+
+// EDIHandleOutgoingJSONDateRange will modify give stopDate if EDI is enabled for
+// the given business
+// -----------------------------------------------------------------------------
+func EDIHandleOutgoingJSONDateRange(BID int64, DtStart, DtStop *JSONDate) {
+	var d1 = time.Time(*DtStart)
+	var d2 = time.Time(*DtStop)
+
+	if EDIEnabledForBID(BID) {
+		d2 = d2.AddDate(0, 0, -1)
+		*DtStop = JSONDate(d2)
+		if d2.Before(d1) {
+			*DtStop = *DtStart
+		}
+	}
 }

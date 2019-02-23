@@ -359,23 +359,25 @@ func saveReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	s := d.data[i+len(target):]
 	s = s[:len(s)-1]
 
+	// rlib.Console("Data to unmarshal = %s\n", s)
+
 	// Reservation
 	var res ResDet
 	err := json.Unmarshal([]byte(s), &res)
-	rlib.Errcheck(err)
 	if err != nil {
 		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
 		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
-	rlib.Console("Successfully unmarshaled reservation: %s %s\n", res.FirstName, res.LastName)
+	// rlib.Console("Successfully unmarshaled reservation: %s %s\n", res.FirstName, res.LastName)
+	// rlib.Console("    res.BID: %d   d.BID = %d\n", res.BID, d.BID)
 	ctx := rlib.SetSessionContextKey(r.Context(), d.sess)
 
 	var rls = rlib.RentableLeaseStatus{
 		RLID:        res.RLID,
 		RID:         res.RID,
-		BID:         res.BID,
+		BID:         d.BID,
 		DtStart:     time.Time(res.DtStart),
 		DtStop:      time.Time(res.DtStop),
 		LeaseStatus: res.LeaseStatus,

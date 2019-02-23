@@ -40,3 +40,5 @@
 39,"Task Descriptor missing required Name field: TDID = %d, BID=%d. "
 40,"Recurring assessment definitions cannot be started in a closed period. "
 41,"Start date of recurring assessment definition was moved open period but is now after stop date. "
+42,"Rentable Lease Status stop time prior to start time. RLID = %d, DtStart = %s, DtStop = %s. "
+43,"Rentable Lease Status records overlap: RLID-1 = %d (%s - %s), RLID-2 = %d. "
