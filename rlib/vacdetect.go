@@ -102,15 +102,15 @@ func VacancyDetect(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time, rid 
 					vacant = false // not vacant
 				}
 			}
-		case USESTATUSadmin:
+		case USESTATUSadministrative:
 			fallthrough
 		case USESTATUSemployee:
 			fallthrough
 		case USESTATUSownerOccupied:
 			fallthrough
-		case USESTATUSofflineRenovation:
+		case USESTATUSmajorRepair:
 			fallthrough
-		case USESTATUSofflineMaintenance:
+		case USESTATUShousekeeping:
 			fallthrough
 		case USESTATUSinactive:
 			// rlib.Console("\t{admin|employee|ownerocc|offline}...\n")

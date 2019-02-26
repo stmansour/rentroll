@@ -88,11 +88,46 @@ func HotelBookings(ctx context.Context, dbConf *GenDBConf) error {
 						}
 					}
 				}
+
 				// rlib.Console("Found date range that works: %s\n", rlib.ConsoleDRange(&ls.DtStart, &ls.DtStop))
 				m = append(m, ls) // we'll use this time
 				if err := rlib.SetRentableLeaseStatusAbbr(ctx, ls.BID, ls.RID, ls.LeaseStatus, &ls.DtStart, &ls.DtStop, false); err != nil {
 					return err
 				}
+				//--------------------------------------------------
+				// Add some reasonable UseStatus values as well...
+				// 7 - 5 hours prior  Housekeeping
+				// 4 - 2 hours prior  Ready
+				// (selected range)   InService
+				//--------------------------------------------------
+				dd := ls.DtStart.Unix()
+				hrs := 300 + IG.Rand.Intn(180)
+				d1 := time.Unix(dd-int64(hrs), int64(0)) // Housekeeping
+				mns := 120
+				d2 := time.Unix(dd-int64(mns), int64(0)) // ready
+				var us = rlib.RentableUseStatus{
+					BID:       1,
+					RID:       r.RID,
+					UseStatus: rlib.USESTATUShousekeeping,
+					DtStart:   d1,
+					DtStop:    d2,
+				}
+				if err := rlib.SetRentableUseStatus(ctx, &us); err != nil { // sets Housekeeping status
+					return err
+				}
+				us.UseStatus = rlib.USESTATUSready
+				us.DtStart = d2
+				us.DtStop = ls.DtStart
+				if err := rlib.SetRentableUseStatus(ctx, &us); err != nil { // sets ready status
+					return err
+				}
+				us.UseStatus = rlib.USESTATUSinService
+				us.DtStart = ls.DtStart
+				us.DtStop = ls.DtStop
+				if err := rlib.SetRentableUseStatus(ctx, &us); err != nil { // sets in use status
+					return err
+				}
+
 				// rlib.Console("Scheduled: RID: %d,  %s\n", ls.RID, rlib.ConsoleDRange(&ls.DtStart, &ls.DtStop))
 				booked += bk
 			}

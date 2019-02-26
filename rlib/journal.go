@@ -161,13 +161,13 @@ func ProrateAssessment(ctx context.Context, xbiz *XBusiness, a *Assessment, d, d
 		}
 		// Console("Assessment = %d, Rentable = %d, RA = %d, pf = %3.2f\n", a.ASMID, r.RID, ra.RAID, pf)
 
-	case USESTATUSadmin:
+	case USESTATUSadministrative:
 		fallthrough
 	case USESTATUSownerOccupied:
 		fallthrough
-	case USESTATUSofflineRenovation:
+	case USESTATUSmajorRepair:
 		fallthrough
-	case USESTATUSofflineMaintenance:
+	case USESTATUShousekeeping:
 		// Console("ProrateAssessment: F\n")
 		ta, err := GetAllRentableAssessments(ctx, r.RID, d1, d2)
 		if err != nil {

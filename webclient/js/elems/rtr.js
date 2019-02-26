@@ -76,23 +76,9 @@ window.buildRentableTypeRefElements = function () {
                     return html;
                 },
             },
-            {
-                field: 'DtStart',
-                caption: 'DtStart',
-                size: "50%",
-                sortable: true,
-                style: 'text-align: right',
-                editable: {type: 'date'}
-            },
-            {
-                field: 'DtStop',
-                caption: 'DtStop',
-                size: "50%",
-                sortable: true,
-                style: 'text-align: right',
-                editable: {type: 'date'}
-            },
-            {field: 'CreateBy', caption: 'CreateBy', hidden: true},
+            {field: 'DtStart',   caption: 'DtStart', size: "50%", sortable: true, style: 'text-align: right', editable: {type: 'date'} },
+            {field: 'DtStop',    caption: 'DtStop', size: "50%", sortable: true, style: 'text-align: right', editable: {type: 'date'} },
+            {field: 'CreateBy',  caption: 'CreateBy', hidden: true},
             {field: 'LastModBy', caption: 'LastModBy', hidden: true},
         ],
         onLoad: function (event) {

@@ -16,14 +16,14 @@ var RSLeaseStatus = []string{
 // RSUseStatus is a slice of the string meaning of each UseStatus
 // 0 = Ready, 1=InService, 2=Administrative, 3=Employee, 4=OwnerOccupied, 5=OfflineRennovation, 6=OfflineMaintenance, 7=Inactive(no longer a valid rentable)
 var RSUseStatus = []string{
-	"Ready",               // 0
-	"In Service",          // 1
-	"Administrative",      // 2
-	"Employee",            // 3
-	"Owner Occupied",      // 4
-	"Offline Renovation",  // 5
-	"Offline Maintenance", // 6
-	"Inactive",            // 7
+	"Ready",                // 0
+	"In Service",           // 1
+	"Administrative",       // 2
+	"Employee",             // 3
+	"Owner Occupied",       // 4
+	"Offline Major Repair", // 5
+	"Offline housekeeping", // 6
+	"Inactive",             // 7
 }
 
 // RSMakeReadyStatus is a slice of the string meaning of each MakeReadyStatus
