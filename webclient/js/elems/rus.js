@@ -109,7 +109,13 @@ window.buildRentableUseStatusElements = function () {
                 DtStart: dateFmtStr(ndStart),
                 DtStop: "12/31/9999"
             };
-            g.add(newRec);
+            if (EDIEnabledForBUD(BUD)) {
+                var d = ndStart;
+                d.setDate(d.getDate()+1);
+                newRec.DtStart = dateFmtStr(d);
+                newRec.DtStop = "12/30/9999";
+            }
+            g.add(newRec,true); // true forces the add to the beginning of the list
             RentableEdits.UseStatusChgList.push(newRec.recid);
         },
         onSave: function (event) {

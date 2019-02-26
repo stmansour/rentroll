@@ -76,7 +76,7 @@ func svcSearchHandlerRentableUseStatus(w http.ResponseWriter, r *http.Request, d
 	var (
 		g     RentableUseStatusGridResponse
 		err   error
-		order = `RentableUseStatus.DtStart ASC`
+		order = `RentableUseStatus.DtStart DESC`
 		whr   = fmt.Sprintf("RentableUseStatus.RID=%d", d.ID)
 	)
 	rlib.Console("Entered %s\n", funcname)

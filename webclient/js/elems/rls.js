@@ -14,6 +14,7 @@ window.buildRentableLeaseStatusElements = function () {
     $().w2grid({
         name: 'rentableLeaseStatusGrid',
         style: 'padding: 0px',
+        url: '/v1/rentableleasestatus',
         show: {
             header: false,
             toolbar: true,
@@ -69,17 +70,19 @@ window.buildRentableLeaseStatusElements = function () {
             {field: 'LastModBy', caption: 'LastModBy', hidden: true},
         ],
         onLoad: function (event) {
+            var BID = getCurrentBID();
+            var RID = w2ui.rentableForm.record.RID;
+
             event.onComplete = function () {
-                this.url = '';
+                this.url = '/v1/rentableleasestatus/'+BID+'/'+RID;
             };
         },
         onAdd: function (/*event*/) {
-            var x = getCurrentBusiness(),
-                BID = parseInt(x.value),
-                BUD = getBUDfromBID(BID),
-                fr = w2ui.rentableForm.record,
-                g = this,
-                ndStart;
+            var BID = getCurrentBID();
+            var BUD = getBUDfromBID(BID);
+            var fr = w2ui.rentableForm.record;
+            var g = this;
+            var ndStart;
 
             // get lastest date among all market rate object's stopDate for new MR's StartDate
             if (g.records.length === 0) {
@@ -106,10 +109,16 @@ window.buildRentableLeaseStatusElements = function () {
                 RLID: 0,
                 LeaseStatus: 0,
                 DtStart: dateFmtStr(ndStart),
-                DtStop: "12/1/9999"
+                DtStop: "12/31/9999"
             };
+            if (EDIEnabledForBUD(BUD)) {
+                var d = ndStart;
+                d.setDate(d.getDate()+1);
+                newRec.DtStart = dateFmtStr(d);
+                newRec.DtStop = "12/30/9999";
+            }
             RentableEdits.LeaseStatusChgList.push(newRec.recid);
-            g.add(newRec);
+            g.add(newRec,true); // the boolean forces the new row to be added at the top of the grid
         },
         onSave: function (event) {
             // if url is set then only take further actions, for local save just ignore those
@@ -231,11 +240,13 @@ window.buildRentableLeaseStatusElements = function () {
                 if (!event.isCancelled) { // if event not cancelled then invoke save method
                     g.url = '';  // just ensure that no server service is called
                     this.save(); // save automatically locally
+                    var BID = getCurrentBusiness();
+                    var RID = w2ui.rentableForm.record.RID;
+                    g.url = '/v1/rentableleasestatus/' + BID + '/' + RID;
                 }
             };
         }
     });
-
 };
 
 // saveRentableLeaseStatus - creates a list of LeaseStatus entries that have
@@ -275,6 +286,8 @@ window.saveRentableLeaseStatus = function(BID,RID) {
             RentableEdits.LeaseStatusChgList = []; // reset the change list now, because we've saved them
             w2ui.toplayout.hide('right', true);
             w2ui.rentablesGrid.render();
+        } else {
+            w2ui.rentableLeaseStatusGrid.error(data.status);
         }
     })
     .fail(function(data){

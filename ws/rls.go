@@ -164,6 +164,8 @@ func svcSearchHandlerRentableLeaseStatus(w http.ResponseWriter, r *http.Request,
 	}
 	if len(orderClause) > 0 {
 		order = orderClause
+	} else {
+		order = "DtStart DESC"
 	}
 
 	statusQuery := `
@@ -272,7 +274,6 @@ func saveRentableLeaseStatus(w http.ResponseWriter, r *http.Request, d *ServiceD
 		SvcErrorReturn(w, e, funcname)
 		return
 	}
-	rlib.Console("A: foo Changes (len = %d): %v\n", len(foo.Changes), foo.Changes)
 
 	// first check that given such rentable exists or not
 	if _, err = rlib.GetRentable(r.Context(), foo.RID); err != nil {
@@ -280,7 +281,6 @@ func saveRentableLeaseStatus(w http.ResponseWriter, r *http.Request, d *ServiceD
 		SvcErrorReturn(w, e, funcname)
 		return
 	}
-	rlib.Console("B: loaded RID = %d\n", foo.RID)
 
 	// if there are no changes then nothing to do
 	if len(foo.Changes) == 0 {
@@ -290,7 +290,6 @@ func saveRentableLeaseStatus(w http.ResponseWriter, r *http.Request, d *ServiceD
 		// SvcErrorReturn(w, e, funcname)
 		return
 	}
-	rlib.Console("C:\n")
 
 	var biz rlib.Business
 	if err = rlib.GetBusiness(r.Context(), d.BID, &biz); err != nil {
@@ -298,27 +297,21 @@ func saveRentableLeaseStatus(w http.ResponseWriter, r *http.Request, d *ServiceD
 		return
 	}
 
-	rlib.Console("D:\n")
 	var EDIadjust = (biz.FLAGS & 1) != 0
 	var bizErrs []bizlogic.BizError
 	for _, rl := range foo.Changes {
-		rlib.Console("E:\n")
 		var a rlib.RentableLeaseStatus
 		rlib.MigrateStructVals(&rl, &a) // the variables that don't need special handlingsman
 
-		rlib.Console("F:\n")
 		if EDIadjust {
 			rlib.EDIHandleIncomingDateRange(a.BID, &a.DtStart, &a.DtStop)
 		}
 
-		rlib.Console("F1:\n")
 		errs := bizlogic.ValidateRentableLeaseStatus(r.Context(), &a)
-		rlib.Console("F2:\n")
 		if len(errs) > 0 {
 			bizErrs = append(bizErrs, errs...)
 			continue
 		}
-		rlib.Console("G:\n")
 
 		// if RSID = 0 then insert new record
 		if a.RLID == 0 {
@@ -336,7 +329,6 @@ func saveRentableLeaseStatus(w http.ResponseWriter, r *http.Request, d *ServiceD
 				return
 			}
 		}
-		rlib.Console("H:\n")
 	}
 
 	// if any rentable status has problem in bizlogic then return list

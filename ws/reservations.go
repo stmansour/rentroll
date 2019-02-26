@@ -377,7 +377,7 @@ func saveReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var rls = rlib.RentableLeaseStatus{
 		RLID:        res.RLID,
 		RID:         res.RID,
-		BID:         d.BID,
+		BID:         d.BID, // DEBUG: res.BID is 0 in ws func test 41b ?????
 		DtStart:     time.Time(res.DtStart),
 		DtStop:      time.Time(res.DtStop),
 		LeaseStatus: res.LeaseStatus,
