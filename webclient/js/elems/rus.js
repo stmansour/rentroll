@@ -15,6 +15,7 @@ window.buildRentableUseStatusElements = function () {
     $().w2grid({
         name: 'rentableUseStatusGrid',
         style: 'padding: 0px',
+        utl: '/v1/rentableusestatus',
         show: {
             header: false,
             toolbar: true,
@@ -69,8 +70,10 @@ window.buildRentableUseStatusElements = function () {
             {field: 'LastModBy', caption: 'LastModBy', hidden: true},
         ],
         onLoad: function (event) {
+            var BID = getCurrentBID();
+            var RID = w2ui.rentableForm.record.RID;
             event.onComplete = function () {
-                this.url = '';
+                this.url = '/v1/rentableusestatus/'+BID+'/'+RID;
             };
         },
         onAdd: function (/*event*/) {
@@ -120,9 +123,7 @@ window.buildRentableUseStatusElements = function () {
         },
         onSave: function (event) {
             // if url is set then only take further actions, for local save just ignore those
-            if (this.url === "") {
-                return false;
-            }
+            this.url = '';
 
             // TODO(Sudip): validation on values before sending these to server
 
@@ -168,6 +169,11 @@ window.buildRentableUseStatusElements = function () {
             //     }
             // });
             event.changes = this.records;
+            event.onComplete = function() {
+                var BID = getCurrentBID();
+                var RID = w2ui.rentableForm.record.RID;
+                w2ui.rentableUseStatusGrid.url = "/v1/rentableusestatus/" + BID + "/" + RID;
+            };
         },
         onDelete: function (event) {
             var selected = this.getSelection(),
@@ -184,10 +190,8 @@ window.buildRentableUseStatusElements = function () {
             });
 
             event.onComplete = function () {
-                var x = getCurrentBusiness(),
-                    BID = parseInt(x.value),
-                    BUD = getBUDfromBID(BID),
-                    RID = w2ui.rentableForm.record.RID;
+                var BID = getCurrentBID();
+                var RID = w2ui.rentableForm.record.RID;
 
                 var payload = {"cmd": "delete", "RSIDList": RSIDList};
                 $.ajax({
@@ -276,15 +280,20 @@ window.buildRentableUseStatusElements = function () {
                 event.isCancelled = true;
             }
 
+            // 2/19/2019 sman - This save is used to save the data into the
+            // grid's records.  We need to ensure that the grids URL is ''
+            //-------------------------------------------------------------------
             event.onComplete = function () {
                 if (!event.isCancelled) { // if event not cancelled then invoke save method
-                    // save automatically locally
-                    this.save();
+                    g.url = '';  // just ensure that no server service is called
+                    this.save(); // save automatically locally
+                    var BID = getCurrentBusiness();
+                    var RID = w2ui.rentableForm.record.RID;
+                    g.url = '/v1/rentableusestatus/' + BID + '/' + RID;
                 }
             };
         }
     });
-
 };
 
 // saveRentableUseStatus - creates a list of UseStatus entries that have
@@ -324,6 +333,8 @@ window.saveRentableUseStatus = function(BID,RID) {
             RentableEdits.UseStatusChgList = []; // reset the change list now, because we've saved them
             w2ui.toplayout.hide('right', true);
             w2ui.rentablesGrid.render();
+        } else {
+            w2ui.rentablesGrid.error(data.status);
         }
     })
     .fail(function(data){

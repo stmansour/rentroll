@@ -157,7 +157,7 @@ dojsonPOST "http://localhost:8270/v1/rentabletyperef/1/1129" "request" "ws41"  "
 echo "request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%228%2F1%2F2016%22%2C%22searchDtStop%22%3A%229%2F1%2F2016%22%7D" > request
 dojsonPOST "http://localhost:8270/v1/rentables/1" "request" "ws42"  "WebService--GetRentables"
 
-# Get Rentable Status list for Rentable(1129)
+# Get Rentable Use Status list for Rentable(1129)
 echo "request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D" > request
 dojsonPOST "http://localhost:8270/v1/rentableusestatus/1/1129" "request" "ws43"  "WebService--GetRentableUseStatus"
 

@@ -34,7 +34,7 @@ type RentableTypeRefGridRec struct {
 	LastModBy              int64
 }
 
-// rsGridRowScan scans a result from sql row and dump it in a struct for rentableTypeRefGridRec
+// rsUseGridRowScan scans a result from sql row and dump it in a struct for rentableTypeRefGridRec
 func rtrGridRowScan(rows *sql.Rows, q RentableTypeRefGridRec) (RentableTypeRefGridRec, error) {
 	err := rows.Scan(&q.RTRID, &q.RTID, &q.RID, &q.OverrideRentCycle, &q.OverrideProrationCycle, &q.DtStart, &q.DtStop, &q.CreateBy, &q.LastModBy)
 	return q, err

@@ -50,19 +50,6 @@ func rsLeaseGridRowScan(rows *sql.Rows, q RentableLeaseStatusGridRec) (RentableL
 	return q, err
 }
 
-// rsGridRowScan scans a result from sql row and dump it in a struct for rentableStatusGridRec
-func rsGridRowScan(rows *sql.Rows, q RentableUseStatusGridRec) (RentableUseStatusGridRec, error) {
-	err := rows.Scan(&q.RSID, &q.RID, &q.UseStatus /*&q.LeaseStatus,*/, &q.DtStart, &q.DtStop, &q.Comment, &q.CreateBy, &q.LastModBy)
-	// if err == nil {
-	// 	// Year 2000 date in UTC
-	// 	Y2KDt := time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC)
-	// 	if (time.Time)(q.DtNoticeToVacate).After(Y2KDt) {
-	// 		q.DtNoticeToVacateIsSet = true
-	// 	}
-	// }
-	return q, err
-}
-
 var rentableLeaseStatusSearchFieldMap = rlib.SelectQueryFieldMap{ //add on 01/23/2019
 	"RLID":        {"RentableLeaseStatus.RLID"},
 	"RID":         {"RentableLeaseStatus.RID"},
@@ -84,31 +71,6 @@ var rentableLeaseStatusSearchSelectQueryFields = rlib.SelectQueryFields{ //add o
 	"RentableLeaseStatus.Comment",
 	"RentableLeaseStatus.CreateBy",
 	"RentableLeaseStatus.LastModBy",
-}
-
-var rentableStatusSearchFieldMap = rlib.SelectQueryFieldMap{
-	"RSID":      {"RentableUseStatus.RSID"},
-	"RID":       {"RentableUseStatus.RID"},
-	"UseStatus": {"RentableUseStatus.UseStatus"},
-	// "LeaseStatus": {"RentableUseStatus.LeaseStatus"},
-	"DtStart":   {"RentableUseStatus.DtStart"},
-	"DtStop":    {"RentableUseStatus.DtStop"},
-	"Comment":   {"RentableUseStatus.Comment"},
-	"CreateBy":  {"RentableUseStatus.CreateBy"},
-	"LastModBy": {"RentableUseStatus.LastModBy"},
-}
-
-// which fields needs to be fetch to satisfy the struct
-var rentableStatusSearchSelectQueryFields = rlib.SelectQueryFields{
-	"RentableUseStatus.RSID",
-	"RentableUseStatus.RID",
-	"RentableUseStatus.UseStatus",
-	// "RentableUseStatus.LeaseStatus",
-	"RentableUseStatus.DtStart",
-	"RentableUseStatus.DtStop",
-	"RentableUseStatus.Comment",
-	"RentableUseStatus.CreateBy",
-	"RentableUseStatus.LastModBy",
 }
 
 // SvcHandlerRentableLeaseStatus returns the list of Lease status for the rentableLeaseStatus add by lina on 01/23/2019
@@ -136,7 +98,7 @@ func SvcHandlerRentableLeaseStatus(w http.ResponseWriter, r *http.Request, d *Se
 		saveRentableLeaseStatus(w, r, d)
 		break
 	//case "delete":
-	//	deleteRentableUseStatus(w, r, d)
+	//	deleteRentableLeaseStatus(w, r, d)
 	//	break
 	default:
 		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)

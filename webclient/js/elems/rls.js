@@ -72,7 +72,6 @@ window.buildRentableLeaseStatusElements = function () {
         onLoad: function (event) {
             var BID = getCurrentBID();
             var RID = w2ui.rentableForm.record.RID;
-
             event.onComplete = function () {
                 this.url = '/v1/rentableleasestatus/'+BID+'/'+RID;
             };
@@ -122,9 +121,12 @@ window.buildRentableLeaseStatusElements = function () {
         },
         onSave: function (event) {
             // if url is set then only take further actions, for local save just ignore those
-            if (this.url === "") {
-                return false;
-            }
+            this.url = '';
+            event.onComplete = function() {
+                var BID = getCurrentBID();
+                var RID = w2ui.rentableForm.record.RID;
+                w2ui.rentableLeaseStatusGrid.url = "/v1/rentableleasestatus/" + BID + "/" + RID;
+            };
         },
         /*onDelete: function (event) {
             var selected = this.getSelection(),
@@ -287,7 +289,7 @@ window.saveRentableLeaseStatus = function(BID,RID) {
             w2ui.toplayout.hide('right', true);
             w2ui.rentablesGrid.render();
         } else {
-            w2ui.rentableLeaseStatusGrid.error(data.status);
+            w2ui.rentablesGrid.error(data.status);
         }
     })
     .fail(function(data){

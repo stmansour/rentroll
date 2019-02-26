@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -19,19 +20,24 @@ type RentableUseStatusGridResponse struct {
 
 // RentableUseStatusGridRec to a row record of the grid
 type RentableUseStatusGridRec struct {
-	Recid       int64 `json:"recid"`
-	RSID        int64
-	BID         int64
-	BUD         string
-	RID         int64
-	UseStatus   int64
-	LeaseStatus int64
-	DtStart     rlib.JSONDate
-	DtStop      rlib.JSONDate
-	Comment     string
-	CreateBy    int64
-	LastModBy   int64
+	Recid     int64 `json:"recid"`
+	RSID      int64
+	BID       int64
+	BUD       string
+	RID       int64
+	UseStatus int64
+	DtStart   rlib.JSONDate
+	DtStop    rlib.JSONDate
+	Comment   string
+	CreateBy  int64
+	LastModBy int64
 	// DtNoticeToVacateIsSet bool
+}
+
+// rsUseGridRowScan scans a result from sql row and dump it in a struct for rentableStatusGridRec
+func rsUseGridRowScan(rows *sql.Rows, q RentableUseStatusGridRec) (RentableUseStatusGridRec, error) {
+	err := rows.Scan(&q.RSID, &q.RID, &q.UseStatus /*&q.LeaseStatus,*/, &q.DtStart, &q.DtStop, &q.Comment, &q.CreateBy, &q.LastModBy)
+	return q, err
 }
 
 // SvcHandlerRentableUseStatus returns the list of status for the rentable
@@ -68,6 +74,29 @@ func SvcHandlerRentableUseStatus(w http.ResponseWriter, r *http.Request, d *Serv
 	}
 }
 
+// which fields needs to be fetch to satisfy the struct
+var rentableUseStatusSearchSelectQueryFields = rlib.SelectQueryFields{
+	"RentableUseStatus.RSID",
+	"RentableUseStatus.RID",
+	"RentableUseStatus.UseStatus",
+	"RentableUseStatus.DtStart",
+	"RentableUseStatus.DtStop",
+	"RentableUseStatus.Comment",
+	"RentableUseStatus.CreateBy",
+	"RentableUseStatus.LastModBy",
+}
+
+var rentableUseStatusSearchFieldMap = rlib.SelectQueryFieldMap{
+	"RSID":      {"RentableUseStatus.RSID"},
+	"RID":       {"RentableUseStatus.RID"},
+	"UseStatus": {"RentableUseStatus.UseStatus"},
+	"DtStart":   {"RentableUseStatus.DtStart"},
+	"DtStop":    {"RentableUseStatus.DtStop"},
+	"Comment":   {"RentableUseStatus.Comment"},
+	"CreateBy":  {"RentableUseStatus.CreateBy"},
+	"LastModBy": {"RentableUseStatus.LastModBy"},
+}
+
 // svcSearchHandlerRentableUseStatus handles market rate grid request/response
 func svcSearchHandlerRentableUseStatus(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
@@ -82,7 +111,7 @@ func svcSearchHandlerRentableUseStatus(w http.ResponseWriter, r *http.Request, d
 	rlib.Console("Entered %s\n", funcname)
 
 	// get where clause and order clause for sql query
-	whereClause, orderClause := GetSearchAndSortSQL(d, rentableStatusSearchFieldMap)
+	whereClause, orderClause := GetSearchAndSortSQL(d, rentableUseStatusSearchFieldMap)
 	if len(whereClause) > 0 {
 		whr += " AND (" + whereClause + ")"
 	}
@@ -98,7 +127,7 @@ func svcSearchHandlerRentableUseStatus(w http.ResponseWriter, r *http.Request, d
 	ORDER BY {{.OrderClause}}`
 
 	qc := rlib.QueryClause{
-		"SelectClause": strings.Join(rentableStatusSearchSelectQueryFields, ","),
+		"SelectClause": strings.Join(rentableUseStatusSearchSelectQueryFields, ","),
 		"WhereClause":  whr,
 		"OrderClause":  order,
 	}
@@ -147,7 +176,7 @@ func svcSearchHandlerRentableUseStatus(w http.ResponseWriter, r *http.Request, d
 		q.BID = d.BID
 		q.BUD = string(rlib.GetBUDFromBIDList(q.BID))
 
-		q, err = rsGridRowScan(rows, q)
+		q, err = rsUseGridRowScan(rows, q)
 		if err != nil {
 			SvcErrorReturn(w, err, funcname)
 			return

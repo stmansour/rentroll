@@ -115,8 +115,8 @@ const (
 	RENTABLESTATUSLAST     = 5 // keep in sync with last
 
 	// USESTATUSready etc all Rentable Use Status
-	USESTATUSinService      = 1
 	USESTATUSready          = 0
+	USESTATUSinService      = 1
 	USESTATUSadministrative = 2
 	USESTATUSemployee       = 3
 	USESTATUSownerOccupied  = 4
