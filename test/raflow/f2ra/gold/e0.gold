@@ -12,16 +12,16 @@
         "Flow": {
             "BID": 1,
             "CreateBy": -99999,
-            "CreateTS": "2018-09-22T13:18:25Z",
+            "CreateTS": "2018-09-24T12:35:09Z",
             "Data": {
                 "dates": {
-                    "AgreementStart": "9/22/2018",
-                    "AgreementStop": "11/30/2018",
+                    "AgreementStart": "12/1/2018",
+                    "AgreementStop": "11/30/2019",
                     "CSAgent": 209,
-                    "PossessionStart": "9/22/2018",
-                    "PossessionStop": "11/30/2018",
-                    "RentStart": "9/22/2018",
-                    "RentStop": "11/30/2018"
+                    "PossessionStart": "12/1/2018",
+                    "PossessionStop": "11/30/2019",
+                    "RentStart": "12/1/2018",
+                    "RentStop": "11/30/2019"
                 },
                 "meta": {
                     "ActiveDate": "1900-01-01 00:00:00 UTC",
@@ -42,7 +42,7 @@
                     "DocumentDate": "1900-01-01 00:00:00 UTC",
                     "HavePets": false,
                     "HaveVehicles": false,
-                    "LastTMPASMID": 3,
+                    "LastTMPASMID": 4,
                     "LastTMPPETID": 1,
                     "LastTMPTCID": 1,
                     "LastTMPVID": 1,
@@ -51,13 +51,13 @@
                     "MoveInName": "",
                     "MoveInUID": 0,
                     "NoticeToMoveDate": "1900-01-01 00:00:00 UTC",
-                    "NoticeToMoveName": "UID-0",
+                    "NoticeToMoveName": "",
                     "NoticeToMoveReported": "1900-01-01 00:00:00 UTC",
                     "NoticeToMoveUID": 0,
                     "RAFLAGS": 0,
                     "RAID": 1,
                     "TerminationDate": "1900-01-01 00:00:00 UTC",
-                    "TerminatorName": "UID-0",
+                    "TerminatorName": "",
                     "TerminatorUID": 0
                 },
                 "parentchild": [],
@@ -151,29 +151,14 @@
                                 "ARName": "Rent Non-Taxable",
                                 "ASMID": 1,
                                 "AtSigningPreTax": 0,
-                                "Comment": "prorated for 9 of 30 days",
-                                "ContractAmount": 300,
-                                "ProrationCycle": 0,
-                                "RentCycle": 0,
-                                "SalesTax": 0,
-                                "Start": "9/22/2018",
-                                "Stop": "9/22/2018",
-                                "TMPASMID": 2,
-                                "TransOccTax": 0
-                            },
-                            {
-                                "ARID": 26,
-                                "ARName": "Rent Non-Taxable",
-                                "ASMID": 1,
-                                "AtSigningPreTax": 0,
                                 "Comment": "",
                                 "ContractAmount": 1000,
                                 "ProrationCycle": 4,
                                 "RentCycle": 6,
                                 "SalesTax": 0,
-                                "Start": "10/1/2018",
-                                "Stop": "11/30/2018",
-                                "TMPASMID": 3,
+                                "Start": "12/1/2018",
+                                "Stop": "11/30/2019",
+                                "TMPASMID": 4,
                                 "TransOccTax": 0
                             }
                         ],
@@ -215,9 +200,9 @@
             "FlowID": 1,
             "FlowType": "RA",
             "ID": 1,
-            "LastModBy": -99999,
-            "LastModTime": "2018-09-22T13:18:25Z",
-            "UserRefNo": "8BC09SXTJFKT704423X5"
+            "LastModBy": 211,
+            "LastModTime": "2019-03-01T10:59:06Z",
+            "UserRefNo": "DUO6X142Z3GC1597BHG0"
         },
         "ValidationCheck": {
             "errors": {

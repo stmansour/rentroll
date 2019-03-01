@@ -434,7 +434,7 @@ func createRentableTypesAndRentables(ctx context.Context, dbConf *GenDBConf) err
 		rt.GSRPC = dbConf.RT[i].ProrateCycle
 		rt.FLAGS |= 0x4 /*manage to budget*/
 		if dbConf.RT[i].Reserve {
-			rt.FLAGS |= 1 << 3 // Reserve after RA.  Used for hotel rooms
+			rt.FLAGS |= 1 << 3 // if 1 then Reserve after RA.  set to 0 for hotels
 		}
 		rt.ARID = ar.ARID
 		_, err = rlib.InsertRentableType(ctx, &rt)

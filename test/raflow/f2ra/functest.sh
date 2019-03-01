@@ -54,6 +54,7 @@ RENTROLLSERVERNOW="-testDtNow 10/24/2018"
 #   7.  Lease Status should be updated to reflect the new RA
 #------------------------------------------------------------------------------
 TFILES="a"
+STEP=0
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
     RAID1REFNO="UJF64M3Y28US5BHW5400"
     RAIDAMENDEDID="2"
@@ -65,20 +66,20 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
 
     # Send the command to change the flow to Active:
     echo "%7B%22UserRefNo%22%3A%22${RAID1REFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
-    dojsonPOST "http://localhost:8270/v1/raactions/1/" "request" "a0"  "WebService--Action-setTo-ACTIVE"
+    dojsonPOST "http://localhost:8270/v1/raactions/1/" "request" "${TFILES}${STEP}"  "WebService--Action-setTo-ACTIVE"
 
     # Generate an assessment report from Aug 1 to Oct 1. The security deposit
     # assessment for RAID 1 should no longer be present
-    docsvtest "a1" "-G ${BUD} -g 8/1/18,10/1/18 -L 11,${BUD}" "Assessments-2018-AUG"
+    docsvtest "${TFILES}${STEP}" "-G ${BUD} -g 8/1/18,10/1/18 -L 11,${BUD}" "Assessments-2018-AUG"
 
     # Generate a payor statement -- ensure that 2 RAs are there and have correct
     # info.
     echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%228%2F1%2F2018%22%2C%22searchDtStop%22%3A%228%2F31%2F2018%22%2C%22Bool1%22%3Afalse%7D" > request
-    dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "a2"  "PayorStatement--StmtInfo"
+    dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "${TFILES}${STEP}"  "PayorStatement--StmtInfo"
 
     # validate lease status
     echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%221%2F1%2F2017%22%2C%22searchDtStop%22%3A%221%2F1%2F2021%22%2C%22Bool1%22%3Afalse%7D" > request
-    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}3"  "LeaseStatus"
+    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}${STEP}"  "LeaseStatus"
 fi
 
 #------------------------------------------------------------------------------
@@ -109,6 +110,7 @@ fi
 #   5   Lease Status should be updated to reflect the new RA.
 #------------------------------------------------------------------------------
 TFILES="b"
+STEP=0
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
     echo "Create new database... x${TFILES}.sql"
 
@@ -122,16 +124,16 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
 
     # Send the command to change the RefNo to Active:
     echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
-    dojsonPOST "http://localhost:8270/v1/raactions/1/" "request" "${TFILES}0"  "WebService--Backdated-RA-Amendment"
+    dojsonPOST "http://localhost:8270/v1/raactions/1/" "request" "${TFILES}${STEP}"  "WebService--Backdated-RA-Amendment"
 
     # Generate a payor statement -- ensure that 2 RAs are there and have correct
     # info.
     echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%222%2F1%2F2018%22%2C%22searchDtStop%22%3A%229%2F30%2F2018%22%2C%22Bool1%22%3Afalse%7D" > request
-    dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "${TFILES}1"  "PayorStatement--StmtInfo"
+    dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "${TFILES}${STEP}"  "PayorStatement--StmtInfo"
 
     # validate lease status
     echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%221%2F1%2F2017%22%2C%22searchDtStop%22%3A%221%2F1%2F2021%22%2C%22Bool1%22%3Afalse%7D" > request
-    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}3"  "LeaseStatus"
+    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}${STEP}"  "LeaseStatus"
 fi
 
 
@@ -155,6 +157,7 @@ fi
 #   4.
 #------------------------------------------------------------------------------
 TFILES="c"
+STEP=0
 # if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
 #     echo "Create new database... x${TFILES}.sql"
 #
@@ -168,12 +171,12 @@ TFILES="c"
 #
 #     # Send the command to change the RefNo to Active:
 #     echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
-#     dojsonPOST "http://localhost:8270/v1/raactions/1/2" "request" "c0"  "WebService--Backdated-RA-Amendment-with-rent-change"
+#     dojsonPOST "http://localhost:8270/v1/raactions/1/2" "request" "${TFILES}${STEP}"  "WebService--Backdated-RA-Amendment-with-rent-change"
 #
 #     # Generate a payor statement -- ensure that 2 RAs are there and have correct
 #     # info.
 #     # echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%222%2F1%2F2018%22%2C%22searchDtStop%22%3A%229%2F30%2F2018%22%2C%22Bool1%22%3Afalse%7D" > request
-#     # dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "c1"  "PayorStatement--StmtInfo"
+#     # dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "${TFILES}${STEP}"  "PayorStatement--StmtInfo"
 # fi
 
 
@@ -196,6 +199,7 @@ TFILES="c"
 #   6.  Lease Status should be updated to reflect the new RA.
 #------------------------------------------------------------------------------
 TFILES="d"
+STEP=0
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
     echo "Create new database... x${TFILES}.sql"
 
@@ -209,15 +213,15 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
 
     # Send the command to change the RefNo to Active:
     echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
-    dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}0"  "WebService--updated-rental-agreement"
+    dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}${STEP}"  "WebService--updated-rental-agreement"
 
     # Payor statement -- 2 RAs, Balance should be 0 for RA1, $10,040 for RA3
     echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%229%2F1%2F2018%22%2C%22searchDtStop%22%3A%229%2F30%2F2018%22%2C%22Bool1%22%3Afalse%7D" > request
-    dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "${TFILES}1"  "PayorStatement--StmtInfo"
+    dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "${TFILES}${STEP}"  "PayorStatement--StmtInfo"
 
     # validate lease status
     echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%221%2F1%2F2017%22%2C%22searchDtStop%22%3A%221%2F1%2F2021%22%2C%22Bool1%22%3Afalse%7D" > request
-    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}2"  "LeaseStatus"
+    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}${STEP}"  "LeaseStatus"
 fi
 
 #------------------------------------------------------------------------------
@@ -248,6 +252,7 @@ fi
 #   2. Validate Lease Status
 #------------------------------------------------------------------------------
 TFILES="e"
+STEP=0
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
     echo "Create new database... x${TFILES}.sql"
 
@@ -260,7 +265,7 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     # # put RA 1 into Edit mode...
     # #----------------------------------------------------------------
     # echo "%7B%22cmd%22%3A%22get%22%2C%22UserRefNo%22%3Anull%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22FlowType%22%3A%22RA%22%7D" > request
-    # dojsonPOST "http://localhost:8270/v1/flow/1/0" "request" "${TFILES}0"  "WebService--edit-RA"
+    # dojsonPOST "http://localhost:8270/v1/flow/1/0" "request" "${TFILES}${STEP}"  "WebService--edit-RA"
     # RAIDREFNO=$(cat ${TFILES}0 | grep UserRefNo | awk '{print $2}'|sed 's/"//g')
 
     DTSTART="12%2F1%2F2018"
@@ -272,7 +277,7 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     # Note the use of ${DTSTART} and ${DTSTOP} in the echo command
     #----------------------------------------------------------------
     echo "%7B%22cmd%22%3A%22save%22%2C%22FlowType%22%3A%22RA%22%2C%22FlowID%22%3A1%2C%22FlowPartKey%22%3A%22dates%22%2C%22BID%22%3A1%2C%22Data%22%3A%7B%22CSAgent%22%3A209%2C%22RentStop%22%3A%22${DTSTOP}%22%2C%22RentStart%22%3A%22${DTSTART}%22%2C%22AgreementStop%22%3A%22${DTSTOP}%22%2C%22AgreementStart%22%3A%22${DTSTART}%22%2C%22PossessionStop%22%3A%22${DTSTOP}%22%2C%22PossessionStart%22%3A%22${DTSTART}%22%7D%7D" > request
-    dojsonPOST "http://localhost:8270/v1/flow/1/1" "request" "${TFILES}1"  "WebService--update-dates"
+    dojsonPOST "http://localhost:8270/v1/flow/1/1" "request" "${TFILES}${STEP}"  "WebService--update-dates"
 
     # for debugging, it's nice to have the database in this state
     mysqldump --no-defaults rentroll > "xxx${TFILES}.sql"
@@ -281,43 +286,43 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     # Send the command add a Rent assessment definition
     #----------------------------------------------------------------
     echo "%7B%22cmd%22%3A%22save%22%2C%22FlowType%22%3A%22RA%22%2C%22FlowID%22%3A1%2C%22FlowPartKey%22%3A%22rentables%22%2C%22BID%22%3A1%2C%22Data%22%3A%5B%7B%22RID%22%3A1%2C%22Fees%22%3A%5B%7B%22RentCycleText%22%3A%22Monthly%22%2C%22ProrationCycleText%22%3A%22Daily%22%2C%22recid%22%3A1%2C%22TMPASMID%22%3A0%2C%22ASMID%22%3A0%2C%22ARID%22%3A40%2C%22ARName%22%3A%22Rent%20ST000%22%2C%22ContractAmount%22%3A1100%2C%22RentCycle%22%3A6%2C%22ProrationCycle%22%3A4%2C%22Start%22%3A%22${DTSTART}%22%2C%22Stop%22%3A%22${DTSTOP}%22%2C%22AtSigningPreTax%22%3A0%2C%22SalesTax%22%3A0%2C%22TransOccTax%22%3A0%2C%22Comment%22%3A%22%22%7D%5D%2C%22RTID%22%3A1%2C%22RTFLAGS%22%3A4%2C%22SalesTax%22%3A0%2C%22RentCycle%22%3A6%2C%22TransOccTax%22%3A0%2C%22RentableName%22%3A%22Rentable001%22%2C%22AtSigningPreTax%22%3A0%2C%22recid%22%3A1%2C%22w2ui%22%3A%7B%22class%22%3A%22%22%2C%22style%22%3A%7B%7D%7D%7D%5D%7D" > request
-    dojsonPOST "http://localhost:8270/v1/flow/1/1" "request" "${TFILES}2"  "WebService--add-rent-assessment"
+    dojsonPOST "http://localhost:8270/v1/flow/1/1" "request" "${TFILES}${STEP}"  "WebService--add-rent-assessment"
 
     #----------------------------------------------------------------
     # Validate the RA-Flow, which automatically puts the Flow into
     # PendingFirstApproval if successful
     #----------------------------------------------------------------
     echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A1%7D" > request
-    dojsonPOST "http://localhost:8270/v1/validate-raflow/1/1" "request" "${TFILES}4"  "WebService--validate"
+    dojsonPOST "http://localhost:8270/v1/validate-raflow/1/1" "request" "${TFILES}${STEP}"  "WebService--validate"
 
     #----------------------------------------------------------------
     # First Approver approves...
     #----------------------------------------------------------------
     echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Mode%22%3A%22State%22%2C%22Decision1%22%3A1%2C%22DeclineReason1%22%3A0%7D" > request
-    dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}5"  "WebService--Approver1"
+    dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}${STEP}"  "WebService--Approver1"
 
     #----------------------------------------------------------------
     # Second Approver approves...
     #----------------------------------------------------------------
     echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Mode%22%3A%22State%22%2C%22Decision2%22%3A1%2C%22DeclineReason2%22%3A0%7D" > request
-    dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}6"  "WebService--Approver2"
+    dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}${STEP}"  "WebService--Approver2"
 
     #----------------------------------------------------------------
     # Set move-in date
     #----------------------------------------------------------------
     echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Mode%22%3A%22State%22%2C%22DocumentDate%22%3A%22${DTSTART}%22%7D" > request
-    dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}7"  "WebService--MoveInDate"
+    dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}${STEP}"  "WebService--MoveInDate"
 
 
     #----------------------------------------------------------------
     # Make the updated RefNo an Active RA
     #----------------------------------------------------------------
     echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
-    dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}8"  "WebService--Activate-RefNo"
+    dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}${STEP}"  "WebService--Activate-RefNo"
 
     # validate lease status
     echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%221%2F1%2F2017%22%2C%22searchDtStop%22%3A%221%2F1%2F2021%22%2C%22Bool1%22%3Afalse%7D" > request
-    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}9"  "LeaseStatus"
+    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}${STEP}"  "LeaseStatus"
 
 fi
 
@@ -341,6 +346,7 @@ fi
 #  3. Validate Lease Status
 #------------------------------------------------------------------------------
 TFILES="f"
+STEP=0
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
     echo "Create new database... x${TFILES}.sql"
 
@@ -355,18 +361,18 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     # Make the updated RefNo an Active RA
     #----------------------------------------------------------------
     echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
-    dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}0"  "WebService--Activate-RefNo"
+    dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}${STEP}"  "WebService--Activate-RefNo"
 
     #---------------------------------------------------------------------------
     # Generate a payor statement -- ensure that 2 RAs are there and have correct
     # info.
     #---------------------------------------------------------------------------
     echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%222%2F1%2F2018%22%2C%22searchDtStop%22%3A%229%2F30%2F2018%22%2C%22Bool1%22%3Afalse%7D" > request
-    dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "${TFILES}1"  "PayorStatement--StmtInfo"
+    dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "${TFILES}${STEP}"  "PayorStatement--StmtInfo"
 
     # validate lease status
     echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%221%2F1%2F2017%22%2C%22searchDtStop%22%3A%221%2F1%2F2021%22%2C%22Bool1%22%3Afalse%7D" > request
-    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}9"  "LeaseStatus"
+    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}${STEP}"  "LeaseStatus"
 fi
 
 #------------------------------------------------------------------------------
@@ -401,6 +407,7 @@ fi
 #  6. Validate Lease Status
 #------------------------------------------------------------------------------
 TFILES="g"
+STEP=0
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
     echo "Create new database... x${TFILES}.sql"
 
@@ -414,18 +421,18 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     # Make the updated RefNo an Active RA
     #----------------------------------------------------------------
     echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
-    dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}0"  "WebService--Activate-RefNo"
+    dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}${STEP}"  "WebService--Activate-RefNo"
 
     #---------------------------------------------------------------------------
     # Generate a payor statement -- ensure that 2 RAs are there and have correct
     # info.
     #---------------------------------------------------------------------------
     echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%222%2F1%2F2018%22%2C%22searchDtStop%22%3A%229%2F30%2F2018%22%2C%22Bool1%22%3Afalse%7D" > request
-    dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "${TFILES}1"  "PayorStatement--StmtInfo"
+    dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "${TFILES}${STEP}"  "PayorStatement--StmtInfo"
 
     # validate lease status
     echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%221%2F1%2F2017%22%2C%22searchDtStop%22%3A%221%2F1%2F2021%22%2C%22Bool1%22%3Afalse%7D" > request
-    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}2"  "LeaseStatus"
+    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}${STEP}"  "LeaseStatus"
 fi
 
 #------------------------------------------------------------------------------
@@ -450,6 +457,7 @@ fi
 #
 #------------------------------------------------------------------------------
 TFILES="h"
+STEP=0
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
     echo "Test ${TFILES}"
 
@@ -465,7 +473,7 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     # Make the updated RefNo an Active RA
     #----------------------------------------------------------------
     echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
-    dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}0"  "WebService--Activate-RefNo"
+    dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}${STEP}"  "WebService--Activate-RefNo"
 
     #---------------------------------------------------------------------------
     # Generate a payor statement -- ensure that 2 RAs are there and have correct
@@ -473,11 +481,11 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     #---------------------------------------------------------------------------
     # %7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%221%2F1%2F2018%22%2C%22searchDtStop%22%3A%227%2F31%2F2018%22%2C%22Bool1%22%3Afalse%7D
     echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%222%2F1%2F2018%22%2C%22searchDtStop%22%3A%229%2F30%2F2018%22%2C%22Bool1%22%3Afalse%7D" > request
-    dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "${TFILES}1"  "PayorStatement--StmtInfo"
+    dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "${TFILES}${STEP}"  "PayorStatement--StmtInfo"
 
     # validate lease status
     echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%221%2F1%2F2017%22%2C%22searchDtStop%22%3A%221%2F1%2F2021%22%2C%22Bool1%22%3Afalse%7D" > request
-    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}2"  "LeaseStatus"
+    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}${STEP}"  "LeaseStatus"
 fi
 
 #------------------------------------------------------------------------------
@@ -505,6 +513,7 @@ fi
 #
 #------------------------------------------------------------------------------
 TFILES="i"
+STEP=0
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
     echo "Test ${TFILES}"
 
@@ -520,21 +529,20 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     # Make the updated RefNo an Active RA
     #----------------------------------------------------------------
     echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
-    dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}0"  "WebService--Activate-RefNo"
-
+    dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}${STEP}"  "WebService--Activate-RefNo"
 
     # Generate a payor statement -- ensure that 2 RAs are there and have correct
     # info.
     echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%2210%2F1%2F2018%22%2C%22searchDtStop%22%3A%2210%2F31%2F2018%22%2C%22Bool1%22%3Afalse%7D" > request
-    dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "${TFILES}1"  "PayorStatement--StmtInfo"
+    dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "${TFILES}${STEP}"  "PayorStatement--StmtInfo"
 
     # 1.  Generate text payor statement
     RRDATERANGE="-j 2018-10-01 -k 2018-11-01"
-    dorrtest "${TFILES}2" "${RRDATERANGE} -x -b ${BUD} -r 23,1" "PayorReport"
+    dorrtest "${TFILES}${STEP}" "${RRDATERANGE} -x -b ${BUD} -r 23,1" "PayorReport"
 
     # validate lease status
     echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%221%2F1%2F2017%22%2C%22searchDtStop%22%3A%221%2F1%2F2021%22%2C%22Bool1%22%3Afalse%7D" > request
-    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}3"  "LeaseStatus"
+    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}${STEP}"  "LeaseStatus"
 fi
 
 #------------------------------------------------------------------------------
@@ -551,6 +559,7 @@ fi
 #  2. Validate Lease Status
 #------------------------------------------------------------------------------
 TFILES="j"
+STEP=0
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
     echo "Test ${TFILES}"
 
@@ -566,7 +575,7 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     # Make the updated RefNo an Active RA
     #----------------------------------------------------------------
     echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
-    dojsonPOST "http://localhost:8270/v1/raactions/1/3" "request" "${TFILES}0"  "WebService--Activate-RefNo"
+    dojsonPOST "http://localhost:8270/v1/raactions/1/3" "request" "${TFILES}${STEP}"  "WebService--Activate-RefNo"
 
     TESTCOUNT=$((TESTCOUNT + 1))
     echo -n "PHASE  ${TESTCOUNT}: Checking start date... "
@@ -583,7 +592,7 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
 
     # validate lease status
     echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%221%2F1%2F2017%22%2C%22searchDtStop%22%3A%221%2F1%2F2022%22%2C%22Bool1%22%3Afalse%7D" > request
-    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/3" "request" "${TFILES}1"  "LeaseStatus"
+    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/3" "request" "${TFILES}${STEP}"  "LeaseStatus"
 fi
 
 #------------------------------------------------------------------------------
@@ -599,6 +608,7 @@ fi
 #  2. Validate Lease Status
 #------------------------------------------------------------------------------
 TFILES="k"
+STEP=0
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
     echo "Test ${TFILES}"
     echo "Create new database... x${TFILES}.sql"
@@ -613,13 +623,13 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     # Make the updated RefNo an Active RA
     #----------------------------------------------------------------
     echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
-    dojsonPOST "http://localhost:8270/v1/raactions/1/3" "request" "${TFILES}0"  "WebService--Activate-RefNo"
+    dojsonPOST "http://localhost:8270/v1/raactions/1/3" "request" "${TFILES}${STEP}"  "WebService--Activate-RefNo"
 
-    mysqlverify "${TFILES}1" "RentalAgreements"	"select RAID,RATID,BID,PRAID,ORIGIN,AgreementStart,AgreementStop from RentalAgreement;"
+    mysqlverify "${TFILES}${STEP}" "RentalAgreements"	"select RAID,RATID,BID,PRAID,ORIGIN,AgreementStart,AgreementStop from RentalAgreement;"
 
     # validate lease status
     echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%221%2F1%2F2017%22%2C%22searchDtStop%22%3A%221%2F1%2F2021%22%2C%22Bool1%22%3Afalse%7D" > request
-    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}2"  "LeaseStatus"
+    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}${STEP}"  "LeaseStatus"
 fi
 
 #------------------------------------------------------------------------------
@@ -639,6 +649,7 @@ fi
 #  3. Validate Lease Status
 #------------------------------------------------------------------------------
 TFILES="l"
+STEP=0
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
     echo "Test ${TFILES}"
     echo "Create new database... x${TFILES}.sql"
@@ -653,17 +664,17 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     # Make the updated RefNo an Active RA
     #----------------------------------------------------------------
     echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
-    dojsonPOST "http://localhost:8270/v1/raactions/1/3" "request" "${TFILES}0"  "WebService--Activate-RefNo"
+    dojsonPOST "http://localhost:8270/v1/raactions/1/3" "request" "${TFILES}${STEP}"  "WebService--Activate-RefNo"
 
     #----------------------------------------------------------------
     # Generate text payor statement
     #----------------------------------------------------------------
     RRDATERANGE="-j 2018-10-01 -k 2018-11-01"
-    dorrtest "${TFILES}1" "${RRDATERANGE} -x -b ${BUD} -r 23,1" "PayorReport"
+    dorrtest "${TFILES}${STEP}" "${RRDATERANGE} -x -b ${BUD} -r 23,1" "PayorReport"
 
     # validate lease status
     echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%221%2F1%2F2017%22%2C%22searchDtStop%22%3A%221%2F1%2F2021%22%2C%22Bool1%22%3Afalse%7D" > request
-    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}2"  "LeaseStatus"
+    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}${STEP}"  "LeaseStatus"
 fi
 
 #------------------------------------------------------------------------------
@@ -686,6 +697,7 @@ fi
 #  3. Validate Lease Status
 #------------------------------------------------------------------------------
 TFILES="m"
+STEP=0
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
     echo "Test ${TFILES}"
     echo "Create new database... x${TFILES}.sql"
@@ -701,17 +713,17 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     # Make the updated RefNo an Active RA
     #----------------------------------------------------------------
     echo "%7B%22UserRefNo%22%3A%22${RAIDREFNO}%22%2C%22RAID%22%3A1%2C%22Version%22%3A%22refno%22%2C%22Action%22%3A4%2C%22Mode%22%3A%22Action%22%7D" > request
-    dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}0"  "WebService--Activate-RefNo"
+    dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}${STEP}"  "WebService--Activate-RefNo"
 
     #----------------------------------------------------------------
     # Generate text payor statement
     #----------------------------------------------------------------
     RRDATERANGE="-j 2018-10-01 -k 2018-12-01"
-    dorrtest "${TFILES}1" "${RRDATERANGE} -x -b ${BUD} -r 23,1" "PayorReport"
+    dorrtest "${TFILES}${STEP}" "${RRDATERANGE} -x -b ${BUD} -r 23,1" "PayorReport"
 
     # validate lease status
     echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%221%2F1%2F2017%22%2C%22searchDtStop%22%3A%221%2F1%2F2021%22%2C%22Bool1%22%3Afalse%7D" > request
-    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}2"  "LeaseStatus"
+    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}${STEP}"  "LeaseStatus"
 fi
 
 stopRentRollServer

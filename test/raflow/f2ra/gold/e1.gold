@@ -42,7 +42,7 @@
                     "DocumentDate": "1900-01-01 00:00:00 UTC",
                     "HavePets": false,
                     "HaveVehicles": false,
-                    "LastTMPASMID": 4,
+                    "LastTMPASMID": 5,
                     "LastTMPPETID": 1,
                     "LastTMPTCID": 1,
                     "LastTMPVID": 1,
@@ -147,18 +147,18 @@
                         "AtSigningPreTax": 0,
                         "Fees": [
                             {
-                                "ARID": 26,
-                                "ARName": "Rent Non-Taxable",
-                                "ASMID": 1,
+                                "ARID": 40,
+                                "ARName": "Rent ST000",
+                                "ASMID": 0,
                                 "AtSigningPreTax": 0,
                                 "Comment": "",
-                                "ContractAmount": 1000,
+                                "ContractAmount": 1100,
                                 "ProrationCycle": 4,
                                 "RentCycle": 6,
                                 "SalesTax": 0,
                                 "Start": "12/1/2018",
                                 "Stop": "11/30/2019",
-                                "TMPASMID": 4,
+                                "TMPASMID": 5,
                                 "TransOccTax": 0
                             }
                         ],
@@ -201,7 +201,7 @@
             "FlowType": "RA",
             "ID": 1,
             "LastModBy": 211,
-            "LastModTime": "2019-02-11T21:19:42Z",
+            "LastModTime": "2019-03-01T10:59:09Z",
             "UserRefNo": "DUO6X142Z3GC1597BHG0"
         },
         "ValidationCheck": {

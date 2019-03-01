@@ -134,7 +134,7 @@
             "Assessment": 1000,
             "Balance": -7.72715225139109e-14,
             "Date": "10/1/2018",
-            "Description": "REVERSAL: Rent Non-Taxable (Reversed by ASM00000058)",
+            "Description": "REVERSAL: Rent Non-Taxable (Reversed by ASM00000068)",
             "Payor": "Pablo Chantell Pearson",
             "RAID": "RA-1",
             "RCPTID": "",
@@ -145,7 +145,7 @@
             "recid": 8
         },
         {
-            "ASMID": "ASM-59",
+            "ASMID": "ASM-69",
             "AppliedAmount": 0,
             "Assessment": 580.65,
             "Balance": 580.6499999999999,
@@ -166,7 +166,7 @@
             "Assessment": 10,
             "Balance": 580.6499999999999,
             "Date": "10/1/2018",
-            "Description": "REVERSAL: Pet Rent (Reversed by ASM00000060)",
+            "Description": "REVERSAL: Pet Rent (Reversed by ASM00000070)",
             "Payor": "Pablo Chantell Pearson",
             "RAID": "RA-1",
             "RCPTID": "",
@@ -177,7 +177,7 @@
             "recid": 10
         },
         {
-            "ASMID": "ASM-61",
+            "ASMID": "ASM-71",
             "AppliedAmount": 0,
             "Assessment": 5.81,
             "Balance": 586.4599999999998,
@@ -193,7 +193,7 @@
             "recid": 11
         },
         {
-            "ASMID": "ASM-60",
+            "ASMID": "ASM-70",
             "AppliedAmount": 0,
             "Assessment": -10,
             "Balance": 586.4599999999998,
@@ -209,7 +209,7 @@
             "recid": 12
         },
         {
-            "ASMID": "ASM-58",
+            "ASMID": "ASM-68",
             "AppliedAmount": 0,
             "Assessment": -1000,
             "Balance": 586.4599999999998,
@@ -289,7 +289,7 @@
             "recid": 17
         },
         {
-            "ASMID": "ASM-54",
+            "ASMID": "ASM-64",
             "AppliedAmount": 0,
             "Assessment": 419.35,
             "Balance": 419.35,
@@ -305,7 +305,7 @@
             "recid": 18
         },
         {
-            "ASMID": "ASM-56",
+            "ASMID": "ASM-66",
             "AppliedAmount": 0,
             "Assessment": 4.19,
             "Balance": 423.54,

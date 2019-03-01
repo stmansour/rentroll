@@ -713,9 +713,11 @@ func FlowSaveRentables(ctx context.Context, x *rlib.F2RAWriteHandlerContext) err
 			LeaseStatus: rlib.LEASESTATUSleased,
 		}
 		rlib.Console("FlowSaveRentables: calling SetRentableLeaseStatus\n")
+		rlib.Console("\n\n********************\nSetRentableLeaseStatus:  %s  lease status = %d\n", rlib.ConsoleDRange(&rls.DtStart, &rls.DtStop), rls.LeaseStatus)
 		if err = rlib.SetRentableLeaseStatus(ctx, &rls, true); err != nil {
 			return err
 		}
+		rlib.Console("**********************\n\n")
 
 		//----------------------------------------------------------------
 		// Add the users

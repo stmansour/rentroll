@@ -196,6 +196,46 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
 
 fi
 
+#------------------------------------------------------------------------------
+#  TEST e
+#
+#  This test covers an issue found in the Rental Agreement testing
+#
+#  Scenario:
+#  Start with these Rentable Lease Status records
+#
+#       3/01/2020 - 12/31/9999  Reserved
+#       2/13/2018 -  3/01/2020  Leased
+#       1/01/2017 -  2/13/2018  Not Leased
+#
+#  Then do a SetRentableLeaseStatus for range 2/13/2018 - 3/1/2020
+#
+#  Expected Results:
+#
+#   1.  The test will change the Leased range from 2/13/2018 - 3/1/2020.
+#
+#       3/01/2020 - 12/31/9999  Reserved
+#       2/13/2018 -  3/01/2020  Leased
+#       1/01/2017 -  2/13/2018  Not Leased
+#
+#------------------------------------------------------------------------------
+TFILES="e"
+STEP=0
+if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
+
+    stopRentRollServer
+    mysql --no-defaults rentroll < x${TFILES}.sql
+    startRentRollServer
+
+    # change to Leased = 2/13/2018 - 3/1/2020
+    echo "%7B%22cmd%22%3A%22save%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A0%2C%22offset%22%3A0%2C%22changes%22%3A%5B%7B%22recid%22%3A1%2C%22RLID%22%3A3%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22RID%22%3A1%2C%22LeaseStatus%22%3A1%2C%22DtStart%22%3A%222%2F13%2F2018%22%2C%22DtStop%22%3A%222%2F29%2F2020%22%2C%22Comment%22%3A%22%22%2C%22CreateBy%22%3A0%2C%22LastModBy%22%3A0%2C%22w2ui%22%3A%7B%7D%7D%5D%2C%22RID%22%3A1%7D" > request
+    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}${STEP}"  "RentableTypeRefs-Save"
+
+    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D" > request
+    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}${STEP}"  "RentableTypeRefs-Get"
+
+fi
+
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
 

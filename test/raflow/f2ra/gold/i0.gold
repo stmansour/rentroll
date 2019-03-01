@@ -137,7 +137,7 @@
                             {
                                 "ARID": 24,
                                 "ARName": "Pet Rent",
-                                "ASMID": 56,
+                                "ASMID": 66,
                                 "AtSigningPreTax": 0,
                                 "Comment": "prorated for 13 of 31 days | Derived from RAID 1, ASMID 3",
                                 "ContractAmount": 4.19,
@@ -152,7 +152,7 @@
                             {
                                 "ARID": 24,
                                 "ARName": "Pet Rent",
-                                "ASMID": 57,
+                                "ASMID": 67,
                                 "AtSigningPreTax": 0,
                                 "Comment": "Derived from RAID 1, ASMID 3",
                                 "ContractAmount": 10,
@@ -180,7 +180,7 @@
                             {
                                 "ARID": 26,
                                 "ARName": "Rent Non-Taxable",
-                                "ASMID": 54,
+                                "ASMID": 64,
                                 "AtSigningPreTax": 0,
                                 "Comment": "prorated for 13 of 31 days | Derived from RAID 1, ASMID 1",
                                 "ContractAmount": 419.35,
@@ -195,7 +195,7 @@
                             {
                                 "ARID": 26,
                                 "ARName": "Rent Non-Taxable",
-                                "ASMID": 55,
+                                "ASMID": 65,
                                 "AtSigningPreTax": 0,
                                 "Comment": "Derived from RAID 1, ASMID 1",
                                 "ContractAmount": 1000,
