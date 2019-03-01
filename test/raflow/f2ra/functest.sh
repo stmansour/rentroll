@@ -582,7 +582,7 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     echo "PASSED"
 
     # validate lease status
-    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%221%2F1%2F2017%22%2C%22searchDtStop%22%3A%221%2F1%2F2021%22%2C%22Bool1%22%3Afalse%7D" > request
+    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%221%2F1%2F2017%22%2C%22searchDtStop%22%3A%221%2F1%2F2022%22%2C%22Bool1%22%3Afalse%7D" > request
     dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/3" "request" "${TFILES}1"  "LeaseStatus"
 fi
 

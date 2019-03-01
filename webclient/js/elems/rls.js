@@ -22,8 +22,7 @@ window.buildRentableLeaseStatusElements = function () {
             toolbarColumns: false,
             toolbarSearch: true,
             toolbarAdd: true,
-            //toolbarDelete: true,
-            toolbarDelete: false,// update by lina, we dont need delete for Rentable Lease Status records
+            toolbarDelete: true,
             toolbarSave: false,
             searchAll: true,
             footer: true,
@@ -128,45 +127,90 @@ window.buildRentableLeaseStatusElements = function () {
                 w2ui.rentableLeaseStatusGrid.url = "/v1/rentableleasestatus/" + BID + "/" + RID;
             };
         },
-        /*onDelete: function (event) {
-            var selected = this.getSelection(),
-                RSIDList = [],
-                grid = this;
+        onDelete: function (event) {
+            if (RentableEdits.rlsDeleteInProgress) {
+                return;
+            }
 
-            // if not selected then return
+            var selected = this.getSelection();
+            var RLIDList = [];
+            var grid = this;
+            RentableEdits.rlsDeleteInProgress = true;
+
+            //-------------------------------------
+            // if nothing is selected then return
+            //-------------------------------------
             if (selected.length < 0) {
                 return;
             }
-            // collect RMRID
-            selected.forEach(function (id) {
-                RSIDList.push(grid.get(id).RSID);
-            });
+
+            //-------------------------------------
+            // collect the selected ids...
+            //-------------------------------------
+            for (var id = 0; id < selected.length; id++) {
+                var RLID = grid.get(id).RLID;
+                if (RLID > 0) {
+                    RLIDList.push(RLID);
+                }
+            }
 
             event.onComplete = function () {
-                var x = getCurrentBusiness(),
-                    BID = parseInt(x.value),
-                    BUD = getBUDfromBID(BID),
-                    RID = w2ui.rentableForm.record.RID;
+                var grid = this;
+                var BID = getCurrentBID();
+                var RID = w2ui.rentableForm.record.RID;
 
-                var payload = {"cmd": "delete", "RSIDList": RSIDList};
-                $.ajax({
-                    type: "POST",
-                    url: "/v1/rentableusestatus/" + BID + "/" + RID,
-                    data: JSON.stringify(payload),
-                    contentType: "application/json",
-                    dataType: "json",
-                    success: function (data) {
+                var tgrid = w2ui.rentableLeaseStatusGrid;
+                var url = "/v1/rentableusestatus/" + BID + "/" + RID;
+                var params = {"cmd": "delete", "RLIDList": RLIDList};
+                var dat = JSON.stringify(params);
+
+                //-------------------------------------------------------------
+                // If there are any other pending changes, we'll need to save
+                // those first, then we proceed with the delete.
+                // The save function implements the Promise interface so
+                // we just need to supply the pass/fail functions...
+                //-------------------------------------------------------------
+                $.when(
+                    saveRentableLeaseStatus(BID,RID)
+                )
+                .done(function(){
+                    $.post(grid.url, dat, null, "json")
+                    .done(function(data) {
+                        if (data.status === "error") {
+                            grid.error('onDelete: '+w2utils.lang(data.message));
+                            return;
+                        }
                         grid.reload();
-                    },
+                    })
+                    .fail(function(/*data*/){
+                        grid.error("Delete RentableLeaseStatus failed.");
+                        return;
+                    });
+                })
+                .fail(function(){
+                    console.log('RentableLeaseSave: when failed.');
                 });
+
+                RentableEdits.rlsDeleteInProgress = false;
+                // $.ajax({
+                //     type: "POST",
+                //     url: "/v1/rentableusestatus/" + BID + "/" + RID,
+                //     data: JSON.stringify(payload),
+                //     contentType: "application/json",
+                //     dataType: "json",
+                //     success: function (data) {
+                //         grid.reload();
+                //     },
+                // });
             };
-        },*/
+        },
+
         onChange: function (event) {
             // event.preventDefault();   // not sure what this does
-            var g = this,
-                field = g.columns[event.column].field,
-                chgRec = g.get(event.recid),
-                changeIsValid = true;
+            var g = this;
+            var field = g.columns[event.column].field;
+            var chgRec = g.get(event.recid);
+            var changeIsValid = true;
 
             RentableEdits.LeaseStatusChgList.push(chgRec.recid);
 
@@ -242,7 +286,7 @@ window.buildRentableLeaseStatusElements = function () {
                 if (!event.isCancelled) { // if event not cancelled then invoke save method
                     g.url = '';  // just ensure that no server service is called
                     this.save(); // save automatically locally
-                    var BID = getCurrentBusiness();
+                    var BID = getCurrentBID();
                     var RID = w2ui.rentableForm.record.RID;
                     g.url = '/v1/rentableleasestatus/' + BID + '/' + RID;
                 }
@@ -282,6 +326,7 @@ window.saveRentableLeaseStatus = function(BID,RID) {
 
     var dat = JSON.stringify(params);
     var url = '/v1/rentableleasestatus/' + BID + '/' + w2ui.rentableForm.record.RID;
+
     return $.post(url, dat, null, "json")
     .done(function(data) {
         if (data.status === "success") {
@@ -289,7 +334,7 @@ window.saveRentableLeaseStatus = function(BID,RID) {
             w2ui.toplayout.hide('right', true);
             w2ui.rentablesGrid.render();
         } else {
-            w2ui.rentablesGrid.error(data.status);
+            w2ui.rentablesGrid.error('saveRentableLeaseStatus: ' + data.message);
         }
     })
     .fail(function(data){

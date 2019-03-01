@@ -7,7 +7,7 @@
         {
             "Count": 1,
             "MarketRate": 1000,
-            "Reserve": false,
+            "Reserve": true,
             "RentCycle": 6,
             "ProrateCycle": 4
         }

@@ -198,11 +198,9 @@ window.buildDepositMethodElements = function () {
                 });
             },
             delete: function() {
-
-                var form = this,
-                    x = getCurrentBusiness(),
-                    BID=parseInt(x.value),
-                    BUD = getBUDfromBID(BID);
+                var form = this;
+                var BID = getCurrentBID();
+                var BUD = getBUDfromBID(BID);
 
                 w2confirm(delete_confirm_options)
                 .yes(function() {

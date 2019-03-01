@@ -97,9 +97,9 @@ func SvcHandlerRentableLeaseStatus(w http.ResponseWriter, r *http.Request, d *Se
 	case "save":
 		saveRentableLeaseStatus(w, r, d)
 		break
-	//case "delete":
-	//	deleteRentableLeaseStatus(w, r, d)
-	//	break
+	case "delete":
+		deleteRentableLeaseStatus(w, r, d)
+		break
 	default:
 		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
 		SvcErrorReturn(w, err, funcname)
@@ -107,7 +107,11 @@ func SvcHandlerRentableLeaseStatus(w http.ResponseWriter, r *http.Request, d *Se
 	}
 }
 
-// svcSearchHandlerRentableLeaseStatus handles market rate grid request/response, add by lina on 01/23/2019
+// svcSearchHandlerRentableLeaseStatus handles market rate grid request/response
+//
+// add by lina on 01/23/2019
+// Revised by sman throughout February 2019
+//------------------------------------------------------------------------------
 func svcSearchHandlerRentableLeaseStatus(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "svcSearchHandlerRentableLeaseStatus"
 
@@ -118,6 +122,14 @@ func svcSearchHandlerRentableLeaseStatus(w http.ResponseWriter, r *http.Request,
 		whr   = fmt.Sprintf("RentableLeaseStatus.RID=%d", d.ID)
 	)
 	rlib.Console("Entered %s\n", funcname)
+
+	// if date range was supplied, add it to the where clause...
+	if d.wsSearchReq.SearchDtStart.Year() >= 2000 {
+		whr += fmt.Sprintf(" AND DtStart < %q AND DtStop > %q",
+			d.wsSearchReq.SearchDtStop.Format(rlib.RRDATETIMESQL),
+			d.wsSearchReq.SearchDtStart.Format(rlib.RRDATETIMESQL),
+		)
+	}
 
 	// get where clause and order clause for sql query
 	whereClause, orderClause := GetSearchAndSortSQL(d, rentableLeaseStatusSearchFieldMap)
@@ -219,6 +231,7 @@ func svcSearchHandlerRentableLeaseStatus(w http.ResponseWriter, r *http.Request,
 }
 
 // saveRentableLeaseStatus save/update rentable status associated with Rentable , add by lina 01/23/2019
+//------------------------------------------------------------------------------
 func saveRentableLeaseStatus(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var (
 		funcname = "saveRentableLeaseStatus"
@@ -269,33 +282,99 @@ func saveRentableLeaseStatus(w http.ResponseWriter, r *http.Request, d *ServiceD
 			rlib.EDIHandleIncomingDateRange(a.BID, &a.DtStart, &a.DtStop)
 		}
 
+		rlib.Console("%s: Release Lease Status date range: %s\n", funcname, rlib.ConsoleDRange(&a.DtStart, &a.DtStop))
+
 		errs := bizlogic.ValidateRentableLeaseStatus(r.Context(), &a)
 		if len(errs) > 0 {
 			bizErrs = append(bizErrs, errs...)
 			continue
 		}
 
-		// if RSID = 0 then insert new record
-		if a.RLID == 0 {
-			_, err = rlib.InsertRentableLeaseStatus(r.Context(), &a)
-			if err != nil {
-				e := fmt.Errorf("Error while inserting rentable status:  %s", err.Error())
-				SvcErrorReturn(w, e, funcname)
-				return
-			}
-		} else { // else update existing one
-			err = rlib.UpdateRentableLeaseStatus(r.Context(), &a)
-			if err != nil {
-				e := fmt.Errorf("Error with updating rentable status (%d), RID=%d : %s", a.RLID, a.RID, err.Error())
-				SvcErrorReturn(w, e, funcname)
-				return
-			}
+		// // if RSID = 0 then insert new record
+		// if a.RLID == 0 {
+		// 	_, err = rlib.InsertRentableLeaseStatus(r.Context(), &a)
+		// 	if err != nil {
+		// 		e := fmt.Errorf("Error while inserting rentable status:  %s", err.Error())
+		// 		SvcErrorReturn(w, e, funcname)
+		// 		return
+		// 	}
+		// } else { // else update existing one
+		// 	err = rlib.UpdateRentableLeaseStatus(r.Context(), &a)
+		// 	if err != nil {
+		// 		e := fmt.Errorf("Error with updating rentable status (%d), RID=%d : %s", a.RLID, a.RID, err.Error())
+		// 		SvcErrorReturn(w, e, funcname)
+		// 		return
+		// 	}
+		// }
+		if err = rlib.SetRentableLeaseStatus(r.Context(), &a, false); err != nil {
+			e := fmt.Errorf("Error from SetRentableLeaseStatus (%d), RID=%d : %s", a.RLID, a.RID, err.Error())
+			SvcErrorReturn(w, e, funcname)
+			return
 		}
 	}
 
 	// if any rentable status has problem in bizlogic then return list
 	if len(bizErrs) > 0 {
 		SvcErrListReturn(w, bizErrs, funcname)
+		return
+	}
+
+	SvcWriteSuccessResponse(d.BID, w)
+}
+
+// RentableLeaseStatusGridRecDelete is a struct used in delete request for rentable status
+type RentableLeaseStatusGridRecDelete struct {
+	Cmd      string  `json:"cmd"`
+	RLIDList []int64 `json:"RLIDList"`
+	RID      int64   `json:"RID"`
+}
+
+// deleteRentableLeaseStatus used to delete rentable status records
+// associated with rentable
+//------------------------------------------------------------------------------
+func deleteRentableLeaseStatus(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	var funcname = "deleteRentableLeaseStatus"
+	var err error
+	var foo RentableLeaseStatusGridRecDelete
+
+	rlib.Console("Entered %s\n", funcname)
+	rlib.Console("record data: %s\n", d.data)
+
+	data := []byte(d.data)
+	if err = json.Unmarshal(data, &foo); err != nil {
+		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
+		SvcErrorReturn(w, e, funcname)
+		return
+	}
+
+	// rlib.Console("foo.RLIDList length: %d\n", len(foo.RLIDList))
+
+	// ------------------
+	// START TRANSACTION
+	// ------------------
+	tx, ctx, err := rlib.NewTransactionWithContext(r.Context())
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	for _, rlid := range foo.RLIDList {
+		err = rlib.DeleteRentableLeaseStatus(ctx, rlid)
+		if err != nil {
+			tx.Rollback()
+			e := fmt.Errorf("Error with deleting Rentable Status(%d) for Rentable(%d): %s",
+				rlid, foo.RID, err.Error())
+			SvcErrorReturn(w, e, funcname)
+			return
+		}
+	}
+
+	// ------------------
+	// COMMIT TRANSACTION
+	// ------------------
+	if err := tx.Commit(); err != nil {
+		tx.Rollback()
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 

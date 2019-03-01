@@ -26,6 +26,12 @@ SCRIPTPATH=$(pwd -P)
 CASPERTEST="casperjs test"
 CYPRESSTEST="cypress run"
 
+#-----------------------------------------------------------------------------
+# This value can be used by functional test scripts. Its value is incremented
+# at the end of each test
+#-----------------------------------------------------------------------------
+STEP=0
+
 DBTOOLSDIR="../../dbtools"
 USERSIMDIR="."
 USERSIM="${USERSIMDIR}/usersim"
@@ -108,12 +114,24 @@ if [ "${UNAME}" == "Darwin" -o "${IAMJENKINS}" == "jenkins" ]; then
 fi
 
 #############################################################################
+# incStep()
+#   Description:
+#		Increment the STEP variable.  It is encapsulated here because
+#       there may be additional steps to perform in the future.
+#
+#   Params:
+#       none
+#############################################################################
+incStep() {
+	((STEP++))
+}
+#############################################################################
 # pause()
 #   Description:
 #		Ask the user how to proceed.
 #
 #   Params:
-#       ${1} = name of the file to move to gold/${1}.gold if 'm' is pressed
+#       none
 #############################################################################
 pause() {
 	echo
@@ -121,6 +139,10 @@ pause() {
 	read -p "Press [Enter] to continue, M to move ${2} to gold/${2}.gold, Q or X to quit..." x
 	x=$(echo "${x}" | tr "[:upper:]" "[:lower:]")
 	if [ "${x}" == "q" -o "${x}" == "x" ]; then
+		if [ ${MANAGESERVER} -eq 1 ]; then
+			echo "STOPPING RENTROLL SERVER"
+			pkill rentroll
+		fi
 		exit 0
 	elif [[ ${x} == "m" ]]; then
 		echo "********************************************"
@@ -301,13 +323,14 @@ goldpath() {
 # 		$3 = title for reporting.  No spaces
 #############################################################################
 docsvtest () {
-	TESTCOUNT=$((TESTCOUNT + 1))
+	((TESTCOUNT++))
 	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} $1 $3
 
 	if [ "x${2}" != "x" ]; then
 		${CSVLOAD} ${2} >${1} 2>&1
 	fi
 
+	incStep
 	checkPause
 
 	if [ "${FORCEGOOD}" = "1" ]; then
@@ -354,10 +377,11 @@ docsvtest () {
 # 		$3 = title
 ########################################
 dorrtest () {
-	TESTCOUNT=$((TESTCOUNT + 1))
+	((TESTCOUNT++))
 	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} $1 $3
 	${RENTROLL} ${2} >${1} 2>&1
 
+	incStep
 	checkPause
 
 	if [ "${FORCEGOOD}" = "1" ]; then
@@ -452,7 +476,7 @@ doCompareIgnoreDates() {
 # 		$3 = title for reporting.  No spaces
 #############################################################################
 doOnesiteTest () {
-	TESTCOUNT=$((TESTCOUNT + 1))
+	((TESTCOUNT++))
 	if [ ${SHOWCOMMAND} -eq 1 ]; then
 		echo "cmd: ${RRBIN}/importers/onesite/onesiteload -noauth ${2}"
 	fi
@@ -462,6 +486,7 @@ doOnesiteTest () {
 		${RRBIN}/importers/onesite/onesiteload -noauth ${2} >${1} 2>&1
 	fi
 
+	incStep
 	checkPause
 
 	if [ "${FORCEGOOD}" = "1" ]; then
@@ -489,13 +514,14 @@ doOnesiteTest () {
 # 		$3 = title for reporting.  No spaces
 #############################################################################
 docsvIgnoreDatesTest () {
-	TESTCOUNT=$((TESTCOUNT + 1))
+	((TESTCOUNT++))
 	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} $1 $3
 
 	if [ "x${2}" != "x" ]; then
 		${CSVLOAD} $2 >${1} 2>&1
 	fi
 
+	incStep
 	checkPause
 
 	if [ "${FORCEGOOD}" = "1" ]; then
@@ -524,13 +550,14 @@ docsvIgnoreDatesTest () {
 # 		$3 = title for reporting.  No spaces
 #############################################################################
 doRoomKeyTest () {
-	TESTCOUNT=$((TESTCOUNT + 1))
+	((TESTCOUNT++))
 	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} $1 $3
 
 	if [ "x${2}" != "x" ]; then
 		${RRBIN}/importers/roomkey/roomkeyload -noauth ${2} >${1} 2>&1
 	fi
 
+	incStep
 	checkPause
 
 	if [ "${FORCEGOOD}" = "1" ]; then
@@ -598,11 +625,12 @@ cat >xxqq <<EOF
 use rentroll;
 ${3}
 EOF
-	TESTCOUNT=$((TESTCOUNT + 1))
+	((TESTCOUNT++))
 	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} ${1} ${2}
 	CMD1="mysql --no-defaults <xxqq >${1}"
 	mysql --no-defaults <xxqq >${1}
 
+	incStep
 	checkPause
 
 	if [ "${FORCEGOOD}" = "1" ]; then
@@ -732,9 +760,10 @@ logcheck() {
 # 		$3 = title
 ##########################################################################
 genericlogcheck() {
-	TESTCOUNT=$((TESTCOUNT + 1))
+	((TESTCOUNT++))
 	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} $1 $3
 
+	incStep
 	checkPause
 	if [ ! -d ${GOLD} ]; then
 		echo "${GOLD} directory is missing. Creating it..."
@@ -815,11 +844,12 @@ stopRentRollServer() {
 #		$4 = title
 ########################################################################
 dojsonPOST () {
-	TESTCOUNT=$((TESTCOUNT + 1))
+	((TESTCOUNT++))
 	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} $3 $4
 	CMD="curl -s -X POST ${1} -H \"Content-Type: application/json\" -d @${2}"
 	${CMD} | tee serverreply | python -m json.tool >${3} 2>>${LOGFILE}
 
+	incStep
 	checkPause
 
 	if [ "${FORCEGOOD}" = "1" ]; then
@@ -905,11 +935,12 @@ dojsonPOST () {
 #		$3 = title
 ########################################
 dojsonGET () {
-	TESTCOUNT=$((TESTCOUNT + 1))
+	((TESTCOUNT++))
 	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} ${2} ${3}
 	CMD="curl -s ${1}"
 	${CMD} | python -m json.tool >${2} 2>>${LOGFILE}
 
+	incStep
 	checkPause
 
 	if [ "${FORCEGOOD}" = "1" ]; then
@@ -979,10 +1010,11 @@ dojsonGET () {
 #		$2 = title
 ########################################
 doValidateFile () {
-	TESTCOUNT=$((TESTCOUNT + 1))
+	((TESTCOUNT++))
 	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} $1 $2
 	echo >> ${1}	# force a newline at the end of the file, which often doesn't happen with command output
 
+	incStep
 	checkPause
 
 	if [ "${FORCEGOOD}" = "1" ]; then
@@ -1052,11 +1084,12 @@ doValidateFile () {
 #		$3 = title
 ########################################
 doPlainGET () {
-	TESTCOUNT=$((TESTCOUNT + 1))
+	((TESTCOUNT++))
 	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} ${2} ${3}
 	CMD="curl -s ${1}"
 	${CMD} > ${2} 2>>${LOGFILE}
 
+	incStep
 	checkPause
 
 	if [ "${FORCEGOOD}" = "1" ]; then
@@ -1143,6 +1176,7 @@ doCypressUITest () {
 		${CYPRESSTEST} ${2} 2>&1 | tee ${1}
 	fi
 
+	incStep
 	checkPause
 
 	#-----------------------------------------------------

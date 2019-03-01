@@ -793,6 +793,7 @@ func getStopDateFromRange(dbConf *GenDBConf, dtmpStart *time.Time) time.Time {
 // apartment renters.
 //-----------------------------------------------------------------------------
 func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
+	rlib.Console("entered: createRentalAgreements\n")
 	BID := dbConf.BIZ[0].BID
 	err := rlib.GetXBusiness(ctx, BID, &dbConf.xbiz)
 	if err != nil {
@@ -856,6 +857,8 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 		ra.FollowUpDate = now.AddDate(0, 0, 2)
 		ra.CSAgent = GenerateValidUID()
 		ra.Outcome = 0
+
+		rlib.Console("createRentalAgreements: A\n")
 		_, err := rlib.InsertRentalAgreement(ctx, &ra)
 		if err != nil {
 			return err
@@ -897,6 +900,7 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 		// If the rentable type is for a hotel, we don't want to
 		// use it here.
 		//-----------------------------------------------------------
+		rlib.Console("createRentalAgreements: B, rtr.RTID = %d\n", rtr.RTID)
 		if dbConf.xbiz.RT[rtr.RTID].FLAGS&(1<<3) == 0 {
 			RID++
 			if RID > MaxRID {
@@ -905,6 +909,8 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 			}
 			goto tryRID
 		}
+
+		rlib.Console("createRentalAgreements: C\n")
 
 		rar.BID = BID
 		rar.RAID = ra.RAID
@@ -923,6 +929,8 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 		if err = rlib.SetRentableUseStatusAbbr(ctx, BID, RID, rlib.USESTATUSinService, &d1, &d2); err != nil {
 			return err
 		}
+
+		rlib.Console("createRentalAgreements: Prepare lease status:  BID=%d, RID=%d, rs=%d, %s\n", BID, RID, rlib.LEASESTATUSleased, &d1, &d2)
 		if err = rlib.SetRentableLeaseStatusAbbr(ctx, BID, RID, rlib.LEASESTATUSleased, &d1, &d2, true); err != nil {
 			return err
 		}

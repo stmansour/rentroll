@@ -8,9 +8,10 @@
 
 "use strict";
 var RentableEdits = {
-    LeaseStatusChgList: [], // an array of indeces to LeaseStatus changes
-    UseStatusChgList: [],   // an array of indeces to UseStatus changes
-    RTRChgList: [],         // an array of indeces to type ref changes
+    LeaseStatusChgList: [],     // an array of indeces to LeaseStatus changes
+    UseStatusChgList: [],       // an array of indeces to UseStatus changes
+    RTRChgList: [],             // an array of indeces to type ref changes
+    rlsDeleteInProgress: false, // indicates whether or not a delete of Rentable Lease Status is in progress
 };
 
 window.getRentableInitRecord = function (BID, BUD, previousFormRecord) {

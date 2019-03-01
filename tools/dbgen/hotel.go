@@ -79,14 +79,16 @@ func HotelBookings(ctx context.Context, dbConf *GenDBConf) error {
 					// rlib.Console("Attempt to reserve: %s\n", rlib.ConsoleDRange(&ls.DtStart, &ls.DtStop))
 					// rlib.Console("len(m) = %d\n", len(m))
 					if len(m) == 0 {
-						available = true
+						break // nothing to conflict with, this time is ok
 					}
+					overlap := false
 					for i := 0; i < len(m); i++ {
-						if !rlib.DateRangeOverlap(&ls.DtStart, &ls.DtStop, &m[i].DtStart, &m[i].DtStop) {
-							available = true
-							break
+						if rlib.DateRangeOverlap(&ls.DtStart, &ls.DtStop, &m[i].DtStart, &m[i].DtStop) {
+							overlap = true // cant use this
+							break          // breaks out of inner loop
 						}
 					}
+					available = !overlap // if no overlaps were found, the outer loope terminates
 				}
 
 				// rlib.Console("Found date range that works: %s\n", rlib.ConsoleDRange(&ls.DtStart, &ls.DtStop))

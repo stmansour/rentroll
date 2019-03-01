@@ -1,0 +1,19 @@
+{
+    "records": [
+        {
+            "BID": 1,
+            "BUD": "REX",
+            "Comment": "",
+            "CreateBy": 0,
+            "DtStart": "2/16/2022",
+            "DtStop": "2/16/2022",
+            "LastModBy": 0,
+            "LeaseStatus": 2,
+            "RID": 3,
+            "RLID": 172,
+            "recid": 0
+        }
+    ],
+    "status": "success",
+    "total": 1
+}

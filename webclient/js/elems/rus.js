@@ -334,7 +334,7 @@ window.saveRentableUseStatus = function(BID,RID) {
             w2ui.toplayout.hide('right', true);
             w2ui.rentablesGrid.render();
         } else {
-            w2ui.rentablesGrid.error(data.status);
+            w2ui.rentablesGrid.error('saveRentableUseStatus: '+data.status);
         }
     })
     .fail(function(data){
