@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"rentroll/rlib"
-	"strconv"
 	"strings"
 )
 
@@ -93,7 +92,7 @@ func ValidateRentableLeaseStatus(ctx context.Context, rl *rlib.RentableLeaseStat
 	// 5. check that DtStart and DtStop don't overlap/fall in with other object.
 	// associated with the same RID
 	//
-	// sman: 2/27/2018 - we cannot use this check as is.  You can make multiple
+	// sman: 2/27/2019 - we cannot use this check as is.  You can make multiple
 	//    in the UI or in the web interface -- individually a given change can
 	//    appear to be an overlap violation, but if all the changes are taken as
 	//    a whole then there are no overlap violations.  But the code below does
@@ -192,40 +191,45 @@ func ValidateRentableUseStatus(ctx context.Context, rs *rlib.RentableUseStatus) 
 
 	// 5. check that DtStart and DtStop don't overlap/fall in with other object
 	// associated with the same RID
-	overLappingRSQuery := `
-	SELECT
-		RSID
-	FROM RentableUseStatus
-	WHERE
-		RSID <> {{.RSID}} AND
-		DtStart < "{{.stopDate}}" AND
-		"{{.startDate}}" < DtStop AND
-		RID = {{.RID}} AND
-		BID = {{.BID}}
-	LIMIT 1`
-
-	qc := rlib.QueryClause{
-		"BID":       strconv.FormatInt(rs.BID, 10),
-		"RID":       strconv.FormatInt(rs.RID, 10),
-		"RSID":      strconv.FormatInt(rs.RSID, 10),
-		"startDate": rs.DtStart.Format(rlib.RRDATEFMTSQL),
-		"stopDate":  rs.DtStop.Format(rlib.RRDATEFMTSQL),
-	}
-
-	qry := rlib.RenderSQLQuery(overLappingRSQuery, qc)
-	row := rlib.RRdb.Dbrr.QueryRow(qry)
-
-	var overLappingRSID int64
-	err := row.Scan(&overLappingRSID)
-	rlib.SkipSQLNoRowsError(&err)
-	if err != nil {
-		panic(err.Error()) // BOOM!
-	}
-	if overLappingRSID > 0 {
-		s := fmt.Sprintf(BizErrors[RentableUseStatusDatesOverlap].Message, rs.RSID, overLappingRSID)
-		b := BizError{Errno: RentableUseStatusDatesOverlap, Message: s}
-		errlist = append(errlist, b)
-	}
+	// sman: 2/27/2019 - we cannot use this check as is.  You can make multiple
+	//    in the UI or in the web interface -- individually a given change can
+	//    appear to be an overlap violation, but if all the changes are taken as
+	//    a whole then there are no overlap violations.  But the code below does
+	//    not take the changes as a whole.  So I'm commenting it out for now.
+	// overLappingRSQuery := `
+	// SELECT
+	// 	RSID
+	// FROM RentableUseStatus
+	// WHERE
+	// 	RSID <> {{.RSID}} AND
+	// 	DtStart < "{{.stopDate}}" AND
+	// 	"{{.startDate}}" < DtStop AND
+	// 	RID = {{.RID}} AND
+	// 	BID = {{.BID}}
+	// LIMIT 1`
+	//
+	// qc := rlib.QueryClause{
+	// 	"BID":       strconv.FormatInt(rs.BID, 10),
+	// 	"RID":       strconv.FormatInt(rs.RID, 10),
+	// 	"RSID":      strconv.FormatInt(rs.RSID, 10),
+	// 	"startDate": rs.DtStart.Format(rlib.RRDATEFMTSQL),
+	// 	"stopDate":  rs.DtStop.Format(rlib.RRDATEFMTSQL),
+	// }
+	//
+	// qry := rlib.RenderSQLQuery(overLappingRSQuery, qc)
+	// row := rlib.RRdb.Dbrr.QueryRow(qry)
+	//
+	// var overLappingRSID int64
+	// err := row.Scan(&overLappingRSID)
+	// rlib.SkipSQLNoRowsError(&err)
+	// if err != nil {
+	// 	panic(err.Error()) // BOOM!
+	// }
+	// if overLappingRSID > 0 {
+	// 	s := fmt.Sprintf(BizErrors[RentableUseStatusDatesOverlap].Message, rs.RSID, overLappingRSID)
+	// 	b := BizError{Errno: RentableUseStatusDatesOverlap, Message: s}
+	// 	errlist = append(errlist, b)
+	// }
 	return errlist
 }
 
@@ -270,42 +274,47 @@ func ValidateRentableTypeRef(ctx context.Context, rtr *rlib.RentableTypeRef) []B
 		errlist = append(errlist, b)
 	}
 
-	// 3. Check that any other instance doesn't overlap with given date range
-	overLappingRTRQuery := `
-	SELECT
-		RTRID
-	FROM RentableTypeRef
-	WHERE
-		RTRID <> {{.RTRID}} AND
-		DtStart < "{{.stopDate}}" AND
-		"{{.startDate}}" < DtStop AND
-		RID = {{.RID}} AND
-		BID = {{.BID}}
-	LIMIT 1`
-
-	qc := rlib.QueryClause{
-		"BID":       strconv.FormatInt(rtr.BID, 10),
-		"RID":       strconv.FormatInt(rtr.RID, 10),
-		"RTRID":     strconv.FormatInt(rtr.RTRID, 10),
-		"startDate": rtr.DtStart.Format(rlib.RRDATEFMTSQL),
-		"stopDate":  rtr.DtStop.Format(rlib.RRDATEFMTSQL),
-	}
-
-	qry := rlib.RenderSQLQuery(overLappingRTRQuery, qc)
-	row := rlib.RRdb.Dbrr.QueryRow(qry)
-
-	var overLappingRTRID int64
-	err := row.Scan(&overLappingRTRID)
-	rlib.SkipSQLNoRowsError(&err)
-	if err != nil {
-		panic(err.Error()) // BOOM!
-	}
-	if overLappingRTRID > 0 {
-		rlib.Console("ValidateRentableTypeRef: overlapping RTRID error]\n")
-		s := fmt.Sprintf(BizErrors[RentableTypeRefDatesOverlap].Message, rtr.RTRID, overLappingRTRID)
-		b := BizError{Errno: RentableTypeRefDatesOverlap, Message: s}
-		errlist = append(errlist, b)
-	}
+	// sman: 3/4/2019 - we cannot use this check as is.  You can make multiple
+	//    in the UI or in the web interface -- individually a given change can
+	//    appear to be an overlap violation, but if all the changes are taken as
+	//    a whole then there are no overlap violations.  But the code below does
+	//    not take the changes as a whole.  So I'm commenting it out for now.
+	// // 3. Check that any other instance doesn't overlap with given date range
+	// overLappingRTRQuery := `
+	// SELECT
+	// 	RTRID
+	// FROM RentableTypeRef
+	// WHERE
+	// 	RTRID <> {{.RTRID}} AND
+	// 	DtStart < "{{.stopDate}}" AND
+	// 	"{{.startDate}}" < DtStop AND
+	// 	RID = {{.RID}} AND
+	// 	BID = {{.BID}}
+	// LIMIT 1`
+	//
+	// qc := rlib.QueryClause{
+	// 	"BID":       strconv.FormatInt(rtr.BID, 10),
+	// 	"RID":       strconv.FormatInt(rtr.RID, 10),
+	// 	"RTRID":     strconv.FormatInt(rtr.RTRID, 10),
+	// 	"startDate": rtr.DtStart.Format(rlib.RRDATEFMTSQL),
+	// 	"stopDate":  rtr.DtStop.Format(rlib.RRDATEFMTSQL),
+	// }
+	//
+	// qry := rlib.RenderSQLQuery(overLappingRTRQuery, qc)
+	// row := rlib.RRdb.Dbrr.QueryRow(qry)
+	//
+	// var overLappingRTRID int64
+	// err := row.Scan(&overLappingRTRID)
+	// rlib.SkipSQLNoRowsError(&err)
+	// if err != nil {
+	// 	panic(err.Error()) // BOOM!
+	// }
+	// if overLappingRTRID > 0 {
+	// 	rlib.Console("ValidateRentableTypeRef: overlapping RTRID error]\n")
+	// 	s := fmt.Sprintf(BizErrors[RentableTypeRefDatesOverlap].Message, rtr.RTRID, overLappingRTRID)
+	// 	b := BizError{Errno: RentableTypeRefDatesOverlap, Message: s}
+	// 	errlist = append(errlist, b)
+	// }
 
 	/*// 3. check that DtStart and DtStop don't overlap/fall in with other object
 	// associated with the same RID

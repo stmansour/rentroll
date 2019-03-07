@@ -210,11 +210,10 @@ type RentableUseStatusGridRecDelete struct {
 
 // deleteRentableUseStatus used to delete rentable status records associated with rentable
 func deleteRentableUseStatus(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	var (
-		funcname = "deleteRentableUseStatus"
-		err      error
-		foo      RentableUseStatusGridRecDelete
-	)
+	var funcname = "deleteRentableUseStatus"
+	var err error
+	var foo RentableUseStatusGridRecDelete
+
 	rlib.Console("Entered %s\n", funcname)
 	rlib.Console("record data: %s\n", d.data)
 
@@ -225,16 +224,35 @@ func deleteRentableUseStatus(w http.ResponseWriter, r *http.Request, d *ServiceD
 		return
 	}
 
-	// TODO(Sudip): better should delete batch under atomic transaction
+	// ------------------
+	// START TRANSACTION
+	// ------------------
+	tx, ctx, err := rlib.NewTransactionWithContext(r.Context())
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
 	for _, rsid := range foo.RSIDList {
-		err = rlib.DeleteRentableUseStatus(r.Context(), rsid)
+		rlib.Console("Deleting RSID = %d\n", rsid)
+		err = rlib.DeleteRentableUseStatus(ctx, rsid)
 		if err != nil {
-			e := fmt.Errorf("Error with deleting Rentable Status(%d) for Rentable(%d): %s",
-				rsid, foo.RID, err.Error())
+			tx.Rollback()
+			e := fmt.Errorf("Error with deleting Rentable Status(%d) for Rentable(%d): %s", rsid, foo.RID, err.Error())
 			SvcErrorReturn(w, e, funcname)
 			return
 		}
 	}
+
+	// ------------------
+	// COMMIT TRANSACTION
+	// ------------------
+	if err := tx.Commit(); err != nil {
+		tx.Rollback()
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+	rlib.Console("%s: DB Transaction successfully committed\n", funcname)
 	SvcWriteSuccessResponse(d.BID, w)
 }
 
@@ -306,21 +324,26 @@ func saveRentableUseStatus(w http.ResponseWriter, r *http.Request, d *ServiceDat
 			continue
 		}
 
-		// if RSID = 0 then insert new record
-		if a.RSID == 0 {
-			_, err = rlib.InsertRentableUseStatus(r.Context(), &a)
-			if err != nil {
-				e := fmt.Errorf("Error while inserting rentable status:  %s", err.Error())
-				SvcErrorReturn(w, e, funcname)
-				return
-			}
-		} else { // else update existing one
-			err = rlib.UpdateRentableUseStatus(r.Context(), &a)
-			if err != nil {
-				e := fmt.Errorf("Error with updating rentable status (%d), RID=%d : %s", a.RSID, a.RID, err.Error())
-				SvcErrorReturn(w, e, funcname)
-				return
-			}
+		// // if RSID = 0 then insert new record
+		// if a.RSID == 0 {
+		// 	_, err = rlib.InsertRentableUseStatus(r.Context(), &a)
+		// 	if err != nil {
+		// 		e := fmt.Errorf("Error while inserting rentable status:  %s", err.Error())
+		// 		SvcErrorReturn(w, e, funcname)
+		// 		return
+		// 	}
+		// } else { // else update existing one
+		// 	err = rlib.UpdateRentableUseStatus(r.Context(), &a)
+		// 	if err != nil {
+		// 		e := fmt.Errorf("Error with updating rentable status (%d), RID=%d : %s", a.RSID, a.RID, err.Error())
+		// 		SvcErrorReturn(w, e, funcname)
+		// 		return
+		// 	}
+		// }
+		if err = rlib.SetRentableUseStatus(r.Context(), &a); err != nil {
+			e := fmt.Errorf("Error from SetRentableUseStatus (%d), RID=%d : %s", a.RSID, a.RID, err.Error())
+			SvcErrorReturn(w, e, funcname)
+			return
 		}
 	}
 

@@ -104,6 +104,65 @@ if [ "x" == "x${CSVDATERANGE}" ]; then
 fi
 
 
+#------------------------------------------------------------------------------
+#  encodeURI encodes data so that it can be passed in a URI.  It
+#      does essentially what Javascript's encodeURI does.
+#
+#  INPUTS
+#  $1  The string to encode
+#
+#  RETURNS
+#      the return value is the encoded string.
+#
+#  USAGE:
+#      data=$(encodeURI "4%2F1%2F2019")
+#------------------------------------------------------------------------------
+encodeURI() {
+  local string="${1}"
+  local strlen=${#string}
+  local encoded=""
+  local pos c o
+
+  for (( pos=0 ; pos<strlen ; pos++ )); do
+     c=${string:$pos:1}
+     case "$c" in
+        [-_.~a-zA-Z0-9] ) o="${c}" ;;
+        * )               printf -v o '%%%02x' "'$c"
+     esac
+     encoded+="${o}"
+  done
+  echo "${encoded}"
+}
+
+#------------------------------------------------------------------------------
+#  encodeRequest is just like encodeURI except that it saves the output
+#      into a file named "request"
+#
+#  INPUTS
+#  $1  The string to encode
+#
+#  RETURNS
+#      nothing, but the encoded string will be in a file named "request"
+#------------------------------------------------------------------------------
+encodeRequest() {
+  local string="${1}"
+  local strlen=${#string}
+  local encoded=""
+  local pos c o
+
+  for (( pos=0 ; pos<strlen ; pos++ )); do
+     c=${string:$pos:1}
+     case "$c" in
+        [-_.~a-zA-Z0-9] ) o="${c}" ;;
+        * )               printf -v o '%%%02x' "'$c"
+     esac
+     encoded+="${o}"
+  done
+  echo "${encoded}" > request
+}
+
+
+
 #############################################################################
 #  This code ensures that mysql does not touch production databases.
 #  The way identity is kept, default usage of mysql or mysqldump often

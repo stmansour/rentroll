@@ -21,7 +21,7 @@ window.buildRentableTypeRefElements = function () {
             toolbarColumns: false,
             toolbarSearch: true,
             toolbarAdd: true,
-            toolbarDelete: true,
+            toolbarDelete: false,
             toolbarSave: false,
             searchAll: true,
             footer: true,
@@ -122,12 +122,20 @@ window.buildRentableTypeRefElements = function () {
                 DtStart: dateFmtStr(ndStart),
                 DtStop: "12/31/9999"
             };
+            if (EDIEnabledForBUD(BUD)) {
+                var d = ndStart;
+                d.setDate(d.getDate()+1);
+                newRec.DtStart = dateFmtStr(d);
+                newRec.DtStop = "12/30/9999";
+            }
+            if (newRec.DtStart > newRec.DtStop) {
+                newRec.DtStart = newRec.DtStop;
+            }
             RentableEdits.RTRChgList.push(newRec.recid);
             g.add(newRec);
         },
-        onSave: function (event) {
-            // TODO(Sudip): validation on values before sending these to server
 
+        onSave: function (event) {
             this.records.forEach(function (item, index, arr) {
                 arr[index].OverrideRentCycle = parseInt(arr[index].OverrideRentCycle);
                 arr[index].OverrideProrationCycle = parseInt(arr[index].OverrideProrationCycle);
@@ -135,39 +143,41 @@ window.buildRentableTypeRefElements = function () {
             });
             event.changes = this.records;
         },
-        onDelete: function (event) {
-            var selected = this.getSelection(),
-                RTRIDList = [],
-                grid = this;
 
-            // if not selected then return
-            if (selected.length < 0) {
-                return;
-            }
-            // collect RTRID
-            selected.forEach(function (id) {
-                RTRIDList.push(grid.get(id).RTRID);
-            });
+        // onDelete: function (event) {
+        //     var selected = this.getSelection(),
+        //         RTRIDList = [],
+        //         grid = this;
+        //
+        //     // if not selected then return
+        //     if (selected.length < 0) {
+        //         return;
+        //     }
+        //     // collect RTRID
+        //     selected.forEach(function (id) {
+        //         RTRIDList.push(grid.get(id).RTRID);
+        //     });
+        //
+        //     event.onComplete = function () {
+        //         var x = getCurrentBusiness(),
+        //             BID = parseInt(x.value),
+        //             BUD = getBUDfromBID(BID),
+        //             RID = w2ui.rentableForm.record.RID;
+        //
+        //         var payload = {"cmd": "delete", "RTRIDList": RTRIDList};
+        //         $.ajax({
+        //             type: "POST",
+        //             url: "/v1/rentabletyperef/" + BID + "/" + RID,
+        //             data: JSON.stringify(payload),
+        //             contentType: "application/json",
+        //             dataType: "json",
+        //             success: function (data) {
+        //                 grid.reload();
+        //             },
+        //         });
+        //     };
+        // },
 
-            event.onComplete = function () {
-                var x = getCurrentBusiness(),
-                    BID = parseInt(x.value),
-                    BUD = getBUDfromBID(BID),
-                    RID = w2ui.rentableForm.record.RID;
-
-                var payload = {"cmd": "delete", "RTRIDList": RTRIDList};
-                $.ajax({
-                    type: "POST",
-                    url: "/v1/rentabletyperef/" + BID + "/" + RID,
-                    data: JSON.stringify(payload),
-                    contentType: "application/json",
-                    dataType: "json",
-                    success: function (data) {
-                        grid.reload();
-                    },
-                });
-            };
-        },
         onChange: function (event) {
             event.preventDefault();
             var g = this;
@@ -177,47 +187,26 @@ window.buildRentableTypeRefElements = function () {
 
             RentableEdits.RTRChgList.push(chgRec.recid);
 
-            // if fields are DtStart or DtStop
-            if (field === "DtStart" || field === "DtStop") {
+            //------------------------------------
+            // Put any validation checks here...
+            //------------------------------------
 
-                var chgDStart = field === "DtStart" ? new Date(event.value_new) : new Date(chgRec.DtStart),
-                    chgDStop = field === "DtStop" ? new Date(event.value_new) : new Date(chgRec.DtStop);
+            //---------------------------------------------------
+            // Inform w2ui if the change is cancelled or not...
+            //---------------------------------------------------
+            event.isCancelled = !changeIsValid;
 
-                // Stop date should not before Start Date
-                if (chgDStop <= chgDStart) {
-                    changeIsValid = false;
-                } else {
-                    // make sure date values don't overlap with other market rate dates
-                    for (var i in g.records) {
-                        var rec = g.records[i];
-                        if (rec.recid === chgRec.recid) { // if same record then continue to next one
-                            continue;
-                        }
-
-                        var rDStart = new Date(rec.DtStart),
-                            rDStop = new Date(rec.DtStop);
-
-                        // return if changed record startDate falls in other MR time span
-                        if (rDStart < chgDStart && chgDStart < rDStop) {
-                            changeIsValid = false;
-                        } else if (rDStart < chgDStop && chgDStop < rDStop) {
-                            changeIsValid = false;
-                        } else if (chgDStart < rDStart && rDStop < chgDStop) {
-                            changeIsValid = false;
-                        }
-                    }
-                }
-            }
-
-            if (changeIsValid) {
-                event.isCancelled = false; // if everything is ok, then don't cancel
-            } else {
-                event.isCancelled = true;
-            }
-
+            //---------------------------------------------------------------
+            // 2/19/2019 sman - This save is used to save the data into the
+            // grid's records.  We need to ensure that the grids URL is ''
+            //---------------------------------------------------------------
             event.onComplete = function () {
                 if (!event.isCancelled) { // if event not cancelled then invoke save method
-                    this.save();          // save automatically locally
+                    g.url = '';  // just ensure that no server service is called
+                    this.save(); // save automatically locally
+                    var BID = getCurrentBusiness();
+                    var RID = w2ui.rentableForm.record.RID;
+                    g.url = '/v1/rentabletyperef/' + BID + '/' + RID;
                 }
             };
         }

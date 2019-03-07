@@ -23,7 +23,7 @@ window.buildRentableUseStatusElements = function () {
             toolbarColumns: false,
             toolbarSearch: true,
             toolbarAdd: true,
-            toolbarDelete: true,
+            toolbarDelete: false,
             toolbarSave: false,
             searchAll: true,
             footer: true,
@@ -77,28 +77,22 @@ window.buildRentableUseStatusElements = function () {
             };
         },
         onAdd: function (/*event*/) {
-            var x = getCurrentBusiness(),
-                BID = parseInt(x.value),
-                BUD = getBUDfromBID(BID),
-                fr = w2ui.rentableForm.record,
-                g = this,
-                ndStart;
+            var  x = getCurrentBusiness();
+            var BID = parseInt(x.value);
+            var BUD = getBUDfromBID(BID);
+            var fr = w2ui.rentableForm.record;
+            var g = this;
+            var ndStart = new Date();
 
             // get lastest date among all market rate object's stopDate for new MR's StartDate
-            if (g.records.length === 0) {
-                ndStart = new Date();
-            } else {
-                g.records.forEach(function (rec) {
-                    if (ndStart === undefined) {
-                        ndStart = new Date(rec.DtStop);
+            for (var i = 0; i < g.records.length; i++) {
+                var rec = g.records[i];
+                if (rec.DtStop) {
+                    var rdStop = new Date(rec.DtStop);
+                    if (ndStart < rdStop) {
+                        ndStart = rdStop;
                     }
-                    if (rec.DtStop) {
-                        var rdStop = new Date(rec.DtStop);
-                        if (ndStart < rdStop) {
-                            ndStart = rdStop;
-                        }
-                    }
-                });
+                }
             }
 
             var newRec = {
@@ -117,6 +111,9 @@ window.buildRentableUseStatusElements = function () {
                 d.setDate(d.getDate()+1);
                 newRec.DtStart = dateFmtStr(d);
                 newRec.DtStop = "12/30/9999";
+            }
+            if (newRec.DtStart > newRec.DtStop) {
+                newRec.DtStart = newRec.DtStop;
             }
             g.add(newRec,true); // true forces the add to the beginning of the list
             RentableEdits.UseStatusChgList.push(newRec.recid);
@@ -175,37 +172,68 @@ window.buildRentableUseStatusElements = function () {
                 w2ui.rentableUseStatusGrid.url = "/v1/rentableusestatus/" + BID + "/" + RID;
             };
         },
-        onDelete: function (event) {
-            var selected = this.getSelection(),
-                RSIDList = [],
-                grid = this;
-
-            // if not selected then return
-            if (selected.length < 0) {
-                return;
-            }
-            // collect RMRID
-            selected.forEach(function (id) {
-                RSIDList.push(grid.get(id).RSID);
-            });
-
-            event.onComplete = function () {
-                var BID = getCurrentBID();
-                var RID = w2ui.rentableForm.record.RID;
-
-                var payload = {"cmd": "delete", "RSIDList": RSIDList};
-                $.ajax({
-                    type: "POST",
-                    url: "/v1/rentableusestatus/" + BID + "/" + RID,
-                    data: JSON.stringify(payload),
-                    contentType: "application/json",
-                    dataType: "json",
-                    success: function (data) {
-                        grid.reload();
-                    },
-                });
-            };
-        },
+        // onDelete: function (event) {
+        //     var selected = this.getSelection();
+        //     var RSIDList = [];
+        //     var grid = this;
+        //
+        //     // if not selected then return
+        //     if (selected.length < 0) {
+        //         return;
+        //     }
+        //     // collect the RSIDs to remove
+        //     selected.forEach(function (id) {
+        //         var r = grid.get(id);
+        //         if ( 0 != r.RSID ) {
+        //             RSIDList.push(r.RSID);  // only save the ones already in the server db
+        //         }
+        //     });
+        //
+        //     event.onComplete = function () {
+        //         //-----------------------------------------------------------
+        //         // If the record has not yet been saved to the server, then
+        //         // just remove it from the grid and we're done with it.
+        //         //-----------------------------------------------------------
+        //         var grid = this;
+        //         var Unselect = [];
+        //         for (var i = 0; i < selected.length; i++) {
+        //             var r = grid.get(selected[i]);
+        //             if (0 == r.RSID) {
+        //                 Unselect.push(selected[i]);
+        //             }
+        //         }
+        //
+        //         grid.selectNone();
+        //         grid.select.apply(Unselect);
+        //         grid.delete(true);  // get rid of them
+        //
+        //         if (RSIDList.length == 0 ) {
+        //             RentableEdits.rusDeleteInProgress = false;
+        //             return;
+        //         }
+        //
+        //         var BID = getCurrentBID();
+        //         var RID = w2ui.rentableForm.record.RID;
+        //
+        //         var tgrid = w2ui.rentableUseStatusGrid;
+        //         var url = "/v1/rentableusestatus/" + BID + "/" + RID;
+        //         var params = {"cmd": "delete", "RSIDList": RSIDList};
+        //         var dat = JSON.stringify(params);
+        //
+        //         $.post(grid.url, dat, null, "json")
+        //         .done(function(data) {
+        //             if (data.status === "error") {
+        //                 grid.error('onDelete: '+w2utils.lang(data.message));
+        //                 return;
+        //             }
+        //             grid.reload();
+        //         })
+        //         .fail(function(/*data*/){
+        //             grid.error("Delete RentableUseStatus failed.");
+        //             return;
+        //         });
+        //     };
+        // },
         onChange: function (event) {
             event.preventDefault();
             var g = this;
@@ -215,74 +243,19 @@ window.buildRentableUseStatusElements = function () {
 
             RentableEdits.UseStatusChgList.push(chgRec.recid);
 
-            switch (field) {
-                case "UseStatus":
-                    // in local save check if use status is unknown for existing instance
-                    // if yes, then don't allow that change
-                    app.RSUseStatusItems.forEach(function (status) {
-                        switch (status.text) {
-                            case "Unknown":
-                                if (chgRec.RSID > 0) { // only for existing instance
-                                    changeIsValid = false;
-                                }
-                        }
-                    });
-                    break;
-                case "LeaseStatus":
-                    // in local save check if lease status is unknown for existing instance
-                    // if yes, then don't allow that change
-                    app.RSLeaseStatusItems.forEach(function (status) {
-                        switch (status.text) {
-                            case "Unknown":
-                                if (chgRec.RSID > 0) { // only for existing instance
-                                    changeIsValid = false;
-                                }
-                        }
-                    });
-                    break;
-                case "DtStart":
-                case "DtStop":
-                    // get the changed value if field, otherwise take the record saved date value
-                    var chgDStart = field === "DtStart" ? new Date(event.value_new) : new Date(chgRec.DtStart),
-                        chgDStop = field === "DtStop" ? new Date(event.value_new) : new Date(chgRec.DtStop);
+            //------------------------------------
+            // Put any validation checks here...
+            //------------------------------------
 
-                    // Stop date should not before Start Date
-                    if (chgDStop <= chgDStart) {
-                        changeIsValid = false;
-                    } else {
-                        // make sure date values don't overlap with other market rate dates
-                        for (var i = 0; i< g.records.length; i++) {
-                            var rec = g.records[i];
-                            if (rec.recid >= chgRec.recid) { // if same record then continue to next one
-                                continue;
-                            }
+            //---------------------------------------------------
+            // Inform w2ui if the change is cancelled or not...
+            //---------------------------------------------------
+            event.isCancelled = !changeIsValid;
 
-                            var rDStart = new Date(rec.DtStart),
-                                rDStop = new Date(rec.DtStop);
-
-                            // return if changed record startDate falls in other MR time span
-                            if (rDStart < chgDStart && chgDStart < rDStop) {
-                                changeIsValid = false;
-                            } else if (rDStart < chgDStop && chgDStop < rDStop) {
-                                changeIsValid = false;
-                            } else if (chgDStart < rDStart && rDStop < chgDStop) {
-                                changeIsValid = false;
-                            }
-                        }
-                    }
-                    break;
-            }
-
-            if (changeIsValid) {
-                // if everything is ok, then mark this as false
-                event.isCancelled = false;
-            } else {
-                event.isCancelled = true;
-            }
-
+            //---------------------------------------------------------------
             // 2/19/2019 sman - This save is used to save the data into the
             // grid's records.  We need to ensure that the grids URL is ''
-            //-------------------------------------------------------------------
+            //---------------------------------------------------------------
             event.onComplete = function () {
                 if (!event.isCancelled) { // if event not cancelled then invoke save method
                     g.url = '';  // just ensure that no server service is called

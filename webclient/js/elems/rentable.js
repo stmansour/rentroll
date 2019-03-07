@@ -3,6 +3,7 @@
     getRentableTypes, setToForm, form_dirty_alert, console, getFormSubmitData, addDateNavToToolbar, setRentableLayout,
     getRentableInitRecord, saveRentableLeaseStatus, buildRentableUseStatusElements, buildRentableLeaseStatusElements,
     saveRentableUseStatus, saveRentableTypeRef, buildRentableTypeRefElements, saveRentableCore, closeRentableForm,
+    showRentableForm, finishSaveAdd, finishSave,
 */
 /*jshint esversion: 6 */
 
@@ -11,7 +12,10 @@ var RentableEdits = {
     LeaseStatusChgList: [],     // an array of indeces to LeaseStatus changes
     UseStatusChgList: [],       // an array of indeces to UseStatus changes
     RTRChgList: [],             // an array of indeces to type ref changes
+    RID: 0,                     // ID being edited
     rlsDeleteInProgress: false, // indicates whether or not a delete of Rentable Lease Status is in progress
+    rusDeleteInProgress: false, // indicates whether or not a delete of Rentable Use Status is in progress
+    rtrDeleteInProgress: false, // indicates whether or not a delete of Rentable Type Ref is in progress
 };
 
 window.getRentableInitRecord = function (BID, BUD, previousFormRecord) {
@@ -393,7 +397,6 @@ window.buildRentableElements = function () {
     buildRentableLeaseStatusElements();
     buildRentableTypeRefElements();
 
-
     //------------------------------------------------------------------------
     //          Rentable Form Buttons
     //------------------------------------------------------------------------
@@ -405,30 +408,33 @@ window.buildRentableElements = function () {
         fields: [],
         actions: {
             save: function () {
-                var BID = getCurrentBID();
-                var BUD = getBUDfromBID();
                 w2ui.rentablesGrid.selectNone();
-                saveRentableCore();
-                app.form_is_dirty = false;
-                closeRentableForm();
+                saveRentableCore(finishSave);
             },
 
             saveadd: function () {
-                var BID = getCurrentBID();
-                var BUD = getBUDfromBID();
-                app.form_is_dirty = false;
-                app.last.grid_sel_recid = -1;  // clear the grid select recid
-                // w2ui.rentablesGrid.selectNone();  // select none if you're going to add new record
-                saveRentableCore();
-                w2ui.rentablesGrid.render();
-                w2ui.rentableTypeRefGrid.reload();
-                w2ui.rentableForm.record = getRentableInitRecord(BID, BUD, w2ui.rentableForm.record);
-                w2ui.rentableForm.url = '/v1/rentable/' + BID + '/0';
-                w2ui.rentableForm.refresh();
+                saveRentableCore(finishSaveAdd);
             }
-
         },
     });
+};
+
+window.finishSave = function() {
+    app.form_is_dirty = false;
+    closeRentableForm();
+};
+
+window.finishSaveAdd = function() {
+    var BID = getCurrentBID();
+    var BUD = getBUDfromBID();
+    app.last.grid_sel_recid = -1;  // clear the grid select recid
+    w2ui.rentablesGrid.render();
+    w2ui.rentableTypeRefGrid.reload();
+    w2ui.rentableForm.record = getRentableInitRecord(BID, BUD, w2ui.rentableForm.record);
+    w2ui.rentableForm.url = '/v1/rentable/' + BID + '/0';
+    w2ui.rentableForm.refresh();
+    app.form_is_dirty = false;
+    //closeRentableForm();
 };
 
 // saveRentableCore performs the common functions to Save and SaveAdd.  It
@@ -436,12 +442,11 @@ window.buildRentableElements = function () {
 // RentableLeaseStatus.
 //
 // @params
-//     BID - current business
-//     BUD - designator for current business
+//     doneCB = callback function when all asynchronous calls complete
 //
 // @return
 //-----------------------------------------------------------------------------
-window.saveRentableCore = function (BID, BUD) {
+window.saveRentableCore = function (doneCB) {
     w2ui.rentableForm.save({}, function (data) {
         if (data.status === 'error') {
             console.log('ERROR: ' + data.message);
@@ -476,29 +481,18 @@ window.saveRentableCore = function (BID, BUD) {
             saveRentableTypeRef(BID,RID)
         )
         .done(function(){
-            console.log('RentableSave: when completed, no errors');
+            // var s = 'RentableSave: when completed, no errors';
+            // console.log(s);
+            // w2ui.rentablesGrid.error('');
+            doneCB();
         })
         .fail(function(){
-            console.log('RentableSave: when failed.');
+            var s = 'RentableSave: error reported';
+            console.log(s);
+            w2ui.rentablesGrid.error(s);
+            doneCB();
         });
     });
-};
-
-// closeRentableForm hides the RentableLayout.
-//
-// @params
-//
-// @return
-//-----------------------------------------------------------------------------
-window.closeRentableForm = function() {
-    var no_callBack = function () {
-            return false;
-        },
-        yes_callBack = function () {
-            w2ui.toplayout.hide('right', true);
-            w2ui.rentablesGrid.render();
-        };
-    form_dirty_alert(yes_callBack, no_callBack);
 };
 
 // setRentableLayout shows the RentableLayout.
@@ -528,6 +522,7 @@ window.setRentableLayout = function (BID, RID) {
     // mark form dirty flag as false
     app.form_is_dirty = false;
 
+    RentableEdits.RID = RID;
     if (RID) {
 
         // if rentable available then load the status grid
@@ -553,11 +548,11 @@ window.setRentableLayout = function (BID, RID) {
                 // only render the toplayout after server has sent down data
                 // so that w2ui can bind values with field's html control,
                 // otherwise it is unable to find html controls
-                showForm();
+                showRentableForm();
                 return true;
             }
             else {
-                showForm();
+                showRentableForm();
                 w2ui.rentableForm.message("Could not get form data from server...!!");
                 return false;
             }
@@ -579,19 +574,43 @@ window.setRentableLayout = function (BID, RID) {
             w2ui.rentablesGrid.unselect(w2ui.rentablesGrid.last.sel_recid);
         }
 
-        showForm();
+        showRentableForm();
         return true;
     }
 
-    function showForm() {
-        RentableEdits.LeaseStatusChgList = [];
-        RentableEdits.UseStatusChgList = [];
-        RentableEdits.RTRChgList = [];
-        // SHOW the right panel now
-        w2ui.toplayout.content('right', w2ui.rentableDetailLayout);
-        w2ui.toplayout.sizeTo('right', 700);
-        // w2ui.rentableDetailLayout.render();
-        w2ui.rentableDetailLayout.get("main").tabs.click("rentableForm");
-        w2ui.toplayout.show('right', true);
-    }
+};
+
+// closeRentableForm hides the RentableLayout.
+//
+// @params
+//
+// @return
+//-----------------------------------------------------------------------------
+window.closeRentableForm = function() {
+    var no_callBack = function () {
+            return false;
+        },
+        yes_callBack = function () {
+            w2ui.toplayout.hide('right', true);
+            w2ui.rentablesGrid.render();
+        };
+    form_dirty_alert(yes_callBack, no_callBack);
+};
+
+// showRentableForm shows the RentableLayout.
+//
+// @params
+//
+// @return
+//-----------------------------------------------------------------------------
+window.showRentableForm = function() {
+    RentableEdits.LeaseStatusChgList = [];
+    RentableEdits.UseStatusChgList = [];
+    RentableEdits.RTRChgList = [];
+    // SHOW the right panel now
+    w2ui.toplayout.content('right', w2ui.rentableDetailLayout);
+    w2ui.toplayout.sizeTo('right', 700);
+    // w2ui.rentableDetailLayout.render();
+    w2ui.rentableDetailLayout.get("main").tabs.click("rentableForm");
+    w2ui.toplayout.show('right', true);
 };

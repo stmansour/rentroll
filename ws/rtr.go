@@ -106,7 +106,7 @@ func svcSearchHandlerRentableTypeRef(w http.ResponseWriter, r *http.Request, d *
 	var (
 		g     RentableTypeRefGridResponse
 		err   error
-		order = `RentableTypeRef.RTRID ASC`
+		order = `RentableTypeRef.DtStart DESC`
 		whr   = fmt.Sprintf("RentableTypeRef.RID=%d", d.ID)
 	)
 	fmt.Printf("Entered %s\n", funcname)
@@ -246,10 +246,20 @@ func saveRentableTypeRef(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		return
 	}
 
+	var biz rlib.Business
+	if err = rlib.GetBusiness(r.Context(), d.BID, &biz); err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+	var EDIadjust = (biz.FLAGS & 1) != 0
 	var bizErrs []bizlogic.BizError
 	for _, rs := range foo.Changes {
 		var a rlib.RentableTypeRef
 		rlib.MigrateStructVals(&rs, &a) // the variables that don't need special handling
+
+		if EDIadjust {
+			rlib.EDIHandleIncomingDateRange(a.BID, &a.DtStart, &a.DtStop)
+		}
 
 		errs := bizlogic.ValidateRentableTypeRef(r.Context(), &a)
 		if len(errs) > 0 {
@@ -257,21 +267,26 @@ func saveRentableTypeRef(w http.ResponseWriter, r *http.Request, d *ServiceData)
 			continue
 		}
 
-		// if RTRID = 0 then insert new record
-		if a.RTRID == 0 {
-			_, err = rlib.InsertRentableTypeRef(r.Context(), &a)
-			if err != nil {
-				e := fmt.Errorf("Error while inserting rentable type ref:  %s", err.Error())
-				SvcErrorReturn(w, e, funcname)
-				return
-			}
-		} else { // else update existing one
-			err = rlib.UpdateRentableTypeRef(r.Context(), &a)
-			if err != nil {
-				e := fmt.Errorf("Error with updating rentable type ref (%d), RID=%d : %s", a.RTRID, a.RID, err.Error())
-				SvcErrorReturn(w, e, funcname)
-				return
-			}
+		// // if RTRID = 0 then insert new record
+		// if a.RTRID == 0 {
+		// 	_, err = rlib.InsertRentableTypeRef(r.Context(), &a)
+		// 	if err != nil {
+		// 		e := fmt.Errorf("Error while inserting rentable type ref:  %s", err.Error())
+		// 		SvcErrorReturn(w, e, funcname)
+		// 		return
+		// 	}
+		// } else { // else update existing one
+		// 	err = rlib.UpdateRentableTypeRef(r.Context(), &a)
+		// 	if err != nil {
+		// 		e := fmt.Errorf("Error with updating rentable type ref (%d), RID=%d : %s", a.RTRID, a.RID, err.Error())
+		// 		SvcErrorReturn(w, e, funcname)
+		// 		return
+		// 	}
+		// }
+		if err = rlib.SetRentableTypeRef(r.Context(), &a); err != nil {
+			e := fmt.Errorf("Error from SetRentableTypeReference (%d), RID=%d : %s", a.RTRID, a.RID, err.Error())
+			SvcErrorReturn(w, e, funcname)
+			return
 		}
 	}
 
