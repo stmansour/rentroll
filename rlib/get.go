@@ -5849,7 +5849,7 @@ func GetRentableUseStatusByRange(ctx context.Context, RID int64, d1, d2 *time.Ti
 	}
 
 	var rows *sql.Rows
-	fields := []interface{}{RID, d1, d2}
+	fields := []interface{}{RID, d1, d2, d1}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.GetRentableUseStatusByRange)
 		defer stmt.Close()

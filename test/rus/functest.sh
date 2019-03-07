@@ -169,7 +169,6 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0}'
     dojsonPOST "http://localhost:8270/v1/rentableusestatus/1/1" "request" "${TFILES}${STEP}"  "RentableUseStatus-Search"
 
-
     #-------------------------------------------------------
     # SetRentableUseStatus - Case 2b
     #-----------------------------------------------
@@ -197,7 +196,6 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     dojsonPOST "http://localhost:8270/v1/rentableusestatus/1/1" "request" "${TFILES}${STEP}"  "RentableUseStatus-Save"
     encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0}'
     dojsonPOST "http://localhost:8270/v1/rentableusestatus/1/1" "request" "${TFILES}${STEP}"  "RentableUseStatus-Search"
-
 
     #-------------------------------------------------------
     # SetRentableUseStatus - Case 2c
@@ -254,6 +252,7 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     dojsonPOST "http://localhost:8270/v1/rentableusestatus/1/1" "request" "${TFILES}${STEP}"  "RentableUseStatus-Save"
     encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0}'
     dojsonPOST "http://localhost:8270/v1/rentableusestatus/1/1" "request" "${TFILES}${STEP}"  "RentableUseStatus-Search"
+
     #-------------------------------------------------------
     # SetRentableUseStatus - Case 2a
     #-----------------------------------------------

@@ -1120,7 +1120,7 @@ WHERE RAID=? AND RID=? AND Start >= ? AND Stop < ? AND RentCycle=0 ORDER By Asse
 	RRdb.DBFields["RentableUseStatus"] = flds
 	RRdb.Prepstmt.GetRentableUseStatus, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableUseStatus WHERE RSID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRentableUseStatusByRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableUseStatus WHERE RID=? AND DtStop>? AND DtStart<? ORDER BY DtStart ASC")
+	RRdb.Prepstmt.GetRentableUseStatusByRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableUseStatus WHERE RID=? AND ( (DtStop>? AND DtStart<?) OR DtStart=?) ORDER BY DtStart ASC")
 	Errcheck(err)
 	RRdb.Prepstmt.GetRentableUseStatusOnOrAfter, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableUseStatus WHERE RID=? AND DtStart>=? ORDER BY DtStart ASC")
 	Errcheck(err)
