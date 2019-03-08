@@ -170,28 +170,24 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     mysql --no-defaults rentroll < x${TFILES}.sql
     startRentRollServer
 
-    # change to Leased = 7/1/2018 - 6/21/2019
-    # this will cause a new record to be added from 6/21/2019 to 7/1/2019
-    echo "%7B%22cmd%22%3A%22save%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A0%2C%22offset%22%3A0%2C%22changes%22%3A%5B%7B%22recid%22%3A1%2C%22RLID%22%3A3%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22RID%22%3A1%2C%22LeaseStatus%22%3A1%2C%22DtStart%22%3A%227%2F1%2F2018%22%2C%22DtStop%22%3A%226%2F20%2F2019%22%2C%22Comment%22%3A%22%22%2C%22CreateBy%22%3A0%2C%22LastModBy%22%3A0%2C%22w2ui%22%3A%7B%7D%7D%5D%2C%22RID%22%3A1%7D" > request
+    # change to Leased = 7/1/2018 - 6/21/2019  (note: xd.sql was already in that
+    # LeaseStatus state. But it should not add a new record)
+    encodeRequest '{"cmd":"save","selected":[],"limit":0,"offset":0,"changes":[{"recid":1,"RLID":3,"BID":1,"BUD":"REX","RID":1,"LeaseStatus":1,"DtStart":"7/1/2018","DtStop":"6/20/2019","Comment":"","CreateBy":0,"LastModBy":0,"w2ui":{}}],"RID":1}' > request
     dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}${STEP}"  "RentableTypeRefs-Save"
-
-    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D" > request
+    encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0}'
     dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}${STEP}"  "RentableTypeRefs-Get"
 
     # set  6/21/2019 - 12/31/9999 to Reserved
-    echo  "%7B%22cmd%22%3A%22save%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A0%2C%22offset%22%3A0%2C%22changes%22%3A%5B%7B%22recid%22%3A0%2C%22RLID%22%3A4%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22RID%22%3A1%2C%22LeaseStatus%22%3A2%2C%22DtStart%22%3A%226%2F21%2F2019%22%2C%22DtStop%22%3A%2212%2F30%2F9999%22%2C%22Comment%22%3A%22%22%2C%22CreateBy%22%3A0%2C%22LastModBy%22%3A0%2C%22w2ui%22%3A%7B%7D%7D%5D%2C%22RID%22%3A1%7D" > request
+    encodeRequest '{"cmd":"save","selected":[],"limit":0,"offset":0,"changes":[{"recid":0,"RLID":4,"BID":1,"BUD":"REX","RID":1,"LeaseStatus":2,"DtStart":"6/21/2019","DtStop":"12/30/9999","Comment":"","CreateBy":0,"LastModBy":0,"w2ui":{}}],"RID":1}'
     dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}${STEP}"  "RentableTypeRefs-Save"
-
-    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D" > request
+    encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0}'
     dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}${STEP}"  "RentableTypeRefs-Get"
 
 
     # do both of the above actions in a single webcall
-    echo "%7B%22cmd%22%3A%22save%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A0%2C%22offset%22%3A0%2C%22changes%22%3A%5B%7B%22recid%22%3A1%2C%22RLID%22%3A3%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22RID%22%3A1%2C%22LeaseStatus%22%3A1%2C%22DtStart%22%3A%227%2F1%2F2018%22%2C%22DtStop%22%3A%226%2F20%2F2019%22%2C%22Comment%22%3A%22%22%2C%22CreateBy%22%3A0%2C%22LastModBy%22%3A0%2C%22w2ui%22%3A%7B%7D%7D%2C%7B%22recid%22%3A0%2C%22RLID%22%3A4%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22RID%22%3A1%2C%22LeaseStatus%22%3A2%2C%22DtStart%22%3A%226%2F21%2F2019%22%2C%22DtStop%22%3A%2212%2F30%2F9999%22%2C%22Comment%22%3A%22%22%2C%22CreateBy%22%3A0%2C%22LastModBy%22%3A0%2C%22w2ui%22%3A%7B%7D%7D%5D%2C%22RID%22%3A1%7D" > request
+    encodeRequest '{"cmd":"save","selected":[],"limit":0,"offset":0,"changes":[{"recid":1,"RLID":3,"BID":1,"BUD":"REX","RID":1,"LeaseStatus":1,"DtStart":"7/1/2018","DtStop":"6/20/2019","Comment":"","CreateBy":0,"LastModBy":0,"w2ui":{}},{"recid":0,"RLID":4,"BID":1,"BUD":"REX","RID":1,"LeaseStatus":2,"DtStart":"6/21/2019","DtStop":"12/30/9999","Comment":"","CreateBy":0,"LastModBy":0,"w2ui":{}}],"RID":1}'
     dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}${STEP}"  "RentableTypeRefs-GetOffset"
-
-    # Read back and make sure we have the right records...
-    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D" > request
+    encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0}'
     dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}${STEP}"  "RentableTypeRefs-Get"
 
 fi

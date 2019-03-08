@@ -206,7 +206,7 @@ func MakeReadyStatusString(mr int64) string {
 //     us  - new lease status
 //     d1  - start time for status us
 //     d2  - stop time for status us
-//     res - if true, all the records beginning at d1 will be set to RESERVED
+//     res - *** REMOVE THIS *** if true, all the records beginning at d1 will be set to RESERVED
 //-----------------------------------------------------------------------------
 func SetRentableLeaseStatusAbbr(ctx context.Context, bid, rid, us int64, d1, d2 *time.Time, res bool) error {
 	var b = RentableLeaseStatus{
@@ -230,87 +230,87 @@ func SetRentableLeaseStatusAbbr(ctx context.Context, bid, rid, us int64, d1, d2 
 //     res - if true, all the records beginning at d1 will be set to RESERVED.
 //           An example of this is when setting the time frame for a reservation.
 //-----------------------------------------------------------------------------
-func SetRentableLeaseStatus(ctx context.Context, rls *RentableLeaseStatus, res bool) error {
-	// funcname := "SetRentableLeaseStatus"
-	// Console("\nEntered %s.  range = %s, LeaseStatus = %d\n", funcname, ConsoleDRange(&rls.DtStart, &rls.DtStop), rls.LeaseStatus)
-
-	var err error
-	var a []RentableLeaseStatus
-	d1 := rls.DtStart
-	d2 := rls.DtStop
-	b, err := GetRentableLeaseStatusByRange(ctx, rls.RID, &d1, &d2)
-	if err != nil {
-		return err
-	}
-
-	// Console("%s: Range = %s    found %d records\n", funcname, ConsoleDRange(&d1, &d2), len(b))
-
-	//--------------------------------------------------------------------------
-	// Remove any status records that are fully encompassed by rls.
-	//--------------------------------------------------------------------------
-	for i := 0; i < len(b); i++ {
-		// Console("i = %d, RLID = %d\n", i, b[i].RLID)
-		if (d1.Before(b[i].DtStart) || d1.Equal(b[i].DtStart)) &&
-			(d2.After(b[i].DtStop) || d2.Equal(b[i].DtStop)) {
-			// Console("%s: deleting RLID = %d ------------------------------------\n", funcname, b[i].RLID)
-			if err = DeleteRentableLeaseStatus(ctx, b[i].RLID); err != nil {
-				return err
-			}
-		} else {
-			// Console("Appending RLID=%d to a[]\n", b[i].RLID)
-			b = append(a, b[i])
-		}
-	}
-
-	//-------------------------------------------------------------------
-	// We're left with 0 or 1 or 2 items in b.  The overlap cases are
-	// handled by this loop.  When it finishes, rls is is inserted.
-	//-------------------------------------------------------------------
-	for i := 0; i < len(b); i++ {
-		before := b[i].DtStart.Before(d1)
-		after := b[i].DtStop.After(d2)
-		if before && after {
-			//-----------------------------------------------------------
-			// Case 1:             b[i]  @@@@@@@@@@@@@@@@@@@@@@@@@@@
-			//                     rls          ############
-			//  Result:                  @@@@@@@############@@@@@@@@
-			//-----------------------------------------------------------
-			n := b[i]
-			n.DtStop = d1
-			if _, err = InsertRentableLeaseStatus(ctx, &n); err != nil {
-				return err
-			}
-			b[i].DtStart = d2
-			if err = UpdateRentableLeaseStatus(ctx, &b[i]); err != nil {
-				return err
-			}
-		} else if before {
-			//-----------------------------------------------------------
-			//  Case 2:            b[i]  @@@@@@@@@@@@
-			//                     rls          ############
-			//  Result:                  @@@@@@@############
-			//-----------------------------------------------------------
-			b[i].DtStop = d1
-			if err = UpdateRentableLeaseStatus(ctx, &b[i]); err != nil {
-				return err
-			}
-		} else if after {
-			//-----------------------------------------------------------
-			//  Case 2:            b[i]         @@@@@@@@@@@@
-			//                     rls   ############
-			//  Result:                  ############@@@@@@@
-			//-----------------------------------------------------------
-			b[i].DtStart = d2
-			if err = UpdateRentableLeaseStatus(ctx, &b[i]); err != nil {
-				return err
-			}
-		}
-	}
-
-	// Console("%s: Inserting %s LeaseStatus = %d\n", funcname, ConsoleDRange(&rls.DtStart, &rls.DtStop), rls.LeaseStatus)
-	_, err = InsertRentableLeaseStatus(ctx, rls)
-	return err
-}
+// func SetRentableLeaseStatus(ctx context.Context, rls *RentableLeaseStatus, res bool) error {
+// 	// funcname := "SetRentableLeaseStatus"
+// 	// Console("\nEntered %s.  range = %s, LeaseStatus = %d\n", funcname, ConsoleDRange(&rls.DtStart, &rls.DtStop), rls.LeaseStatus)
+//
+// 	var err error
+// 	var a []RentableLeaseStatus
+// 	d1 := rls.DtStart
+// 	d2 := rls.DtStop
+// 	b, err := GetRentableLeaseStatusByRange(ctx, rls.RID, &d1, &d2)
+// 	if err != nil {
+// 		return err
+// 	}
+//
+// 	// Console("%s: Range = %s    found %d records\n", funcname, ConsoleDRange(&d1, &d2), len(b))
+//
+// 	//--------------------------------------------------------------------------
+// 	// Remove any status records that are fully encompassed by rls.
+// 	//--------------------------------------------------------------------------
+// 	for i := 0; i < len(b); i++ {
+// 		// Console("i = %d, RLID = %d\n", i, b[i].RLID)
+// 		if (d1.Before(b[i].DtStart) || d1.Equal(b[i].DtStart)) &&
+// 			(d2.After(b[i].DtStop) || d2.Equal(b[i].DtStop)) {
+// 			// Console("%s: deleting RLID = %d ------------------------------------\n", funcname, b[i].RLID)
+// 			if err = DeleteRentableLeaseStatus(ctx, b[i].RLID); err != nil {
+// 				return err
+// 			}
+// 		} else {
+// 			// Console("Appending RLID=%d to a[]\n", b[i].RLID)
+// 			b = append(a, b[i])
+// 		}
+// 	}
+//
+// 	//-------------------------------------------------------------------
+// 	// We're left with 0 or 1 or 2 items in b.  The overlap cases are
+// 	// handled by this loop.  When it finishes, rls is is inserted.
+// 	//-------------------------------------------------------------------
+// 	for i := 0; i < len(b); i++ {
+// 		before := b[i].DtStart.Before(d1)
+// 		after := b[i].DtStop.After(d2)
+// 		if before && after {
+// 			//-----------------------------------------------------------
+// 			// Case 1:             b[i]  @@@@@@@@@@@@@@@@@@@@@@@@@@@
+// 			//                     rls          ############
+// 			//  Result:                  @@@@@@@############@@@@@@@@
+// 			//-----------------------------------------------------------
+// 			n := b[i]
+// 			n.DtStop = d1
+// 			if _, err = InsertRentableLeaseStatus(ctx, &n); err != nil {
+// 				return err
+// 			}
+// 			b[i].DtStart = d2
+// 			if err = UpdateRentableLeaseStatus(ctx, &b[i]); err != nil {
+// 				return err
+// 			}
+// 		} else if before {
+// 			//-----------------------------------------------------------
+// 			//  Case 2:            b[i]  @@@@@@@@@@@@
+// 			//                     rls          ############
+// 			//  Result:                  @@@@@@@############
+// 			//-----------------------------------------------------------
+// 			b[i].DtStop = d1
+// 			if err = UpdateRentableLeaseStatus(ctx, &b[i]); err != nil {
+// 				return err
+// 			}
+// 		} else if after {
+// 			//-----------------------------------------------------------
+// 			//  Case 2:            b[i]         @@@@@@@@@@@@
+// 			//                     rls   ############
+// 			//  Result:                  ############@@@@@@@
+// 			//-----------------------------------------------------------
+// 			b[i].DtStart = d2
+// 			if err = UpdateRentableLeaseStatus(ctx, &b[i]); err != nil {
+// 				return err
+// 			}
+// 		}
+// 	}
+//
+// 	// Console("%s: Inserting %s LeaseStatus = %d\n", funcname, ConsoleDRange(&rls.DtStart, &rls.DtStop), rls.LeaseStatus)
+// 	_, err = InsertRentableLeaseStatus(ctx, rls)
+// 	return err
+// }
 
 // SetRentableUseStatusAbbr changes the use status from d1 to d2 to the supplied
 // status, us.

@@ -17,27 +17,14 @@
             "BID": 1,
             "BUD": "REX",
             "Comment": "",
-            "CreateBy": 0,
-            "DtStart": "10/27/2018",
-            "DtStop": "12/31/2018",
-            "LastModBy": 0,
-            "LeaseStatus": 1,
-            "RID": 1,
-            "RLID": 26,
-            "recid": 1
-        },
-        {
-            "BID": 1,
-            "BUD": "REX",
-            "Comment": "",
             "CreateBy": 211,
             "DtStart": "10/15/2018",
-            "DtStop": "10/26/2018",
+            "DtStop": "12/31/2018",
             "LastModBy": 211,
             "LeaseStatus": 1,
             "RID": 1,
             "RLID": 24,
-            "recid": 2
+            "recid": 1
         },
         {
             "BID": 1,
@@ -50,7 +37,7 @@
             "LeaseStatus": 1,
             "RID": 1,
             "RLID": 23,
-            "recid": 3
+            "recid": 2
         },
         {
             "BID": 1,
@@ -63,9 +50,9 @@
             "LeaseStatus": 0,
             "RID": 1,
             "RLID": 22,
-            "recid": 4
+            "recid": 3
         }
     ],
     "status": "success",
-    "total": 5
+    "total": 4
 }

@@ -6,10 +6,10 @@ Developers: Please add notes here to anything that is missing.
    tests.
 
 2. Using the functions in ./share/base.sh will save you a lot
-   of time and effort. Try to use them as much as possible. If
-   there is some functionality you need that does not exist in
-   base.sh, add it to base.sh rather than doing one-off work in
-   your directory.
+   of time and effort. Try to use them as much as possible.
+   It will save you a lot of time. If there is some functionality
+   you need that does not exist in base.sh, add it to base.sh
+   rather than doing one-off work in your directory.
 
 3. Makefiles MUST support the targets 'clean', 'package', and
    'test'.
@@ -138,3 +138,27 @@ Developers: Please add notes here to anything that is missing.
             test, "b" for example, you would use the following command:
 
             $ ./functest.sh -t b
+
+
+TFILES is the name of the test.  Typically we use 'a', 'b', 'c', ...  This
+makes it easier to deal with the output files which are numbered for each step
+in the test.
+
+You can create a query in many ways. Here are a couple:
+1. The old way of doing this was to embed the encoded request data into an 'echo'
+statement and redirect the output into a file named 'request'.  You can build
+the request data by creating the JSON in some tool then minifying and encoding
+it. One tool to use can be found int the RentRoll WebService API docs that are
+created in every build. You can access these doc payments by clicking on the 
+Developer dropdown in the Roller UI top menubar, then click on the Webdocs
+menu item. The text area labeled "Payload:" on the right side of the display
+can be used to enter JSON, encode or decode it, beautify it, and minify it. You
+can then copy/paste it into the functest.sh script.
+
+2. The easiest way as of this writing is to use the "Payload:" text area as
+describe above, create and minify the JSON data and pass
+it as a parameter to encodeRequest this will create a file named 'request'
+which can be passed to 'dojsonPOST' or 'dojsonGET'.  These functions call
+curl(1) and save the response in the supplied file name.  Typically, the
+supplied file name is "${TFILES}${STEP}"
+
