@@ -1,6 +1,59 @@
 package rlib
 
-import "context"
+import (
+	"context"
+	"time"
+)
+
+// RSLeaseStatus is a slice of the string meaning of each LeaseStatus
+// -- 0 = Not Leased, 1 = Leased, 2 = Reserved
+var RSLeaseStatus = []string{
+	"Not Leased", // 0
+	"Leased",     // 1
+	"Reserved",   // 2
+}
+
+// LeaseStatusStringer returns the string associated with the LeaseStatus
+// in struct t.
+//-----------------------------------------------------------------------------
+func (t *RentableLeaseStatus) LeaseStatusStringer() string {
+	return LeaseStatusString(t.LeaseStatus)
+}
+
+// LeaseStatusString returns the string associated with LeaseStatus ls
+//-----------------------------------------------------------------------------
+func LeaseStatusString(ls int64) string {
+	i := int(ls)
+	if i > len(RSLeaseStatus) {
+		i = 0
+	}
+	return RSLeaseStatus[i]
+}
+
+// SetRentableLeaseStatusAbbr changes the use status from d1 to d2 to the supplied
+// status, us. It adds and modifies existing records as needed.
+//
+// INPUTS
+//     ctx - db context
+//     bid - which business
+//     rid - which rentable
+//     us  - new lease status
+//     d1  - start time for status us
+//     d2  - stop time for status us
+//     res - *** REMOVE THIS *** if true, all the records beginning at d1 will be set to RESERVED
+//-----------------------------------------------------------------------------
+func SetRentableLeaseStatusAbbr(ctx context.Context, bid, rid, us int64, d1, d2 *time.Time, res bool) error {
+	var b = RentableLeaseStatus{
+		RID:         rid,
+		BID:         bid,
+		DtStart:     *d1,
+		DtStop:      *d2,
+		Comment:     "",
+		LeaseStatus: us,
+	}
+
+	return SetRentableLeaseStatus(ctx, &b, res)
+}
 
 // SetRentableLeaseStatus implements the proper insertion of a use status
 //     under all the circumstances considered.

@@ -149,3 +149,31 @@ func GenVacancyJournals(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time)
 
 	return nr, rows.Err()
 }
+
+// VacancyGSR returns the GSR amount for the rentable during the supplied
+// period.  This value is used as the Period GSR value in the the RentRoll
+// view / report.
+//
+// INPUT
+//  xbiz  - the business
+//  rid   - which rentable
+//  d1-d2 - the time period
+//
+// RETURN
+//  the amount of GSR for the period
+//-----------------------------------------------------------------------------
+func VacancyGSR(ctx context.Context, xbiz *XBusiness, rid int64, d1, d2 *time.Time) (float64, error) {
+	var err error
+	amt := float64(0)
+	// Console("*** Calling VacancyDetect: %s - %s, rid = %d\n", d1.Format(RRDATEFMTSQL), d2.Format(RRDATEFMTSQL), rid)
+	m, err := VacancyDetect(ctx, xbiz, d1, d2, rid)
+	if err != nil {
+		return amt, err
+	}
+
+	for i := 0; i < len(m); i++ {
+		amt += m[i].Amount
+	}
+
+	return amt, err
+}

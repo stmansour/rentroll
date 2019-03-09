@@ -132,7 +132,7 @@ window.buildRentableTypeRefElements = function () {
                 newRec.DtStart = newRec.DtStop;
             }
             RentableEdits.RTRChgList.push(newRec.recid);
-            g.add(newRec);
+            g.add(newRec,true);
         },
 
         onSave: function (event) {
