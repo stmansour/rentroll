@@ -112,7 +112,7 @@ func SetRentableTypeRef(ctx context.Context, rus *RentableTypeRef) error {
 		}
 		if !after {
 			//-----------------------------------------------
-			// CASE 1d -  rus prior to b[0], match == false
+			// CASE 1d -  rus after to b[0], match == false
 			//-----------------------------------------------
 			//      rus:     @@@@@@@@@@@@
 			//     b[0]: ##########

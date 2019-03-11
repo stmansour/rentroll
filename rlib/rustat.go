@@ -164,8 +164,8 @@ func SetRentableUseStatusAbbr(ctx context.Context, bid, rid, us int64, d1, d2 *t
 //     rus - the new use status structure
 //-----------------------------------------------------------------------------
 func SetRentableUseStatus(ctx context.Context, rus *RentableUseStatus) error {
-	funcname := "SetRentableUseStatus"
-	Console("\nEntered %s.  range = %s, UseStatus = %d\n", funcname, ConsoleDRange(&rus.DtStart, &rus.DtStop), rus.UseStatus)
+	// funcname := "SetRentableUseStatus"
+	// Console("\nEntered %s.  range = %s, UseStatus = %d\n", funcname, ConsoleDRange(&rus.DtStart, &rus.DtStop), rus.UseStatus)
 
 	var err error
 	var b []RentableUseStatus

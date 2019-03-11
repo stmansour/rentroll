@@ -85,7 +85,7 @@ window.dtFormatISOToW2ui = function (ds) {
         hr -= 12;
     }
     var s = 1+dt.getMonth() + '/' + zeroPad(dt.getDate(),2) + '/' +
-            dt.getFullYear() + ' ' + hr + ':' + zeroPad(dt.getMinutes(),2) +
+            dt.getFullYear() + '   ' + hr + ':' + zeroPad(dt.getMinutes(),2) +
             ' ' + (am ? 'am' : 'pm');
     return s;
 };

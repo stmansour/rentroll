@@ -1,4 +1,4 @@
-How To Use This Directory
+How To Use And Develop Tests In This Directory
 
 Developers: Please add notes here to anything that is missing.
 
@@ -162,3 +162,48 @@ which can be passed to 'dojsonPOST' or 'dojsonGET'.  These functions call
 curl(1) and save the response in the supplied file name.  Typically, the
 supplied file name is "${TFILES}${STEP}"
 
+Examples:
+
+These two lines
+
+    encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0}'
+
+    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D" > request
+
+do exactly the same thing, both create a file called 'result' that have
+the exact same contents.  The encodeRequest line is a little easier to read
+and make changes to. The echo line can be copied from the console output
+of the server directly to your test step in functest.sh . The file 'result' is
+then used in a curl call to the server to execute the test.  For example:
+
+dojsonPOST "http://localhost:8270/v1/rentableusestatus/1/1" "request" "${TFILES}${STEP}"  "RentableUseStatus-Search"
+
+First param is the url, second is the name of the file containing the payload,
+third param is the name of the server response file (by convention, this is the
+name of the test followed by the step number), last is a text string describing
+this step in the test -- it can be whatever you want, but it must not have any
+spaces.
+
+Either way of creating the 'result' file is fine. Use whichever method is
+most appropriate for your test. And if you devise a better way of doing this
+please document it here!
+
+RUNNING TESTS
+-------------
+Here are a few examples of how to run the tests in the directories below. There
+are more options as described above.
+
+make test		Contains any one-time setup work, eventually
+			executes ./functest.sh
+
+./functest.sh           run all functional tests
+
+./functest.sh -t x      runs only test 'x' in the file.  Tests within these
+                        files are usually named a, b, c, ...  Some of the
+			older ./functest.sh files do have this level of
+			granularity.
+
+./functest -a           run the tests and if any test output does not match
+                        the expected output show the diffs and ask if the
+			new output should become the expected output (m) or
+			just continue the test (Enter) or stop the test (q).

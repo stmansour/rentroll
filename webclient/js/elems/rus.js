@@ -1,7 +1,7 @@
 /*global
     setDefaultFormFieldAsPreviousRecord, w2uiDateControlString, $, w2ui, app, getCurrentBusiness, parseInt, getBUDfromBID,
     getRentableTypes, setToForm, form_dirty_alert, console, getFormSubmitData, addDateNavToToolbar, setRentableLayout,
-    getRentableInitRecord, saveRentableLeaseStatus, RentableEdits
+    getRentableInitRecord, saveRentableLeaseStatus, RentableEdits, dtFormatISOToW2ui
 */
 /*jshint esversion: 6 */
 
@@ -56,7 +56,10 @@ window.buildRentableUseStatusElements = function () {
                 size: "50%",
                 sortable: true,
                 style: 'text-align: right',
-                editable: {type: 'date'}
+                editable: {type: 'datetime'},
+                render: function(rec,row,col) {
+                    return '' + dtFormatISOToW2ui(rec.DtStart);
+                },
             },
             {
                 field: 'DtStop',
@@ -64,7 +67,10 @@ window.buildRentableUseStatusElements = function () {
                 size: "50%",
                 sortable: true,
                 style: 'text-align: right',
-                editable: {type: 'date'}
+                editable: {type: 'datetime'},
+                render: function(rec,row,col) {
+                    return '' + dtFormatISOToW2ui(rec.DtStop);
+                },
             },
             {field: 'CreateBy', caption: 'CreateBy', hidden: true},
             {field: 'LastModBy', caption: 'LastModBy', hidden: true},
@@ -241,11 +247,12 @@ window.buildRentableUseStatusElements = function () {
             var chgRec = g.get(event.recid);
             var changeIsValid = true;
 
-            RentableEdits.UseStatusChgList.push(chgRec.recid);
-
             //------------------------------------
             // Put any validation checks here...
             //------------------------------------
+            if (event.value_new == "" && (g.columns[event.column].field == "DtStop" || g.columns[event.column].field == "DtStart")) {
+                changeIsValid = false;
+            }
 
             //---------------------------------------------------
             // Inform w2ui if the change is cancelled or not...
@@ -257,8 +264,17 @@ window.buildRentableUseStatusElements = function () {
             // grid's records.  We need to ensure that the grids URL is ''
             //---------------------------------------------------------------
             event.onComplete = function () {
+                var dt;
                 if (!event.isCancelled) { // if event not cancelled then invoke save method
+                    RentableEdits.UseStatusChgList.push(chgRec.recid);
                     g.url = '';  // just ensure that no server service is called
+                    if (g.columns[event.column].field == "DtStop") {
+                        dt=new Date(event.value_new);
+                        g.records[event.recid].DtStop = dt.toUTCString();
+                    } else if (g.columns[event.column].field == "DtStart") {
+                        dt=new Date(event.value_new);
+                        g.records[event.recid].DtStart = dt.toUTCString();
+                    }
                     this.save(); // save automatically locally
                     var BID = getCurrentBusiness();
                     var RID = w2ui.rentableForm.record.RID;
@@ -280,11 +296,20 @@ window.saveRentableUseStatus = function(BID,RID) {
     }
 
     var chgrec = [];
+    var dt;
     for (var i = 0; i < reclist.length; i++) {
-        var nrec =  w2ui.rentableUseStatusGrid.get(reclist[i]);
+        var recid = reclist[i];
+        var nrec =  w2ui.rentableUseStatusGrid.get(recid);
         if (typeof nrec.UseStatus == "string") {
             var ls = parseInt(nrec.UseStatus,10);
             nrec.UseStatus = ls;
+        }
+        if (!nrec.DtStart.includes("UTC") && !nrec.DtStart.includes("GMT")) {
+            dt = new Date(nrec.DtStart);
+            w2ui.rentableUseStatusGrid.records[recid].DtStart = dt.toUTCString();
+        } else if (!nrec.DtStop.includes("UTC") && !nrec.DtStop.includes("GMT")) {
+            dt = new Date(nrec.DtStop);
+            w2ui.rentableUseStatusGrid.records[recid].DtStop = dt.toUTCString();
         }
         chgrec.push(nrec);
     }

@@ -502,10 +502,11 @@ window.saveRentableCore = function (doneCB) {
 // @return
 //-----------------------------------------------------------------------------
 window.setRentableLayout = function (BID, RID) {
-
-    // set the url for rentableForm
-    w2ui.rentableForm.url = '/v1/rentable/' + BID + '/' + RID;
-
+    var bidrid = BID + '/' + RID;
+    w2ui.rentableForm.url = '/v1/rentable/' + bidrid;
+    w2ui.rentableUseStatusGrid.url = '/v1/rentableusestatus/' + bidrid;
+    w2ui.rentableLeaseStatusGrid.url = '/v1/rentableleasestatus/' + bidrid;
+    w2ui.rentableTypeRefGrid.url = '/v1/rentabletyperef/' + bidrid;
 
     // load bottom panels with action buttons panel
     w2ui.rentableDetailLayout.content("bottom", w2ui.rentableFormBtns);
@@ -524,19 +525,15 @@ window.setRentableLayout = function (BID, RID) {
 
     RentableEdits.RID = RID;
     if (RID) {
-
-        // if rentable available then load the status grid
-        w2ui.rentableUseStatusGrid.load('/v1/rentableusestatus/' + BID + '/' + RID);
-        console.log("rentable status grid load data: {0}".format('/v1/rentableusestatus/' + BID + '/' + RID));
-
-        // if rentable available then load the Lease status grid
-        w2ui.rentableLeaseStatusGrid.load('/v1/rentableleasestatus/' + BID + '/' + RID);
-        console.log("rentable status grid load data: {0}".format('/v1/rentableleasestatus/' + BID + '/' + RID));//add by lina
-
-
-        // // if rentable available then load the type ref grid
-        w2ui.rentableTypeRefGrid.load('/v1/rentabletyperef/' + BID + '/' + RID);
-        console.log("rentable type ref grid load data: {0}".format('/v1/rentabletyperef/' + BID + '/' + RID));
+        // sman 3/9/2019 - I have no idea why these 3 statements were in the code
+        //      but they were causing the grids to be empty on the first rendering.
+        //      After I commented them out, the grids all rendered properly. I
+        //      needed to properly set the URLs above for each of the status grids.
+        //      I'm not sure why those urls were not set and these statements were
+        //      executed instead
+        // w2ui.rentableUseStatusGrid.load(rusurl);    // if rentable available then load the status grid
+        // w2ui.rentableLeaseStatusGrid.load(rlsurl);  // if rentable available then load the Lease status grid
+        // w2ui.rentableTypeRefGrid.load(rtrurl);      // if rentable available then load the type ref grid
 
         // change the text of form tab
         w2ui.rentableDetailLayout.get("main").tabs.get("rentableForm").text = "Rentable Details ({0})".format(RID);

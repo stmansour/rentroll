@@ -26,8 +26,8 @@ type RentableUseStatusGridRec struct {
 	BUD       string
 	RID       int64
 	UseStatus int64
-	DtStart   rlib.JSONDate
-	DtStop    rlib.JSONDate
+	DtStart   rlib.JSONDateTime
+	DtStop    rlib.JSONDateTime
 	Comment   string
 	CreateBy  int64
 	LastModBy int64
