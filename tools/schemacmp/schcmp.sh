@@ -16,7 +16,7 @@ DBREPORT="report.txt"
 #	Parameters:
 # 		$1 = def shell script name
 #		$2 = directory name for table defs
-#       $3 = database name
+#		$3 = database name
 ##############################################################################################
 getSchema() {
 	echo -n "Build Table List for ${2}..."

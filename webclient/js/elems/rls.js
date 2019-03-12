@@ -223,11 +223,12 @@ window.buildRentableLeaseStatusElements = function () {
             var chgRec = g.get(event.recid);
             var changeIsValid = true;
 
-            RentableEdits.LeaseStatusChgList.push(chgRec.recid);
-
             //------------------------------------
             // Put any validation checks here...
             //------------------------------------
+            if (event.value_new == "" && (g.columns[event.column].field == "DtStop" || g.columns[event.column].field == "DtStart")) {
+                changeIsValid = false;
+            }
 
             //---------------------------------------------------
             // Inform w2ui if the change is cancelled or not...
@@ -240,6 +241,7 @@ window.buildRentableLeaseStatusElements = function () {
             //-------------------------------------------------------------------
             event.onComplete = function () {
                 if (!event.isCancelled) { // if event not cancelled then invoke save method
+                    RentableEdits.LeaseStatusChgList.push(chgRec.recid);
                     g.url = '';  // just ensure that no server service is called
                     this.save(); // save automatically locally
                     var BID = getCurrentBID();
