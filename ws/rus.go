@@ -26,8 +26,8 @@ type RentableUseStatusGridRec struct {
 	BUD       string
 	RID       int64
 	UseStatus int64
-	DtStart   rlib.JSONDateTime
-	DtStop    rlib.JSONDateTime
+	DtStart   rlib.JSONDateTime // EDI does not apply when using DateTime values
+	DtStop    rlib.JSONDateTime // EDI does not apply when using DateTime values
 	Comment   string
 	CreateBy  int64
 	LastModBy int64
@@ -307,16 +307,17 @@ func saveRentableUseStatus(w http.ResponseWriter, r *http.Request, d *ServiceDat
 		return
 	}
 
-	var EDIadjust = (biz.FLAGS & 1) != 0
+	// var EDIadjust = (biz.FLAGS & 1) != 0   // sman: these are datetime values
 	var bizErrs []bizlogic.BizError
 	for _, rs := range foo.Changes {
 
 		var a rlib.RentableUseStatus
 		rlib.MigrateStructVals(&rs, &a) // the variables that don't need special handling
 
-		if EDIadjust {
-			rlib.EDIHandleIncomingDateRange(a.BID, &a.DtStart, &a.DtStop)
-		}
+		// cannot apply EDI to datetime
+		// if EDIadjust {
+		// 	rlib.EDIHandleIncomingDateRange(a.BID, &a.DtStart, &a.DtStop)
+		// }
 
 		errs := bizlogic.ValidateRentableUseStatus(r.Context(), &a)
 		if len(errs) > 0 {
