@@ -235,9 +235,9 @@ function buildPageElements() {
             { type: 'html',  id: 'BUD',
                 html: //'<div style="background-color: #eee; padding: 10px 5px; border-bottom: 1px solid silver">'+
                     '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class="far fa-building"></i> &nbsp;' + app.sBusinessUnit +
-                    ': <select name="BusinessSelect" onchange="ChangeBusiness();">'+
+                    ': <span id="bizdropdown"><select name="BusinessSelect" onchange="ChangeBusiness();">'+
                     '{{range .BL}}<option value="{{.BID}}" name="{{.Designation}}">{{.Designation}}</option>{{end}}'+
-                    '</select>&nbsp;&nbsp;&nbsp;' //+ '</div>'
+                    '</select></span>&nbsp;&nbsp;&nbsp;' //+ '</div>'
             },
             { type: 'break',  id: 'break2' },
             { type: 'button', id: 'msgButton',  caption: 'News Flash', icon: 'fas fa-spinner fa-pulse fa-3x fa-fw'},

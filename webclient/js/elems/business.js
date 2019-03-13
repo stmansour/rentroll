@@ -98,6 +98,24 @@ window.buildBusinessElements = function () {
             {field: 'CreateTS',                 hidden: true,  size: '40px', sortable: false, caption: 'CreateTS' },
             {field: 'CreateBy',                 hidden: true,  size: '40px', sortable: false, caption: 'CreateBy' },
         ],
+        onLoad: function(event) {
+            event.onComplete = function(event) {
+                //------------------------------------------------
+                // rebuild app bizmap and biz dropdown menu...
+                //------------------------------------------------
+                var html = '<select name="BusinessSelect" onchange="ChangeBusiness();">';
+                var BizMap = [];
+                for (var i = 0; i < this.records.length; i++) {
+                    var BUD = this.records[i].BUD;
+                    var BID = this.records[i].BID;
+                    html += '<option value="' + BID + '" name="' + BUD + '">' + BUD + '</option>';
+                    BizMap.push({BID: BID, BUD: BUD});
+                }
+                html += '</select>';
+                document.getElementById("bizdropdown").innerHTML = html;
+                app.BizMap = BizMap;
+            };
+        },
         onClick: function(event) {
             event.onComplete = function () {
                 var yes_args = [this, event.recid],

@@ -259,8 +259,8 @@ window.saveRentableLeaseStatus = function(BID,RID) {
             RentableEdits.LeaseStatusChgList = []; // reset the change list now, because we've saved them
             w2ui.rentableLeaseStatusGrid.url = url;
             w2ui.toplayout.hide('right', true);
-            w2ui.rentableLeaseStatusGrid.reload();
-            w2ui.rentableLeaseStatusGrid.render();
+            // w2ui.rentablesGrid.reload();
+            // w2ui.rentablesGrid.render();
         } else {
             w2ui.rentablesGrid.error('saveRentableLeaseStatus: ' + data.message);
         }

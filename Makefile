@@ -116,6 +116,11 @@ tarzip:
 	cd ${DIST};tar cvf rentroll.tar rentroll; gzip rentroll.tar
 	cd ${DIST};if [ -f ./config.json ]; then mv ./config.json ./rentroll/config.json; fi
 
+snapshot: tarzip
+	cd ${DIST}; /usr/local/accord/bin/snapshot.sh rentroll.tar.gz
+
+release:
+	/usr/local/accord/bin/release.sh rentroll
 
 pubimages:
 	cd ${DIST}/rentroll;find . -name "*.png" | tar -cf rrimages.tar -T - ;gzip rrimages.tar ;/usr/local/accord/bin/deployfile.sh rrimages.tar.gz jenkins-snapshot/rentroll/latest
