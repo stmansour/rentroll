@@ -1,7 +1,7 @@
 /*global
     setDefaultFormFieldAsPreviousRecord, w2uiDateControlString, $, w2ui, app, getCurrentBusiness, parseInt, getBUDfromBID,
     getRentableTypes, setToForm, form_dirty_alert, console, getFormSubmitData, addDateNavToToolbar, setRentableLayout,
-    getRentableInitRecord, saveRentableLeaseStatus, RentableEdits, dtFormatISOToW2ui
+    getRentableInitRecord, saveRentableLeaseStatus, RentableEdits, dtFormatISOToW2ui, addRentableUseStatus, datetimeFmtStr,
 */
 /*jshint esversion: 6 */
 
@@ -15,7 +15,8 @@ window.buildRentableUseStatusElements = function () {
     $().w2grid({
         name: 'rentableUseStatusGrid',
         style: 'padding: 0px',
-        utl: '/v1/rentableusestatus',
+        // url: '/v1/rentableusestatus',
+        url: '',
         show: {
             header: false,
             toolbar: true,
@@ -75,62 +76,32 @@ window.buildRentableUseStatusElements = function () {
             {field: 'CreateBy', caption: 'CreateBy', hidden: true},
             {field: 'LastModBy', caption: 'LastModBy', hidden: true},
         ],
-        onLoad: function (event) {
-            var BID = getCurrentBID();
-            var RID = w2ui.rentableForm.record.RID;
-            event.onComplete = function () {
-                this.url = '/v1/rentableusestatus/'+BID+'/'+RID;
-            };
-        },
         onAdd: function (/*event*/) {
-            var  x = getCurrentBusiness();
-            var BID = parseInt(x.value);
-            var BUD = getBUDfromBID(BID);
-            var fr = w2ui.rentableForm.record;
-            var g = this;
-            var ndStart = new Date();
+            addRentableUseStatus();
+        },
+        onLoad: function (event) {
+            //------------------------------------------------------------------------
+            // We only want the grids to request server data on their initial load
+            // and on a RentableForm Save.  So, we will clear them after the
+            // grids complete their loading or after a save completes.
+            //------------------------------------------------------------------------
+            event.onComplete = function () {
+                // var BID = getCurrentBID();
+                // var RID = w2ui.rentableForm.record.RID;
+                // this.url = '/v1/rentableusestatus/'+BID+'/'+RID;
+                this.url = '';
 
-            // get lastest date among all market rate object's stopDate for new MR's StartDate
-            for (var i = 0; i < g.records.length; i++) {
-                var rec = g.records[i];
-                if (rec.DtStop) {
-                    var rdStop = new Date(rec.DtStop);
-                    if (ndStart < rdStop) {
-                        ndStart = rdStop;
-                    }
+                //---------------------------------------------------------------------
+                // every datetime value needs to be converted to a localtime string...
+                //---------------------------------------------------------------------
+                for (var i = 0; i < this.records[i].length; i++) {
+                    var d = new Date(this.records[i].DtStart);
+                    this.records[i].DtStart = datetimeFmtStr(d);
                 }
-            }
-
-            var newRec = {
-                recid: g.records.length,
-                BID: BID,
-                BUD: BUD,
-                RID: fr.RID,
-                RSID: 0,
-                UseStatus: 0,
-                LeaseStatus: 0,
-                DtStart: dateFmtStr(ndStart),
-                DtStop: "12/31/9999"
             };
-            if (EDIEnabledForBUD(BUD)) {
-                var d = ndStart;
-                d.setDate(d.getDate()+1);
-                newRec.DtStart = dateFmtStr(d);
-                newRec.DtStop = "12/30/9999";
-            }
-            if (newRec.DtStart > newRec.DtStop) {
-                newRec.DtStart = newRec.DtStop;
-            }
-            g.add(newRec,true); // true forces the add to the beginning of the list
-            RentableEdits.UseStatusChgList.push(newRec.recid);
         },
         onSave: function (event) {
-            // if url is set then only take further actions, for local save just ignore those
             this.url = '';
-
-            // TODO(Sudip): validation on values before sending these to server
-
-            // get "Unknown" status value from the map, as well as for "Inactive" from Use Status items
             var UseUnknownStatus, UseInactiveStatus;
             app.RSUseStatusItems.forEach(function (status) {
                 switch (status.text) {
@@ -142,40 +113,12 @@ window.buildRentableUseStatusElements = function () {
                         break;
                 }
             });
-
-            // // get "Unknown" status value from the map, as well as for "Inactive" from Use Status items
-            // var UseUnknownStatus, UseInactiveStatus;
-            // app.RSUseStatusItems.forEach(function (status) {
-            //     switch (status.text) {
-            //         case "Unknown":
-            //             UseUnknownStatus = status.id;
-            //             break;
-            //         case "Inactive":
-            //             UseInactiveStatus = status.id;
-            //             break;
-            //     }
-            // });
-
-            // this.records.forEach(function (item, index, arr) {
-            //     arr[index].UseStatus = parseInt(arr[index].UseStatus);
-            //     // arr[index].LeaseStatus = parseInt(arr[index].LeaseStatus);
-            //
-            //     if (arr[index].UseStatus === UseUnknownStatus && arr[index].LeaseStatus === LeaseUnknownStatus) {
-            //         // if UseStatus and LeaseStatus both kept as "unknown" then it doesn't
-            //         // make sense to send this entry to server, remove it
-            //         arr.splice(index, 1);
-            //     } else if (arr[index].UseStatus === UseInactiveStatus || arr[index].LeaseStatus === LeaseInactiveStatus) {
-            //         // if "Inactive" set in any of UseStatus, LeaseStatus, then set "Inactive"
-            //         // in both status field
-            //         arr[index].UseStatus = UseInactiveStatus;
-            //         // arr[index].LeaseStatus = LeaseInactiveStatus;
-            //     }
-            // });
             event.changes = this.records;
             event.onComplete = function() {
-                var BID = getCurrentBID();
-                var RID = w2ui.rentableForm.record.RID;
-                w2ui.rentableUseStatusGrid.url = "/v1/rentableusestatus/" + BID + "/" + RID;
+                // var BID = getCurrentBID();
+                // var RID = w2ui.rentableForm.record.RID;
+                // w2ui.rentableUseStatusGrid.url = "/v1/rentableusestatus/" + BID + "/" + RID;
+                this.url = '';
             };
         },
         // onDelete: function (event) {
@@ -270,15 +213,15 @@ window.buildRentableUseStatusElements = function () {
                     g.url = '';  // just ensure that no server service is called
                     if (g.columns[event.column].field == "DtStop") {
                         dt=new Date(event.value_new);
-                        g.records[event.recid].DtStop = dt.toUTCString();
+                        g.records[event.recid].DtStop = datetimeFmtStr(dt);
                     } else if (g.columns[event.column].field == "DtStart") {
                         dt=new Date(event.value_new);
-                        g.records[event.recid].DtStart = dt.toUTCString();
+                        g.records[event.recid].DtStart = datetimeFmtStr(dt);
                     }
                     this.save(); // save automatically locally
-                    var BID = getCurrentBusiness();
-                    var RID = w2ui.rentableForm.record.RID;
-                    g.url = '/v1/rentableusestatus/' + BID + '/' + RID;
+                    // var BID = getCurrentBusiness();
+                    // var RID = w2ui.rentableForm.record.RID;
+                    // g.url = '/v1/rentableusestatus/' + BID + '/' + RID;
                 }
             };
         }
@@ -286,7 +229,8 @@ window.buildRentableUseStatusElements = function () {
 };
 
 // saveRentableUseStatus - creates a list of UseStatus entries that have
-// been changed, then calls the webservice to save them.
+// been changed, then calls the webservice to save them. Note that every
+// datetime value needs to be converted to UTC prior to saving to server.
 //---------------------------------------------------------------------------
 window.saveRentableUseStatus = function(BID,RID) {
     var reclist = Array.from(new Set(RentableEdits.UseStatusChgList));
@@ -304,13 +248,13 @@ window.saveRentableUseStatus = function(BID,RID) {
             var ls = parseInt(nrec.UseStatus,10);
             nrec.UseStatus = ls;
         }
-        if (!nrec.DtStart.includes("UTC") && !nrec.DtStart.includes("GMT")) {
-            dt = new Date(nrec.DtStart);
-            w2ui.rentableUseStatusGrid.records[recid].DtStart = dt.toUTCString();
-        } else if (!nrec.DtStop.includes("UTC") && !nrec.DtStop.includes("GMT")) {
-            dt = new Date(nrec.DtStop);
-            w2ui.rentableUseStatusGrid.records[recid].DtStop = dt.toUTCString();
-        }
+        //-----------------------------------------------------------
+        // translate all localtimes to UTC before sending to server
+        //-----------------------------------------------------------
+        dt = new Date(nrec.DtStart);
+        nrec.DtStart = dt.toUTCString();
+        dt = new Date(nrec.DtStop);
+        nrec.DtStop = dt.toUTCString();
         chgrec.push(nrec);
     }
 
@@ -330,7 +274,7 @@ window.saveRentableUseStatus = function(BID,RID) {
         if (data.status === "success") {
             RentableEdits.UseStatusChgList = []; // reset the change list now, because we've saved them
             w2ui.toplayout.hide('right', true);
-            w2ui.rentablesGrid.render();
+            // w2ui.rentablesGrid.render();
         } else {
             w2ui.rentablesGrid.error('saveRentableUseStatus: '+data.status);
         }
@@ -338,4 +282,59 @@ window.saveRentableUseStatus = function(BID,RID) {
     .fail(function(data){
         console.log("Save RentableUseStatus failed.");
     });
+};
+
+// addRentableUseStatus - creates a new RentableUseStatus entry and adds it
+// to the grid.
+//
+// @params
+//
+// @return
+//---------------------------------------------------------------------------
+window.addRentableUseStatus = function() {
+    var  x = getCurrentBusiness();
+    var BID = parseInt(x.value);
+    var BUD = getBUDfromBID(BID);
+    var fr = w2ui.rentableForm.record;
+    var g = w2ui.rentableUseStatusGrid;
+    var ndStart = new Date();
+
+    // get lastest date among all market rate object's stopDate for new MR's StartDate
+    for (var i = 0; i < g.records.length; i++) {
+        var rec = g.records[i];
+        if (rec.DtStop) {
+            var rdStop = new Date(rec.DtStop);
+            if (ndStart < rdStop) {
+                ndStart = rdStop;
+            }
+        }
+    }
+
+    var newRec = {
+        recid: g.records.length,
+        BID: BID,
+        BUD: BUD,
+        RID: fr.RID,
+        RSID: 0,
+        UseStatus: 0,
+        LeaseStatus: 0,
+        DtStart: datetimeFmtStr(ndStart),
+        DtStop: "12/31/9999 12:00:00 am"
+    };
+    // EDI does not apply to Use Status -- which is a datetime.  EDIT applies
+    // to date-only Fields
+    //------------------------------------------------------------------------
+    // if (EDIEnabledForBUD(BUD)) {
+    //     var d = ndStart;
+    //     d.setDate(d.getDate()+1);
+    //     newRec.DtStart = datetimeFmtStr(d);
+    //     newRec.DtStop = "12/30/9999 12:00:00 am";
+    // }
+    var d1 = new Date(newRec.DtStart);
+    var d2 = new Date(newRec.DtStop);
+    if (d1 > d2) {
+        newRec.DtStart = datetimeFmtStr(d1);
+    }
+    g.add(newRec,true); // true forces the add to the beginning of the list
+    RentableEdits.UseStatusChgList.push(newRec.recid);
 };

@@ -470,11 +470,33 @@ window.dateTodayStr = function () {
 //    date
 // @return - formatted date string
 //-----------------------------------------------------------------------------
-window.dateFmtStr = function (today) {
-    var dd = today.getDate();
-    var mm = today.getMonth() + 1; //January is 0!
-    var yyyy = today.getFullYear();
+window.dateFmtStr = function (t) {
+    var dd = t.getDate();
+    var mm = t.getMonth() + 1; //January is 0!
+    var yyyy = t.getFullYear();
     return mm + '/' + dd + '/' + yyyy;
+};
+
+//-----------------------------------------------------------------------------
+// datetimeFmtStr - return a string with the supplied date in the form
+//                  d/m/yyyy hh:mm am/pm
+// @params
+//    date
+// @return - formatted date string
+//-----------------------------------------------------------------------------
+window.datetimeFmtStr = function (t) {
+    var ap = "am";
+    var hh = t.getHours();
+    var MM = t.getMinutes();
+    var hz = "0"; // assume zero fill
+    var mz = ""; // assume no fill
+    if (hh >= 12) { ap = "pm"; }
+    if (hh > 12)  { hh -= 12; }
+    if (hh == 0)  { hh = 12; }
+    if (hh > 9)   { hz = ""; }
+    if (MM <= 9)  { mz = "0"; }
+
+    return dateFmtStr(t) + " " + hz + hh + ":" + mz + MM + " " + ap;
 };
 
 //-----------------------------------------------------------------------------

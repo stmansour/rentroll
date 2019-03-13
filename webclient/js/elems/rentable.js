@@ -3,7 +3,8 @@
     getRentableTypes, setToForm, form_dirty_alert, console, getFormSubmitData, addDateNavToToolbar, setRentableLayout,
     getRentableInitRecord, saveRentableLeaseStatus, buildRentableUseStatusElements, buildRentableLeaseStatusElements,
     saveRentableUseStatus, saveRentableTypeRef, buildRentableTypeRefElements, saveRentableCore, closeRentableForm,
-    showRentableForm, finishSaveAdd, finishSave,
+    showRentableForm, finishSaveAdd, finishSave, addRentableLeaseStatus, addRentableUseStatus, addRentableTypeRef,
+    getEDIAdjustedStopDate,
 */
 /*jshint esversion: 6 */
 
@@ -18,9 +19,38 @@ var RentableEdits = {
     rtrDeleteInProgress: false, // indicates whether or not a delete of Rentable Type Ref is in progress
 };
 
+
+//-----------------------------------------------------------------------------
+// getEDIAdjustedStopDate - This routine should only be used for date ranges
+//     that are created on the webclient.  Note that date date ranges from the
+//     server are already adjusted, so there is no need to call this routine
+//     for data received from the server.
+//
+// @params
+//      BUD - current business designation
+//      DtStartStr - date range start time in string form
+//      DtStopStr - date range stop time in string form
+//
+// @return  the adjusted end date as a string
+//-----------------------------------------------------------------------------
+window.getEDIAdjustedStopDate = function(BUD,DtStartStr,DtStopStr) {
+    var d1 = new Date(DtStartStr);
+    var d2 = new Date(DtStopStr);
+
+    if (EDIEnabledForBUD(BUD)) {
+        var d = d2;
+        d.setDate(d.getDate()-1);
+        d2 = d;
+    }
+    if (d1 > d2) {
+        d2 = d1;
+    }
+    return w2uiDateControlString(d2);
+};
+
 window.getRentableInitRecord = function (BID, BUD, previousFormRecord) {
     var y = new Date();
-    var defaultFormData = {
+    var rec = {
         recid: 0,
         BID: BID,
         BUD: BUD,
@@ -29,31 +59,35 @@ window.getRentableInitRecord = function (BID, BUD, previousFormRecord) {
         RARID: 0,
         RAID: 0,
         RARDtStart: w2uiDateControlString(y),
-        RARDtStop: "1/1/9999",
+        RARDtStop: "12/31/9999",
         RTID: {id: 0, text: ''},
         RTRID: 0,
         RTRefDtStart: w2uiDateControlString(y),
-        RTRefDtStop: "1/1/9999",
+        RTRefDtStop: "12/31/9999",
         RSID: 0,
-        RentableStatus: "unknown",
-        RRentableLeaseStatus: "unknown",//add by lina
+        RentableStatus: "Ready",
+        RRentableLeaseStatus: "Not rented",
         RSDtStart: w2uiDateControlString(y),
-        RSDtStop: "1/1/9999",
-        AssignmentTime: 0,
+        RSDtStop: "12/31/9999",
+        AssignmentTime: 1,
         Comment: ""
     };
+
+    rec.RARDtStop = getEDIAdjustedStopDate(BUD,rec.RARDtStart,rec.RARDtStop);
+    rec.RTRefStop = getEDIAdjustedStopDate(BUD,rec.RTRefStart,rec.RTRefStop);
+    rec.RSDtStop = getEDIAdjustedStopDate(BUD,rec.RSDtStart,rec.RSDtStop);
 
     // if it called after 'save and add another' action there previous form record is passed as Object
     // else it is null
     if (previousFormRecord) {
-        defaultFormData = setDefaultFormFieldAsPreviousRecord(
+        rec = setDefaultFormFieldAsPreviousRecord(
             [],//['RentableName'], // Fields to Reset
-            defaultFormData,
+            rec,
             previousFormRecord
         );
     }
 
-    return defaultFormData;
+    return rec;
 };
 
 //-----------------------------------------------------------------------------
@@ -211,21 +245,21 @@ window.buildRentableElements = function () {
             };
         },
         onAdd: function (/*event*/) {
-            var yes_args = [this],
-                no_callBack = function () {
+            var yes_args = [this];
+            var no_callBack = function () {
                     return false;
-                },
-                yes_callBack = function (grid) {
+                };
+            var yes_callBack = function (grid) {
                     // reset it
                     app.last.grid_sel_recid = -1;
                     grid.selectNone();
 
-                    var x = getCurrentBusiness(),
-                        BID = parseInt(x.value),
-                        BUD = getBUDfromBID(BID);
+                    var x = getCurrentBusiness();
+                    var BID = parseInt(x.value);
+                    var BUD = getBUDfromBID(BID);
 
                     w2ui.rentableForm.record = getRentableInitRecord(BID, BUD, null);
-                    RentableEdits.TypeRefChgList.push(w2ui.rentableForm.record.recid);
+                    RentableEdits.RTRChgList.push(w2ui.rentableForm.record.recid);
                     w2ui.rentableForm.refresh();
 
                     getRentableTypes(BUD)
@@ -233,7 +267,22 @@ window.buildRentableElements = function () {
                             if ('status' in data && data.status !== 'success') {
                                 w2ui.rentableForm.message(data.message);
                             } else {
+                                //-----------------------------------------------------------
+                                // before we even attempt this, we must ensure that there is
+                                // at least one rentable type.
+                                //-----------------------------------------------------------
+                                var cancel = true;
+                                if (typeof app.rt_list[BUD] == "object") {
+                                    cancel = app.rt_list[BUD].length == 0;
+                                }
+                                if (cancel) {
+                                    w2ui.rentablesGrid.message("This business currently has no Rentable Types. Please create one or more Rentable Types and try again.");
+                                    return;
+                                }
+                                //-----------------------------------------------------------
+                                // We have rentable types, we can proceed...
                                 // get "RTID" column index and set rentable types list in editable items
+                                //-----------------------------------------------------------
                                 var RTIDColIndex = w2ui.rentableTypeRefGrid.getColumn("RTID", true);
                                 w2ui.rentableTypeRefGrid.columns[RTIDColIndex].editable.items = app.rt_list[BUD];
                                 setRentableLayout(BID, 0);
@@ -295,7 +344,7 @@ window.buildRentableElements = function () {
                         {id: 'rentableForm', caption: 'Rentable Detail'},
                         {id: 'rentableUseStatusGrid', caption: 'Rentable Use Status'},
                         {id: 'rentableLeaseStatusGrid', caption: 'Rentable Lease Status'},//add by lina
-                        {id: 'rentableTypeRefGrid', caption: 'Rentable Type Ref'},
+                        {id: 'rentableTypeRefGrid', caption: 'Rentable Type Reference'},
                     ],
                     onClick: function (event) {
                         if (event.target === "rentableForm") {
@@ -421,6 +470,7 @@ window.buildRentableElements = function () {
 
 window.finishSave = function() {
     app.form_is_dirty = false;
+    w2ui.rentablesGrid.render();
     closeRentableForm();
 };
 
@@ -429,7 +479,7 @@ window.finishSaveAdd = function() {
     var BUD = getBUDfromBID();
     app.last.grid_sel_recid = -1;  // clear the grid select recid
     w2ui.rentablesGrid.render();
-    w2ui.rentableTypeRefGrid.reload();
+    // w2ui.rentableTypeRefGrid.reload();
     w2ui.rentableForm.record = getRentableInitRecord(BID, BUD, w2ui.rentableForm.record);
     w2ui.rentableForm.url = '/v1/rentable/' + BID + '/0';
     w2ui.rentableForm.refresh();
@@ -447,7 +497,33 @@ window.finishSaveAdd = function() {
 // @return
 //-----------------------------------------------------------------------------
 window.saveRentableCore = function (doneCB) {
-    w2ui.rentableForm.save({}, function (data) {
+    var BID = getCurrentBID();
+    w2ui.rentableForm.url = '/v1/rentable/' + BID + '/' + w2ui.rentableForm.record.RID;
+
+    var rec = w2ui.rentableForm.record;
+    if (typeof rec.BUD === "object") {
+        var B = rec.BUD.text;
+        rec.BUD = B;
+    }
+    if (typeof rec.RTID === "object") {
+        var R = rec.RTID.id;
+        rec.RTID = R;
+    }
+    if (typeof rec.AssignmentTime === "object") {
+        var A = rec.AssignmentTime.id;
+        rec.AssignmentTime = A;
+    }
+    var params = {
+        cmd: "save",
+        selected: [],
+        limit: 0,
+        offset: 0,
+        record: rec,
+    };
+    var dat = JSON.stringify(params);
+
+    return $.post(w2ui.rentableForm.url, dat, null, "json")
+    .done(function (data) {
         if (data.status === 'error') {
             console.log('ERROR: ' + data.message);
             return;
@@ -492,6 +568,9 @@ window.saveRentableCore = function (doneCB) {
             w2ui.rentablesGrid.error(s);
             doneCB();
         });
+    })
+    .fail( function() {
+        w2ui.rentablesGrid.error('post failed to ' + w2ui.rentableForm.url);
     });
 };
 
@@ -502,22 +581,16 @@ window.saveRentableCore = function (doneCB) {
 // @return
 //-----------------------------------------------------------------------------
 window.setRentableLayout = function (BID, RID) {
-    var bidrid = BID + '/' + RID;
-    w2ui.rentableForm.url = '/v1/rentable/' + bidrid;
-    w2ui.rentableUseStatusGrid.url = '/v1/rentableusestatus/' + bidrid;
-    w2ui.rentableLeaseStatusGrid.url = '/v1/rentableleasestatus/' + bidrid;
-    w2ui.rentableTypeRefGrid.url = '/v1/rentabletyperef/' + bidrid;
+    w2ui.rentableForm.url = '/v1/rentable/' + BID + '/' + RID;
 
-    // load bottom panels with action buttons panel
-    w2ui.rentableDetailLayout.content("bottom", w2ui.rentableFormBtns);
+    w2ui.rentableDetailLayout.content("bottom", w2ui.rentableFormBtns); // load bottom panels with action buttons panel
 
     // if form has tabs then click the first one
     if (typeof w2ui.rentableForm.tabs.name == "string") {
         w2ui.rentableForm.tabs.click('tab1');
     }
 
-    // mark this flag as is this new record
-    app.new_form_rec = RID ? true : false;
+    app.new_form_rec = RID ? true : false; // mark this flag as is this new record
 
     // as new content will be loaded for this form
     // mark form dirty flag as false
@@ -525,15 +598,6 @@ window.setRentableLayout = function (BID, RID) {
 
     RentableEdits.RID = RID;
     if (RID) {
-        // sman 3/9/2019 - I have no idea why these 3 statements were in the code
-        //      but they were causing the grids to be empty on the first rendering.
-        //      After I commented them out, the grids all rendered properly. I
-        //      needed to properly set the URLs above for each of the status grids.
-        //      I'm not sure why those urls were not set and these statements were
-        //      executed instead
-        // w2ui.rentableUseStatusGrid.load(rusurl);    // if rentable available then load the status grid
-        // w2ui.rentableLeaseStatusGrid.load(rlsurl);  // if rentable available then load the Lease status grid
-        // w2ui.rentableTypeRefGrid.load(rtrurl);      // if rentable available then load the type ref grid
 
         // change the text of form tab
         w2ui.rentableDetailLayout.get("main").tabs.get("rentableForm").text = "Rentable Details ({0})".format(RID);
@@ -556,9 +620,14 @@ window.setRentableLayout = function (BID, RID) {
         });
     }
     else {
-        // if new RentableType then clear the status, type ref grid first
-        w2ui.rentableUseStatusGrid.clear();
-        w2ui.rentableTypeRefGrid.clear();
+        // it's new, clear the grids
+        // w2ui.rentableUseStatusGrid.clear();
+        // w2ui.rentableLeaseStatusGrid.clear();
+        // w2ui.rentableTypeRefGrid.clear();
+        // addRentableLeaseStatus();
+        // addRentableUseStatus();
+        // addRentableTypeRef();
+
 
         // change the text of form tab
         w2ui.rentableDetailLayout.get("main").tabs.get("rentableForm").text = "Rentable Details ({0})".format("new");
@@ -601,10 +670,40 @@ window.closeRentableForm = function() {
 // @return
 //-----------------------------------------------------------------------------
 window.showRentableForm = function() {
+    var BID = getCurrentBID();
+    var RID = w2ui.rentableForm.record.RID;
+
+    //------------------------------------------------------------------------
+    // We only want the grids to request server data on their initial load
+    // and on a RentableForm Save.  So, we will set the urls here and clear
+    // them after the grids complete their loading or after a save completes.
+    //------------------------------------------------------------------------
+    if (RID > 0) {
+        w2ui.rentableLeaseStatusGrid.url = '/v1/rentableleasestatus/'+BID+'/'+RID;
+        w2ui.rentableUseStatusGrid.url = '/v1/rentableusestatus/'+BID+'/'+RID;
+        w2ui.rentableTypeRefGrid.url = '/v1/rentabletyperef/'+BID+'/'+RID;
+        w2ui.rentableForm.url = '/v1/rentable/'+BID+'/'+RID;
+    }
+
+    //------------------------------------------------------------------------
+    // We need to reset any changes in the change lists now
+    //------------------------------------------------------------------------
     RentableEdits.LeaseStatusChgList = [];
     RentableEdits.UseStatusChgList = [];
     RentableEdits.RTRChgList = [];
-    // SHOW the right panel now
+    w2ui.rentableLeaseStatusGrid.records = [];
+    w2ui.rentableUseStatusGrid.records = [];
+    w2ui.rentableTypeRefGrid.records = [];
+
+    if (RID == 0) {
+        addRentableLeaseStatus();
+        addRentableUseStatus();
+        addRentableTypeRef();
+    }
+
+    //------------------------------------------------------------------------
+    // Now we can sHOW the right panel
+    //------------------------------------------------------------------------
     w2ui.toplayout.content('right', w2ui.rentableDetailLayout);
     w2ui.toplayout.sizeTo('right', 700);
     // w2ui.rentableDetailLayout.render();

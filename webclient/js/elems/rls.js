@@ -1,7 +1,7 @@
 /*global
     setDefaultFormFieldAsPreviousRecord, w2uiDateControlString, $, w2ui, app, getCurrentBusiness, parseInt, getBUDfromBID,
     getRentableTypes, setToForm, form_dirty_alert, console, getFormSubmitData, addDateNavToToolbar, setRentableLayout,
-    getRentableInitRecord, saveRentableLeaseStatus, RentableEdits,
+    getRentableInitRecord, saveRentableLeaseStatus, RentableEdits, addRentableLeaseStatus,
 */
 /*jshint esversion: 6 */
 
@@ -14,7 +14,8 @@ window.buildRentableLeaseStatusElements = function () {
     $().w2grid({
         name: 'rentableLeaseStatusGrid',
         style: 'padding: 0px',
-        url: '/v1/rentableleasestatus',
+        // url: '/v1/rentableleasestatus',
+        url: '',
         show: {
             header: false,
             toolbar: true,
@@ -69,66 +70,26 @@ window.buildRentableLeaseStatusElements = function () {
             {field: 'LastModBy', caption: 'LastModBy', hidden: true},
         ],
         onLoad: function (event) {
-            var BID = getCurrentBID();
-            var RID = w2ui.rentableForm.record.RID;
+            //------------------------------------------------------------------------
+            // We only want the grids to request server data on their initial load
+            // and on a RentableForm Save.  So, we will clear them after the
+            // grids complete their loading or after a save completes.
+            //------------------------------------------------------------------------
             event.onComplete = function () {
-                this.url = '/v1/rentableleasestatus/'+BID+'/'+RID;
+                // var BID = getCurrentBID();
+                // var RID = w2ui.rentableForm.record.RID;
+                // this.url = '/v1/rentableleasestatus/'+BID+'/'+RID;
+                this.url = '';
+            };
+        },
+        onSave: function (event) {
+            // see the onLoad comment ...
+            event.onComplete = function() {
+                this.url = '';
             };
         },
         onAdd: function (/*event*/) {
-            var BID = getCurrentBID();
-            var BUD = getBUDfromBID(BID);
-            var fr = w2ui.rentableForm.record;
-            var g = this;
-            var ndStart;
-
-            // get lastest date among all market rate object's stopDate for new MR's StartDate
-            if (g.records.length === 0) {
-                ndStart = new Date();
-            } else {
-                g.records.forEach(function (rec) {
-                    if (ndStart === undefined) {
-                        ndStart = new Date(rec.DtStop);
-                    }
-                    if (rec.DtStop) {
-                        var rdStop = new Date(rec.DtStop);
-                        if (ndStart < rdStop) {
-                            ndStart = rdStop;
-                        }
-                    }
-                });
-            }
-
-            var newRec = {
-                recid: g.records.length,
-                BID: BID,
-                BUD: BUD,
-                RID: fr.RID,
-                RLID: 0,
-                LeaseStatus: 0,
-                DtStart: dateFmtStr(ndStart),
-                DtStop: "12/31/9999"
-            };
-            if (EDIEnabledForBUD(BUD)) {
-                var d = ndStart;
-                d.setDate(d.getDate()+1);
-                newRec.DtStart = dateFmtStr(d);
-                newRec.DtStop = "12/30/9999";
-            }
-            if (newRec.DtStart > newRec.DtStop) {
-                newRec.DtStart = newRec.DtStop;
-            }
-            RentableEdits.LeaseStatusChgList.push(newRec.recid);
-            g.add(newRec,true); // the boolean forces the new row to be added at the top of the grid
-        },
-        onSave: function (event) {
-            // if url is set then only take further actions, for local save just ignore those
-            this.url = '';
-            event.onComplete = function() {
-                var BID = getCurrentBID();
-                var RID = w2ui.rentableForm.record.RID;
-                w2ui.rentableLeaseStatusGrid.url = "/v1/rentableleasestatus/" + BID + "/" + RID;
-            };
+            addRentableLeaseStatus();
         },
         // onDelete: function (event) {
         //     if (RentableEdits.rlsDeleteInProgress) {
@@ -244,9 +205,9 @@ window.buildRentableLeaseStatusElements = function () {
                     RentableEdits.LeaseStatusChgList.push(chgRec.recid);
                     g.url = '';  // just ensure that no server service is called
                     this.save(); // save automatically locally
-                    var BID = getCurrentBID();
-                    var RID = w2ui.rentableForm.record.RID;
-                    g.url = '/v1/rentableleasestatus/' + BID + '/' + RID;
+                    // var BID = getCurrentBID();
+                    // var RID = w2ui.rentableForm.record.RID;
+                    // g.url = '/v1/rentableleasestatus/' + BID + '/' + RID;
                 }
             };
         }
@@ -288,9 +249,18 @@ window.saveRentableLeaseStatus = function(BID,RID) {
     return $.post(url, dat, null, "json")
     .done(function(data) {
         if (data.status === "success") {
+            //------------------------------------------------------------------
+            // Now that the save is complete, we can add the URL back to the
+            // the grid so it can call the server to get updated rows. The
+            // onLoad handler will reset the url to '' after the load completes
+            // so that changes are done locally to gthe grid until the
+            // rentableForm save button is clicked.
+            //------------------------------------------------------------------
             RentableEdits.LeaseStatusChgList = []; // reset the change list now, because we've saved them
+            w2ui.rentableLeaseStatusGrid.url = url;
             w2ui.toplayout.hide('right', true);
-            w2ui.rentablesGrid.render();
+            w2ui.rentableLeaseStatusGrid.reload();
+            w2ui.rentableLeaseStatusGrid.render();
         } else {
             w2ui.rentablesGrid.error('saveRentableLeaseStatus: ' + data.message);
         }
@@ -298,4 +268,60 @@ window.saveRentableLeaseStatus = function(BID,RID) {
     .fail(function(data){
         console.log("Save RentableLeaseStatus failed.");
     });
+};
+
+// addRentableLeaseStatus - creates a new RentableLeaseStatus entry and adds it
+// to the grid.
+//
+// @params
+//
+// @return
+//---------------------------------------------------------------------------
+window.addRentableLeaseStatus = function (/*event*/) {
+    var BID = getCurrentBID();
+    var BUD = getBUDfromBID(BID);
+    var fr = w2ui.rentableForm.record;
+    var g = w2ui.rentableLeaseStatusGrid;
+    var ndStart;
+
+    // get lastest date among all market rate object's stopDate for new MR's StartDate
+    if (g.records.length === 0) {
+        ndStart = new Date();
+    } else {
+        g.records.forEach(function (rec) {
+            if (ndStart === undefined) {
+                ndStart = new Date(rec.DtStop);
+            }
+            if (rec.DtStop) {
+                var rdStop = new Date(rec.DtStop);
+                if (ndStart < rdStop) {
+                    ndStart = rdStop;
+                }
+            }
+        });
+    }
+
+    var newRec = {
+        recid: g.records.length,
+        BID: BID,
+        BUD: BUD,
+        RID: fr.RID,
+        RLID: 0,
+        LeaseStatus: 0,
+        DtStart: dateFmtStr(ndStart),
+        DtStop: "12/31/9999"
+    };
+    if (EDIEnabledForBUD(BUD)) {
+        var d = ndStart;
+        d.setDate(d.getDate()+1);
+        newRec.DtStart = dateFmtStr(d);
+        newRec.DtStop = "12/30/9999";
+    }
+    var d1 = new Date(newRec.DtStart);
+    var d2 = new Date(newRec.DtStop);
+    if (d1 > d2) {
+        newRec.DtStart = dateFmtStr(d1);
+    }
+    RentableEdits.LeaseStatusChgList.push(newRec.recid);
+    g.add(newRec,true); // the boolean forces the new row to be added at the top of the grid
 };
