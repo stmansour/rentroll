@@ -74,6 +74,7 @@ func LoadRentRollCSV(ctx context.Context, fname string, handler csvHandlerFunc) 
 // Returns:
 //   bool --> false = everything is OK,  true = at least 1 column is wrong, error message already printed
 //   err  --> nil if no problems
+//--------------------------------------------------------------------------------------------------
 func ValidateCSVColumnsErr(csvCols []CSVColumn, sa []string, funcname string, lineno int) (bool, error) {
 	required := len(csvCols)
 	if len(sa) < required {
@@ -81,7 +82,9 @@ func ValidateCSVColumnsErr(csvCols []CSVColumn, sa []string, funcname string, li
 		for i := 0; i < len(csvCols); i++ {
 			if i < l {
 				s := rlib.Stripchars(strings.ToLower(strings.TrimSpace(sa[i])), " ")
-				if s != strings.ToLower(csvCols[i].Name) {
+				s1 := strings.ToLower(csvCols[i].Name)
+				if s != s1 {
+					rlib.Console("\n\nValidateCSVColumnsErr: heading miscompare:  %q (len = %d) with  %q (len=%d)\n", s, len(s), s1, len(s1))
 					return true, fmt.Errorf("%s: line %d - Error at column heading %d, expected %s, found %s", funcname, lineno, i, csvCols[i].Name, sa[i])
 				}
 			}
@@ -92,7 +95,24 @@ func ValidateCSVColumnsErr(csvCols []CSVColumn, sa []string, funcname string, li
 	if lineno == 1 {
 		for i := 0; i < len(csvCols); i++ {
 			s := rlib.Stripchars(strings.ToLower(strings.TrimSpace(sa[i])), " ")
-			if s != strings.ToLower(csvCols[i].Name) {
+			//------------------------------------------------------------------------
+			// in UTF-8 encoded files, which often come via files saved by Excel (and similar),
+			// the first 3 bytes will be something like \xEF\xBB\xBF indicating byte
+			// ordering. They are not ASCII chars. We need to strip out those
+			// characters if they appear.
+			//------------------------------------------------------------------------
+			sb := []byte(s)
+			var snew []byte
+			for j := 0; j < len(sb); j++ {
+				if int(sb[j]) < 128 {
+					snew = append(snew, sb[j])
+				}
+			}
+			s = string(snew)
+
+			s1 := strings.ToLower(csvCols[i].Name)
+			if s != s1 {
+				rlib.Console("\n\nValidateCSVColumnsErr: heading miscompare:  %q (len = %d) with  %q (len=%d)\n", s, len(s), s1, len(s1))
 				return true, fmt.Errorf("%s: line %d - Error at column heading %d, expected %s, found %s", funcname, lineno, i, csvCols[i].Name, sa[i])
 			}
 		}

@@ -9,6 +9,33 @@ import (
 	"time"
 )
 
+// LMBUD, et. al. are constant indeces
+const (
+	LMBUD          = 0
+	Name           = iota
+	GLNumber       = iota
+	ParentGLNumber = iota
+	AccountType    = iota
+	Balance        = iota
+	AccountStatus  = iota
+	Date           = iota
+	Description    = iota
+)
+
+// AcctCSVCols is an array that defines all the columns that should be in this csv file
+// This is made available to
+var AcctCSVCols = []CSVColumn{
+	{"BUD", LMBUD},
+	{"Name", Name},
+	{"GLNumber", GLNumber},
+	{"ParentGLNumber", ParentGLNumber},
+	{"AccountType", AccountType},
+	{"Balance", Balance},
+	{"AccountStatus", AccountStatus},
+	{"Date", Date},
+	{"Description", Description},
+}
+
 // TODO:
 // Remove Associated
 // Remove Collective
@@ -21,7 +48,19 @@ import (
 // REH,  General Accounts Receivable,  11001,     11000,           Accounts Receivable, 0,         active,         "2016-03-01", Bla bla bla
 // REH,  Friday Lunch Fund,            11099,     11000,           Accounts Receivable, 0.00,      active,
 
-// CreateLedgerMarkers reads an assessment type string array and creates a database record for the assessment type
+// CreateLedgerMarkers reads an assessment type string array and creates
+// a database record for the assessment type
+//
+// INPUTS
+//   ctx    - database context
+//   sa     - string array of values from lineno in the csv file
+//   lineno - the line number - first line is 1 (not 0)
+//
+// RETURNS
+//   CsvErrorSensitivity - controls whether an error on a single line causes
+//            the entire CSV process to terminate or continue
+//   any error encountered
+//-------------------------------------------------------------------------------
 func CreateLedgerMarkers(ctx context.Context, sa []string, lineno int) (int, error) {
 	const funcname = "CreateLedgerMarkers"
 	var (
@@ -32,34 +71,9 @@ func CreateLedgerMarkers(ctx context.Context, sa []string, lineno int) (int, err
 		parent    rlib.GLAccount
 	)
 
-	const (
-		BUD            = 0
-		Name           = iota
-		GLNumber       = iota
-		ParentGLNumber = iota
-		AccountType    = iota
-		Balance        = iota
-		AccountStatus  = iota
-		Date           = iota
-		Description    = iota
-	)
-
-	// csvCols is an array that defines all the columns that should be in this csv file
-	var csvCols = []CSVColumn{
-		{"BUD", BUD},
-		{"Name", Name},
-		{"GLNumber", GLNumber},
-		{"ParentGLNumber", ParentGLNumber},
-		{"AccountType", AccountType},
-		{"Balance", Balance},
-		{"AccountStatus", AccountStatus},
-		{"Date", Date},
-		{"Description", Description},
-	}
-
 	l.AllowPost = true // default is to allow, server will modify as needed
 
-	y, err := ValidateCSVColumnsErr(csvCols, sa, funcname, lineno)
+	y, err := ValidateCSVColumnsErr(AcctCSVCols, sa, funcname, lineno)
 	if y {
 		return 1, err
 	}

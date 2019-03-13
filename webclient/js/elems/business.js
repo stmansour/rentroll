@@ -53,6 +53,24 @@ window.renderReversalIcon = function (record /*, index, col_index*/) {
     return '';
 };
 
+// buildBizDropdownHTML creates the HTML for a dropdown menu of businesses
+//
+// INPUTS
+//     id = the id string used for the <span> containing the <select>
+//
+// RETURNS the html for a dropdown menu with all businesses.
+//----------------------------------------------------------------------------
+window.buildBizDropdownHTML = function(id) {
+    var html = '<span id="' +id + '"><select name="BusinessSelect" onchange="ChangeBusiness();">';
+    for (var i = 0; i < this.records.length; i++) {
+        var BUD = this.records[i].BUD;
+        var BID = this.records[i].BID;
+        html += '<option value="' + BID + '" name="' + BUD + '">' + BUD + '</option>';
+    }
+    html += '</select></span>';
+    return html;
+};
+
 window.buildBusinessElements = function () {
     //------------------------------------------------------------------------
     //          tlsGrid  -  TASK LISTS in the date range

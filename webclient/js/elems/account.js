@@ -415,10 +415,12 @@ window.exportGLAccounts = function () {
 // popupImportFileDialog invoked when user wants to import file of accounts
 window.popupImportFileDialog = function () {
 
-    var BizSelHTML = '<select id="importGLAcctsBizSel" class="w2ui-select" style="cursor: default; width: 100%; outline: none; opacity: 1; margin: 0px; border: 1px solid transparent; padding: 4px 4px 4px 0px;">';
-    app.businesses.forEach(function(bud) {
-        BizSelHTML += '<option val=' + bud + '>' + bud + '</option>';
-    });
+//class="w2ui-select"
+    var BizSelHTML = '<select id="importGLAcctsBizSel" style="cursor: default; width: 100%; outline: none; opacity: 1; margin: 0px; border: 1px solid transparent; padding: 4px 4px 4px 0px;">';
+    for (var i = 0; i < app.BizMap.length; i++) {
+        var BUD = app.BizMap[i].BUD;
+        BizSelHTML += '<option value="' + BUD + '">' + BUD + '</option>';
+    }
     BizSelHTML += '</select>';
 
     w2popup.open({
@@ -489,6 +491,9 @@ window.importAccountsFile = function () {
                 if (BUD == chosenBUD) {
                     w2ui.accountsGrid.reload();
                 }
+            } else if (response.status == "error") {
+                w2popup.close();
+                w2ui.accountsGrid.error(response.message);
             }
         }
    });
