@@ -215,10 +215,7 @@ func SvcSearchHandlerRentableTypes(w http.ResponseWriter, r *http.Request, d *Se
 		g     RentableTypeSearchResponse
 		err   error
 		order = `RentableTypes.RTID ASC` // default ORDER in sql result
-		whr   = fmt.Sprintf(`RentableTypes.BID=%d
-				AND (RentableMarketRate.DtStart <= %q OR RentableMarketRate.DtStart IS NULL)
-				AND (RentableMarketRate.DtStop >%q OR RentableMarketRate.DtStop IS NULL)`,
-			d.BID, d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL), d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL))
+		whr   = fmt.Sprintf(`RentableTypes.BID=%d`, d.BID)
 	)
 	fmt.Printf("Entered %s\n", funcname)
 
@@ -234,7 +231,6 @@ func SvcSearchHandlerRentableTypes(w http.ResponseWriter, r *http.Request, d *Se
 	rentableTypeSearchQuery := `
 	SELECT {{.SelectClause}}
 	FROM RentableTypes
-	LEFT JOIN RentableMarketRate on RentableTypes.RTID=RentableMarketRate.RTID
 	WHERE {{.WhereClause}}
 	ORDER BY {{.OrderClause}}`
 
