@@ -3,7 +3,8 @@
     setToForm, form_dirty_alert, formRecDiffer, getFormSubmitData, delete_confirm_options,
     w2utils, formRefreshCallBack, setDefaultFormFieldAsPreviousRecord, exportGLAccounts, popupImportFileDialog,
     getAccountInitRecord, computeAmountRemaining, getARRulesInitRecord, renderReversalIcon, getBusinessAssessmentRules,
-    getAsmsInitRecord, popupAsmRevMode, asmFormRASelect, updateGridPostDataDates
+    getAsmsInitRecord, popupAsmRevMode, asmFormRASelect, updateGridPostDataDates,
+    iafMessage,
 */
 "use strict";
 window.getAccountInitRecord = function (BID, BUD, previousFormRecord){
@@ -429,10 +430,10 @@ window.popupImportFileDialog = function () {
             '<div class="w2ui-field"><label>GLAccounts file: </label><div><input type="file" name="acct_import_file" class="w2ui-input" style="cursor: default; width: 100%; outline: none; opacity: 1; margin: 0px; border: 1px solid transparent; padding: 4px 4px 4px 0px; background-color: transparent;" /></div></div>' +
             '<div class="w2ui-field"><label>Business Unit: </label><div>' + BizSelHTML + '</div></div>' +
             '</div>',
-        buttons   : '<button class="w2ui-btn" onclick="w2popup.close();">Close</button> '+
-                    '<button class="w2ui-btn" onclick="importAccountsFile();" >Import</button>',
+        buttons   : '<button class="w2ui-btn" onclick="importAccountsFile();" >Import</button>'+
+                    '<button class="w2ui-btn" onclick="w2popup.close();">Close</button> ',
         width     : 500,
-        height    : 200,
+        height    : 300,
         overflow  : 'hidden',
         color     : '#333',
         speed     : '0.3',
@@ -442,6 +443,16 @@ window.popupImportFileDialog = function () {
         onOpen: function(event) {
             $("select[id=importGLAcctsBizSel]").val(""); //onOpen reset selection
         }
+    });
+};
+
+// simple error message box for the import dialog...
+window.iafMessage = function(s) {
+    w2popup.message({
+        width:   400,
+        height:  250,
+        body:    '<div class="w2ui-centered">' + s + '</div>',
+        buttons: '<button class="w2ui-btn" onclick="w2popup.message()">Ok</button>'
     });
 };
 
@@ -456,16 +467,21 @@ window.importAccountsFile = function () {
     var importURL = "/v1/importaccounts/" + BID + "/";
     var formData = new FormData();
     var file = $("input[name=acct_import_file]")[0].files[0];
-    // empty file check
+
+    if (typeof file == "undefined") {
+        iafMessage("Please select a file to import");
+        return false;
+    }
+
     if (file.size < 1) {
-        alert("File is empty");
+        iafMessage("The file you selected is empty");
         return false;
     }
     // .csv extension check
     var splitParts = file.name.split(".");
     var ext = splitParts[splitParts.length - 1];
     if (ext != "csv") {
-        alert("Please, upload csv file");
+        iafMessage("The file must be a CSV (comma separated value) file");
         return false;
     }
     formData.append("GLAccountFile", file);
@@ -492,9 +508,9 @@ window.importAccountsFile = function () {
                     w2ui.accountsGrid.reload();
                 }
             } else if (response.status == "error") {
-                w2popup.close();
-                w2ui.accountsGrid.error(response.message);
+                iafMessage(response.message);
             }
         }
    });
+   return true;
 };

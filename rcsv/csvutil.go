@@ -94,26 +94,26 @@ func ValidateCSVColumnsErr(csvCols []CSVColumn, sa []string, funcname string, li
 
 	if lineno == 1 {
 		for i := 0; i < len(csvCols); i++ {
-			s := rlib.Stripchars(strings.ToLower(strings.TrimSpace(sa[i])), " ")
 			//------------------------------------------------------------------------
 			// in UTF-8 encoded files, which often come via files saved by Excel (and similar),
 			// the first 3 bytes will be something like \xEF\xBB\xBF indicating byte
 			// ordering. They are not ASCII chars. We need to strip out those
 			// characters if they appear.
 			//------------------------------------------------------------------------
-			sb := []byte(s)
+			sb := []byte(strings.TrimSpace(sa[i]))
 			var snew []byte
 			for j := 0; j < len(sb); j++ {
 				if int(sb[j]) < 128 {
 					snew = append(snew, sb[j])
 				}
 			}
-			s = string(snew)
+			var sorig = string(snew)
+			s := rlib.Stripchars(strings.ToLower(sorig), " ")
 
 			s1 := strings.ToLower(csvCols[i].Name)
 			if s != s1 {
 				rlib.Console("\n\nValidateCSVColumnsErr: heading miscompare:  %q (len = %d) with  %q (len=%d)\n", s, len(s), s1, len(s1))
-				return true, fmt.Errorf("%s: line %d - Error at column heading %d, expected %s, found %s", funcname, lineno, i, csvCols[i].Name, sa[i])
+				return true, fmt.Errorf("%s: line %d - Error at column heading %d, expected %q, found %q", funcname, lineno, i, csvCols[i].Name, sorig)
 			}
 		}
 	}
