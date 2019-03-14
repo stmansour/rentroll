@@ -496,20 +496,29 @@ window.importAccountsFile = function () {
         dataType: "json",
         success: function (response) {
             if (response.status == "success") {
-                // reset html inputs
                 $("select[id=importGLAcctsBizSel]").val("");
                 $("input[name=acct_import_file]").val("");
-
-                // close popup
                 w2popup.close();
-
-                // reload accounts grid if imported csv's business is current business
-                if (BUD == chosenBUD) {
-                    w2ui.accountsGrid.reload();
-                }
+                w2ui.accountsGrid.reload(); // load the updated accounts
             } else if (response.status == "error") {
                 iafMessage(response.message);
             }
+        },
+        // Type: Function( jqXHR jqXHR, String textStatus, String errorThrown )
+        //       A function to be called if the request fails. The function
+        //       receives three arguments: The jqXHR (in jQuery 1.4.x,
+        //       XMLHttpRequest) object, a string describing the type of error
+        //       that occurred and an optional exception object, if one
+        //       occurred. Possible values for the second argument (besides
+        //       null) are "timeout", "error", "abort", and "parsererror". When
+        //       an HTTP error occurs, errorThrown receives the textual portion
+        //       of the HTTP status, such as "Not Found" or "Internal Server
+        //       Error." As of jQuery 1.5, the error setting can accept an
+        //       array of functions. Each function will be called in turn.
+        //       Note: This handler is not called for cross-domain script and
+        //       cross-domain JSONP requests.
+        error: function(xhr,status,error) {
+            iafMessage("ajax post failed: " + status);
         }
    });
    return true;
