@@ -1,6 +1,6 @@
 Test Name:    Business Delete Test
 Test Purpose: Creates many records for a business, then tests DeleteBusinessFromDB to remove them
-Date/Time:    Mon Jul  2 16:14:22 PDT 2018
+Date/Time:    Wed Mar 13 19:15:42 PDT 2019
 
 Create new database...  successful
 CreatePhonebookLinkedBusiness: line 4 - Invalid Rent Cycle: a
@@ -39,7 +39,7 @@ CreateRentalAgreement: line 15 - Required Payor field is blank
 CreateRentalAgreement: line 16 - Required User field is blank
 CreateLedgerMarkers: line 29 - Account already exists: 42999
 CreateLedgerMarkers: line 30 - Account already exists: 42999
-CreateLedgerMarkers: line 31 - Invalid account status: re45gg5
+CreateLedgerMarkers: line 31 - Invalid Account Status: "re45gg5"
 CreateAssessmentsFromCSV: line 17 - rlib.Business with designation XXX does not exist
 CreateAssessmentsFromCSV: line 18 - Skipping this record as the Amount is 0
 CreateAssessmentsFromCSV: line 19 - Skipping this record as the Amount is 0
@@ -49,4 +49,4 @@ CreateReceiptsFromCSV: line 6 -  Payment type is invalid: 999
 CreateReceiptsFromCSV: line 7 -  error processing receipt: GenerateReceiptAllocations: Referenced assessment ID 1999 does not exist
 CreateReceiptsFromCSV: line 8 -  error processing receipt: GenerateReceiptAllocations: Referenced assessment ID 999 does not exist
 ElementType value must be a number from 5 to 17
-Test completed: Mon Jul  2 16:14:35 PDT 2018
+Test completed: Wed Mar 13 19:15:49 PDT 2019

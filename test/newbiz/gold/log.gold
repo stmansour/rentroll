@@ -1,13 +1,13 @@
 Test Name:    CSV Loader Test
 Test Purpose: Load all csv files through loader and validate the database after loading
-Date/Time:    Thu Sep  6 12:51:38 PDT 2018
+Date/Time:    Wed Mar 13 19:14:52 PDT 2019
 
 Create new database...  successful
 CreatePhonebookLinkedBusiness: line 4 - Invalid Rent Cycle: a
 CreatePhonebookLinkedBusiness: line 5 - Invalid Proration Cycle: nyet
 CreateLedgerMarkers: line 29 - Account already exists: 42999
 CreateLedgerMarkers: line 30 - Account already exists: 42999
-CreateLedgerMarkers: line 31 - Invalid account status: re45gg5
+CreateLedgerMarkers: line 31 - Invalid Account Status: "re45gg5"
 CreateRentableType: line 8  - rlib.Business named QQQ not found
 CreateRentableType: line 9 - DuplicateRentableType:: rlib.RentableType named CPT already exists
 CreateRentableType: line 10 - Invalid rental frequency: 99
@@ -53,4 +53,4 @@ CreateReceiptsFromCSV: line 6 -  Payment type is invalid: 999
 CreateReceiptsFromCSV: line 7 -  error processing receipt: GenerateReceiptAllocations: Referenced assessment ID 1999 does not exist
 CreateReceiptsFromCSV: line 8 -  error processing receipt: GenerateReceiptAllocations: Referenced assessment ID 999 does not exist
 ElementType value must be a number from 5 to 17
-Test completed: Thu Sep  6 12:51:45 PDT 2018
+Test completed: Wed Mar 13 19:14:59 PDT 2019
