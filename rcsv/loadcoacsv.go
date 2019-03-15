@@ -164,6 +164,7 @@ func CreateLedgerMarkers(ctx context.Context, sa []string, lineno int) (int, err
 	lm.Balance = float64(0) // assume a 0 starting balance
 	g = strings.TrimSpace(sa[Balance])
 	if len(g) > 0 {
+		g = rlib.Stripchars(g, ",")
 		x, err := strconv.ParseFloat(g, 64)
 		if err != nil {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid balance: %s", funcname, lineno, sa[Balance])
