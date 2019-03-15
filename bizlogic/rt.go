@@ -84,25 +84,28 @@ func ValidateRentableMarketRate(ctx context.Context, rmr *rlib.RentableMarketRat
 		errlist = append(errlist, b)
 	}
 
-	// 3. check that DtStart and DtStop don't overlap/fall in with other MarketRate object
-	// associated with the same RTID
-	rt := rlib.RentableType{RTID: rmr.RTID}
-	err := rlib.GetRentableMarketRates(ctx, &rt)
-	if err != nil {
-		return bizErrSys(&err)
-	}
-
-	for _, mr := range rt.MR {
-		// if same market rate object then continue
-		if mr.RMRID == rmr.RMRID {
-			continue
-		}
-		// start date should not sit between other market rate's time span
-		if rlib.DateRangeOverlap(&rmr.DtStart, &rmr.DtStop, &mr.DtStart, &mr.DtStop) {
-			s := fmt.Sprintf(BizErrors[RentableMRDatesOverlap].Message, rmr.RMRID, mr.RMRID)
-			b := BizError{Errno: RentableMRDatesOverlap, Message: s}
-			errlist = append(errlist, b)
-		}
-	}
+	// This is all handled much better by SetRentableMarketRate.
+	// sman 3/14/2019
+	// - - - - - - - - - - - - - - - -
+	// // 3. check that DtStart and DtStop don't overlap/fall in with other MarketRate object
+	// // associated with the same RTID
+	// rt := rlib.RentableType{RTID: rmr.RTID}
+	// err := rlib.GetRentableMarketRates(ctx, &rt)
+	// if err != nil {
+	// 	return bizErrSys(&err)
+	// }
+	//
+	// for _, mr := range rt.MR {
+	// 	// if same market rate object then continue
+	// 	if mr.RMRID == rmr.RMRID {
+	// 		continue
+	// 	}
+	// 	// start date should not sit between other market rate's time span
+	// 	if rlib.DateRangeOverlap(&rmr.DtStart, &rmr.DtStop, &mr.DtStart, &mr.DtStop) {
+	// 		s := fmt.Sprintf(BizErrors[RentableMRDatesOverlap].Message, rmr.RMRID, mr.RMRID)
+	// 		b := BizError{Errno: RentableMRDatesOverlap, Message: s}
+	// 		errlist = append(errlist, b)
+	// 	}
+	// }
 	return errlist
 }

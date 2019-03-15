@@ -951,8 +951,8 @@ func DeleteRentableTypeRef(ctx context.Context, rtrid int64) error {
 	return err
 }
 
-// DeleteRentableMarketRateInstance deletes RentableMarketRate instance with given RMRID
-func DeleteRentableMarketRateInstance(ctx context.Context, rmrid int64) error {
+// DeleteRentableMarketRate deletes RentableMarketRate instance with given RMRID
+func DeleteRentableMarketRate(ctx context.Context, rmrid int64) error {
 	var err error
 
 	// session... context
@@ -965,11 +965,11 @@ func DeleteRentableMarketRateInstance(ctx context.Context, rmrid int64) error {
 
 	fields := []interface{}{rmrid}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.DeleteRentableMarketRateInstance)
+		stmt := tx.Stmt(RRdb.Prepstmt.DeleteRentableMarketRate)
 		defer stmt.Close()
 		_, err = stmt.Exec(fields...)
 	} else {
-		_, err = RRdb.Prepstmt.DeleteRentableMarketRateInstance.Exec(fields...)
+		_, err = RRdb.Prepstmt.DeleteRentableMarketRate.Exec(fields...)
 	}
 	if err != nil {
 		Ulog("Error deleting RentableMarketRate with rmrid=%d, error: %v\n", rmrid, err)

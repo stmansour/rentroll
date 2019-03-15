@@ -1629,7 +1629,7 @@ type RRprepSQL struct {
 	DeleteReceipt                           *sql.Stmt
 	DeleteReceiptAllocation                 *sql.Stmt
 	DeleteReceiptAllocations                *sql.Stmt
-	DeleteRentableMarketRateInstance        *sql.Stmt
+	DeleteRentableMarketRate                *sql.Stmt
 	DeleteRentableSpecialtyRef              *sql.Stmt
 	DeleteRentableLeaseStatus               *sql.Stmt
 	DeleteRentableUseStatus                 *sql.Stmt
@@ -1863,7 +1863,7 @@ type RRprepSQL struct {
 	InsertReceipt                           *sql.Stmt
 	InsertReceiptAllocation                 *sql.Stmt
 	InsertRentable                          *sql.Stmt
-	InsertRentableMarketRates               *sql.Stmt
+	InsertRentableMarketRate                *sql.Stmt
 	InsertRentableSpecialtyRef              *sql.Stmt
 	InsertRentableSpecialtyType             *sql.Stmt
 	InsertRentableLeaseStatus               *sql.Stmt
@@ -1910,7 +1910,7 @@ type RRprepSQL struct {
 	UpdateReceipt                           *sql.Stmt
 	UpdateReceiptAllocation                 *sql.Stmt
 	UpdateRentable                          *sql.Stmt
-	UpdateRentableMarketRateInstance        *sql.Stmt
+	UpdateRentableMarketRate                *sql.Stmt
 	UpdateRentableSpecialtyRef              *sql.Stmt
 	UpdateRentableLeaseStatus               *sql.Stmt
 	UpdateRentableUseStatus                 *sql.Stmt
@@ -2023,6 +2023,7 @@ type RRprepSQL struct {
 	GetRentalAgreementChain                 *sql.Stmt
 	GetAssessmentInstancesByRAIDRIDRent     *sql.Stmt
 	GetTaskListTypeDown                     *sql.Stmt
+	GetRentableMarketRateByRange            *sql.Stmt
 }
 
 // DeleteBusinessFromDB deletes information from all tables if it is part of the supplied BID.

@@ -1,8 +1,10 @@
 /*global
     w2ui, app, $, console, form_dirty_alert, formRefreshCallBack, formRecDiffer,
     getFormSubmitData, w2confirm, delete_confirm_options, getBUDfromBID, getCurrentBusiness,
-    addDateNavToToolbar, setRTLayout, getRTInitRecord, getRentASMARList
+    addDateNavToToolbar, setRTLayout, getRTInitRecord, getRentASMARList, showForm,
+    saveRentableMarketRate,
 */
+
 "use strict";
 window.getRTInitRecord = function (BID, BUD){
     var y = new Date();
@@ -26,6 +28,12 @@ window.getRTInitRecord = function (BID, BUD){
     };
 };
 
+var RTEdits = {
+    MarketRateChgList: [],      // an array of recids to MarketRate changes
+    RTID: 0,                    // ID being edited
+};
+
+
 window.getRentASMARList = function() {
     var BID = getCurrentBID();
     var data = {
@@ -40,6 +48,15 @@ window.getRentASMARList = function() {
         contentType: "application/json",
         dataType: "json"
     });
+};
+
+window.showForm = function () {
+    // SHOW the right panel now
+    w2ui.toplayout.content('right', w2ui.rtDetailLayout);
+    w2ui.toplayout.sizeTo('right', 700);
+    // w2ui.rtDetailLayout.render();
+    w2ui.rtDetailLayout.get("main").tabs.click("rtForm");
+    w2ui.toplayout.show('right', true);
 };
 
 window.buildRentableTypeElements = function () {
@@ -445,26 +462,58 @@ window.buildRentableTypeElements = function () {
                         rtG.render();
                     };
 
-                    // only if manage to budget is set then call
+                    //-----------------------------------------------------------
+                    // Prepare data for all other form tabs before calling their
+                    // save functions...
+                    //-----------------------------------------------------------
                     if (rtF.record.ManageToBudget) {
                         // update RTID in grid records
                         for (var i = 0; i < rmrG.records.length; i++) {
                             rmrG.records[i].RTID = rtF.record.RTID;
                         }
-
-                        // now set the url of market Rate grid so that it can save the record on server side
-                        rmrG.url = '/v1/rmr/' + BID + '/' + rtF.record.RTID;
-                        rmrG.save(function(data) {
-                            // no matter, if it was succeed or not, just reset it, we already setting it before save call
-                            rmrG.url = ""; // after save, remove it
-
-                            if (data.status == "success") {
-                                postSaveAction();
-                            }
-                        });
-                    } else {
-                        postSaveAction();
                     }
+
+                    //-----------------------------------------------------------
+                    // Now call the save function for all other tabs...
+                    //-----------------------------------------------------------
+                    $.when(
+                        // add as many as needed
+                        saveRentableMarketRate(BID,rtF.record.RTID)
+                    )
+                    .done(function(){
+                        postSaveAction();
+                    })
+                    .fail(function(){
+                        var s = 'RentableTypeSave: error reported';
+                        console.log(s);
+                        w2ui.rtGrid.error(s);
+                        postSaveAction();
+                    });
+
+
+
+                    // We need to do this differently
+                    // 3/14/2019 - sman
+                    //- - - - - - - - - - - - - - - - - - -
+                    // if (rtF.record.ManageToBudget) {
+                    //     // update RTID in grid records
+                    //     for (var i = 0; i < rmrG.records.length; i++) {
+                    //         rmrG.records[i].RTID = rtF.record.RTID;
+                    //     }
+                    //
+                    //     // now set the url of market Rate grid so that it can save the record on server side
+                    //     rmrG.url = '/v1/rmr/' + BID + '/' + rtF.record.RTID;
+                    //     rmrG.save(function(data) {
+                    //         // no matter, if it was succeed or not, just reset it, we already setting it before save call
+                    //         rmrG.url = ""; // after save, remove it
+                    //
+                    //         if (data.status == "success") {
+                    //             postSaveAction();
+                    //         }
+                    //     });
+                    // } else {
+                    //     postSaveAction();
+                    // }
                 });
             },
             saveadd: function() {
@@ -706,7 +755,7 @@ window.buildRentableTypeElements = function () {
             toolbarColumns: false,
             toolbarSearch: true,
             toolbarAdd: true,
-            toolbarDelete: true,
+            toolbarDelete: false,
             toolbarSave: false,
             searchAll       : true,
             footer: true,
@@ -761,45 +810,58 @@ window.buildRentableTypeElements = function () {
                 RMRID: 0,
                 MarketRate: 0,
                 DtStart: dateFmtStr(ndStart),
-                DtStop: "12/31/9999" };
-            g.add(newRec);
+                DtStop: "12/31/9999"
+            };
+
+            if (EDIEnabledForBUD(BUD)) {
+                var d = ndStart;
+                d.setDate(d.getDate()+1);
+                newRec.DtStart = dateFmtStr(d);
+                newRec.DtStop = "12/30/9999";
+            }
+            var d1 = new Date(newRec.DtStart);
+            var d2 = new Date(newRec.DtStop);
+            if (d1 > d2) {
+                newRec.DtStart = dateFmtStr(d1);
+            }
+            g.add(newRec,true);  // the boolean forces the new row to be added at the top of the grid
         },
         onSave: function(event) {
             event.changes = this.records;
         },
-        onDelete: function(event) {
-            var selected = this.getSelection(),
-                RMRIDList = [],
-                grid = this;
-
-            // if not selected then return
-            if (selected.length < 0) {
-                return;
-            }
-            // collect RMRID
-            selected.forEach(function(id) {
-                RMRIDList.push(grid.get(id).RMRID);
-            });
-
-            event.onComplete = function() {
-                var x = getCurrentBusiness(),
-                    BID=parseInt(x.value),
-                    BUD = getBUDfromBID(BID),
-                    RTID = w2ui.rtForm.record.RTID;
-
-                var payload = { "cmd": "delete", "RMRIDList": RMRIDList };
-                $.ajax({
-                    type: "POST",
-                    url: "/v1/rmr/" + BID + "/" + RTID,
-                    data: JSON.stringify(payload),
-                    contentType: "application/json",
-                    dataType: "json",
-                    success: function(data) {
-                        grid.reload();
-                    },
-                });
-            };
-        },
+        // onDelete: function(event) {
+        //     var selected = this.getSelection(),
+        //         RMRIDList = [],
+        //         grid = this;
+        //
+        //     // if not selected then return
+        //     if (selected.length < 0) {
+        //         return;
+        //     }
+        //     // collect RMRID
+        //     selected.forEach(function(id) {
+        //         RMRIDList.push(grid.get(id).RMRID);
+        //     });
+        //
+        //     event.onComplete = function() {
+        //         var x = getCurrentBusiness(),
+        //             BID=parseInt(x.value),
+        //             BUD = getBUDfromBID(BID),
+        //             RTID = w2ui.rtForm.record.RTID;
+        //
+        //         var payload = { "cmd": "delete", "RMRIDList": RMRIDList };
+        //         $.ajax({
+        //             type: "POST",
+        //             url: "/v1/rmr/" + BID + "/" + RTID,
+        //             data: JSON.stringify(payload),
+        //             contentType: "application/json",
+        //             dataType: "json",
+        //             success: function(data) {
+        //                 grid.reload();
+        //             },
+        //         });
+        //     };
+        // },
         onChange: function(event) {
             event.preventDefault();
             var g = this,
@@ -808,54 +870,24 @@ window.buildRentableTypeElements = function () {
                 changeIsValid = true;
 
             if ( field === "MarketRate" ) { // if field is MarketRate
-                if (event.value_new <= 0) {
+                if (event.value_new < 0) {
                     changeIsValid = false;
                 }
             }
 
-            // if fields are DtStart or DtStop
-            if ( field === "DtStart" || field === "DtStop") {
-
-                var chgDStart = field === "DtStart" ? new Date(event.value_new) : new Date(chgRec.DtStart),
-                    chgDStop = field === "DtStop" ? new Date(event.value_new) : new Date(chgRec.DtStop);
-
-                // Stop date should not before Start Date
-                if (chgDStop <= chgDStart) {
-                        changeIsValid = false;
-                } else {
-                    // make sure date values don't overlap with other market rate dates
-                    for(var i in g.records) {
-                        var rec = g.records[i];
-                        if (rec.recid === chgRec.recid) { // if same record then continue to next one
-                            continue;
-                        }
-
-                        var rDStart = new Date(rec.DtStart),
-                            rDStop = new Date(rec.DtStop);
-
-                        // return if changed record startDate falls in other MR time span
-                        if (rDStart < chgDStart && chgDStart < rDStop) {
-                            changeIsValid = false;
-                        } else if(rDStart < chgDStop && chgDStop < rDStop) {
-                            changeIsValid = false;
-                        } else if(chgDStart < rDStart && rDStop < chgDStop) {
-                            changeIsValid = false;
-                        }
-                    }
-                }
+            //------------------------------------
+            // Put any validation checks here...
+            //------------------------------------
+            if (event.value_new == "" && (g.columns[event.column].field == "DtStop" || g.columns[event.column].field == "DtStart")) {
+                changeIsValid = false;
             }
 
-            if(changeIsValid) {
-                // if everything is ok, then mark this as false
-                event.isCancelled = false;
-            } else {
-                event.isCancelled = true;
-            }
+            event.isCancelled = !changeIsValid;
 
             event.onComplete = function() {
                 if (!event.isCancelled) { // if event not cancelled then invoke save method
-                    // save automatically locally
-                    this.save();
+                    RTEdits.MarketRateChgList.push(chgRec.recid);
+                    this.save();  // save automatically locally
                 }
             };
         }
@@ -928,12 +960,4 @@ window.setRTLayout = function (BID, RTID) {
         return true;
     }
 
-    function showForm() {
-        // SHOW the right panel now
-        w2ui.toplayout.content('right', w2ui.rtDetailLayout);
-        w2ui.toplayout.sizeTo('right', 700);
-        // w2ui.rtDetailLayout.render();
-        w2ui.rtDetailLayout.get("main").tabs.click("rtForm");
-        w2ui.toplayout.show('right', true);
-    }
 };

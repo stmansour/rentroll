@@ -1961,8 +1961,8 @@ func InsertRentableSpecialty(ctx context.Context, a *RentableSpecialty) (int64, 
 	return rid, err
 }
 
-// InsertRentableMarketRates writes a new marketrate record to the database
-func InsertRentableMarketRates(ctx context.Context, a *RentableMarketRate) (int64, error) {
+// InsertRentableMarketRate writes a new marketrate record to the database
+func InsertRentableMarketRate(ctx context.Context, a *RentableMarketRate) (int64, error) {
 
 	var (
 		rid = int64(0)
@@ -1985,11 +1985,11 @@ func InsertRentableMarketRates(ctx context.Context, a *RentableMarketRate) (int6
 	// transaction... context
 	fields := []interface{}{a.RTID, a.BID, a.MarketRate, a.DtStart, a.DtStop, a.CreateBy, a.LastModBy}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.InsertRentableMarketRates)
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertRentableMarketRate)
 		defer stmt.Close()
 		res, err = stmt.Exec(fields...)
 	} else {
-		res, err = RRdb.Prepstmt.InsertRentableMarketRates.Exec(fields...)
+		res, err = RRdb.Prepstmt.InsertRentableMarketRate.Exec(fields...)
 	}
 
 	// After getting result...

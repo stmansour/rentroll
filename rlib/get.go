@@ -5838,11 +5838,8 @@ func GetRentableUseStatusOnOrAfter(ctx context.Context, RID int64, dt *time.Time
 
 // GetRentableUseStatusByRange loads all the RentableUseStatus records that overlap the supplied time range
 func GetRentableUseStatusByRange(ctx context.Context, RID int64, d1, d2 *time.Time) ([]RentableUseStatus, error) {
-
-	var (
-		err error
-		rs  []RentableUseStatus
-	)
+	var err error
+	var rs []RentableUseStatus
 
 	if getSessionCheck(ctx) {
 		return rs, ErrSessionRequired
@@ -5964,11 +5961,8 @@ func GetRentableLeaseStatusOnOrAfter(ctx context.Context, RID int64, dt *time.Ti
 
 // GetRentableLeaseStatusByRange loads all the RentableLeaseStatus records that overlap the supplied time range
 func GetRentableLeaseStatusByRange(ctx context.Context, RID int64, d1, d2 *time.Time) ([]RentableLeaseStatus, error) {
-
-	var (
-		err error
-		rs  []RentableLeaseStatus
-	)
+	var err error
+	var rs []RentableLeaseStatus
 
 	if getSessionCheck(ctx) {
 		return rs, ErrSessionRequired
@@ -6146,37 +6140,62 @@ func getBizRentableTypes(bid int64) (map[int64]RentableType, error) {
 
 // GetBusinessRentableTypes returns a slice of RentableType indexed by the RTID
 func GetBusinessRentableTypes(ctx context.Context, bid int64) (map[int64]RentableType, error) {
-
-	var (
-		// err error
-		t = make(map[int64]RentableType)
-	)
-
+	var t = make(map[int64]RentableType)
 	if getSessionCheck(ctx) {
 		return t, ErrSessionRequired
 	}
-
 	return getBizRentableTypes(bid)
 }
 
-// getRentableMarketRates loads all the MarketRate rent information for this Rentable into an array
-func getRentableMarketRates(rt *RentableType) error {
+// getListOfRentableMarketRates returns a list of RentableMarketRate structs
+// based on the supplied rows.
+//-----------------------------------------------------------------------------
+func getListOfRentableMarketRates(ctx context.Context, rows *sql.Rows) ([]RentableMarketRate, error) {
+	var m []RentableMarketRate
+	var err error
+	for rows.Next() {
+		var a RentableMarketRate
+		if err = ReadRentableMarketRates(rows, &a); err != nil {
+			return m, err
+		}
+		m = append(m, a)
+	}
+	return m, nil
+}
 
-	var (
-		err error
-	)
+// GetRentableMarketRateByRange returns a list of RentableMarketRate structs
+// for a particular RentableType that occur in the supplied time range
+//-----------------------------------------------------------------------------
+func GetRentableMarketRateByRange(ctx context.Context, RTID int64, d1, d2 *time.Time) ([]RentableMarketRate, error) {
+	var err error
+	var rs []RentableMarketRate
 
-	// now get all the MarketRate rent info...
+	if getSessionCheck(ctx) {
+		return rs, ErrSessionRequired
+	}
 
 	var rows *sql.Rows
-	fields := []interface{}{rt.RTID}
-	/*if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.GetRentableMarketRates)
+	fields := []interface{}{RTID, d1, d2, d1}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentableMarketRateByRange)
 		defer stmt.Close()
 		rows, err = stmt.Query(fields...)
 	} else {
-		rows, err = RRdb.Prepstmt.GetRentableMarketRates.Query(fields...)
-	}*/
+		rows, err = RRdb.Prepstmt.GetRentableMarketRateByRange.Query(fields...)
+	}
+
+	if err != nil {
+		return rs, err
+	}
+	return getListOfRentableMarketRates(ctx, rows)
+}
+
+// getRentableMarketRates loads all the MarketRate rent information for this
+// Rentable into an array
+func getRentableMarketRates(rt *RentableType) error {
+	var err error
+	var rows *sql.Rows
+	fields := []interface{}{rt.RTID}
 
 	rows, err = RRdb.Prepstmt.GetRentableMarketRates.Query(fields...)
 	if err != nil {
@@ -6206,18 +6225,12 @@ func GetRentableMarketRates(ctx context.Context, rt *RentableType) error {
 	if getSessionCheck(ctx) {
 		return ErrSessionRequired
 	}
-
 	return getRentableMarketRates(rt)
 }
 
 // GetRentableMarketRateInstance returns instance of rentableMarketRate for given RMRID
 func GetRentableMarketRateInstance(ctx context.Context, rmrid int64) (RentableMarketRate, error) {
-
-	var (
-		// err error
-		rmr RentableMarketRate
-	)
-
+	var rmr RentableMarketRate
 	if getSessionCheck(ctx) {
 		return rmr, ErrSessionRequired
 	}

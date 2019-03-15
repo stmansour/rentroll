@@ -3,7 +3,7 @@
     getRentableTypes, setToForm, form_dirty_alert, console, getFormSubmitData, addDateNavToToolbar, setRentableLayout,
     getRentableInitRecord, saveRentableLeaseStatus, buildRentableUseStatusElements, buildRentableLeaseStatusElements,
     saveRentableUseStatus, saveRentableTypeRef, buildRentableTypeRefElements, saveRentableCore, closeRentableForm,
-    showRentableForm, finishSaveAdd, finishSave, addRentableLeaseStatus, addRentableUseStatus, addRentableTypeRef,
+    showRentableForm, finishRentableSaveAdd, finishRentableSave, addRentableLeaseStatus, addRentableUseStatus, addRentableTypeRef,
     getEDIAdjustedStopDate,
 */
 /*jshint esversion: 6 */
@@ -458,23 +458,23 @@ window.buildRentableElements = function () {
         actions: {
             save: function () {
                 w2ui.rentablesGrid.selectNone();
-                saveRentableCore(finishSave);
+                saveRentableCore(finishRentableSave);
             },
 
             saveadd: function () {
-                saveRentableCore(finishSaveAdd);
+                saveRentableCore(finishRentableSaveAdd);
             }
         },
     });
 };
 
-window.finishSave = function() {
+window.finishRentableSave = function() {
     app.form_is_dirty = false;
     w2ui.rentablesGrid.render();
     closeRentableForm();
 };
 
-window.finishSaveAdd = function() {
+window.finishRentableSaveAdd = function() {
     var BID = getCurrentBID();
     var BUD = getBUDfromBID();
     app.last.grid_sel_recid = -1;  // clear the grid select recid

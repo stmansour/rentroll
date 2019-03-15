@@ -450,7 +450,7 @@ func createRentableTypesAndRentables(ctx context.Context, dbConf *GenDBConf) err
 		mr.DtStop = dbConf.DtEOT
 		mr.MarketRate = dbConf.RT[i].MarketRate
 		mr.RTID = rt.RTID
-		_, err = rlib.InsertRentableMarketRates(ctx, &mr)
+		_, err = rlib.InsertRentableMarketRate(ctx, &mr)
 		if err != nil {
 			return err
 		}
@@ -542,7 +542,7 @@ func createChildRentableTypes(ctx context.Context, dbConf *GenDBConf) error {
 	mr.DtStop = dbConf.DtEOT
 	mr.MarketRate = dbConf.CPMarketRate
 	mr.RTID = rt.RTID
-	_, err = rlib.InsertRentableMarketRates(ctx, &mr)
+	_, err = rlib.InsertRentableMarketRate(ctx, &mr)
 	if err != nil {
 		return err
 	}

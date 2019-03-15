@@ -1192,12 +1192,14 @@ WHERE RAID=? AND RID=? AND Start >= ? AND Stop < ? AND RentCycle=0 ORDER By Asse
 	Errcheck(err)
 	RRdb.Prepstmt.GetRentableMarketRateInstance, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from RentableMarketRate WHERE RMRID=?")
 	Errcheck(err)
+	RRdb.Prepstmt.GetRentableMarketRateByRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableMarketRate WHERE RTID=? AND ( (DtStop>? AND DtStart<?) OR DtStart=?) ORDER BY DtStart ASC")
+	Errcheck(err)
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
-	RRdb.Prepstmt.InsertRentableMarketRates, err = RRdb.Dbrr.Prepare("INSERT INTO RentableMarketRate (" + s1 + ") VALUES(" + s2 + ")")
+	RRdb.Prepstmt.InsertRentableMarketRate, err = RRdb.Dbrr.Prepare("INSERT INTO RentableMarketRate (" + s1 + ") VALUES(" + s2 + ")")
 	Errcheck(err)
-	RRdb.Prepstmt.UpdateRentableMarketRateInstance, err = RRdb.Dbrr.Prepare("UPDATE RentableMarketRate SET " + s3 + " WHERE RMRID=?")
+	RRdb.Prepstmt.UpdateRentableMarketRate, err = RRdb.Dbrr.Prepare("UPDATE RentableMarketRate SET " + s3 + " WHERE RMRID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.DeleteRentableMarketRateInstance, err = RRdb.Dbrr.Prepare("DELETE from RentableMarketRate WHERE RMRID=?")
+	RRdb.Prepstmt.DeleteRentableMarketRate, err = RRdb.Dbrr.Prepare("DELETE from RentableMarketRate WHERE RMRID=?")
 	Errcheck(err)
 
 	//==========================================

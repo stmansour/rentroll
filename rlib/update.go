@@ -1136,8 +1136,8 @@ func UpdateRentableSpecialtyRef(ctx context.Context, a *RentableSpecialtyRef) er
 	return updateError(err, "RentableSpecialtyRef", *a)
 }
 
-// UpdateRentableMarketRateInstance updates the given instance of RentableMarketRate
-func UpdateRentableMarketRateInstance(ctx context.Context, a *RentableMarketRate) error {
+// UpdateRentableMarketRate updates the given instance of RentableMarketRate
+func UpdateRentableMarketRate(ctx context.Context, a *RentableMarketRate) error {
 	var err error
 
 	// session... context
@@ -1152,11 +1152,11 @@ func UpdateRentableMarketRateInstance(ctx context.Context, a *RentableMarketRate
 
 	fields := []interface{}{a.RTID, a.BID, a.MarketRate, a.DtStart, a.DtStop, a.LastModBy, a.RMRID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.UpdateRentableMarketRateInstance)
+		stmt := tx.Stmt(RRdb.Prepstmt.UpdateRentableMarketRate)
 		defer stmt.Close()
 		_, err = stmt.Exec(fields...)
 	} else {
-		_, err = RRdb.Prepstmt.UpdateRentableMarketRateInstance.Exec(fields...)
+		_, err = RRdb.Prepstmt.UpdateRentableMarketRate.Exec(fields...)
 	}
 	return updateError(err, "RentableMarketRate", *a)
 }
