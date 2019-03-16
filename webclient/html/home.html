@@ -301,7 +301,8 @@ function buildPageElements() {
                 case "userMenu:Signout": logoff(); break;
                 case "userMenu:Help":
                 case "help":
-                        w2ui.toplayout.load('main', '/webclient/html/help.html');
+                        // w2ui.toplayout.load('main', '/webclient/html/help.html');
+                        w2ui.toplayout.content('main',w2ui.helpLayout);
                         w2ui.toplayout.hide('right',true);
                         break;
             }

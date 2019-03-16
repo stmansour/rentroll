@@ -254,7 +254,8 @@ func StringToFloat64(s string) (float64, bool) {
 	var f64 float64
 	var err error
 
-	if f64, err = strconv.ParseFloat(s, 64); err != nil {
+	s1 := Stripchars(s, ",")
+	if f64, err = strconv.ParseFloat(s1, 64); err != nil {
 		return f64, false
 	}
 	return f64, true
@@ -283,7 +284,8 @@ func StringToInt64(s string) (int64, bool) {
 	var i64 int64
 	var err error
 
-	if i64, err = strconv.ParseInt(s, 10, 64); err != nil {
+	s1 := Stripchars(s, ",")
+	if i64, err = strconv.ParseInt(s1, 10, 64); err != nil {
 		fmt.Println("StringToInt64:= ", err.Error())
 		return i64, false
 	}

@@ -12,6 +12,7 @@
     createStmtForm, finishForms, finishTLDForm,
     buildClosePeriodElements,buildRAFlowElements,buildBusinessElements,
     finishBizForm, buildReservationsElements, finishReservationsForm,
+    buildHelpElements, finishHelpSystem,
 */
 
 "use strict";
@@ -58,6 +59,7 @@ window.buildPageElementsWrapper = function (uitype) {
     buildLoginForm();
     buildTaskListElements();
     buildTaskListDefElements();
+    buildHelpElements();
     finishForms();
 };
 
@@ -82,4 +84,5 @@ window.finishForms = function () {
     finishTLDForm();
     finishBizForm();
     finishReservationsForm();
+    finishHelpSystem();
 };

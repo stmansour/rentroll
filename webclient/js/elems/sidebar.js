@@ -19,8 +19,8 @@ window.buildSidebar = function(flag) {
             nodes: [
                 { id: 'workflowreceipts', text: plural(app.sAssessment)+' / '+plural(app.sReceipt), img: 'icon-folder', expanded: true, group: true,
                     nodes: [
-                            { id: 'asms',         text: 'Assess Charges',                icon: 'far fa-star',      hint: plural(app.sAssessment) },
-                            { id: 'receipts',     text: 'Tendered Payment ' + app.sReceipt, icon: 'fas fa-star',        hint: plural(app.sReceipt) },
+                            { id: 'asms',         text: plural(app.sAssessment),         icon: 'far fa-star',        hint: 'Assess Charges' },
+                            { id: 'receipts',     text: plural(app.sReceipt),            icon: 'fas fa-star',        hint: 'Tindered Payment Receipts' },
                             { id: 'expense',      text: plural(app.sExpense),            icon: 'fas fa-minus-circle',hint: plural(app.sExpense) },
                             { id: 'deposit',      text: 'Deposits',                      icon: 'fas fa-plus-circle', hint: 'Make Deposit' },
                             { id: 'allocfunds',   text: 'Apply '+plural(app.sReceipt),   icon: 'far fa-check-circle' },

@@ -425,13 +425,12 @@ window.popupImportFileDialog = function () {
     BizSelHTML += '</select>';
 
     w2popup.open({
-        title     : 'Import GLAccounts file',
+        title     : 'Import Accounts',
         body      : '<div class="w2ui-centered">' +
             '<div class="w2ui-field"><label>GLAccounts file: </label><div><input type="file" name="acct_import_file" class="w2ui-input" style="cursor: default; width: 100%; outline: none; opacity: 1; margin: 0px; border: 1px solid transparent; padding: 4px 4px 4px 0px; background-color: transparent;" /></div></div>' +
-            '<div class="w2ui-field"><label>Business Unit: </label><div>' + BizSelHTML + '</div></div>' +
+//            '<div class="w2ui-field"><label>Business Unit: </label><div>' + BizSelHTML + '</div></div>' +
             '</div>',
-        buttons   : '<button class="w2ui-btn" onclick="importAccountsFile();" >Import</button>'+
-                    '<button class="w2ui-btn" onclick="w2popup.close();">Close</button> ',
+        buttons   : '<button class="w2ui-btn" onclick="importAccountsFile();" >Import</button>',
         width     : 500,
         height    : 300,
         overflow  : 'hidden',
@@ -480,8 +479,8 @@ window.importAccountsFile = function () {
     // .csv extension check
     var splitParts = file.name.split(".");
     var ext = splitParts[splitParts.length - 1];
-    if (ext != "csv") {
-        iafMessage("The file must be a CSV (comma separated value) file");
+    if (ext.toLowerCase() != "csv") {
+        iafMessage('The file you selected has is of type ".' + ext + '" but it needs to be of type ".csv"');
         return false;
     }
     formData.append("GLAccountFile", file);

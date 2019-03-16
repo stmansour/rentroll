@@ -5,7 +5,6 @@ mdb
 
 # front end stuff
 webclient/node_modules
-webclient/html/help
 webclient/html/test
 webclient/js/jquery*
 webclient/js/w2ui*
