@@ -60,6 +60,7 @@ window.buildHelpElements = function() {
         ],
     });
 
+
     $().w2sidebar({
         name: 'helpSidebar',
         nodes: [
@@ -70,14 +71,14 @@ window.buildHelpElements = function() {
                         { id: 'EXPtut',  text: plural(app.sExpense),            /*icon: 'fas fa-video'*/ },
                         { id: 'DEPtut',  text: 'Deposits',                      /*icon: 'fas fa-video'*/ },
                         { id: 'ALFtut',  text: 'Apply '+plural(app.sReceipt),   /*icon: 'fas fa-video'*/ },
-                        { id: 'RAtut',   text: plural(app.sRentalAgreement),    icon: 'fas fa-video' },
+                        { id: 'RAtut',   text: plural(app.sRentalAgreement),    icon: 'fas fa-video',  fname: 'TUTra.html' },
                         { id: 'REStut',  text: plural(app.sReservation),        /*icon: 'fas fa-video'*/ },
                         { id: 'Ttut',    text: plural(app.sTransactant),        /*icon: 'fas fa-video'*/ },
                         { id: 'RRtut',   text: 'Rent Roll',                     /*icon: 'fas fa-video'*/ },
                         { id: 'RAStut',  text: 'RA Statement',                  /*icon: 'fas fa-video'*/ },
                         { id: 'RAPtut',  text: 'Payor Statement',               /*icon: 'fas fa-video'*/ },
                         { id: 'CPtut',   text: 'Close Period',                  /*icon: 'fas fa-video'*/ },
-                        { id: 'TLtut',   text: 'Task Lists',                    icon: 'fas fa-video' },
+                        { id: 'TLtut',   text: 'Task Lists',                    icon: 'fas fa-video',  fname: 'TUTtl.html' },
 
                ]
             },
@@ -103,35 +104,16 @@ window.buildHelpElements = function() {
         onClick: function (event) {
             var target = event.target;
             var s = '';
-            switch (target) {
-            case 'RAtut': displayHelpContent('TUTra.html'); break;
-            case 'TLtut': displayHelpContent('TUTtl.html'); break;
+            var t = event.node.text;
 
-            case 'ASMtut':
-            case 'RCPtut':
-            case 'EXPtut':
-            case 'DEPtut':
-            case 'ALFtut':
-            case 'REStut':
-            case 'Ttut':
-                w2ui.helpLayout.content('main','Sorry, no tutorial available yet.');
-                break;
-
-            case 'ASMref':
-            case 'RCPref':
-            case 'EXPref':
-            case 'DEPref':
-            case 'ALFref':
-            case 'RAref':
-            case 'RESref':
-            case 'Tref':
-            case 'RRref':
-            case 'RASref':
-            case 'RAPref':
-            case 'CPref':
-            case 'TLref':
-                w2ui.helpLayout.content('main','Sorry, no manual yet.');
-                break;
+            if (typeof event.node.fname != "undefined") {
+                displayHelpContent(event.node.fname);
+            } else {
+                var h = 'tutorial';
+                if (event.target.substr(-3) == "ref") {
+                    h = "manual";
+                }
+                w2ui.helpLayout.content('main','Sorry, no tutorial available yet for ' + t + '.');
             }
         },
     });
