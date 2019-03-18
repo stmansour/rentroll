@@ -345,6 +345,17 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.Console("Entered %s\n", funcname)
 	rlib.Console("record data = %s\n", d.data)
 
+	var cp rlib.ClosePeriod
+	cp, err = rlib.GetLastClosePeriod(r.Context(), d.BID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+	if cp.CPID == 0 {
+		cp.Dt = rlib.TIME0 // if we don't have any closed periods, just set the date to the beginning of time.
+	}
+	rlib.Console("%s - ClosePeriod date = %s\n", funcname, rlib.ConDt(&cp.Dt))
+
 	//-------------------------------------------------
 	//  First, parse out the main form data into a...
 	//-------------------------------------------------
@@ -357,6 +368,18 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
 	// rlib.Console("saveReceipt - first migrate: a = %#v\n", a)
+
+	//-------------------------------------------------------------------------
+	// Before doing anything, make sure we're not trying to change something
+	// after the close date.  See if the receipt date is less than or equal
+	// the last close date (cp.Dt)
+	//-------------------------------------------------------------------------
+	rlib.Console("%s:  ClosePeriod date AFTER receipt date(%s) :  %t\n", funcname, rlib.ConDt(&a.Dt), cp.Dt.After(a.Dt))
+	if cp.Dt.After(a.Dt) {
+		err = fmt.Errorf("Receipt RCPTID=%d cannot be saved because its date (%s) is in a closed period", a.RCPTID, rlib.ConDt(&a.Dt))
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
 
 	//------------------------------------------
 	//  Update or Insert as appropriate...

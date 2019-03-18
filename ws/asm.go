@@ -345,13 +345,21 @@ func SvcFormHandlerAssessment(w http.ResponseWriter, r *http.Request, d *Service
 // wsdoc }
 func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "saveAssessment"
-	var (
-		err     error
-		errlist []bizlogic.BizError
-	)
-
+	var err error
+	var errlist []bizlogic.BizError
+	now := time.Now()
 	rlib.Console("Entered %s\n", funcname)
 	rlib.Console("record data = %s\n", d.data)
+
+	var cp rlib.ClosePeriod
+	cp, err = rlib.GetLastClosePeriod(r.Context(), d.BID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+	if cp.CPID == 0 {
+		cp.Dt = rlib.TIME0 // if we don't have any closed periods, just set the date to the beginning of time.
+	}
 
 	var foo SaveAssessmentInput
 	data := []byte(d.data)
@@ -375,7 +383,20 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.EDIHandleIncomingDateRange(d.BID, &a.Start, &a.Stop)
 	rlib.Console("%s: After EDI:   Start = %s, Stop = %s\n", funcname, a.Start.Format(rlib.RRDATEINPFMT), a.Stop.Format(rlib.RRDATEINPFMT))
 
-	// Now just update the database
+	//-------------------------------------------------------------------------
+	// Before doing anything, make sure we're not trying to change something
+	// after the close date.  See if the DtStop is less than or equal
+	// the last close date (cp.Dt)
+	//-------------------------------------------------------------------------
+	if cp.Dt.After(a.Start) {
+		err = fmt.Errorf("Assessment ASMID=%d cannot be modified because its date range (%s) is in a closed period", a.ASMID, rlib.ConsoleDRange(&a.Start, &a.Stop))
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	//------------------------------
+	// Proceed with the save...
+	//------------------------------
 	if a.ASMID == 0 && d.ASMID == 0 {
 		errlist = bizlogic.InsertAssessment(r.Context(), &a, getExpandMode(foo.Record.ExpandPastInst), &noClose)
 		if len(errlist) > 0 {
@@ -384,7 +405,7 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 	} else if a.ASMID > 0 || d.ASMID > 0 {
 		rlib.Console(">>>> UPDATE EXISTING ASSESSMENT  ASMID = %d\n", a.ASMID)
-		now := time.Now() // mark Assessment reversed at this time
+
 		errlist = bizlogic.UpdateAssessment(r.Context(), &a, foo.Record.Mode, &now, &noClose, getExpandMode(foo.Record.ExpandPastInst))
 		if len(errlist) > 0 {
 			SvcErrListReturn(w, errlist, funcname)
@@ -392,6 +413,8 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 	} else {
 		err = fmt.Errorf("Unknown state: note an update, and not a new record")
+		SvcErrorReturn(w, err, funcname)
+		return
 	}
 	if err != nil {
 		e := fmt.Errorf("Error saving assessment (ASMID=%d): %s", d.ASMID, err.Error())

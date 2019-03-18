@@ -47,6 +47,8 @@ var QBAcctInfo = []struct {
 	{"Income", true},            // Income Acct   D -   C +
 	{"Income Offset", true},     // Income Acct   D -   C +
 	{"Other Income", true},      // Income Acct   D -   C +
+	{"Equity", true},            // Income Acct   D -   C +
+	{"Other Expense", false},    // Expense Acct  D +   C -
 }
 
 // AccountTypeNegateFlag returns the Negate flag associated with the supplied account type.
