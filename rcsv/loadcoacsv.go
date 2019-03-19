@@ -6,7 +6,6 @@ import (
 	"rentroll/rlib"
 	"strconv"
 	"strings"
-	"time"
 )
 
 // LMBUD, et. al. are constant indeces
@@ -34,6 +33,19 @@ var AcctCSVCols = []CSVColumn{
 	{"AccountStatus", AccountStatus},
 	{"Date", Date},
 	{"Description", Description},
+}
+
+// QB2RollerMap maps the QuickBooks AccountType names to those used by Roller
+//----------------------------------------------------------------------------
+var QB2RollerMap = []struct {
+	QBName, RollerName string
+}{
+	{"Bank", "Asset"},
+	{"Other Current Asset", "Asset"},
+	{"Fixed Asset", "Asset"},
+	{"Accounts Payable", "Liabilities"},
+	{"Other Current Liability", "Liabilities"},
+	{"Long Term Liability", "Liabilities"},
 }
 
 // TODO:
@@ -156,7 +168,15 @@ func CreateLedgerMarkers(ctx context.Context, sa []string, lineno int) (int, err
 	//----------------------------------------------------------------------
 	// ACCOUNT TYPE
 	//----------------------------------------------------------------------
-	l.AcctType = strings.TrimSpace(sa[AccountType])
+	st := strings.TrimSpace(sa[AccountType])
+	// check for quickbooks mapping
+	for i := 0; i < len(QB2RollerMap); i++ {
+		if st == QB2RollerMap[i].QBName {
+			st = QB2RollerMap[i].RollerName
+			break
+		}
+	}
+	l.AcctType = st
 
 	//----------------------------------------------------------------------
 	// OPENING BALANCE
@@ -188,21 +208,15 @@ func CreateLedgerMarkers(ctx context.Context, sa []string, lineno int) (int, err
 	// rlib.Console("F\n")
 
 	//----------------------------------------------------------------------
-	// DATE for opening balance
+	// DATE for opening balance --
+	// DEPRECATED
+	// We should remove this...   for now let's just ignore
 	//----------------------------------------------------------------------
-	_, err = rlib.StringToDate(sa[Date])
-	if err != nil {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid stop date:  %s", funcname, lineno, sa[Date])
-	}
-	lm.Dt = time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC) // always force the initial ledger marker to "the beginning of time"
-
-	// //----------------------------------------------------------------------
-	// // ALLOW POST
-	// //----------------------------------------------------------------------
-	// l.AllowPost, err = rlib.YesNoToInt(sa[AllowPosting])
+	// _, err = rlib.StringToDate(sa[Date])
 	// if err != nil {
-	// 	return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid value for AllowPost:  %s", funcname, lineno, sa[AllowPosting])
+	// 	return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid stop date:  %s", funcname, lineno, sa[Date])
 	// }
+	lm.Dt = rlib.TIME0 // always force the initial ledger marker to "the beginning of time"
 
 	//----------------------------------------------------------------------
 	// DESCRIPTION
