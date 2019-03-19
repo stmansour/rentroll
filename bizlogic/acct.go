@@ -86,7 +86,7 @@ func PossiblePostAccounts(bid int64) []rlib.GLAccount {
 	return n
 }
 
-// OKToDelete makes checks to determine whether or not it is OK to
+// IsSafeToDeleteGLAccount makes checks to determine whether or not it is OK to
 // delete an account.
 //
 // INPUTS
@@ -97,7 +97,7 @@ func PossiblePostAccounts(bid int64) []rlib.GLAccount {
 //    [] BizError - List of errors encountered, explains why the account
 //                  cannot be deleted
 //-----------------------------------------------------------------------------
-func OKToDelete(ctx context.Context, l *rlib.GLAccount) (bool, []BizError) {
+func IsSafeToDeleteGLAccount(ctx context.Context, l *rlib.GLAccount) (bool, []BizError) {
 	var errlist []BizError
 	ok := true // start out positive, change it if problems are encountered
 

@@ -790,7 +790,7 @@ func deleteGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	ok, errlist := bizlogic.OKToDelete(r.Context(), &l)
+	ok, errlist := bizlogic.IsSafeToDeleteGLAccount(r.Context(), &l)
 	if !ok {
 		SvcErrListReturn(w, errlist, funcname)
 		return
