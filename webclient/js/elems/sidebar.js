@@ -380,26 +380,3 @@ window.buildSidebar = function(flag) {
     }
     w2ui.toplayout.content('left',$().w2sidebar(sbdata));
 };
-
-
-//---------------------------------------------------------------------------------
-// getAboutInfo - contacts the server to get info about its version, and updates
-//          the version (about) html page
-//
-// @params  <none>
-// @returns <none>
-//---------------------------------------------------------------------------------
-window.getAboutInfo = function () {
-    $.get('/v1/version/')
-    .done( function(data) {
-        if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-            document.getElementById("appVer").innerHTML = data;
-            //w2ui.toplayout.refresh('main');
-        } else {
-            console.log('received response of type ' + typeof data + ' : ' + data);
-        }
-    })
-    .fail( function() {
-        console.log('Error getting /v1/version/');
-    });
-};

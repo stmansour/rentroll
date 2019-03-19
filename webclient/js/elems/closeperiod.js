@@ -16,36 +16,6 @@ window.switchToClosePeriod = function() {
     loadClosePeriodInfo();
 };
 
-// errMsgHTML - format error message in closePeriodMsgArea
-//              This is message type 1
-//------------------------------------------------------------
-window.errMsgHTML = function(errmsg) {
-    var s;
-    if (errmsg.length > 0 ) {
-        s = '<p style="background-color: #ffe0e0;color: #aa2222;border-color:#aa2222;border-style:solid;border-width: 1px 1px 1px 6px;"><br>&nbsp;&nbsp;' +
-            '<i class="fas fa-exclamation-circle fa-2x"></i> &nbsp;&nbsp;' +
-             errmsg + "<br>&nbsp;</p>";
-    } else {
-        s = "";
-    }
-    return s;
-};
-
-// errMsgHTML - format error message in closePeriodMsgArea
-//              This is message type 0
-//------------------------------------------------------------
-window.successMsgHTML = function(msg) {
-    var s;
-    if (msg.length > 0 ) {
-        s = '<p style="background-color: #e0ffe0;color: #22aa22;border-color:#22aa22;border-style:solid;border-width: 1px 1px 1px 6px;"><br>&nbsp;&nbsp;' +
-            '<i class="fas fa-check-circle fa-2x"></i> &nbsp;&nbsp;' +
-             msg + "<br>&nbsp;</p>";
-    } else {
-        s = "";
-    }
-    return s;
-};
-
 // cpMsg - write and format a message to the close period window.
 //------------------------------------------------------------
 window.cpMsg = function(s,mode) {

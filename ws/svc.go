@@ -157,6 +157,8 @@ var Svcs = []ServiceHandler{
 	{Cmd: "asm", Handler: SvcFormHandlerAssessment, NeedBiz: true, NeedSession: true},
 	{Cmd: "asms", Handler: SvcSearchHandlerAssessments, NeedBiz: true, NeedSession: true},
 	{Cmd: "authn", Handler: SvcAuthenticate, NeedBiz: false, NeedSession: false},
+	{Cmd: "buildtime", Handler: SvcHandlerBuildTime, NeedBiz: false, NeedSession: false},
+	{Cmd: "buildmachine", Handler: SvcHandlerBuildMachine, NeedBiz: false, NeedSession: false},
 	{Cmd: "business", Handler: SvcHandlerBusiness, NeedBiz: false, NeedSession: true},
 	{Cmd: "closeinfo", Handler: SvcGetCloseInfo, NeedBiz: true, NeedSession: true},
 	{Cmd: "closeperiod", Handler: SvcHandlerClosePeriod, NeedBiz: true, NeedSession: true},
@@ -460,7 +462,7 @@ func SvcHandlerPing(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 }
 
 // SvcHandlerVersion returns the server version number
-//  @Title Verrsion
+//  @Title Version
 //  @URL /v1/version
 //  @Method  POST or GET
 //  @Synopsis Get the current server version
@@ -471,6 +473,32 @@ func SvcHandlerPing(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 // wsdoc }
 func SvcHandlerVersion(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Fprintf(w, "%s", rlib.GetVersionNo())
+}
+
+// SvcHandlerBuildTime returns the server version number
+//  @Title BuildTime
+//  @URL /v1/buildtime
+//  @Method  POST or GET
+//  @Synopsis Get the server build date
+//  @Description Returns the server build build date
+//  @Input
+//  @Response version number
+// wsdoc }
+func SvcHandlerBuildTime(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	fmt.Fprintf(w, "%s", rlib.GetBuildTime())
+}
+
+// SvcHandlerBuildMachine returns the server version number
+//  @Title BuildMachine
+//  @URL /v1/buildmachine
+//  @Method  POST or GET
+//  @Synopsis Get the name of the computer that compiled the server
+//  @Description Returns the name of the computer that compiled the server
+//  @Input
+//  @Response version number
+// wsdoc }
+func SvcHandlerBuildMachine(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	fmt.Fprintf(w, "%s", rlib.GetBuildMachine())
 }
 
 // SvcTWS returns a grid representation of the TWS table
