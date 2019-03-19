@@ -285,13 +285,22 @@ func SvcSearchHandlerDeposits(w http.ResponseWriter, r *http.Request, d *Service
 // wsdoc }
 func saveDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "saveDeposit"
-	var (
-		foo DepositGridSave
-		// err error
-	)
+	var foo DepositGridSave
+	var err error
 
 	rlib.Console("Entered %s\n", funcname)
 	rlib.Console("record data = %s\n", d.data)
+
+	var cp rlib.ClosePeriod
+	cp, err = rlib.GetLastClosePeriod(r.Context(), d.BID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+	if cp.CPID == 0 {
+		cp.Dt = rlib.TIME0 // if we don't have any closed periods, just set the date to the beginning of time.
+	}
+	rlib.Console("%s - ClosePeriod date = %s\n", funcname, rlib.ConDt(&cp.Dt))
 
 	// get data
 	data := []byte(d.data)
@@ -305,8 +314,19 @@ func saveDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var a rlib.Deposit
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
 
-	var ok bool
+	//-------------------------------------------------------------------------
+	// Before doing anything, make sure we're not trying to change something
+	// after the close date.  See if the receipt date is less than or equal
+	// the last close date (cp.Dt)
+	//-------------------------------------------------------------------------
+	rlib.Console("%s:  ClosePeriod date AFTER deposit date(%s) :  %t\n", funcname, rlib.ConDt(&a.Dt), cp.Dt.After(a.Dt))
+	if cp.Dt.After(a.Dt) {
+		err = fmt.Errorf("Deposit DID=%d cannot be saved because its date (%s) is in a closed period", a.DID, rlib.ConDt(&a.Dt))
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
 
+	var ok bool
 	a.BID, ok = rlib.RRdb.BUDlist[string(foo.Record.BUD)]
 	if !ok {
 		//-------------------------
