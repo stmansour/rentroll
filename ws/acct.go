@@ -959,11 +959,19 @@ func SvcImportGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
+
+	for j := 0; j < len(fheaders); j++ {
+		rlib.Console("header[%d] = %s\n", fheaders[j])
+	}
+
+	ct := strings.ToLower(fh.Header["Content-Type"][0])
+
 	// check extension/content-type
-	if fh.Header["Content-Type"][0] != "text/csv" {
-		err = fmt.Errorf("Provided file is not type of csv")
-		SvcErrorReturn(w, err, funcname)
-		return
+	if ct != "text/csv" {
+		// err = fmt.Errorf("Provided file is not type of csv")
+		// SvcErrorReturn(w, err, funcname)
+		// return
+		rlib.Console("\n*** WARNING *** file type is not text/CSV\n\n")
 	}
 
 	cr := csv.NewReader(inf) // csv NewReader (since, inf composed io.Reader)
