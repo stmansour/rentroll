@@ -49,6 +49,7 @@ type ExpenseGrid struct {
 	RName         string
 	FLAGS         uint64
 	Comment       string
+	DtLastClose   rlib.JSONDateTime
 	LastModTime   rlib.JSONDateTime
 	LastModBy     int64
 	LastModByUser string
@@ -309,12 +310,22 @@ func SvcSearchHandlerExpenses(w http.ResponseWriter, r *http.Request, d *Service
 // wsdoc }
 func deleteExpense(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "deleteExpense"
-	var (
-		del DeleteExpenseForm
-	)
+	var del DeleteExpenseForm
+	var err error
 
 	rlib.Console("Entered %s\n", funcname)
 	rlib.Console("record data = %s\n", d.data)
+
+	var cp rlib.ClosePeriod
+	cp, err = rlib.GetLastClosePeriod(r.Context(), d.BID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+	if cp.CPID == 0 {
+		cp.Dt = rlib.TIME0 // if we don't have any closed periods, just set the date to the beginning of time.
+	}
+	rlib.Console("%s - ClosePeriod date = %s\n", funcname, rlib.ConDt(&cp.Dt))
 
 	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
 		SvcErrorReturn(w, err, funcname)
@@ -323,6 +334,18 @@ func deleteExpense(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	a, err := rlib.GetExpense(r.Context(), del.ID)
 	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	//-------------------------------------------------------------------------
+	// Before doing anything, make sure we're not trying to change something
+	// after the close date.  See if the receipt date is less than or equal
+	// the last close date (cp.Dt)
+	//-------------------------------------------------------------------------
+	if cp.Dt.After(a.Dt) {
+		rlib.Console("%s:  ClosePeriod date (%s) is AFTER the expense date(%s)\n", funcname, rlib.ConDt(&cp.Dt), rlib.ConDt(&a.Dt))
+		err = fmt.Errorf("Receipt EXPID=%d cannot be reversed because its date (%s) is in a closed period", a.EXPID, rlib.ConDt(&a.Dt))
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
@@ -375,6 +398,34 @@ func saveExpense(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("record data = %s\n", d.data)
 
+	var cp rlib.ClosePeriod
+	cp, err = rlib.GetLastClosePeriod(r.Context(), d.BID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+	if cp.CPID == 0 {
+		cp.Dt = rlib.TIME0 // if we don't have any closed periods, just set the date to the beginning of time.
+	}
+	rlib.Console("%s - ClosePeriod date = %s\n", funcname, rlib.ConDt(&cp.Dt))
+
+	//---------------------------------------------------------------------------
+	// Ensure that we're not modifying an existing expense in a closed period
+	//---------------------------------------------------------------------------
+	if d.ID > 0 {
+		var b rlib.Expense
+		b, err = rlib.GetExpense(r.Context(), d.ID)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+		if cp.Dt.After(b.Dt) {
+			err = fmt.Errorf("Expense EXPID=%d cannot be saved because its date (%s - prior to any changes) is in a closed period", b.EXPID, rlib.ConDt(&b.Dt))
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+	}
+
 	data := []byte(d.data)
 
 	if err := json.Unmarshal(data, &foo); err != nil {
@@ -386,6 +437,17 @@ func saveExpense(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var a rlib.Expense
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
 
+	//-------------------------------------------------------------------------
+	// Before doing anything, make sure we're not trying to change something
+	// after the close date.  See if the expense date is less than or equal
+	// the last close date (cp.Dt)
+	//-------------------------------------------------------------------------
+	rlib.Console("%s:  ClosePeriod date AFTER expense date(%s) :  %t\n", funcname, rlib.ConDt(&a.Dt), cp.Dt.After(a.Dt))
+	if cp.Dt.After(a.Dt) {
+		err = fmt.Errorf("Receipt EXPID=%d cannot be saved because its date (%s) is in a closed period", a.EXPID, rlib.ConDt(&a.Dt))
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
 	var ok bool
 	a.BID, ok = rlib.RRdb.BUDlist[string(foo.Record.BUD)]
 	if !ok {
@@ -457,6 +519,22 @@ func getExpense(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		gg.BUD = rlib.GetBUDFromBIDList(gg.BID)
 		gg.CreateByUser = rlib.GetNameForUID(r.Context(), a.CreateBy)
 		gg.LastModByUser = rlib.GetNameForUID(r.Context(), a.LastModBy)
+
+		//--------------------------------------------
+		// add the last close date
+		//--------------------------------------------
+		var cp rlib.ClosePeriod
+		var err error
+		cp, err = rlib.GetLastClosePeriod(r.Context(), d.BID)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+		if cp.CPID == 0 {
+			cp.Dt = rlib.TIME0 // if we don't have any closed periods, just set the date to the beginning of time.
+		}
+		gg.DtLastClose = rlib.JSONDateTime(cp.Dt)
+
 		g.Record = gg
 	}
 	g.Status = "success"

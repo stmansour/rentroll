@@ -444,7 +444,7 @@ window.buildDepositElements = function () {
                     $.post(form.url, dat, null, "json")
                     .done(function(data) {
                         if (data.status === "error") {
-                            form.error(w2utils.lang(data.message));
+                            w2ui.depositForm.error(w2utils.lang(data.message));
                             return;
                         }
                         w2ui.toplayout.hide('right',true);
@@ -452,7 +452,7 @@ window.buildDepositElements = function () {
                         w2ui.depositGrid.render();
                     })
                     .fail(function(/*data*/){
-                        form.error("Delete Account failed.");
+                        w2ui.depositForm.error("Delete Account failed.");
                         return;
                     });
                 })
@@ -502,7 +502,7 @@ window.saveDepositForm = function () {
     }
     f.save({Receipts: rcpts},function (data) {
         if (data.status == 'error') {
-            console.log('ERROR: '+ data.message);
+            f.error('ERROR: '+ data.message);
             return;
         }
         w2ui.toplayout.hide('right',true);
@@ -538,7 +538,7 @@ window.saveDepositFormAndAnother = function () {
     }
     f.save({Receipts: rcpts},function (data) {
         if (data.status == 'error') {
-            console.log('ERROR: '+ data.message);
+            f.error('ERROR: '+ data.message);
             return;
         }
         app.form_is_dirty = false;// clean dirty flag of form
@@ -550,12 +550,6 @@ window.saveDepositFormAndAnother = function () {
         f.header = "Edit Deposit (new)";
         f.url = "/v1/deposit/"+BID+"/0";
         f.refresh();
-
-        /*
-        NO NEED TO CLEAR THIS, I THINK!
-        // as well as clear the records from the grid
-        w2ui.depositListGrid.clear();
-        */
     });
 };
 

@@ -3,8 +3,8 @@
     getCurrentBusiness, getBUDfromBID, w2popup, w2utils, rafinder, get2XReversalSymbolHTML,
     getGridReversalSymbolHTML, setDefaultFormFieldAsPreviousRecord, isDatePriorToCurrentDate,
     form_dirty_alert,setToForm,addDateNavToToolbar,getCurrentBID,formRefreshCallBack, renderReversalIcon,
-    getBusinessAssessmentRules, getAsmsInitRecord, popupAsmRevMode, asmFormRASelect, fixExpandType
-
+    getBusinessAssessmentRules, getAsmsInitRecord, popupAsmRevMode, asmFormRASelect, fixExpandType,
+    asmInstanceInClosedPeriod, asmInstanceShowMessages, warnMsgHTML,
 */
 "use strict";
 
@@ -736,6 +736,7 @@ window.buildAssessmentElements = function () {
                 .fail( function() {
                     console.log('Error getting /v1/asm/' + BID + '/' + r.PASMID);
                 });
+                asmInstanceShowMessages();
             };
         },
         onRefresh: function(event) {
@@ -746,6 +747,7 @@ window.buildAssessmentElements = function () {
                     info = "";
 
                 formRefreshCallBack(f, "ASMID", header);
+                asmInstanceShowMessages();
                 // ==============================
                 // SPECIAL CASE
                 // ==============================
@@ -930,7 +932,7 @@ window.buildAssessmentElements = function () {
 
                 console.log('asmsReverseMode: Mode = ' + w2ui.reverseMode.record.ReverseMode.id);
                 w2popup.close();
-                w2ui.toplayout.hide('right',true);
+                // w2ui.toplayout.hide('right',true);
                 tgrid.refresh();
 
                 var params = {
@@ -945,6 +947,7 @@ window.buildAssessmentElements = function () {
                 $.post(form.url, dat, null, "json")
                 .done(function(data) {
                     if (data.status === "error") {
+                        // w2ui.toplayout.show('right',true);
                         form.error(w2utils.lang(data.message));
                         return;
                     }
@@ -1006,4 +1009,39 @@ window.popupAsmRevMode = function (mode,form) {
             };
         }
     });
+};
+
+//-----------------------------------------------------------------------
+// asmInstanceInClosedPeriod
+//      return whether or not a asmInstance is in the closed period.
+//
+// @params
+//
+// @RETURNS
+//      true if the receipt is in a closed period, false otherwise
+//-----------------------------------------------------------------------
+window.asmInstanceInClosedPeriod = function () {
+    var r = w2ui.asmInstForm.record;
+    var Dt = new Date(r.Start);
+    var DtClose = new Date(r.DtLastClose);
+    return DtClose > Dt;
+};
+
+//-----------------------------------------------------------------------
+// asmInstanceShowMessages
+//      enable/disable the inputs of form based on the enable param
+//
+// @params
+//   form       = w2ui form component
+//   enable     = true to enable all controls, false to disable
+//-----------------------------------------------------------------------
+window.asmInstanceShowMessages = function() {
+    var html = '';
+    if (asmInstanceInClosedPeriod()) {
+        html = warnMsgHTML("This assessment instance is in a closed period");
+    }
+    var x = document.getElementById("asmInstanceMessages");
+    if (x != null) {
+        x.innerHTML = html;
+    }
 };

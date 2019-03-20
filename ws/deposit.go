@@ -287,6 +287,7 @@ func saveDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "saveDeposit"
 	var foo DepositGridSave
 	var err error
+	var dep rlib.Deposit
 
 	rlib.Console("Entered %s\n", funcname)
 	rlib.Console("record data = %s\n", d.data)
@@ -301,6 +302,23 @@ func saveDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		cp.Dt = rlib.TIME0 // if we don't have any closed periods, just set the date to the beginning of time.
 	}
 	rlib.Console("%s - ClosePeriod date = %s\n", funcname, rlib.ConDt(&cp.Dt))
+
+	//--------------------------------------------------------------------------
+	// Before proceeding with the save, make sure that the current version is
+	// not in a closed period.
+	//--------------------------------------------------------------------------
+	if d.ID > 0 {
+		dep, err = rlib.GetDeposit(r.Context(), d.ID)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+		if cp.Dt.After(dep.Dt) {
+			err = fmt.Errorf("Deposit DID=%d cannot be saved because its date (%s - prior to any changes) is in a closed period", dep.DID, rlib.ConDt(&dep.Dt))
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+	}
 
 	// get data
 	data := []byte(d.data)
@@ -321,7 +339,7 @@ func saveDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//-------------------------------------------------------------------------
 	rlib.Console("%s:  ClosePeriod date AFTER deposit date(%s) :  %t\n", funcname, rlib.ConDt(&a.Dt), cp.Dt.After(a.Dt))
 	if cp.Dt.After(a.Dt) {
-		err = fmt.Errorf("Deposit DID=%d cannot be saved because its date (%s) is in a closed period", a.DID, rlib.ConDt(&a.Dt))
+		err = fmt.Errorf("Deposit DID=%d cannot be saved because the date (%s) is in a closed period", a.DID, rlib.ConDt(&a.Dt))
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
@@ -375,14 +393,41 @@ func saveDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 // wsdoc }
 func deleteDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "deleteDeposit"
-	var (
-		del DepositDeleteForm
-		err error
-	)
+	var del DepositDeleteForm
+	var err error
+	var dep rlib.Deposit
 
 	rlib.Console("Entered %s\n", funcname)
 	fmt.Printf("record data = %s\n", d.data)
 
+	//------------------------------------------------------------------
+	// Ensure that we are not trying to delete a deposit that is in a
+	// closed period
+	//------------------------------------------------------------------
+	var cp rlib.ClosePeriod
+	cp, err = rlib.GetLastClosePeriod(r.Context(), d.BID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+	if cp.CPID == 0 {
+		cp.Dt = rlib.TIME0 // if we don't have any closed periods, just set the date to the beginning of time.
+	}
+	rlib.Console("%s - ClosePeriod date = %s\n", funcname, rlib.ConDt(&cp.Dt))
+	dep, err = rlib.GetDeposit(r.Context(), d.ID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+	if cp.Dt.After(dep.Dt) {
+		err = fmt.Errorf("Deposit DID=%d cannot be deleted because its date (%s) is in a closed period", dep.DID, rlib.ConDt(&dep.Dt))
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	//--------------------------------
+	// Proceed with the delete...
+	//--------------------------------
 	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return

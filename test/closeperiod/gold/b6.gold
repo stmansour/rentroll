@@ -1,0 +1,4 @@
+{
+    "message": "Error: Receipt EXPID=1 cannot be reversed because its date (4/1/2018) is in a closed period\n",
+    "status": "error"
+}

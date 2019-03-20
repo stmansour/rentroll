@@ -75,6 +75,7 @@ window.loadClosePeriodInfo = function (msg,mode) {
         closePeriodData.DtDone = new Date(data.record.DtDone);
         closePeriodData.DtLastClose = new Date(data.record.LastDtClose);
         var r = closePeriodData.record;
+        var x;
 
         //--------------------------------
         //  TASK LIST
@@ -91,7 +92,10 @@ window.loadClosePeriodInfo = function (msg,mode) {
                 s += "(last completion: " + ltl + ")";
             }
         }
-        document.getElementById("closePeriodTL").innerHTML = s;
+        x = document.getElementById("closePeriodTL");
+        if (x != null) {
+            x.innerHTML = s;
+        }
 
         //--------------------------------
         //  Last closed period
@@ -100,7 +104,10 @@ window.loadClosePeriodInfo = function (msg,mode) {
         if (s.length > 0 ) {
              s += ' &nbsp;&nbsp;<i class="fas fa-lock"></i>';
         }
-        document.getElementById("closePeriodLCP").innerHTML = s;
+        x = document.getElementById("closePeriodLCP");
+        if (x != null) {
+            x.innerHTML = s;
+        }
 
         //--------------------------------
         //  Target close period
@@ -109,7 +116,10 @@ window.loadClosePeriodInfo = function (msg,mode) {
         if (s.length > 0 ) {
              s += ' &nbsp;&nbsp;<i class="fas fa-lock-open"></i>';
         }
-        document.getElementById("closePeriodNCP").innerHTML = s;
+        x = document.getElementById("closePeriodNCP");
+        if (x != null) {
+            x.innerHTML = s;
+        }
 
         //--------------------------------
         //  Target close task list
@@ -128,13 +138,19 @@ window.loadClosePeriodInfo = function (msg,mode) {
         } else {
             s = "No task list instance for due date " + dtFormatISOToW2ui(r.DtDueTarget) + ' &nbsp;&nbsp;&#10060;';
         }
-        document.getElementById("closeTargetTL").innerHTML = s;
+        x = document.getElementById("closeTargetTL");
+        if (x != null) {
+            x.innerHTML = s;
+        }
 
         //--------------------------------
         //  Submit button
         //--------------------------------
         var disable = !(bHaveCPTLID && bHaveTargetTLID && bTargetTLCompleted);
-        document.getElementById("closePeriodSubmit").disabled = disable;
+        x = document.getElementById("closePeriodSubmit");
+        if (x != null) {
+            x.disabled = disable;
+        }
 
     })
     .fail(function(/*data*/){

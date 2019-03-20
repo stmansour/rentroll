@@ -39,6 +39,7 @@ type ReceiptSendForm struct {
 	CreateBy       int64
 	FLAGS          uint64
 	RentableName   string // FOR RECEIPT-ONLY CLIENT - to be removed when we no longer need that client
+	DtLastClose    rlib.JSONDateTime
 }
 
 // ReceiptSaveForm is a structure specifically for the return value from w2ui.
@@ -337,11 +338,10 @@ func SvcFormHandlerReceipt(w http.ResponseWriter, r *http.Request, d *ServiceDat
 // wsdoc }
 func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "saveReceipt"
-	var (
-		err error
-		foo SaveReceiptInput
-		a   rlib.Receipt
-	)
+	var err error
+	var foo SaveReceiptInput
+	var a, b rlib.Receipt
+
 	rlib.Console("Entered %s\n", funcname)
 	rlib.Console("record data = %s\n", d.data)
 
@@ -355,6 +355,22 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		cp.Dt = rlib.TIME0 // if we don't have any closed periods, just set the date to the beginning of time.
 	}
 	rlib.Console("%s - ClosePeriod date = %s\n", funcname, rlib.ConDt(&cp.Dt))
+
+	//---------------------------------------------------------------------------
+	// Ensure that we're not modifying an existing receipt in a closed period
+	//---------------------------------------------------------------------------
+	if d.RCPTID > 0 {
+		b, err = rlib.GetReceipt(r.Context(), d.RCPTID)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+		if cp.Dt.After(b.Dt) {
+			err = fmt.Errorf("Receipt RCPTID=%d cannot be saved because its date (%s - prior to any changes) is in a closed period", b.RCPTID, rlib.ConDt(&b.Dt))
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+	}
 
 	//-------------------------------------------------
 	//  First, parse out the main form data into a...
@@ -479,6 +495,22 @@ func getReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		if d.wsSearchReq.Client == rlib.RECEIPTONLYCLIENT {
 			gg.RentableName, gg.Comment = rlib.ROCExtractRentableName(gg.Comment)
 		}
+		//--------------------------------------------
+		// add the last close date
+		//--------------------------------------------
+		var cp rlib.ClosePeriod
+		var err error
+		cp, err = rlib.GetLastClosePeriod(r.Context(), d.BID)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+		if cp.CPID == 0 {
+			cp.Dt = rlib.TIME0 // if we don't have any closed periods, just set the date to the beginning of time.
+		}
+		// rlib.Console("\n\n***\n%s: cp.Dt = %s\n***\n\n", funcname, rlib.ConDt(&cp.Dt))
+		gg.DtLastClose = rlib.JSONDateTime(cp.Dt)
+		// rlib.Console("\n\n***\n%s: gg.DtLastClose = %s\n***\n\n", funcname, rlib.ConJDt(&gg.DtLastClose))
 
 		gg.CreateByUser = rlib.GetNameForUID(r.Context(), a.CreateBy)
 		gg.LastModByUser = rlib.GetNameForUID(r.Context(), a.LastModBy)
@@ -516,6 +548,28 @@ func deleteReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	rcpt, err := rlib.GetReceipt(r.Context(), del.RCPTID)
 	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	var cp rlib.ClosePeriod
+	cp, err = rlib.GetLastClosePeriod(r.Context(), d.BID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+	if cp.CPID == 0 {
+		cp.Dt = rlib.TIME0 // if we don't have any closed periods, just set the date to the beginning of time.
+	}
+
+	//-------------------------------------------------------------------------
+	// Before doing anything, make sure we're not trying to change something
+	// after the close date.  See if the receipt date is less than or equal
+	// the last close date (cp.Dt)
+	//-------------------------------------------------------------------------
+	if cp.Dt.After(rcpt.Dt) {
+		rlib.Console("%s:  ClosePeriod date (%s) is AFTER receipt date(%s)\n", funcname, rlib.ConDt(&cp.Dt), rlib.ConDt(&rcpt.Dt))
+		err = fmt.Errorf("Receipt RCPTID=%d cannot be reversed because its date (%s) is in a closed period", rcpt.RCPTID, rlib.ConDt(&rcpt.Dt))
 		SvcErrorReturn(w, err, funcname)
 		return
 	}

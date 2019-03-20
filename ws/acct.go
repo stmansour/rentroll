@@ -927,7 +927,7 @@ func SvcImportGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		inf  multipart.File
 		recs [][]string
 	)
-	// fmt.Printf("Entered %s\n", funcname)
+	// rlib.Console("Entered %s\n", funcname)
 
 	// Need to init some internals for Business
 	var xbiz rlib.XBusiness
@@ -964,16 +964,28 @@ func SvcImportGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		rlib.Console("header[%d] = %s\n", fheaders[j])
 	}
 
-	ct := strings.ToLower(fh.Header["Content-Type"][0])
-
-	// check extension/content-type
-	if ct != "text/csv" {
-		// err = fmt.Errorf("Provided file is not type of csv")
-		// SvcErrorReturn(w, err, funcname)
-		// return
-		rlib.Console("\n*** WARNING *** file type is not text/CSV\n\n")
-	}
-
+	// ------------------
+	// CHECK Content-Type
+	// ------------------
+	//------------------------------------------------------------------------
+	// March 19, 2019  sman
+	// I'm removing this check altogether.  We found that on Windows, the
+	// content type being sent is:
+	//
+	//     Content-Type: "application/x-www-form-urlencoded; charset=UTF-8"
+	//
+	// So, the expectation of "text/csv" is simply not going to work. Who
+	// knows what else we'll see. The client checks the filetype of the
+	// filename. There are other sufficient checks to reject a file of the
+	// wrong type.
+	//------------------------------------------------------------------------
+	// ct := strings.ToLower(fh.Header["Content-Type"][0])
+	// if ct != "text/csv" {
+	// 	// err = fmt.Errorf("Provided file is not type of csv")
+	// 	// SvcErrorReturn(w, err, funcname)
+	// 	// return
+	// 	rlib.Console("\n*** WARNING *** file type is not text/CSV\n\n")
+	// }
 	cr := csv.NewReader(inf) // csv NewReader (since, inf composed io.Reader)
 	recs, err = cr.ReadAll()
 	if err != nil {

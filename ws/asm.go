@@ -38,6 +38,7 @@ type AssessmentSendForm struct {
 	InvoiceNo      int64
 	ARID           int64
 	Comment        string
+	DtLastClose    rlib.JSONDateTime
 	LastModTime    rlib.JSONDateTime
 	LastModBy      int64
 	LastModByUser  string
@@ -361,6 +362,24 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		cp.Dt = rlib.TIME0 // if we don't have any closed periods, just set the date to the beginning of time.
 	}
 
+	//---------------------------------------------------------------------------
+	// Ensure that we're not modifying an existing assessment in a closed period
+	//---------------------------------------------------------------------------
+	if d.ASMID > 0 {
+		var b rlib.Assessment
+		b, err = rlib.GetAssessment(r.Context(), d.ASMID)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+		// rlib.Console("\n\n*** EXISTING Assessment.  Dates = %s, PASMID = %d, RentCycle = %d\n", rlib.ConsoleDRange(&b.Start, &b.Stop), b.PASMID, b.RentCycle)
+		if ((b.PASMID > 0 && b.RentCycle != rlib.RECURNONE) || (b.PASMID == 0 && b.RentCycle == rlib.RECURNONE)) && cp.Dt.After(b.Start) { // skip check if this is a definition (PASMID == 0)
+			err = fmt.Errorf("Assessment ASMID=%d cannot be saved because its Start date (%s - prior to any changes) is in a closed period", b.ASMID, rlib.ConDt(&b.Start))
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+	}
+
 	var foo SaveAssessmentInput
 	data := []byte(d.data)
 
@@ -389,7 +408,7 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// the last close date (cp.Dt)
 	//-------------------------------------------------------------------------
 	if cp.Dt.After(a.Start) {
-		err = fmt.Errorf("Assessment ASMID=%d cannot be modified because its date range (%s) is in a closed period", a.ASMID, rlib.ConsoleDRange(&a.Start, &a.Stop))
+		err = fmt.Errorf("Assessment ASMID=%d cannot be saved because its date range (%s) is in a closed period", a.ASMID, rlib.ConsoleDRange(&a.Start, &a.Stop))
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
@@ -501,6 +520,23 @@ func getAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 		gg.ExpandPastInst = false // assume we don't expand unless told otherwise
 
+		//--------------------------------------------
+		// add the last close date
+		//--------------------------------------------
+		var cp rlib.ClosePeriod
+		var err error
+		cp, err = rlib.GetLastClosePeriod(r.Context(), d.BID)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+		if cp.CPID == 0 {
+			cp.Dt = rlib.TIME0 // if we don't have any closed periods, just set the date to the beginning of time.
+		}
+		// rlib.Console("\n\n***\n%s: cp.Dt = %s\n***\n\n", funcname, rlib.ConDt(&cp.Dt))
+		gg.DtLastClose = rlib.JSONDateTime(cp.Dt)
+		// rlib.Console("\n\n***\n%s: gg.DtLastClose = %s\n***\n\n", funcname, rlib.ConJDt(&gg.DtLastClose))
+
 		gg.CreateByUser = rlib.GetNameForUID(r.Context(), gg.CreateBy)
 		gg.LastModByUser = rlib.GetNameForUID(r.Context(), gg.LastModBy)
 		g.Record = gg
@@ -548,6 +584,30 @@ func deleteAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
+	var cp rlib.ClosePeriod
+	cp, err = rlib.GetLastClosePeriod(r.Context(), d.BID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+	if cp.CPID == 0 {
+		cp.Dt = rlib.TIME0 // if we don't have any closed periods, just set the date to the beginning of time.
+	}
+
+	//-------------------------------------------------------------------------
+	// Before doing anything, make sure we're not trying to reverse something
+	// after the close date.  See if the DtStsty is prior to
+	// the last close date (cp.Dt)
+	//-------------------------------------------------------------------------
+	if cp.Dt.After(a.Start) {
+		err = fmt.Errorf("Assessment ASMID=%d cannot be reversed because its date range (%s) is in a closed period", a.ASMID, rlib.ConsoleDRange(&a.Start, &a.Stop))
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	//------------------------------
+	// Proceed with the save...
+	//------------------------------
 	rlib.Console("Reversal Mode = %d\n", del.ReverseMode)
 	//-------------------------------------------------------
 	// GET THE NEW `tx`, UPDATED CTX FROM THE REQUEST CONTEXT

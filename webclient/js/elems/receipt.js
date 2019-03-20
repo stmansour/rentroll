@@ -5,7 +5,8 @@
     getPersonDetailsByTCID, getPaymentType, formRefreshCallBack, w2utils, reverse_confirm_options,
     getFormSubmitData, w2uiDateControlString, getGridReversalSymbolHTML, get2XReversalSymbolHTML,
     setDefaultFormFieldAsPreviousRecord, formRecDiffer, getBusinessReceiptRules, getReceiptInitRecord,
-    handleReceiptRAID
+    handleReceiptRAID, EnableDisableFormControls, warnMsgHTML,receiptShowMessages,
+    receiptInClosedPeriod,
 */
 "use strict";
 window.getReceiptInitRecord = function (BID, BUD, ptInit, previousFormRecord){
@@ -31,6 +32,7 @@ window.getReceiptInitRecord = function (BID, BUD, ptInit, previousFormRecord){
         Comment: '',
         OtherPayorName: '',
         FLAGS: 0,
+        DtLastClose: new Date(1970, 1, 1, 0,0,0,0),
         LastModBy: 0,
         CreateBy: 0
     };
@@ -281,6 +283,7 @@ window.buildReceiptElements = function () {
             { field: 'OtherPayorName', type: 'text',   required: false },
             { field: 'FLAGS',          type: 'w2int',  required: false },
             { field: 'DID',            type: 'int',    required: false },
+            { field: 'DtLastClose',    type: 'hidden', required: false },
             { field: 'LastModTime',    type: 'hidden', required: false },
             { field: 'LastModBy',      type: 'hidden', required: false },
             { field: 'LastModByUser',  type: 'hidden', required: false },
@@ -309,9 +312,11 @@ window.buildReceiptElements = function () {
         },
         onRender: function(event) { // when form is loaded first time in toplayout right panel
             event.onComplete = function() {
-                var f = this,
-                    r = f.record,
-                    BID = getCurrentBID();
+                var f = this;
+                var r = f.record;
+                var BID = getCurrentBID();
+
+                receiptShowMessages();
 
                 // enable/disable RAID based on Account Rule
                 var arid;
@@ -391,6 +396,7 @@ window.buildReceiptElements = function () {
                         console.log("couldn't get person details for TCID: ", r.TCID);
                     });
                 }
+                receiptShowMessages();
             };
         },
         onRefresh: function(event) {
@@ -407,6 +413,8 @@ window.buildReceiptElements = function () {
                 f.get("ARID").options.items = app.ReceiptRules[BUD];
                 f.get("Payor").options.url = '/v1/transactantstd/'+ BUD;
                 // $("#receiptForm").find("input[name=Dt]").prop("disabled", r.RCPTID !== 0);
+
+                receiptShowMessages();
 
                 formRefreshCallBack(f, "RCPTID", header);
 
@@ -650,4 +658,59 @@ window.handleReceiptRAID = function (url, f) {
     .fail(function(/*data*/){
         f.error(url + " failed to get Receipt Rule details.");
     });
+};
+
+//-----------------------------------------------------------------------
+// EnableDisableFormControls
+//      enable/disable the inputs of form based on the enable param
+//
+// @params
+//   form       = w2ui form component
+//   enable     = true to enable all controls, false to disable
+//-----------------------------------------------------------------------
+window.EnableDisableFormControls = function(form,enable) {
+    if (!enable) {
+        $(form.box).find("input,textarea").prop("disabled", true);
+        $(form.box).find("button[class=w2ui-btn]").hide();
+        $(form.box).find("div[class=w2ui-buttons]").hide();
+   } else {
+        $(form.box).find("input,textarea").not("input[name=BUD]").prop("disabled", false);
+        $(form.box).find("button[class=w2ui-btn]").show();
+        $(form.box).find("div[class=w2ui-buttons]").show();
+   }
+};
+
+//-----------------------------------------------------------------------
+// receiptInClosedPeriod
+//      return whether or not a receipt is in the closed period.
+//
+// @params
+//
+// @RETURNS
+//      true if the receipt is in a closed period, false otherwise
+//-----------------------------------------------------------------------
+window.receiptInClosedPeriod = function () {
+    var r = w2ui.receiptForm.record;
+    var DtRcpt = new Date(r.Dt);
+    var DtClose = new Date(r.DtLastClose);
+    return DtClose > DtRcpt;
+};
+
+//-----------------------------------------------------------------------
+// receiptShowMessages
+//      enable/disable the inputs of form based on the enable param
+//
+// @params
+//   form       = w2ui form component
+//   enable     = true to enable all controls, false to disable
+//-----------------------------------------------------------------------
+window.receiptShowMessages = function() {
+    var html = '';
+    if (receiptInClosedPeriod()) {
+        html = warnMsgHTML("This receipt is in a closed period");
+    }
+    var x = document.getElementById("receiptsMessages");
+    if (x != null) {
+        x.innerHTML = html;
+    }
 };

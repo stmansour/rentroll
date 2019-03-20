@@ -2,7 +2,9 @@
     w2ui, app, $, w2uiDateControlString, addDateNavToToolbar, console, getCurrentBusiness, getBUDfromBID,
     popupRentalAgrPicker, rafinder, form_dirty_alert, setToForm, setDateControlsInToolbar, formRefreshCallBack,
     formRecDiffer, getFormSubmitData, w2confirm, w2utils, get2XReversalSymbolHTML, getGridReversalSymbolHTML,
-    setDefaultFormFieldAsPreviousRecord, getBusinessExpenseRules, getExpenseInitRecord, expFormRASelect, renderExpReversalIcon
+    setDefaultFormFieldAsPreviousRecord, getBusinessExpenseRules, getExpenseInitRecord, expFormRASelect,
+    renderExpReversalIcon, expenseInstanceInClosedPeriod, expenseInstanceShowMessages,
+    warnMsgHTML,
 */
 "use strict";
 window.getExpenseInitRecord = function (BID, BUD, previousFormRecord){
@@ -235,6 +237,7 @@ window.buildExpenseElements = function () {
             { field: 'Amount',         type: 'money',  required: true  },
             { field: 'Dt',             type: 'date',   required: true  },
             { field: 'Comment',        type: 'text',   required: false },
+            { field: 'DtLastClose',    type: 'hidden', required: false },
             { field: 'LastModTime',    type: 'hidden', required: false },
             { field: 'LastModBy',      type: 'hidden', required: false },
             { field: 'LastModByUser',  type: 'hidden', required: false },
@@ -384,6 +387,7 @@ window.buildExpenseElements = function () {
                     header = "Edit Expense ({0})";
 
                 formRefreshCallBack(f, "EXPID", header);
+                expenseInstanceShowMessages();
 
                 // ===========================
                 // SPECIAL CASE
@@ -503,4 +507,39 @@ window.expFormRASelect = function () {
     w2ui.expenseForm.record.RName = w2ui.rentalAgrPicker.record.RentableName.text;
     w2ui.expenseForm.record.RID = w2ui.rentalAgrPicker.record.RentableName.id;
     w2ui.expenseForm.refresh();
+};
+
+//-----------------------------------------------------------------------
+// expenseInstanceInClosedPeriod
+//      return whether or not a expenseInstance is in the closed period.
+//
+// @params
+//
+// @RETURNS
+//      true if the receipt is in a closed period, false otherwise
+//-----------------------------------------------------------------------
+window.expenseInstanceInClosedPeriod = function () {
+    var r = w2ui.expenseForm.record;
+    var Dt = new Date(r.Dt);
+    var DtClose = new Date(r.DtLastClose);
+    return DtClose > Dt;
+};
+
+//-----------------------------------------------------------------------
+// expenseInstanceShowMessages
+//      enable/disable the inputs of form based on the enable param
+//
+// @params
+//   form       = w2ui form component
+//   enable     = true to enable all controls, false to disable
+//-----------------------------------------------------------------------
+window.expenseInstanceShowMessages = function() {
+    var html = '';
+    if (expenseInstanceInClosedPeriod()) {
+        html = warnMsgHTML("This expense is in a closed period");
+    }
+    var x = document.getElementById("expenseInstanceMessages");
+    if (x != null) {
+        x.innerHTML = html;
+    }
 };

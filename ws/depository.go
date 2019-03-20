@@ -160,7 +160,7 @@ func SvcSearchHandlerDepositories(w http.ResponseWriter, r *http.Request, d *Ser
 	var (
 		g     DepositorySearchResponse
 		err   error
-		order = `Depository.DEPID ASC` // default ORDER in sql result
+		order = `GLAccount.GLNumber ASC` // default ORDER in sql result
 		whr   = fmt.Sprintf("Depository.BID=%d", d.BID)
 	)
 	fmt.Printf("Entered %s\n", funcname)
