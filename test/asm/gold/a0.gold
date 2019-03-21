@@ -1,4 +1,4 @@
 {
-    "message": "Error: Assessment ASMID=0 cannot be modified because its date range (7/18/2018, 7/19/2018) is in a closed period\n",
+    "message": "Error: Assessment ASMID=0 cannot be saved because its date range (7/18/2018, 7/19/2018) is in a closed period\n",
     "status": "error"
 }
