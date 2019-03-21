@@ -9,10 +9,23 @@
 #  it is listed in the dbs array
 #==========================================================================
 
-MODFILE="dbqqqmods.sql"
-MYSQL="mysql --no-defaults"
-MYSQLDUMP="mysqldump --no-defaults"
-DBNAME="rentroll"
+usage() {
+	cat <<EOF
+
+SYNOPSIS
+	$0 [-f]
+
+	Perform SQL schema changes on test databases or the supplied database.
+	With no options, this script applies db changes embeded below to all
+	SQL database files in dbfiles.txt.
+
+    Use the -f option to operate on a specific file.
+
+OPTIONS
+	-f  filename
+        Perform schema changes on filename, then exit.
+EOF
+}
 
 #=====================================================
 #  History of db mods
@@ -586,6 +599,49 @@ DBNAME="rentroll"
 # ALTER TABLE RentableLeaseStatus ADD CCExpYear VARCHAR(100) NOT NULL DEFAULT '' AFTER CCExpMonth;
 #
 
+
+########################################
+# schemamod()
+#	Parameters:
+# 		$1 = db file name to check
+########################################
+schemamod () {
+    if [ -f ${1} ]; then
+    	echo "DROP DATABASE IF EXISTS ${DBNAME}; create database ${DBNAME}" | ${MYSQL}
+		echo -n "${1}: loading... "
+		${MYSQL} ${DBNAME} < ${1}
+		echo -n "updating... "
+		${MYSQL} ${DBNAME} < ${MODFILE}
+		echo -n "saving... "
+		${MYSQLDUMP} ${DBNAME} > ${1}
+		echo "done"
+    else
+		echo "file not found: ${1}"
+    fi
+}
+
+#==============================================================================
+# SCRIPT BEGINS HERE...
+#==============================================================================
+MODFILE="dbqqqmods.sql"
+MYSQL="mysql --no-defaults"
+MYSQLDUMP="mysqldump --no-defaults"
+DBNAME="rentroll"
+
+while getopts "f:F:" o; do
+	echo "o = ${o}"
+	case "${o}" in
+		f | F)
+			F=${OPTARG}
+			exit 0
+			;;
+		*) 	usage
+			exit 1
+			;;
+	esac
+done
+shift $((OPTIND-1))
+
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================
@@ -605,16 +661,5 @@ EOF
 #         EOF).
 #==============================================================================
 while IFS='' read -r f || [[ -n "${f}" ]]; do
-    if [ -f ${f} ]; then
-    	echo "DROP DATABASE IF EXISTS ${DBNAME}; create database ${DBNAME}" | ${MYSQL}
-		echo -n "${f}: loading... "
-		${MYSQL} ${DBNAME} < ${f}
-		echo -n "updating... "
-		${MYSQL} ${DBNAME} < ${MODFILE}
-		echo -n "saving... "
-		${MYSQLDUMP} ${DBNAME} > ${f}
-		echo "done"
-    else
-		echo "file not found: ${f}"
-    fi
+    schemamod "${f}"
 done < dbfiles.txt
