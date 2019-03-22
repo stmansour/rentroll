@@ -99,6 +99,8 @@ func main() {
 		return
 	}
 
+	// rlib.Console("A\n")
+
 	for key, payload := range testPayloads {
 		var req *http.Request
 		var respBody []byte
@@ -108,6 +110,7 @@ func main() {
 
 		testNo := key + 1
 
+		// rlib.Console("B\n")
 		// if payload contains DocumentDate as "99/99/9999"
 		// that means that we need to set DocumentDate
 		if payload.ReqData.DocumentDate == "99/99/9999" {
@@ -120,6 +123,7 @@ func main() {
 			payload.ReqData.NoticeToMoveDate = noticeToMoveDate
 		}
 
+		// rlib.Console("C\n")
 		url := "http://localhost:8270/v1/raactions/1/"
 
 		req, err = buildRequest(url, payload.ReqData)
@@ -127,18 +131,22 @@ func main() {
 			fmt.Println("Internal Error: ", err)
 			return
 		}
+		// rlib.Console("C1\n")
 
+		// rlib.Console("req = %#v\n", req)
 		respBody, err = makeRequestAndReadResponseBody(req)
 		if err != nil {
 			fmt.Println("Internal Error: ", err)
 			return
 		}
+		// rlib.Console("C2\n")
 
 		err = getDataFromResponseBody(respBody, &apiResponse)
 		if err != nil {
 			fmt.Println("Internal Error: ", err)
 			return
 		}
+		// rlib.Console("D\n")
 
 		var respRAID int64
 		var respUserRefNo string
@@ -150,6 +158,7 @@ func main() {
 				fmt.Println("Internal Error: ", err)
 				return
 			}
+			// rlib.Console("E\n")
 
 			// here we override UserRefNo
 			// because in raid_version tests userRefNo generated will be random everytime
@@ -159,8 +168,11 @@ func main() {
 			}
 			respRAID = apiResponse.Record.Flow.ID
 			respUserRefNo = apiResponse.Record.Flow.UserRefNo
+			// rlib.Console("F\n")
 
 		}
+
+		// rlib.Console("G\n")
 
 		respRecord, err = json.MarshalIndent(apiResponse, "", "    ")
 		if err != nil {
@@ -168,17 +180,23 @@ func main() {
 			return
 		}
 
+		// rlib.Console("H\n")
+
 		testInfoString := fmt.Sprintf("Test %d: %s \n", testNo, payload.Description)
 		testInfoString += fmt.Sprintf("Request( RAID: %d, UserRefNo: %s )\n", payload.ReqData.RAID, payload.ReqData.UserRefNo)
 		testInfoString += fmt.Sprintf("Response( RAID: %d, UserRefNo: %s )\n", respRAID, respUserRefNo)
 		dumpResponseInFile(testNo, testInfoString, respRecord)
+		// rlib.Console("I\n")
 	}
+	// rlib.Console("J\n")
 }
 
 func buildRequest(url string, payload Payload) (*http.Request, error) {
 	var req *http.Request
 	var err error
 
+	// rlib.Console("url = %s\n", url)
+	// rlib.Console("payload = %#v\n", payload)
 	b, err := json.Marshal(payload)
 	if err != nil {
 		err = fmt.Errorf("marshall payload err: %s", err)
@@ -218,7 +236,6 @@ func makeRequestAndReadResponseBody(req *http.Request) ([]byte, error) {
 }
 
 func getDataFromResponseBody(respBody []byte, apiResponse *FlowResponse) error {
-
 	var err error
 	err = json.Unmarshal(respBody, apiResponse)
 	if err != nil {

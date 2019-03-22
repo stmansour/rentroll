@@ -19,8 +19,9 @@ Developers: Please add notes here to anything that is missing.
    to this, please contact sman@accordinterests.com and let's
    discuss.
 
-5. Update dbfiles.txt if your test uses a .sql file that you save
-   in your test directory.
+5. NO LONGER NEED TO DO THIS.  I have updated the script to just work
+   on all databases.  It used to require that files you wanted to be tested
+   be listed in dbfiles.txt.
 
 6. If you make a change the the rentroll schema, please update dbmod.sh
    with the ALTER statements (or whatever) needed to bring existing
@@ -149,7 +150,7 @@ You can create a query in many ways. Here are a couple:
 statement and redirect the output into a file named 'request'.  You can build
 the request data by creating the JSON in some tool then minifying and encoding
 it. One tool to use can be found int the RentRoll WebService API docs that are
-created in every build. You can access these doc payments by clicking on the 
+created in every build. You can access these doc payments by clicking on the
 Developer dropdown in the Roller UI top menubar, then click on the Webdocs
 menu item. The text area labeled "Payload:" on the right side of the display
 can be used to enter JSON, encode or decode it, beautify it, and minify it. You

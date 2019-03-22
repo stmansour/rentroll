@@ -1691,7 +1691,7 @@ CREATE TABLE `RentableLeaseStatus` (
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`RLID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1700,6 +1700,7 @@ CREATE TABLE `RentableLeaseStatus` (
 
 LOCK TABLES `RentableLeaseStatus` WRITE;
 /*!40000 ALTER TABLE `RentableLeaseStatus` DISABLE KEYS */;
+INSERT INTO `RentableLeaseStatus` VALUES (1,1,1,0,'2017-01-01 00:00:00','2018-02-13 00:00:00','','','','','','','','','','','','','','','','','2019-02-12 17:13:53',0,'2019-02-09 06:26:31',0),(2,1,1,1,'2018-02-13 00:00:00','2020-03-01 00:00:00','','','','','','','','','','','','','','','','','2019-03-01 18:30:04',0,'2019-02-09 06:26:31',0),(3,1,1,2,'2020-03-01 00:00:00','9999-12-31 00:00:00','','','','','','','','','','','','','','','','','2019-03-01 18:30:04',0,'2019-02-09 06:26:31',0);
 /*!40000 ALTER TABLE `RentableLeaseStatus` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1794,6 +1795,40 @@ CREATE TABLE `RentableSpecialtyRef` (
 LOCK TABLES `RentableSpecialtyRef` WRITE;
 /*!40000 ALTER TABLE `RentableSpecialtyRef` DISABLE KEYS */;
 /*!40000 ALTER TABLE `RentableSpecialtyRef` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `RentableStatus`
+--
+
+DROP TABLE IF EXISTS `RentableStatus`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `RentableStatus` (
+  `RSID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `RID` bigint(20) NOT NULL DEFAULT '0',
+  `BID` bigint(20) NOT NULL DEFAULT '0',
+  `UseStatus` smallint(6) NOT NULL DEFAULT '0',
+  `LeaseStatus` smallint(6) NOT NULL DEFAULT '0',
+  `DtStart` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
+  `DtStop` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
+  `DtNoticeToVacate` date NOT NULL DEFAULT '1970-01-01',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
+  `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`RSID`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `RentableStatus`
+--
+
+LOCK TABLES `RentableStatus` WRITE;
+/*!40000 ALTER TABLE `RentableStatus` DISABLE KEYS */;
+INSERT INTO `RentableStatus` VALUES (1,1,1,1,5,'2018-01-01 00:00:00','3001-01-01 00:00:00','0000-00-00','2018-08-23 12:07:06',0,'2018-08-23 12:07:06',0);
+/*!40000 ALTER TABLE `RentableStatus` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -1914,7 +1949,7 @@ CREATE TABLE `RentableUseStatus` (
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`RSID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1923,6 +1958,7 @@ CREATE TABLE `RentableUseStatus` (
 
 LOCK TABLES `RentableUseStatus` WRITE;
 /*!40000 ALTER TABLE `RentableUseStatus` DISABLE KEYS */;
+INSERT INTO `RentableUseStatus` VALUES (1,1,1,1,'2018-01-01 00:00:00','3001-01-01 00:00:00','','2018-08-23 12:07:06',0,'2018-08-23 12:07:06',0);
 /*!40000 ALTER TABLE `RentableUseStatus` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2678,4 +2714,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-03-21 11:11:22
+-- Dump completed on 2019-03-21 22:12:13

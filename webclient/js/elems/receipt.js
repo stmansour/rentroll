@@ -157,11 +157,13 @@ window.buildReceiptElements = function () {
                                 f.get('ARID').options.items = app.ReceiptRules[BUD];
                                 f.refresh();
                                 setToForm('receiptForm', '/v1/receipt/' + BID + '/' + rec.RCPTID, 400, true);
+                                w2ui.receiptForm.header = 'Edit Receipt ' + rec.RCPTID;
                             }
                         })
                         .fail( function() {
                             console.log('Error getting /v1/uival/' + BID + '/app.ReceiptRules');
-                         });
+                        });
+
                     };
                 form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);  // warn user if form content has been changed
             };
