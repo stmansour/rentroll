@@ -100,7 +100,7 @@ Response( RAID: 2, UserRefNo:  )
                         "Fees": [
                             {
                                 "TMPASMID": 2,
-                                "ASMID": 24,
+                                "ASMID": 26,
                                 "ARID": 24,
                                 "ARName": "Pet Rent",
                                 "ContractAmount": 2.9,
@@ -115,7 +115,7 @@ Response( RAID: 2, UserRefNo:  )
                             },
                             {
                                 "TMPASMID": 4,
-                                "ASMID": 25,
+                                "ASMID": 27,
                                 "ARID": 24,
                                 "ARName": "Pet Rent",
                                 "ContractAmount": 10,
@@ -161,7 +161,7 @@ Response( RAID: 2, UserRefNo:  )
                         "Fees": [
                             {
                                 "TMPASMID": 1,
-                                "ASMID": 20,
+                                "ASMID": 22,
                                 "ARID": 26,
                                 "ARName": "Rent Non-Taxable",
                                 "ContractAmount": 290.32,
@@ -176,7 +176,7 @@ Response( RAID: 2, UserRefNo:  )
                             },
                             {
                                 "TMPASMID": 3,
-                                "ASMID": 21,
+                                "ASMID": 23,
                                 "ARID": 26,
                                 "ARName": "Rent Non-Taxable",
                                 "ContractAmount": 1000,
@@ -232,7 +232,7 @@ Response( RAID: 2, UserRefNo:  )
                     "TerminatorName": "UID-0",
                     "TerminationDate": "1900-01-01 00:00:00 UTC",
                     "LeaseTerminationReason": 0,
-                    "DocumentDate": "2019-02-17 00:00:00 UTC",
+                    "DocumentDate": "2019-03-27 00:00:00 UTC",
                     "NoticeToMoveUID": 0,
                     "NoticeToMoveName": "UID-0",
                     "NoticeToMoveDate": "1900-01-01 00:00:00 UTC",

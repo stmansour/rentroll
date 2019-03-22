@@ -48,6 +48,17 @@ window.getEDIAdjustedStopDate = function(BUD,DtStartStr,DtStopStr) {
     return w2uiDateControlString(d2);
 };
 
+//-----------------------------------------------------------------------------
+// getRentableInitRecord - This routine returns a data record for a new
+//      rentable.
+//
+// @params
+//      BID - current business ID
+//      BUD - current business designation
+//      previousFormRecord - info from previously filled out form
+//
+// @return  the new data record
+//-----------------------------------------------------------------------------
 window.getRentableInitRecord = function (BID, BUD, previousFormRecord) {
     var y = new Date();
     var rec = {
@@ -77,11 +88,13 @@ window.getRentableInitRecord = function (BID, BUD, previousFormRecord) {
     rec.RTRefStop = getEDIAdjustedStopDate(BUD,rec.RTRefStart,rec.RTRefStop);
     rec.RSDtStop = getEDIAdjustedStopDate(BUD,rec.RSDtStart,rec.RSDtStop);
 
-    // if it called after 'save and add another' action there previous form record is passed as Object
-    // else it is null
+    //-------------------------------------------------------------------------
+    // if it called after 'save and add another' action there previous form
+    // record is passed as Object else it is null
+    //-------------------------------------------------------------------------
     if (previousFormRecord) {
         rec = setDefaultFormFieldAsPreviousRecord(
-            [],//['RentableName'], // Fields to Reset
+            [], //['RentableName'], // Fields to Reset
             rec,
             previousFormRecord
         );
@@ -107,6 +120,7 @@ window.getRentableTypes = function (BUD,cb) {
             if (data.records) {
                 app.rt_list[BUD] = data.records;
             } else {
+                w2ui.rentablesGrid.error(data.message);
                 app.rt_list[BUD] = [];
             }
             if (typeof cb === "function") {
@@ -116,19 +130,22 @@ window.getRentableTypes = function (BUD,cb) {
     });
 };
 
+//-----------------------------------------------------------------------------
+// buildRentableElements - creates the UI components needed to manage rentables
+//-----------------------------------------------------------------------------
 window.buildRentableElements = function () {
-    // inside rentable part, we need this items
-    app.cycleFreqItems = []; // cycle freq items
+    // inside rentable part, we need these lists
+    app.cycleFreqItems = []; // cycle freq
     app.cycleFreq.forEach(function (item, index) {
         app.cycleFreqItems.push({id: index, text: item});
     });
 
-    app.RSUseStatusItems = []; // rentable use status items
+    app.RSUseStatusItems = []; // rentable use status
     app.RSUseStatus.forEach(function (item, index) {
         app.RSUseStatusItems.push({id: index, text: item});
     });
 
-    app.RSLeaseStatusItems = []; // rentable lease status items
+    app.RSLeaseStatusItems = []; // rentable lease status
     app.RSLeaseStatus.forEach(function (item, index) {
         app.RSLeaseStatusItems.push({id: index, text: item});
     });
@@ -219,28 +236,28 @@ window.buildRentableElements = function () {
                         // keep highlighting current row in any case
                         grid.select(app.last.grid_sel_recid);
 
-                        var rec = grid.get(recid),
-                            x = getCurrentBusiness(),
-                            BID = parseInt(x.value),
-                            BUD = getBUDfromBID(BID);
+                        var rec = grid.get(recid);
+                        var x = getCurrentBusiness();
+                        var BID = parseInt(x.value);
+                        var BUD = getBUDfromBID(BID);
 
                         getRentableTypes(BUD)
-                            .done(function (data) {
-                                if ('status' in data && data.status !== 'success') {
-                                    w2ui.rentableForm.message(data.message);
-                                } else {
-                                    // get "RTID" column index and set rentable types list in editable items
-                                    var RTIDColIndex = w2ui.rentableTypeRefGrid.getColumn("RTID", true);
-                                    w2ui.rentableTypeRefGrid.columns[RTIDColIndex].editable.items = app.rt_list[BUD];
-                                    setRentableLayout(BID, rec.RID);
-                                }
-                            })
-                            .fail(function () {
-                                console.log('Error getting /v1/uival/' + BID + '/app.ReceiptRules');
-                            });
+                        .done(function (data) {
+                            if ('status' in data && data.status !== 'success') {
+                                w2ui.rentableForm.message(data.message);
+                            } else {
+                                // get "RTID" column index and set rentable types list in editable items
+                                var RTIDColIndex = w2ui.rentableTypeRefGrid.getColumn("RTID", true);
+                                w2ui.rentableTypeRefGrid.columns[RTIDColIndex].editable.items = app.rt_list[BUD];
+                                setRentableLayout(BID, rec.RID);
+                            }
+                        })
+                        .fail(function () {
+                            console.log('Error getting /v1/uival/' + BID + '/app.ReceiptRules');
+                        });
                     };
 
-                // warn user if form content has been chagned
+                // warn user if form content has been changed
                 form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);
             };
         },
@@ -250,50 +267,49 @@ window.buildRentableElements = function () {
                     return false;
                 };
             var yes_callBack = function (grid) {
-                    // reset it
-                    app.last.grid_sel_recid = -1;
-                    grid.selectNone();
+                app.last.grid_sel_recid = -1; // reset it
+                grid.selectNone();
 
-                    var x = getCurrentBusiness();
-                    var BID = parseInt(x.value);
-                    var BUD = getBUDfromBID(BID);
+                var x = getCurrentBusiness();
+                var BID = parseInt(x.value);
+                var BUD = getBUDfromBID(BID);
 
-                    w2ui.rentableForm.record = getRentableInitRecord(BID, BUD, null);
-                    RentableEdits.RTRChgList.push(w2ui.rentableForm.record.recid);
-                    w2ui.rentableForm.refresh();
+                w2ui.rentableForm.record = getRentableInitRecord(BID, BUD, null);
+                RentableEdits.RTRChgList.push(w2ui.rentableForm.record.recid);
+                w2ui.rentableForm.refresh();
 
-                    getRentableTypes(BUD)
-                        .done(function (data) {
-                            if ('status' in data && data.status !== 'success') {
-                                w2ui.rentableForm.message(data.message);
-                            } else {
-                                //-----------------------------------------------------------
-                                // before we even attempt this, we must ensure that there is
-                                // at least one rentable type.
-                                //-----------------------------------------------------------
-                                var cancel = true;
-                                if (typeof app.rt_list[BUD] == "object") {
-                                    cancel = app.rt_list[BUD].length == 0;
-                                }
-                                if (cancel) {
-                                    w2ui.rentablesGrid.message("This business currently has no Rentable Types. Please create one or more Rentable Types and try again.");
-                                    return;
-                                }
-                                //-----------------------------------------------------------
-                                // We have rentable types, we can proceed...
-                                // get "RTID" column index and set rentable types list in editable items
-                                //-----------------------------------------------------------
-                                var RTIDColIndex = w2ui.rentableTypeRefGrid.getColumn("RTID", true);
-                                w2ui.rentableTypeRefGrid.columns[RTIDColIndex].editable.items = app.rt_list[BUD];
-                                setRentableLayout(BID, 0);
-                            }
-                        })
-                        .fail(function () {
-                            console.log('Error getting /v1/uival/' + BID + '/app.ReceiptRules');
-                        });
+                getRentableTypes(BUD)
+                .done(function (data) {
+                    if ('status' in data && data.status !== 'success') {
+                        w2ui.rentableForm.message(data.message);
+                    } else {
+                        //-----------------------------------------------------------
+                        // before we even attempt this, we must ensure that there is
+                        // at least one rentable type.
+                        //-----------------------------------------------------------
+                        var cancel = true;
+                        if (typeof app.rt_list[BUD] == "object") {
+                            cancel = app.rt_list[BUD].length == 0;
+                        }
+                        if (cancel) {
+                            w2ui.rentablesGrid.message("This business currently has no Rentable Types. Please create one or more Rentable Types and try again.");
+                            return;
+                        }
+                        //-----------------------------------------------------------
+                        // We have rentable types, we can proceed...
+                        // get "RTID" column index and set rentable types list in editable items
+                        //-----------------------------------------------------------
+                        var RTIDColIndex = w2ui.rentableTypeRefGrid.getColumn("RTID", true);
+                        w2ui.rentableTypeRefGrid.columns[RTIDColIndex].editable.items = app.rt_list[BUD];
+                        setRentableLayout(BID, 0);
+                    }
+                })
+                .fail(function () {
+                    console.log('Error getting /v1/uival/' + BID + '/app.ReceiptRules');
+                });
                 };
 
-            // warn user if form content has been chagned
+            // warn user if form content has been changed
             form_dirty_alert(yes_callBack, no_callBack, yes_args);
         },
     });
@@ -468,23 +484,33 @@ window.buildRentableElements = function () {
     });
 };
 
+// finishRentableSave performs the common functions for when a save is complete.
+//
+// @params
+//
+// @return
+//-----------------------------------------------------------------------------
 window.finishRentableSave = function() {
     app.form_is_dirty = false;
     w2ui.rentablesGrid.render();
     closeRentableForm();
 };
 
+// finishRentableSave performs the functions needed when a SaveAdd is complete.
+//
+// @params
+//
+// @return
+//-----------------------------------------------------------------------------
 window.finishRentableSaveAdd = function() {
     var BID = getCurrentBID();
     var BUD = getBUDfromBID();
     app.last.grid_sel_recid = -1;  // clear the grid select recid
     w2ui.rentablesGrid.render();
-    // w2ui.rentableTypeRefGrid.reload();
     w2ui.rentableForm.record = getRentableInitRecord(BID, BUD, w2ui.rentableForm.record);
     w2ui.rentableForm.url = '/v1/rentable/' + BID + '/0';
     w2ui.rentableForm.refresh();
     app.form_is_dirty = false;
-    //closeRentableForm();
 };
 
 // saveRentableCore performs the common functions to Save and SaveAdd.  It
@@ -529,25 +555,31 @@ window.saveRentableCore = function (doneCB) {
             return;
         }
 
+        //--------------------------------------------------------------
         // if record is new then update RID that saved on server side
+        // the recid is set to the RID of the newly created Rentable.
+        //--------------------------------------------------------------
         w2ui.rentableForm.record.RID = data.recid;
 
+        //--------------------------------------------------------------
+        // update all associated records with the new RID
+        //--------------------------------------------------------------
         var i;
-        // update RID in grid records (Use status)
         for (i = 0; i < w2ui.rentableUseStatusGrid.records.length; i++) {
             w2ui.rentableUseStatusGrid.records[i].RID = w2ui.rentableForm.record.RID;
         }
-
-        // update RID in grid records (Lease status)
         for (i = 0; i < w2ui.rentableLeaseStatusGrid.records.length; i++) {//add by lina
             w2ui.rentableLeaseStatusGrid.records[i].RID = w2ui.rentableForm.record.RID;
         }
-
-        // update RID in grid records (typeRef)
         for (i = 0; i < w2ui.rentableTypeRefGrid.records.length; i++) {
             w2ui.rentableTypeRefGrid.records[i].RID = w2ui.rentableForm.record.RID;
         }
 
+        //--------------------------------------------------------------
+        // Now save all the newly created or modified records associated
+        // with this rentable.  It is done asynchronously, and each of
+        // the save routines implements the Promise interface
+        //--------------------------------------------------------------
         var BID = w2ui.rentableForm.record.BID;
         var RID = w2ui.rentableForm.record.RID;
 
@@ -557,14 +589,10 @@ window.saveRentableCore = function (doneCB) {
             saveRentableTypeRef(BID,RID)
         )
         .done(function(){
-            // var s = 'RentableSave: when completed, no errors';
-            // console.log(s);
-            // w2ui.rentablesGrid.error('');
             doneCB();
         })
         .fail(function(){
             var s = 'RentableSave: error reported';
-            console.log(s);
             w2ui.rentablesGrid.error(s);
             doneCB();
         });
@@ -582,33 +610,35 @@ window.saveRentableCore = function (doneCB) {
 //-----------------------------------------------------------------------------
 window.setRentableLayout = function (BID, RID) {
     w2ui.rentableForm.url = '/v1/rentable/' + BID + '/' + RID;
-
     w2ui.rentableDetailLayout.content("bottom", w2ui.rentableFormBtns); // load bottom panels with action buttons panel
 
+    //------------------------------------------------
     // if form has tabs then click the first one
+    //------------------------------------------------
     if (typeof w2ui.rentableForm.tabs.name == "string") {
         w2ui.rentableForm.tabs.click('tab1');
     }
 
-    app.new_form_rec = RID ? true : false; // mark this flag as is this new record
-
-    // as new content will be loaded for this form
-    // mark form dirty flag as false
-    app.form_is_dirty = false;
-
+    app.new_form_rec = RID > 0; // mark this flag as is this new record
+    app.form_is_dirty = false;  // new content will be loaded, mark form dirty flag as false
     RentableEdits.RID = RID;
     if (RID) {
-
+        //------------------------------------------------
         // change the text of form tab
+        //------------------------------------------------
         w2ui.rentableDetailLayout.get("main").tabs.get("rentableForm").text = "Rentable Details ({0})".format(RID);
         w2ui.rentableDetailLayout.get("main").tabs.refresh();
 
+        //------------------------------------------------
         // load form content from server
+        //------------------------------------------------
         w2ui.rentableForm.request(function (event) {
             if (event.status === "success") {
+                //------------------------------------------------
                 // only render the toplayout after server has sent down data
                 // so that w2ui can bind values with field's html control,
                 // otherwise it is unable to find html controls
+                //------------------------------------------------
                 showRentableForm();
                 return true;
             }
@@ -620,30 +650,26 @@ window.setRentableLayout = function (BID, RID) {
         });
     }
     else {
-        // it's new, clear the grids
-        // w2ui.rentableUseStatusGrid.clear();
-        // w2ui.rentableLeaseStatusGrid.clear();
-        // w2ui.rentableTypeRefGrid.clear();
-        // addRentableLeaseStatus();
-        // addRentableUseStatus();
-        // addRentableTypeRef();
-
-
+        //------------------------------------------------
         // change the text of form tab
+        //------------------------------------------------
         w2ui.rentableDetailLayout.get("main").tabs.get("rentableForm").text = "Rentable Details ({0})".format("new");
         w2ui.rentableDetailLayout.get("main").tabs.refresh();
 
+        //------------------------------------------------
         // unselect the previous selected row
+        //------------------------------------------------
         var sel_recid = parseInt(w2ui.rentablesGrid.last.sel_recid);
         if (sel_recid > -1) {
-            // if new record is being added then unselect {{the selected record}} from the grid
+            //------------------------------------------------
+            // if new record is being added then unselect
+            // {{the selected record}} from the grid
+            //------------------------------------------------
             w2ui.rentablesGrid.unselect(w2ui.rentablesGrid.last.sel_recid);
         }
-
         showRentableForm();
         return true;
     }
-
 };
 
 // closeRentableForm hides the RentableLayout.
@@ -663,7 +689,7 @@ window.closeRentableForm = function() {
     form_dirty_alert(yes_callBack, no_callBack);
 };
 
-// showRentableForm shows the RentableLayout.
+// showRentableForm initializes and shows all form parts needed for the Rentable.
 //
 // @params
 //
@@ -695,6 +721,9 @@ window.showRentableForm = function() {
     w2ui.rentableUseStatusGrid.records = [];
     w2ui.rentableTypeRefGrid.records = [];
 
+    //------------------------------------------------------------------------
+    // Initialize the statuses.  This is a big time saver.
+    //------------------------------------------------------------------------
     if (RID == 0) {
         addRentableLeaseStatus();
         addRentableUseStatus();
@@ -706,7 +735,6 @@ window.showRentableForm = function() {
     //------------------------------------------------------------------------
     w2ui.toplayout.content('right', w2ui.rentableDetailLayout);
     w2ui.toplayout.sizeTo('right', 700);
-    // w2ui.rentableDetailLayout.render();
     w2ui.rentableDetailLayout.get("main").tabs.click("rentableForm");
     w2ui.toplayout.show('right', true);
 };

@@ -100,7 +100,7 @@ Response( RAID: 3, UserRefNo:  )
                         "Fees": [
                             {
                                 "TMPASMID": 3,
-                                "ASMID": 38,
+                                "ASMID": 40,
                                 "ARID": 23,
                                 "ARName": "Pet Fee",
                                 "ContractAmount": 50,
@@ -115,7 +115,7 @@ Response( RAID: 3, UserRefNo:  )
                             },
                             {
                                 "TMPASMID": 5,
-                                "ASMID": 39,
+                                "ASMID": 41,
                                 "ARID": 24,
                                 "ARName": "Pet Rent",
                                 "ContractAmount": 2.9,
@@ -130,7 +130,7 @@ Response( RAID: 3, UserRefNo:  )
                             },
                             {
                                 "TMPASMID": 6,
-                                "ASMID": 40,
+                                "ASMID": 42,
                                 "ARID": 24,
                                 "ARName": "Pet Rent",
                                 "ContractAmount": 10,
@@ -163,7 +163,7 @@ Response( RAID: 3, UserRefNo:  )
                         "Fees": [
                             {
                                 "TMPASMID": 4,
-                                "ASMID": 43,
+                                "ASMID": 45,
                                 "ARID": 39,
                                 "ARName": "Vehicle Registration Fee",
                                 "ContractAmount": 10,
@@ -192,7 +192,7 @@ Response( RAID: 3, UserRefNo:  )
                         "Fees": [
                             {
                                 "TMPASMID": 1,
-                                "ASMID": 35,
+                                "ASMID": 37,
                                 "ARID": 45,
                                 "ARName": "Rent ST000",
                                 "ContractAmount": 1000,
@@ -207,7 +207,7 @@ Response( RAID: 3, UserRefNo:  )
                             },
                             {
                                 "TMPASMID": 2,
-                                "ASMID": 32,
+                                "ASMID": 34,
                                 "ARID": 16,
                                 "ARName": "Gas Base Fee",
                                 "ContractAmount": 50,
@@ -263,7 +263,7 @@ Response( RAID: 3, UserRefNo:  )
                     "TerminatorName": "UID-0",
                     "TerminationDate": "1900-01-01 00:00:00 UTC",
                     "LeaseTerminationReason": 0,
-                    "DocumentDate": "2019-02-17 00:00:00 UTC",
+                    "DocumentDate": "2019-03-27 00:00:00 UTC",
                     "NoticeToMoveUID": 0,
                     "NoticeToMoveName": "UID-0",
                     "NoticeToMoveDate": "1900-01-01 00:00:00 UTC",
