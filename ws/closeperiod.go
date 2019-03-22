@@ -16,6 +16,7 @@ import (
 
 // FormClosePeriod holds the data needed for the Close Period screen
 type FormClosePeriod struct {
+	CPID             int64 // this is the CPID of the last close
 	BID              int64
 	TLID             int64             // the TaskList to which this task belongs
 	TLName           string            // Name of the tasklist
@@ -87,7 +88,7 @@ func SvcHandlerClosePeriod(w http.ResponseWriter, r *http.Request, d *ServiceDat
 // SaveClosePeriod attempts to save the period. All checks must pass.
 // wsdoc {
 //  @Title  Save ClosePeriod
-//	@URL /v1/closeperiod/:BUI/TID
+//	@URL /v1/closeperiod/:BUI/CPID
 //  @Method  GET
 //	@Synopsis Update ClosePeriod information
 //  @Description This service attempts to close the oldest unclosed period
@@ -188,7 +189,7 @@ func saveClosePeriod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 // GetClosePeriod returns the requested ClosePeriod
 // wsdoc {
 //  @Title  GetClosePeriod
-//	@URL /v1/closeperiod/:BUI/TID
+//	@URL /v1/closeperiod/:BUI/CPID
 //  @Method  GET
 //	@Synopsis Get information on a ClosePeriod
 //  @Description  Returns information about the business CloseTaskList, the
@@ -234,6 +235,9 @@ func getClosePeriod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcErrorReturn(w, e, funcname)
 		return
 	}
+
+	g.Record.CPID = lcp.CPID // CPID of last close, 0 if no period has been closed
+	rlib.Console("CPID = %d\n", lcp.CPID)
 
 	if lcp.CPID > 0 {
 		//----------------------------------------------
@@ -310,14 +314,68 @@ EXITNOW:
 // deleteClosePeriod reopens the ClosePeriod specified
 // wsdoc {
 //  @Title  Delete ClosePeriod
-//	@URL /v1/closeperiod/:BUI/TID
+//	@URL /v1/closeperiod/:BUI/CPID
 //  @Method  POST
-//	@Synopsis Reopen ClosePeriod with the supplied date
-//  @Desc  This service deletes the ClosePeriod with the supplied TDID.
+//	@Synopsis Reopen ClosePeriod with the supplied CPID
+//  @Desc  This service deletes the ClosePeriod with the supplied CPID.
+//  @Desc  The CPID must be that of the last closed period.
 //	@Input DeletePmtForm
 //  @Response SvcStatusResponse
 // wsdoc }
 //-----------------------------------------------------------------------------
 func deleteClosePeriod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	// const funcname = "deleteClosePeriod"
+	const funcname = "deleteClosePeriod"
+	rlib.Console("Entered %s\n", funcname)
+	var err error
+	var cp, cp1 rlib.ClosePeriod
+
+	var foo SaveClosePeriod
+	data := []byte(d.data)
+
+	err = json.Unmarshal(data, &foo)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	//-----------------------------------------
+	// Get the last closed period...
+	//-----------------------------------------
+	cp, err = rlib.GetLastClosePeriod(r.Context(), d.BID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+	if cp.CPID == 0 {
+		err = fmt.Errorf("There are no closed periods to delete")
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	//-----------------------------------------
+	// make sure we can load the CP...
+	//-----------------------------------------
+	cp1, err = rlib.GetClosePeriod(r.Context(), d.ID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	if cp1.CPID < 1 {
+		err = fmt.Errorf("could not load ClosePeriod with CPID = %d", d.ID)
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	if cp.CPID != cp1.CPID {
+		err = fmt.Errorf("Only the last closed period can be deleted")
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	if err = rlib.DeleteClosePeriod(r.Context(), d.ID); err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+	SvcWriteSuccessResponse(d.BID, w)
 }

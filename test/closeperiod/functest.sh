@@ -154,9 +154,38 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     # attempt to change the date of an assessment in an open period to a date in a closed period
     encodeRequest '{"cmd":"save","recid":0,"name":"asmInstForm","record":{"recid":0,"ASMID":79,"BID":1,"BUD":"REX","PASMID":66,"RID":3,"Rentable":"Rentable003","RAID":3,"Amount":10,"Start":"2/1/2018","Stop":"2/1/2019","RentCycle":6,"ProrationCycle":4,"InvoiceNo":0,"ARID":24,"Comment":"","DtLastClose":"2018-04-30 17:00:00 UTC","LastModByUser":"UID-0","CreateByUser":"UID-0","ExpandPastInst":true,"FLAGS":2,"Mode":0}}' > request
     dojsonPOST "http://localhost:8270/v1/asm/1/79" "request" "${TFILES}${STEP}"  "Assessment-ChangeAttemptInClosedPeriod"
+fi
 
+#------------------------------------------------------------------------------
+#  TEST c
+#
+#  Validate that we can reopen a closed period.  This is done by deleting
+#  the last closed period.
+#
+#  Scenario:
+#  Try to delete a ClosedPeriod prior to the last closed period - this must
+#  result in an error.  Then delete the last closed period to validate that
+#  it works correctly.
+#
+#  Expected Results:
+#
+#   The server should return an error for any attempt to delete a close
+#   period that is not the LAST close period.
+#
+#   It should allow the deletion of the last closed period.
+#------------------------------------------------------------------------------
+TFILES="c"
+STEP=0
+if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
+    mysql --no-defaults rentroll < x${TFILES}.sql
 
+    # Attempt to REOPEN A CLOSED PERIOD but not the last closed period.  This should fail
+    encodeRequest '{"cmd":"delete","record":{"BID":1,"CPID":6,"TLID":1,"TLName":"Monthly Close","LastDtDone":"1900-01-01 00:00:00 UTC","LastDtClose":"1900-01-01 00:00:00 UTC","LastLedgerMarker":"1900-01-01 00:00:00 UTC","CloseTarget":"2018-01-31 17:00:00 UTC","TLIDTarget":1,"TLNameTarget":"Monthly Close","DtDueTarget":"2018-01-31 17:00:00 UTC","DtDoneTarget":"2018-09-24 18:46:00 UTC","DtDone":"1900-01-01 00:00:00 UTC"}}' > request
+    dojsonPOST "http://localhost:8270/v1/closeperiod/1/5" "request" "${TFILES}${STEP}"  "CloseInfo-AttemptToDeleteClosePeriod"
 
+    # REOPEN A CLOSED PERIOD (by deleting a Closed Period)
+    encodeRequest '{"cmd":"delete","record":{"BID":1,"CPID":6,"TLID":1,"TLName":"Monthly Close","LastDtDone":"1900-01-01 00:00:00 UTC","LastDtClose":"1900-01-01 00:00:00 UTC","LastLedgerMarker":"1900-01-01 00:00:00 UTC","CloseTarget":"2018-01-31 17:00:00 UTC","TLIDTarget":1,"TLNameTarget":"Monthly Close","DtDueTarget":"2018-01-31 17:00:00 UTC","DtDoneTarget":"2018-09-24 18:46:00 UTC","DtDone":"1900-01-01 00:00:00 UTC"}}' > request
+    dojsonPOST "http://localhost:8270/v1/closeperiod/1/6" "request" "${TFILES}${STEP}"  "CloseInfo-DeleteLastClosePeriod"
 
 
 fi

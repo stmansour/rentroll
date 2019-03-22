@@ -58,6 +58,32 @@ func DeleteAssessment(ctx context.Context, asmid int64) error {
 	return err
 }
 
+// DeleteClosePeriod deletes ClosePeriod record with the supplied id
+func DeleteClosePeriod(ctx context.Context, id int64) error {
+	var err error
+
+	// session... context
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+	}
+
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.DeleteClosePeriod)
+		defer stmt.Close()
+		_, err = stmt.Exec(fields...)
+	} else {
+		_, err = RRdb.Prepstmt.DeleteClosePeriod.Exec(fields...)
+	}
+	if err != nil {
+		Ulog("Error deleting ClosePeriod for id = %d, error: %v\n", id, err)
+	}
+	return err
+}
+
 // DeleteCustomAttribute deletes CustomAttribute records with the supplied id
 func DeleteCustomAttribute(ctx context.Context, id int64) error {
 	var err error

@@ -8,22 +8,28 @@
 		<td><span id="closePeriodTL">loading...</span></td>
 	</tr>
 	<tr><td width="20"></td><td>Last close:</td>
-		<td><span id="closePeriodLCP">loading...</span></td>
+		<td><span id="closePeriodLCP">loading...</span>
+			&nbsp;&nbsp;
+			<button class="w2ui-btn"
+				id="ReopenClosePeriod"
+				onclick='submitReopenClosePeriod();'
+				disabled="">
+				<span id="ReopenPeriodSubmitButtonName"><i class="fas fa-lock-open fa-lg"></i> &nbsp;&nbsp;Reopen Period</span>
+			</button>
+		</td>
 	</tr>
 	<tr><td width="20"></td><td>Close target:</td>
 		<td><span id="closePeriodNCP">loading...</span></td>
 	</tr>
 	<tr><td width="20"></td><td>Close target Task List:</td>
-		<td><span id="closeTargetTL">loading...</span></td>
-	</tr>
-	<tr><td colspan="3" height="20"></td></tr>
-	<tr><td></td><td colspan="2">
-		<button class="w2ui-btn"
-				id="closePeriodSubmit" 
-				name="closePeriodSubmit" 
-				onclick='submitClosePeriod();'
-				disabled="">
-			Close Period
+		<td><span id="closeTargetTL">loading...</span>
+			&nbsp;&nbsp;
+			<button class="w2ui-btn"
+					id="closePeriodSubmit"
+					name="closePeriodSubmit"
+					onclick='submitClosePeriod();'
+					disabled="">
+				<span id="ClosePeriodSubmitButtonName"><i class="fas fa-lock fa-lg"></i> &nbsp;&nbsp;Close Period</span>
 			</button>
 		</td>
 	</tr>

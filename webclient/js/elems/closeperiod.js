@@ -84,7 +84,7 @@ window.loadClosePeriodInfo = function (msg,mode) {
             s = 'No TaskList defined. You must set a TaskList for ' + BUD + ' to enable Close Period.';
         } else {
             bHaveCPTLID = true;
-            s = r.TLName + ' &nbsp;&nbsp;';
+            s = 'The Close Period task list for business ' + BUD + ' is <span style="color:white;background:#569ed4;"> &nbsp;' + r.TLName + ' </span> &nbsp;&nbsp;';
             var ltl = dtFormatISOToW2ui(r.LastDtDone);
             if (ltl.length === 0) {
                 s += "(no completed instances yet)";
@@ -102,20 +102,30 @@ window.loadClosePeriodInfo = function (msg,mode) {
         //--------------------------------
         s = dtFormatISOToW2ui(r.LastDtClose);
         if (s.length > 0 ) {
-             s += ' &nbsp;&nbsp;<i class="fas fa-lock"></i>';
+             $("#ReopenClosePeriod").show();
+        } else {
+            s = '<i class="fas fa-lock-open fa-lg"></i>';  // everything is unlocked
+            $("#ReopenClosePeriod").hide();
         }
+
         x = document.getElementById("closePeriodLCP");
         if (x != null) {
             x.innerHTML = s;
         }
 
         //--------------------------------
+        //  Reopen Last Closed Period submit button...
+        //--------------------------------
+        var disableReopen = closePeriodData.record.CPID == 0;
+        x = document.getElementById("ReopenClosePeriod");
+        if (x != null) {
+            x.disabled = disableReopen;
+        }
+
+        //--------------------------------
         //  Target close period
         //--------------------------------
         s = dtFormatISOToW2ui(r.CloseTarget);
-        if (s.length > 0 ) {
-             s += ' &nbsp;&nbsp;<i class="fas fa-lock-open"></i>';
-        }
         x = document.getElementById("closePeriodNCP");
         if (x != null) {
             x.innerHTML = s;
@@ -186,6 +196,37 @@ window.submitClosePeriod = function() {
 
         loadClosePeriodInfo('Successfully closed period ending ' +
             dtFormatISOToW2ui(closePeriodData.record.CloseTarget),0);
+    })
+    .fail( function() {
+        loadClosePeriodInfo('error with post to: ' + url,1);
+    });
+};
+
+//-----------------------------------------------------------------------------
+// submitReopenClosePeriod is called when all the conditions of a close period are
+// met and the user clicks the buttong to close the period.
+//
+// @params
+//
+// @returns
+//-----------------------------------------------------------------------------
+window.submitReopenClosePeriod = function() {
+    console.log('close the period');
+    var BID = getCurrentBID();
+    var BUD = getBUDfromBID(BID);
+    var params = {cmd: 'delete', record: closePeriodData.record };
+    var dat = JSON.stringify(params);
+
+    var url = '/v1/closeperiod/'+BID+'/'+closePeriodData.record.CPID;
+    $.post(url, dat, null, "json")
+    .done( function(data) {
+        if (data.status !== 'success') {
+            loadClosePeriodInfo(data.message,1);
+            return;
+        }
+
+        loadClosePeriodInfo('Successfully reopened period ending ' +
+            dtFormatISOToW2ui(closePeriodData.record.LastDtClose),0);
     })
     .fail( function() {
         loadClosePeriodInfo('error with post to: ' + url,1);
