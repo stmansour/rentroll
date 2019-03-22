@@ -307,7 +307,7 @@ window.buildRentableElements = function () {
                 .fail(function () {
                     console.log('Error getting /v1/uival/' + BID + '/app.ReceiptRules');
                 });
-                };
+            };
 
             // warn user if form content has been changed
             form_dirty_alert(yes_callBack, no_callBack, yes_args);
@@ -358,9 +358,10 @@ window.buildRentableElements = function () {
                     active: 'rentableForm',
                     tabs: [
                         {id: 'rentableForm', caption: 'Rentable Detail'},
-                        {id: 'rentableUseStatusGrid', caption: 'Rentable Use Status'},
-                        {id: 'rentableLeaseStatusGrid', caption: 'Rentable Lease Status'},//add by lina
-                        {id: 'rentableTypeRefGrid', caption: 'Rentable Type Reference'},
+                        {id: 'rentableUseStatusGrid', caption: 'Use Status'},
+                        {id: 'rentableUseTypeGrid', caption: 'Use Type'},
+                        {id: 'rentableLeaseStatusGrid', caption: 'Lease Status'},
+                        {id: 'rentableTypeRefGrid', caption: 'Rentable Type'},
                     ],
                     onClick: function (event) {
                         if (event.target === "rentableForm") {
