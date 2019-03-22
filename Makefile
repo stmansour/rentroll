@@ -113,7 +113,7 @@ publish: package tarzip
 
 tarzip:
 	cd ${DIST};if [ -f ./rentroll/config.json ]; then mv ./rentroll/config.json .; fi
-	cd ${DIST};tar cvf rentroll.tar rentroll; gzip rentroll.tar
+	cd ${DIST};rm -f rentroll.tar*;tar czf rentroll.tar rentroll
 	cd ${DIST};if [ -f ./config.json ]; then mv ./config.json ./rentroll/config.json; fi
 
 snapshot: tarzip

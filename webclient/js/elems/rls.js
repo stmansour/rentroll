@@ -91,91 +91,6 @@ window.buildRentableLeaseStatusElements = function () {
         onAdd: function (/*event*/) {
             addRentableLeaseStatus();
         },
-        // onDelete: function (event) {
-        //     if (RentableEdits.rlsDeleteInProgress) {
-        //         return;
-        //     }
-        //
-        //     var selected = this.getSelection();
-        //     var RLIDList = [];
-        //     var grid = this;
-        //     RentableEdits.rlsDeleteInProgress = true;
-        //
-        //     //-------------------------------------
-        //     // if nothing is selected then return
-        //     //-------------------------------------
-        //     if (selected.length < 0) {
-        //         return;
-        //     }
-        //
-        //     //-------------------------------------
-        //     // collect the selected ids...
-        //     //-------------------------------------
-        //     for (var id = 0; id < selected.length; id++) {
-        //         var RLID = grid.get(id).RLID;
-        //         if (RLID > 0) {
-        //             RLIDList.push(RLID);
-        //         }
-        //     }
-        //
-        //     event.onComplete = function () {
-        //         var grid = this;
-        //
-        //         var Unselect = [];
-        //         for (var i = 0; i < selected.length; i++) {
-        //             var r = grid.get(selected[i]);
-        //             if (0 == r.RLID) {
-        //                 Unselect.push(selected[i]);
-        //             }
-        //         }
-        //
-        //         grid.selectNone();
-        //         grid.select.apply(Unselect);
-        //         grid.delete(true);  // get rid of them
-        //
-        //         if (RLIDList.length == 0 ) {
-        //             RentableEdits.rlsDeleteInProgress = false;
-        //             return;
-        //         }
-        //
-        //         var BID = getCurrentBID();
-        //         var RID = w2ui.rentableForm.record.RID;
-        //
-        //         var tgrid = w2ui.rentableLeaseStatusGrid;
-        //         var url = "/v1/rentableleasestatus/" + BID + "/" + RID;
-        //         var params = {"cmd": "delete", "RLIDList": RLIDList};
-        //         var dat = JSON.stringify(params);
-        //
-        //         //-------------------------------------------------------------
-        //         // If there are any other pending changes, we'll need to save
-        //         // those first, then we proceed with the delete.
-        //         // The save function implements the Promise interface so
-        //         // we just need to supply the pass/fail functions...
-        //         //-------------------------------------------------------------
-        //         $.when(
-        //             saveRentableLeaseStatus(BID,RID)
-        //         )
-        //         .done(function(){
-        //             $.post(grid.url, dat, null, "json")
-        //             .done(function(data) {
-        //                 if (data.status === "error") {
-        //                     grid.error('onDelete: '+w2utils.lang(data.message));
-        //                     return;
-        //                 }
-        //                 grid.reload();
-        //             })
-        //             .fail(function(/*data*/){
-        //                 grid.error("Delete RentableLeaseStatus failed.");
-        //                 return;
-        //             });
-        //         })
-        //         .fail(function(){
-        //             console.log('RentableLeaseSave: when failed.');
-        //         });
-        //
-        //         RentableEdits.rlsDeleteInProgress = false;
-        //     };
-        // },
 
         onChange: function (event) {
             // event.preventDefault();   // not sure what this does
@@ -205,9 +120,6 @@ window.buildRentableLeaseStatusElements = function () {
                     RentableEdits.LeaseStatusChgList.push(chgRec.recid);
                     g.url = '';  // just ensure that no server service is called
                     this.save(); // save automatically locally
-                    // var BID = getCurrentBID();
-                    // var RID = w2ui.rentableForm.record.RID;
-                    // g.url = '/v1/rentableleasestatus/' + BID + '/' + RID;
                 }
             };
         }
@@ -259,8 +171,6 @@ window.saveRentableLeaseStatus = function(BID,RID) {
             RentableEdits.LeaseStatusChgList = []; // reset the change list now, because we've saved them
             w2ui.rentableLeaseStatusGrid.url = url;
             w2ui.toplayout.hide('right', true);
-            // w2ui.rentablesGrid.reload();
-            // w2ui.rentablesGrid.render();
         } else {
             w2ui.rentablesGrid.error('saveRentableLeaseStatus: ' + data.message);
         }
@@ -284,7 +194,10 @@ window.addRentableLeaseStatus = function (/*event*/) {
     var g = w2ui.rentableLeaseStatusGrid;
     var ndStart;
 
-    // get lastest date among all market rate object's stopDate for new MR's StartDate
+    //------------------------------------------------------------------------
+    // Find lastest date among all market rate object's stopDate for new MR's
+    // StartDate
+    //------------------------------------------------------------------------
     if (g.records.length === 0) {
         ndStart = new Date();
     } else {
