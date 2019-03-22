@@ -94,7 +94,7 @@ window.buildRentableUseStatusElements = function () {
                 //---------------------------------------------------------------------
                 // every datetime value needs to be converted to a localtime string...
                 //---------------------------------------------------------------------
-                for (var i = 0; i < this.records[i].length; i++) {
+                for (var i = 0; i < this.records.length; i++) {
                     var d = new Date(this.records[i].DtStart);
                     this.records[i].DtStart = datetimeFmtStr(d);
                 }

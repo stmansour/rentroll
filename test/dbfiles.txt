@@ -4,6 +4,7 @@
 ./business/dba.sql
 ./closeperiod/xa.sql
 ./closeperiod/xb.sql
+./closeperiod/xc.sql
 ./payorstmt/pstmt.sql
 ./raflow/actions/improper_sequence_flow/improperSequence.sql
 ./raflow/actions/invalid_flow/invalidFlow.sql
@@ -48,6 +49,9 @@
 ./rus/xc.sql
 ./setup/accord.sql
 ./sqlschema/accord.sql
+./sqlschema/dbqqqmods.sql
+./sqlschema/fixrcpts.sql
+./sqlschema/fixrr.sql
 ./sqlschema/receipts.sql
 ./sqlschema/rentroll.sql
 ./sqlschema/rr.sql
