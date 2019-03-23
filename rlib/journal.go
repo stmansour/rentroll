@@ -136,7 +136,7 @@ func ProrateAssessment(ctx context.Context, xbiz *XBusiness, a *Assessment, d, d
 	switch useStatus {
 	case USESTATUSready:
 		fallthrough
-	case USESTATUSemployee:
+	case USETYPEemployee:
 		fallthrough
 	case USESTATUSinService:
 		// Console("ProrateAssessment: D\n")
@@ -161,9 +161,9 @@ func ProrateAssessment(ctx context.Context, xbiz *XBusiness, a *Assessment, d, d
 		}
 		// Console("Assessment = %d, Rentable = %d, RA = %d, pf = %3.2f\n", a.ASMID, r.RID, ra.RAID, pf)
 
-	case USESTATUSadministrative:
+	case USETYPEadministrative:
 		fallthrough
-	case USESTATUSownerOccupied:
+	case USETYPEownerOccupied:
 		fallthrough
 	case USESTATUSmajorRepair:
 		fallthrough

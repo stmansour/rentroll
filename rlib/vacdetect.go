@@ -94,6 +94,8 @@ func VacancyDetect(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time, rid 
 		}
 
 		switch useState {
+		case USETYPEstandard:
+			fallthrough
 		case USESTATUSinService:
 			// rlib.Console("\tonline... ")
 			for i := 0; i < len(t); i++ {
@@ -102,17 +104,17 @@ func VacancyDetect(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time, rid 
 					vacant = false // not vacant
 				}
 			}
-		case USESTATUSadministrative:
+		case USETYPEadministrative:
 			fallthrough
-		case USESTATUSemployee:
+		case USETYPEemployee:
 			fallthrough
-		case USESTATUSownerOccupied:
-			fallthrough
-		case USESTATUSmajorRepair:
-			fallthrough
-		case USESTATUShousekeeping:
-			fallthrough
-		case USESTATUSinactive:
+		case USETYPEownerOccupied:
+			// fallthrough
+			// case USESTATUSmajorRepair:
+			// 	fallthrough
+			// case USESTATUShousekeeping:
+			// 	fallthrough
+			// case USESTATUSinactive:
 			// rlib.Console("\t{admin|employee|ownerocc|offline}...\n")
 		}
 

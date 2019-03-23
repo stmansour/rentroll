@@ -115,15 +115,19 @@ const (
 	RENTABLESTATUSLAST     = 5 // keep in sync with last
 
 	// USESTATUSready etc all Rentable Use Status
-	USESTATUSready          = 0
-	USESTATUSinService      = 1
-	USESTATUSadministrative = 2
-	USESTATUSemployee       = 3
-	USESTATUSownerOccupied  = 4
-	USESTATUSmajorRepair    = 5
-	USESTATUShousekeeping   = 6
-	USESTATUSinactive       = 7
-	USESTATUSLAST           = 7
+	USESTATUSready        = 0
+	USESTATUSinService    = 1
+	USESTATUSmajorRepair  = 5
+	USESTATUShousekeeping = 6
+	USESTATUSinactive     = 7
+	USESTATUSLAST         = 7
+
+	// USETYPEstandard and the rest define RentableUseType values
+	USETYPEstandard       = 100
+	USETYPEadministrative = 101
+	USETYPEemployee       = 102
+	USETYPEownerOccupied  = 103
+	USETYPELAST           = 103
 
 	// MRSTATUShouseKeeping etc all Rentable Make Ready Status
 	MRSTATUShouseKeeping = 1
