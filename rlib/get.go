@@ -5777,118 +5777,6 @@ func GetRentableTypeRefForDate(ctx context.Context, RID int64, d1 *time.Time) (R
 	return r, err
 }
 
-// GetRentableUseStatus gets RentableUseStatus record for given RSID -- RentableUseStatus ID (unique ID)
-func GetRentableUseStatus(ctx context.Context, rsid int64) (RentableUseStatus, error) {
-	var rs RentableUseStatus
-
-	if getSessionCheck(ctx) {
-		return rs, ErrSessionRequired
-	}
-
-	var row *sql.Row
-	fields := []interface{}{rsid}
-	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.GetRentableUseStatus)
-		defer stmt.Close()
-		row = stmt.QueryRow(fields...)
-	} else {
-		row = RRdb.Prepstmt.GetRentableUseStatus.QueryRow(fields...)
-	}
-	return rs, ReadRentableUseStatus(row, &rs)
-}
-
-// getRentableUseStatusRows loads all the RentableUseStatus records for rows
-func getRentableUseStatusRows(ctx context.Context, rows *sql.Rows) ([]RentableUseStatus, error) {
-	var err error
-	var rs []RentableUseStatus
-
-	if getSessionCheck(ctx) {
-		return rs, ErrSessionRequired
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var a RentableUseStatus
-		if err = ReadRentableUseStatuses(rows, &a); err != nil {
-			return rs, err
-		}
-		rs = append(rs, a)
-	}
-
-	return rs, rows.Err()
-}
-
-// GetRentableUseStatusOnOrAfter loads all the RentableUseStatus records that overlap the supplied time range
-func GetRentableUseStatusOnOrAfter(ctx context.Context, RID int64, dt *time.Time) (RentableUseStatus, error) {
-	var a RentableUseStatus
-	if getSessionCheck(ctx) {
-		return a, ErrSessionRequired
-	}
-	var row *sql.Row
-	fields := []interface{}{RID, dt}
-	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.GetRentableUseStatusOnOrAfter)
-		defer stmt.Close()
-		row = stmt.QueryRow(fields...)
-	} else {
-		row = RRdb.Prepstmt.GetRentableUseStatusOnOrAfter.QueryRow(fields...)
-	}
-	return a, ReadRentableUseStatus(row, &a)
-}
-
-// GetRentableUseStatusByRange loads all the RentableUseStatus records that overlap the supplied time range
-func GetRentableUseStatusByRange(ctx context.Context, RID int64, d1, d2 *time.Time) ([]RentableUseStatus, error) {
-	var err error
-	var rs []RentableUseStatus
-
-	if getSessionCheck(ctx) {
-		return rs, ErrSessionRequired
-	}
-
-	var rows *sql.Rows
-	fields := []interface{}{RID, d1, d2, d1}
-	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.GetRentableUseStatusByRange)
-		defer stmt.Close()
-		rows, err = stmt.Query(fields...)
-	} else {
-		rows, err = RRdb.Prepstmt.GetRentableUseStatusByRange.Query(fields...)
-	}
-
-	if err != nil {
-		return rs, err
-	}
-	return getRentableUseStatusRows(ctx, rows)
-}
-
-// GetAllRentableUseStatus loads all the RentableUseStatus records that overlap the supplied time range
-func GetAllRentableUseStatus(ctx context.Context, RID int64) ([]RentableUseStatus, error) {
-
-	var (
-		err error
-		rs  []RentableUseStatus
-	)
-
-	if getSessionCheck(ctx) {
-		return rs, ErrSessionRequired
-	}
-
-	var rows *sql.Rows
-	fields := []interface{}{RID}
-	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.GetAllRentableUseStatus)
-		defer stmt.Close()
-		rows, err = stmt.Query(fields...)
-	} else {
-		rows, err = RRdb.Prepstmt.GetAllRentableUseStatus.Query(fields...)
-	}
-
-	if err != nil {
-		return rs, err
-	}
-	return getRentableUseStatusRows(ctx, rows)
-}
-
 // GetRentableLeaseStatus gets RentableLeaseStatus record for given RSID -- RentableLeaseStatus ID (unique ID)
 func GetRentableLeaseStatus(ctx context.Context, rsid int64) (RentableLeaseStatus, error) {
 
@@ -6010,6 +5898,224 @@ func GetAllRentableLeaseStatus(ctx context.Context, RID int64) ([]RentableLeaseS
 		return rs, err
 	}
 	return getRentableLeaseStatusRows(ctx, rows)
+}
+
+// GetRentableUseStatus gets RentableUseStatus record for given RSID -- RentableUseStatus ID (unique ID)
+func GetRentableUseStatus(ctx context.Context, rsid int64) (RentableUseStatus, error) {
+	var rs RentableUseStatus
+
+	if getSessionCheck(ctx) {
+		return rs, ErrSessionRequired
+	}
+
+	var row *sql.Row
+	fields := []interface{}{rsid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentableUseStatus)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRentableUseStatus.QueryRow(fields...)
+	}
+	return rs, ReadRentableUseStatus(row, &rs)
+}
+
+// getRentableUseStatusRows loads all the RentableUseStatus records for rows
+func getRentableUseStatusRows(ctx context.Context, rows *sql.Rows) ([]RentableUseStatus, error) {
+	var err error
+	var rs []RentableUseStatus
+
+	if getSessionCheck(ctx) {
+		return rs, ErrSessionRequired
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var a RentableUseStatus
+		if err = ReadRentableUseStatuses(rows, &a); err != nil {
+			return rs, err
+		}
+		rs = append(rs, a)
+	}
+
+	return rs, rows.Err()
+}
+
+// GetRentableUseStatusOnOrAfter loads all the RentableUseStatus records that overlap the supplied time range
+func GetRentableUseStatusOnOrAfter(ctx context.Context, RID int64, dt *time.Time) (RentableUseStatus, error) {
+	var a RentableUseStatus
+	if getSessionCheck(ctx) {
+		return a, ErrSessionRequired
+	}
+	var row *sql.Row
+	fields := []interface{}{RID, dt}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentableUseStatusOnOrAfter)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRentableUseStatusOnOrAfter.QueryRow(fields...)
+	}
+	return a, ReadRentableUseStatus(row, &a)
+}
+
+// GetRentableUseStatusByRange loads all the RentableUseStatus records that overlap the supplied time range
+func GetRentableUseStatusByRange(ctx context.Context, RID int64, d1, d2 *time.Time) ([]RentableUseStatus, error) {
+	var err error
+	var rs []RentableUseStatus
+
+	if getSessionCheck(ctx) {
+		return rs, ErrSessionRequired
+	}
+
+	var rows *sql.Rows
+	fields := []interface{}{RID, d1, d2, d1}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentableUseStatusByRange)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetRentableUseStatusByRange.Query(fields...)
+	}
+
+	if err != nil {
+		return rs, err
+	}
+	return getRentableUseStatusRows(ctx, rows)
+}
+
+// GetAllRentableUseStatus loads all the RentableUseStatus records that overlap the supplied time range
+func GetAllRentableUseStatus(ctx context.Context, RID int64) ([]RentableUseStatus, error) {
+	var err error
+	var rs []RentableUseStatus
+
+	if getSessionCheck(ctx) {
+		return rs, ErrSessionRequired
+	}
+
+	var rows *sql.Rows
+	fields := []interface{}{RID}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAllRentableUseStatus)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetAllRentableUseStatus.Query(fields...)
+	}
+
+	if err != nil {
+		return rs, err
+	}
+	return getRentableUseStatusRows(ctx, rows)
+}
+
+// GetRentableUseType gets RentableUseType record for given RSID -- RentableUseType ID (unique ID)
+func GetRentableUseType(ctx context.Context, utid int64) (RentableUseType, error) {
+	var rs RentableUseType
+
+	if getSessionCheck(ctx) {
+		return rs, ErrSessionRequired
+	}
+
+	var row *sql.Row
+	fields := []interface{}{utid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentableUseType)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRentableUseType.QueryRow(fields...)
+	}
+	return rs, ReadRentableUseType(row, &rs)
+}
+
+// getRentableUseTypeRows loads all the RentableUseType records for rows
+func getRentableUseTypeRows(ctx context.Context, rows *sql.Rows) ([]RentableUseType, error) {
+	var err error
+	var rs []RentableUseType
+
+	if getSessionCheck(ctx) {
+		return rs, ErrSessionRequired
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var a RentableUseType
+		if err = ReadRentableUseTypes(rows, &a); err != nil {
+			return rs, err
+		}
+		rs = append(rs, a)
+	}
+
+	return rs, rows.Err()
+}
+
+// GetRentableUseTypeOnOrAfter loads all the RentableUseType records that overlap the supplied time range
+func GetRentableUseTypeOnOrAfter(ctx context.Context, RID int64, dt *time.Time) (RentableUseType, error) {
+	var a RentableUseType
+	if getSessionCheck(ctx) {
+		return a, ErrSessionRequired
+	}
+	var row *sql.Row
+	fields := []interface{}{RID, dt}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentableUseTypeOnOrAfter)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRentableUseTypeOnOrAfter.QueryRow(fields...)
+	}
+	return a, ReadRentableUseType(row, &a)
+}
+
+// GetRentableUseTypeByRange loads all the RentableUseType records that overlap the supplied time range
+func GetRentableUseTypeByRange(ctx context.Context, RID int64, d1, d2 *time.Time) ([]RentableUseType, error) {
+	var err error
+	var rs []RentableUseType
+
+	if getSessionCheck(ctx) {
+		return rs, ErrSessionRequired
+	}
+
+	var rows *sql.Rows
+	fields := []interface{}{RID, d1, d2, d1}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentableUseTypeByRange)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetRentableUseTypeByRange.Query(fields...)
+	}
+
+	if err != nil {
+		return rs, err
+	}
+	return getRentableUseTypeRows(ctx, rows)
+}
+
+// GetAllRentableUseType loads all the RentableUseType records that overlap the supplied time range
+func GetAllRentableUseType(ctx context.Context, RID int64) ([]RentableUseType, error) {
+	var err error
+	var rs []RentableUseType
+
+	if getSessionCheck(ctx) {
+		return rs, ErrSessionRequired
+	}
+
+	var rows *sql.Rows
+	fields := []interface{}{RID}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAllRentableUseType)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetAllRentableUseType.Query(fields...)
+	}
+
+	if err != nil {
+		return rs, err
+	}
+	return getRentableUseTypeRows(ctx, rows)
 }
 
 //=======================================================

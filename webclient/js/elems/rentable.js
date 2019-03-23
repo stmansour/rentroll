@@ -379,7 +379,6 @@ window.buildRentableElements = function () {
             {
                 type: 'bottom',
                 size: 60,
-                // style: 'background-color: white;  border-top: 1px solid silver; text-align: center; padding: 15px;',
             },
         ],
     });

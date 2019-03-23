@@ -695,6 +695,40 @@ func ReadRentableUseStatuses(rows *sql.Rows, a *RentableUseStatus) error {
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 
+// ReadRentableUseType reads a full RentableUseType structure of data from the database based on the supplied Row pointer.
+func ReadRentableUseType(row *sql.Row, a *RentableUseType) error {
+	err := row.Scan(
+		&a.UTID,
+		&a.RID,
+		&a.BID,
+		&a.DtStart,
+		&a.DtStop,
+		&a.Comment,
+		&a.UseType,
+		&a.CreateTS,
+		&a.CreateBy,
+		&a.LastModTime,
+		&a.LastModBy)
+	SkipSQLNoRowsError(&err)
+	return err
+}
+
+// ReadRentableUseTypes reads a full RentableUseType structure of data from the database based on the supplied Rows pointer.
+func ReadRentableUseTypes(rows *sql.Rows, a *RentableUseType) error {
+	return rows.Scan(
+		&a.UTID,
+		&a.RID,
+		&a.BID,
+		&a.DtStart,
+		&a.DtStop,
+		&a.Comment,
+		&a.UseType,
+		&a.CreateTS,
+		&a.CreateBy,
+		&a.LastModTime,
+		&a.LastModBy)
+}
+
 // ReadRentalAgreement reads a full RentalAgreement structure of data from the database based on the supplied Row pointer.
 func ReadRentalAgreement(row *sql.Row, a *RentalAgreement) error {
 	err := row.Scan(

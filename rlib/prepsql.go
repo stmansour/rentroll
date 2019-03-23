@@ -1136,6 +1136,28 @@ WHERE RAID=? AND RID=? AND Start >= ? AND Stop < ? AND RentCycle=0 ORDER By Asse
 	Errcheck(err)
 
 	//===============================
+	//  RentableUseType
+	//===============================
+	flds = "UTID,RID,BID,DtStart,DtStop,Comment,UseType,CreateTS,CreateBy,LastModTime,LastModBy"
+	RRdb.DBFields["RentableUseType"] = flds
+	RRdb.Prepstmt.GetRentableUseType, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableUseType WHERE UTID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetRentableUseTypeByRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableUseType WHERE RID=? AND ( (DtStop>? AND DtStart<?) OR DtStart=?) ORDER BY DtStart ASC")
+	Errcheck(err)
+	RRdb.Prepstmt.GetRentableUseTypeOnOrAfter, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableUseType WHERE RID=? AND DtStart>=? ORDER BY DtStart ASC")
+	Errcheck(err)
+	RRdb.Prepstmt.GetAllRentableUseType, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableUseType WHERE RID=?")
+	Errcheck(err)
+
+	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
+	RRdb.Prepstmt.InsertRentableUseType, err = RRdb.Dbrr.Prepare("INSERT INTO RentableUseType (" + s1 + ") VALUES(" + s2 + ")")
+	Errcheck(err)
+	RRdb.Prepstmt.UpdateRentableUseType, err = RRdb.Dbrr.Prepare("UPDATE RentableUseType SET " + s3 + " WHERE UTID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteRentableUseType, err = RRdb.Dbrr.Prepare("DELETE from RentableUseType WHERE UTID=?")
+	Errcheck(err)
+
+	//===============================
 	//  RentableLeaseStatus
 	//===============================
 	flds = "RLID,RID,BID,DtStart,DtStop,LeaseStatus,Comment,FirstName,LastName,Email,Phone,Address,Address2,City,State,PostalCode,Country,CCName,CCType,CCNumber,CCExpMonth,CreateTS,CreateBy,LastModTime,LastModBy"

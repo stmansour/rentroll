@@ -6,16 +6,22 @@ import (
 	"time"
 )
 
-// DeleteAR deletes AR records with the supplied id
-func DeleteAR(ctx context.Context, id int64) error {
-	var err error
-
-	// session... context
+func deleteSessionCheck(ctx context.Context) error {
 	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
 		}
+	}
+	return nil
+}
+
+// DeleteAR deletes AR records with the supplied id
+func DeleteAR(ctx context.Context, id int64) error {
+	var err error
+
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{id}
@@ -36,12 +42,8 @@ func DeleteAR(ctx context.Context, id int64) error {
 func DeleteAssessment(ctx context.Context, asmid int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{asmid}
@@ -62,12 +64,8 @@ func DeleteAssessment(ctx context.Context, asmid int64) error {
 func DeleteClosePeriod(ctx context.Context, id int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{id}
@@ -88,12 +86,8 @@ func DeleteClosePeriod(ctx context.Context, id int64) error {
 func DeleteCustomAttribute(ctx context.Context, id int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{id}
@@ -114,12 +108,8 @@ func DeleteCustomAttribute(ctx context.Context, id int64) error {
 func DeleteCustomAttributeRef(ctx context.Context, elemid, id, cid int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{elemid, id, cid}
@@ -140,12 +130,8 @@ func DeleteCustomAttributeRef(ctx context.Context, elemid, id, cid int64) error 
 func DeleteDemandSource(ctx context.Context, id int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{id}
@@ -168,12 +154,8 @@ func DeleteDemandSource(ctx context.Context, id int64) error {
 func DeleteDeposit(ctx context.Context, id int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{id}
@@ -194,12 +176,8 @@ func DeleteDeposit(ctx context.Context, id int64) error {
 func DeleteDepository(ctx context.Context, id int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{id}
@@ -220,12 +198,8 @@ func DeleteDepository(ctx context.Context, id int64) error {
 func DeleteDepositMethod(ctx context.Context, id int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{id}
@@ -247,12 +221,8 @@ func DeleteDepositMethod(ctx context.Context, id int64) error {
 func DeleteDepositPart(ctx context.Context, id int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{id}
@@ -273,12 +243,8 @@ func DeleteDepositPart(ctx context.Context, id int64) error {
 func DeleteExpense(ctx context.Context, id int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{id}
@@ -300,12 +266,8 @@ func DeleteExpense(ctx context.Context, id int64) error {
 func DeleteFlow(ctx context.Context, FlowID int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{FlowID}
@@ -326,12 +288,8 @@ func DeleteFlow(ctx context.Context, FlowID int64) error {
 func DeleteFlowByRefNo(ctx context.Context, BID int64, UserRefNo string) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{BID, UserRefNo}
@@ -355,12 +313,8 @@ func DeleteFlowByRefNo(ctx context.Context, BID int64, UserRefNo string) error {
 func DeleteInvoice(ctx context.Context, id int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{id}
@@ -382,12 +336,8 @@ func DeleteInvoice(ctx context.Context, id int64) error {
 func DeleteInvoiceAssessments(ctx context.Context, id int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{id}
@@ -408,12 +358,8 @@ func DeleteInvoiceAssessments(ctx context.Context, id int64) error {
 func DeleteJournalAllocation(ctx context.Context, id int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{id}
@@ -435,12 +381,8 @@ func DeleteJournalAllocation(ctx context.Context, id int64) error {
 func DeleteJournalAllocations(ctx context.Context, jid int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{jid}
@@ -462,12 +404,8 @@ func DeleteJournalAllocations(ctx context.Context, jid int64) error {
 func DeleteJournal(ctx context.Context, jid int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{jid}
@@ -489,12 +427,8 @@ func DeleteJournal(ctx context.Context, jid int64) error {
 func DeleteJournalMarker(ctx context.Context, jmid int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{jmid}
@@ -516,12 +450,8 @@ func DeleteJournalMarker(ctx context.Context, jmid int64) error {
 func DeleteLedgerEntry(ctx context.Context, id int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{id}
@@ -542,12 +472,8 @@ func DeleteLedgerEntry(ctx context.Context, id int64) error {
 func DeleteLedger(ctx context.Context, lid int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{lid}
@@ -568,12 +494,8 @@ func DeleteLedger(ctx context.Context, lid int64) error {
 func DeleteLedgerMarker(ctx context.Context, lmid int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{lmid}
@@ -595,12 +517,8 @@ func DeleteLedgerMarker(ctx context.Context, lmid int64) error {
 func DeleteNote(ctx context.Context, nid int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	var n Note
@@ -615,12 +533,8 @@ func DeleteNote(ctx context.Context, nid int64) error {
 func DeleteNoteAndChildNotes(ctx context.Context, p *Note) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	for i := 0; i < len(p.CN); i++ {
@@ -637,12 +551,8 @@ func DeleteNoteAndChildNotes(ctx context.Context, p *Note) error {
 func DeleteNoteInternal(ctx context.Context, nid int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{nid}
@@ -663,12 +573,8 @@ func DeleteNoteInternal(ctx context.Context, nid int64) error {
 func DeleteNoteList(ctx context.Context, nl *NoteList) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	for i := 0; i < len(nl.N); i++ {
@@ -695,12 +601,8 @@ func DeleteNoteList(ctx context.Context, nl *NoteList) error {
 func DeleteNoteType(ctx context.Context, nid int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{nid}
@@ -721,12 +623,8 @@ func DeleteNoteType(ctx context.Context, nid int64) error {
 func DeleteRatePlan(ctx context.Context, id int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{id}
@@ -747,12 +645,8 @@ func DeleteRatePlan(ctx context.Context, id int64) error {
 func DeletePaymentType(ctx context.Context, id int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{id}
@@ -773,12 +667,8 @@ func DeletePaymentType(ctx context.Context, id int64) error {
 func DeleteRatePlanRef(ctx context.Context, id int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{id}
@@ -799,12 +689,8 @@ func DeleteRatePlanRef(ctx context.Context, id int64) error {
 func DeleteRatePlanRefRTRate(ctx context.Context, rtrid, rtid int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{rtrid, rtid}
@@ -825,12 +711,8 @@ func DeleteRatePlanRefRTRate(ctx context.Context, rtrid, rtid int64) error {
 func DeleteRatePlanRefSPRate(ctx context.Context, rtrid, rspid int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{rtrid, rspid}
@@ -851,12 +733,8 @@ func DeleteRatePlanRefSPRate(ctx context.Context, rtrid, rspid int64) error {
 func DeleteReceipt(ctx context.Context, rcptid int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{rcptid}
@@ -877,12 +755,8 @@ func DeleteReceipt(ctx context.Context, rcptid int64) error {
 func DeleteReceiptAllocation(ctx context.Context, id int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{id}
@@ -903,12 +777,8 @@ func DeleteReceiptAllocation(ctx context.Context, id int64) error {
 func DeleteReceiptAllocations(ctx context.Context, rcptid int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{rcptid}
@@ -929,12 +799,8 @@ func DeleteReceiptAllocations(ctx context.Context, rcptid int64) error {
 func DeleteRentableTypeRefWithRTID(ctx context.Context, rtid int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{rtid}
@@ -955,12 +821,8 @@ func DeleteRentableTypeRefWithRTID(ctx context.Context, rtid int64) error {
 func DeleteRentableTypeRef(ctx context.Context, rtrid int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{rtrid}
@@ -981,12 +843,8 @@ func DeleteRentableTypeRef(ctx context.Context, rtrid int64) error {
 func DeleteRentableMarketRate(ctx context.Context, rmrid int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{rmrid}
@@ -1007,12 +865,8 @@ func DeleteRentableMarketRate(ctx context.Context, rmrid int64) error {
 func DeleteRentableSpecialtyRef(ctx context.Context, rid int64, dtstart, dtstop *time.Time) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{rid, dtstart, dtstop}
@@ -1034,12 +888,8 @@ func DeleteRentableSpecialtyRef(ctx context.Context, rid int64, dtstart, dtstop 
 func DeleteRentableLeaseStatus(ctx context.Context, rlid int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{rlid}
@@ -1060,12 +910,8 @@ func DeleteRentableLeaseStatus(ctx context.Context, rlid int64) error {
 func DeleteRentableUseStatus(ctx context.Context, rsid int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{rsid}
@@ -1082,16 +928,34 @@ func DeleteRentableUseStatus(ctx context.Context, rsid int64) error {
 	return err
 }
 
+// DeleteRentableUseType deletes RentableUseType records with the supplied id
+func DeleteRentableUseType(ctx context.Context, id int64) error {
+	var err error
+
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
+	}
+
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.DeleteRentableUseType)
+		defer stmt.Close()
+		_, err = stmt.Exec(fields...)
+	} else {
+		_, err = RRdb.Prepstmt.DeleteRentableUseType.Exec(fields...)
+	}
+	if err != nil {
+		Ulog("Error deleting RentableUseType with id=%d\n", id, err)
+	}
+	return err
+}
+
 // DeleteRentalAgreementPayor deletes the Payor with the specified id from the database
 func DeleteRentalAgreementPayor(ctx context.Context, id int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{id}
@@ -1112,12 +976,8 @@ func DeleteRentalAgreementPayor(ctx context.Context, id int64) error {
 func DeleteRentalAgreementPayorByRBT(ctx context.Context, raid, bid, tcid int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{raid, bid, tcid}
@@ -1138,12 +998,8 @@ func DeleteRentalAgreementPayorByRBT(ctx context.Context, raid, bid, tcid int64)
 func DeleteRentableUserByRBT(ctx context.Context, rid, bid, tcid int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{rid, bid, tcid}
@@ -1164,12 +1020,8 @@ func DeleteRentableUserByRBT(ctx context.Context, rid, bid, tcid int64) error {
 func DeletePet(ctx context.Context, petid int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{petid}
@@ -1190,12 +1042,8 @@ func DeletePet(ctx context.Context, petid int64) error {
 func DeleteRentalAgreementRentable(ctx context.Context, id int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{id}
@@ -1216,12 +1064,8 @@ func DeleteRentalAgreementRentable(ctx context.Context, id int64) error {
 func DeleteRentalAgreement(ctx context.Context, raid int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{raid}
@@ -1242,12 +1086,8 @@ func DeleteRentalAgreement(ctx context.Context, raid int64) error {
 func DeleteAllRentalAgreementRentables(ctx context.Context, raid int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{raid}
@@ -1268,12 +1108,8 @@ func DeleteAllRentalAgreementRentables(ctx context.Context, raid int64) error {
 func DeleteAllRentalAgreementPayors(ctx context.Context, raid int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{raid}
@@ -1294,12 +1130,8 @@ func DeleteAllRentalAgreementPayors(ctx context.Context, raid int64) error {
 func DeleteAllPets(ctx context.Context, raid int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{raid}
@@ -1320,12 +1152,8 @@ func DeleteAllPets(ctx context.Context, raid int64) error {
 func DeleteRentableUser(ctx context.Context, id int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{id}
@@ -1346,12 +1174,8 @@ func DeleteRentableUser(ctx context.Context, id int64) error {
 func DeleteStringList(ctx context.Context, id int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	err = DeleteSLStrings(ctx, id)
@@ -1376,12 +1200,8 @@ func DeleteStringList(ctx context.Context, id int64) error {
 func DeleteSLString(ctx context.Context, id int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{id}
@@ -1402,12 +1222,8 @@ func DeleteSLString(ctx context.Context, id int64) error {
 func DeleteSLStrings(ctx context.Context, id int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	if id > 0 {
@@ -1430,12 +1246,8 @@ func DeleteSLStrings(ctx context.Context, id int64) error {
 func DeleteSubAR(ctx context.Context, sarid int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{sarid}
@@ -1456,12 +1268,8 @@ func DeleteSubAR(ctx context.Context, sarid int64) error {
 func DeleteSubARs(ctx context.Context, arid int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	if arid > 0 {
@@ -1603,12 +1411,8 @@ func DeleteTaskListDefinition(ctx context.Context, id int64) error {
 func DeleteTBind(ctx context.Context, id int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{id}
@@ -1633,12 +1437,8 @@ func DeleteTBind(ctx context.Context, id int64) error {
 func DeleteTransactant(ctx context.Context, id int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{id}
@@ -1659,12 +1459,8 @@ func DeleteTransactant(ctx context.Context, id int64) error {
 func DeleteUser(ctx context.Context, id int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{id}
@@ -1685,12 +1481,8 @@ func DeleteUser(ctx context.Context, id int64) error {
 func DeleteProspect(ctx context.Context, id int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{id}
@@ -1711,12 +1503,8 @@ func DeleteProspect(ctx context.Context, id int64) error {
 func DeletePayor(ctx context.Context, id int64) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
 	}
 
 	fields := []interface{}{id}

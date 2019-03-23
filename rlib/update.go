@@ -38,14 +38,8 @@ func updateError(err error, n string, a interface{}) error {
 func UpdateAR(ctx context.Context, a *AR) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	fields := []interface{}{a.BID, a.Name, a.ARType, a.DebitLID, a.CreditLID, a.Description, a.RARequired, a.DtStart, a.DtStop, a.FLAGS, a.DefaultAmount, a.DefaultRentCycle, a.DefaultProrationCycle, a.LastModBy, a.ARID}
@@ -162,14 +156,8 @@ func UpdateBusinessPropertiesData(ctx context.Context, jsonDataKey string, jsonD
 func UpdateClosePeriod(ctx context.Context, a *ClosePeriod) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	fields := []interface{}{a.BID, a.TLID, a.Dt, a.CreateBy, a.LastModBy, a.CPID}
@@ -188,14 +176,8 @@ func UpdateClosePeriod(ctx context.Context, a *ClosePeriod) error {
 func UpdateCustomAttribute(ctx context.Context, a *CustomAttribute) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	fields := []interface{}{a.BID, a.Type, a.Name, a.Value, a.Units, a.LastModBy, a.CID}
@@ -213,14 +195,8 @@ func UpdateCustomAttribute(ctx context.Context, a *CustomAttribute) error {
 func UpdateDemandSource(ctx context.Context, a *DemandSource) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	fields := []interface{}{a.Name, a.Industry, a.LastModBy, a.SourceSLSID}
@@ -238,14 +214,8 @@ func UpdateDemandSource(ctx context.Context, a *DemandSource) error {
 func UpdateDeposit(ctx context.Context, a *Deposit) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	fields := []interface{}{a.BID, a.DEPID, a.DPMID, a.Dt, a.Amount, a.ClearedAmount, a.FLAGS, a.LastModBy, a.DID}
@@ -263,14 +233,8 @@ func UpdateDeposit(ctx context.Context, a *Deposit) error {
 func UpdateDepository(ctx context.Context, a *Depository) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	fields := []interface{}{a.BID, a.LID, a.Name, a.AccountNo, a.LastModBy, a.DEPID}
@@ -288,14 +252,8 @@ func UpdateDepository(ctx context.Context, a *Depository) error {
 func UpdateDepositMethod(ctx context.Context, a *DepositMethod) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	fields := []interface{}{a.BID, a.Method, a.LastModBy, a.DPMID}
@@ -313,14 +271,8 @@ func UpdateDepositMethod(ctx context.Context, a *DepositMethod) error {
 func UpdateDepositPart(ctx context.Context, a *DepositPart) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	fields := []interface{}{a.DID, a.BID, a.RCPTID, a.LastModBy, a.DPID}
@@ -338,14 +290,8 @@ func UpdateDepositPart(ctx context.Context, a *DepositPart) error {
 func UpdateExpense(ctx context.Context, a *Expense) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	a.Amount = Round(a.Amount, .5, 2)
@@ -365,14 +311,8 @@ func UpdateExpense(ctx context.Context, a *Expense) error {
 func UpdateRAFlowWithInitState(ctx context.Context, a *Flow) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	// make sure that json is valid before inserting it in database
@@ -424,14 +364,8 @@ func UpdateRAFlowWithInitState(ctx context.Context, a *Flow) error {
 func UpdateFlow(ctx context.Context, a *Flow) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	// make sure that json is valid before inserting it in database
@@ -454,14 +388,8 @@ func UpdateFlow(ctx context.Context, a *Flow) error {
 func UpdateFlowPartData(ctx context.Context, jsonDataKey string, jsonData []byte, a *Flow) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	// make sure that json is valid before inserting it in database
@@ -486,14 +414,8 @@ func UpdateFlowPartData(ctx context.Context, jsonDataKey string, jsonData []byte
 func UpdateInvoice(ctx context.Context, a *Invoice) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	fields := []interface{}{a.BID, a.Dt, a.DtDue, a.Amount, a.DeliveredBy, a.LastModBy, a.InvoiceNo}
@@ -511,14 +433,8 @@ func UpdateInvoice(ctx context.Context, a *Invoice) error {
 func UpdateLedgerMarker(ctx context.Context, a *LedgerMarker) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	fields := []interface{}{a.LID, a.BID, a.RAID, a.RID, a.TCID, a.Dt, a.Balance, a.State, a.LastModBy, a.LMID}
@@ -536,14 +452,8 @@ func UpdateLedgerMarker(ctx context.Context, a *LedgerMarker) error {
 func UpdateLedger(ctx context.Context, a *GLAccount) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	fields := []interface{}{a.PLID, a.BID, a.RAID, a.TCID, a.GLNumber, a.Name, a.AcctType, a.AllowPost, a.FLAGS, a.Description, a.LastModBy, a.LID}
@@ -561,14 +471,8 @@ func UpdateLedger(ctx context.Context, a *GLAccount) error {
 func UpdateJournalAllocation(ctx context.Context, a *JournalAllocation) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	fields := []interface{}{a.BID, a.JID, a.RID, a.RAID, a.TCID, a.RCPTID, a.Amount, a.ASMID, a.EXPID, a.AcctRule, a.LastModBy, a.JAID}
@@ -586,14 +490,8 @@ func UpdateJournalAllocation(ctx context.Context, a *JournalAllocation) error {
 func UpdatePaymentType(ctx context.Context, a *PaymentType) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	fields := []interface{}{a.BID, a.Name, a.Description, a.LastModBy, a.PMTID}
@@ -611,14 +509,8 @@ func UpdatePaymentType(ctx context.Context, a *PaymentType) error {
 func UpdatePayor(ctx context.Context, a *Payor) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 	t1, err := Encrypt(a.TaxpayorID)
 	if err != nil {
@@ -648,14 +540,8 @@ func UpdatePayor(ctx context.Context, a *Payor) error {
 func UpdateProspect(ctx context.Context, a *Prospect) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	fields := []interface{}{
@@ -703,14 +589,8 @@ func UpdateProspect(ctx context.Context, a *Prospect) error {
 func UpdateRentable(ctx context.Context, a *Rentable) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	fields := []interface{}{a.BID, a.PRID, a.RentableName, a.AssignmentTime, a.MRStatus, a.DtMRStart, a.Comment, a.LastModBy, a.RID}
@@ -752,14 +632,8 @@ func UpdateRentableLeaseStatus(ctx context.Context, a *RentableLeaseStatus) erro
 func UpdateRentableUseStatus(ctx context.Context, a *RentableUseStatus) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	fields := []interface{}{a.RID, a.BID, a.DtStart, a.DtStop, a.Comment, a.UseStatus /*a.LeaseStatus,*/, a.LastModBy, a.RSID}
@@ -774,18 +648,32 @@ func UpdateRentableUseStatus(ctx context.Context, a *RentableUseStatus) error {
 	return updateError(err, "RentableUseStatus", *a)
 }
 
+// UpdateRentableUseType updates a RentableUseType record in the database
+func UpdateRentableUseType(ctx context.Context, a *RentableUseType) error {
+	var err error
+
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
+	}
+
+	fields := []interface{}{a.RID, a.BID, a.DtStart, a.DtStop, a.Comment, a.UseType, a.LastModBy, a.UTID}
+
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.UpdateRentableUseType)
+		defer stmt.Close()
+		_, err = stmt.Exec(fields...)
+	} else {
+		_, err = RRdb.Prepstmt.UpdateRentableUseType.Exec(fields...)
+	}
+	return updateError(err, "RentableUseType", *a)
+}
+
 // UpdateRatePlan updates a RatePlan record in the database
 func UpdateRatePlan(ctx context.Context, a *RatePlan) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	fields := []interface{}{a.BID, a.Name, a.LastModBy, a.RPID}
@@ -803,14 +691,8 @@ func UpdateRatePlan(ctx context.Context, a *RatePlan) error {
 func UpdateRatePlanRef(ctx context.Context, a *RatePlanRef) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	fields := []interface{}{a.BID, a.RPID, a.DtStart, a.DtStop, a.FeeAppliesAge, a.MaxNoFeeUsers, a.AdditionalUserFee, a.PromoCode, a.CancellationFee, a.FLAGS, a.LastModBy, a.RPRID}
@@ -828,14 +710,8 @@ func UpdateRatePlanRef(ctx context.Context, a *RatePlanRef) error {
 func UpdateRatePlanRefRTRate(ctx context.Context, a *RatePlanRefRTRate) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	fields := []interface{}{a.BID, a.FLAGS, a.Val, a.LastModBy, a.RPRID, a.RTID}
@@ -853,14 +729,8 @@ func UpdateRatePlanRefRTRate(ctx context.Context, a *RatePlanRefRTRate) error {
 func UpdateRatePlanRefSPRate(ctx context.Context, a *RatePlanRefSPRate) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	fields := []interface{}{a.BID, a.FLAGS, a.Val, a.LastModBy, a.RPRID, a.RTID, a.RSPID}
@@ -878,14 +748,8 @@ func UpdateRatePlanRefSPRate(ctx context.Context, a *RatePlanRefSPRate) error {
 func UpdateReceipt(ctx context.Context, a *Receipt) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	a.Amount = Round(a.Amount, .5, 2)
@@ -904,14 +768,8 @@ func UpdateReceipt(ctx context.Context, a *Receipt) error {
 func UpdateReceiptAllocation(ctx context.Context, a *ReceiptAllocation) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	a.Amount = Round(a.Amount, .5, 2)
@@ -930,14 +788,8 @@ func UpdateReceiptAllocation(ctx context.Context, a *ReceiptAllocation) error {
 func UpdateRentalAgreement(ctx context.Context, a *RentalAgreement) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	fields := []interface{}{
@@ -1015,14 +867,8 @@ func UpdateRentalAgreement(ctx context.Context, a *RentalAgreement) error {
 func UpdateRentalAgreementPayor(ctx context.Context, a *RentalAgreementPayor) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	fields := []interface{}{a.RAID, a.BID, a.TCID, a.DtStart, a.DtStop, a.FLAGS, a.LastModBy, a.RAPID}
@@ -1040,14 +886,8 @@ func UpdateRentalAgreementPayor(ctx context.Context, a *RentalAgreementPayor) er
 func UpdateRentalAgreementPayorByRBT(ctx context.Context, a *RentalAgreementPayor) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	fields := []interface{}{a.DtStart, a.DtStop, a.FLAGS, a.LastModBy, a.RAID, a.BID, a.TCID}
@@ -1065,14 +905,8 @@ func UpdateRentalAgreementPayorByRBT(ctx context.Context, a *RentalAgreementPayo
 func UpdatePet(ctx context.Context, a *Pet) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	fields := []interface{}{a.BID, a.RAID, a.TCID, a.Type, a.Breed, a.Color, a.Weight, a.Name, a.DtStart, a.DtStop, a.LastModBy, a.PETID}
@@ -1090,14 +924,8 @@ func UpdatePet(ctx context.Context, a *Pet) error {
 func UpdateRentalAgreementRentable(ctx context.Context, a *RentalAgreementRentable) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	fields := []interface{}{a.RAID, a.BID, a.RID, a.CLID, a.ContractRent, a.RARDtStart, a.RARDtStop, a.LastModBy, a.RARID}
@@ -1115,14 +943,8 @@ func UpdateRentalAgreementRentable(ctx context.Context, a *RentalAgreementRentab
 func UpdateRentableSpecialtyRef(ctx context.Context, a *RentableSpecialtyRef) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	fields := []interface{}{a.BID, a.RID, a.RSPID, a.DtStart, a.DtStop, a.LastModBy, a.RID, a.DtStart, a.DtStop}
@@ -1140,14 +962,8 @@ func UpdateRentableSpecialtyRef(ctx context.Context, a *RentableSpecialtyRef) er
 func UpdateRentableMarketRate(ctx context.Context, a *RentableMarketRate) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	fields := []interface{}{a.RTID, a.BID, a.MarketRate, a.DtStart, a.DtStop, a.LastModBy, a.RMRID}
@@ -1165,14 +981,8 @@ func UpdateRentableMarketRate(ctx context.Context, a *RentableMarketRate) error 
 func UpdateRentableType(ctx context.Context, a *RentableType) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	fields := []interface{}{a.BID, a.Style, a.Name, a.RentCycle, a.Proration, a.GSRPC, a.ARID, a.FLAGS, a.LastModBy, a.RTID}
@@ -1190,14 +1000,8 @@ func UpdateRentableType(ctx context.Context, a *RentableType) error {
 func UpdateRentableTypeToActive(ctx context.Context, a *RentableType) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 	fields := []interface{}{a.LastModBy, a.RTID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
@@ -1214,14 +1018,8 @@ func UpdateRentableTypeToActive(ctx context.Context, a *RentableType) error {
 func UpdateRentableTypeToInactive(ctx context.Context, a *RentableType) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 	fields := []interface{}{a.LastModBy, a.RTID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
@@ -1238,14 +1036,8 @@ func UpdateRentableTypeToInactive(ctx context.Context, a *RentableType) error {
 func UpdateRentableTypeRef(ctx context.Context, a *RentableTypeRef) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	//  SET BID=?,RTID=?,OverrideRentCycle=?,OverrideProrationCycle=?,LastModBy=? WHERE RID=? and DtStart=? and DtStop=?"
@@ -1264,14 +1056,8 @@ func UpdateRentableTypeRef(ctx context.Context, a *RentableTypeRef) error {
 func UpdateRentableUser(ctx context.Context, a *RentableUser) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	fields := []interface{}{a.RID, a.BID, a.TCID, a.DtStart, a.DtStop, a.LastModBy, a.RUID}
@@ -1289,14 +1075,8 @@ func UpdateRentableUser(ctx context.Context, a *RentableUser) error {
 func UpdateRentableUserByRBT(ctx context.Context, a *RentableUser) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	fields := []interface{}{a.DtStart, a.DtStop, a.LastModBy, a.RID, a.BID, a.TCID}
@@ -1315,14 +1095,8 @@ func UpdateRentableUserByRBT(ctx context.Context, a *RentableUser) error {
 func UpdateStringList(ctx context.Context, a *StringList) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	fields := []interface{}{a.BID, a.Name, a.LastModBy, a.SLID}
@@ -1343,14 +1117,8 @@ func UpdateStringList(ctx context.Context, a *StringList) error {
 func UpdateSLString(ctx context.Context, a *SLString) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	fields := []interface{}{a.SLID, a.Value, a.LastModBy, a.SLSID}
@@ -1368,14 +1136,8 @@ func UpdateSLString(ctx context.Context, a *SLString) error {
 func UpdateSubAR(ctx context.Context, a *SubAR) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	fields := []interface{}{a.ARID, a.SubARID, a.BID, a.LastModBy, a.SARID}
@@ -1505,14 +1267,8 @@ func UpdateTBind(ctx context.Context, a *TBind) error {
 func UpdateTransactant(ctx context.Context, a *Transactant) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	fields := []interface{}{a.BID, a.NLID, a.FirstName, a.MiddleName, a.LastName, a.PreferredName,
@@ -1533,14 +1289,8 @@ func UpdateTransactant(ctx context.Context, a *Transactant) error {
 func UpdateUser(ctx context.Context, a *User) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	fields := []interface{}{a.BID, a.Points, a.DateofBirth, a.EmergencyContactName, a.EmergencyContactAddress,
@@ -1560,14 +1310,8 @@ func UpdateUser(ctx context.Context, a *User) error {
 func UpdateVehicle(ctx context.Context, a *Vehicle) error {
 	var err error
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
 	}
 
 	fields := []interface{}{

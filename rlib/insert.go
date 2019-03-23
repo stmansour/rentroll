@@ -36,23 +36,12 @@ func insertError(err error, n string, a interface{}) error {
 // InsertAR writes a new AR record to the database. If the record is successfully written,
 // the ARID field is set to its new value.
 func InsertAR(ctx context.Context, a *AR) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -81,12 +70,9 @@ func InsertAR(ctx context.Context, a *AR) (int64, error) {
 // InsertAssessment writes a new assessmenttype record to the database. If the record is successfully written,
 // the ASMID field is set to its new value.
 func InsertAssessment(ctx context.Context, a *Assessment) (int64, error) {
-
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
 	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
 		return rid, err
@@ -141,23 +127,12 @@ func InsertAssessment(ctx context.Context, a *Assessment) (int64, error) {
 
 // InsertBuilding writes a new Building record to the database
 func InsertBuilding(ctx context.Context, a *Building) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -186,23 +161,12 @@ func InsertBuilding(ctx context.Context, a *Building) (int64, error) {
 // InsertBuildingWithID writes a new Building record to the database with the supplied bldgid
 // the Building ID must be set in the supplied Building struct ptr (a.BLDGID).
 func InsertBuildingWithID(ctx context.Context, a *Building) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -311,16 +275,8 @@ func InsertClosePeriod(ctx context.Context, a *ClosePeriod) (int64, error) {
 	var err error
 	var res sql.Result
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	fields := []interface{}{a.BID, a.TLID, a.Dt, a.CreateBy, a.LastModBy}
@@ -346,23 +302,12 @@ func InsertClosePeriod(ctx context.Context, a *ClosePeriod) (int64, error) {
 
 // InsertCustomAttribute writes a new User record to the database
 func InsertCustomAttribute(ctx context.Context, a *CustomAttribute) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -390,23 +335,12 @@ func InsertCustomAttribute(ctx context.Context, a *CustomAttribute) (int64, erro
 
 // InsertCustomAttributeRef writes a new assessmenttype record to the database
 func InsertCustomAttributeRef(ctx context.Context, a *CustomAttributeRef) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -434,23 +368,12 @@ func InsertCustomAttributeRef(ctx context.Context, a *CustomAttributeRef) (int64
 
 // InsertDemandSource writes a new DemandSource record to the database
 func InsertDemandSource(ctx context.Context, a *DemandSource) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -478,23 +401,12 @@ func InsertDemandSource(ctx context.Context, a *DemandSource) (int64, error) {
 
 // InsertDeposit writes a new Deposit record to the database
 func InsertDeposit(ctx context.Context, a *Deposit) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -522,23 +434,12 @@ func InsertDeposit(ctx context.Context, a *Deposit) (int64, error) {
 
 // InsertDepositMethod writes a new DepositMethod record to the database
 func InsertDepositMethod(ctx context.Context, a *DepositMethod) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -566,23 +467,12 @@ func InsertDepositMethod(ctx context.Context, a *DepositMethod) (int64, error) {
 
 // InsertDepositPart writes a new DepositPart record to the database
 func InsertDepositPart(ctx context.Context, a *DepositPart) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -610,23 +500,12 @@ func InsertDepositPart(ctx context.Context, a *DepositPart) (int64, error) {
 
 // InsertDepository writes a new Depository record to the database
 func InsertDepository(ctx context.Context, a *Depository) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -658,23 +537,12 @@ func InsertDepository(ctx context.Context, a *Depository) (int64, error) {
 
 // InsertExpense writes a new Expense record to the database
 func InsertExpense(ctx context.Context, a *Expense) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	a.Amount = Round(a.Amount, .5, 2)
@@ -707,22 +575,12 @@ func InsertExpense(ctx context.Context, a *Expense) (int64, error) {
 
 // InsertFlow inserts the flow with data provided in "a".
 func InsertFlow(ctx context.Context, a *Flow) (int64, error) {
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
+	var rid int64
+	var err error
+	var res sql.Result
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// make sure that json is valid before inserting it in database
@@ -762,23 +620,12 @@ func InsertFlow(ctx context.Context, a *Flow) (int64, error) {
 
 // InsertInvoice writes a new Invoice record to the database
 func InsertInvoice(ctx context.Context, a *Invoice) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -806,23 +653,12 @@ func InsertInvoice(ctx context.Context, a *Invoice) (int64, error) {
 
 // InsertInvoiceAssessment writes a new InvoiceAssessment record to the database
 func InsertInvoiceAssessment(ctx context.Context, a *InvoiceAssessment) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -850,23 +686,12 @@ func InsertInvoiceAssessment(ctx context.Context, a *InvoiceAssessment) (int64, 
 
 // InsertInvoicePayor writes a new InvoicePayor record to the database
 func InsertInvoicePayor(ctx context.Context, a *InvoicePayor) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -894,23 +719,12 @@ func InsertInvoicePayor(ctx context.Context, a *InvoicePayor) (int64, error) {
 
 // InsertJournal writes a new Journal entry to the database
 func InsertJournal(ctx context.Context, a *Journal) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -939,23 +753,12 @@ func InsertJournal(ctx context.Context, a *Journal) (int64, error) {
 // InsertJournalAllocationEntry writes a new JournalAllocation record to the database. Also sets JAID with its
 // newly assigned id.
 func InsertJournalAllocationEntry(ctx context.Context, a *JournalAllocation) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// debug.PrintStack()
@@ -984,23 +787,12 @@ func InsertJournalAllocationEntry(ctx context.Context, a *JournalAllocation) (in
 
 // InsertJournalMarker writes a new JournalMarker record to the database
 func InsertJournalMarker(ctx context.Context, a *JournalMarker) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -1177,23 +969,12 @@ func InsertNote(ctx context.Context, a *Note) (int64, error) {
 
 // InsertNoteList inserts a new wrapper for a notelist into the database
 func InsertNoteList(ctx context.Context, a *NoteList) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -1225,23 +1006,12 @@ func InsertNoteList(ctx context.Context, a *NoteList) (int64, error) {
 
 // InsertNoteType writes a new NoteType to the database
 func InsertNoteType(ctx context.Context, a *NoteType) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -1273,23 +1043,12 @@ func InsertNoteType(ctx context.Context, a *NoteType) (int64, error) {
 
 // InsertRatePlan writes a new RatePlan record to the database
 func InsertRatePlan(ctx context.Context, a *RatePlan) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -1317,23 +1076,12 @@ func InsertRatePlan(ctx context.Context, a *RatePlan) (int64, error) {
 
 // InsertRatePlanRef writes a new RatePlanRef record to the database
 func InsertRatePlanRef(ctx context.Context, a *RatePlanRef) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -1361,23 +1109,12 @@ func InsertRatePlanRef(ctx context.Context, a *RatePlanRef) (int64, error) {
 
 // InsertRatePlanRefRTRate writes a new RatePlanRefRTRate record to the database
 func InsertRatePlanRefRTRate(ctx context.Context, a *RatePlanRefRTRate) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -1405,23 +1142,12 @@ func InsertRatePlanRefRTRate(ctx context.Context, a *RatePlanRefRTRate) (int64, 
 
 // InsertRatePlanRefSPRate writes a new RatePlanRefSPRate record to the database
 func InsertRatePlanRefSPRate(ctx context.Context, a *RatePlanRefSPRate) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -1453,23 +1179,12 @@ func InsertRatePlanRefSPRate(ctx context.Context, a *RatePlanRefSPRate) (int64, 
 
 // InsertPaymentType writes a new assessmenttype record to the database
 func InsertPaymentType(ctx context.Context, a *PaymentType) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -1497,23 +1212,12 @@ func InsertPaymentType(ctx context.Context, a *PaymentType) (int64, error) {
 
 // InsertRentable writes a new Rentable record to the database
 func InsertRentable(ctx context.Context, a *Rentable) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -1546,23 +1250,12 @@ func InsertRentable(ctx context.Context, a *Rentable) (int64, error) {
 // InsertReceipt writes a new Receipt record to the database. If the record is successfully written,
 // the RCPTID field is set to its new value.
 func InsertReceipt(ctx context.Context, a *Receipt) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	a.Amount = Round(a.Amount, .5, 2)
@@ -1591,23 +1284,12 @@ func InsertReceipt(ctx context.Context, a *Receipt) (int64, error) {
 
 // InsertReceiptAllocation writes a new ReceiptAllocation record to the database
 func InsertReceiptAllocation(ctx context.Context, a *ReceiptAllocation) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	a.Amount = Round(a.Amount, .5, 2)
@@ -1636,23 +1318,12 @@ func InsertReceiptAllocation(ctx context.Context, a *ReceiptAllocation) (int64, 
 
 // InsertRentalAgreement writes a new RentalAgreement record to the database
 func InsertRentalAgreement(ctx context.Context, a *RentalAgreement) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -1739,23 +1410,12 @@ func InsertRentalAgreement(ctx context.Context, a *RentalAgreement) (int64, erro
 
 // InsertRentalAgreementPayor writes a new User record to the database
 func InsertRentalAgreementPayor(ctx context.Context, a *RentalAgreementPayor) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -1783,23 +1443,12 @@ func InsertRentalAgreementPayor(ctx context.Context, a *RentalAgreementPayor) (i
 
 // InsertPet writes a new User record to the database
 func InsertPet(ctx context.Context, a *Pet) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -1827,23 +1476,12 @@ func InsertPet(ctx context.Context, a *Pet) (int64, error) {
 
 // InsertRentalAgreementRentable writes a new User record to the database
 func InsertRentalAgreementRentable(ctx context.Context, a *RentalAgreementRentable) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -1875,23 +1513,12 @@ func InsertRentalAgreementRentable(ctx context.Context, a *RentalAgreementRentab
 
 // InsertRentalAgreementTemplate writes a new User record to the database
 func InsertRentalAgreementTemplate(ctx context.Context, a *RentalAgreementTemplate) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -1919,23 +1546,12 @@ func InsertRentalAgreementTemplate(ctx context.Context, a *RentalAgreementTempla
 
 // InsertRentableSpecialty writes a new RentableSpecialty record to the database
 func InsertRentableSpecialty(ctx context.Context, a *RentableSpecialty) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -1963,23 +1579,12 @@ func InsertRentableSpecialty(ctx context.Context, a *RentableSpecialty) (int64, 
 
 // InsertRentableMarketRate writes a new marketrate record to the database
 func InsertRentableMarketRate(ctx context.Context, a *RentableMarketRate) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -2007,23 +1612,12 @@ func InsertRentableMarketRate(ctx context.Context, a *RentableMarketRate) (int64
 
 // InsertRentableType writes a new RentableType record to the database
 func InsertRentableType(ctx context.Context, a *RentableType) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -2051,23 +1645,12 @@ func InsertRentableType(ctx context.Context, a *RentableType) (int64, error) {
 
 // InsertRentableSpecialtyRef writes a new RentableSpecialty record to the database
 func InsertRentableSpecialtyRef(ctx context.Context, a *RentableSpecialtyRef) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -2093,70 +1676,14 @@ func InsertRentableSpecialtyRef(ctx context.Context, a *RentableSpecialtyRef) (i
 	return rid, err
 }
 
-// InsertRentableUseStatus writes a new RentableUseStatus record to the database
-func InsertRentableUseStatus(ctx context.Context, a *RentableUseStatus) (int64, error) {
-
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
-	}
-
-	// transaction... context
-	fields := []interface{}{a.RID, a.BID, a.DtStart, a.DtStop, a.Comment, a.UseStatus /*a.LeaseStatus,*/, a.CreateBy, a.LastModBy}
-	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.InsertRentableUseStatus)
-		defer stmt.Close()
-		res, err = stmt.Exec(fields...)
-	} else {
-		res, err = RRdb.Prepstmt.InsertRentableUseStatus.Exec(fields...)
-	}
-
-	// After getting result...
-	if nil == err {
-		x, err := res.LastInsertId()
-		if err == nil {
-			rid = int64(x)
-			a.RSID = rid
-		}
-	} else {
-		err = insertError(err, "RentableUseStatus", *a)
-	}
-	return rid, err
-
-}
-
 // InsertRentableLeaseStatus writes a new RentableLeaseStatus record to the database
 func InsertRentableLeaseStatus(ctx context.Context, a *RentableLeaseStatus) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -2185,23 +1712,12 @@ func InsertRentableLeaseStatus(ctx context.Context, a *RentableLeaseStatus) (int
 
 // InsertRentableTypeRef writes a new RentableTypeRef record to the database
 func InsertRentableTypeRef(ctx context.Context, a *RentableTypeRef) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -2227,25 +1743,82 @@ func InsertRentableTypeRef(ctx context.Context, a *RentableTypeRef) (int64, erro
 	return rid, err
 }
 
+// InsertRentableUseStatus writes a new RentableUseStatus record to the database
+func InsertRentableUseStatus(ctx context.Context, a *RentableUseStatus) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
+
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
+	}
+
+	// transaction... context
+	fields := []interface{}{a.RID, a.BID, a.DtStart, a.DtStop, a.Comment, a.UseStatus /*a.LeaseStatus,*/, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertRentableUseStatus)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertRentableUseStatus.Exec(fields...)
+	}
+
+	// After getting result...
+	if nil == err {
+		x, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(x)
+			a.RSID = rid
+		}
+	} else {
+		err = insertError(err, "RentableUseStatus", *a)
+	}
+	return rid, err
+
+}
+
+// InsertRentableUseType writes a new RentableUseType record to the database
+func InsertRentableUseType(ctx context.Context, a *RentableUseType) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
+
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
+	}
+
+	// transaction... context
+	fields := []interface{}{a.RID, a.BID, a.DtStart, a.DtStop, a.Comment, a.UseType, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertRentableUseType)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertRentableUseType.Exec(fields...)
+	}
+
+	// After getting result...
+	if nil == err {
+		x, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(x)
+			a.UTID = rid
+		}
+	} else {
+		err = insertError(err, "RentableUseType", *a)
+	}
+	return rid, err
+
+}
+
 // InsertRentableUser writes a new User record to the database
 func InsertRentableUser(ctx context.Context, a *RentableUser) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -2273,23 +1846,12 @@ func InsertRentableUser(ctx context.Context, a *RentableUser) (int64, error) {
 
 // InsertStringList writes a new StringList record to the database
 func InsertStringList(ctx context.Context, a *StringList) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -2325,23 +1887,12 @@ func InsertStringList(ctx context.Context, a *StringList) (int64, error) {
 // Otherwise it creates new transaction and executes bulk write and commit it
 // TAGS: BULK-WRITE,
 func InsertSLStrings(ctx context.Context, a *StringList) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// SPECIAL CASE
@@ -2400,23 +1951,12 @@ func InsertSLStrings(ctx context.Context, a *StringList) (int64, error) {
 
 // InsertSubAR writes a SubAR to the database
 func InsertSubAR(ctx context.Context, a *SubAR) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -2618,23 +2158,12 @@ func InsertTBind(ctx context.Context, a *TBind) (int64, error) {
 
 // InsertTransactant writes a new Transactant record to the database
 func InsertTransactant(ctx context.Context, a *Transactant) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -2673,16 +2202,8 @@ func InsertPayor(ctx context.Context, a *Payor) (int64, error) {
 	)
 	rid = a.TCID
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// Encrypt TaxpayorID
@@ -2736,16 +2257,8 @@ func InsertProspect(ctx context.Context, a *Prospect) (int64, error) {
 		// res sql.Result
 	)
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -2815,16 +2328,8 @@ func InsertUser(ctx context.Context, a *User) (int64, error) {
 		// res sql.Result
 	)
 
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context
@@ -2857,23 +2362,12 @@ func InsertUser(ctx context.Context, a *User) (int64, error) {
 
 // InsertVehicle writes a new Vehicle record to the database
 func InsertVehicle(ctx context.Context, a *Vehicle) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
 
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
+	if err = insertSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return rid, err
 	}
 
 	// transaction... context

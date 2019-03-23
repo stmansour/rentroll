@@ -1407,7 +1407,23 @@ type RentableUseStatus struct {
 	DtStart     time.Time // start of period
 	DtStop      time.Time // end of period
 	Comment     string    // comment
-	UseStatus   int64     // 1-Administrative, 2=InService, 3=Employee, 4=Model, 5=OfflineRennovation, 6=OfflineMaintenance
+	UseStatus   int64     // 0 = Ready, 1=InService, 5=OfflineRennovation, 6=OfflineMaintenance, 7=Inactive(no longer a valid rentable)
+	LastModTime time.Time // time of last update to the db record
+	LastModBy   int64     // who made the update (Phonebook UID)
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
+	// LeaseStatus int64     // 1-Vacant-rented, 2=VacantNotRented, 3=OnNoticePreLeased, 4=OnNoticeAvailable, 5=Leased, 6=Unavailable
+}
+
+// RentableUseType archives the state of a Rentable during the specified period of time
+type RentableUseType struct {
+	UTID        int64     // unique ID for this Rentable Use Status
+	RID         int64     // associated Rentable
+	BID         int64     // associated business
+	DtStart     time.Time // start of period
+	DtStop      time.Time // end of period
+	Comment     string    // comment
+	UseType     int64     // 100 = Standard, 101=Administrative, 102=Employee, 103=OwnerOccupied
 	LastModTime time.Time // time of last update to the db record
 	LastModBy   int64     // who made the update (Phonebook UID)
 	CreateTS    time.Time // when was this record created
@@ -2028,6 +2044,13 @@ type RRprepSQL struct {
 	GetAssessmentInstancesByRAIDRIDRent     *sql.Stmt
 	GetTaskListTypeDown                     *sql.Stmt
 	GetRentableMarketRateByRange            *sql.Stmt
+	GetRentableUseType                      *sql.Stmt
+	GetRentableUseTypeByRange               *sql.Stmt
+	GetRentableUseTypeOnOrAfter             *sql.Stmt
+	GetAllRentableUseType                   *sql.Stmt
+	InsertRentableUseType                   *sql.Stmt
+	UpdateRentableUseType                   *sql.Stmt
+	DeleteRentableUseType                   *sql.Stmt
 }
 
 // DeleteBusinessFromDB deletes information from all tables if it is part of the supplied BID.

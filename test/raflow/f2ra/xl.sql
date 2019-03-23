@@ -1929,6 +1929,38 @@ INSERT INTO `RentableUseStatus` VALUES (1,1,1,1,'2018-01-01 00:00:00','3000-12-3
 UNLOCK TABLES;
 
 --
+-- Table structure for table `RentableUseType`
+--
+
+DROP TABLE IF EXISTS `RentableUseType`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `RentableUseType` (
+  `UTID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `RID` bigint(20) NOT NULL DEFAULT '0',
+  `BID` bigint(20) NOT NULL DEFAULT '0',
+  `UseType` smallint(6) NOT NULL DEFAULT '0',
+  `DtStart` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
+  `DtStop` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
+  `Comment` varchar(2048) NOT NULL DEFAULT '',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
+  `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`UTID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `RentableUseType`
+--
+
+LOCK TABLES `RentableUseType` WRITE;
+/*!40000 ALTER TABLE `RentableUseType` DISABLE KEYS */;
+/*!40000 ALTER TABLE `RentableUseType` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `RentableUsers`
 --
 
@@ -2680,4 +2712,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-03-21 12:18:54
+-- Dump completed on 2019-03-22 23:34:45
