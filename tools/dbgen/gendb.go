@@ -582,9 +582,21 @@ func createChildRentableTypes(ctx context.Context, dbConf *GenDBConf) error {
 		rs.DtStop = dbConf.DtEOT
 		rs.BID = dbConf.BIZ[0].BID
 		rs.RID = r.RID
-		//rs.LeaseStatus = rlib.LEASESTATUSnotleased
 		rs.UseStatus = rlib.USESTATUSready
 		_, err = rlib.InsertRentableUseStatus(ctx, &rs)
+		if err != nil {
+			return err
+		}
+		//-----------------------------
+		// RENTABLE USE TYPE
+		//-----------------------------
+		var rut rlib.RentableUseType
+		rut.DtStart = dbConf.DtBOT
+		rut.DtStop = dbConf.DtEOT
+		rut.BID = dbConf.BIZ[0].BID
+		rut.RID = r.RID
+		rut.UseType = rlib.USETYPEstandard
+		_, err = rlib.InsertRentableUseType(ctx, &rut)
 		if err != nil {
 			return err
 		}
@@ -601,7 +613,6 @@ func createChildRentableTypes(ctx context.Context, dbConf *GenDBConf) error {
 		if err != nil {
 			return err
 		}
-
 	}
 	return nil
 }
@@ -639,6 +650,17 @@ func createRentables(ctx context.Context, dbConf *GenDBConf, rt *RType, mr *rlib
 		rs.RID = r.RID
 		rs.UseStatus = rlib.USESTATUSready
 		_, err = rlib.InsertRentableUseStatus(ctx, &rs)
+		if err != nil {
+			return err
+		}
+
+		var rut rlib.RentableUseType
+		rut.DtStart = dbConf.DtBOT
+		rut.DtStop = dbConf.DtEOT
+		rut.BID = dbConf.BIZ[0].BID
+		rut.RID = r.RID
+		rut.UseType = rlib.USETYPEstandard
+		_, err = rlib.InsertRentableUseType(ctx, &rut)
 		if err != nil {
 			return err
 		}

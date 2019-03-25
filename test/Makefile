@@ -1,5 +1,4 @@
-#DIRS=setup business newbiz crypto workerasm mrr rrr rr1 rr rr_use_cases jm1 gsr notes ccc upd acctbal gap importers bizdelete testdb bizlogic ws websvc1 websvc2 websvc3 rtr rus rls reservation closeperiod payorstmt roller tws tws3 receipts raflow strlist webclient
-DIRS=setup business newbiz crypto workerasm mrr rrr rr1 rr rr_use_cases jm1 gsr notes ccc upd acctbal gap importers bizdelete testdb bizlogic ws websvc1 websvc2 websvc3 asm rtr rus rls rmr reservation closeperiod payorstmt roller tws tws3 receipts raflow strlist
+DIRS=setup business newbiz crypto workerasm mrr rrr rr1 rr rr_use_cases jm1 gsr notes ccc upd acctbal gap importers bizdelete testdb bizlogic ws websvc1 websvc2 websvc3 asm rtr rus rls rut rmr reservation closeperiod payorstmt roller tws tws3 receipts raflow strlist
 
 TESTREPORT="testreport.txt"
 RLNK = acctbal bizlogic conv crypto gsr notes rfix rr strlist tws tws3 upd workerasm

@@ -1,0 +1,19 @@
+{
+    "records": [
+        {
+            "BID": 1,
+            "BUD": "REX",
+            "Comment": "",
+            "CreateBy": 0,
+            "DtStart": "1/1/2018",
+            "DtStop": "12/30/9999",
+            "LastModBy": 0,
+            "RID": 1,
+            "UTID": 1,
+            "UseType": 100,
+            "recid": 0
+        }
+    ],
+    "status": "success",
+    "total": 1
+}

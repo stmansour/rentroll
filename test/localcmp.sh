@@ -1,14 +1,4 @@
 #!/bin/bash
-TOP=..
-BINDIR="${TOP}/tmp/rentroll"
-MYSQL="mysql --no-defaults"
-DBNAME="rentroll"
-DEF1="def1.sh"
-DEF2="def2.sh"
-S1="schema1"
-REFDB="refdb"
-CHECKDB="checkdb"
-DBREPORT="dbreport.txt"
 
 ###############################################################################
 # Compare the schemas in the current development source tree to the definition
@@ -182,8 +172,32 @@ EOT
 	fi
 }
 
+###############################################################################
+# setdirs
+#	Sets all the environment variables used by this script. 
+#
+#	Parameters:
+# 		n/a
+###############################################################################
+setdirs() {
+	TOP="${GOPATH}/src/rentroll"
+	BINDIR="${TOP}/tmp/rentroll"
+	TESTDIR="${TOP}/test"
+	SCHEMA="${TOP}/db/schema/schema.sql"
+	MYSQL="mysql --no-defaults"
+	DBNAME="rentroll"
+	DEF1="def1.sh"
+	DEF2="def2.sh"
+	S1="schema1"
+	REFDB="refdb"
+	CHECKDB="checkdb"
+	DBREPORT="dbreport.txt"
+}
+
 SINGLEFILE=
 STOPONERR=0
+echo "whereami:  "
+
 #==============================================================================
 #
 # 				SCRIPT BEGINS HERE...
@@ -205,13 +219,14 @@ while getopts "f:F:s" o; do
 done
 shift $((OPTIND-1))
 
+setdirs
+
 #==============================================================================
 # First see if we need to actually do this comparison.  We'll save a file
 # after we complete a comparison to have the date of the last compare. If
 # the db schema file is older than our last comparison we don't need to
 # do the compare.
 #==============================================================================
-SCHEMA="../db/schema/schema.sql"
 # LASTCHECK="./lastschemacheck"
 # NEEDCHECK=0
 # if [ ! -f "${LASTCHECK}" ]; then
@@ -233,7 +248,7 @@ SCHEMA="../db/schema/schema.sql"
 rm -f "dbqqqmods.sql"   # this is the temp db from dbmod.sql
 mv dbfiles.txt dbfiles.old
 cat >dbfiles.txt <<EOF
-../tools/dbgen/empty.sql
+${TOP}/tools/dbgen/empty.sql
 EOF
 find . -name "*.sql" >> dbfiles.txt
 
