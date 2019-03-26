@@ -82,7 +82,7 @@ func InitBizLogic() {
 		}
 		j, err := strconv.Atoi(n)
 		if err != nil {
-			rlib.LogAndPrint("InitBizLogic: bizerr.csv - line %d, Invalid number %s\n", n)
+			rlib.LogAndPrint("InitBizLogic: bizerr.csv - line %d, Invalid number %s\n", 1, n)
 		}
 		b := BizError{Errno: j, Message: t[i][1]}
 		BizErrors = append(BizErrors, b)

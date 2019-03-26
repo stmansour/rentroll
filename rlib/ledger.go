@@ -224,7 +224,7 @@ func UpdateSubLedgerMarkers(ctx context.Context, bid int64, d2 *time.Time) error
 	for k := range RRdb.BizTypes[bid].GLAccounts {
 		lm, err := GetLedgerMarkerOnOrBefore(ctx, bid, k, d2)
 		if err != nil {
-			Ulog("%s: Error from GetLedgerMarkerOnOrBefore: %s\n", err.Error())
+			Ulog("%s: Error from GetLedgerMarkerOnOrBefore: %s\n", funcname, err.Error())
 			continue
 		}
 

@@ -434,7 +434,7 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// in the future when we're able to keep the payors up-to-date for
 		// Isola Bella.
 		//-------------------------------------------------------------------
-		rlib.Console("%s: d.RCPTID = %d, a.RCPTID = %d\n", d.RCPTID)
+		rlib.Console("%s: d.RCPTID = %d, a.RCPTID = %d\n", funcname, d.RCPTID, a.RCPTID)
 		if d.wsSearchReq.Client == rlib.RECEIPTONLYCLIENT {
 			rcpt, err := rlib.GetReceipt(r.Context(), d.RCPTID)
 			if err != nil {

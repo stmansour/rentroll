@@ -960,9 +960,9 @@ func SvcImportGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		return
 	}
 
-	for j := 0; j < len(fheaders); j++ {
-		rlib.Console("header[%d] = %s\n", fheaders[j])
-	}
+	// for j := 0; j < len(fheaders); j++ {
+	// 	rlib.Console("header[%d] = %s\n", j, fheaders[j])
+	// }
 
 	// ------------------
 	// CHECK Content-Type

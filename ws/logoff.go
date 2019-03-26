@@ -31,7 +31,7 @@ func SvcLogoff(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var funcname = "SvcLogoff"
 	rlib.Console("Entered %s\n", funcname)
 	if d.sess == nil {
-		rlib.Console("%s:  d.sess is nil\n")
+		rlib.Console("%s:  d.sess is nil\n", funcname)
 		err := fmt.Errorf("%s: cannot delete nil session", funcname)
 		SvcErrorReturn(w, err, funcname)
 		return

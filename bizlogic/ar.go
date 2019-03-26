@@ -77,7 +77,7 @@ func ValidateAcctRule(ctx context.Context, a *rlib.AR) []BizError {
 	var e []BizError
 
 	if !ARType(a.ARType).IsValid() {
-		rlib.Console("*** ERROR *** invalid ARType: %d for a.ARID = %d\n", a.ARID)
+		rlib.Console("*** ERROR *** invalid ARType: %d for a.ARID = %d\n", a.ARType, a.ARID)
 		s := fmt.Sprintf(BizErrors[UnknownARType].Message, a.ARType, a.ARID)
 		b := BizError{Errno: UnknownARType, Message: s}
 		e = append(e, b)

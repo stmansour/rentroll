@@ -260,7 +260,7 @@ func saveRentableTypeMarketRates(w http.ResponseWriter, r *http.Request, d *Serv
 
 		if EDIadjust {
 			rlib.EDIHandleIncomingDateRange(a.BID, &a.DtStart, &a.DtStop)
-			rlib.Console("%s: after EDI adjust date range = %s\n", funcname, &a.DtStart, &a.DtStop)
+			rlib.Console("%s: after EDI adjust date range = %s\n", funcname, rlib.ConsoleDRange(&a.DtStart, &a.DtStop))
 		}
 
 		errs := bizlogic.ValidateRentableMarketRate(r.Context(), &a)

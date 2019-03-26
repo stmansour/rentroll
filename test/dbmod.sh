@@ -598,6 +598,21 @@ EOF
 # ALTER TABLE RentableLeaseStatus ADD CCExpMonth VARCHAR(100) NOT NULL DEFAULT '' AFTER CCNumber;
 # ALTER TABLE RentableLeaseStatus ADD CCExpYear VARCHAR(100) NOT NULL DEFAULT '' AFTER CCExpMonth;
 #
+# March 18, 2019
+# CREATE TABLE RentableUseType (
+#     UTID BIGINT NOT NULL AUTO_INCREMENT,                            -- unique id for Rentable Use Type
+#     RID BIGINT NOT NULL DEFAULT 0,                                  -- associated Rentable
+#     BID BIGINT NOT NULL DEFAULT 0,                                  -- Business
+#     UseType SMALLINT NOT NULL DEFAULT 0,                            -- 100 = Standard, 101=Administrative, 102=Employee, 103=OwnerOccupied
+#     DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',        -- start time for this state
+#     DtStop DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',         -- stop time for this state
+#     Comment VARCHAR(2048) NOT NULL DEFAULT '',                      -- company notes for this person
+#     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
+#     LastModBy BIGINT NOT NULL DEFAULT 0,                            -- employee UID (from phonebook) that modified it
+#     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,          -- when was this record created
+#     CreateBy BIGINT NOT NULL DEFAULT 0,                             -- employee UID (from phonebook) that created this record
+#     PRIMARY KEY (UTID)
+# );
 
 
 ########################################
@@ -646,20 +661,6 @@ shift $((OPTIND-1))
 #  Put modifications to schema in the lines below
 #=====================================================
 cat >${MODFILE} <<EOF
-CREATE TABLE RentableUseType (
-    UTID BIGINT NOT NULL AUTO_INCREMENT,                            -- unique id for Rentable Use Type
-    RID BIGINT NOT NULL DEFAULT 0,                                  -- associated Rentable
-    BID BIGINT NOT NULL DEFAULT 0,                                  -- Business
-    UseType SMALLINT NOT NULL DEFAULT 0,                            -- 100 = Standard, 101=Administrative, 102=Employee, 103=OwnerOccupied
-    DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',        -- start time for this state
-    DtStop DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',         -- stop time for this state
-    Comment VARCHAR(2048) NOT NULL DEFAULT '',                      -- company notes for this person
-    LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,                            -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,          -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                             -- employee UID (from phonebook) that created this record
-    PRIMARY KEY (UTID)
-);
 
 EOF
 

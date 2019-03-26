@@ -812,7 +812,7 @@ func DeleteRentableTypeRefWithRTID(ctx context.Context, rtid int64) error {
 		_, err = RRdb.Prepstmt.DeleteRentableTypeRefWithRTID.Exec(fields...)
 	}
 	if err != nil {
-		Ulog("Error deleting RentableTypeRef with rtid=%d\n", rtid, err)
+		Ulog("Error deleting RentableTypeRef with rtid=%d: %s\n", rtid, err.Error())
 	}
 	return err
 }
@@ -834,7 +834,7 @@ func DeleteRentableTypeRef(ctx context.Context, rtrid int64) error {
 		_, err = RRdb.Prepstmt.DeleteRentableTypeRef.Exec(fields...)
 	}
 	if err != nil {
-		Ulog("Error deleting RentableTypeRef with rtrid=%d\n", rtrid, err)
+		Ulog("Error deleting RentableTypeRef with rtrid=%d: %s\n", rtrid, err.Error())
 	}
 	return err
 }
@@ -901,7 +901,7 @@ func DeleteRentableLeaseStatus(ctx context.Context, rlid int64) error {
 		_, err = RRdb.Prepstmt.DeleteRentableLeaseStatus.Exec(fields...)
 	}
 	if err != nil {
-		Ulog("Error deleting RentableLeaseStatus with rlid=%d\n", rlid, err)
+		Ulog("Error deleting RentableLeaseStatus with rlid=%d: %s\n", rlid, err.Error())
 	}
 	return err
 }
@@ -923,7 +923,7 @@ func DeleteRentableUseStatus(ctx context.Context, rsid int64) error {
 		_, err = RRdb.Prepstmt.DeleteRentableUseStatus.Exec(fields...)
 	}
 	if err != nil {
-		Ulog("Error deleting RentableUseStatus with rsid=%d\n", rsid, err)
+		Ulog("Error deleting RentableUseStatus with rsid=%d: %s\n", rsid, err.Error())
 	}
 	return err
 }
@@ -945,7 +945,7 @@ func DeleteRentableUseType(ctx context.Context, id int64) error {
 		_, err = RRdb.Prepstmt.DeleteRentableUseType.Exec(fields...)
 	}
 	if err != nil {
-		Ulog("Error deleting RentableUseType with id=%d\n", id, err)
+		Ulog("Error deleting RentableUseType with id=%d: %s\n", id, err.Error())
 	}
 	return err
 }
