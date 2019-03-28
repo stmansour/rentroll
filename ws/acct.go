@@ -306,7 +306,8 @@ func SvcSearchHandlerGLAccounts(w http.ResponseWriter, r *http.Request, d *Servi
 			return
 		}
 		rlib.MigrateStructVals(&q, &p)
-		p.Recid = count
+		//p.Recid = count
+		p.Recid = int(q.LID)
 		p.IsActive = (p.FLAGS & 0x1) == 0 // 1<<0: 0=active, 1=inactive
 
 		g.Records = append(g.Records, p)

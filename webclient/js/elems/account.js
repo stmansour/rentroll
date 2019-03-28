@@ -221,7 +221,7 @@ window.buildAccountElements = function() {
             { field: "LID",         required: false,    type: 'int',        html: { caption: "LID", page: 0, column: 0 } },
             { field: 'PLID',        required: false,    type: 'list',       options: { items: [], selected: {}, maxDropHeight: 200 } },
             { field: "BID",         required: false,    type: 'int',        html: { caption: "BID", page: 0, column: 0 } },
-            { field: "BUD",         required: true,     type: 'list',       options: { items: app.businesses, maxDropHeight: 350 }, html: { caption: "BUD", page: 0, column: 0 } },
+            { field: "BUD",         required: false,     type: 'list',       options: { items: app.businesses, maxDropHeight: 350 }, html: { caption: "BUD", page: 0, column: 0 } },
             { field: "RAID",        required: false,    type: 'int',        html: { caption: "RAID", page: 0, column: 0 } },
             { field: "TCID",        required: false,    type: 'int',        html: { caption: "TCID", page: 0, column: 0 } },
             { field: "GLNumber",    required: true,     type: 'text',       html: { caption: "GLNumber", page: 0, column: 0 } },
