@@ -40,26 +40,25 @@ type DispatchCtx struct {
 
 // App is the global data structure for this app
 var App struct {
-	dbdir        *sql.DB  // phonebook db
-	dbrr         *sql.DB  // rentroll db
-	DBDir        string   // phonebook database
-	PortRR       int      // port on which rentroll listens
-	DBUser       string   // user for all databases
-	Report       string   // if testing engine, which report/action to perform
-	LogFile      *os.File // where to log messages
-	BatchMode    bool     // if true, then don't start http, the command line request is for a batch process
-	SkipVacCheck bool     // until the code is modified to process on each command entered, if set to false, this inibits batch processing to do vacancy calc.
-	NoAuth       bool     // if true then skip authentication
-	DisableTWS   bool     // if true then don't initialize tws
-	CSVLoad      string   // if loading csv, this string will have index,filename
-	sStart       string   // start time
-	sStop        string   // stop time
-	Bud          string   // BUD from the command line
-	CertFile     string   // public certificate
-	KeyFile      string   //private key file
-	//DBRR         string   // rentroll database
-	RootStaticDir string // root directory settings
-	ConfigPath    string // config path
+	dbdir         *sql.DB  // phonebook db
+	dbrr          *sql.DB  // rentroll db
+	DBDir         string   // phonebook database
+	PortRR        int      // port on which rentroll listens
+	DBUser        string   // user for all databases
+	Report        string   // if testing engine, which report/action to perform
+	LogFile       *os.File // where to log messages
+	BatchMode     bool     // if true, then don't start http, the command line request is for a batch process
+	SkipVacCheck  bool     // until the code is modified to process on each command entered, if set to false, this inibits batch processing to do vacancy calc.
+	NoAuth        bool     // if true then skip authentication
+	DisableTWS    bool     // if true then don't initialize tws
+	CSVLoad       string   // if loading csv, this string will have index,filename
+	sStart        string   // start time
+	sStop         string   // stop time
+	Bud           string   // BUD from the command line
+	CertFile      string   // public certificate
+	KeyFile       string   //private key file
+	RootStaticDir string   // root directory settings
+	ConfigPath    string   // config path
 }
 
 // Chttp is a server mux for handling unprocessed html page requests.
@@ -181,14 +180,12 @@ func main() {
 	//----------------------------
 	// Open RentRoll database
 	//----------------------------
-	// rlib.Console("Read config:  App.ConfigPath = %q\n", App.ConfigPath)
 	if err = rlib.RRReadConfig(App.ConfigPath); err != nil {
 		fmt.Printf("sql.Open for database=%s, dbuser=%s: Error = %v\n", rlib.AppConfig.RRDbname, rlib.AppConfig.RRDbuser, err)
 		os.Exit(1)
 	}
 
 	s := extres.GetSQLOpenString(rlib.AppConfig.RRDbname, &rlib.AppConfig)
-	//rlib.Console("sql.Open string: %s\n", s)
 	App.dbrr, err = sql.Open("mysql", s)
 	if nil != err {
 		fmt.Printf("sql.Open for database=%s, dbuser=%s: Error = %v\n", rlib.AppConfig.RRDbname, rlib.AppConfig.RRDbuser, err)

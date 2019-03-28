@@ -13,7 +13,8 @@ const (
 	ARSliceCacheBot   = int64(-6)
 	TLReportBot       = int64(-7)
 	TLInstanceBot     = int64(-8)
-	LastBotUID        = int64(-8) // set this to the uid of the last bot
+	CSVLoaderApp      = int64(-9)
+	LastBotUID        = int64(-9) // set this to the uid of the last bot
 )
 
 // BotRegistryEntry is a struct to associate a bot's id with its name and
@@ -38,6 +39,7 @@ var BotReg = map[int64]BotRegistryEntry{
 	ARSliceCacheBot:   {ARSliceCacheBot, "ARSliceCacheBot", "Clean Account Rules Slice Cache"},
 	TLReportBot:       {TLReportBot, "TLReportBot", "TaskList Report Bot"},
 	TLInstanceBot:     {TLInstanceBot, "TLInstanceBot", "TaskList Instance Bot"},
+	CSVLoaderApp:      {CSVLoaderApp, "CSVLoaderApp", "CSV File Loader App"},
 }
 
 // BotName finds and returns the name associated with the bot uid.

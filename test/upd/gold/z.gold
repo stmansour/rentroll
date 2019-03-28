@@ -4,11 +4,12 @@ UpdateReceipt: successful
 UpdateRentalAgreementPayorByRBT: successful
 UpdateRentableUserByRBT: successful
 UpdateRentalAgreementRentable: successful
-  0.  -8, TLInstanceBot        TaskList Instance Bot
-  1.  -7, TLReportBot          TaskList Report Bot
-  2.  -6, ARSliceCacheBot      Clean Account Rules Slice Cache
-  3.  -5, AcctSliceCacheBot    Clean Accounts Slice Cache
-  4.  -4, SecDepCacheBot       Clean Security Deposit Cache
-  5.  -3, RARBcacheBot         Clean RARBalance Cache
-  6.  -2, ManualTaskBot        Manual Task Bot
-  7.  -1, AssessmentBot        Assessment Instance Bot
+  0.  -9, CSVLoaderApp         CSV File Loader App
+  1.  -8, TLInstanceBot        TaskList Instance Bot
+  2.  -7, TLReportBot          TaskList Report Bot
+  3.  -6, ARSliceCacheBot      Clean Account Rules Slice Cache
+  4.  -5, AcctSliceCacheBot    Clean Accounts Slice Cache
+  5.  -4, SecDepCacheBot       Clean Security Deposit Cache
+  6.  -3, RARBcacheBot         Clean RARBalance Cache
+  7.  -2, ManualTaskBot        Manual Task Bot
+  8.  -1, AssessmentBot        Assessment Instance Bot

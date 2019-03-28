@@ -226,17 +226,22 @@ func main() {
 	}
 
 	s := extres.GetSQLOpenString(rlib.AppConfig.RRDbname, &rlib.AppConfig)
+	// rlib.Console("Attempting  sql.Open for database=%s, dbuser=%s\n", rlib.AppConfig.RRDbname, rlib.AppConfig.RRDbuser)
+	// rlib.Console("Open string = %s\n", s)
 	App.dbrr, err = sql.Open("mysql", s)
 	if nil != err {
 		fmt.Printf("sql.Open for database=%s, dbuser=%s: Error = %v\n", rlib.AppConfig.RRDbname, rlib.AppConfig.RRDbuser, err)
 		os.Exit(1)
 	}
+	// rlib.Console("err = nil for sql.Open\n")
 	defer App.dbrr.Close()
+	// rlib.Console("Attempting to Ping App.dbrr\n")
 	err = App.dbrr.Ping()
 	if nil != err {
-		fmt.Printf("DBRR.Ping for database=%s, dbuser=%s: Error = %v\n", rlib.AppConfig.RRDbname, rlib.AppConfig.RRDbuser, err)
+		fmt.Printf("App.dbrr.Ping for database=%s, dbuser=%s: Error = %v\n", rlib.AppConfig.RRDbname, rlib.AppConfig.RRDbuser, err)
 		os.Exit(1)
 	}
+	// rlib.Console("err = nil for App.dbrr.Ping()\n")
 
 	//----------------------------
 	// Open Phonebook database
@@ -259,7 +264,17 @@ func main() {
 	rlib.SessionInit(10)           // must be called before calling InitBizInternals
 
 	// create background context
-	ctx := context.Background()
+	var now = time.Now()
+	var ctx = context.Background()
+	if !App.NoAuth {
+		// rlib.Console("Creating session for %s, designator = %s\n", rlib.BotReg[rlib.CSVLoaderApp].Name, rlib.BotReg[rlib.CSVLoaderApp].Designator)
+		expire := now.Add(10 * time.Minute)
+		s := rlib.SessionNew("CSVLoader-app"+fmt.Sprintf("%010x", expire.Unix()),
+			rlib.BotReg[rlib.CSVLoaderApp].Designator,
+			rlib.BotReg[rlib.CSVLoaderApp].Designator,
+			rlib.CSVLoaderApp, "", -1, &expire)
+		ctx = rlib.SetSessionContextKey(ctx, s)
+	}
 
 	//----------------------------------------------------
 	// initialize the CSV infrastructure
