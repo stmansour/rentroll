@@ -1054,21 +1054,22 @@ func GetBizByDesignation(des string) (Business, error) {
 
 // GetBusinessByDesignation loads the Business struct for the supplied designation
 func GetBusinessByDesignation(ctx context.Context, des string) (Business, error) {
-
-	var (
-		// err error
-		a Business
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return a, ErrSessionRequired
-		}
+	var a Business
+	var row *sql.Row
+	if _, ok := SessionCheck(ctx); !ok {
+		return a, ErrSessionRequired
 	}
+	fields := []interface{}{des}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetBusinessByDesignation)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetBusinessByDesignation.QueryRow(fields...)
+	}
+	return a, ReadBusiness(row, &a)
 
-	return GetBizByDesignation(des)
+	// return GetBizByDesignation(des)
 }
 
 // GetXBiz loads the XBusiness struct for the supplied Business id.

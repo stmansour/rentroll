@@ -325,22 +325,6 @@ func saveRentableUseStatus(w http.ResponseWriter, r *http.Request, d *ServiceDat
 			continue
 		}
 
-		// // if RSID = 0 then insert new record
-		// if a.RSID == 0 {
-		// 	_, err = rlib.InsertRentableUseStatus(r.Context(), &a)
-		// 	if err != nil {
-		// 		e := fmt.Errorf("Error while inserting rentable status:  %s", err.Error())
-		// 		SvcErrorReturn(w, e, funcname)
-		// 		return
-		// 	}
-		// } else { // else update existing one
-		// 	err = rlib.UpdateRentableUseStatus(r.Context(), &a)
-		// 	if err != nil {
-		// 		e := fmt.Errorf("Error with updating rentable status (%d), RID=%d : %s", a.RSID, a.RID, err.Error())
-		// 		SvcErrorReturn(w, e, funcname)
-		// 		return
-		// 	}
-		// }
 		if err = rlib.SetRentableUseStatus(r.Context(), &a); err != nil {
 			e := fmt.Errorf("Error from SetRentableUseStatus (%d), RID=%d : %s", a.RSID, a.RID, err.Error())
 			SvcErrorReturn(w, e, funcname)

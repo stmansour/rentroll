@@ -1,10 +1,12 @@
 package ws
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"rentroll/rcsv"
 	"rentroll/rlib"
 	"strconv"
 	"strings"
@@ -332,6 +334,37 @@ func deleteBusiness(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	SvcWriteSuccessResponse(d.BID, w)
 }
 
+// loadStrings does a csv import of the files containing the initial string
+// lists for a new business
+//
+//-----------------------------------------------------------------------------
+func loadStrings(ctx context.Context, a *rlib.Business) error {
+	rlib.Console("Entered loadStrings\n")
+	fname := "sample/strings.csv"
+	t := rlib.LoadCSV(fname)
+	rlib.Console("loaded csv file: %s, found %d strings\n", fname, len(t))
+	for i := 0; i < len(t); i++ {
+		if len(t[i][0]) == 0 {
+			continue
+		}
+		if t[i][0][0] == '#' { // if it's a comment line, don't process it, just move on
+			continue
+		}
+		//------------------------------------------------------------------
+		// Column 1 is the BUD.  No matter what BUD is in the file, we must
+		// set the BUD to the that of the supplied business...
+		//------------------------------------------------------------------
+		if i > 0 { // skip header row
+			t[i][0] = a.Designation
+		}
+		_, err := rcsv.CreateStringList(ctx, t[i], i+1)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // SaveBusiness returns the requested assessment
 // wsdoc {
 //  @Title  Save Business
@@ -399,22 +432,50 @@ func saveBusiness(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	rlib.Console("Save Business: a = %#v\n", a)
+	// rlib.Console("Save Business: a = %#v\n", a)
 
 	//-------------------------------------------------------
 	// Bizlogic checks done. Insert or update as needed...
 	//-------------------------------------------------------
-	if a.BID == 0 {
-		rlib.Console("Inserting new Business\n")
-		_, err = rlib.InsertBusiness(r.Context(), &a) // This is a new record
-	} else {
-		rlib.Console("Updating existing Business: %d\n", a.BID) // update existing record
-		err = rlib.UpdateBusiness(r.Context(), &a)
+
+	//-------------------------------------------------------
+	// GET THE NEW `tx`, UPDATED CTX FROM THE REQUEST CONTEXT
+	//-------------------------------------------------------
+	tx, ctx, err := rlib.NewTransactionWithContext(r.Context())
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
 	}
 
-	if err != nil {
-		e := fmt.Errorf("%s: Error saving Business : %s (%d)", funcname, a.Name, a.BID)
-		SvcErrorReturn(w, e, funcname)
+	if a.BID == 0 {
+		rlib.Console("Inserting new Business\n")
+		_, err = rlib.InsertBusiness(ctx, &a) // This is a new record
+		if err != nil {
+			tx.Rollback()
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+		rlib.Console("Inserting Business stringlists\n")
+		if err = loadStrings(ctx, &a); err != nil {
+			tx.Rollback()
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+	} else {
+		// rlib.Console("Updating existing Business: %d\n", a.BID) // update existing record
+		if err = rlib.UpdateBusiness(ctx, &a); err != nil {
+			tx.Rollback()
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+	}
+
+	// ------------------
+	// COMMIT TRANSACTION
+	// ------------------
+	if err := tx.Commit(); err != nil {
+		tx.Rollback()
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 

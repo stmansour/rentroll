@@ -608,7 +608,8 @@ func deleteAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//------------------------------
 	// Proceed with the save...
 	//------------------------------
-	rlib.Console("Reversal Mode = %d\n", del.ReverseMode)
+	// rlib.Console("Reversal Mode = %d\n", del.ReverseMode)
+
 	//-------------------------------------------------------
 	// GET THE NEW `tx`, UPDATED CTX FROM THE REQUEST CONTEXT
 	//-------------------------------------------------------

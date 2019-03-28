@@ -1,0 +1,378 @@
+BUD,Name,Value
+REX,HowFound,4Walls
+REX,HowFound,Apartment Finder Blue Book
+REX,HowFound,Apartment Guide
+REX,HowFound,Apartment Locator
+REX,HowFound,Apartment Map
+REX,HowFound,ApartmentFinder.com
+REX,HowFound,ApartmentGuide.com
+REX,HowFound,ApartmentGuyze.com
+REX,HowFound,ApartmentHomeLiving.com
+REX,HowFound,ApartmentLints.com
+REX,HowFound,ApartmentMag.com
+REX,HowFound,ApartmentMarketer.com
+REX,HowFound,ApartmentMatching.com
+REX,HowFound,ApartmentRatings.com
+REX,HowFound,ApartmentSearch.com
+REX,HowFound,ApartmentShowcase.com
+REX,HowFound,Apartments.com
+REX,HowFound,Apartments24-7.com
+REX,HowFound,ApartmentsNationwide.com
+REX,HowFound,ApartmentsPlus.com
+REX,HowFound,Brochure/Flyer
+REX,HowFound,CitySearch.com
+REX,HowFound,CollegeRentals.com
+REX,HowFound,CraigsList.com
+REX,HowFound,Current resident
+REX,HowFound,Direct Mail - Conventional
+REX,HowFound,Direct Mail - FullService
+REX,HowFound,Drive by
+REX,HowFound,EasyRent.com
+REX,HowFound,El Nacional
+REX,HowFound,EliteRenting.com
+REX,HowFound,For Rent Magazine
+REX,HowFound,ForRent.com
+REX,HowFound,Google Internet Program
+REX,HowFound,Google.com
+REX,HowFound,HotPads.com
+REX,HowFound,LivingChoices.com
+REX,HowFound,Local Line Rolloer
+REX,HowFound,Locator Service
+REX,HowFound,Move.com
+REX,HowFound,MoveForFree.com
+REX,HowFound,MyNewPlace.com
+REX,HowFound,Oklahoma Gazette
+REX,HowFound,Oodle.com
+REX,HowFound,Other
+REX,HowFound,Other
+REX,HowFound,Other OneSite property
+REX,HowFound,Other property
+REX,HowFound,Other publication
+REX,HowFound,Other site
+REX,HowFound,PMC-owned Website
+REX,HowFound,PeopleWithPets.com
+REX,HowFound,Preferred employer program
+REX,HowFound,Prior resident
+REX,HowFound,Property website
+REX,HowFound,Radio Advertising
+REX,HowFound,Referral companies/merchants
+REX,HowFound,Rent.com
+REX,HowFound,RentAndMove.com
+REX,HowFound,RentClicks.com
+REX,HowFound,RentJungle.com
+REX,HowFound,RentNet.com
+REX,HowFound,RentWiki.com
+REX,HowFound,Rentals.com
+REX,HowFound,Rentping.com
+REX,HowFound,Roomster.net
+REX,HowFound,Senior Living Magazine
+REX,HowFound,Site-owned website
+REX,HowFound,TV Advertising
+REX,HowFound,Tinker Take Off
+REX,HowFound,UMoveFree.com
+REX,HowFound,Unknown/Would not give
+REX,HowFound,Yahoo.com
+REX,HowFound,Yellow pages
+REX,ApplDeny,Criminal background
+REX,ApplDeny,No credit history
+REX,ApplDeny,No employment history
+REX,ApplDeny,Poor credit history
+REX,ApplDeny,Poor employment history
+REX,ApplDeny,Poor rental history
+REX,ApplDeny,No rental history
+REX,ApplDeny,Other
+REX,WhyLeaving,Abandoned Apartment
+REX,WhyLeaving,Acquired a pet
+REX,WhyLeaving,Added a roommate
+REX,WhyLeaving,Amenities lacking
+REX,WhyLeaving,Bought condominium
+REX,WhyLeaving,Bought home
+REX,WhyLeaving,Bought townhome
+REX,WhyLeaving,Changed jobs
+REX,WhyLeaving,Closer to airport
+REX,WhyLeaving,Closer to town/city
+REX,WhyLeaving,Closer to work
+REX,WhyLeaving,Corporate or short term lease only
+REX,WhyLeaving,Death or illness
+REX,WhyLeaving,Dissatisfied for another reason
+REX,WhyLeaving,Divorce
+REX,WhyLeaving,Employment transfer
+REX,WhyLeaving,Evicted for another reason
+REX,WhyLeaving,Evicted for criminal reasons
+REX,WhyLeaving,Evicted for non-compliance with community policies
+REX,WhyLeaving,Evicted for non-payment of rent
+REX,WhyLeaving,Generally unhappy with property
+REX,WhyLeaving,Getting married
+REX,WhyLeaving,High utility costs
+REX,WhyLeaving,Leaving/graduating school
+REX,WhyLeaving,Lifestyle change for another reason
+REX,WhyLeaving,Loss of employment from the PMC
+REX,WhyLeaving,Lost a job
+REX,WhyLeaving,Lost a roommate
+REX,WhyLeaving,Marital status change
+REX,WhyLeaving,Military transfer
+REX,WhyLeaving,Money problems
+REX,WhyLeaving,Moving closer to home
+REX,WhyLeaving,Moving home
+REX,WhyLeaving,No reason given
+REX,WhyLeaving,Noise problem
+REX,WhyLeaving,Non-renewal of lease
+REX,WhyLeaving,Other
+REX,WhyLeaving,Parking problems
+REX,WhyLeaving,Personal reasons/concerns
+REX,WhyLeaving,Property disaster
+REX,WhyLeaving,Rental increase
+REX,WhyLeaving,Rentin home
+REX,WhyLeaving,Returning/going to school
+REX,WhyLeaving,Road construction
+REX,WhyLeaving,Selling/old house
+REX,WhyLeaving,Skipped during eviction process
+REX,WhyLeaving,Skipped without notice
+REX,WhyChoose,ADA accessible
+REX,WhyChoose,Amenities lacking
+REX,WhyChoose,Color palette
+REX,WhyChoose,Drive up appeal
+REX,WhyChoose,Furniture
+REX,WhyChoose,Lease term
+REX,WhyChoose,Location to employment
+REX,WhyChoose,Location to family
+REX,WhyChoose,Location to shopping and entertainment
+REX,WhyChoose,Meets square footage needs
+REX,WhyChoose,Personnel
+REX,WhyChoose,Pet allowances
+REX,WhyChoose,Point of lease e-commerce offers
+REX,WhyChoose,Priing
+REX,WhyChoose,Public transportation
+REX,WhyChoose,School district
+REX,WhyChoose,Special
+REX,ProspectLost,Amenities ^ Amenities lacking
+REX,ProspectLost,Amenities ^ Bedroom size
+REX,ProspectLost,Amenities ^ Color scheme
+REX,ProspectLost,Amenities ^ Competition has better amenities
+REX,ProspectLost,Amenities ^ Objection to floor plan
+REX,ProspectLost,Cost ^ Competition is less expensive
+REX,ProspectLost,Cost ^ No specials/concessions
+REX,ProspectLost,Cost ^ Too expensive
+REX,ProspectLost,Inactive ^ Inactive
+REX,ProspectLost,Location ^ Location
+REX,ProspectLost,Location ^ Road construction
+REX,ProspectLost,Location ^ Too close to highway
+REX,ProspectLost,Not available ^ Unit/floor plan not available
+REX,ProspectLost,Not interested ^ Bought/rented house instead
+REX,ProspectLost,Not interested ^ Changed their mind
+REX,ProspectLost,Not interested ^ Not interested
+REX,ProspectLost,Not qualified ^ Credit rating below standard
+REX,ProspectLost,Not qualified ^ Criminal history not allowed
+REX,ProspectLost,Not qualified ^ Does not meet property criteria
+REX,ProspectLost,Not qualified ^ Oversized/unallowable pet
+REX,ProspectLost,Not qualified ^ Rental history not allowed
+REX,ProspectLost,Not qualified ^ Roommate/spouse unqualified
+REX,ProspectLost,Not qualified ^ Too many occupants
+REX,RollerMsgs,Application was declined
+REX,RollerMsgs,Rental Agreement was updated
+REX,Industries,Accountants
+REX,Industries,Advertising/Public Relations
+REX,Industries,Aerospace
+REX,Industries,Agribusiness
+REX,Industries,Agricultural Services & Products
+REX,Industries,Agriculture
+REX,Industries,Air Transport
+REX,Industries,Air Transport Unions
+REX,Industries,Airlines
+REX,Industries,Alcoholic Beverages
+REX,Industries,Alternative Energy Production & Services
+REX,Industries,Architectural Services
+REX,Industries,Attorneys/Law Firms
+REX,Industries,Auto Dealers
+REX,Industries,Auto Dealers
+REX,Industries,Auto Manufacturers
+REX,Industries,Automotive
+REX,Industries,Banking
+REX,Industries,Banks
+REX,Industries,Banks
+REX,Industries,Bars & Restaurants
+REX,Industries,Beer
+REX,Industries,Books
+REX,Industries,Broadcasters
+REX,Industries,Builders/General Contractors
+REX,Industries,Builders/Residential
+REX,Industries,Building Materials & Equipment
+REX,Industries,Building Trade Unions
+REX,Industries,Business Associations
+REX,Industries,Business Services
+REX,Industries,Cable & Satellite TV Production & Distribution
+REX,Industries,Candidate Committees
+REX,Industries,Candidate Committees
+REX,Industries,Candidate Committees
+REX,Industries,Car Dealers
+REX,Industries,Car Dealers
+REX,Industries,Car Manufacturers
+REX,Industries,Casinos / Gambling
+REX,Industries,Cattle Ranchers/Livestock
+REX,Industries,Chemical & Related Manufacturing
+REX,Industries,Chiropractors
+REX,Industries,Civil Servants/Public Officials
+REX,Industries,Clergy & Religious Organizations
+REX,Industries,Clothing Manufacturing
+REX,Industries,Coal Mining
+REX,Industries,Colleges
+REX,Industries,Commercial Banks
+REX,Industries,Commercial TV & Radio Stations
+REX,Industries,Communications/Electronics
+REX,Industries,Computer Software
+REX,Industries,Conservative/Republican
+REX,Industries,Construction
+REX,Industries,Construction Services
+REX,Industries,Construction Unions
+REX,Industries,Credit Unions
+REX,Industries,Crop Production & Basic Processing
+REX,Industries,Cruise Lines
+REX,Industries,Cruise Ships & Lines
+REX,Industries,Dairy
+REX,Industries,Defense
+REX,Industries,Defense Aerospace
+REX,Industries,Defense Electronics
+REX,Industries,Defense/Foreign Policy Advocates
+REX,Industries,Democratic Candidate Committees
+REX,Industries,Democratic Leadership PACs
+REX,Industries,Democratic/Liberal
+REX,Industries,Dentists
+REX,Industries,Doctors & Other Health Professionals
+REX,Industries,Drug Manufacturers
+REX,Industries,Education
+REX,Industries,Electric Utilities
+REX,Industries,Electronics Manufacturing & Equipment
+REX,Industries,Electronics
+REX,Industries,Energy & Natural Resources
+REX,Industries,Entertainment Industry
+REX,Industries,Environment
+REX,Industries,Farm Bureaus
+REX,Industries,Farming
+REX,Industries,Finance / Credit Companies
+REX,Industries,Finance
+REX,Industries,Food & Beverage
+REX,Industries,Food Processing & Sales
+REX,Industries,Food Products Manufacturing
+REX,Industries,Food Stores
+REX,Industries,For-profit Education
+REX,Industries,For-profit Prisons
+REX,Industries,Foreign & Defense Policy
+REX,Industries,Forestry & Forest Products
+REX,Industries,Foundations
+REX,Industries,Funeral Services
+REX,Industries,Gambling & Casinos
+REX,Industries,Gambling
+REX,Industries,Garbage Collection/Waste Management
+REX,Industries,Gas & Oil
+REX,Industries,Gay & Lesbian Rights & Issues
+REX,Industries,General Contractors
+REX,Industries,Government Employee Unions
+REX,Industries,Government Employees
+REX,Industries,Gun Control
+REX,Industries,Gun Rights
+REX,Industries,Health
+REX,Industries,Health Professionals
+REX,Industries,Health Services/HMOs
+REX,Industries,Hedge Funds
+REX,Industries,HMOs & Health Care Services
+REX,Industries,Home Builders
+REX,Industries,Hospitals & Nursing Homes
+REX,Industries,Hotels
+REX,Industries,Human Rights
+REX,Industries,Ideological/Single-Issue
+REX,Industries,Indian Gaming
+REX,Industries,Industrial Unions
+REX,Industries,Insurance
+REX,Industries,Internet
+REX,Industries,Israel Policy
+REX,Industries,Labor
+REX,Industries,Lawyers & Lobbyists
+REX,Industries,Lawyers / Law Firms
+REX,Industries,Leadership PACs
+REX,Industries,Liberal/Democratic
+REX,Industries,Liquor
+REX,Industries,Livestock
+REX,Industries,Lobbyists
+REX,Industries,Lodging / Tourism
+REX,Industries,Logging
+REX,Industries,Manufacturing
+REX,Industries,Marine Transport
+REX,Industries,Meat processing & products
+REX,Industries,Medical Supplies
+REX,Industries,Mining
+REX,Industries,Misc Business
+REX,Industries,Misc Finance
+REX,Industries,Misc Manufacturing & Distributing
+REX,Industries,Misc Unions
+REX,Industries,Miscellaneous Defense
+REX,Industries,Miscellaneous Services
+REX,Industries,Mortgage Bankers & Brokers
+REX,Industries,Motion Picture Production & Distribution
+REX,Industries,Music Production
+REX,Industries,Natural Gas Pipelines
+REX,Industries,Newspaper
+REX,Industries,Non-profits
+REX,Industries,Nurses
+REX,Industries,Nursing Homes/Hospitals
+REX,Industries,Nutritional & Dietary Supplements
+REX,Industries,Oil & Gas
+REX,Industries,Payday Lenders
+REX,Industries,Pharmaceutical Manufacturing
+REX,Industries,Pharmaceuticals / Health Products
+REX,Industries,Phone Companies
+REX,Industries,Physicians & Other Health Professionals
+REX,Industries,Postal Unions
+REX,Industries,Poultry & Eggs
+REX,Industries,Power Utilities
+REX,Industries,Printing & Publishing
+REX,Industries,Private Equity & Investment Firms
+REX,Industries,Pro-Israel
+REX,Industries,Professional Sports
+REX,Industries,Progressive/Democratic
+REX,Industries,Public Employees
+REX,Industries,Public Sector Unions
+REX,Industries,Publishing & Printing
+REX,Industries,Radio/TV Stations
+REX,Industries,Railroads
+REX,Industries,Real Estate
+REX,Industries,Record Companies/Singers
+REX,Industries,Recorded Music & Music Production
+REX,Industries,Recreation / Live Entertainment
+REX,Industries,Religious Organizations/Clergy
+REX,Industries,Republican Candidate Committees
+REX,Industries,Republican Leadership PACs
+REX,Industries,Republican/Conservative
+REX,Industries,Residential Construction
+REX,Industries,Restaurants & Drinking Establishments
+REX,Industries,Retail Sales
+REX,Industries,Retired
+REX,Industries,Savings & Loans
+REX,Industries,Schools/Education
+REX,Industries,Sea Transport
+REX,Industries,Securities & Investment
+REX,Industries,Special Trade Contractors
+REX,Industries,Sports
+REX,Industries,Steel Production
+REX,Industries,Stock Brokers/Investment Industry
+REX,Industries,Student Loan Companies
+REX,Industries,Sugar Cane & Sugar Beets
+REX,Industries,Teachers Unions
+REX,Industries,Teachers/Education
+REX,Industries,Telecom Services & Equipment
+REX,Industries,Telephone Utilities
+REX,Industries,Textiles
+REX,Industries,Timber
+REX,Industries,Tobacco
+REX,Industries,Transportation
+REX,Industries,Transportation Unions
+REX,Industries,Trash Collection/Waste Management
+REX,Industries,Trucking
+REX,Industries,TV / Movies / Music
+REX,Industries,TV Production
+REX,Industries,Unions
+REX,Industries,Universities
+REX,Industries,Vegetables & Fruits
+REX,Industries,Venture Capital
+REX,Industries,Waste Management
+REX,Industries,Wine
+REX,Industries,Women's Issues
