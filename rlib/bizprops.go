@@ -33,19 +33,18 @@ type BizPropsEpochs struct {
 // GetDataFromBusinessPropertyName returns instance of BizProps with
 // JSON parsing from business properties data for requested name
 func GetDataFromBusinessPropertyName(ctx context.Context, name string, BID int64) (bizPropJSON BizProps, err error) {
-
-	// initialize
+	// Console("Entered GetDataFromBusinessPropertyName. Getting biz prop named %s\n", name)
 	bizPropJSON = BizProps{}
-
-	// get business properties
 	var bizProp BusinessProperties
 	bizProp, err = GetBusinessPropertiesByName(ctx, name, BID)
 	if err != nil {
+		// Console("GetDataFromBusinessPropertyName: error getting property named %s: %s\n", name, err.Error())
 		return
 	}
-
-	// get json doc from Data column
-	err = json.Unmarshal(bizProp.Data, &bizPropJSON)
+	// Console("GetDataFromBusinessPropertyName: got bizProp, len(bizProp.Data) = %d\n", len(bizProp.Data))
+	if len(bizProp.Data) > 0 {
+		err = json.Unmarshal(bizProp.Data, &bizPropJSON)
+	}
 	return
 }
 
@@ -158,10 +157,8 @@ func GetBizPropVehicleFees(ctx context.Context, BID int64, bizPropName string, r
 // GetEpochListByBizPropName returns epochs configured for a business
 func GetEpochListByBizPropName(ctx context.Context, BID int64, bizPropName string) (epochs BizPropsEpochs, err error) {
 	const funcname = "GetEpochListByBizPropName"
-	var (
-		bizPropJSON BizProps
-	)
-	fmt.Printf("Entered in %s\n", funcname)
+	var bizPropJSON BizProps
+	// Console("Entered %s\n", funcname)
 
 	// initialize epochs
 	epochs = BizPropsEpochs{}
@@ -171,6 +168,7 @@ func GetEpochListByBizPropName(ctx context.Context, BID int64, bizPropName strin
 	if err != nil {
 		return
 	}
+	// Console("Setting biz props\n")
 	epochs = bizPropJSON.Epochs
 
 	return

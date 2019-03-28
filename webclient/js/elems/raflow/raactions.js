@@ -36,13 +36,13 @@ window.submitActionForm = function(data) {
     .done(function(data) {
         if (data.status !== "success") {
             console.error(data.message);
-            alert(data.message);
+            w2ui.RAActionForm.error(data.message);
             return;
         }
 
         switch(true) {
             case (data.record.Flow.FlowID === -1):
-                alert("Flow Already Exists");
+                w2ui.RAActionForm.error("Flow Already Exists");
                 return false;
             case (data.record.Flow.FlowID === 0):
                 if (app.raflow.version === 'refno') {
@@ -97,8 +97,20 @@ window.submitActionForm = function(data) {
 
     })
     .fail(function(data) {
-        console.error(data);
-        alert(data);
+        if (typeof data == "object") {
+            var msg = data.responseText;
+            var idx = msg.indexOf('"message"');
+            var l = msg.length;
+            // looking for the data in the form "message":"bla bla bla"
+            if (idx >= 0 && l > 11 + idx) {
+                var m = msg.substr(idx+11); // starts at bla in example comment above
+                idx = m.indexOf('"');
+                if (idx > 0) {
+                    msg = m.substring(0,idx);
+                }
+            }
+            w2ui.RAActionForm.error(msg);
+        }
     });
 };
 
