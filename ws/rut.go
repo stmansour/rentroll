@@ -285,11 +285,10 @@ type RentableUseTypeGridSave struct {
 // saveRentableUseType save/update rentable status associated with Rentable
 //-----------------------------------------------------------------------------
 func saveRentableUseType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	var (
-		funcname = "saveRentableUseType"
-		err      error
-		foo      RentableUseTypeGridSave
-	)
+	var funcname = "saveRentableUseType"
+	var err error
+	var foo RentableUseTypeGridSave
+	var rnt rlib.Rentable
 	rlib.Console("Entered %s\n", funcname)
 	rlib.Console("record data: %s\n", d.data)
 
@@ -299,21 +298,41 @@ func saveRentableUseType(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		SvcErrorReturn(w, e, funcname)
 		return
 	}
-	rlib.Console("foo Changes: %v\n", foo.Changes)
+
+	// for i := 0; i < len(foo.Changes); i++ {
+	// 	rlib.Console("Changes[%d]: UTID=%d  BID=%d  RID=%d  UseType=%d  Dates: %s\n",
+	// 		i,
+	// 		foo.Changes[i].UTID,
+	// 		foo.Changes[i].BID,
+	// 		foo.Changes[i].RID,
+	// 		foo.Changes[i].UseType,
+	// 		rlib.ConsoleJSONDRange(&foo.Changes[i].DtStart, &foo.Changes[i].DtStop))
+	// }
 
 	//------------------------------------------------------
 	// first check that given such rentable exists or not
 	//------------------------------------------------------
-	if _, err = rlib.GetRentable(r.Context(), foo.RID); err != nil {
-		e := fmt.Errorf("Error while getting Rentable: %s", err.Error())
+	if rnt, err = rlib.GetRentable(r.Context(), foo.Changes[0].RID); err != nil {
+		s := fmt.Sprintf("Error while getting Rentable: %s", err.Error())
+		e := fmt.Errorf(s)
+		// rlib.Console(s)
 		SvcErrorReturn(w, e, funcname)
 		return
 	}
+	if rnt.RID != foo.Changes[0].RID {
+		s := fmt.Sprintf("Rentable with RID=%d does not exist", foo.Changes[0].RID)
+		e := fmt.Errorf(s)
+		// rlib.Console(s)
+		SvcErrorReturn(w, e, funcname)
+		return
+	}
+	// rlib.Console("successfully loaded rentable: RID = %d\n", foo.Changes[0].RID)
 
 	//------------------------------------------------------
 	// if there are no changes then nothing to do
 	//------------------------------------------------------
 	if len(foo.Changes) == 0 {
+		rlib.Console("No changes detected. No action taken\n")
 		SvcWriteSuccessResponse(d.BID, w)
 		return
 	}
@@ -334,12 +353,6 @@ func saveRentableUseType(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		if EDIadjust {
 			rlib.EDIHandleIncomingDateRange(a.BID, &a.DtStart, &a.DtStop)
 		}
-
-		// errs := bizlogic.ValidateRentableUseType(r.Context(), &a)
-		// if len(errs) > 0 {
-		// 	bizErrs = append(bizErrs, errs...)
-		// 	continue
-		// }
 
 		if err = rlib.SetRentableUseType(r.Context(), &a); err != nil {
 			e := fmt.Errorf("Error from SetRentableUseType (%d), RID=%d : %s", a.UTID, a.RID, err.Error())

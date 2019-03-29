@@ -58,6 +58,7 @@ var ssliceToJS = []struct {
 	{"yesNoList", &yesno},
 	{"usStateAbbr", &USStateAbbr},
 	{"RSUseStatus", &rlib.RSUseStatus},
+	{"RSUseType", &rlib.RSUseType},
 	{"RSLeaseStatus", &rlib.RSLeaseStatus},
 	{"qbAcctType", &rlib.QBAcctType},
 	{"RAStates", &rlib.RAStates},

@@ -263,6 +263,16 @@ func CreateRentables(ctx context.Context, sa []string, lineno int) (int, error) 
 			if _, err = rlib.InsertRentableLeaseStatus(ctx, &ls); err != nil {
 				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error saving rlib.RentableLeaseStatus: %s", funcname, lineno, err.Error())
 			}
+			var ru = rlib.RentableUseType{
+				BID:     m[i].BID,
+				RID:     m[i].RID,
+				UseType: rlib.USETYPEstandard,
+				DtStart: m[i].DtStart,
+				DtStop:  m[i].DtStop,
+			}
+			if _, err = rlib.InsertRentableUseType(ctx, &ru); err != nil {
+				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error saving rlib.RentableUseType: %s", funcname, lineno, err.Error())
+			}
 		}
 		for i := 0; i < len(n); i++ {
 			n[i].RID = rid

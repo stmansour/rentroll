@@ -33,6 +33,7 @@ type PrRentableOther struct {
 	RTID                 rlib.NullInt64
 	RSID                 rlib.NullInt64
 	UseStatus            rlib.NullInt64
+	UseType              rlib.NullInt64
 	LeaseStatus          rlib.NullInt64
 	RARID                rlib.NullInt64
 	RAID                 rlib.NullInt64
@@ -112,14 +113,14 @@ func SvcRentableTypeDown(w http.ResponseWriter, r *http.Request, d *ServiceData)
 // rentablesGridFields holds the map of field (to be shown on grid)
 // to actual database fields, multiple db fields means combine those
 var rentablesGridFieldsMap = map[string][]string{
-	"RID":          {"R.RID"},
-	"RentableName": {"R.RentableName"},
-	"RTRID":        {"RTR.RTRID"},
-	"RTID":         {"RT.RTID"},
-	"RentableType": {"RT.Name"},
-	"RSID":         {"RS.RSID"},
-	"UseStatus":    {"RS.UseStatus"},
-	//"LeaseStatus":          {"RS.LeaseStatus"},
+	"RID":                  {"R.RID"},
+	"RentableName":         {"R.RentableName"},
+	"RTRID":                {"RTR.RTRID"},
+	"RTID":                 {"RT.RTID"},
+	"RentableType":         {"RT.Name"},
+	"RSID":                 {"RS.RSID"},
+	"UseStatus":            {"RS.UseStatus"},
+	"UseType":              {"RU.UseType"},
 	"LeaseStatus":          {"RL.LeaseStatus"},
 	"RARID":                {"RAR.RARID"},
 	"RAID":                 {"RAR.RAID"},
@@ -136,7 +137,7 @@ var rentablesQuerySelectFields = []string{
 	"RT.RTID",
 	"RS.RSID",
 	"RS.UseStatus",
-	// "RS.LeaseStatus",
+	"RU.UseType",
 	"RL.LeaseStatus",
 	"RAR.RARID",
 	"RAR.RAID",
@@ -146,7 +147,7 @@ var rentablesQuerySelectFields = []string{
 
 // rentablesRowScan scans a result from sql row and dump it in a PrRentableOther struct
 func rentablesRowScan(rows *sql.Rows, q PrRentableOther) (PrRentableOther, error) {
-	err := rows.Scan(&q.RID, &q.RentableName, &q.RTRID, &q.RentableType, &q.RTID, &q.RSID, &q.UseStatus, &q.LeaseStatus, &q.RARID, &q.RAID, &q.RentalAgreementStart, &q.RentalAgreementStop)
+	err := rows.Scan(&q.RID, &q.RentableName, &q.RTRID, &q.RentableType, &q.RTID, &q.RSID, &q.UseStatus, &q.UseType, &q.LeaseStatus, &q.RARID, &q.RAID, &q.RentalAgreementStart, &q.RentalAgreementStop)
 	return q, err
 }
 
@@ -214,6 +215,13 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
         GROUP BY RSID
         ORDER BY RSID DESC
     ) AS RS ON RS.RID=R.RID
+    LEFT JOIN (
+        SELECT UseType, RID, UTID
+        FROM RentableUseType
+        WHERE DtStop > "{{.searchStart}}" AND DtStart <= "{{.searchStop}}" AND BID={{.BID}}
+        GROUP BY UTID
+        ORDER BY UTID DESC
+    ) AS RU ON RU.RID=R.RID
     LEFT JOIN (
         SELECT RARID, RID, RAID, RARDtStart, RARDtStop
         FROM RentalAgreementRentables
@@ -351,158 +359,6 @@ func SvcFormHandlerRentable(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	}
 }
 
-// func dumpRTRList(m []rlib.RentableTypeRef) {
-// 	for i := 0; i < len(m); i++ {
-// 		rlib.Console("m[%d] range = %s - %s\n", i, m[i].DtStart.Format(rlib.RRDATEINPFMT), m[i].DtStop.Format(rlib.RRDATEINPFMT))
-// 	}
-// 	rlib.Console("----------------------------\n")
-// }
-
-/*// AdjustRTRTimeList determines what edits and/or inserts are needed to
-// add the supplied rtr struct to the the existing RentableTypeRef records.
-// Records are added as needed except where there is overlap. Overlaps are
-// handled as illustrated in the following example (Rentable Types RT1 and
-// RT2 are just examples)
-//
-// Example 1: Overlap similar type:
-//
-//            existing RTRs    new rtr         Result
-//  t0 ----                    begin RT1    begin RT1
-//                             |            |
-//  t1 ----   begin RT1        |            |
-//            |                |            |
-//  t2 ----   end RT1          |            |
-//                             |            |
-//  t3 ----                    end RT1      end RT1
-//
-// Example 2: Overlap different types:
-//
-//            existing RTRs    new rtr         Result
-//  t0 ----                    begin RT2    begin RT2    t0-t1 RT2
-//                             |            end RT2
-//  t1 ----   begin RT1        |            begin RT1    t1-t2 RT1
-//            |                |            |
-//  t2 ----   end RT1          |            end RT1
-//                             |            begin RT2    t2-t3 RT2
-//  t3 ----                    end RT2      end RT2
-//
-//
-// @returns
-//	1. existing array of RTRs  (these will need to be deleted)
-//	2. the new set of RTRs     (these will need to be inserted)
-func AdjustRTRTimeList(ctx context.Context, rtr *rlib.RentableTypeRef, r *rlib.Rentable) ([]rlib.RentableTypeRef, []rlib.RentableTypeRef) {
-	const funcname = "AdjustRTRTimeList"
-	var m []rlib.RentableTypeRef
-	R, _ := rlib.GetRentableTypeRefs(ctx, r.RID)
-	l := len(R)
-	rtrAdded := false // flag to mark whether rtr still needs to be added after loop
-	for i := 0; i < l; i++ {
-		if !rtrAdded && rlib.DateRangeOverlap(&rtr.DtStart, &rtr.DtStop, &R[i].DtStart, &R[i].DtStop) {
-			if rtr.RTID == R[i].RTID { // same rentable type?
-				if rtr.DtStart.After(R[i].DtStart) { // adjust start time to the earliest
-					rtr.DtStart = R[i].DtStart
-				}
-				if rtr.DtStop.Before(R[i].DtStop) { // adjust stop time to the latest
-					rtr.DtStop = R[i].DtStop
-				}
-			} else { // different types
-				if rtr.DtStart.Equal(R[i].DtStart) && rtr.DtStop.Equal(R[i].DtStop) { // same date range, just a RentableType change
-					rt := R[i]
-					rt.RTID = rtr.RTID
-					m = append(m, rt)
-					rtrAdded = true
-				} else if rtr.DtStart.Before(R[i].DtStart) { // if R[i] starts before rtr adjust rtr start point...
-					rt := *rtr
-					rt.DtStop = R[i].DtStart           // stop rt just as R[i] begins
-					m = append(m, rt)                  // new version up to the point where R[i] starts
-					m = append(m, R[i])                // R[i] stays as is
-					rtr.DtStart = R[i].DtStop          // adjust rtr's new start point
-					if rtr.DtStart.Equal(rtr.DtStop) { // are we finished?
-						rtrAdded = true // we don't need to add rtr now
-					}
-					// rlib.Console("AdjustRTRTimeList:  add period rtr start to R[%d] start, rtr.DtStop moved forward:  %s\n", i, rtr.DtStart.Format(rlib.RRDATEINPFMT))
-					// dumpRTRList(m)
-				} else if rtr.DtStart.After(R[i].DtStart) { // if rtr starts after R[i], adjust R[i] end time
-					rt := R[i]              // start with a copy of rtr
-					rt.DtStop = rtr.DtStart // stop this new one just as R[i] begins
-					m = append(m, rt)
-					if R[i].DtStop.After(rtr.DtStop) { // R[i] may last longer than rs.  If so, we need to cover the time after rs stops to when R[i] stops
-						rt := R[i]
-						rt.DtStart = rtr.DtStop
-						m = append(m, rt)
-					}
-					// rlib.Console("AdjustRTRTimeList:  different types append:  i = %d\n", i)
-					// dumpRTRList(m)
-				} else {
-					// rlib.Console("AdjustRTRTimeList: rtr is covered.  rtAdded set to true:  i = %d\n", i)
-					rtrAdded = true
-				}
-			}
-		} else { // the timespans do not overlap
-			m = append(m, R[i]) // add this just as it is
-		}
-	}
-	if !rtrAdded {
-		m = append(m, *rtr) // add rtr to the list after all adjustments
-	}
-	return R, m
-}
-
-// AdjustRSTimeList - just like AdjustRTRTimeList except for RentableUseStatus records.  There's probably a better
-// way to make both these functions into one.
-func AdjustRSTimeList(ctx context.Context, rs *rlib.RentableUseStatus, r *rlib.Rentable) ([]rlib.RentableUseStatus, []rlib.RentableUseStatus) {
-	const funcname = "AdjustRSTimeList"
-	var m []rlib.RentableUseStatus
-	R, _ := rlib.GetAllRentableUseStatus(ctx, r.RID)
-	l := len(R)
-	rsAdded := false // flag to mark whether rs still needs to be added after loop
-	for i := 0; i < l; i++ {
-		if !rsAdded && rlib.DateRangeOverlap(&rs.DtStart, &rs.DtStop, &R[i].DtStart, &R[i].DtStop) {
-			if rs.UseStatus == R[i].UseStatus { // same rentable status?
-				if rs.DtStart.After(R[i].DtStart) { // adjust start time to the earliest
-					rs.DtStart = R[i].DtStart
-				}
-				if rs.DtStop.Before(R[i].DtStop) { // adjust stop time to the latest
-					rs.DtStop = R[i].DtStop
-				}
-			} else { // different types
-				if rs.DtStart.Equal(R[i].DtStart) && rs.DtStop.Equal(R[i].DtStop) { // same date range, just a status change
-					rs1 := R[i]
-					rs1.UseStatus = rs.UseStatus
-					m = append(m, rs1)
-					rsAdded = true
-				} else if rs.DtStart.Before(R[i].DtStart) { // if R[i] starts before rs adjust rs start point...
-					rs1 := *rs
-					rs1.DtStop = R[i].DtStart        // stop rt just as R[i] begins
-					m = append(m, rs1)               // new version up to the point where R[i] starts
-					m = append(m, R[i])              // R[i] stays as is
-					rs.DtStart = R[i].DtStop         // adjust rs's new start point
-					if rs.DtStart.Equal(rs.DtStop) { // are we finished?
-						rsAdded = true // we don't need to add rs now
-					}
-				} else if rs.DtStart.After(R[i].DtStart) { // if rs starts after R[i], adjust R[i] end time
-					rs1 := R[i]             // start with a copy of rs
-					rs1.DtStop = rs.DtStart // stop this new one just as R[i] begins
-					m = append(m, rs1)
-					if R[i].DtStop.After(rs.DtStop) { // R[i] may last longer than rs.  If so, we need to cover the time after rs stops to when R[i] stops
-						rs1 := R[i]
-						rs1.DtStart = rs.DtStop
-						m = append(m, rs1)
-					}
-				} else {
-					rsAdded = true
-				}
-			}
-		} else { // the timespans do not overlap
-			m = append(m, R[i]) // add this just as it is
-		}
-	}
-	if !rsAdded {
-		m = append(m, *rs) // add rs to the list after all adjustments
-	}
-	return R, m
-}*/
-
 // saveRentable returns the requested rentable
 // wsdoc {
 //  @Title  Save Rentable
@@ -539,13 +395,8 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	var (
-		ok       bool
-		rentable rlib.Rentable
-		/*rs          rlib.RentableUseStatus
-		rtr         rlib.RentableTypeRef
-		currentTime = time.Now()*/
-	)
+	var ok bool
+	var rentable rlib.Rentable
 
 	// checks for valid values
 	requestedBID, ok := rlib.RRdb.BUDlist[string(rfRecord.BUD)]
@@ -554,26 +405,6 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcErrorReturn(w, e, funcname)
 		return
 	}
-
-	/*// check whether rentable type is provided or not
-	if !(rfRecord.RTID > 0) {
-		e := fmt.Errorf("Rentable Type must be provided")
-		SvcErrorReturn(w, e, funcname)
-		return
-	}*/
-
-	// // StopDate should not be before Today's date
-	// if !(rlib.IsDateBefore((time.Time)(rfRecord.RTRefDtStart), (time.Time)(rfRecord.RTRefDtStop))) {
-	// 	e := fmt.Errorf("RentableTypeRef Stop Date should not be before Start Date")
-	// 	SvcErrorReturn(w, e, funcname)
-	// 	return
-	// }
-	// // StopDate should not be before Today's date
-	// if !(rlib.IsDateBefore((time.Time)(rfRecord.RSDtStart), (time.Time)(rfRecord.RSDtStop))) {
-	// 	e := fmt.Errorf("RentableUseStatus Stop Date should not be before Start Date")
-	// 	SvcErrorReturn(w, e, funcname)
-	// 	return
-	// }
 
 	if rfRecord.RID > 0 {
 		rlib.Console("Updating Rentable with RID: %d ...\n", rfRecord.RID)
@@ -605,73 +436,6 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 		rlib.Console("Rentable record has been updated with RID: %d\n", rentable.RID)
 
-		/*// ---------------- UPDATE RENTABLE TYPE REFERENCE ------------------------
-
-		// get rental type ref object associated with this rentable
-		rtr, err = rlib.GetRentableTypeRef(r.Context(), rfRecord.RTRID)
-		if err != nil {
-			SvcErrorReturn(w, err, funcname)
-			return
-		}
-
-		// Create an updated version of rtr with the info submitted on this call
-		rtr1 := rtr
-		rtr1.DtStart = (time.Time)(rfRecord.RTRefDtStart)
-		rtr1.DtStop = (time.Time)(rfRecord.RTRefDtStop)
-		rtr1.RTID = rfRecord.RTID
-
-		// if anything changed, remake the list of RTRs
-		if !rtr1.DtStart.Equal(rtr.DtStart) || !rtr1.DtStop.Equal(rtr.DtStop) || rtr1.RTID != rtr.RTID {
-			m, n := AdjustRTRTimeList(r.Context(), &rtr1, &rt) // returns current list and new list
-			for i := 0; i < len(m); i++ {                      // delete the current list
-				err = rlib.DeleteRentableTypeRef(r.Context(), m[i].RTRID)
-				if err != nil {
-					SvcErrorReturn(w, err, funcname)
-					return
-				}
-			}
-			for i := 0; i < len(n); i++ { // insert the new list
-				_, err = rlib.InsertRentableTypeRef(r.Context(), &n[i])
-				if err != nil {
-					SvcErrorReturn(w, err, funcname)
-					return
-				}
-			}
-		}
-
-		// ---------------- UPDATE RENTABLE STATUS ------------------------
-
-		// get rental status record associated with this rentable
-		rs, err := rlib.GetRentableUseStatus(r.Context(), rfRecord.RSID)
-		if err != nil {
-			SvcErrorReturn(w, err, funcname)
-			return
-		}
-
-		// Create an updated version of rtr with the info submitted on this call
-		rs1 := rs
-		rs1.DtStart = (time.Time)(rfRecord.RSDtStart)
-		rs1.DtStop = (time.Time)(rfRecord.RSDtStop)
-		rs1.UseStatus = rlib.RentableUseStatusToNumber(rfRecord.RentableUseStatus)
-
-		// if anything changed, remake the list of RTRs
-		if !rs1.DtStart.Equal(rs.DtStart) || !rs1.DtStop.Equal(rs.DtStop) || rs1.UseStatus != rs.UseStatus {
-			m, n := AdjustRSTimeList(r.Context(), &rs1, &rt) // returns current list and new list
-			for i := 0; i < len(m); i++ {                    // delete the current list
-				err = rlib.DeleteRentableUseStatus(r.Context(), m[i].RSID)
-				if err != nil {
-					SvcErrorReturn(w, err, funcname)
-					return
-				}
-			}
-			for i := 0; i < len(n); i++ { // insert the new list
-				_, err = rlib.InsertRentableUseStatus(r.Context(), &n[i])
-				if err != nil {
-					SvcErrorReturn(w, err, funcname)
-					return
-				}
-			}
-		}*/
 	} else {
 		fmt.Println("Inserting new Rentable Record...")
 
@@ -694,40 +458,6 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		rentable.RID = rid
 		rlib.Console("New Rentable record has been saved with RID: %d\n", rentable.RID)
 
-		/*// ------------------------- INSERT RENTABLE STATUS ---------------------------
-
-		// insert rentable status for this Rentable
-		rs.RID = rt.RID
-		rs.BID = rt.BID
-		rs.UseStatus = rlib.RentableUseStatusToNumber(rfRecord.RentableUseStatus)
-		rs.DtStart = currentTime
-		rs.DtStop = (time.Time)(rfRecord.RSDtStop)
-		_, err = rlib.InsertRentableUseStatus(r.Context(), &rs)
-		if err != nil {
-			SvcErrorReturn(w, err, funcname)
-			return
-		}
-		rlib.Console("RentableUseStatus has been saved for Rentable(%d), RSID: %d\n", rt.RID, rs.RSID)
-
-		// ---------------------------- INSERT RENTABLE TYPE REF ---------------------
-
-		// insert RentableTypeRef for this Rentable
-		rtr.BID = rt.BID
-		rtr.RID = rt.RID
-		rtr.RTID = rfRecord.RTID
-		rtr.DtStart = currentTime
-		rtr.DtStop = (time.Time)(rfRecord.RTRefDtStop)
-		// which default values should be inserted for OverrideRentCycle, OverrideProrationCycle
-		// NOTE: don't worry about these two fields as of now
-		// rtr.OverrideRentCycle = 0
-		// rtr.OverrideProrationCycle = 0
-
-		_, err = rlib.InsertRentableTypeRef(r.Context(), &rtr)
-		if err != nil {
-			SvcErrorReturn(w, err, funcname)
-			return
-		}
-		rlib.Console("RentableTypeRef has been saved for Rentable(%d), RTRID: %d\n", rt.RID, rtr.RTRID)*/
 	}
 
 	SvcWriteSuccessResponseWithID(d.BID, w, rentable.RID)
