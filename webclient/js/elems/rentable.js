@@ -4,7 +4,7 @@
     getRentableInitRecord, saveRentableLeaseStatus, buildRentableUseStatusElements, buildRentableLeaseStatusElements,
     saveRentableUseStatus, saveRentableTypeRef, buildRentableTypeRefElements, saveRentableCore, closeRentableForm,
     showRentableForm, finishRentableSaveAdd, finishRentableSave, addRentableLeaseStatus, addRentableUseStatus, addRentableTypeRef,
-    getEDIAdjustedStopDate,
+    getEDIAdjustedStopDate, buildRentableUseTypeElements, saveRentableUseType, addRentableUseType,
 */
 /*jshint esversion: 6 */
 
@@ -12,13 +12,10 @@
 var RentableEdits = {
     LeaseStatusChgList: [],     // an array of indeces to LeaseStatus changes
     UseStatusChgList: [],       // an array of indeces to UseStatus changes
+    UseTypeChgList: [],         // an array of indeces to UseType changes
     RTRChgList: [],             // an array of indeces to type ref changes
     RID: 0,                     // ID being edited
-    rlsDeleteInProgress: false, // indicates whether or not a delete of Rentable Lease Status is in progress
-    rusDeleteInProgress: false, // indicates whether or not a delete of Rentable Use Status is in progress
-    rtrDeleteInProgress: false, // indicates whether or not a delete of Rentable Type Ref is in progress
 };
-
 
 //-----------------------------------------------------------------------------
 // getEDIAdjustedStopDate - This routine should only be used for date ranges
@@ -145,6 +142,11 @@ window.buildRentableElements = function () {
         app.RSUseStatusItems.push({id: index, text: item});
     });
 
+    app.RSUseTypeItems = []; // rentable use type
+    app.RSUseType.forEach(function (item, index) {
+        app.RSUseTypeItems.push({id: 100 + index, text: item});
+    });
+
     app.RSLeaseStatusItems = []; // rentable lease status
     app.RSLeaseStatus.forEach(function (item, index) {
         app.RSLeaseStatusItems.push({id: index, text: item});
@@ -182,6 +184,22 @@ window.buildRentableElements = function () {
                     if (record) {
                         app.RSUseStatus.forEach(function (item, index) {
                             if (record.UseStatus == index) {
+                                text = item;
+                                return false;
+                            }
+                        });
+                    }
+                    return text;
+                },
+            },
+            {
+                field: 'UseType', caption: 'Rentable <br>Use Type', size: '100px', sortable: true,
+                render: function (record/*, index, col_index*/) {
+                    var text = '';
+                    var offset = 100;
+                    if (record) {
+                        app.RSUseType.forEach(function (item, index) {
+                            if (record.UseType == offset + index) {
                                 text = item;
                                 return false;
                             }
@@ -368,6 +386,8 @@ window.buildRentableElements = function () {
                             w2ui.rentableDetailLayout.html('main', w2ui.rentableForm);
                         } else if (event.target === "rentableUseStatusGrid") {
                             w2ui.rentableDetailLayout.html('main', w2ui.rentableUseStatusGrid);
+                        } else if (event.target === "rentableUseTypeGrid") {
+                            w2ui.rentableDetailLayout.html('main', w2ui.rentableUseTypeGrid);
                         } else if (event.target === "rentableLeaseStatusGrid") {//add by lina
                             w2ui.rentableDetailLayout.html('main', w2ui.rentableLeaseStatusGrid);
                         } else if (event.target === "rentableTypeRefGrid") {
@@ -459,6 +479,7 @@ window.buildRentableElements = function () {
     });
 
     buildRentableUseStatusElements();
+    buildRentableUseTypeElements();
     buildRentableLeaseStatusElements();
     buildRentableTypeRefElements();
 
@@ -514,8 +535,8 @@ window.finishRentableSaveAdd = function() {
 };
 
 // saveRentableCore performs the common functions to Save and SaveAdd.  It
-// handles the async calls to store RentableTypeRefs, RentableUseStatus, and
-// RentableLeaseStatus.
+// handles the async calls to store RentableTypeRefs, RentableUseStatus,
+// RentableUseType and RentableLeaseStatus.
 //
 // @params
 //     doneCB = callback function when all asynchronous calls complete
@@ -568,6 +589,9 @@ window.saveRentableCore = function (doneCB) {
         for (i = 0; i < w2ui.rentableUseStatusGrid.records.length; i++) {
             w2ui.rentableUseStatusGrid.records[i].RID = w2ui.rentableForm.record.RID;
         }
+        for (i = 0; i < w2ui.rentableUseTypeGrid.records.length; i++) {
+            w2ui.rentableUseTypeGrid.records[i].RID = w2ui.rentableForm.record.RID;
+        }
         for (i = 0; i < w2ui.rentableLeaseStatusGrid.records.length; i++) {//add by lina
             w2ui.rentableLeaseStatusGrid.records[i].RID = w2ui.rentableForm.record.RID;
         }
@@ -586,6 +610,7 @@ window.saveRentableCore = function (doneCB) {
         $.when(
             saveRentableLeaseStatus(BID,RID),
             saveRentableUseStatus(BID,RID),
+            saveRentableUseType(BID,RID),
             saveRentableTypeRef(BID,RID)
         )
         .done(function(){
@@ -705,10 +730,12 @@ window.showRentableForm = function() {
     // them after the grids complete their loading or after a save completes.
     //------------------------------------------------------------------------
     if (RID > 0) {
-        w2ui.rentableLeaseStatusGrid.url = '/v1/rentableleasestatus/'+BID+'/'+RID;
-        w2ui.rentableUseStatusGrid.url = '/v1/rentableusestatus/'+BID+'/'+RID;
-        w2ui.rentableTypeRefGrid.url = '/v1/rentabletyperef/'+BID+'/'+RID;
-        w2ui.rentableForm.url = '/v1/rentable/'+BID+'/'+RID;
+        var br = '' + BID + '/' + RID;
+        w2ui.rentableLeaseStatusGrid.url = '/v1/rentableleasestatus/' + br;
+        w2ui.rentableUseStatusGrid.url   = '/v1/rentableusestatus/' + br;
+        w2ui.rentableUseTypeGrid.url     = '/v1/rentableusetype/' + br;
+        w2ui.rentableTypeRefGrid.url     = '/v1/rentabletyperef/' + br;
+        w2ui.rentableForm.url            = '/v1/rentable/' + br;
     }
 
     //------------------------------------------------------------------------
@@ -716,9 +743,11 @@ window.showRentableForm = function() {
     //------------------------------------------------------------------------
     RentableEdits.LeaseStatusChgList = [];
     RentableEdits.UseStatusChgList = [];
+    RentableEdits.UseTypeChgList = [];
     RentableEdits.RTRChgList = [];
     w2ui.rentableLeaseStatusGrid.records = [];
     w2ui.rentableUseStatusGrid.records = [];
+    w2ui.rentableUseTypeGrid.records = [];
     w2ui.rentableTypeRefGrid.records = [];
 
     //------------------------------------------------------------------------
@@ -727,6 +756,7 @@ window.showRentableForm = function() {
     if (RID == 0) {
         addRentableLeaseStatus();
         addRentableUseStatus();
+        addRentableUseType();
         addRentableTypeRef();
     }
 
