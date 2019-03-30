@@ -2051,6 +2051,7 @@ type RRprepSQL struct {
 	InsertRentableUseType                   *sql.Stmt
 	UpdateRentableUseType                   *sql.Stmt
 	DeleteRentableUseType                   *sql.Stmt
+	GetASMInstancesByRIDandDateRange        *sql.Stmt
 }
 
 // DeleteBusinessFromDB deletes information from all tables if it is part of the supplied BID.
