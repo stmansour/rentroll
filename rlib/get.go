@@ -66,13 +66,8 @@ func GetAR(ctx context.Context, id int64) (AR, error) {
 // GetARByName reads a AR the structure for the supplied bid and name
 func GetARByName(ctx context.Context, bid int64, name string) (AR, error) {
 	var a AR
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return a, ErrSessionRequired
-		}
+	if getSessionCheck(ctx) {
+		return a, ErrSessionRequired
 	}
 
 	var row *sql.Row
@@ -155,37 +150,19 @@ func getARMap(bid int64) (map[int64]AR, error) {
 
 // GetARMap returns a map of all account rules for the supplied bid
 func GetARMap(ctx context.Context, bid int64) (map[int64]AR, error) {
-
-	var (
-		// err error
-		t = make(map[int64]AR)
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return t, ErrSessionRequired
-		}
+	var t = make(map[int64]AR)
+	if getSessionCheck(ctx) {
+		return t, ErrSessionRequired
 	}
-
 	return getARMap(bid)
 }
 
 // GetAllARs reads all AccountRules for the supplied BID
 func GetAllARs(ctx context.Context, BID int64) ([]AR, error) {
-
-	var (
-		err error
-		t   []AR
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return t, ErrSessionRequired
-		}
+	var err error
+	var t []AR
+	if getSessionCheck(ctx) {
+		return t, ErrSessionRequired
 	}
 
 	var rows *sql.Rows
@@ -206,18 +183,10 @@ func GetAllARs(ctx context.Context, BID int64) ([]AR, error) {
 
 // GetARsByType reads all AccountRules for the supplied BID of type artype
 func GetARsByType(ctx context.Context, bid int64, artype int) ([]AR, error) {
-
-	var (
-		err error
-		t   []AR
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return t, ErrSessionRequired
-		}
+	var err error
+	var t []AR
+	if getSessionCheck(ctx) {
+		return t, ErrSessionRequired
 	}
 
 	var rows *sql.Rows
@@ -427,6 +396,31 @@ func GetAllRentableAssessments(ctx context.Context, RID int64, d1, d2 *time.Time
 		rows, err = stmt.Query(fields...)
 	} else {
 		rows, err = RRdb.Prepstmt.GetAllRentableAssessments.Query(fields...)
+	}
+
+	if err != nil {
+		return t, err
+	}
+	return getAssessmentsByRows(ctx, rows)
+}
+
+// GetASMInstancesByRIDandDateRange for the supplied RID and date range
+//------------------------------------------------------------------------------
+func GetASMInstancesByRIDandDateRange(ctx context.Context, RID int64, d1, d2 *time.Time) ([]Assessment, error) {
+	var err error
+	var t []Assessment
+	if _, ok := SessionCheck(ctx); !ok {
+		return t, ErrSessionRequired
+	}
+
+	var rows *sql.Rows
+	fields := []interface{}{RID, d1, d2}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetASMInstancesByRIDandDateRange)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetASMInstancesByRIDandDateRange.Query(fields...)
 	}
 
 	if err != nil {
@@ -945,23 +939,12 @@ func GetBuilding(ctx context.Context, id int64) (Building, error) {
 // GetAllBiz generates a slice of all Businesses defined in the database
 // without authentication
 func GetAllBiz() ([]Business, error) {
-
-	var (
-		err error
-		m   []Business
-	)
+	var err error
+	var m []Business
 
 	var rows *sql.Rows
 	fields := []interface{}{}
-	/*if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.GetAllBusinesses)
-		defer stmt.Close()
-		rows, err = stmt.Query(fields...)
-	} else {
-		rows, err = RRdb.Prepstmt.GetAllBusinesses.Query(fields...)
-	}*/
 	rows, err = RRdb.Prepstmt.GetAllBusinesses.Query(fields...)
-
 	if err != nil {
 		return m, err
 	}
@@ -981,13 +964,8 @@ func GetAllBiz() ([]Business, error) {
 
 // GetAllBusinesses generates a report of all Businesses defined in the database.
 func GetAllBusinesses(ctx context.Context) ([]Business, error) {
+	var m []Business
 
-	var (
-		// err error
-		m []Business
-	)
-
-	// session... context
 	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
@@ -1123,11 +1101,6 @@ func GetXBiz(bid int64, xbiz *XBusiness) error {
 
 // GetXBusiness loads the XBusiness struct for the supplied Business id.
 func GetXBusiness(ctx context.Context, bid int64, xbiz *XBusiness) error {
-
-	var (
-	// err error
-	)
-
 	// session... context
 	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
@@ -5346,13 +5319,8 @@ func GetRentableUser(ctx context.Context, ruid int64) (RentableUser, error) {
 // GetRentableUserByRBT returns a Rentable User record matching the supplied
 // RID, BID, TCID
 func GetRentableUserByRBT(ctx context.Context, rid, bid, tcid int64) (RentableUser, error) {
+	var r RentableUser
 
-	var (
-		// err error
-		r RentableUser
-	)
-
-	// session... context
 	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
@@ -5370,6 +5338,50 @@ func GetRentableUserByRBT(ctx context.Context, rid, bid, tcid int64) (RentableUs
 		row = RRdb.Prepstmt.GetRentableUserByRBT.QueryRow(fields...)
 	}
 	return r, ReadRentableUser(row, &r)
+}
+
+// GetRentableUseStatusForDate returns the status of the Rentable on the supplied
+// date
+//=============================================================================
+func GetRentableUseStatusForDate(ctx context.Context, rid int64, dt *time.Time) (int64, error) {
+	if _, ok := SessionCheck(ctx); !ok {
+		return int64(-1), ErrSessionRequired
+	}
+
+	status := int64(RENTABLESTATUSUNKNOWN)
+	d2 := dt.Add(24 * time.Hour)
+
+	m, err := GetRentableUseStatusByRange(ctx, rid, dt, &d2)
+	if err != nil {
+		return status, err
+	}
+
+	if len(m) > 0 {
+		status = m[0].UseStatus
+	}
+	return status, err
+}
+
+// GetRentableUseTypeForDate returns the status of the Rentable on the supplied
+// date
+//=============================================================================
+func GetRentableUseTypeForDate(ctx context.Context, rid int64, dt *time.Time) (int64, error) {
+	if _, ok := SessionCheck(ctx); !ok {
+		return int64(-1), ErrSessionRequired
+	}
+
+	ut := int64(-1)
+	d2 := dt.Add(24 * time.Hour)
+
+	m, err := GetRentableUseTypeByRange(ctx, rid, dt, &d2)
+	if err != nil {
+		return ut, err
+	}
+
+	if len(m) > 0 {
+		ut = m[0].UseType
+	}
+	return ut, err
 }
 
 // GetRentableSpecialtyTypeByName returns a list of specialties associated with the supplied Rentable

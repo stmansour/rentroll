@@ -139,6 +139,8 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetInstancesByDateRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE PASMID=? AND Stop>=? AND Start<? ORDER By Start ASC, Amount DESC")
 	Errcheck(err)
+	RRdb.Prepstmt.GetASMInstancesByRIDandDateRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE ((PASMID=0 AND RentCycle=0) OR (PASMID>0 AND RentCycle>0)) AND Stop>=? AND Start<? ORDER By Start ASC, Amount DESC")
+	Errcheck(err)
 	RRdb.Prepstmt.GetAllRentableAssessments, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE RID=? AND Stop >= ? AND Start < ? ORDER By Start ASC, Amount DESC")
 	Errcheck(err)
 	RRdb.Prepstmt.GetAssessmentInstancesByParent, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE PASMID=? AND Stop >= ? AND Start < ? ORDER By Start ASC, Amount DESC")
