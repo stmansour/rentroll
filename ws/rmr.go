@@ -175,7 +175,6 @@ func svcSearchHandlerRentableMarketRates(w http.ResponseWriter, r *http.Request,
 	count := 0
 	for rows.Next() {
 		var q RentableMarketRateGridRec
-		q.Recid = i
 		q.BID = d.BID
 		q.BUD = rlib.GetBUDFromBIDList(q.BID)
 
@@ -184,6 +183,7 @@ func svcSearchHandlerRentableMarketRates(w http.ResponseWriter, r *http.Request,
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
+		q.Recid = q.RMRID
 
 		g.Records = append(g.Records, q)
 		count++ // update the count only after adding the record
@@ -269,22 +269,6 @@ func saveRentableTypeMarketRates(w http.ResponseWriter, r *http.Request, d *Serv
 			continue
 		}
 
-		// // insert new marketRate
-		// if a.RMRID == 0 {
-		// 	_, err = rlib.InsertRentableMarketRate(r.Context(), &a)
-		// 	if err != nil {
-		// 		e := fmt.Errorf("Error while inserting market rate:  %s", err.Error())
-		// 		SvcErrorReturn(w, e, funcname)
-		// 		return
-		// 	}
-		// } else { // else update existing one
-		// 	err = rlib.UpdateRentableMarketRate(r.Context(), &a)
-		// 	if err != nil {
-		// 		e := fmt.Errorf("Error with updating market rate instance (%d), RTID=%d : %s", a.RMRID, a.RTID, err.Error())
-		// 		SvcErrorReturn(w, e, funcname)
-		// 		return
-		// 	}
-		// }
 		if err = rlib.SetRentableMarketRate(r.Context(), &a); err != nil {
 			e := fmt.Errorf("Error from SetRentableMarketRate (%d), RTID=%d : %s", a.RMRID, a.RTID, err.Error())
 			SvcErrorReturn(w, e, funcname)

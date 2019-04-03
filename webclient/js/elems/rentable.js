@@ -10,11 +10,19 @@
 
 "use strict";
 var RentableEdits = {
-    LeaseStatusChgList: [],     // an array of indeces to LeaseStatus changes
-    UseStatusChgList: [],       // an array of indeces to UseStatus changes
-    UseTypeChgList: [],         // an array of indeces to UseType changes
-    RTRChgList: [],             // an array of indeces to type ref changes
-    RID: 0,                     // ID being edited
+    LeaseStatusChgList: [],         // an array of indeces to LeaseStatus changes
+    UseStatusChgList: [],           // an array of indeces to UseStatus changes
+    UseTypeChgList: [],             // an array of indeces to UseType changes
+    RTRChgList: [],                 // an array of indeces to type ref changes
+    RID: 0,                         // ID being edited
+    RSID: -1,                       // ID to use for new objects
+    RLID: -1,                       // ID to use for new objects
+    RTRID: -1,                      // ID to use for new objects
+    RMRID: -1,                      // ID to use for new objects
+    LeaseStatusDataLoaded: false,   // set to true after server data is loaded
+    UseStatusDataLoaded: false,     // set to true after server data is loaded
+    UseTypeDataLoaded: false,       // set to true after server data is loaded
+    RTRDataLoaded: false,           // set to true after server data is loaded
 };
 
 //-----------------------------------------------------------------------------
@@ -381,16 +389,31 @@ window.buildRentableElements = function () {
                         {id: 'rentableLeaseStatusGrid', caption: 'Lease Status'},
                         {id: 'rentableTypeRefGrid', caption: 'Rentable Type'},
                     ],
+                    //---------------------------------
+                    //  HANDLE THE TAB CLICKS...
+                    //---------------------------------
                     onClick: function (event) {
                         if (event.target === "rentableForm") {
                             w2ui.rentableDetailLayout.html('main', w2ui.rentableForm);
                         } else if (event.target === "rentableUseStatusGrid") {
+                            if (RentableEdits.UseStatusDataLoaded) {
+                                w2ui.rentableUseStatusGrid.url = '';
+                            }
                             w2ui.rentableDetailLayout.html('main', w2ui.rentableUseStatusGrid);
                         } else if (event.target === "rentableUseTypeGrid") {
+                            if (RentableEdits.UseTypeDataLoaded) {
+                                w2ui.rentableUseTypeGrid.url = '';
+                            }
                             w2ui.rentableDetailLayout.html('main', w2ui.rentableUseTypeGrid);
-                        } else if (event.target === "rentableLeaseStatusGrid") {//add by lina
+                        } else if (event.target === "rentableLeaseStatusGrid") {
+                            if (RentableEdits.LeaseStatusDataLoaded){
+                                w2ui.rentableLeaseStatusGrid.url = '';
+                            }
                             w2ui.rentableDetailLayout.html('main', w2ui.rentableLeaseStatusGrid);
                         } else if (event.target === "rentableTypeRefGrid") {
+                            if (RentableEdits.RTRDataLoaded) {
+                                w2ui.rentableTypeRefGrid.url = '';
+                            }
                             w2ui.rentableDetailLayout.html('main', w2ui.rentableTypeRefGrid);
                         }
                     }
@@ -513,6 +536,7 @@ window.buildRentableElements = function () {
 //-----------------------------------------------------------------------------
 window.finishRentableSave = function() {
     app.form_is_dirty = false;
+    w2ui.rentablesGrid.reload();
     w2ui.rentablesGrid.render();
     closeRentableForm();
 };
@@ -527,6 +551,7 @@ window.finishRentableSaveAdd = function() {
     var BID = getCurrentBID();
     var BUD = getBUDfromBID();
     app.last.grid_sel_recid = -1;  // clear the grid select recid
+    w2ui.rentablesGrid.reload();
     w2ui.rentablesGrid.render();
     w2ui.rentableForm.record = getRentableInitRecord(BID, BUD, w2ui.rentableForm.record);
     w2ui.rentableForm.url = '/v1/rentable/' + BID + '/0';
@@ -725,7 +750,7 @@ window.showRentableForm = function() {
     var RID = w2ui.rentableForm.record.RID;
 
     //------------------------------------------------------------------------
-    // We only want the grids to request server data on their initial load
+    // We want the grids to request server data on their initial load
     // and on a RentableForm Save.  So, we will set the urls here and clear
     // them after the grids complete their loading or after a save completes.
     //------------------------------------------------------------------------
@@ -745,6 +770,13 @@ window.showRentableForm = function() {
     RentableEdits.UseStatusChgList = [];
     RentableEdits.UseTypeChgList = [];
     RentableEdits.RTRChgList = [];
+    RentableEdits.RSID = -1;
+    RentableEdits.RTRID = -1;
+    RentableEdits.UTID = -1;
+    RentableEdits.LeaseStatusDataLoaded = false;
+    RentableEdits.UseStatusDataLoaded = false;
+    RentableEdits.UseTypeDataLoaded = false;
+    RentableEdits.RTRDataLoaded = false;
     w2ui.rentableLeaseStatusGrid.records = [];
     w2ui.rentableUseStatusGrid.records = [];
     w2ui.rentableUseTypeGrid.records = [];

@@ -69,29 +69,36 @@ window.buildRentableLeaseStatusElements = function () {
             {field: 'CreateBy', caption: 'CreateBy', hidden: true},
             {field: 'LastModBy', caption: 'LastModBy', hidden: true},
         ],
-        onLoad: function (event) {
-            //------------------------------------------------------------------------
-            // We only want the grids to request server data on their initial load
-            // and on a RentableForm Save.  So, we will clear them after the
-            // grids complete their loading or after a save completes.
-            //------------------------------------------------------------------------
-            event.onComplete = function () {
-                // var BID = getCurrentBID();
-                // var RID = w2ui.rentableForm.record.RID;
-                // this.url = '/v1/rentableleasestatus/'+BID+'/'+RID;
-                this.url = '';
-            };
-        },
-        onSave: function (event) {
-            // see the onLoad comment ...
-            event.onComplete = function() {
-                this.url = '';
-            };
-        },
         onAdd: function (/*event*/) {
             addRentableLeaseStatus();
         },
-
+        onLoad: function (event) {
+            event.onComplete = function () {
+                //------------------------------------------------------------------------
+                // We need the URL to be active in case virtual scrolling is needed.
+                // We will turn off the url when a local save is completed.
+                //------------------------------------------------------------------------
+                var BID = getCurrentBID();
+                var RID = w2ui.rentableForm.record.RID;
+                this.url = '/v1/rentableleasestatus/'+BID+'/'+RID;
+                RentableEdits.LeaseStatusDataLoaded = true;
+            };
+        },
+        onSave: function (event) {
+            //------------------------------------------------------------------
+            // Grid changes are saved locally. So we want no url when this funct
+            // gets called due to a grid change. After the local save is complete
+            // we put the url back so that if the virtual scrolling needs to call
+            // the server it can.  The full save to disk is done when the user
+            // presses the Save button, which is handled by a different function.
+            //------------------------------------------------------------------
+            this.url = '';  // no url for local save in the grid
+            event.onComplete = function() { // restore the url to support virtual scrolling
+                var BID = getCurrentBID();
+                var RID = w2ui.rentableForm.record.RID;
+                this.url = '/v1/rentableleasestatus/'+BID+'/'+RID;
+            };
+        },
         onChange: function (event) {
             // event.preventDefault();   // not sure what this does
             var g = this;
@@ -111,13 +118,13 @@ window.buildRentableLeaseStatusElements = function () {
             //---------------------------------------------------
             event.isCancelled = !changeIsValid;
 
-            //-------------------------------------------------------------------
-            // 2/19/2019 sman - This save is used to save the data into the
-            // grid's records.  We need to ensure that the grids URL is ''
-            //-------------------------------------------------------------------
             event.onComplete = function () {
+                //-------------------------------------------------------------------
+                // 2/19/2019 sman - Store into the grid's records.  We need to
+                // ensure that the grid's URL is ''
+                //-------------------------------------------------------------------
                 if (!event.isCancelled) { // if event not cancelled then invoke save method
-                    RentableEdits.LeaseStatusChgList.push(chgRec.recid);
+                    RentableEdits.LeaseStatusChgList.push({index: event.index, ID: g.records[event.index].RLID});
                     g.url = '';  // just ensure that no server service is called
                     this.save(); // save automatically locally
                 }
@@ -130,22 +137,73 @@ window.buildRentableLeaseStatusElements = function () {
 // been changed, then calls the webservice to save them.
 //---------------------------------------------------------------------------
 window.saveRentableLeaseStatus = function(BID,RID) {
-    var reclist = Array.from(new Set(RentableEdits.LeaseStatusChgList));
+    var list = [];
+    var i;
 
+    //------------------------------------------------
+    // Build a list of IDs. that were edited...
+    //------------------------------------------------
+    for (i = 0; i < RentableEdits.LeaseStatusChgList.length; i++) {
+        list[i] = RentableEdits.LeaseStatusChgList[i].ID;
+    }
+
+    //------------------------------------------------
+    // Filter the list to the unique members...
+    //------------------------------------------------
+    var reclist = Array.from(new Set(list));
+
+    //------------------------------------------------
+    // If there's nothing in the list, we're done.
+    // Set the promise to resolved and return.
+    //------------------------------------------------
     if (reclist.length == 0) {
         return Promise.resolve('{"status": "success"}');
     }
 
+    //------------------------------------------------
+    // Find the records for each ID
+    //------------------------------------------------
     var chgrec = [];
-    for (var i = 0; i < reclist.length; i++) {
-        var nrec =  w2ui.rentableLeaseStatusGrid.get(reclist[i]);
+    var index = -1;
+    var grid = w2ui.rentableLeaseStatusGrid;
+    for (i = 0; i < reclist.length; i++) {
+        //------------------------------------------------------------
+        // reclist[i] is the id of the element we wnat to find...
+        //------------------------------------------------------------
+        for (var j = 0; j < grid.records.length; j++ ) {
+            if (grid.records[j].RLID == reclist[i]) {
+                index = j;
+                break;
+            }
+        }
+        //------------------------------------------------------------
+        // if the ID could not be found resolve promis with an
+        // error message.
+        //------------------------------------------------------------
+        if (index < 0) {
+            var s='ERROR: could not find RLID = '+reclist[i];
+            w2ui.rentablesGrid.error(s);  // place an error where we will be sure to see it
+            return Promise.resolve('{"status": "error", "message": s}');
+        }
+
+        //------------------------------------------------------------
+        //  This is the record we need to save.  Make any last-min
+        //  changes...
+        //------------------------------------------------------------
+        var nrec = grid.records[index];
         if (typeof nrec.LeaseStatus == "string") {
             var ls = parseInt(nrec.LeaseStatus,10);
             nrec.LeaseStatus = ls;
         }
+        if (nrec.RLID < 0) {
+            nrec.RLID = 0;  // server needs RLID = 0 for new records
+        }
         chgrec.push(nrec);
     }
 
+    //------------------------------------------------------------
+    //  Save the list of chgrecs to the server...
+    //------------------------------------------------------------
     var params = {
         cmd: "save",
         selected: [],
@@ -170,13 +228,12 @@ window.saveRentableLeaseStatus = function(BID,RID) {
             //------------------------------------------------------------------
             RentableEdits.LeaseStatusChgList = []; // reset the change list now, because we've saved them
             w2ui.rentableLeaseStatusGrid.url = url;
-            w2ui.toplayout.hide('right', true);
         } else {
             w2ui.rentablesGrid.error('saveRentableLeaseStatus: ' + data.message);
         }
     })
     .fail(function(data){
-        console.log("Save RentableLeaseStatus failed.");
+        w2ui.rentablesGrid.error("Save RentableLeaseStatus failed. " + data);
     });
 };
 
@@ -193,6 +250,7 @@ window.addRentableLeaseStatus = function (/*event*/) {
     var fr = w2ui.rentableForm.record;
     var g = w2ui.rentableLeaseStatusGrid;
     var ndStart;
+    var basedOnListDate = false;
 
     //------------------------------------------------------------------------
     // Find lastest date among all market rate object's stopDate for new MR's
@@ -209,6 +267,7 @@ window.addRentableLeaseStatus = function (/*event*/) {
                 var rdStop = new Date(rec.DtStop);
                 if (ndStart < rdStop) {
                     ndStart = rdStop;
+                    basedOnListDate = true;
                 }
             }
         });
@@ -219,15 +278,23 @@ window.addRentableLeaseStatus = function (/*event*/) {
         BID: BID,
         BUD: BUD,
         RID: fr.RID,
-        RLID: 0,
+        RLID: RentableEdits.RLID,
         LeaseStatus: 0,
         DtStart: dateFmtStr(ndStart),
         DtStop: "12/31/9999"
     };
+    --RentableEdits.RLID;
+
+    //------------------------------------------------------------------------
+    // EDI does not apply to Use Status -- which is a datetime.  EDIT applies
+    // to date-only Fields
+    //------------------------------------------------------------------------
     if (EDIEnabledForBUD(BUD)) {
-        var d = ndStart;
-        d.setDate(d.getDate()+1);
-        newRec.DtStart = dateFmtStr(d);
+        if (basedOnListDate) {
+            var d = ndStart;
+            d.setDate(d.getDate()+1);
+            newRec.DtStart = dateFmtStr(d);
+        }
         newRec.DtStop = "12/30/9999";
     }
     var d1 = new Date(newRec.DtStart);
@@ -235,6 +302,6 @@ window.addRentableLeaseStatus = function (/*event*/) {
     if (d1 > d2) {
         newRec.DtStart = dateFmtStr(d1);
     }
-    RentableEdits.LeaseStatusChgList.push(newRec.recid);
+    RentableEdits.LeaseStatusChgList.push({index: 0, ID: newRec.RLID});
     g.add(newRec,true); // the boolean forces the new row to be added at the top of the grid
 };

@@ -11,7 +11,7 @@
             "RID": 1,
             "RSID": 10,
             "UseStatus": 0,
-            "recid": 0
+            "recid": 10
         },
         {
             "BID": 1,
@@ -24,7 +24,7 @@
             "RID": 1,
             "RSID": 11,
             "UseStatus": 4,
-            "recid": 1
+            "recid": 11
         },
         {
             "BID": 1,
@@ -37,7 +37,7 @@
             "RID": 1,
             "RSID": 5,
             "UseStatus": 0,
-            "recid": 2
+            "recid": 5
         }
     ],
     "status": "success",

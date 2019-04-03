@@ -185,7 +185,6 @@ func svcSearchHandlerRentableUseType(w http.ResponseWriter, r *http.Request, d *
 	count := 0
 	for rows.Next() {
 		var q RentableUseTypeGridRec
-		q.Recid = i
 		q.BID = d.BID
 		q.BUD = string(rlib.GetBUDFromBIDList(q.BID))
 
@@ -195,6 +194,7 @@ func svcSearchHandlerRentableUseType(w http.ResponseWriter, r *http.Request, d *
 			return
 		}
 		rlib.EDIHandleOutgoingJSONDateRange(q.BID, &q.DtStart, &q.DtStop)
+		q.Recid = q.UTID
 
 		g.Records = append(g.Records, q)
 		count++ // update the count only after adding the record

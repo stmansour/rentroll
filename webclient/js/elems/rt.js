@@ -2,7 +2,7 @@
     w2ui, app, $, console, form_dirty_alert, formRefreshCallBack, formRecDiffer,
     getFormSubmitData, w2confirm, delete_confirm_options, getBUDfromBID, getCurrentBusiness,
     addDateNavToToolbar, setRTLayout, getRTInitRecord, getRentASMARList, showForm,
-    saveRentableMarketRate,
+    saveRentableMarketRate, buildRentableMarketRateElements,
 */
 
 "use strict";
@@ -31,6 +31,8 @@ window.getRTInitRecord = function (BID, BUD){
 var RTEdits = {
     MarketRateChgList: [],      // an array of recids to MarketRate changes
     RTID: 0,                    // ID being edited
+    RMRID: -1,                  // temp RMRIDs for new ones before being sent to server
+    MarketRateDataLoaded: false,// indicates whether or not server data has been loaded in grid
 };
 
 
@@ -655,6 +657,9 @@ window.buildRentableTypeElements = function () {
          },
          onRefresh: function(event) {
             event.onComplete = function() {
+                if (w2ui.rtForm.record.IsActive === undefined) {
+                    return;
+                }
                 var rtActive = w2ui.rtForm.record.IsActive;
                 if (!rtActive) {
                     $("#rtFormBtns").find("button[name=save]").addClass("hidden");
@@ -714,184 +719,41 @@ window.buildRentableTypeElements = function () {
                         { id: 'rtForm', caption: 'Rentable Type Detail' },
                         { id: 'rmrGrid', caption: 'Market Rates' },
                     ],
+                    //---------------------------------
+                    //  HANDLE THE TAB CLICKS...
+                    //---------------------------------
                     onClick: function (event) {
                         if (event.target === "rmrGrid") {
-                            w2ui.rtDetailLayout.html('main', w2ui.rmrGrid);
+                            if (RTEdits.MarketRateDataLoaded) {
+                                w2ui.rmrGrid.url = '';
+                            }
+                            w2ui.rtDetailLayout.content('main', w2ui.rmrGrid);
                         }
                         if (event.target === "rtForm") {
-                            w2ui.rtDetailLayout.html('main', w2ui.rtForm);
+                            w2ui.rtDetailLayout.content('main', w2ui.rtForm);
                         }
 
-                        // if RentableType is not active then lock the content loaded in main panel
-                        setTimeout(function() {
-                            var rtActive = w2ui.rtForm.record.IsActive;
-                            if (!rtActive) {
-                                w2ui.rtDetailLayout.get("main").content.lock();
-                            } else {
-                                w2ui.rtDetailLayout.get("main").content.unlock();
-                            }
-                        }, 1000);
+                        // sman - I do not understand why we need this.
+                        //        I'm commenting it out for now...
+                        //--------------------
+                        // // if RentableType is not active then lock the content loaded in main panel
+                        // setTimeout(function() {
+                        //     var rtActive = w2ui.rtForm.record.IsActive;
+                        //     if (!rtActive) {
+                        //         w2ui.rtDetailLayout.get("main").content.lock();
+                        //     } else {
+                        //         w2ui.rtDetailLayout.get("main").content.unlock();
+                        //     }
+                        // }, 1000);
                     }
                 }
             },
             {
-                type: 'bottom',
-                size: 60,
-                // style: 'background-color: white;  border-top: 1px solid silver; text-align: center; padding: 15px;',
+                type: 'bottom', size: 60, // style: 'background-color: white;  border-top: 1px solid silver; text-align: center; padding: 15px;',
             },
         ],
     });
-
-    //------------------------------------------------------------------------
-    //          rentable Market Rates Grid
-    //------------------------------------------------------------------------
-    $().w2grid({
-        name: 'rmrGrid',
-        style: 'padding: 0px',
-        show: {
-            header: false,
-            toolbar: true,
-            toolbarReload: false,
-            toolbarColumns: false,
-            toolbarSearch: true,
-            toolbarAdd: true,
-            toolbarDelete: false,
-            toolbarSave: false,
-            searchAll       : true,
-            footer: true,
-            lineNumbers: false,
-            selectColumn: false,
-            expandColumn: false
-        },
-        columns: [
-            {field: 'recid', caption: 'recid', hidden: true},
-            {field: 'RMRID', caption: 'RMRID', size: '150px', sortable: true},
-            {field: 'RTID', caption: 'RTID', size: '150px', hidden: true},
-            {field: 'BID', caption: 'BID', hidden: true},
-            {field: 'BUD', caption: 'BUD', hidden: true},
-            {field: 'MarketRate',  caption: 'MarketRate',  size: '100px', sortable: true, render: 'money', editable: {type: 'money'} },
-            {field: 'DtStart',     caption: 'DtStart', size: "50%",    sortable: true, style: 'text-align: right', editable: {type: 'date'} },
-            {field: 'DtStop',      caption: 'DtStop', size: "50%",    sortable: true, style: 'text-align: right', editable: {type: 'date'} },
-        ],
-        onLoad: function(event) {
-            event.onComplete = function() {
-                this.url = '';
-            };
-        },
-        onAdd: function(event) {
-            var x = getCurrentBusiness(),
-                BID=parseInt(x.value),
-                BUD = getBUDfromBID(BID),
-                fr = w2ui.rtForm.record,
-                g = this,
-                ndStart;
-
-            // get lastest date among all market rate object's stopDate for new MR's StartDate
-            if (g.records.length === 0) {
-                ndStart = new Date();
-            } else {
-                g.records.forEach(function(rec) {
-                    if (ndStart === undefined) {
-                        ndStart = new Date(rec.DtStop);
-                    }
-                    if (rec.DtStop) {
-                        var rdStop = new Date(rec.DtStop);
-                        if (ndStart < rdStop) {
-                            ndStart = rdStop;
-                        }
-                    }
-                });
-            }
-
-            var newRec = { recid: g.records.length,
-                BID: BID,
-                BUD: BUD,
-                RTID: fr.RTID,
-                RMRID: 0,
-                MarketRate: 0,
-                DtStart: dateFmtStr(ndStart),
-                DtStop: "12/31/9999"
-            };
-
-            if (EDIEnabledForBUD(BUD)) {
-                var d = ndStart;
-                d.setDate(d.getDate()+1);
-                newRec.DtStart = dateFmtStr(d);
-                newRec.DtStop = "12/30/9999";
-            }
-            var d1 = new Date(newRec.DtStart);
-            var d2 = new Date(newRec.DtStop);
-            if (d1 > d2) {
-                newRec.DtStart = dateFmtStr(d1);
-            }
-            g.add(newRec,true);  // the boolean forces the new row to be added at the top of the grid
-        },
-        onSave: function(event) {
-            event.changes = this.records;
-        },
-        // onDelete: function(event) {
-        //     var selected = this.getSelection(),
-        //         RMRIDList = [],
-        //         grid = this;
-        //
-        //     // if not selected then return
-        //     if (selected.length < 0) {
-        //         return;
-        //     }
-        //     // collect RMRID
-        //     selected.forEach(function(id) {
-        //         RMRIDList.push(grid.get(id).RMRID);
-        //     });
-        //
-        //     event.onComplete = function() {
-        //         var x = getCurrentBusiness(),
-        //             BID=parseInt(x.value),
-        //             BUD = getBUDfromBID(BID),
-        //             RTID = w2ui.rtForm.record.RTID;
-        //
-        //         var payload = { "cmd": "delete", "RMRIDList": RMRIDList };
-        //         $.ajax({
-        //             type: "POST",
-        //             url: "/v1/rmr/" + BID + "/" + RTID,
-        //             data: JSON.stringify(payload),
-        //             contentType: "application/json",
-        //             dataType: "json",
-        //             success: function(data) {
-        //                 grid.reload();
-        //             },
-        //         });
-        //     };
-        // },
-        onChange: function(event) {
-            event.preventDefault();
-            var g = this,
-                field = g.columns[event.column].field,
-                chgRec = g.get(event.recid),
-                changeIsValid = true;
-
-            if ( field === "MarketRate" ) { // if field is MarketRate
-                if (event.value_new < 0) {
-                    changeIsValid = false;
-                }
-            }
-
-            //------------------------------------
-            // Put any validation checks here...
-            //------------------------------------
-            if (event.value_new == "" && (g.columns[event.column].field == "DtStop" || g.columns[event.column].field == "DtStart")) {
-                changeIsValid = false;
-            }
-
-            event.isCancelled = !changeIsValid;
-
-            event.onComplete = function() {
-                if (!event.isCancelled) { // if event not cancelled then invoke save method
-                    RTEdits.MarketRateChgList.push(chgRec.recid);
-                    this.save();  // save automatically locally
-                }
-            };
-        }
-    });
+    buildRentableMarketRateElements();
 };
 
 window.setRTLayout = function (BID, RTID) {
@@ -917,9 +779,15 @@ window.setRTLayout = function (BID, RTID) {
     // mark form dirty flag as false
     app.form_is_dirty = false;
 
+    RTEdits.MarketRateDataLoaded = false;
+    RTEdits.MarketRateChgList = [];
+    RTEdits.RMRID = -1;
+
+
     if (RTID) {
         // if RentableType available then load the market rate grid
-        rmrG.load('/v1/rmr/' + BID + '/' + RTID);
+        //rmrG.load('/v1/rmr/' + BID + '/' + RTID);
+        w2ui.rmrGrid.url = '/v1/rmr/' + BID + '/' + RTID;
 
         // change the text of form tab
         w2ui.rtDetailLayout.get("main").tabs.get("rtForm").text = "Rentable Type Details ({0})".format(RTID);
@@ -942,6 +810,8 @@ window.setRTLayout = function (BID, RTID) {
         });
     }
     else {
+        RTEdits.MarketRateDataLoaded = true; // treat as if we have already loaded the records...
+
         // if new RentableType then clear the marketRate grid content first
         rmrG.clear();
 

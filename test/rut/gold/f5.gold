@@ -11,7 +11,7 @@
             "RID": 1,
             "UTID": 6,
             "UseType": 102,
-            "recid": 0
+            "recid": 6
         },
         {
             "BID": 1,
@@ -24,7 +24,7 @@
             "RID": 1,
             "UTID": 7,
             "UseType": 101,
-            "recid": 1
+            "recid": 7
         },
         {
             "BID": 1,
@@ -37,7 +37,7 @@
             "RID": 1,
             "UTID": 1,
             "UseType": 102,
-            "recid": 2
+            "recid": 1
         },
         {
             "BID": 1,
@@ -50,7 +50,7 @@
             "RID": 1,
             "UTID": 5,
             "UseType": 100,
-            "recid": 3
+            "recid": 5
         },
         {
             "BID": 1,
@@ -63,7 +63,7 @@
             "RID": 1,
             "UTID": 3,
             "UseType": 101,
-            "recid": 4
+            "recid": 3
         },
         {
             "BID": 1,
@@ -76,7 +76,7 @@
             "RID": 1,
             "UTID": 4,
             "UseType": 100,
-            "recid": 5
+            "recid": 4
         }
     ],
     "status": "success",

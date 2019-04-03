@@ -173,7 +173,6 @@ func svcSearchHandlerRentableTypeRef(w http.ResponseWriter, r *http.Request, d *
 	count := 0
 	for rows.Next() {
 		var q RentableTypeRefGridRec
-		q.Recid = i
 		q.BID = d.BID
 		q.BUD = string(rlib.GetBUDFromBIDList(q.BID))
 
@@ -182,6 +181,7 @@ func svcSearchHandlerRentableTypeRef(w http.ResponseWriter, r *http.Request, d *
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
+		q.Recid = q.RTRID
 
 		g.Records = append(g.Records, q)
 		count++ // update the count only after adding the record

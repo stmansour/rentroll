@@ -172,7 +172,6 @@ func svcSearchHandlerRentableUseStatus(w http.ResponseWriter, r *http.Request, d
 	count := 0
 	for rows.Next() {
 		var q RentableUseStatusGridRec
-		q.Recid = i
 		q.BID = d.BID
 		q.BUD = string(rlib.GetBUDFromBIDList(q.BID))
 
@@ -182,6 +181,7 @@ func svcSearchHandlerRentableUseStatus(w http.ResponseWriter, r *http.Request, d
 			return
 		}
 
+		q.Recid = q.RSID
 		g.Records = append(g.Records, q)
 		count++ // update the count only after adding the record
 		if count >= d.wsSearchReq.Limit {

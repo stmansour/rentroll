@@ -290,22 +290,9 @@ func saveRentableLeaseStatus(w http.ResponseWriter, r *http.Request, d *ServiceD
 			continue
 		}
 
-		// // if RSID = 0 then insert new record
-		// if a.RLID == 0 {
-		// 	_, err = rlib.InsertRentableLeaseStatus(r.Context(), &a)
-		// 	if err != nil {
-		// 		e := fmt.Errorf("Error while inserting rentable status:  %s", err.Error())
-		// 		SvcErrorReturn(w, e, funcname)
-		// 		return
-		// 	}
-		// } else { // else update existing one
-		// 	err = rlib.UpdateRentableLeaseStatus(r.Context(), &a)
-		// 	if err != nil {
-		// 		e := fmt.Errorf("Error with updating rentable status (%d), RID=%d : %s", a.RLID, a.RID, err.Error())
-		// 		SvcErrorReturn(w, e, funcname)
-		// 		return
-		// 	}
-		// }
+		// Insert / update doesn't really matter here. SetRentableLeaseStatus
+		// will determine what it needs to update, delete, and insert in order
+		// to fill the span as
 		if err = rlib.SetRentableLeaseStatus(r.Context(), &a, false); err != nil {
 			e := fmt.Errorf("Error from SetRentableLeaseStatus (%d), RID=%d : %s", a.RLID, a.RID, err.Error())
 			SvcErrorReturn(w, e, funcname)

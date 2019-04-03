@@ -8,7 +8,7 @@
             "MarketRate": 1200,
             "RMRID": 16,
             "RTID": 1,
-            "recid": 0
+            "recid": 16
         },
         {
             "BID": 1,
@@ -18,7 +18,7 @@
             "MarketRate": 1100,
             "RMRID": 17,
             "RTID": 1,
-            "recid": 1
+            "recid": 17
         },
         {
             "BID": 1,
@@ -28,7 +28,7 @@
             "MarketRate": 1200,
             "RMRID": 10,
             "RTID": 1,
-            "recid": 2
+            "recid": 10
         },
         {
             "BID": 1,
@@ -38,7 +38,7 @@
             "MarketRate": 1100,
             "RMRID": 14,
             "RTID": 1,
-            "recid": 3
+            "recid": 14
         },
         {
             "BID": 1,
@@ -48,7 +48,7 @@
             "MarketRate": 1000,
             "RMRID": 1,
             "RTID": 1,
-            "recid": 4
+            "recid": 1
         }
     ],
     "status": "success",

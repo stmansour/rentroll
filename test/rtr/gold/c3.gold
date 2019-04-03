@@ -12,7 +12,7 @@
             "RID": 1,
             "RTID": 5,
             "RTRID": 26,
-            "recid": 0
+            "recid": 26
         },
         {
             "BID": 1,
@@ -26,7 +26,7 @@
             "RID": 1,
             "RTID": 7,
             "RTRID": 27,
-            "recid": 1
+            "recid": 27
         },
         {
             "BID": 1,
@@ -40,7 +40,7 @@
             "RID": 1,
             "RTID": 2,
             "RTRID": 24,
-            "recid": 2
+            "recid": 24
         },
         {
             "BID": 1,
@@ -54,7 +54,7 @@
             "RID": 1,
             "RTID": 1,
             "RTRID": 23,
-            "recid": 3
+            "recid": 23
         }
     ],
     "status": "success",
