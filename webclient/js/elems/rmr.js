@@ -2,7 +2,7 @@
     w2ui, app, $, console, form_dirty_alert, formRefreshCallBack, formRecDiffer,
     getFormSubmitData, w2confirm, delete_confirm_options, getBUDfromBID, getCurrentBusiness,
     addDateNavToToolbar, setRTLayout, getRTInitRecord, getRentASMARList, showForm,
-    RTEdits, addRentableMarketRate,
+    RTEdits, addRentableMarketRate, w2uiDateTimeControlString,
 */
 /*jshint esversion: 6 */
 
@@ -91,6 +91,26 @@ window.buildRentableMarketRateElements = function() {
             //------------------------------------
             if (event.value_new == "" && (g.columns[event.column].field == "DtStop" || g.columns[event.column].field == "DtStart")) {
                 changeIsValid = false;
+            }
+
+            //------------------------------------
+            // DtStart must be prior to DtStop...
+            //------------------------------------
+            var DtStart, DtStop;
+            if (field == "DtStop") {
+                DtStart = new Date(g.records[event.index].DtStart);
+                DtStop = new Date(event.value_new);
+                if (DtStart > DtStop) {
+                    changeIsValid = false;
+                    g.error("DtStop date must be after DtStart. DtStop has been reset to its previous value.");
+                }
+            } else {
+                DtStart = new Date(event.value_new);
+                DtStop = new Date(g.records[event.index].DtStop);
+                if (DtStart > DtStop) {
+                    changeIsValid = false;
+                    g.error("DtStart date must be before DtStop. DtStart has been reset to its previous value.");
+                }
             }
 
             event.isCancelled = !changeIsValid;

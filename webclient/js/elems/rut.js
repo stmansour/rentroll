@@ -2,6 +2,7 @@
     setDefaultFormFieldAsPreviousRecord, w2uiDateControlString, $, w2ui, app, getCurrentBusiness, parseInt, getBUDfromBID,
     getRentableTypes, setToForm, form_dirty_alert, console, getFormSubmitData, addDateNavToToolbar, setRentableLayout,
     getRentableInitRecord, saveRentableUseType, RentableEdits, addRentableUseType,
+    w2uiDateTimeControlString,
 */
 /*jshint esversion: 6 */
 
@@ -98,6 +99,26 @@ window.buildRentableUseTypeElements = function () {
             //------------------------------------
             if (event.value_new == "" && (g.columns[event.column].field == "DtStop" || g.columns[event.column].field == "DtStart")) {
                 changeIsValid = false;
+            }
+
+            //------------------------------------
+            // DtStart must be prior to DtStop...
+            //------------------------------------
+            var DtStart, DtStop;
+            if (field == "DtStop") {
+                DtStart = new Date(g.records[event.index].DtStart);
+                DtStop = new Date(event.value_new);
+                if (DtStart > DtStop) {
+                    changeIsValid = false;
+                    g.error("DtStop date must be after DtStart. DtStop has been reset to its previous value.");
+                }
+            } else {
+                DtStart = new Date(event.value_new);
+                DtStop = new Date(g.records[event.index].DtStop);
+                if (DtStart > DtStop) {
+                    changeIsValid = false;
+                    g.error("DtStart date must be before DtStop. DtStart has been reset to its previous value.");
+                }
             }
 
             //---------------------------------------------------
