@@ -9,8 +9,7 @@ BUD=OKC
 source ../share/base.sh
 
 echo "Create new database..."
-pushd ../importers/onesite/okc;if [ ! -f iso.sql ]; then ./functest.sh ; fi; popd
-mysql --no-defaults rentroll < ../importers/onesite/okc/iso.sql
+mysql --no-defaults rentroll < iso.sql
 
 echo "STARTING RENTROLL SERVER"
 RENTROLLSERVERAUTH="-noauth"

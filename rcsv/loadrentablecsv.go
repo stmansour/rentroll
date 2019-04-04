@@ -67,9 +67,11 @@ func CreateRentables(ctx context.Context, sa []string, lineno int) (int, error) 
 		{"Name", Name},
 		{"AssignmentTime", AssignmentTime},
 		{"RUserSpec", RUserSpec},
-		{"RentableUseStatus", RentableUseStatus},
+		{"RentableUse{Status|Type}", RentableUseStatus},
 		{"RentableTypeRef", RentableTypeRef},
 	}
+
+	// rlib.Console("Entered %s\n", funcname)
 
 	y, err := ValidateCSVColumnsErr(csvCols, sa, funcname, lineno)
 	if y {

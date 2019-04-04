@@ -16,7 +16,7 @@ CREATENEWDB=0
 #  Use the testdb for these tests...
 #---------------------------------------------------------------
 echo "Create new database..."
-mysql --no-defaults rentroll < ../ws/restore.sql
+mysql --no-defaults rentroll < ../ws/wsdb.sql
 
 source ../share/base.sh
 

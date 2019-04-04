@@ -5,6 +5,7 @@ sample:
 
 clean:
 	rm -f [a-z] onesite.log log ${TEMPCSVSTORE}/*.csv *.g ./gold/*.g err.txt fail coa.csv
+	rm -rf ./temp_CSVs
 	@echo "*** CLEAN completed in test/importers/onesite/sample ***"
 
 test:

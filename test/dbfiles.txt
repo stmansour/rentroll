@@ -5,6 +5,7 @@
 ./closeperiod/xa.sql
 ./closeperiod/xb.sql
 ./closeperiod/xc.sql
+./importers/onesite/onesite_exported_mr_1/iso.sql
 ./payorstmt/pstmt.sql
 ./raflow/actions/improper_sequence_flow/improperSequence.sql
 ./raflow/actions/invalid_flow/invalidFlow.sql
@@ -28,6 +29,7 @@
 ./raflow/flow2ra/rrsm1.sql
 ./raflow/initraflow/ra0.sql
 ./raflow/validation/validateraflow.sql
+./receipts/iso.sql
 ./reservation/xa.sql
 ./reservation/xb.sql
 ./rfix/rcptfixed.sql
@@ -63,3 +65,4 @@
 ./websvc1/asmtest.sql
 ./websvc3/tasks.sql
 ./workerasm/rr.sql
+./ws/wsdb.sql

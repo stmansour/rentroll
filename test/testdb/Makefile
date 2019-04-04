@@ -11,7 +11,7 @@ test:
 	@touch fail
 	./functest.sh
 	mysqldump --no-defaults rentroll >restore.sql
-	mv restore.sql ../ws/
+	#mv restore.sql ../ws/
 	@rm -f fail
 
 package:

@@ -16,7 +16,7 @@ CREATENEWDB=0
 #  Use the testdb for these tests...
 #---------------------------------------------------------------
 echo "Create new database..."
-mysql --no-defaults rentroll < restore.sql
+mysql --no-defaults rentroll < wsdb.sql
 source ../share/base.sh
 
 echo "STARTING RENTROLL SERVER"
@@ -193,6 +193,6 @@ stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
 
 echo "Restoring test database..."
-mysql --no-defaults rentroll < restore.sql
+mysql --no-defaults rentroll < wsdb.sql
 
 logcheck

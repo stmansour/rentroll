@@ -7,7 +7,7 @@ roller:
 	@echo "*** Completed in ${THISDIR} ***"
 
 clean:
-	rm -rf rentroll.log log llog err.txt [a-z] [a-z][a-z0-9] [a-z][a-z0-9][a-z0-9] fail conf*.json *.sql request
+	rm -rf rrlog serverreply rentroll.log log llog err.txt [a-z] [a-z][a-z0-9] [a-z][a-z0-9][a-z0-9] fail conf*.json request
 	@echo "*** CLEAN completed in ${THISDIR} ***"
 
 test: roller
