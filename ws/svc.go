@@ -377,7 +377,7 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 	// rlib.Console("\n\n\n")
 
 	d.Service = d.pathElements[1]
-	if d.Service != "uilists" && d.Service != "uival" && len(d.pathElements) >= 3 {
+	if d.Service != "uilists" && len(d.pathElements) >= 3 {
 		d.BID, err = getBIDfromBUI(d.pathElements[2])
 		if err != nil {
 			e := fmt.Errorf("Could not determine business from %s", d.pathElements[2])
