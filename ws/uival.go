@@ -163,6 +163,10 @@ func SvcUIVal(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		var a []rlib.StringList
 		a, err := rlib.GetAllStringLists(r.Context(), d.BID)
 		SvcUIErrAndVarResponse(w, funcname, err, a)
+	case "app.BizMap":
+		var a []BizMapType
+		a = GetBizMaps()
+		SvcUIErrAndVarResponse(w, funcname, nil, a)
 	default:
 		e := fmt.Errorf("Unknown variable requested: %s", d.DetVal)
 		SvcErrorReturn(w, e, funcname)

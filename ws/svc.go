@@ -369,8 +369,15 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 	//-----------------------------------------------------------------------
 	ss := strings.Split(r.RequestURI[1:], "?") // it could be GET command
 	d.pathElements = strings.Split(ss[0], "/")
+
+	// rlib.Console("\n\n\nd.PathElements:  len = %d\n", len(d.pathElements))
+	// for i := 0; i < len(d.pathElements); i++ {
+	// 	rlib.Console("[%d] = %s\n", i, d.pathElements[i])
+	// }
+	// rlib.Console("\n\n\n")
+
 	d.Service = d.pathElements[1]
-	if d.Service != "uilists" && len(d.pathElements) >= 3 {
+	if d.Service != "uilists" && d.Service != "uival" && len(d.pathElements) >= 3 {
 		d.BID, err = getBIDfromBUI(d.pathElements[2])
 		if err != nil {
 			e := fmt.Errorf("Could not determine business from %s", d.pathElements[2])

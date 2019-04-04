@@ -170,7 +170,7 @@ $().w2grid({
                 w2ui.pmtForm.record = record;
                 // need to call refresh once before, already refreshin in setToForm
                 w2ui.pmtForm.refresh();
-                setToForm('pmtForm', '/v1/pmts/' + BID + '/0', 400);
+                setToForm('pmtForm', '', 400);
             };
 
         // warn user if form content has been changed
@@ -252,7 +252,7 @@ $().w2grid({
                     var record = getPmtInitRecord(BID, BUD);
                     f.record = record;
                     f.header = "Edit Payment Type (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
-                    f.url = '/v1/pmts/' + BID+'/0';
+                    f.url = '';
                     f.refresh();
                 });
             },
@@ -262,7 +262,7 @@ $().w2grid({
                     x = getCurrentBusiness(),
                     BID=parseInt(x.value),
                     BUD = getBUDfromBID(BID);
-
+                f.url = '/v1/pmts/' + BID+'/' + f.record.PMTID;
                 f.save({}, function (data) {
                     if (data.status == 'error') {
                         console.log('ERROR: '+ data.message);

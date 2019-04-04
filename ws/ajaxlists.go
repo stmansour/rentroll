@@ -65,8 +65,8 @@ var ssliceToJS = []struct {
 	{"RAActions", &rlib.RAActions},
 }
 
-// bizMap struct, used in app.BizMap on front-end side
-type bizMap struct {
+// BizMapType struct, used in app.BizMap on front-end side
+type BizMapType struct {
 	BID int64
 	BUD string
 }
@@ -87,6 +87,15 @@ type IDTextMap struct {
 type DepMethMap struct {
 	DPMID int64  `json:"id"`
 	Text  string `json:"text"`
+}
+
+// GetBizMaps returns a list of business unit IDs and Designators
+func GetBizMaps() []BizMapType {
+	businessList := []BizMapType{}
+	for bud, bid := range rlib.RRdb.BUDlist {
+		businessList = append(businessList, BizMapType{BID: bid, BUD: bud})
+	}
+	return businessList
 }
 
 // GetJSDepositMethods builds a datastructure suitable for javascript parsing that
@@ -154,11 +163,12 @@ func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	// --------------- LIST DOWN BUSINESSESS ----------------------
 	// set business map in app
-	businessList := []bizMap{}
-	for bud, bid := range rlib.RRdb.BUDlist {
-		businessList = append(businessList, bizMap{BID: bid, BUD: bud})
-	}
-	appData["BizMap"] = businessList
+	// businessList := []BizMapType{}
+	// for bud, bid := range rlib.RRdb.BUDlist {
+	// 	businessList = append(businessList, BizMapType{BID: bid, BUD: bud})
+	// }
+	// appData["BizMap"] = businessList
+	appData["BizMap"] = GetBizMaps()
 
 	// --------------- LIST DOWN CLOSE INFO ----------------------
 	ctx := context.Background()

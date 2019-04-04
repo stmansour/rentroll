@@ -80,11 +80,45 @@ window.ChangeBusiness = function () {
         w2ui.toplayout.hide('right',true);
         var s = w2ui.sidebarL1;
         var sel = s.selected;
+        var BID = getCurrentBID();
         if (sel !== null) {
             s.unselect(sel);
         }
         w2ui.reportslayout.load('main','/webclient/html/blank.html');
         app.last.report = '';
+
+        //------------------------------------------------------------------------
+        // The most important thing to do is update all info about businesses now.
+        // New businesses may have been added, or other info about the business
+        // may have changed.
+        //------------------------------------------------------------------------
+        // var url = "/v1/" + BID + "/app.BizMap";
+        var url = "/v1/uival/" + BID + "/app.BizMap";
+        $.get(url, null, null, "json")
+            .done(function(data) {
+                // if it doesn't meet this condition, then save the data
+                if (data == null) {return;}
+                if (typeof data == "object" && typeof data.status == "string" && data.status == "error") {
+                    w2popup.open({
+                        title   : 'Problem Loading BizMap',
+                        buttons : '<button class="w2ui-btn" onclick="w2popup.close();">Close</button> ',
+                        width   : 500,
+                        height  : 300,
+                        body    : '<div class="w2ui-centered"><div style="padding: 10px;">Error updating BizMap. data = ' + data.message + '</div></div>'
+                    });
+                    return;
+                }
+                app.BizMap = data;
+            })
+            .fail(function(data) {
+                w2popup.open({
+                    title   : 'Problem Loading BizMap',
+                    buttons : '<button class="w2ui-btn" onclick="w2popup.close();">Close</button> ',
+                    width   : 500,
+                    height  : 300,
+                    body    : '<div class="w2ui-centered"><div style="padding: 10px;">Error updating BizMap. data = ' + data + '</div></div>'
+                });
+            });
 
         // check EDI mode for this business and set app.D2 accordingly
         // get last selected biz flags
@@ -326,10 +360,10 @@ window.getBUDfromBID = function (BID) {
 //-----------------------------------------------------------------------------
 window.setToForm = function (sform, url, width, doRequest) {
     // if not url defined then return
-    var url_len=url.length > 0;
-    if (!url_len) {
-        return false;
-    }
+    // var url_len=url.length > 0;
+    // if (!url_len) {
+    //     return false;
+    // }
 
     // if form not found then return
     var f = w2ui[sform];
