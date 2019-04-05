@@ -167,6 +167,21 @@ func SelectRentableUseStatusForPeriod(rsa *[]RentableUseStatus, dt1, dt2 time.Ti
 	return m
 }
 
+// SelectRentableUseTypeForPeriod returns a subset of Rentable states that
+// overlap the supplied range.
+//=============================================================================
+func SelectRentableUseTypeForPeriod(n *[]RentableUseType, dt1, dt2 time.Time) []RentableUseType {
+	var m []RentableUseType
+	for i := 0; i < len(*n); i++ {
+		if DateRangeOverlap(&(*n)[i].DtStart, &(*n)[i].DtStop, &dt1, &dt2) {
+			var ut RentableUseType
+			ut = (*n)[i]
+			m = append(m, ut)
+		}
+	}
+	return m
+}
+
 // GetRentableStateForDate returns the status of the Rentable on the supplied
 // date
 //=============================================================================

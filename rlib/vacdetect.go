@@ -22,11 +22,10 @@ type VacancyMarker struct {
 // is the list of vacancy markers.
 //========================================================================================================
 func VacancyDetect(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time, rid int64) ([]VacancyMarker, error) {
-	var (
-		m        []VacancyMarker
-		useState int64
-		err      error
-	)
+	var m []VacancyMarker
+	var useType int64
+	var useState int64
+	var err error
 
 	//==================================================================
 	// Whether it's vacant or not depends on its state. For example,
@@ -35,6 +34,10 @@ func VacancyDetect(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time, rid 
 	// Rentable state over the period
 	//==================================================================
 	rsa, err := GetRentableUseStatusByRange(ctx, rid, d1, d2)
+	if err != nil {
+		return m, err
+	}
+	ruta, err := GetRentableUseTypeByRange(ctx, rid, d1, d2)
 	if err != nil {
 		return m, err
 	}
@@ -85,63 +88,66 @@ func VacancyDetect(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time, rid 
 		dtNext = dt.Add(period)
 		vacant := true // assume it's vacant and reset if we find it's rented
 
-		// rlib.Console("VacancyDetect:  %s (%d), period %s - %s\n", r.Name, rid, dt.Format(RRDATEINPFMT), dtNext.Format(RRDATEINPFMT))
+		// Console("VacancyDetect:  %s (%d), period %s - %s\n", r.Name, rid, dt.Format(RRDATEINPFMT), dtNext.Format(RRDATEINPFMT))
 
 		rs := SelectRentableUseStatusForPeriod(&rsa, dt, dtNext)
 		useState = USESTATUSinService // if there is no state info, we'll assume online
 		if len(rs) > 0 {
 			useState = rs[0].UseStatus // If this turns out to be a problem, maybe we'll choose the state with the greatest percentage of time
 		}
+		rut := SelectRentableUseTypeForPeriod(&ruta, dt, dtNext)
+		useType = USETYPEstandard // if there is no state info, we'll assume standard
+		if len(rut) > 0 {
+			useType = rut[0].UseType // If this turns out to be a problem, maybe we'll choose the state with the greatest percentage of time
+		}
+		Console("UseType = %d\n", useType)
 
-		switch useState {
-		case USETYPEstandard:
-			fallthrough
-		case USESTATUSinService:
-			// rlib.Console("\tonline... ")
+		// switch useState {
+		// case USETYPEstandard:
+		// 	fallthrough
+		// case USESTATUSinService:
+		if useState == USESTATUSinService /* && (useType == USETYPEstandard || useType == USETYPEemployee)*/ {
 			for i := 0; i < len(t); i++ {
 				if DateRangeOverlap(&t[i].RARDtStart, &t[i].RARDtStop, &dt, &dtNext) {
-					// rlib.Console("covered, RAID = %d\n", t[i].RAID)
+					// Console("covered, RAID = %d\n", t[i].RAID)
 					vacant = false // not vacant
 				}
 			}
-		case USETYPEadministrative:
-			fallthrough
-		case USETYPEemployee:
-			fallthrough
-		case USETYPEownerOccupied:
+		}
+		/* else if useState == USETYPEadministrative || useType == USETYPEownerOccupied)
 			// fallthrough
 			// case USESTATUSmajorRepair:
 			// 	fallthrough
 			// case USESTATUShousekeeping:
 			// 	fallthrough
 			// case USESTATUSinactive:
-			// rlib.Console("\t{admin|employee|ownerocc|offline}...\n")
-		}
+			// Console("\t{admin|ownerocc|offline}...\n")
+		} */
 
-		// rlib.Console("VacancyDetect:  vacant = %v\n", vacant)
+		// Console("VacancyDetect:  vacant = %v\n", vacant)
 
 		if !vacant {
 			continue
 		}
 
-		rsa, err := GetRentableSpecialtyTypesForRentableByRange(ctx, xbiz.P.BID, rid, &dt, &dtNext) // this gets an array of rentable specialties that overlap this time period
+		rspa, err := GetRentableSpecialtyTypesForRentableByRange(ctx, xbiz.P.BID, rid, &dt, &dtNext) // this gets an array of rentable specialties that overlap this time period
 		if err != nil {
 			Ulog("VacancyDetect:  Error retrieving rentable specialties for rentable R%08d during period %s to %s\n",
 				rid, dt.Format(RRDATEINPFMT), dtNext.Format(RRDATEINPFMT))
 			return m, err // this is bad! No RTID for the supplied time range
 		}
 
-		// rlib.Console("dt = %s, dtNext = %s, r = %s(%d), len(rta) = %d, len(rsa) = %d\n",
-		// 	dt.Format("Jan 2"), dtNext.Format("Jan 2"), r.Name, rid, len(rta), len(rsa))
+		// Console("dt = %s, dtNext = %s, r = %s(%d), len(rta) = %d, len(rspa) = %d\n",
+		// 	dt.Format("Jan 2"), dtNext.Format("Jan 2"), r.Name, rid, len(rta), len(rspa))
 		// for iq := 0; iq < len(rta); iq++ {
-		// 	rlib.Console("rta[%d] = (%s - %s) RTID = %d\n", iq, rta[iq].DtStart.Format("1/2/06"), rta[iq].DtStop.Format("1/2/06"), rta[iq].RTID)
+		// 	Console("rta[%d] = (%s - %s) RTID = %d\n", iq, rta[iq].DtStart.Format("1/2/06"), rta[iq].DtStop.Format("1/2/06"), rta[iq].RTID)
 		// }
 
-		rentThisPeriod, err := CalculateGSR(ctx, dt, dtNext, rid, &rta, rsa, xbiz)
+		rentThisPeriod, err := CalculateGSR(ctx, dt, dtNext, rid, &rta, rspa, xbiz)
 		if err != nil {
 			return m, err
 		}
-		// rlib.Console("rentThisPeriod = %8.2f\n", rentThisPeriod)
+		// Console("rentThisPeriod = %8.2f\n", rentThisPeriod)
 
 		//------------------------------------------------
 		// optimization to compress consecutive days...

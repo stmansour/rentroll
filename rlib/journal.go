@@ -107,16 +107,15 @@ func GetReceiptAccountRuleText(ctx context.Context, a *Receipt) (string, error) 
 func ProrateAssessment(ctx context.Context, xbiz *XBusiness, a *Assessment, d, d1, d2 *time.Time) (float64, int64, int64, time.Time, time.Time, error) {
 	const funcname = "ProrateAssessment"
 
-	var (
-		pf          float64
-		num, den    int64
-		start, stop time.Time
-		r           Rentable
-		err         error
-	)
+	var pf float64
+	var num, den int64
+	var start, stop time.Time
+	var r Rentable
+	var err error
 
 	// Console("ProrateAssessment: A\n")
 	useStatus := int64(USESTATUSinService) // if RID==0, then it's for an application fee or similar.  Assume rentable is online.
+	useType := int64(USETYPEstandard)
 
 	if a.RID > 0 {
 		// Console("ProrateAssessment: B\n")
@@ -129,16 +128,15 @@ func ProrateAssessment(ctx context.Context, xbiz *XBusiness, a *Assessment, d, d
 		if err != nil {
 			return pf, num, den, start, stop, err
 		}
+		useType, err = GetRentableUseTypeForDate(ctx, r.RID, d)
+		if err != nil {
+			return pf, num, den, start, stop, err
+		}
 	}
 
 	// Console("ProrateAssessment: C\n")
 	// Console("GetRentableStateForDate( %d, %s ) = %d\n", r.RID, d.Format(RRDATEINPFMT), useStatus)
-	switch useStatus {
-	case USESTATUSready:
-		fallthrough
-	case USETYPEemployee:
-		fallthrough
-	case USESTATUSinService:
+	if useStatus == USESTATUSready || useStatus == USETYPEemployee || useStatus == USESTATUSinService /* && (useType == USETYPEstandard || useType == USETYPEemployee)*/ {
 		// Console("ProrateAssessment: D\n")
 		// Console("%s: at case USESTATUSinService.\n", funcname)
 		ra, err := GetRentalAgreement(ctx, a.RAID)
@@ -160,15 +158,9 @@ func ProrateAssessment(ctx context.Context, xbiz *XBusiness, a *Assessment, d, d
 			}
 		}
 		// Console("Assessment = %d, Rentable = %d, RA = %d, pf = %3.2f\n", a.ASMID, r.RID, ra.RAID, pf)
-
-	case USETYPEadministrative:
-		fallthrough
-	case USETYPEownerOccupied:
-		// case USESTATUSmajorRepair:
-		// 	fallthrough
-		// case USESTATUShousekeeping:
+	} else if useStatus == USETYPEadministrative || useStatus == USETYPEownerOccupied /*&& (useType == USETYPEadministrative || useType == USETYPEownerOccupied)*/ {
 		// Console("ProrateAssessment: F\n")
-		ta, err := GetAllRentableAssessments(ctx, r.RID, d1, d2)
+		ta, err := GetASMInstancesByRIDandDateRange(ctx, r.RID, d1, d2)
 		if err != nil {
 			return pf, num, den, start, stop, nil
 		}
@@ -178,6 +170,9 @@ func ProrateAssessment(ctx context.Context, xbiz *XBusiness, a *Assessment, d, d
 			if err != nil {
 				// TODO(Steve): dont we return error?
 				Ulog("%s: error getting rent cycle for rentable %d. err = %s\n", funcname, r.RID, err.Error())
+				if err != nil {
+					return pf, num, den, start, stop, err
+				}
 			}
 
 			pf, num, den, start, stop = CalcProrationInfo(&(ta[0].Start), &(ta[0].Stop), d1, d2, rentcycle, proration)
@@ -186,10 +181,9 @@ func ProrateAssessment(ctx context.Context, xbiz *XBusiness, a *Assessment, d, d
 					funcname, len(ta), r.RID, r.RentableName, d1.Format(RRDATEINPFMT), d2.Format(RRDATEINPFMT))
 			}
 		}
-	default:
+	} else {
 		// Console("ProrateAssessment: G\n")
-
-		Ulog("%s: Rentable %d on %s has unknown useStatus: %d\n", funcname, r.RID, d.Format(RRDATEINPFMT), useStatus)
+		Ulog("%s: Rentable %d on %s has unknown useStatus: %d and useType %d\n", funcname, r.RID, d.Format(RRDATEINPFMT), useStatus, useType)
 	}
 
 	return pf, num, den, start, stop, err

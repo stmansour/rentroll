@@ -252,6 +252,10 @@ func main() {
 	// merge user supplied values with default one
 	MergeSuppliedAndDefaultValues()
 
+	// for k, v := range onesite.FieldDefaultValues {
+	// 	rlib.Console("FieldDefaultValues[ %s ] = %s\n", k, v)
+	// }
+
 	// now validation on user supplied values
 	validateErrs, business := onesite.ValidateUserSuppliedValues(ctx, userRRValues)
 	if len(validateErrs) > 0 {
@@ -276,6 +280,7 @@ func main() {
 	)
 
 	if internalErr {
+		rlib.Console("CSVHandler returned internalErr\n")
 		var oneSiteErrText string
 		oneSiteErrText = core.ErrInternal.Error()
 		fmt.Println(oneSiteErrText)
