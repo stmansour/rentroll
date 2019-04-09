@@ -5,7 +5,6 @@
 ./closeperiod/xa.sql
 ./closeperiod/xb.sql
 ./closeperiod/xc.sql
-./importers/onesite/onesite_exported_mr_1/iso.sql
 ./payorstmt/pstmt.sql
 ./raflow/actions/improper_sequence_flow/improperSequence.sql
 ./raflow/actions/invalid_flow/invalidFlow.sql
@@ -59,6 +58,7 @@
 ./sqlschema/receipts.sql
 ./sqlschema/rr.sql
 ./strlist/refdb.sql
+./testdb/restore.sql
 ./tws/rr.sql
 ./tws3/rr.sql
 ./webclient/webclientTest.sql

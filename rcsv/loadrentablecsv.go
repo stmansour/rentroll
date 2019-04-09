@@ -179,20 +179,20 @@ func CreateRentables(ctx context.Context, sa []string, lineno int) (int, error) 
 
 		var rst rlib.RentableUseStatus // struct for the data in this 3-tuple
 		ix, err := strconv.Atoi(ss[0])
-		if err != nil || ix < rlib.USESTATUSready || ix > rlib.USESTATUSLAST {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid Status value: %s.  Must be in the range %d to %d",
-				funcname, lineno, ss[0], rlib.USESTATUSready, rlib.USESTATUSLAST)
+		if err != nil || ix < rlib.USETYPEstandard || ix > rlib.USETYPELAST {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid Use Type value: %s.  Must be in the range %d to %d",
+				funcname, lineno, ss[0], rlib.USETYPEstandard, rlib.USETYPELAST)
 		}
 		rst.UseStatus = int64(ix)
 
-		rst.DtStart, rst.DtStop, err = readTwoDates(ss[1], ss[2], funcname, lineno, "RentableUseStatus")
+		rst.DtStart, rst.DtStop, err = readTwoDates(ss[1], ss[2], funcname, lineno, "RentableUseType")
 		if err != nil {
 			return CsvErrorSensitivity, err
 		}
 		m = append(m, rst) // add this struct to the list
 	}
 	if len(m) == 0 {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - RentableUseStatus value is required",
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - RentableUseType value is required",
 			funcname, lineno)
 	}
 
@@ -251,10 +251,10 @@ func CreateRentables(ctx context.Context, sa []string, lineno int) (int, error) 
 		for i := 0; i < len(m); i++ {
 			m[i].RID = rid
 			m[i].BID = r.BID
-			_, err := rlib.InsertRentableUseStatus(ctx, &m[i])
-			if err != nil {
-				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error saving rlib.RentableUseStatus: %s", funcname, lineno, err.Error())
-			}
+
+			//-----------------------------
+			// Add LEASE STATUS...
+			//-----------------------------
 			var ls = rlib.RentableLeaseStatus{
 				BID:         m[i].BID,
 				RID:         m[i].RID,
@@ -265,15 +265,35 @@ func CreateRentables(ctx context.Context, sa []string, lineno int) (int, error) 
 			if _, err = rlib.InsertRentableLeaseStatus(ctx, &ls); err != nil {
 				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error saving rlib.RentableLeaseStatus: %s", funcname, lineno, err.Error())
 			}
+
+			//-----------------------------------------------------------
+			// Add USE TYPE...
+			//-----------------------------------------------------------
 			var ru = rlib.RentableUseType{
 				BID:     m[i].BID,
 				RID:     m[i].RID,
-				UseType: rlib.USETYPEstandard,
+				UseType: m[i].UseStatus, // this is actually the use type
 				DtStart: m[i].DtStart,
 				DtStop:  m[i].DtStop,
 			}
 			if _, err = rlib.InsertRentableUseType(ctx, &ru); err != nil {
 				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error saving rlib.RentableUseType: %s", funcname, lineno, err.Error())
+			}
+
+			//-----------------------------------------------------------
+			// Set USE STATUS to match the use type for now...
+			//-----------------------------------------------------------
+			switch m[i].UseStatus {
+			case rlib.USETYPEadministrative:
+				m[i].UseStatus = int64(2)
+			case rlib.USETYPEownerOccupied:
+				m[i].UseStatus = int64(4)
+			default:
+				m[i].UseStatus = rlib.USESTATUSinService
+			}
+			_, err := rlib.InsertRentableUseStatus(ctx, &m[i])
+			if err != nil {
+				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error saving rlib.RentableUseStatus: %s", funcname, lineno, err.Error())
 			}
 		}
 		for i := 0; i < len(n); i++ {
