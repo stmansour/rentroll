@@ -1,2 +1,2 @@
-BUD,Name,AssignmentTime,RUserSpec,RentableUseStatus,RentableTypeRef
-REX,309 Rexford,1,,"1,1/1/2016,01/01/2017","Rex1,1/1/16,1/1/2017"
+BUD,Name,AssignmentTime,RUserSpec,RentableUseType,RentableTypeRef
+REX,309 Rexford,1,,"100,1/1/2016,01/01/2017","Rex1,1/1/16,1/1/2017"
