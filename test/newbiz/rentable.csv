@@ -1,4 +1,4 @@
-BUD,Name,AssignmentTime,RUserSpec,RentableUseStatus,RentableTypeRef
+BUD,Name,AssignmentTime,RUserSpec,RentableUseType,RentableTypeRef
 aaa,101,1,"816-123-4561,1/1/2013,","1,1/1/2013,","GM,1/1/13,"
 REX,101,1,"816-123-4561,1/1/2013,","1,1/1/2013,","QYX,1/1/13,"
 REX,101,1,"816-123-4568,1/1/2013,","1,1/1/2013,","GM,1/1/13,"

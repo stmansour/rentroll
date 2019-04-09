@@ -1,4 +1,4 @@
-BUD,Name,AssignmentTime,RUserSpec,RentableUseStatus,RentableTypeRef
+BUD,Name,AssignmentTime,RUserSpec,RentableUseType,RentableTypeRef
 REX,6303-231,1,"JJones@abc.com,1/1/13,7/4/16;asmith@gmail.com,7/5/16,7/7/16;cjones@arcenergy.com,7/10/16,","1,1/1/13,","A2,2013-01-01,"
 REX,6323-301,1,"CindyJ@rexford.com,1/1/13,;EdithJ@rexford.com,1/1/13,","1,1/1/13,","A1,2013-01-01,"
 REX,6323-302,1,"chris@bacon.com,12/1/14,11/30/16","1,1/1/13,","A3,2013-01-01,"
