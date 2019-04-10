@@ -136,7 +136,8 @@ func ProrateAssessment(ctx context.Context, xbiz *XBusiness, a *Assessment, d, d
 
 	// Console("ProrateAssessment: C\n")
 	// Console("GetRentableStateForDate( %d, %s ) = %d\n", r.RID, d.Format(RRDATEINPFMT), useStatus)
-	if useStatus == USESTATUSready || useStatus == USETYPEemployee || useStatus == USESTATUSinService /* && (useType == USETYPEstandard || useType == USETYPEemployee)*/ {
+	if /*useStatus == USESTATUSready || useStatus == USETYPEemployee || useStatus == USESTATUSinService &&*/
+	useType == USETYPEstandard || useType == USETYPEemployee {
 		// Console("ProrateAssessment: D\n")
 		// Console("%s: at case USESTATUSinService.\n", funcname)
 		ra, err := GetRentalAgreement(ctx, a.RAID)
@@ -158,7 +159,8 @@ func ProrateAssessment(ctx context.Context, xbiz *XBusiness, a *Assessment, d, d
 			}
 		}
 		// Console("Assessment = %d, Rentable = %d, RA = %d, pf = %3.2f\n", a.ASMID, r.RID, ra.RAID, pf)
-	} else if useStatus == USETYPEadministrative || useStatus == USETYPEownerOccupied /*&& (useType == USETYPEadministrative || useType == USETYPEownerOccupied)*/ {
+	} else if //useStatus == USETYPEadministrative || useStatus == USETYPEownerOccupied
+	useType == USETYPEadministrative || useType == USETYPEownerOccupied {
 		// Console("ProrateAssessment: F\n")
 		ta, err := GetASMInstancesByRIDandDateRange(ctx, r.RID, d1, d2)
 		if err != nil {
@@ -168,11 +170,8 @@ func ProrateAssessment(ctx context.Context, xbiz *XBusiness, a *Assessment, d, d
 		if len(ta) > 0 {
 			rentcycle, proration, _, err := GetRentCycleAndProration(ctx, &r, d1, xbiz)
 			if err != nil {
-				// TODO(Steve): dont we return error?
 				Ulog("%s: error getting rent cycle for rentable %d. err = %s\n", funcname, r.RID, err.Error())
-				if err != nil {
-					return pf, num, den, start, stop, err
-				}
+				return pf, num, den, start, stop, err
 			}
 
 			pf, num, den, start, stop = CalcProrationInfo(&(ta[0].Start), &(ta[0].Stop), d1, d2, rentcycle, proration)
