@@ -72,7 +72,7 @@ type RentableCSV struct {
 	Name            string
 	AssignmentTime  string
 	RUserSpec       string
-	RentableUseStatus  string
+	RentableUseType string
 	RentableTypeRef string
 }
 

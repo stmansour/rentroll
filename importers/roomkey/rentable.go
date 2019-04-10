@@ -156,7 +156,7 @@ func GetRentableCSVRow(
 			// format is user, startDate, stopDate
 			dataMap[i] = GetRUserSpec(roomKeyRow, DefaultValues)
 		}
-		if rentableField.Name == "RentableUseStatus" {
+		if rentableField.Name == "RentableUseType" {
 			// format is status, startDate, stopDate
 			status := GetRentableUseStatus(roomKeyRow, DefaultValues)
 			// TODO: verify that what to do in false case
@@ -212,7 +212,7 @@ func GetRentableUseStatus(csvRow *CSVRow,
 	orderedFields := []string{}
 
 	// rentable status is always online then
-	// append unitleasestatus
+	// append unitusetype
 	orderedFields = append(orderedFields, RoomKeyOnlineRentableUseStatus)
 
 	// append today start date

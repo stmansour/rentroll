@@ -25,6 +25,7 @@ rm -f ${TEMPCSVSTORE}/customAttribute_*.csv ./customAttribute_*.csv
 # call loader
 doOnesiteTest "b" "-csv ./onesite.csv -bud ${BUD} -testmode 1 -debug 1" "OnesiteRentrollCSV"
 
+
 # Print out All the different data types for validation
 docsvIgnoreDatesTest "c" "-L 5,${BUD}" "RentableTypes"
 docsvtest "d" "-L 7,${BUD}" "People"

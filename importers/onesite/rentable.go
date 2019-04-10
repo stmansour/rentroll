@@ -15,12 +15,7 @@ import (
 // CreateRentableCSV create rentable csv temporarily
 // write headers, used to load data from onesite csv
 // return file pointer to call program
-func CreateRentableCSV(
-	CSVStore string,
-	timestamp string,
-	rentableStruct *core.RentableCSV,
-) (*os.File, *csv.Writer, bool) {
-
+func CreateRentableCSV(CSVStore string, timestamp string, rentableStruct *core.RentableCSV) (*os.File, *csv.Writer, bool) {
 	var done = false
 
 	// get path of rentable csv file
@@ -55,6 +50,22 @@ func CreateRentableCSV(
 
 // WriteRentableData used to write the data to csv file
 // with avoiding duplicate data
+// INPUTS
+//    recordCount
+//    rowIndex
+//    traceCSVData
+//    csvWriter
+//    csvRow
+//    currentTime
+//    currentTimeFormat
+//    suppliedValues
+//    rentableStruct
+//    traceTCIDMap
+//    csvErrors
+//    rrStatus
+//
+// RETURNS
+//------------------------------------------------------------------------------
 func WriteRentableData(
 	recordCount *int,
 	rowIndex int,
@@ -69,11 +80,10 @@ func WriteRentableData(
 	csvErrors map[int][]string,
 	rrStatus string,
 ) {
-
+	// rlib.Console("Entered WriteRentableData\n")
 	currentYear, currentMonth, currentDate := currentTime.Date()
 	DtStart := fmt.Sprintf("%d/%d/%d", currentMonth, currentDate, currentYear)
-	// DtStart := fmt.Sprintf("%02d/%02d/%04d", currentMonth, currentDate, currentYear)
-	DtStop := "12/31/9999" // no end date
+	DtStop := rlib.ENDOFTIME.Format(rlib.RRDATEFMT3) // no end date    "12/31/9999"
 
 	// make rentable data from userSuppliedValues and defaultValues
 	rentableDefaultData := map[string]string{}
@@ -106,6 +116,7 @@ func WriteRentableData(
 		currentTimeFormat, rentableDefaultData,
 	)
 
+	// rlib.Console("csvRowData = %q\n", csvRowData)
 	csvWriter.Write(csvRowData)
 	csvWriter.Flush()
 
@@ -151,6 +162,8 @@ func GetRentableCSVRow(
 			dataMap[i] = suppliedValue
 		}
 
+		// rlib.Console("GetRentableCSVRow: rentableField.Name = %s\n", rentableField.Name)
+
 		// =========================================================
 		// this condition has been put here because it's mapping field does not exist
 		// =========================================================
@@ -161,7 +174,7 @@ func GetRentableCSVRow(
 			// format is user, startDate, stopDate
 			dataMap[i] = GetRUserSpec(oneSiteRow, DefaultValues)
 		}
-		if rentableField.Name == "RentableUseStatus" {
+		if rentableField.Name == "RentableUseType" {
 			// format is status, startDate, stopDate
 			status, _ := GetRentableUseStatus(oneSiteRow, DefaultValues)
 			// TODO: verify that what to do in false case
@@ -199,86 +212,59 @@ func GetRentableCSVRow(
 }
 
 // GetRUserSpec used to get ruser spec in format of rentroll system
-func GetRUserSpec(
-	csvRow *CSVRow,
-	defaults map[string]string,
-) string {
-
+//---------------------------------------------------------------------------
+func GetRUserSpec(csvRow *CSVRow, defaults map[string]string) string {
+	//-------------------------------------------------------------------
 	// check if status is occupied then return only RUserSpec otherwise
-	// just return "" (blank string, not ",," with two comma separated blank string!)
-	if _, rrUseStatus, _ := IsValidRentableUseStatus(csvRow.UnitLeaseStatus); rrUseStatus != "occupied" {
+	// just return "" (blank string, not ",," with two comma separated
+	// blank string!)
+	//-------------------------------------------------------------------
+	if _, rrUseStatus, _ := IsValidRentableUseType(csvRow.UnitLeaseStatus); rrUseStatus != "occupied" {
 		return ""
 	}
 
+	//-------------------------------------------------------------------
 	// as rcsv loader automatically associate user from rental
 	// agreement csv so leave it as blank (nearly all cases)
+	//-------------------------------------------------------------------
 	return ""
-
-	// orderedFields := []string{}
-
-	// // append TCID for user identification
-	// orderedFields = append(orderedFields, defaults["TCID"])
-
-	// // append lease start
-	// if csvRow.LeaseStart == "" {
-	// 	orderedFields = append(orderedFields, defaults["DtStart"])
-	// } else {
-	// 	orderedFields = append(orderedFields, csvRow.LeaseStart)
-	// }
-
-	// // don't append default value from DtStop
-	// // even if it is blank then we might just leave it as blank
-	// orderedFields = append(orderedFields, csvRow.LeaseEnd)
-
-	// return strings.Join(orderedFields, ",")
 }
 
 // GetRentableUseStatus used to get rentable status in format of rentroll system
-func GetRentableUseStatus(csvRow *CSVRow,
-	defaults map[string]string) (string, bool) {
-
+//-------------------------------------------------------------------
+func GetRentableUseStatus(csvRow *CSVRow, defaults map[string]string) (string, bool) {
 	var rrUseStatus string
 	ok := false
 	orderedFields := []string{}
+	// rlib.Console("Entered GetRentableUseStatus\n")
 
+	//-------------------------------------------------------------------
 	// first find that passed string contains any status key
-	validStatus, _, rrUseStatus := IsValidRentableUseStatus(csvRow.UnitLeaseStatus)
+	//-------------------------------------------------------------------
+	// rlib.Console("csvRow.UnitLeaseStatus = %s\n", csvRow.UnitLeaseStatus)
+	validStatus, _, rrUseStatus := IsValidRentableUseType(csvRow.UnitLeaseStatus)
 
+	//-------------------------------------------------------------------
 	// if contains then try to get status according rentroll system
+	//-------------------------------------------------------------------
 	if validStatus {
 		ok = true
-
-		// append unitleasestatus
-		orderedFields = append(orderedFields, rrUseStatus)
-
-		// append today start date
-		orderedFields = append(orderedFields, defaults["DtStart"])
-
-		// append end date unspecified
-		orderedFields = append(orderedFields, "")
-
+		orderedFields = append(orderedFields, rrUseStatus)         // append unitusetype
+		orderedFields = append(orderedFields, defaults["DtStart"]) // append today start date
+		orderedFields = append(orderedFields, "")                  // append end date unspecified
 		return strings.Join(orderedFields, ","), ok
 	}
 
+	// rlib.Console("GetRentableUseStatus:  invalid status exit\n")
 	return ",,", ok
 }
 
 // GetRentableTypeRef used to get rentable type ref in format of rentroll system
-func GetRentableTypeRef(
-	csvRow *CSVRow,
-	defaults map[string]string,
-) string {
-
+//---------------------------------------------------------------------------------
+func GetRentableTypeRef(csvRow *CSVRow, defaults map[string]string) string {
 	orderedFields := []string{}
-
-	// append floor plan
-	orderedFields = append(orderedFields, csvRow.FloorPlan)
-
-	// append today date
-	orderedFields = append(orderedFields, defaults["DtStart"])
-
-	// append end date as unspecified
-	orderedFields = append(orderedFields, "")
-
+	orderedFields = append(orderedFields, csvRow.FloorPlan)    // append floor plan
+	orderedFields = append(orderedFields, defaults["DtStart"]) // append today date
+	orderedFields = append(orderedFields, "")                  // append end date as unspecified
 	return strings.Join(orderedFields, ",")
 }

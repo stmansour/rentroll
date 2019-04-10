@@ -270,6 +270,7 @@ func main() {
 	// =======================
 
 	// call onesite loader
+	// rlib.Console("\n\n*** Calling CSVHandler ***\n")
 	report, internalErr, done := onesite.CSVHandler(
 		ctx,
 		App.CSV,
@@ -280,7 +281,7 @@ func main() {
 	)
 
 	if internalErr {
-		rlib.Console("CSVHandler returned internalErr\n")
+		// rlib.Console("CSVHandler returned internalErr\n")
 		var oneSiteErrText string
 		oneSiteErrText = core.ErrInternal.Error()
 		fmt.Println(oneSiteErrText)

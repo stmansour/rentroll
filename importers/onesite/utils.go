@@ -9,14 +9,25 @@ import (
 	"strings"
 )
 
-// IsValidRentableUseStatus checks that passed string contains valid rentable status
-// acoording to rentroll system
-func IsValidRentableUseStatus(s string) (bool, string, string) {
+// IsValidRentableUseType checks that passed string contains valid rentable use
+// type in then rentroll system
+//
+// INPUTS:
+//   s  = string found in onesite csv
+//
+// RETURNS:
+//    bool = whether we found the string or not
+//  string = rentRollStatus key string
+//  string = value string
+//------------------------------------------------------------------------------
+func IsValidRentableUseType(s string) (bool, string, string) {
 	found := false
 	var tempRS, rentRollStatus string
+    //--------------------------------------------------------
 	// first find that passed string contains any status key
+    //--------------------------------------------------------
 	a := strings.ToLower(s)
-	for k, v := range RentableUseStatusCSV {
+	for k, v := range RentableUseTypeCSV {
 		if strings.Contains(a, k) {
 			tempRS = v
 			rentRollStatus = k

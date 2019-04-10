@@ -1,8 +1,10 @@
 package onesite
 
 import (
+	"fmt"
 	"rentroll/importers/core"
 	"rentroll/rcsv"
+	"rentroll/rlib"
 )
 
 // TempCSVStoreName holds the name of csvstore folder
@@ -42,11 +44,11 @@ var prefixCSVFile = map[string]string{
 	"custom_attribute": "customAttribute_",
 }
 
-// RentableUseStatusCSV is mapping for rentable status between onesite and rentroll
-var RentableUseStatusCSV = map[string]string{
-	"vacant":   "1",
-	"occupied": "1",
-	"model":    "7",
+// RentableUseTypeCSV is mapping for rentable status between onesite and rentroll
+var RentableUseTypeCSV = map[string]string{
+	"vacant":   fmt.Sprintf("%d", rlib.USETYPEstandard),
+	"occupied": fmt.Sprintf("%d", rlib.USETYPEstandard),
+	"model":    fmt.Sprintf("%d", rlib.USETYPEadministrative),
 }
 
 // CSVLoadHandler struct is for routines that want to table-ize their loading.

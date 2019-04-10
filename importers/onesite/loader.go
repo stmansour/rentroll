@@ -50,6 +50,19 @@ func getOneSiteMapping(oneSiteFieldMap *CSVFieldMap) error {
 
 // loadOneSiteCSV loads the values from the supplied csv file and
 // creates rlib.Business records as needed
+//
+// INPUTS
+//    ctx
+//    oneSiteCSV
+//    testMode
+//    userRRValues
+//    business
+//    currentTime
+//    currentTimeFormat
+//    summaryReport
+//
+// RETURNS unitmap, csvError list, internal error, csv loaded?
+//--------------------------------------------------------------------------
 func loadOneSiteCSV(
 	ctx context.Context,
 	oneSiteCSV string,
@@ -77,31 +90,40 @@ func loadOneSiteCSV(
 	internalErrFlag := true
 	csvErrors := map[int][]string{}
 
+	//------------------------------------------------------------------------
 	// this count used to skip number of rows from the very top of csv
+	//------------------------------------------------------------------------
 	var skipRowsCount int
 	var rowIndex int
 
+	//------------------------------------------------------------------------
 	// customAttributesRefData holds the data after customAttr insertion
 	// to insert custom attribute ref in system for each rentableType
 	// so we identify each element in this list with Style Key
+	//------------------------------------------------------------------------
 	customAttributesRefData := map[string]CARD{}
 
+	//------------------------------------------------------------------------
 	// this map is used to hold csvRow typed struct after data has been loaded in it
 	// by iterating over csv data, re-usable for rentable, rental agreement data
+	//------------------------------------------------------------------------
 	csvRowDataMap := map[int]*CSVRow{}
 
 	// --------------------------- trace data map ---------------------------- //
 	// trace<TYPE>CSVMap used to hold records
 	// by which we can traceout which records has been writtern to csv
 	// with key of row index of <TARGET_TYPE> CSV, value of original's imported csv rowNumber
+	//------------------------------------------------------------------------
 	traceRentableTypeCSVMap := map[int]int{}
 	traceRentableCSVMap := map[int]int{}
 	tracePeopleCSVMap := map[int]int{}
 	traceRentalAgreementCSVMap := map[int]int{}
 	traceCustomAttributeCSVMap := map[int]int{}
 
+	//------------------------------------------------------------------------
 	// traceTCIDMap hold TCID for each people to be loaded via people csv
 	// with reference of original onesite csv
+	//------------------------------------------------------------------------
 	traceTCIDMap := map[int]string{}
 
 	// traceUnitMap holds records by which we can trace the unit with row index of csv
@@ -115,6 +137,7 @@ func loadOneSiteCSV(
 	// 	"phone": {"9999999999": [2,4]},
 	// 	"name": {"foo, bar": 3},
 	// }
+	//------------------------------------------------------------------------
 	traceDuplicatePeople := map[string][]string{
 		"name": {}, "phone": {},
 	}
@@ -122,10 +145,13 @@ func loadOneSiteCSV(
 	// --------------------- avoid duplicate data structures -------------------- //
 	// avoidDuplicateRentableTypeData used to keep track of rentableTypeData with Style field
 	// so that duplicate entries can be avoided while creating rentableType csv file
+	//------------------------------------------------------------------------
 	avoidDuplicateRentableTypeData := []string{}
 
+	//------------------------------------------------------------------------
 	// avoidDuplicateCustomAttributeData is tricky map which holds the
 	// duplicate data in slice for each field defined in customAttributeMap
+	//------------------------------------------------------------------------
 	avoidDuplicateCustomAttributeData := map[string][]string{}
 	for k := range customAttributeMap {
 		avoidDuplicateCustomAttributeData[k] = []string{}
@@ -135,6 +161,7 @@ func loadOneSiteCSV(
 	// <TYPE>CSVRecordCount used to hold records count inserted in csv
 	// initialize with 1 because first row contains headers in target generated csv
 	// these are POSSIBLE record count that going to be imported
+	//------------------------------------------------------------------------
 	RentableTypeCSVRecordCount := 0
 	RentableCSVRecordCount := 0
 	PeopleCSVRecordCount := 0
@@ -150,6 +177,7 @@ func loadOneSiteCSV(
 	var oneSiteFieldMap CSVFieldMap
 	err := getOneSiteMapping(&oneSiteFieldMap)
 	if err != nil {
+		// rlib.Console("loadOneSiteCSV: error A\n")
 		rlib.Ulog("INTERNAL ERROR <ONESITE FIELD MAPPING>: %s\n", err.Error())
 		return traceUnitMap, csvErrors, internalErrFlag
 	}
@@ -163,10 +191,12 @@ func loadOneSiteCSV(
 
 	csvHeadersIndex := getCSVHeadersIndexMap()
 
+	//------------------------------------------------------------------
 	// detect how many rows we need to skip first
+	//------------------------------------------------------------------
 	for rowIndex := 0; rowIndex < len(t); rowIndex++ {
 		for colIndex := 0; colIndex < len(t[rowIndex]); colIndex++ {
-			// remove all white spaces and make lower case
+			// remove all white space and make lower case
 			cellTextValue := strings.ToLower(
 				core.SpecialCharsReplacer.Replace(t[rowIndex][colIndex]))
 
@@ -177,17 +207,23 @@ func loadOneSiteCSV(
 			// and make an entry for "marketrent" in csvColumnFieldMap with -1
 			// keep "MarketAddl" mapping to `marketrent` still, anyways `MarketAddl`
 			// going to be put in `MarketRate` of Rentroll field
+			//------------------------------------------------------------------
 			if cellTextValue == marketRent {
 				delete(csvColumnFieldMap, "marketaddl")
 				csvColumnFieldMap[marketRent] = "MarketAddl"
 			}
 
-			// if header is exist in map then overwrite it position
+			//------------------------------------------------------------------
+			// assume that cellTextValue is a header. Check to see if it exists
+			// in the map. If so, set its column index
+			//------------------------------------------------------------------
 			if field, ok := csvColumnFieldMap[cellTextValue]; ok {
 				csvHeadersIndex[field] = colIndex
 			}
 		}
+		//------------------------------------------------------------------
 		// check after row columns parsing that headers are found or not
+		//------------------------------------------------------------------
 		headersFound := true
 		for _, v := range csvHeadersIndex {
 			if v == -1 {
@@ -197,17 +233,24 @@ func loadOneSiteCSV(
 		}
 
 		if headersFound {
+			//------------------------------------------------------------------
 			// update rowIndex by 1 because we're going to break here
+			//------------------------------------------------------------------
 			rowIndex++
 			skipRowsCount = rowIndex
 			break
 		}
 	}
 
+	//------------------------------------------------------------------
 	// if skipRowsCount is still 0 that means data could not be parsed from csv
+	//------------------------------------------------------------------
 	if skipRowsCount == 0 {
 		missingHeaders := []string{}
+
+		//------------------------------------------------------------------
 		// make message of missing columns
+		//------------------------------------------------------------------
 		for missedH, v := range csvHeadersIndex {
 			if v == -1 {
 				missingHeaders = append(missingHeaders, missedH)
@@ -219,6 +262,7 @@ func loadOneSiteCSV(
 
 		// ******** special entry ***********
 		// -1 means there is no data
+		//------------------------------------------------------------------
 		internalErrFlag = false
 		csvErrors[-1] = append(csvErrors[-1], headerError)
 		return traceUnitMap, csvErrors, internalErrFlag
@@ -227,7 +271,8 @@ func loadOneSiteCSV(
 	// =================================
 	// DELETE DATA RELATED TO BUSINESS ID
 	// =================================
-	// detele business related data before starting to import in database
+	// delete business related data before starting to import in database
+	//------------------------------------------------------------------
 	_, err = rlib.DeleteBusinessFromDB(ctx, business.BID)
 	if err != nil {
 		rlib.Ulog("INTERNAL ERROR <DELETE BUSINESS>: %s\n", err.Error())
@@ -239,9 +284,11 @@ func loadOneSiteCSV(
 		rlib.Ulog("INTERNAL ERROR <INSERT BUSINESS>: %s\n", err.Error())
 		return traceUnitMap, csvErrors, internalErrFlag
 	}
+	//------------------------------------------------------------------
 	// set new BID as we have deleted and inserted it again
 	// TODO:  remove this step after sman's next push
 	// in InsertBusiness it will be set automatically
+	//------------------------------------------------------------------
 	business.BID = bid
 
 	// ========================================================
@@ -282,11 +329,15 @@ func loadOneSiteCSV(
 		return traceUnitMap, csvErrors, internalErrFlag
 	}
 
+	//------------------------------------------------------------------
 	// if skipRowsCount found get next row and proceed on rest of the rows with loop
+	//------------------------------------------------------------------
 	for rowIndex = skipRowsCount + 1; rowIndex <= len(t); rowIndex++ {
 
+		//------------------------------------------------------------------
 		// if column order has been validated then only perform
 		// data validation on value, type
+		//------------------------------------------------------------------
 		rowLoaded, csvRow := loadOneSiteCSVRow(csvHeadersIndex, t[rowIndex-1])
 
 		// **************************************************************
@@ -317,11 +368,13 @@ func loadOneSiteCSV(
 		// get unit from csv data
 		csvUnit := csvRow.Unit
 
-		// for rentable status exists in csvRow, get set of csv types which can be allowed
-		// to perform write data for csv
+		//------------------------------------------------------------------
+		// for rentable status exists in csvRow, get set of csv types which
+		// can be allowed to perform write data for csv
 		// need to call validation function as in to get the values
-		_, rrUseStatus, _ := IsValidRentableUseStatus(csvRentableUseStatus)
-		csvTypesSet := canWriteCSVStatusMap[rrUseStatus]
+		//------------------------------------------------------------------
+		_, rrUseType, _ := IsValidRentableUseType(csvRentableUseStatus)
+		csvTypesSet := canWriteCSVStatusMap[rrUseType]
 		var canWriteData bool
 
 		// mark Unit value with row index value
@@ -331,10 +384,14 @@ func loadOneSiteCSV(
 		// keep csv record in this
 		csvRowDataMap[rowIndex] = &csvRow
 
+		//------------------------------------------------------------------
 		// check first that for this row's status rentableType data can be written
+		//------------------------------------------------------------------
 		canWriteData = core.IntegerInSlice(core.RENTABLETYPECSV, csvTypesSet)
 		if canWriteData {
+			//------------------------------------------------------------------
 			// Write data to file of rentabletype
+			//------------------------------------------------------------------
 			WriteRentableTypeCSVData(
 				&RentableTypeCSVRecordCount,
 				rowIndex,
@@ -723,15 +780,21 @@ func loadOneSiteCSV(
 		// load csvRow from dataMap
 		csvRow := *csvRowDataMap[rowIndex]
 
-		// for rentable status exists in csvRow, get set of csv types which can be allowed
-		// to perform write data for csv
+		//---------------------------------------------------------------------
+		// for rentable status exists in csvRow, get set of csv types which
+		// can be allowed to perform write data for csv
 		// need to call validation function as in get values
-		_, rrUseStatus, _ := IsValidRentableUseStatus(csvRow.UnitLeaseStatus)
-		csvTypesSet := canWriteCSVStatusMap[rrUseStatus]
+		//---------------------------------------------------------------------
+		// rlib.Console("rowIndex = %v\n", rowIndex)
+		// rlib.Console("\t UnitLeaseStatus = %v\n", csvRow.UnitLeaseStatus)
+		_, rrUseType, _ := IsValidRentableUseType(csvRow.UnitLeaseStatus)
+		csvTypesSet := canWriteCSVStatusMap[rrUseType]
 		var canWriteData bool
 
 		// check first that for this row's status rentable data can be written
 		canWriteData = core.IntegerInSlice(core.RENTABLECSV, csvTypesSet)
+		// rlib.Console("\t csvTypesSet = %v\n", csvTypesSet)
+		// rlib.Console("\t canWriteData = %v\n", canWriteData)
 		if canWriteData {
 			// Write data to file of rentable
 			WriteRentableData(
@@ -746,7 +809,7 @@ func loadOneSiteCSV(
 				&oneSiteFieldMap.RentableCSV,
 				traceTCIDMap,
 				csvErrors,
-				rrUseStatus,
+				rrUseType,
 			)
 		}
 
@@ -838,34 +901,33 @@ func clearSplittedTempCSVFiles(timestamp string) {
 
 // CSVHandler is main function to handle user uploaded
 // csv and extract information
-func CSVHandler(
-	ctx context.Context,
-	csvPath string,
-	testMode int,
-	userRRValues map[string]string,
-	business *rlib.Business,
-	debugMode int,
-) (string, bool, bool) {
+//
+// INPUTS
+//   ctx      database context
+//   csvPath  where to put csv files we create
+//   testMode
+//   userRRValues
+//   business
+//   debugMode
+//
+// RETURNS report, internal error flag, done (csv loaded or not)
+//---------------------------------------------------------------------
+func CSVHandler(ctx context.Context, csvPath string, testMode int, userRRValues map[string]string, business *rlib.Business, debugMode int) (string, bool, bool) {
+	// rlib.Console("*** Entered CSVHandler ***\n")
+	csvLoaded := true         // csv loaded successfully flag
+	csvReport := ""           // report text
+	currentTime := time.Now() // get current timestamp used for creating csv files unique way
 
-	// return report, internal error flag, done (csv loaded or not)
-
-	// csv loaded successfully flag
-	csvLoaded := true
-
-	// report text
-	csvReport := ""
-
-	// get current timestamp used for creating csv files unique way
-	currentTime := time.Now()
-
-	// RFC3339Nano is const format defined in time package
-	// <FORMAT> = <SAMPLE>
+	//-------------------------------------------------------------
 	// RFC3339Nano = "2006-01-02T15:04:05.999999999Z07:00"
 	// it is helpful while creating unique files
+	//-------------------------------------------------------------
 	currentTimeFormat := currentTime.Format(time.RFC3339Nano)
 
+	//-------------------------------------------------------------
 	// summaryReportCount contains each type csv as a key
 	// with count of total imported, possible, issues in csv data
+	//-------------------------------------------------------------
 	summaryReportCount := map[int]map[string]int{
 		core.DBCustomAttr:      {"imported": 0, "possible": 0, "issues": 0},
 		core.DBRentableType:    {"imported": 0, "possible": 0, "issues": 0},
@@ -875,30 +937,27 @@ func CSVHandler(
 		core.DBRentalAgreement: {"imported": 0, "possible": 0, "issues": 0},
 	}
 
-	// ====== Call onesite loader =====
-	unitMap, csvErrs, internalErr := loadOneSiteCSV(ctx,
-		csvPath, testMode, userRRValues,
-		business, currentTime, currentTimeFormat,
-		summaryReportCount)
-
-	// if internal error then just return from here, nothing to do
-	if internalErr {
+	//-------------------------------------------------------------
+	//  Call onesite loader
+	//-------------------------------------------------------------
+	unitMap, csvErrs, internalErr := loadOneSiteCSV(ctx, csvPath, testMode, userRRValues, business, currentTime, currentTimeFormat, summaryReportCount)
+	if internalErr { // if internal error then just return from here, nothing to do
 		return csvReport, internalErr, csvLoaded
 	}
 
 	// check if there any errors from onesite loader
 	if len(csvErrs) > 0 {
 		csvReport, csvLoaded = errorReporting(ctx, business, csvErrs, unitMap, summaryReportCount, csvPath, debugMode, currentTime)
-
-		// if not testmode then only do rollback
-		if testMode != 1 {
+		if testMode != 1 { // if not testmode then only do rollback
 			rollBackImportOperation(currentTimeFormat)
 		}
 
 		return csvReport, internalErr, csvLoaded
 	}
 
-	// ===== 4. Generate Report =====
+	//-------------------------------------------------------------
+	// Generate Report
+	//-------------------------------------------------------------
 	csvReport = successReport(ctx, business, summaryReportCount, csvPath, debugMode, currentTime)
 
 	// ===== 5. Return =====
