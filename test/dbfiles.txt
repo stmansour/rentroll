@@ -52,11 +52,6 @@
 ./rut/xb.sql
 ./rut/xf.sql
 ./setup/accord.sql
-./sqlschema/dbqqqmods.sql
-./sqlschema/fixrcpts.sql
-./sqlschema/fixrr.sql
-./sqlschema/receipts.sql
-./sqlschema/rr.sql
 ./strlist/refdb.sql
 ./testdb/restore.sql
 ./tws/rr.sql

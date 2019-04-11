@@ -17,8 +17,8 @@ config.json:
 
 test:
 	touch fail
-	./fixprod.sh
-	./fixrcpt.sh
+	#./fixprod.sh
+	#./fixrcpt.sh
 	@echo "*** TEST completed in ${THISDIR} ***"
 	@rm -f fail
 

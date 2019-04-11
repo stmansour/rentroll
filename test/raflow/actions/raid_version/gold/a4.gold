@@ -261,7 +261,7 @@ Response( RAID: 4, UserRefNo:  )
                     "ApplicationReadyName": "UID-0",
                     "ApplicationReadyDate": "2018-02-13 00:00:00 UTC",
                     "Approver1": 295,
-                    "Approver1Name": "Richard Wilkens",
+                    "Approver1Name": "Richard Wilken",
                     "DecisionDate1": "2018-02-13 00:00:00 UTC",
                     "DeclineReason1": 0,
                     "Approver2": 258,
