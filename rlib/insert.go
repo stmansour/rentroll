@@ -225,9 +225,9 @@ func InsertBusiness(ctx context.Context, a *Business) (int64, error) {
 	//-------------------------
 	// Update BizMap cache
 	//-------------------------
-	Console("InsertBusiness: successfully inserted new business, BID = %d\n", rid)
+	// Console("InsertBusiness: successfully inserted new business, BID = %d\n", rid)
 	RRdb.BUDlist, RRdb.BizCache = BuildBusinessDesignationMap(ctx)
-	Console("InsertBusiness:  RRdb.BUDlist len = %d\n", len(RRdb.BUDlist))
+	// Console("InsertBusiness:  RRdb.BUDlist len = %d\n", len(RRdb.BUDlist))
 	return rid, err
 }
 

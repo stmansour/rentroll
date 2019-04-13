@@ -2113,7 +2113,6 @@ var RRdb struct {
 
 // BuildBusinessDesignationMap builds a map of biz designations to BIDs
 func BuildBusinessDesignationMap(ctx context.Context) (map[string]int64, map[int64]BusinessCache) {
-	Console("\n\n\n****  Entered BuildBusinessDesignationMap\n")
 	var sl = map[string]int64{}
 	var bc = make(map[int64]BusinessCache)
 
@@ -2124,10 +2123,7 @@ func BuildBusinessDesignationMap(ctx context.Context) (map[string]int64, map[int
 	for i := 0; i < len(bl); i++ {
 		sl[bl[i].Designation] = bl[i].BID
 		bc[bl[i].BID] = BusinessCache{BID: bl[i].BID, BUD: bl[i].Designation, FLAGS: bl[i].FLAGS}
-		Console("bizlist[%s]=%d\n", bl[i].Designation, bl[i].BID)
 	}
-	Console("\nOn completion, the new biz cach has %d elements\n", len(sl))
-	Console("\n\n\n")
 	return sl, bc
 }
 
