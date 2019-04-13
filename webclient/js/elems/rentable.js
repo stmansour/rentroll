@@ -5,6 +5,8 @@
     saveRentableUseStatus, saveRentableTypeRef, buildRentableTypeRefElements, saveRentableCore, closeRentableForm,
     showRentableForm, finishRentableSaveAdd, finishRentableSave, addRentableLeaseStatus, addRentableUseStatus, addRentableTypeRef,
     getEDIAdjustedStopDate, buildRentableUseTypeElements, saveRentableUseType, addRentableUseType,
+    updateBUDFormList,
+
 */
 /*jshint esversion: 6 */
 
@@ -275,6 +277,7 @@ window.buildRentableElements = function () {
                                 // get "RTID" column index and set rentable types list in editable items
                                 var RTIDColIndex = w2ui.rentableTypeRefGrid.getColumn("RTID", true);
                                 w2ui.rentableTypeRefGrid.columns[RTIDColIndex].editable.items = app.rt_list[BUD];
+                                updateBUDFormList(w2ui.rentableForm);
                                 setRentableLayout(BID, rec.RID);
                             }
                         })
@@ -327,6 +330,7 @@ window.buildRentableElements = function () {
                         //-----------------------------------------------------------
                         var RTIDColIndex = w2ui.rentableTypeRefGrid.getColumn("RTID", true);
                         w2ui.rentableTypeRefGrid.columns[RTIDColIndex].editable.items = app.rt_list[BUD];
+                        updateBUDFormList(w2ui.rentableForm);
                         setRentableLayout(BID, 0);
                     }
                 })

@@ -4,7 +4,7 @@
     getGridReversalSymbolHTML, setDefaultFormFieldAsPreviousRecord, isDatePriorToCurrentDate,
     form_dirty_alert,setToForm,addDateNavToToolbar,getCurrentBID,formRefreshCallBack, renderReversalIcon,
     getBusinessAssessmentRules, getAsmsInitRecord, popupAsmRevMode, asmFormRASelect, fixExpandType,
-    asmInstanceInClosedPeriod, asmInstanceShowMessages, warnMsgHTML,
+    updateBUDFormList, asmInstanceInClosedPeriod, asmInstanceShowMessages, warnMsgHTML,
 */
 "use strict";
 
@@ -192,6 +192,8 @@ window.buildAssessmentElements = function () {
                         var myurl = '/v1/asm/' + BID + '/' + rec.ASMID;
                         var formName = (rec.RentCycle !== 0 && rec.PASMID === 0) ? "asmEpochForm" : "asmInstForm";
                         var f = w2ui[formName];
+                        updateBUDFormList(w2ui.formName);
+
                         console.log( 'calling setToForm( '+formName+', ' + myurl + ')');
 
                         // before setting to the form, get the list of AcctRules...
@@ -234,6 +236,7 @@ window.buildAssessmentElements = function () {
                             f.message(data.message);
                         } else {
                             app.ridRentablePicker.BID = BID; // needed by typedown
+                            updateBUDFormList(w2ui.asmEpochForm);
                             // f.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
                             f.get("ARID").options.items = app.AssessmentRules[BUD];
                             f.record = getAsmsInitRecord(BID, BUD, null);

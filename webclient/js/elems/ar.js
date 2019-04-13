@@ -2,9 +2,10 @@
     w2ui,console,$,setDefaultFormFieldAsPreviousRecord,w2uiDateControlString,
     app,getBUDfromBID,getPostAccounts,setToForm,getCurrentBusiness,form_dirty_alert,
     w2confirm,w2utils,getFormSubmitData,int_to_bool,formRefreshCallBack,formRecDiffer,
-    getARRulesInitRecord
+    getARRulesInitRecord,updateBUDFormList
 */
 "use strict";
+
 window.getARRulesInitRecord = function (BID, BUD, post_accounts_pre_selected, previousFormRecord){
     var y1 = new Date();
     var y = new Date(y1.getFullYear(), 0, 1, 0,0,0);
@@ -139,6 +140,7 @@ $().w2grid({
                     getPostAccounts(rec.BID)
                     .done(function(/*data*/){
                         // set fields
+                        updateBUDFormList(w2ui.arsForm);
                         w2ui.arsForm.get('ARType').options.items=artype_items;
                         w2ui.arsForm.get('ARType').options.selected=artype_selected;
                         w2ui.arsForm.get('DebitLID').options.items=app.post_accounts[BUD];
@@ -186,18 +188,16 @@ $().w2grid({
                             var artype_id = parseInt(id);
                             artype_items.push({id: artype_id, text: app.ARTypes[artype_id]});
                         });
-
                         var post_accounts_pre_selected = {id: 0, text: " -- Select GL Account -- "};
                         var post_accounts_items = [post_accounts_pre_selected];
                         post_accounts_items = post_accounts_items.concat(app.post_accounts[BUD]);
-
                         w2ui.arsForm.get('ARType').options.items = artype_items;
                         w2ui.arsForm.get('ARType').options.selected = artype_pre_selected;
                         w2ui.arsForm.get('DebitLID').options.items = post_accounts_items;
                         w2ui.arsForm.get('DebitLID').options.selected = post_accounts_pre_selected;
                         w2ui.arsForm.get('CreditLID').options.items = post_accounts_items;
                         w2ui.arsForm.get('CreditLID').options.selected = post_accounts_pre_selected;
-                        // w2ui.arsForm.refresh();
+                        updateBUDFormList(w2ui.arsForm);
                         var record = getARRulesInitRecord(BID, BUD, post_accounts_pre_selected, null);
                         w2ui.arsForm.record = record;
                         w2ui.arsForm.refresh();

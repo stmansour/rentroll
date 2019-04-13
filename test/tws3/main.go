@@ -103,9 +103,10 @@ func main() {
 	// tws.Init(App.dbrr, App.dbdir) //
 	// worker.Init()              // don't init these, it introduces randomness
 	rlib.SessionInit(15) //
+	ctx := context.Background()
 
 	if len(App.Email) > 0 {
-		bl, err := rlib.GetAllBiz()
+		bl, err := rlib.GetAllBiz(ctx)
 		if err != nil {
 			fmt.Printf("Error getting businesses: %s\n", err.Error())
 			os.Exit(1)

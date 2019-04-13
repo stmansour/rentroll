@@ -11,7 +11,19 @@
     taskFormDueDate1, finishBizForm, setToBizForm, renderReversalIcon,
     getGridReversalSymbolHTML, openBizForm, createNewBusiness, getBusinessInitRecord,
     tlPickerRender, tlPickerDropRender, tlPickerCompare, getTLName,
+    updateAppBusinesses, setToBiz, rebuildBusinessSelect,
 */
+//-----------------------------------------------------------------------------
+// updateBUDFormList updates the dropdown list of BUDs form interfaces. The
+// contents may have been updated based on the user's previous actions...
+//
+// INPUTS
+// f = name of form with a field that uses a dropdown list for BUD
+//-----------------------------------------------------------------------------
+window.updateBUDFormList = function(f) {
+    var idx = f.get("BUD", true);
+    f.fields[idx].options.items = app.businesses;
+};
 
 //-----------------------------------------------------------------------------
 // getBusinessInitRecord - the default new record values
@@ -53,23 +65,23 @@ window.renderReversalIcon = function (record /*, index, col_index*/) {
     return '';
 };
 
-// buildBizDropdownHTML creates the HTML for a dropdown menu of businesses
-//
-// INPUTS
-//     id = the id string used for the <span> containing the <select>
-//
-// RETURNS the html for a dropdown menu with all businesses.
-//----------------------------------------------------------------------------
-window.buildBizDropdownHTML = function(id) {
-    var html = '<span id="' +id + '"><select name="BusinessSelect" onchange="ChangeBusiness();">';
-    for (var i = 0; i < this.records.length; i++) {
-        var BUD = this.records[i].BUD;
-        var BID = this.records[i].BID;
-        html += '<option value="' + BID + '" name="' + BUD + '">' + BUD + '</option>';
-    }
-    html += '</select></span>';
-    return html;
-};
+// // buildBizDropdownHTML creates the HTML for a dropdown menu of businesses
+// //
+// // INPUTS
+// //     id = the id string used for the <span> containing the <select>
+// //
+// // RETURNS the html for a dropdown menu with all businesses.
+// //----------------------------------------------------------------------------
+// window.buildBizDropdownHTML = function(id) {
+//     var html = '<span id="' +id + '"><select name="BusinessSelect" onchange="ChangeBusiness();">';
+//     for (var i = 0; i < this.records.length; i++) {
+//         var BUD = this.records[i].BUD;
+//         var BID = this.records[i].BID;
+//         html += '<option value="' + BID + '" name="' + BUD + '">' + BUD + '</option>';
+//     }
+//     html += '</select></span>';
+//     return html;
+// };
 
 window.buildBusinessElements = function () {
     //------------------------------------------------------------------------
@@ -121,17 +133,16 @@ window.buildBusinessElements = function () {
                 //------------------------------------------------
                 // rebuild app bizmap and biz dropdown menu...
                 //------------------------------------------------
-                var html = '<select name="BusinessSelect" onchange="ChangeBusiness();">';
+                var r = this.records;
                 var BizMap = [];
+                var BID = getCurrentBID();
+                var BUD = getBUDfromBID(BID);
                 for (var i = 0; i < this.records.length; i++) {
-                    var BUD = this.records[i].BUD;
-                    var BID = this.records[i].BID;
-                    html += '<option value="' + BID + '" name="' + BUD + '">' + BUD + '</option>';
-                    BizMap.push({BID: BID, BUD: BUD});
+                    BizMap.push({BID: r[i].BID, BUD: r[i].BUD});
                 }
-                html += '</select>';
-                document.getElementById("bizdropdown").innerHTML = html;
                 app.BizMap = BizMap;
+                updateAppBusinesses();
+                rebuildBusinessSelect(BUD);
             };
         },
         onClick: function(event) {
@@ -334,15 +345,21 @@ window.buildBusinessElements = function () {
                 business.record.DefaultProrationCycle = x;
                 x = r.DefaultGSRPC.id;
                 business.record.DefaultGSRPC = x;
-
+                var newBID = w2ui.bizDetailForm.record.BID;
                 var dat=JSON.stringify(business);
-                var url='/v1/business/' + w2ui.bizDetailForm.record.BID;
+                var url='/v1/business/' + newBID;
+                var newBUD = business.record.BUD;
+                var BID = getCurrentBID();
+                var BUD = getBUDfromBID(BID);
+
+
                 $.post(url,dat)
                 .done(function(data) {
                     if (data.status === "error") {
                         w2ui.bizDetailForm.error(w2utils.lang(data.message));
                         return;
                     }
+                    setToBiz(BID,BUD,newBUD);
                     w2ui.toplayout.hide('right',true);
                     w2ui.businessGrid.render();
                 })
@@ -490,4 +507,69 @@ window.getTLName = function (item) {
         s += ' ('+ item.TLID +')';
     }
     return s;
+};
+
+
+//-----------------------------------------------------------------------------
+// setToBiz - sets internal BizMap data to the latest business list from
+// the server. It udates app.BizMap and app.businesses first.
+//
+// @params
+//  newBUD - new business to switch to if we're not already on it...
+// @return
+//-----------------------------------------------------------------------------
+window.setToBiz = function(BID,BUD,newBUD) {
+    var url = "/v1/uival/" + BID + "/app.BizMap";
+    $.get(url, null, null, "json")
+    .done(function(data) {
+        if (data == null) {return;}
+        if (typeof data == "object" && typeof data.status == "string" && data.status == "error") {
+            w2popup.open({
+                title   : 'Problem Loading BizMap',
+                buttons : '<button class="w2ui-btn" onclick="w2popup.close();">Close</button> ',
+                width   : 500,
+                height  : 300,
+                body    : '<div class="w2ui-centered"><div style="padding: 10px;">Error updating BizMap. data = ' + data.message + '</div></div>'
+            });
+            return;
+        }
+        app.BizMap = data;
+        updateAppBusinesses();
+        rebuildBusinessSelect(newBUD);
+    })
+    .fail(function(data) {
+        w2popup.open({
+            title   : 'Problem Loading BizMap',
+            buttons : '<button class="w2ui-btn" onclick="w2popup.close();">Close</button> ',
+            width   : 500,
+            height  : 300,
+            body    : '<div class="w2ui-centered"><div style="padding: 10px;">Error updating BizMap. data = ' + data + '</div></div>'
+        });
+    });
+};
+
+window.updateAppBusinesses = function() {
+    var b = [];
+    for (var i = 0; i < app.BizMap.length; i++) {
+        b.push(app.BizMap[i].BUD);
+    }
+    app.businesses = b;
+};
+
+// rebuildBusinessSelect rebuilds the business select dropdown menu on the top
+// toolbar.  It builds it based on the contents of app.BizMap, so be sure to
+// update app.BizMap prior to calling this routine.
+//
+// INPUTS:
+//   selBUD = bud to be selected on newly rebuilt dropdown menu
+//-----------------------------------------------------------------------------
+window.rebuildBusinessSelect = function(selBUD) {
+    var html = '<select name="BusinessSelect" onchange="ChangeBusiness();">';
+    for (var i = 0; i < app.BizMap.length; i++) {
+        var BUD = app.BizMap[i].BUD;
+        var selected = (BUD == selBUD) ? " selected " : "";
+        html += '<option' + selected + ' value="' + app.BizMap[i].BID + '" name="' + BUD + '">' + BUD + '</option>';
+    }
+    html += '</select>';
+    document.getElementById("bizdropdown").innerHTML = html;
 };

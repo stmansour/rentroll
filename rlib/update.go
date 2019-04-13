@@ -121,7 +121,7 @@ func UpdateBusiness(ctx context.Context, a *Business) error {
 	}
 
 	// build business list and cache again
-	RRdb.BUDlist, RRdb.BizCache = BuildBusinessDesignationMap()
+	RRdb.BUDlist, RRdb.BizCache = BuildBusinessDesignationMap(ctx)
 
 	return updateError(err, "Business", *a)
 }

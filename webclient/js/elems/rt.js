@@ -2,7 +2,7 @@
     w2ui, app, $, console, form_dirty_alert, formRefreshCallBack, formRecDiffer,
     getFormSubmitData, w2confirm, delete_confirm_options, getBUDfromBID, getCurrentBusiness,
     addDateNavToToolbar, setRTLayout, getRTInitRecord, getRentASMARList, showForm,
-    saveRentableMarketRate, buildRentableMarketRateElements,
+    saveRentableMarketRate, buildRentableMarketRateElements, updateBUDFormList,
 */
 
 "use strict";
@@ -203,10 +203,11 @@ window.buildRentableTypeElements = function () {
                                 list.forEach(function(item) {
                                     w2ui_items.push({id: item.ARID, text: item.Name});
                                 });
+                                updateBUDFormList(w2ui.rtForm);
 
                                 w2ui.rtForm.get("ARID").options.items = w2ui_items;
                                 w2ui.rtForm.refresh();
-                                w2ui.rtForm.refresh();
+                                //w2ui.rtForm.refresh();
                             }
                         })
                         .fail(function() {
@@ -244,11 +245,12 @@ window.buildRentableTypeElements = function () {
                                 w2ui_items.push({id: item.ARID, text: item.Name});
                             });
 
+                            updateBUDFormList(w2ui.rtForm);
                             w2ui.rtForm.get("ARID").options.items = w2ui_items;
                             var record = getRTInitRecord(BID, BUD);
                             w2ui.rtForm.record = record;
                             w2ui.rtForm.refresh();
-                            w2ui.rtForm.refresh();
+                            //w2ui.rtForm.refresh();
                         }
                     })
                     .fail(function() {

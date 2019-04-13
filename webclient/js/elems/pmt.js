@@ -29,7 +29,7 @@ window.getPmtInitRecord = function (BID, BUD){
 //-----------------------------------------------------------------------------
 window.getPaymentType = function (BUD, reqPMTID) {
     var pmt = {};
-    if (typeof BUD === "undefined") {
+    if (typeof BUD === "undefined" || typeof app.pmtTypes[BUD] == "undefined") {
         return pmt;
     }
     app.pmtTypes[BUD].forEach(function(item) {
@@ -190,7 +190,7 @@ $().w2grid({
         fields: [
             { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
             { field: 'BID', type: 'int', required: false, html: { caption: 'BID', page: 0, column: 0 }, hidden: true },
-            { field: 'BUD', type: 'list', options: { items: app.businesses }, required: true, html: { caption: 'BUD', page: 0, column: 0 } },
+            { field: 'BUD', type: 'text', options: { items: app.businesses }, required: true, html: { caption: 'BUD', page: 0, column: 0 } },
             { field: 'PMTID', type: 'int', required: false, html: { caption: 'PMTID', page: 0, column: 0 }, hidden: true },
             { field: 'Name', type: 'text', required: true, html: { caption: 'Name', page: 0, column: 0 }, sortable: true },
             { field: 'Description', type: 'text', required: false, html: { caption: 'Description', page: 0, column: 0 }, sortable: true },

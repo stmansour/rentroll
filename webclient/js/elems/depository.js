@@ -1,7 +1,9 @@
 /*global
-    getDepoInitRecord
+    getDepoInitRecord,updateBUDFormList,
+
 */
 "use strict";
+
 window.getDepoInitRecord = function (BID, BUD){
     return {
         recid: 0,
@@ -93,6 +95,7 @@ window.buildDepositoryElements = function() {
                                 w2ui.depositoryForm.get('LID').options.items = app.gl_accounts[BUD];
                                 w2ui.depositoryForm.get('LID').options.selected = gl_selected;
                             }
+                            updateBUDFormList(w2ui.depositoryForm);
                             setToForm('depositoryForm', '/v1/dep/' + rec.BID + '/' + rec.DEPID, 400, true);
                         })
                         .fail(function(/*data*/){
@@ -130,12 +133,10 @@ window.buildDepositoryElements = function() {
                             return;
                         } else {
                             var record = getDepoInitRecord(BID, BUD);
-
                             var gl_accounts_pre_selected = {id: 0, text: " -- Select GL Account -- "};
                             var gl_accounts_items = [gl_accounts_pre_selected];
-                            // get gl account list for BUD from `gl_accounts` key of `app`
-                            gl_accounts_items = gl_accounts_items.concat(app.gl_accounts[BUD]);
-
+                            gl_accounts_items = gl_accounts_items.concat(app.gl_accounts[BUD]);// get gl account list for BUD from `gl_accounts` key of `app`
+                            updateBUDFormList(w2ui.depositoryForm);
                             f.get('LID').options.items = gl_accounts_items;
                             f.get('LID').options.selected = gl_accounts_pre_selected;
                             f.record = record;

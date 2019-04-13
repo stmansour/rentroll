@@ -4,7 +4,7 @@
     formRecDiffer, getFormSubmitData, w2confirm, w2utils, get2XReversalSymbolHTML, getGridReversalSymbolHTML,
     setDefaultFormFieldAsPreviousRecord, getBusinessExpenseRules, getExpenseInitRecord, expFormRASelect,
     renderExpReversalIcon, expenseInstanceInClosedPeriod, expenseInstanceShowMessages,
-    warnMsgHTML,
+    warnMsgHTML, updateBUDFormList,
 */
 "use strict";
 window.getExpenseInitRecord = function (BID, BUD, previousFormRecord){
@@ -140,6 +140,7 @@ window.buildExpenseElements = function () {
                             } else {
                                 f.get('ARID').options.items = app.ExpenseRules[BUD];
                                 f.refresh();
+                                updateBUDFormList(f);
                                 var rec = grid.get(recid);
                                 var myurl = '/v1/expense/' + BID + '/' + rec.EXPID;
                                 console.log( 'calling setToForm( '+f.name+', ' + myurl + ')');
@@ -174,6 +175,7 @@ window.buildExpenseElements = function () {
                             f.message(data.message);
                         } else {
                             app.ridRentablePicker.BID = BID; // needed by typedown
+                            updateBUDFormList(f);
 
                             var record = getExpenseInitRecord(BID, BUD, null);
                             // f.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;

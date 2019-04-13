@@ -3,7 +3,8 @@
     form_dirty_alert, getFormSubmitData, formRecDiffer, formRefreshCallBack, addDateNavToToolbar,
     getGridReversalSymbolHTML, dateControlString, w2utils, saveDepositForm, w2confirm,
     delete_confirm_options, getBusinessDepMethods, getBusinessDepositories, setToDepositForm, getDepositInitRecord,
-    calcTotalCheckedReceipts, saveDepositFormAndAnother, getCheckedReceipts
+    calcTotalCheckedReceipts, saveDepositFormAndAnother, getCheckedReceipts,
+    updateBUDFormList,
 */
 
 "use strict";
@@ -181,6 +182,7 @@ window.buildDepositElements = function () {
                             app.last.grid_sel_recid = parseInt(recid);
                             grid.select(app.last.grid_sel_recid); // keep highlighting current row in any case
                             f.refresh();
+                            updateBUDFormList(f);
                             var rec = grid.get(recid);
                             var myurl = '/v1/deposit/' + BID + '/' + rec.DID;
                             var urlgrid = '/v1/depositlist/' + BID + '/' + rec.DID;
@@ -230,6 +232,7 @@ window.buildDepositElements = function () {
                     } else{
                         f.get('DEPName').options.items = app.Depositories[BUD];
                     }
+                    updateBUDFormList(f);
 
                     f.refresh();
                     var myurl = '/v1/deposit/' + BID + '/0';

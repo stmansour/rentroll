@@ -86,7 +86,7 @@ func internalHomeUIHandler(w http.ResponseWriter, r *http.Request, appPage strin
 
 	ui.Language = lang
 	ui.Template = tmpl
-	ui.BL, err = rlib.GetAllBiz()
+	ui.BL, err = rlib.GetAllBiz(r.Context())
 	if err != nil {
 		rlib.Ulog("GetAllBiz: err = %s\n", err.Error())
 	}

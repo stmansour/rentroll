@@ -873,11 +873,7 @@ func GetAssessmentFirstInstance(ctx context.Context, pasmid int64) (Assessment, 
 
 // GetAssessmentDuplicate returns the Assessment struct for the account with the supplied asmid
 func GetAssessmentDuplicate(ctx context.Context, start *time.Time, amt float64, pasmid, rid, raid int64) (Assessment, error) {
-
-	var (
-		// err error
-		a Assessment
-	)
+	var a Assessment
 
 	// session... context
 	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
@@ -938,13 +934,19 @@ func GetBuilding(ctx context.Context, id int64) (Building, error) {
 
 // GetAllBiz generates a slice of all Businesses defined in the database
 // without authentication
-func GetAllBiz() ([]Business, error) {
+func GetAllBiz(ctx context.Context) ([]Business, error) {
 	var err error
 	var m []Business
 
 	var rows *sql.Rows
 	fields := []interface{}{}
-	rows, err = RRdb.Prepstmt.GetAllBusinesses.Query(fields...)
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAllBusinesses)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetAllBusinesses.Query(fields...)
+	}
 	if err != nil {
 		return m, err
 	}
@@ -973,7 +975,7 @@ func GetAllBusinesses(ctx context.Context) ([]Business, error) {
 		}
 	}
 
-	return GetAllBiz()
+	return GetAllBiz(ctx)
 }
 
 // getBiz loads the Business struct for the supplied Business id

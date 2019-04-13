@@ -1,5 +1,6 @@
 /* global
-    transactantFields, transactantTabs, getSLStringList, getStringListData, onCheckboxesChange
+    transactantFields, transactantTabs, getSLStringList, getStringListData,
+    onCheckboxesChange, updateBUDFormList,
 */
 "use strict";
 
@@ -249,7 +250,9 @@ window.buildTransactElements = function() {
                         // keep highlighting current row in any case
                         grid.select(app.last.grid_sel_recid);
                         var rec = grid.get(recid);
+                        var f = w2ui.transactantForm;
 
+                        updateBUDFormList(f);
                         // get stringListData for list fields
                         getStringListData(BID, BUD).done(function (data) {
                             setToForm('transactantForm', '/v1/person/' + rec.BID + '/' + rec.TCID, 700, true);
@@ -274,9 +277,11 @@ window.buildTransactElements = function() {
                     var x = getCurrentBusiness();
                     var BID=parseInt(x.value);
                     var BUD = getBUDfromBID(BID);
+                    var f = w2ui.transactantForm;
 
                     var record = getTransactantInitRecord(BID, BUD);
-                    w2ui.transactantForm.record = record;
+                    f.record = record;
+                    updateBUDFormList(f);
 
                     // get stringListData for list fields
                     getStringListData(BID, BUD).fail(function (data) {

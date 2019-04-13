@@ -8,7 +8,7 @@
     createNewTaskList, getBUDfromBID, exportItemReportPDF, exportItemReportCSV,
     popupNewTaskListForm, getTLDs, getCurrentBID, getNewTaskListRecord,
     closeTaskForm, setTaskButtonsState, renderTaskGridDate, localtimeToUTC, TLD,
-    taskFormDueDate1,
+    taskFormDueDate1, updateBUDFormList,
 */
 
 var TL = {
@@ -722,6 +722,7 @@ window.buildTaskListElements = function () {
 };
 
 window.finishTaskListForm = function () {
+    updateBUDFormList(w2ui.tlsInfoForm);
     w2ui.tlLayout.content('top',   w2ui.tlsInfoForm);
     w2ui.tlLayout.content('main',  w2ui.tlsDetailGrid);
     w2ui.tlLayout.content('bottom',w2ui.tlsCloseForm);
@@ -783,6 +784,7 @@ window.getTLDs = function (BID,handler) {
                     app.TaskListDefinitions = [];
                 }
                 app.TaskListDefinitions[BUD] = data[BUD];
+                updateBUDFormList(w2ui.tlsInfoForm);
                 var f = w2ui.newTaskListForm;
                 f.get('Name').options.items = app.TaskListDefinitions[BUD];
                 f.record = getNewTaskListRecord(BID);

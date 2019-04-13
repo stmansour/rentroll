@@ -57,7 +57,7 @@ func GetCloseInfo(ctx context.Context, bid int64) (CloseInfo, error) {
 //-----------------------------------------------------------------------------
 func GetAllBizCloseInfo(ctx context.Context) (map[string]CloseInfo, error) {
 	var m = map[string]CloseInfo{}
-	n, err := GetAllBiz()
+	n, err := GetAllBiz(ctx)
 	if err != nil {
 		return m, err
 	}

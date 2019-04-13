@@ -4,9 +4,11 @@
     w2utils, formRefreshCallBack, setDefaultFormFieldAsPreviousRecord, exportGLAccounts, popupImportFileDialog,
     getAccountInitRecord, computeAmountRemaining, getARRulesInitRecord, renderReversalIcon, getBusinessAssessmentRules,
     getAsmsInitRecord, popupAsmRevMode, asmFormRASelect, updateGridPostDataDates,
-    iafMessage,
+    iafMessage,updateBUDFormList,
+
 */
 "use strict";
+
 window.getAccountInitRecord = function (BID, BUD, previousFormRecord){
     var y = new Date();
 
@@ -150,6 +152,7 @@ window.buildAccountElements = function() {
                             }
                             else {
                                 w2ui.accountForm.get("PLID").options.items = app.parent_accounts[BUD];
+                                updateBUDFormList(w2ui.accountForm);
                                 setToForm('accountForm', '/v1/account/' + rec.BID + '/' + rec.LID, 400, true);
                             }
                         })
@@ -186,13 +189,12 @@ window.buildAccountElements = function() {
                             return;
                         } else {
                             var record = getAccountInitRecord(BID, BUD, null);
-
+                            updateBUDFormList(w2ui.accountForm);
                             w2ui.accountForm.get("PLID").options.items = app.parent_accounts[BUD];
                             w2ui.accountForm.record = record;
                             // NOTE: even inside "setToForm", form is refreshing but header isn't updating,
                             // so need to call here once before
                             w2ui.accountForm.refresh();
-                            // now show the form
                             setToForm('accountForm', '/v1/account/' + BID + '/0', 400);
                         }
                     })

@@ -297,7 +297,7 @@ window.getDepository = function (BUD, id) {
 window.buildPaymentTypeSelectList = function (BUD) {
 
     var options = [{id:0, text: " -- Select Payment Type -- "}];
-    if (typeof BUD == "undefined") {
+    if (typeof BUD == "undefined" || typeof app.pmtTypes[BUD] == "undefined") {
         return options;
     }
     app.pmtTypes[BUD].forEach(function(pt) {
@@ -344,6 +344,7 @@ window.getBUDfromBID = function (BID) {
     for (var i=0; i<app.BizMap.length; i++) {
         if (BID == app.BizMap[i].BID) {
             BUD = app.BizMap[i].BUD;
+            break;
         }
     }
     return BUD;

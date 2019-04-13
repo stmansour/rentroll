@@ -212,21 +212,22 @@ func InsertBusiness(ctx context.Context, a *Business) (int64, error) {
 	} else {
 		res, err = RRdb.Prepstmt.InsertBusiness.Exec(fields...)
 	}
-
-	// After getting result...
-	if nil == err {
-		x, err := res.LastInsertId()
-		if err == nil {
-			rid = int64(x)
-			a.BID = rid
-		}
-
-		/*// Need to update this BUD list memory cache
-		RRdb.BUDlist[a.Designation] = a.BID*/
-
-		// build business list and cache again
-		RRdb.BUDlist, RRdb.BizCache = BuildBusinessDesignationMap()
+	if err != nil {
+		return rid, err
 	}
+
+	x, err := res.LastInsertId()
+	if err == nil {
+		rid = int64(x)
+		a.BID = rid
+	}
+
+	//-------------------------
+	// Update BizMap cache
+	//-------------------------
+	Console("InsertBusiness: successfully inserted new business, BID = %d\n", rid)
+	RRdb.BUDlist, RRdb.BizCache = BuildBusinessDesignationMap(ctx)
+	Console("InsertBusiness:  RRdb.BUDlist len = %d\n", len(RRdb.BUDlist))
 	return rid, err
 }
 

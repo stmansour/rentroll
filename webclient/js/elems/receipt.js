@@ -6,7 +6,7 @@
     getFormSubmitData, w2uiDateControlString, getGridReversalSymbolHTML, get2XReversalSymbolHTML,
     setDefaultFormFieldAsPreviousRecord, formRecDiffer, getBusinessReceiptRules, getReceiptInitRecord,
     handleReceiptRAID, EnableDisableFormControls, warnMsgHTML,receiptShowMessages,
-    receiptInClosedPeriod,
+    receiptInClosedPeriod, updateBUDFormList,
 */
 "use strict";
 window.getReceiptInitRecord = function (BID, BUD, ptInit, previousFormRecord){
@@ -154,6 +154,7 @@ window.buildReceiptElements = function () {
                             if ('status' in data && data.status !== 'success') {
                                 f.message(data.message);
                             } else {
+                                updateBUDFormList(w2ui.receiptForm);
                                 f.get('ARID').options.items = app.ReceiptRules[BUD];
                                 f.refresh();
                                 setToForm('receiptForm', '/v1/receipt/' + BID + '/' + rec.RCPTID, 400, true);
@@ -211,6 +212,7 @@ window.buildReceiptElements = function () {
                             var ptInit = (pmt_options.length > 0) ? pmt_options[0] : '';
                             f.get("PmtTypeName").options.items = pmt_options;
                             f.get("ARID").options.items = app.ReceiptRules[BUD];
+                            updateBUDFormList(w2ui.receiptForm);
                             f.record = getReceiptInitRecord(BID, BUD, ptInit, null);
                             f.header =  "Edit Receipt (new)";
                             f.refresh();

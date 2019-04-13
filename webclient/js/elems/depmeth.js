@@ -1,5 +1,5 @@
 /*global
-    parseInt, w2ui, app, getDepMethInitRecord
+    parseInt, w2ui, app, getDepMethInitRecord, updateBUDFormList,
 */
 
 "use strict";
@@ -72,14 +72,9 @@ window.buildDepositMethodElements = function () {
 	                },
 	                yes_callBack = function(grid, recid) {
 	                    app.last.grid_sel_recid = parseInt(recid);
-
-	                    // keep highlighting current row in any case
 	                    grid.select(app.last.grid_sel_recid);
-
-	                    // get record
 	                    var rec = grid.get(recid);
-
-	                    // popup the dialog form
+                        updateBUDFormList(w2ui.depmethForm);
 	                    setToForm('depmethForm', '/v1/depmeth/' + rec.BID + '/' + rec.DPMID, 400, true);
 	                };
 
@@ -101,7 +96,8 @@ window.buildDepositMethodElements = function () {
                     var BUD = getBUDfromBID(BID);
 	                var record = getDepMethInitRecord(BID, BUD);
                     w2ui.depmethForm.record = record;
-                    setToForm('depmethForm', '/v1/depmeth/' + BID + '/0', 400);
+                    updateBUDFormList(w2ui.depmethForm);
+                    setToForm('depmethForm', /* '/v1/depmeth/' + BID + '/0' */ '', 400);
 
                 };  // yes callback
 
