@@ -227,7 +227,7 @@ window.buildBusinessElements = function () {
             { field: 'BID',                     type: 'int',      required: false },
             { field: 'BUD',                     type: 'enum',     required: false,
                 options: {
-                    url:            'https://directory.airoller.com/v1/butd/',
+                    url:            app.Directory + 'v1/butd/',
                     max:            1,
                     items:          [],
                     openOnFocus:    false,
@@ -719,7 +719,7 @@ window.updateBUDLink = function() {
         r.BUD = BUD;
     }
 
-    var url = 'https://directory.airoller.com/v1/bud?request=' + encodeURIComponent(JSON.stringify({search: r.BUD}));
+    var url = app.Directory + 'v1/bud?request=' + encodeURIComponent(JSON.stringify({search: r.BUD}));
     $.get(url, null, null, "json")
     .done(function(data) {
         var x = document.getElementById("BUDlink");
