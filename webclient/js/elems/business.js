@@ -11,7 +11,9 @@
     taskFormDueDate1, finishBizForm, setToBizForm, renderReversalIcon,
     getGridReversalSymbolHTML, openBizForm, createNewBusiness, getBusinessInitRecord,
     tlPickerRender, tlPickerDropRender, tlPickerCompare, getTLName,
-    updateAppBusinesses, setToBiz, rebuildBusinessSelect,
+    updateAppBusinesses, setToBiz, rebuildBusinessSelect,BUDPickerRender,
+    BUDPickerDropRender, BUDPickerCompare, updateBUDLink,setBUDLink,BUDHandler,
+    setBUDSpinner,
 */
 //-----------------------------------------------------------------------------
 // updateBUDFormList updates the dropdown list of BUDs form interfaces. The
@@ -223,9 +225,39 @@ window.buildBusinessElements = function () {
         },
         fields: [
             { field: 'BID',                     type: 'int',      required: false },
-            { field: 'BUD',                     type: 'text',     required: false },
-            { field: 'Name',                    type: 'text',     required: false },
+            { field: 'BUD',                     type: 'enum',     required: false,
+                options: {
+                    url:            'http://localhost:8250/v1/butd/',
+                    max:            1,
+                    items:          [],
+                    openOnFocus:    false,
+                    maxDropWidth:   350,
+                    maxDropHeight:  350,
+                    renderItem:     BUDPickerRender,
+                    renderDrop:     BUDPickerDropRender,
+                    compare:        BUDPickerCompare,
+                    onNew: function (event) {
+                        $.extend(event.item, { Designation: event.item.text, Name: '', ClassCode: 0, CoCode: 0 } );
+                    },
+                    onRemove: function(event) {
+                        // event.onComplete = function() {
+                        //     var f = w2ui.bizDetailForm;
+                        //     // reset BUD field related data when removed
+                        //     f.record.ClassCode = 0;
+                        //     f.record.CoCode = 0;
+                        //     f.record.BUD = "";
+                        //
+                        //     // NOTE: have to trigger manually, b'coz we manually change the record,
+                        //     // otherwise it triggers the change event but it won't get change (Object: {})
+                        //     var event = f.trigger({ phase: 'before', target: f.name, type: 'change', event: event }); // event before
+                        //     if (event.cancelled === true) return false;
+                        //     f.trigger($.extend(event, { phase: 'after' })); // event after
+                        // };
+                    },
+                },
+            },
             { field: 'DefaultRentCycle',        type: 'list',     required: false, options: {items: app.w2ui.listItems.cycleFreq}, },
+            { field: 'Name',                    type: 'text',     required: false },
             { field: 'DefaultProrationCycle',   type: 'list',     required: false, options: {items: app.w2ui.listItems.cycleFreq}, },
             { field: 'DefaultGSRPC',            type: 'list',     required: false, options: {items: app.w2ui.listItems.cycleFreq}, },
             { field: 'FLAGS',                   type: 'hidden',   required: false },
@@ -255,6 +287,8 @@ window.buildBusinessElements = function () {
             { field: 'LastModBy',               type: 'hidden',   required: false },
             { field: 'CreateTS',                type: 'hidden',   required: false },
             { field: 'CreateBy',                type: 'hidden',   required: false },
+            { field: 'ClassCode',               type: 'hidden',   required: false },
+            { field: 'CoCode',                  type: 'hidden',   required: false },
         ],
         actions: {
             // save: function(target, data){
@@ -292,12 +326,17 @@ window.buildBusinessElements = function () {
         //     // event.onComplete = function(event) {
         //     // };
         // },
+        onRender: function(event) {
+            if (this.record.BID > 0) {
+                setBUDSpinner();
+                setTimeout(BUDHandler, 750);
+            }
+        },
         onRefresh: function(event) {
             var f = this;
             event.onComplete = function(event) {
                 var f = w2ui.bizDetailForm;
                 var r = f.record;
-                // if (typeof r.CPTLName === "undefined") {return;}
                 if (r.ClosePeriodTLID === 0 || typeof r.CPTLName === "undefined") {
                     return;
                 }
@@ -309,13 +348,16 @@ window.buildBusinessElements = function () {
                 if ($(f.box).find("input[name=CPTLName]").length > 0) {
                     console.log('initialized CPTLName to '+cp.Name+ ' ' + cp.TLID);
                     $(f.box).find("input[name=CPTLName]").data('selected', [cp]).data('w2field').refresh();
-                    //f.refresh();
                 }
+                BUDHandler();
             };
         },
         onChange: function(event) {
-            // event.onComplete = function() {
-            // };
+            event.onComplete = function() {
+                if (event.target == "BUD") {
+                    BUDHandler();
+                }
+            };
         },
     });
 
@@ -423,7 +465,12 @@ window.setToBizForm = function (bid, d1,d2) {
         };
         w2ui.bizDetailForm.header = 'Business ' + bid;
         w2ui.bizDetailForm.request();
-        w2ui.bizDetailForm.fields[11].options.url = '/v1/tltd/' + bid;
+        var idx = w2ui.bizDetailForm.get("CPTLName",true);
+        w2ui.bizDetailForm.fields[idx].options.url = '/v1/tltd/' + bid;
+        var x = document.getElementById("CPTLName");
+        if (x != null) {
+            x.disabled = false;
+        }
         openBizForm();
     }
 };
@@ -435,9 +482,20 @@ window.setToBizForm = function (bid, d1,d2) {
 // @params
 //-----------------------------------------------------------------------------
 window.createNewBusiness = function() {
-    w2ui.bizDetailForm.record = getBusinessInitRecord();
-    w2ui.bizDetailForm.header = 'Business (new)';
-    w2ui.bizDetailForm.fields[11].options.url = '/v1/tltd'; // no biz id
+    var f = w2ui.bizDetailForm;
+    f.record = getBusinessInitRecord();
+    f.header = 'Business (new)';
+
+    //------------------------------------------------------------------
+    // for a new business, there will not yet be any Task Lists.  So we
+    // need to make this control insensitive.
+    //------------------------------------------------------------------
+    // var idx = f.get("CPTLName",1);
+    // f.fields[11].options.url = '/v1/tltd'; // no biz id
+    var x = document.getElementById("CPTLName");
+    if (x != null) {
+        x.disabled = true;
+    }
     openBizForm();
 };
 
@@ -462,7 +520,7 @@ window.finishBizForm = function (bid, d1,d2) {
 // @return - true if the search string is found, false otherwise
 //-----------------------------------------------------------------------------
 window.tlPickerCompare = function (item, search) {
-    console.log('entered tlPickerCompare');
+    // console.log('entered tlPickerCompare');
     var s = getTLName(item);
     s = s.toLowerCase();
     var srch = search.toLowerCase();
@@ -477,7 +535,7 @@ window.tlPickerCompare = function (item, search) {
 // @return - the name to render
 //-----------------------------------------------------------------------------
 window.tlPickerDropRender = function (item) {
-    console.log('entered tlPickerDropRender');
+    // console.log('entered tlPickerDropRender');
     return getTLName(item);
 };
 
@@ -488,7 +546,7 @@ window.tlPickerDropRender = function (item) {
 // @return - true if the names match, false otherwise
 //-----------------------------------------------------------------------------
 window.tlPickerRender = function (item) {
-    console.log('entered tlPickerRender.  item.Name = ' + item.Name + '  item.TLID = ' + item.TLID);
+    // console.log('entered tlPickerRender.  item.Name = ' + item.Name + '  item.TLID = ' + item.TLID);
     w2ui.bizDetailForm.record.CPTLName = item.Name;
     w2ui.bizDetailForm.record.CPTLID = item.TLID;
     return getTLName(item);
@@ -525,8 +583,8 @@ window.setToBiz = function(BID,BUD,newBUD) {
         if (data == null) {return;}
         if (typeof data == "object" && typeof data.status == "string" && data.status == "error") {
             w2popup.open({
-                title   : 'Problem Loading BizMap',
-                buttons : '<button class="w2ui-btn" onclick="w2popup.close();">Close</button> ',
+                title   : 'PBUDoblem Loading BizMap',
+                buttons : '<BUDtton class="w2ui-btn" onclick="w2popup.close();">Close</button> ',
                 width   : 500,
                 height  : 300,
                 body    : '<div class="w2ui-centered"><div style="padding: 10px;">Error updating BizMap. data = ' + data.message + '</div></div>'
@@ -572,4 +630,125 @@ window.rebuildBusinessSelect = function(selBUD) {
     }
     html += '</select>';
     document.getElementById("bizdropdown").innerHTML = html;
+};
+
+//-----------------------------------------------------------------------------
+// BUDPickerCompare - Compare item to the search string. Verify that the
+//          supplied search string can be found in item.  If it's already
+//          listed we don't want to list it again.
+// @params
+//   item = an object assumed to have a Name and TLID field
+// @return - true if the search string is found, false otherwise
+//-----------------------------------------------------------------------------
+window.BUDPickerCompare = function (item, search) {
+    var s = item.Designation;
+    s = s.toLowerCase();
+    var srch = search.toLowerCase();
+    var match = (s.indexOf(srch) >= 0);
+    return match;
+};
+
+//-----------------------------------------------------------------------------
+// BUDPickerDropRender - renders a name during typedown.
+// @params
+//   item = an object assumed to have a FirstName and LastName
+// @return - the name to render
+//-----------------------------------------------------------------------------
+window.BUDPickerDropRender = function (item) {
+    return item.Designation;
+};
+
+//-----------------------------------------------------------------------------
+// BUDPickerRender - renders a name during typedown.
+// @params
+//   item = an object assumed to have a FirstName and LastName
+// @return - true if the names match, false otherwise
+//-----------------------------------------------------------------------------
+window.BUDPickerRender = function (item) {
+    var r = w2ui.bizDetailForm.record;
+    if (item.text != undefined && item.text != null) {
+        r.BUD = item.text; // doesn't exist in Directory. It's OK, just exit now
+        return item.text;
+    }
+    r.BUD = item.Designation;
+    if (r.BUD == undefined) {return 'rBUD.undefined';}
+    if (r.BUD == null ) { return 'rBUD.null'; }
+    if (item.Name.length > 0 ) {
+        r.Name = item.Name;
+        var x = document.getElementById("Name");
+        if (x == undefined || x == null) { return r.BUD; }
+        x.value = item.Name;
+    }
+    return r.BUD;
+};
+
+window.setBUDLink = function(x,s) {
+    if (x != null) {
+        x.innerHTML = s;
+    }
+};
+
+window.setBUDSpinner = function() {
+    var s = '<i class="fas fa-spinner fa-pulse fa-lg fa-fw" style="color:#0000CC;"></i>';
+    var x = document.getElementById("BUDlink");
+    setBUDLink(x,s);
+};
+
+window.updateBUDLink = function() {
+    var f = w2ui.bizDetailForm;
+    var r = f.record;
+    var x = document.getElementById("BUDlink");
+    var u = '<i class="far fa-circle fa-lg" style="color:#FF8C00;"></i>';
+
+    if (r.BUD == undefined || r.BUD.length == 0) {
+        setBUDLink(x,u);
+        return;
+    }
+
+    var l = '<i class="fas fa-link fa-lg" style="color:#00CC00;"></i>';
+    setBUDSpinner();
+
+    //---------------------------------------------------------
+    // filter r.BUD object down to bud string if necessary...
+    //---------------------------------------------------------
+    if (typeof r.BUD == "object") {
+        var BUD = r.BUD[0].Designation;
+        r.BUD = BUD;
+    }
+
+    var url = 'http://localhost:8250/v1/bud?request=' + encodeURIComponent(JSON.stringify({search: r.BUD}));
+    $.get(url, null, null, "json")
+    .done(function(data) {
+        var x = document.getElementById("BUDlink");
+        if (data == null) {return;}
+        if (typeof data == "object" && typeof data.status == "string" && data.status == "error") {
+            setBUDLink(x,u);
+            if ( ! data.message.includes("Not Found:")) {
+                f.error('Error retrieving BUD info: ' + data.message);
+            }
+            return;
+        }
+        setBUDLink(x,l);
+        w2ui.bizDetailForm.record.Name = data.record.Name;
+        var y = document.getElementById("Name");
+        if (y != undefined && y != null) {
+            y.value = data.record.Name;
+        }
+    })
+    .fail(function(data) {
+        f.error('Error retrieving BUD info ' + data);
+    });
+
+};
+
+window.BUDHandler = function() {
+    var f = w2ui.bizDetailForm;
+    var r = f.record;
+    updateBUDLink();
+    if (r.BUD != undefined && r.BUD != null) {
+        var item = { Designation: r.BUD, Name: '', ClassCode: 0, CoCode: 0 };
+        if ($(f.box).find("input[name=BUD]").length > 0) {
+            $(f.box).find("input[name=BUD]").data('selected', [item]).data('w2field').refresh();
+        }
+    }
 };

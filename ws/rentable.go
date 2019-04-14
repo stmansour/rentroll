@@ -333,9 +333,7 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 //-----------------------------------------------------------------------------------
 func SvcFormHandlerRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "SvcFormHandlerRentable"
-	var (
-		err error
-	)
+	var err error
 	rlib.Console("Entered %s\n", funcname)
 
 	if d.RID, err = SvcExtractIDFromURI(r.RequestURI, "RID", 3, w); err != nil {

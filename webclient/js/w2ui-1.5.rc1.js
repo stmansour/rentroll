@@ -16409,6 +16409,9 @@ var w2prompt = function (label, title, callBack) {
                             // trigger event
                             var edata2 = obj.trigger({ phase: 'before', type: 'load', target: obj.el, search: postData.search, data: data, xhr: xhr });
                             if (edata2.isCancelled === true) return;
+                            if (data.records == null) {
+                                data.records = [];
+                            }
                             // default behavior
                             data = edata2.data;
                             if (typeof data == 'string') data = JSON.parse(data);

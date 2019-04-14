@@ -192,7 +192,7 @@ window.buildAssessmentElements = function () {
                         var myurl = '/v1/asm/' + BID + '/' + rec.ASMID;
                         var formName = (rec.RentCycle !== 0 && rec.PASMID === 0) ? "asmEpochForm" : "asmInstForm";
                         var f = w2ui[formName];
-                        updateBUDFormList(w2ui.formName);
+                        updateBUDFormList(f);
 
                         console.log( 'calling setToForm( '+formName+', ' + myurl + ')');
 
