@@ -193,6 +193,8 @@ func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	appData["bizFLAGS"] = bizFLAGS
 
+	appData["Directory"] = rlib.AppConfig.AuthNHost
+
 	// --------------- LIST DOWN Assessment FLAGS ----------------------
 	appData["asmFLAGS"] = rlib.AsmFLAGS
 

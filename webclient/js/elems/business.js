@@ -227,7 +227,7 @@ window.buildBusinessElements = function () {
             { field: 'BID',                     type: 'int',      required: false },
             { field: 'BUD',                     type: 'enum',     required: false,
                 options: {
-                    url:            'http://localhost:8250/v1/butd/',
+                    url:            'https://directory.airoller.com/v1/butd/',
                     max:            1,
                     items:          [],
                     openOnFocus:    false,
@@ -322,16 +322,19 @@ window.buildBusinessElements = function () {
             //
             // },
         },
-        // onLoad: function(event) {
-        //     // event.onComplete = function(event) {
-        //     // };
-        // },
-        onRender: function(event) {
-            if (this.record.BID > 0) {
+        onLoad: function(event) {
+            event.onComplete = function(event) {
                 setBUDSpinner();
-                setTimeout(BUDHandler, 750);
-            }
+                setTimeout(BUDHandler, 500);
+                // BUDHandler();
+            };
         },
+        // onRender: function(event) {
+        //     if (this.record.BID > 0) {
+        //         setBUDSpinner();
+        //         setTimeout(BUDHandler, 750);
+        //     }
+        // },
         onRefresh: function(event) {
             var f = this;
             event.onComplete = function(event) {
@@ -716,7 +719,7 @@ window.updateBUDLink = function() {
         r.BUD = BUD;
     }
 
-    var url = 'http://localhost:8250/v1/bud?request=' + encodeURIComponent(JSON.stringify({search: r.BUD}));
+    var url = 'https://directory.airoller.com/v1/bud?request=' + encodeURIComponent(JSON.stringify({search: r.BUD}));
     $.get(url, null, null, "json")
     .done(function(data) {
         var x = document.getElementById("BUDlink");
