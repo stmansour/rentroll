@@ -111,6 +111,14 @@ func GetSessionCookieName() string {
 	return SessionCookieName
 }
 
+// GetSessionTable returns a copy of the session table.  This is for use
+// in the administrators command to view the session table of the active
+// server.
+//-----------------------------------------------------------------------------
+func GetSessionTable() map[string]*Session {
+	return sessions
+}
+
 // SessionDispatcher is a Go routine that controls access to shared memory.
 //-----------------------------------------------------------------------------
 func SessionDispatcher() {

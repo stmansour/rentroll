@@ -1,6 +1,6 @@
 /*global
     w2ui, app, console, $, plural, switchToGrid, showReport, form_dirty_alert, loginPopupOptions, getAboutInfo,
-    switchToClosePeriod, switchToReservations,
+    switchToClosePeriod, switchToReservations, setToAbout,
 */
 "use strict";
 
@@ -293,9 +293,7 @@ window.buildSidebar = function(flag) {
                             app.last.report = target;
                             break;
                         case 'about':
-                            w2ui.toplayout.load('main', '/webclient/html/about.html');
-                            w2ui.toplayout.hide('right',true);
-                            getAboutInfo();
+                            setToAbout();
                             break;
                         default:
                             console.log('unhandled event target: ' + target);

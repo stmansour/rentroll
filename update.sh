@@ -1,5 +1,25 @@
 #!/bin/bash
 #############################################################################
+# decho
+#   Description:
+#   	Use this function like echo. If DEBUG is 1 then it will echo the
+#		the output to the terminal. Otherwise it will just return without
+#       echoing anything.
+#
+#   Params:
+#		The string to echo
+#
+#	Returns:
+#
+#############################################################################
+function decho {
+	if (( ${DEBUG} == 1 )); then
+		echo
+		echo "${1}"
+	fi
+}
+
+#############################################################################
 # readConfig
 #   Description:
 #       Read the config.json file from the directory containing this script
@@ -26,10 +46,10 @@ readConfig() {
         URLBASE="${URLBASE}/"
     fi
 
-    echo "RELDIR = ${RELDIR}"
-    echo "REPOUSER = ${REPOUSER}"
-    echo "APIKEY = ${APIKEY}"
-    echo "URLBASE = ${URLBASE}"
+    decho "RELDIR = ${RELDIR}"
+    decho "REPOUSER = ${REPOUSER}"
+    decho "APIKEY = ${APIKEY}"
+    decho "URLBASE = ${URLBASE}"
 }
 
 #############################################################################
@@ -123,33 +143,32 @@ fi
 readConfig
 configure
 
-echo -n "Shutting down rentroll server."; $(./activate.sh stop) >/dev/null 2>&1
-echo -n "."
-echo -n "."; cd ${RELDIR}/..
-echo -n "."; rm -f rentroll*.tar
-echo
-echo -n "Retrieving latest released Rentroll..."
+echo -n "Shut down rentroll server: ";
+$(./activate.sh stop) >/dev/null 2>&1
+echo "done"
 
+cd ${RELDIR}/..
+rm -f rentroll*.tar*
+echo "Distribution download to:  ${PWD}"
 GetLatestRepoRelease "rentroll"
 
-echo "Installing.."
-echo -n "."; cd ${RELDIR}/..
-#echo -n "."; rm -f rentroll*.tar
-echo -n "."; gunzip -f rentroll*.tar.gz
-echo -n "."; tar xf rentroll*.tar
-echo -n "."; chown -R ec2-user:ec2-user rentroll
-echo -n "."; rm -f rentroll*.tar*
-echo -n "."; cd ${RELDIR}
-echo
+echo -n "Extracting: "
+cd ${RELDIR}/..
+tar xzf rentroll*.tar.gz
+chown -R ec2-user:ec2-user rentroll
+rm -f rentroll*.tar*
+cd ${RELDIR}
+echo "done"
 
-echo -n "Installation complete.  Launching..."
-echo -n "."; ./activate.sh start
-echo -n "."; sleep 2
-echo -n "."; status=$(./activate.sh ready)
-echo -n "."; ./installman.sh >installman.log 2>&1  # a task to perform while activation is running
-echo
+echo -n "Activating: "
+stat=$(./activate.sh start)
+sleep 2
+status=$(./activate.sh ready)
+./installman.sh >installman.log 2>&1  # a task to perform while activation is running
 if [ "${status}" = "OK" ]; then
-    echo "Activation successful"
+    echo "Success!"
 else
-    echo "Problems activating rentroll.  Status = ${status}"
+    echo "error: tatus = ${status}"
+    echo "output from ./activate.sh -b start "
+    echo "${stat}"
 fi

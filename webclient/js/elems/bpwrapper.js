@@ -12,7 +12,7 @@
     createStmtForm, finishForms, finishTLDForm,
     buildClosePeriodElements,buildRAFlowElements,buildBusinessElements,
     finishBizForm, buildReservationsElements, finishReservationsForm,
-    buildHelpElements, finishHelpSystem,
+    buildHelpElements, finishHelpSystem, buildAboutElements, finishAboutSystem,
 */
 
 "use strict";
@@ -32,6 +32,7 @@ window.buildPageElementsWrapper = function (uitype) {
     buildSidebar(uitype);
     buildAllocFundsGrid();
     buildAccountElements();
+    buildAboutElements();
     buildBusinessElements();
     buildTransactElements();
     buildRentableTypeElements();
@@ -85,4 +86,5 @@ window.finishForms = function () {
     finishBizForm();
     finishReservationsForm();
     finishHelpSystem();
+    finishAboutSystem();
 };

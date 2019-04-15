@@ -4,6 +4,85 @@
 */
 "use strict";
 
+window.buildAboutElements = function () {
+    //------------------------------------------------------------------------
+    //  aboutLayout - The layout to contain the tabbed form and buttons
+    //               top - build info
+    //               main - session table grid
+    //------------------------------------------------------------------------
+    $().w2layout({
+        name: 'aboutLayout',
+        padding: 0,
+        panels: [
+            { type: 'left',    size: 0,     hidden: true },
+            { type: 'top',     size: '20%', hidden: false, content: 'top',  resizable: true, style: app.pstyle },
+            { type: 'main',    size: '60%', hidden: false, content: 'main', resizable: true, style: app.pstyle },
+            { type: 'preview', size: 0,     hidden: true,  content: 'PREVIEW'  },
+            { type: 'bottom',  size: 0,     hidden: true,  content: 'bottom', resizable: false, style: app.pstyle },
+            { type: 'right',   size: 0,     hidden: true }
+        ]
+    });
+
+    //------------------------------------------------------------------------
+    //          SessionGrid  -  shows the server session table
+    //------------------------------------------------------------------------
+    $().w2grid({
+        name: 'sessionGrid',
+        url: '/v1/sessions',
+        multiSelect: false,
+        show: {
+            toolbar         : false,
+            footer          : true,
+            toolbarAdd      : false,   // indicates if toolbar add new button is visible
+            toolbarDelete   : false,   // indicates if toolbar delete button is visible
+            toolbarSave     : false,   // indicates if toolbar save button is visible
+            selectColumn    : false,
+            expandColumn    : false,
+            toolbarEdit     : false,
+            toolbarSearch   : false,
+            toolbarInput    : false,
+            searchAll       : false,
+            toolbarReload   : true,
+            toolbarColumns  : true,
+        },
+        columns: [
+            {field: 'recid',    caption: 'recid',    hidden: true,  size: '40px', sortable: false },
+            {field: 'Token',    caption: 'Token',    hidden: false, size: '200px', sortable: false },
+            {field: 'Username', caption: 'Username', hidden: false, size: '75px', sortable: false },
+            {field: 'Name',     caption: 'Name',     hidden: false, size: '100px', sortable: false },
+            {field: 'UID',      caption: 'UID',      hidden: false, size: '50px', sortable: false },
+            {field: 'CoCode',   caption: 'CoCode',   hidden: false, size: '50px', sortable: false },
+            {field: 'Expire',   caption: 'Expire',   hidden: false, size: '125px', sortable: false },
+            {field: 'RoleID',   caption: 'RoleID',   hidden: false, size: '50px', sortable: false },
+            {field: 'ImageURL', caption: 'ImageURL', hidden: false, size: '20%', sortable: false },
+        ],
+    });
+};
+
+//---------------------------------------------------------------------------------
+// setToAbout - displays the About UI when the user clicks on the About command
+//              in the sidebar
+//
+// @params  <none>
+// @returns <none>
+//---------------------------------------------------------------------------------
+window.setToAbout = function() {
+    w2ui.toplayout.content('main', w2ui.aboutLayout);
+    w2ui.toplayout.hide('right',true);
+    w2ui.aboutLayout.load('top','/webclient/html/about.html');
+    getAboutInfo();
+};
+
+//---------------------------------------------------------------------------------
+// finishAboutSystem - loads the aboutLayout with the session grid
+//
+// @params  <none>
+// @returns <none>
+//---------------------------------------------------------------------------------
+window.finishAboutSystem = function () {
+    w2ui.aboutLayout.content('main',w2ui.sessionGrid);
+};
+
 //---------------------------------------------------------------------------------
 // getAboutInfo - contacts the server to get info about its version, and updates
 //          the version (about) html page
