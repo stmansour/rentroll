@@ -1,4 +1,6 @@
 #!/bin/bash
+DEBUG=0
+
 #############################################################################
 # decho
 #   Description:
@@ -143,16 +145,16 @@ fi
 readConfig
 configure
 
-echo -n "Shut down rentroll server: ";
+echo -n "Shut down rentroll server... ";
 $(./activate.sh stop) >/dev/null 2>&1
 echo "done"
 
 cd ${RELDIR}/..
 rm -f rentroll*.tar*
-echo "Distribution download to:  ${PWD}"
+echo "Distribution download to...  ${PWD}"
 GetLatestRepoRelease "rentroll"
 
-echo -n "Extracting: "
+echo -n "Extracting... "
 cd ${RELDIR}/..
 tar xzf rentroll*.tar.gz
 chown -R ec2-user:ec2-user rentroll
@@ -161,7 +163,7 @@ cd ${RELDIR}
 echo "done"
 
 echo -n "Activating: "
-stat=$(./activate.sh start)
+./activate.sh start
 sleep 2
 status=$(./activate.sh ready)
 ./installman.sh >installman.log 2>&1  # a task to perform while activation is running
