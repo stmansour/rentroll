@@ -553,7 +553,7 @@ func SvcErrorReturn(w http.ResponseWriter, err error, funcname string) {
 	rlib.Console("%s: %s\n", funcname, err.Error())
 	var e SvcStatus
 	e.Status = "error"
-	e.Message = fmt.Sprintf("Error: %s\n", err.Error())
+	e.Message = err.Error()
 	w.Header().Set("Content-Type", "application/json")
 	b, _ := json.Marshal(e)
 	SvcWrite(w, b)

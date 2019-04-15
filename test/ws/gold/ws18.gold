@@ -1,4 +1,4 @@
 {
-    "message": "Error: saveReceipt:  Error in rlib.ProcessNewReceipt: One or field was not present or has an error. Please review and resubmit. \nPayor\n\n",
+    "message": "saveReceipt:  Error in rlib.ProcessNewReceipt: One or field was not present or has an error. Please review and resubmit. \nPayor\n",
     "status": "error"
 }

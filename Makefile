@@ -8,7 +8,7 @@ GITHOOKDIR=.git/hooks
 
 .PHONY:  test
 
-rentroll: *.go config.json
+rentroll: *.go config
 	@find . -name "fail" -exec rm -r "{}" \;
 	@touch fail
 	for dir in $(DIRS); do make -C $$dir;done
@@ -20,8 +20,9 @@ rentroll: *.go config.json
 
 all: clean rentroll test stats
 
-config.json:
+config:
 	@/usr/local/accord/bin/getfile.sh accord/db/confdev.json
+	@/usr/local/accord/bin/getfile.sh accord/db/conflocal.json
 	@cp confdev.json config.json
 
 relink: dolnk package

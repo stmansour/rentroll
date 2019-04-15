@@ -1,4 +1,4 @@
 {
-    "message": "Error: This account cannot be a summary account because one or more rules uses it for debit/credit. \n\n",
+    "message": "This account cannot be a summary account because one or more rules uses it for debit/credit. \n",
     "status": "error"
 }

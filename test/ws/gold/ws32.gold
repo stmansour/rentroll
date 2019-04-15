@@ -1,4 +1,4 @@
 {
-    "message": "Error: PaymentTypeID is required but was not specified\n",
+    "message": "PaymentTypeID is required but was not specified",
     "status": "error"
 }

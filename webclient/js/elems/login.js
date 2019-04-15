@@ -76,8 +76,8 @@ window.buildLoginForm = function() {
                 .done(function(data) {
                     if (data.status === "error") {
                         $(f.box).find("#LoginMessage").find(".errors").empty();
-                        var message = "Unrecognized Username or Password";
-                        $(f.box).find("#LoginMessage").find(".errors").append("<p>" + message + "</p>");
+                        // var message = "Unrecognized Username or Password";
+                        $(f.box).find("#LoginMessage").find(".errors").append("<p>" + data.message + "</p>");
                         $(f.box).find("#LoginMessage").removeClass("hidden");
                         // w2ui.passwordform.error(w2utils.lang(data.message));
                     }

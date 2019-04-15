@@ -1,4 +1,4 @@
 {
-    "message": "Error: This account cannot allow posts because it is the parent of one or more accounts. \n\n",
+    "message": "This account cannot allow posts because it is the parent of one or more accounts. \n",
     "status": "error"
 }
