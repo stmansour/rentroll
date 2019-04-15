@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -58,7 +59,7 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		raflowRespData        RAFlowResponse
 		resp                  FlowResponse
 		g                     bizlogic.ValidateRAFlowResponse
-		ctx                   = r.Context()
+		ctx                   context.Context
 		tx                    *sql.Tx
 	)
 

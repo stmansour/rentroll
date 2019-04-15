@@ -596,20 +596,20 @@ func FlowSaveRentables(ctx context.Context, x *rlib.F2RAWriteHandlerContext) err
 			return err
 		}
 		for _, v := range rarl {
-			//----------------------------------------------------------------
-			// Fix up the LeaseStatus on the rentable.
-			//----------------------------------------------------------------
-			d1 := x.RaChainOrig[x.RaOrigIndex].RentStart
-			if x.RaChainOrig[x.RaOrigIndex].PossessionStart.Before(d1) {
-				d1 = x.RaChainOrig[x.RaOrigIndex].PossessionStart
-			}
-			d2 := x.Ra.RentStop
-			if x.RaChainOrig[x.RaOrigIndex].PossessionStop.After(d2) {
-				d2 = x.RaChainOrig[x.RaOrigIndex].PossessionStop
-			}
-			if x.RaChainOrig[x.RaOrigIndex].RentStop.After(d2) {
-				d2 = x.RaChainOrig[x.RaOrigIndex].RentStop
-			}
+			// //----------------------------------------------------------------
+			// // Fix up the LeaseStatus on the rentable.
+			// //----------------------------------------------------------------
+			// d1 := x.RaChainOrig[x.RaOrigIndex].RentStart
+			// if x.RaChainOrig[x.RaOrigIndex].PossessionStart.Before(d1) {
+			// 	d1 = x.RaChainOrig[x.RaOrigIndex].PossessionStart
+			// }
+			// d2 := x.Ra.RentStop
+			// if x.RaChainOrig[x.RaOrigIndex].PossessionStop.After(d2) {
+			// 	d2 = x.RaChainOrig[x.RaOrigIndex].PossessionStop
+			// }
+			// if x.RaChainOrig[x.RaOrigIndex].RentStop.After(d2) {
+			// 	d2 = x.RaChainOrig[x.RaOrigIndex].RentStop
+			// }
 
 			// d3 := x.Ra.RentStart
 			// if d2.After(x.Ra.PossessionStart) {

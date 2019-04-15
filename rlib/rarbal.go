@@ -205,8 +205,7 @@ func GetBeginEndRARBalance(ctx context.Context, bid, rid, raid int64, d1, d2 *ti
 	}
 
 	var err error
-	begin := float64(0)
-	end := float64(0)
+	var begin, end float64
 	begin, err = GetRARBalance(ctx, bid, rid, raid, d1)
 	if err != nil {
 		return b.begin, b.end, nil

@@ -240,6 +240,7 @@ func saveTask(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var err error
 	var blank rlib.TaskList
 	var now = time.Now()
+	var tl rlib.TaskList
 
 	rlib.Console("Entered %s\n", funcname)
 	rlib.Console("record data = %s\n", d.data)
@@ -293,7 +294,7 @@ func saveTask(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			SvcErrorReturn(w, e, funcname)
 			return
 		}
-		tl, err := rlib.GetTaskList(r.Context(), foo.Record.TLID)
+		tl, err = rlib.GetTaskList(r.Context(), foo.Record.TLID)
 		if err != nil {
 			SvcErrorReturn(w, err, funcname)
 			return

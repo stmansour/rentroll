@@ -1005,6 +1005,9 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 		// this RAID
 		//-------------------------------------------------------
 		pl, err := rlib.GetPetsByTransactant(ctx, TCID)
+		if err != nil {
+			return err
+		}
 		for j := 0; j < len(pl); j++ {
 			pl[j].RAID = ra.RAID
 			if err = rlib.UpdatePet(ctx, &pl[j]); err != nil {

@@ -138,6 +138,10 @@ func DoTest(ctx context.Context) {
 	for i := 0; i < len(ciphers); i++ {
 		fmt.Printf("presaved chars:   %s\n", ciphers[i])
 		b, err := hex.DecodeString(ciphers[i])
+		if err != nil {
+			log.Fatal(err)
+			os.Exit(1)
+		}
 		fmt.Printf("decoded hexbytes: %x\n", b)
 		dssn, err := rlib.Decrypt(b)
 		if err != nil {

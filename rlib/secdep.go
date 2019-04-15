@@ -163,7 +163,6 @@ func GetSecDepBalance(ctx context.Context, bid, raid, rid int64, d1, d2 *time.Ti
 	}
 
 	amt := float64(0)
-	sa := []string{}
 	m, err := SecDepRules(bid)
 	if err != nil {
 		return amt, fmt.Errorf("Error in SecDepRules: %s", err.Error())
@@ -174,7 +173,7 @@ func GetSecDepBalance(ctx context.Context, bid, raid, rid int64, d1, d2 *time.Ti
 	//-----------------------------------------------------------
 	// What Assessments use the account rules found above?
 	//-----------------------------------------------------------
-	sa = []string{}
+	sa := []string{}
 	for i := 0; i < len(m); i++ {
 		sa = append(sa, fmt.Sprintf("ARID=%d", m[i]))
 	}

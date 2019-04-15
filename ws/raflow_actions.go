@@ -450,7 +450,8 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 	modRAFlowMeta := raFlowData.Meta
 
 	// GET THE CURRENT STATE FROM THE LAST 4 BITS
-	State := raFlowData.Meta.RAFLAGS & uint64(0xF)
+	// State := raFlowData.Meta.RAFLAGS & uint64(0xF) // sm: this was an ineffectual assignment
+	var State, clearedState uint64
 
 	switch Mode {
 	case "Action":
@@ -493,7 +494,7 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 		today = rlib.Now().In(location)
 
 		// take latest RAFLAGS value at this point(in case flag bits are reset)
-		clearedState := modRAFlowMeta.RAFLAGS & ^uint64(0xF)
+		// clearedState := modRAFlowMeta.RAFLAGS & ^uint64(0xF)  // sm: this was an ineffectual assignment
 
 		switch State {
 		case rlib.RASTATEPendingApproval1:

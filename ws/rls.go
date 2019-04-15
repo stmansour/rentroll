@@ -118,7 +118,7 @@ func svcSearchHandlerRentableLeaseStatus(w http.ResponseWriter, r *http.Request,
 	var (
 		g     RentableLeaseStatusGridResponse
 		err   error
-		order = `RentableLeaseStatus.DtStart ASC`
+		order string
 		whr   = fmt.Sprintf("RentableLeaseStatus.RID=%d", d.ID)
 	)
 	rlib.Console("Entered %s\n", funcname)

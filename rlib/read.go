@@ -1123,6 +1123,9 @@ func ReadPayors(rows *sql.Rows, a *Payor) error {
 
 	// For DriversLicense
 	d, err := hex.DecodeString(d1)
+	if err != nil {
+		return err
+	}
 	a.DriversLicense, err = DecryptOrEmpty(d)
 	if err != nil {
 		return err

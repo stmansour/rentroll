@@ -1989,7 +1989,7 @@ func InsertSubAR(ctx context.Context, a *SubAR) (int64, error) {
 
 // InsertTask writes a new Task record to the database
 func InsertTask(ctx context.Context, a *Task) error {
-	var id = int64(0)
+	var id int64
 	var err error
 	var res sql.Result
 
@@ -2020,7 +2020,7 @@ func InsertTask(ctx context.Context, a *Task) error {
 
 // InsertTaskList writes a new TaskList record to the database
 func InsertTaskList(ctx context.Context, a *TaskList) error {
-	var id = int64(0)
+	var id int64
 	var err error
 	var res sql.Result
 
@@ -2049,7 +2049,7 @@ func InsertTaskList(ctx context.Context, a *TaskList) error {
 
 // InsertTaskDescriptor writes a new TaskDescriptor record to the database
 func InsertTaskDescriptor(ctx context.Context, a *TaskDescriptor) error {
-	var id = int64(0)
+	var id int64
 	var err error
 	var res sql.Result
 
@@ -2078,7 +2078,7 @@ func InsertTaskDescriptor(ctx context.Context, a *TaskDescriptor) error {
 
 // InsertTaskListDefinition writes a new TaskListDefinition record to the database
 func InsertTaskListDefinition(ctx context.Context, a *TaskListDefinition) error {
-	var id = int64(0)
+	var id int64
 	var err error
 	var res sql.Result
 

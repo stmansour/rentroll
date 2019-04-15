@@ -227,7 +227,7 @@ WHERE RAID=? AND RID=? AND Start >= ? AND Stop < ? AND RentCycle=0 ORDER By Asse
 	Errcheck(err)
 	RRdb.Prepstmt.GetBusinessPropertiesByName, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM BusinessProperties WHERE Name=? AND BID=?")
 	Errcheck(err)
-	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
+	s1, s2, _, _, _ = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.InsertBusinessProperties, err = RRdb.Dbrr.Prepare("INSERT INTO BusinessProperties (" + s1 + ") VALUES(" + s2 + ")")
 	Errcheck(err)
 	RRdb.Prepstmt.UpdateBusinessPropertiesData, err = RRdb.Dbrr.Prepare("UPDATE BusinessProperties SET Data = JSON_REPLACE(Data, CONCAT('$.', ?), CAST(? AS JSON)) where BPID=?")

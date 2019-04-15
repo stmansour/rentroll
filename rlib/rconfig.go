@@ -22,7 +22,6 @@ func RRReadConfig(fPath ...string) error {
 		expath     string
 		adjustEnv  bool
 	)
-	adjustEnv = false
 	expath, err = osext.ExecutableFolder()
 	if err != nil {
 		Ulog("RReadConfig encountered error from ExecutableFolder: %s\n", err.Error())

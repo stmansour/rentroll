@@ -251,9 +251,9 @@ func GetRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		err  error
 		req  GetRAFlowRequest
 		tx   *sql.Tx
-		ctx  = r.Context()
+		ctx  context.Context
 	)
-	fmt.Printf("Entered %s, \n", funcname)
+	rlib.Console("Entered %s, \n", funcname)
 
 	// ===============================================
 	// defer function to handle transactaion rollback
@@ -278,7 +278,7 @@ func GetRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	rlib.Console("req.Version = %s\n", req.Version)
+	// rlib.Console("req.Version = %s\n", req.Version)
 
 	//-------------------------------------------------------
 	// GET THE NEW `tx`, UPDATED CTX FROM THE REQUEST CONTEXT
@@ -344,7 +344,7 @@ func GetRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	case "refno":
 		// CREATE ONE ONLY WHEN REF.NO IS BLANK
-		rlib.Console("req.UserRefNo = %s\n", req.UserRefNo)
+		// rlib.Console("req.UserRefNo = %s\n", req.UserRefNo)
 		if req.UserRefNo == "" {
 
 			// CHECK IF ANY FLOW EXIST WITH GIVEN RAID
@@ -357,7 +357,7 @@ func GetRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				return
 			}
 
-			rlib.Console("Generating new flow %s\n", req.UserRefNo)
+			// rlib.Console("Generating new flow %s\n", req.UserRefNo)
 			// IF NOT FOUND THEN TRY TO CREATE NEW ONE FROM RAID
 			// GET RENTAL AGREEMENT
 			var ra rlib.RentalAgreement
@@ -391,7 +391,7 @@ func GetRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			return
 		}
 
-		rlib.Console("Using existing flow\n")
+		// rlib.Console("Using existing flow\n")
 		// GIVEN REF.NO SHOULD BE VALID
 		if len(req.UserRefNo) != rlib.UserRefNoLength {
 			err = fmt.Errorf("given refno is not valid: %s ", req.UserRefNo)

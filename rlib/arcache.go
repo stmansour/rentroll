@@ -181,10 +181,12 @@ func AcctRulesSlice(sda []int64, bid int64, accttype string) ([]int64, error) {
 	// Console("GetSecDepBalance: q = %s\n", q)
 
 	rows, err := RRdb.Dbrr.Query(q)
+	if err != nil {
+		return m, err
+	}
 	for rows.Next() {
 		var id int64
-		err := rows.Scan(&id)
-		if err != nil {
+		if err := rows.Scan(&id); err != nil {
 			return m, err
 		}
 		m = append(m, id)
