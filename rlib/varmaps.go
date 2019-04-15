@@ -109,7 +109,7 @@ type XJSONRenewal string
 
 // RenewalMap is the mapping
 var RenewalMap = Str2Int64Map{
-	"unset": 0,
+	"unset":                            0,
 	"month to month automatic renewal": 1,
 	"lease extension option":           2,
 }

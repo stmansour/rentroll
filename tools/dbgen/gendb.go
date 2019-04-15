@@ -1457,9 +1457,5 @@ func CreateTaskLists(ctx context.Context, dbConf *GenDBConf) error {
 	// Create any past instances
 	//----------------------------------------------------------
 	now := time.Now()
-	if err = rlib.TaskListExpandPastInstances(ctx, &tl, &tld, &pivot, &now); err != nil {
-		return err
-	}
-
-	return nil
+	return rlib.TaskListExpandPastInstances(ctx, &tl, &tld, &pivot, &now)
 }

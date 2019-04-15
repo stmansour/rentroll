@@ -164,7 +164,7 @@ func resRowScan(rows *sql.Rows, q Reservation) (Reservation, error) {
 //	@URL /v1/reservation/:BUI/[RLID]
 //  @Method  POST
 //	@Synopsis Returns a list of RIDs
-//  @Description  Finds the rentables that are availabe betwee DtStart and DtStop.
+//  @Description  Finds the rentables that are available between DtStart and DtStop.
 //	@Input WebGridSearchRequest
 //  @Response Reservation
 // wsdoc }

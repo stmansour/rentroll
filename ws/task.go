@@ -312,7 +312,7 @@ func saveTask(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// 	return
 		// }
 		//------------------------------------------------------------------
-		// Due and PreDue dates are not changable.  If those
+		// Due and PreDue dates are not changeable.  If those
 		// need to be changed, you'll need to change the definition.
 		// If the PreDue date changes from unset to set, record the
 		// datetime.  If it changes from set to unset, reset the datetime.

@@ -73,10 +73,10 @@ func TLCheckerCore(ctx context.Context) error {
 	// Set up email dialer to use for any overdue tasks
 	//---------------------------------------------------
 	var ri = rrpt.ReporterInfo{
-		OutputFormat: gotable.TABLEOUTPDF,
-		Bid:          0,   // don't know this yet
-		D1:           now, // don't really need this
-		D2:           now, // don't really need this
+		OutputFormat:          gotable.TABLEOUTPDF,
+		Bid:                   0,   // don't know this yet
+		D1:                    now, // don't really need this
+		D2:                    now, // don't really need this
 		BlankLineAfterRptName: false,
 	}
 

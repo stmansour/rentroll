@@ -185,6 +185,7 @@ func getRRTable() gotable.Table {
 	return tbl
 }
 
+// ReportTextOutput tests the rentable type report in text format
 func ReportTextOutput(tbl *gotable.Table) {
 	(*tbl).TightenColumns()
 
@@ -239,6 +240,7 @@ func ReportTextOutput(tbl *gotable.Table) {
 	}
 }
 
+// ReportCSVOutput tests the rentable type report in CSV format
 func ReportCSVOutput(tbl *gotable.Table) {
 	fname := "RentableTypeReport_test.csv"
 	f, err := os.Create(fname)
@@ -272,6 +274,7 @@ func ReportCSVOutput(tbl *gotable.Table) {
 	}
 }
 
+// ReportHTMLOutput tests the rentable type report in HTML format
 func ReportHTMLOutput(tbl *gotable.Table) {
 	fname := "RentableTypeReport_test.html"
 	f, err := os.Create(fname)
@@ -305,6 +308,7 @@ func ReportHTMLOutput(tbl *gotable.Table) {
 	}
 }
 
+// ReportPDFOutput tests the rentable type report in PDF format
 func ReportPDFOutput(tbl *gotable.Table) {
 	fname := "RentableTypeReport_test.pdf"
 	f, err := os.Create(fname)
@@ -411,6 +415,7 @@ func main() {
 	DoTestRentableType(ctx)
 }
 
+// DoTestRentableType tests the rentable type report
 func DoTestRentableType(ctx context.Context) {
 
 	var ri = rrpt.ReporterInfo{

@@ -87,11 +87,7 @@ func Fees2RA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) error {
 		}
 	}
 
-	if err = F2RAHandleOldAssessments(ctx, x); err != nil {
-		return err
-	}
-
-	return nil
+	return F2RAHandleOldAssessments(ctx, x)
 }
 
 // F2RASaveFee handles all the updates necessary to move the supplied fee into

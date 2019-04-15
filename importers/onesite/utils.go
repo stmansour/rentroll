@@ -23,9 +23,9 @@ import (
 func IsValidRentableUseType(s string) (bool, string, string) {
 	found := false
 	var tempRS, rentRollStatus string
-    //--------------------------------------------------------
+	//--------------------------------------------------------
 	// first find that passed string contains any status key
-    //--------------------------------------------------------
+	//--------------------------------------------------------
 	a := strings.ToLower(s)
 	for k, v := range RentableUseTypeCSV {
 		if strings.Contains(a, k) {

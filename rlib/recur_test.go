@@ -10,10 +10,10 @@ const RPDATEFMT0 = "Mon, Jan _2, 2006 03:04 pm"
 
 type recurtest struct {
 	cycle    int64
-	eyear    int        // epoch,this is the date(year) of the assessments occuring every cycle
-	emonth   time.Month // epoch,this is the date(month) of the assessments occuring every cycle
-	eday     int        // epoch,this is the date(day) of the assessments occuring every cycle
-	ehour    int        // epoch,this is the date(hour) of the assessments occuring every cycle
+	eyear    int        // epoch,this is the date(year) of the assessments occurring every cycle
+	emonth   time.Month // epoch,this is the date(month) of the assessments occurring every cycle
+	eday     int        // epoch,this is the date(day) of the assessments occurring every cycle
+	ehour    int        // epoch,this is the date(hour) of the assessments occurring every cycle
 	eminute  int
 	tyear    int        // target,this is the date(year) of amending the original RA
 	tmonth   time.Month // target,this is the date(month) of amending the original RA

@@ -10,6 +10,7 @@ import (
 	"time"
 )
 
+// RnTy holds config information about a rentable type
 type RnTy struct {
 	Count        int `json:"Count"`
 	MarketRate   int `json:"MarketRate"`
@@ -17,6 +18,7 @@ type RnTy struct {
 	ProrateCycle int `json:"ProrateCycle"`
 }
 
+// DBGenType holds config information for the db that will be generated
 type DBGenType struct {
 	RSeed                int64   `json:"RSeed"`
 	DtStart              string  `json:"DtStart"`

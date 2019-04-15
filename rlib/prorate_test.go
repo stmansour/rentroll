@@ -29,19 +29,19 @@ func TestSimpleProrate(t *testing.T) {
 	var cases = []simpleProrateCase{
 		{
 			simpleProrateInput{1000.00, RECURMONTHLY, RECURDAILY, "2018-01-01", "2018-02-01", "2018-01-01"}, // INPUT
-			simpleProrateOutput{1000.00, 31, 31},                                                            // EXPECTED OUTPUT
+			simpleProrateOutput{1000.00, 31, 31}, // EXPECTED OUTPUT
 		},
 		{
 			simpleProrateInput{1000.00, RECURMONTHLY, RECURDAILY, "2018-01-10", "2018-02-01", "2018-01-01"}, // INPUT
-			simpleProrateOutput{709.68, 22, 31},                                                             // EXPECTED OUTPUT
+			simpleProrateOutput{709.68, 22, 31}, // EXPECTED OUTPUT
 		},
 		{
 			simpleProrateInput{1000.00, RECURMONTHLY, RECURDAILY, "2018-01-10", "2018-02-01", "2018-01-03"}, // INPUT
-			simpleProrateOutput{709.68, 22, 31},                                                             // EXPECTED OUTPUT
+			simpleProrateOutput{709.68, 22, 31}, // EXPECTED OUTPUT
 		},
 		{
 			simpleProrateInput{1000.00, RECURMONTHLY, RECURDAILY, "2018-01-01", "2018-01-11", "2018-01-01"}, // INPUT
-			simpleProrateOutput{322.58, 10, 31},                                                             // EXPECTED OUTPUT
+			simpleProrateOutput{322.58, 10, 31}, // EXPECTED OUTPUT
 		},
 	}
 

@@ -29,11 +29,11 @@ func RunCommandLine(ctx context.Context, dCtx *DispatchCtx) {
 	}
 	rcsv.InitRCSV(&dCtx.DtStart, &dCtx.DtStop, &dCtx.xbiz)
 	var ri = rrpt.ReporterInfo{
-		OutputFormat: gotable.TABLEOUTTEXT,
-		Bid:          dCtx.xbiz.P.BID,
-		D1:           dCtx.DtStart,
-		D2:           dCtx.DtStop,
-		Xbiz:         &dCtx.xbiz,
+		OutputFormat:          gotable.TABLEOUTTEXT,
+		Bid:                   dCtx.xbiz.P.BID,
+		D1:                    dCtx.DtStart,
+		D2:                    dCtx.DtStop,
+		Xbiz:                  &dCtx.xbiz,
 		BlankLineAfterRptName: true,
 	}
 

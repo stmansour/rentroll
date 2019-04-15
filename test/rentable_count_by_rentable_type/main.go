@@ -184,7 +184,7 @@ func createStartupCtx() DispatchCtx {
 	rlib.GetXBiz(dCtx.xbiz.P.BID, &dCtx.xbiz)
 
 	// if dateMode is on then change the stopDate value for search op
-	rlib.HandleFrontEndDates(dCtx.xbiz.P.BID, &dCtx.DtStart, &dCtx.DtStop)
+	// rlib.HandleFrontEndDates(dCtx.xbiz.P.BID, &dCtx.DtStart, &dCtx.DtStop)
 
 	// App.Report is a string, of the format:
 	//   n[,s1[,s2[...]]]
@@ -209,7 +209,7 @@ func readCommandLineArgs() {
 	dbuPtr := flag.String("B", "ec2-user", "database user name")
 	dbnmPtr := flag.String("N", "accord", "directory database (accord)")
 	dbrrPtr := flag.String("M", "rentroll", "database name (rentroll)")
-	pBud := flag.String("b", "REX", "Business Unit Identifier (Bud)") // 
+	pBud := flag.String("b", "REX", "Business Unit Identifier (Bud)") //
 	portPtr := flag.Int("p", 8270, "port on which RentRoll server listens")
 	noauth := flag.Bool("noauth", false, "if specified, inhibit authentication")
 
@@ -309,6 +309,7 @@ func main() {
 	//	DoTestRentable(ctx)
 }
 
+// ReportTextOutput generates the rentable count report in text
 func ReportTextOutput(tbl *gotable.Table) {
 	(*tbl).TightenColumns()
 
@@ -400,6 +401,7 @@ func ReportTextOutput(tbl *gotable.Table) {
 	}
 }
 
+// ReportCSVOutput generates the rentable count report in CSV
 func ReportCSVOutput(tbl *gotable.Table) {
 	fname := "RentableCountByRentableTypeReport_test.csv"
 	f, err := os.Create(fname)
@@ -433,6 +435,7 @@ func ReportCSVOutput(tbl *gotable.Table) {
 	}
 }
 
+// ReportHTMLOutput generates the rentable count report in HTML
 func ReportHTMLOutput(tbl *gotable.Table) {
 	fname := "RentableCountByRentableTypeReport_test.html"
 	f, err := os.Create(fname)
@@ -466,6 +469,7 @@ func ReportHTMLOutput(tbl *gotable.Table) {
 	}
 }
 
+// ReportPDFOutput generates the rentable count report in PDF
 func ReportPDFOutput(tbl *gotable.Table) {
 	fname := "RentableCountByRentableTypeReport_test.pdf"
 	f, err := os.Create(fname)
@@ -503,7 +507,8 @@ func ReportPDFOutput(tbl *gotable.Table) {
 	}
 }
 
-//
+// DoTestRentableCountByRentableType is a test routine to counting rentables of
+// a particular rentable type.
 func DoTestRentableCountByRentableType(ctx context.Context) {
 
 	tmpT1 := time.Date(2018, 1, 1, 8, 0, 0, 0, time.UTC)

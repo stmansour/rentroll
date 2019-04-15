@@ -21,6 +21,7 @@ const (
 	statusSuccess = "success"
 )
 
+// FlowResponse defines the information sent as a reply to server reqeuests
 type FlowResponse struct {
 	Record  ws.RAFlowResponse `json:"record,omitempty"`
 	Message string            `json:"message,omitempty"`
@@ -33,6 +34,8 @@ type JSONPayloadDesc struct {
 	Description string
 }
 
+// Payload contains information regarding status of the transition through the
+// states of a Rental Agreement
 type Payload struct {
 	UserRefNo         string
 	RAID              int64
