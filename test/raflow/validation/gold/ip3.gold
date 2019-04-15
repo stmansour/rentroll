@@ -1,4 +1,4 @@
 {
-    "message": "Error: json: cannot unmarshal string into Go struct field RATiePeopleData.PRID of type int64\n",
+    "message": "json: cannot unmarshal string into Go struct field RATiePeopleData.PRID of type int64",
     "status": "error"
 }
