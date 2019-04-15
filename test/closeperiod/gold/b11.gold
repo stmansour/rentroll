@@ -1,4 +1,4 @@
 {
-    "message": "Error: Receipt RCPTID=91 cannot be saved because its date (2/1/2018) is in a closed period\n",
+    "message": "Receipt RCPTID=91 cannot be saved because its date (2/1/2018) is in a closed period",
     "status": "error"
 }

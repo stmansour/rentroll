@@ -1,4 +1,4 @@
 {
-    "message": "Error: Only the last closed period can be deleted\n",
+    "message": "Only the last closed period can be deleted",
     "status": "error"
 }

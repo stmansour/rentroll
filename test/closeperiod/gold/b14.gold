@@ -1,4 +1,4 @@
 {
-    "message": "Error: Assessment ASMID=17 cannot be reversed because its date range (1/3/2018, 1/3/2018) is in a closed period\n",
+    "message": "Assessment ASMID=17 cannot be reversed because its date range (1/3/2018, 1/3/2018) is in a closed period",
     "status": "error"
 }

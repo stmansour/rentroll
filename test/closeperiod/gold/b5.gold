@@ -1,4 +1,4 @@
 {
-    "message": "Error: Expense EXPID=1 cannot be saved because its date (4/1/2018 - prior to any changes) is in a closed period\n",
+    "message": "Expense EXPID=1 cannot be saved because its date (4/1/2018 - prior to any changes) is in a closed period",
     "status": "error"
 }
