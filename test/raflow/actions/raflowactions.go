@@ -162,7 +162,7 @@ func main() {
 
 			// here we override UserRefNo
 			// because in raid_version tests userRefNo generated will be random everytime
-			// hence to pass the comparision with gold files we set UserRefNo as "OVERRIDEEN1234567890"
+			// hence to pass the comparison with gold files we set UserRefNo as "OVERRIDEEN1234567890"
 			if folderName == "raid_version" && apiResponse.Record.Flow.UserRefNo != "" {
 				apiResponse.Record.Flow.UserRefNo = "OVERRIDEEN1234567890"
 			}

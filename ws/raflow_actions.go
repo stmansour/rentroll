@@ -146,7 +146,8 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 	Action := foo.Action
 
 	// GET THE CURRENT STATE FROM THE LAST 4 BITS
-	State := raFlowData.Meta.RAFLAGS & uint64(0xF)
+	var State uint64
+	//  State := raFlowData.Meta.RAFLAGS & uint64(0xF)  // sm: this is ineffectual
 
 	var flow rlib.Flow
 	var err error
@@ -450,8 +451,7 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 	modRAFlowMeta := raFlowData.Meta
 
 	// GET THE CURRENT STATE FROM THE LAST 4 BITS
-	// State := raFlowData.Meta.RAFLAGS & uint64(0xF) // sm: this was an ineffectual assignment
-	var State, clearedState uint64
+	State := raFlowData.Meta.RAFLAGS & uint64(0xF)
 
 	switch Mode {
 	case "Action":
@@ -495,6 +495,7 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 
 		// take latest RAFLAGS value at this point(in case flag bits are reset)
 		// clearedState := modRAFlowMeta.RAFLAGS & ^uint64(0xF)  // sm: this was an ineffectual assignment
+		var clearedState uint64
 
 		switch State {
 		case rlib.RASTATEPendingApproval1:

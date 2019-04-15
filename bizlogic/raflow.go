@@ -371,7 +371,7 @@ func validatePeople(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors,
 		}
 
 		//-----------------------
-		// Businesss logic check
+		// Business logic check
 		//-----------------------
 		err = fmt.Errorf("must not be blank")
 		// ----------- Check rule no. 1  ----------------
@@ -874,7 +874,7 @@ func validateTiePeople(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErro
 	return nil
 }
 
-// isPersonOccupant Check provided TMPTCID refered person is occupant status
+// isPersonOccupant ensures that person TMPTCID has occupant status
 func isPersonOccupant(TMPTCID int64, people []rlib.RAPeopleFlowData) bool {
 	for _, p := range people {
 		if p.TMPTCID == TMPTCID && p.IsOccupant {

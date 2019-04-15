@@ -867,7 +867,7 @@ func F2RAUpdatePets(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (err e
 			}
 			// rlib.Console("D\n")
 			//-------------------------------------------------------------
-			// Spin throught the records, update the overlapping record,
+			// Spin through the records, update the overlapping record,
 			// and remove the rest.
 			//-------------------------------------------------------------
 			for _, tb := range tblist {
@@ -1036,7 +1036,7 @@ func F2RAUpdateVehicles(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (e
 				return nil
 			}
 			//-------------------------------------------------------------
-			// Spin throught the records, update the overlapping record,
+			// Spin through the records, update the overlapping record,
 			// and remove the rest.
 			//-------------------------------------------------------------
 			for _, tb := range tblist {

@@ -119,7 +119,7 @@ WHERE {{.WhereClause}}
 ORDER BY {{.OrderClause}}
 `
 
-// RAFlowQueryClause query clasues for raflow query
+// RAFlowQueryClause contains query clauses for raflow query
 var RAFlowQueryClause = rlib.QueryClause{
 	"BID":          "",
 	"Start":        "",

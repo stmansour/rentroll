@@ -943,7 +943,7 @@ func ValidateAssessment(ctx context.Context, a *rlib.Assessment) []BizError {
 		// }
 
 		//--------------------------------------------------------------------------
-		// We cannot have the start date occuring after the stop date
+		// We cannot have the start date occurring after the stop date
 		//--------------------------------------------------------------------------
 		// rlib.Console("ValidateAssessment: J0\n")
 		if a.Stop.Before(a.Start) {
@@ -962,7 +962,7 @@ func ValidateAssessment(ctx context.Context, a *rlib.Assessment) []BizError {
 //     a = the recurring assessment
 //  xbiz = Business information
 //    lc = date to use which is past the last close date
-// start = start date on assessment before any snapping that occured due to
+// start = start date on assessment before any snapping that occurred due to
 //         checking closed period
 //
 // RETURNS

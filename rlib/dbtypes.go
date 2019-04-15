@@ -922,7 +922,7 @@ type Assessment struct {
 	BID            int64     // what Business
 	RID            int64     // the Rentable
 	AssocElemType  int64     // Associated element type, example: 14 = Pet, 15 = Vehicle. Values defined in dbtypes.go
-	AssocElemID    int64     // Associated element ID. Exmaple: if AssoceElemType == 14 then AssocElemID is set to the PETID
+	AssocElemID    int64     // Associated element ID. Example: if AssoceElemType == 14 then AssocElemID is set to the PETID
 	RAID           int64     // associated Rental Agreement
 	Amount         float64   // how much
 	Start          time.Time // start time
@@ -1583,7 +1583,10 @@ type GLAccount struct {
 	// RARequired  int64     // 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
 }
 
-// Flow is a structure for to store temporarity flow data latest one
+// Flow is a structure to store an non-active version of a Rental Agreement --
+// typically, this is for a new Rental Agreement before it is fully approved, or
+// an amended version of an existing Rental Agreement while it is undergoing
+// changes and approvals.
 type Flow struct {
 	BID         int64           // Business unit associated with this FlowPart
 	FlowID      int64           // primary auto increment key

@@ -202,7 +202,7 @@ func GetEpochListByBizPropName(ctx context.Context, BID int64, bizPropName strin
 //               happened on next cycle. It helps to determine for calle routine
 //               what should it does on epoch whether it falls in range or not.
 //     epoch - absolute epoch for given date range
-//     err   - any error encounterd
+//     err   - any error encountered
 //-----------------------------------------------------------------------------
 func GetEpochByBizPropName(ctx context.Context, BID int64, bizPropName string, d1, d2 time.Time, cycle int64) (ok bool, epoch time.Time, err error) {
 	const funcname = "GetEpochByBizPropName"

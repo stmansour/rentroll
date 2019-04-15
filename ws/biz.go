@@ -302,7 +302,7 @@ func SvcSearchHandlerBusinesses(w http.ResponseWriter, r *http.Request, d *Servi
 //  @Method  POST
 //	@Synopsis Make a Business inactive
 //  @Desc  This service makes a Business inactive. We do not deliete
-//  @Desc  Businesss
+//  @Desc  Business
 //	@Input DeletePmtForm
 //  @Response SvcStatusResponse
 // wsdoc }
