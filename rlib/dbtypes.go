@@ -1433,31 +1433,32 @@ type RentableUseType struct {
 
 // RentableLeaseStatus archives the state of a Rentable during the specified period of time
 type RentableLeaseStatus struct {
-	RLID        int64     // unique ID for this Rentable Lease Status
-	RID         int64     // associated Rentable
-	BID         int64     // associated business
-	DtStart     time.Time // start of period
-	DtStop      time.Time // end of period
-	Comment     string    // comment
-	FirstName   string    //
-	LastName    string    //
-	Email       string    //
-	Phone       string    //
-	Address     string    //
-	Address2    string    //
-	City        string    //
-	State       string    //
-	PostalCode  string    //
-	Country     string    //
-	CCName      string    //
-	CCType      string    //
-	CCNumber    string    //
-	CCExpMonth  string    //
-	LeaseStatus int64     // 1-Vacant-rented, 2=VacantNotRented, 3=OnNoticePreLeased, 4=OnNoticeAvailable, 5=Leased, 6=Unavailable
-	LastModTime time.Time // time of last update to the db record
-	LastModBy   int64     // who made the update (Phonebook UID)
-	CreateTS    time.Time // when was this record created
-	CreateBy    int64     // employee UID (from phonebook) that created it
+	RLID             int64     // unique ID for this Rentable Lease Status
+	RID              int64     // associated Rentable
+	BID              int64     // associated business
+	DtStart          time.Time // start of period
+	DtStop           time.Time // end of period
+	Comment          string    // comment
+	FirstName        string    //
+	LastName         string    //
+	Email            string    //
+	Phone            string    //
+	Address          string    //
+	Address2         string    //
+	City             string    //
+	State            string    //
+	PostalCode       string    //
+	Country          string    //
+	CCName           string    //
+	CCType           string    //
+	CCNumber         string    //
+	CCExpMonth       string    //
+	ConfirmationCode string    //
+	LeaseStatus      int64     // 1-Vacant-rented, 2=VacantNotRented, 3=OnNoticePreLeased, 4=OnNoticeAvailable, 5=Leased, 6=Unavailable
+	LastModTime      time.Time // time of last update to the db record
+	LastModBy        int64     // who made the update (Phonebook UID)
+	CreateTS         time.Time // when was this record created
+	CreateBy         int64     // employee UID (from phonebook) that created it
 }
 
 // XBusiness combines the Business struct and a map of the Business's Rentable types

@@ -1686,6 +1686,7 @@ CREATE TABLE `RentableLeaseStatus` (
   `CCNumber` varchar(100) NOT NULL DEFAULT '',
   `CCExpMonth` varchar(100) NOT NULL DEFAULT '',
   `CCExpYear` varchar(100) NOT NULL DEFAULT '',
+  `ConfirmationCode` varchar(20) NOT NULL DEFAULT '',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -1700,7 +1701,7 @@ CREATE TABLE `RentableLeaseStatus` (
 
 LOCK TABLES `RentableLeaseStatus` WRITE;
 /*!40000 ALTER TABLE `RentableLeaseStatus` DISABLE KEYS */;
-INSERT INTO `RentableLeaseStatus` VALUES (1,1,1,0,'2018-01-01 00:00:00','2018-07-01 00:00:00','','','','','','','','','','','','','','','','','2019-03-18 22:18:19',0,'2019-03-18 22:18:19',0),(3,1,1,1,'2018-07-01 00:00:00','2019-07-01 00:00:00','','','','','','','','','','','','','','','','','2019-03-18 22:18:19',0,'2019-03-18 22:18:19',0),(4,1,1,2,'2019-07-01 00:00:00','9999-12-31 00:00:00','','','','','','','','','','','','','','','','','2019-03-18 22:18:19',0,'2019-03-18 22:18:19',0);
+INSERT INTO `RentableLeaseStatus` VALUES (1,1,1,0,'2018-01-01 00:00:00','2018-07-01 00:00:00','','','','','','','','','','','','','','','','','','2019-03-18 22:18:19',0,'2019-03-18 22:18:19',0),(3,1,1,1,'2018-07-01 00:00:00','2019-07-01 00:00:00','','','','','','','','','','','','','','','','','','2019-03-18 22:18:19',0,'2019-03-18 22:18:19',0),(4,1,1,2,'2019-07-01 00:00:00','9999-12-31 00:00:00','','','','','','','','','','','','','','','','','','2019-03-18 22:18:19',0,'2019-03-18 22:18:19',0);
 /*!40000 ALTER TABLE `RentableLeaseStatus` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2712,4 +2713,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-03-22 23:34:05
+-- Dump completed on 2019-04-15 15:47:40

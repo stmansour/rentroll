@@ -623,7 +623,7 @@ CREATE TABLE RentableTypes (
                                                                 -- 1<<1:  0=cannot be a child rentable, 1 = can be a child
                                                                 -- 1<<2:  0=No(do not manage this category of Rentable to budget)
                                                                 --        1=Yes(manage to budget defined by MarketRate & MRs are required)
-                                                                -- 1<<3:  0-DO NOT, 1=DO reserve rentable in the future after a RentalAgreement terminates
+                                                                -- 1<<3:  0-DO NOT, 1=DO reserve rentables in the future after a RentalAgreement terminates
     ARID BIGINT NOT NULL DEFAULT 0,                             -- ARID reference, for default rent amount for this rentable types
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
@@ -852,6 +852,7 @@ CREATE TABLE RentableLeaseStatus (
     CCNumber VARCHAR(100) NOT NULL DEFAULT '',
     CCExpMonth VARCHAR(100) NOT NULL DEFAULT '',
     CCExpYear VARCHAR(100) NOT NULL DEFAULT '',
+    ConfirmationCode VARCHAR(20) NOT NULL DEFAULT '',
 
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                            -- employee UID (from phonebook) that modified it

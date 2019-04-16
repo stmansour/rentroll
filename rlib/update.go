@@ -616,7 +616,7 @@ func UpdateRentableLeaseStatus(ctx context.Context, a *RentableLeaseStatus) erro
 		debug.PrintStack()
 	}
 
-	fields := []interface{}{a.RID, a.BID, a.DtStart, a.DtStop, a.LeaseStatus, a.Comment, a.FirstName, a.LastName, a.Email, a.Phone, a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.CCName, a.CCType, a.CCNumber, a.CCExpMonth, a.LastModBy, a.RLID}
+	fields := []interface{}{a.RID, a.BID, a.DtStart, a.DtStop, a.LeaseStatus, a.Comment, a.FirstName, a.LastName, a.Email, a.Phone, a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.CCName, a.CCType, a.CCNumber, a.CCExpMonth, a.ConfirmationCode, a.LastModBy, a.RLID}
 
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateRentableLeaseStatus)

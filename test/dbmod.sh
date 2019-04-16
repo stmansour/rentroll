@@ -661,7 +661,7 @@ shift $((OPTIND-1))
 #  Put modifications to schema in the lines below
 #=====================================================
 cat >${MODFILE} <<EOF
-
+ALTER TABLE RentableLeaseStatus ADD ConfirmationCode VARCHAR(20) NOT NULL DEFAULT '' AFTER CCExpYear;
 EOF
 
 #==============================================================================

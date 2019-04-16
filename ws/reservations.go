@@ -18,55 +18,25 @@ import (
 // Reservation defines the timerange, the type of rentable, and the specific
 // rentable being reserved.
 type Reservation struct {
-	Recid        int64 `json:"recid"`
-	BID          int64
-	DtStart      rlib.JSONDateTime
-	DtStop       rlib.JSONDateTime
-	RLID         int64
-	RTRID        int64
-	RTID         int64
-	RID          int64
-	RentableName string
+	Recid            int64             `json:"recid"`
+	RLID             int64             // rentable lease status id (reservation id)
+	RID              int64             // specific rentable reserved
+	ConfirmationCode string            // reservation ConfirmationCode
+	DtStart          rlib.JSONDateTime // res start time
+	DtStop           rlib.JSONDateTime // res stop time
+	FirstName        string            // res name
+	LastName         string            // res name
+	Email            string            // email on reservation
+	Phone            string            // phone on reservation
+	RentableName     string            // rentable name
+	Name             string            // Rentable Type Name
 }
 
-// // ReservationMatch provides a list of RIDs of rentables of type RTID that are
-// // available during the requested time frame (DtStart - DtStop)
-// type ReservationMatch struct {
-// 	BID     int64
-// 	DtStart rlib.JSONDateTime
-// 	DtStop  rlib.JSONDateTime
-// 	RTID    int64
-// 	RID     []int64
-// }
-
-// ReservationResponse is the response data for a Rental Agreement Search
-type ReservationResponse struct {
+// SearchReservationResponse is the response data for a Rental Agreement Search
+type SearchReservationResponse struct {
 	Status  string        `json:"status"`
 	Total   int64         `json:"total"`
 	Records []Reservation `json:"records"`
-}
-
-// fields list needs to be fetched for grid
-var resGridFieldsMap = map[string][]string{
-	"DtStart":      {"RentableLeaseStatus.DtStart"},
-	"DtStop":       {"RentableLeaseStatus.DtStop"},
-	"RLID":         {"RentableLeaseStatus.RLID"},
-	"RTRID":        {"RentableTypeRef.RTRID"},
-	"RTID":         {"RentableTypeRef.RTID"},
-	"RID":          {"RentableTypeRef.RID"},
-	"BID":          {"RentableTypeRef.BID"},
-	"RentableName": {"Rentable.RentableName"},
-}
-
-var resSelectFields = []string{
-	"RentableLeaseStatus.DtStart",
-	"RentableLeaseStatus.DtStop",
-	"RentableLeaseStatus.RLID",
-	"RentableTypeRef.RTRID",
-	"RentableTypeRef.RTID",
-	"RentableTypeRef.RID",
-	"RentableTypeRef.BID",
-	"Rentable.RentableName",
 }
 
 //-------------------------------------------------------------------
@@ -121,7 +91,7 @@ type SaveReservation struct {
 
 // SvcReservationDispatch dispatches a request for a reservation.
 //       0    1          2    3 (optional)
-// 		/v1/reservation/BID/RLID
+// 		/v1/available/BID/RLID
 //
 // The server command can be:
 //      get
@@ -138,7 +108,7 @@ func SvcReservationDispatch(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	switch d.wsSearchReq.Cmd {
 	case "get":
 		if d.ID < 1 {
-			SvcReservationSearch(w, r, d)
+			searchReservations(w, r, d)
 			return
 		}
 		getReservation(w, r, d)
@@ -152,78 +122,99 @@ func SvcReservationDispatch(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	}
 }
 
-// resRowScan scans a result from sql row and dump it in a Reservation struct
-func resRowScan(rows *sql.Rows, q Reservation) (Reservation, error) {
-	err := rows.Scan(&q.DtStart, &q.DtStop, &q.RLID, &q.RTRID, &q.RTID, &q.RID, &q.BID, &q.RentableName)
+// reservationRowScan scans a result from sql row and dump it in a Reservation struct
+func reservationRowScan(rows *sql.Rows, q Reservation) (Reservation, error) {
+	err := rows.Scan(
+		&q.RLID,
+		&q.RID,
+		&q.DtStart,
+		&q.DtStop,
+		&q.FirstName,
+		&q.LastName,
+		&q.Email,
+		&q.Phone,
+		&q.ConfirmationCode,
+		&q.RentableName,
+		&q.Name,
+	)
 	return q, err
 }
 
-// SvcReservationSearch searches for available rentables
+func getReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "getReservation"
+	rlib.Console("Entered %s\n", funcname)
+}
+
+// reservationGridFields holds the map of field (to be shown on grid)
+// to actual database fields, multiple db fields means combine those
+var reservationGridFieldsMap = map[string][]string{
+	"RLID":             {"RentableLeaseStatus.RLID"},
+	"RID":              {"RentableLeaseStatus.RID"},
+	"DtStart":          {"RentableLeaseStatus.DtStart"},
+	"DtStop":           {"RentableLeaseStatus.DtStop"},
+	"FirstName":        {"RentableLeaseStatus.FirstName"},
+	"LastName":         {"RentableLeaseStatus.LastName"},
+	"Email":            {"RentableLeaseStatus.Email"},
+	"Phone":            {"RentableLeaseStatus.Phone"},
+	"ConfirmationCode": {"RentableLeaseStatus.ConfirmationCode"},
+	"RentableName":     {"Rentable.RentableName"},
+	"Name":             {"RentableType.Name"},
+	//	"RentableType":         {"RT.Name"},
+}
+
+// which fields needs to be fetched for SQL query for rentables
+var reservationQuerySelectFields = []string{
+	"RentableLeaseStatus.RLID",
+	"RentableLeaseStatus.RID",
+	"RentableLeaseStatus.DtStart",
+	"RentableLeaseStatus.DtStop",
+	"RentableLeaseStatus.FirstName",
+	"RentableLeaseStatus.LastName",
+	"RentableLeaseStatus.Email",
+	"RentableLeaseStatus.Phone",
+	"RentableLeaseStatus.ConfirmationCode",
+	"Rentable.RentableName",
+	"RentableTypes.Name",
+}
+
+// searchReservations
 // wsdoc {
-//  @Title  SearchReservation
-//	@URL /v1/reservation/:BUI/[RLID]
+//  @Title  SaveReservation
+//	@URL /v1/reservation/:BUI/
 //  @Method  POST
-//	@Synopsis Returns a list of RIDs
-//  @Description  Finds the rentables that are available between DtStart and DtStop.
+//	@Synopsis Returns a list of reservations matching the supplied criteria
+//  @Description  Saves the ReleaseStatus. If RLID is 0, a new status is created.
+//  @Description  If RLID is > 0 it is simply updated
 //	@Input WebGridSearchRequest
 //  @Response Reservation
 // wsdoc }
 //------------------------------------------------------------------------------
-func SvcReservationSearch(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	const funcname = "SvcStatementPayors"
-	const limitClause int = 100
+func searchReservations(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "searchReservations"
 	var err error
-	var g ReservationResponse
+	var g SearchReservationResponse
+	var currentTime = time.Now()
+
 	rlib.Console("Entered %s\n", funcname)
-	rlib.Console("record data = %s\n", d.data)
 
-	//---------------------------------------
-	// Unmarshal the reservation info...
-	//---------------------------------------
-	target := `"record":`
-	i := strings.Index(d.data, target)
-	if i < 0 {
-		e := fmt.Errorf("%s: cannot find %s in form json", funcname, target)
-		SvcErrorReturn(w, e, funcname)
-		return
-	}
-	s := d.data[i+len(target):]
-	s = s[:len(s)-1]
+	limitClause := 100
+	srch := fmt.Sprintf(`RentableLeaseStatus.BID = %d
+		AND RentableTypeRef.DtStart < %q
+		AND RentableTypeRef.DtStop > %q
+		AND RentableTypes.FLAGS & 8 = 0
+		AND RentableLeaseStatus.LeaseStatus=2
+		AND RentableLeaseStatus.DtStart < %q
+		AND RentableLeaseStatus.DtStop > %q`,
+		d.BID,
+		d.wsSearchReq.SearchDtStop.Format(rlib.RRDATETIMESQL),
+		d.wsSearchReq.SearchDtStart.Format(rlib.RRDATETIMESQL),
+		d.wsSearchReq.SearchDtStop.Format(rlib.RRDATETIMESQL),
+		d.wsSearchReq.SearchDtStart.Format(rlib.RRDATETIMESQL))
 
-	// rentable Form Record
-	var res Reservation
-	err = json.Unmarshal([]byte(s), &res)
-	rlib.Errcheck(err)
-	if err != nil {
-		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
-		SvcErrorReturn(w, e, funcname)
-		return
-	}
+	order := "RentableLeaseStatus.DtStart ASC" // default ORDER is by start date
 
-	//---------------------------------------
-	// Now we can build the query...
-	//---------------------------------------
-	dtStart := time.Time(res.DtStart)
-	dtStop := time.Time(res.DtStop)
-	srch := fmt.Sprintf(`RentableTypeRef.BID=%d AND
-        RentableLeaseStatus.DtStart <= %q AND RentableLeaseStatus.DtStop >= %q AND RentableLeaseStatus.LeaseStatus = 0 AND
-		RentableTypeRef.DtStart <= %q AND RentableTypeRef.DtStop >= %q AND RentableTypeRef.RTID = %d AND
-		RentableUseStatus.DtStart <= %q AND RentableUseStatus.DtStop >= %q AND RentableUseStatus.UseStatus = 0`,
-		res.BID,
-		dtStart.Format(rlib.RRDATEFMTSQL),
-		dtStop.Format(rlib.RRDATEFMTSQL),
-		dtStart.Format(rlib.RRDATEFMTSQL),
-		dtStop.Format(rlib.RRDATEFMTSQL),
-		res.RTID,
-		dtStart.Format(rlib.RRDATEFMTSQL),
-		dtStop.Format(rlib.RRDATEFMTSQL),
-	)
-	order := "RentableLeaseStatus.DtStart ASC" // default ORDER
-
-	//--------------------------------------------------
-	// get WHERE clause and ORDER clause for sql query
-	//--------------------------------------------------
-	whereClause, orderClause := GetSearchAndSortSQL(d, resGridFieldsMap)
+	// get where clause and order clause for sql query
+	whereClause, orderClause := GetSearchAndSortSQL(d, reservationGridFieldsMap)
 	if len(whereClause) > 0 {
 		srch += " AND (" + whereClause + ")"
 	}
@@ -231,37 +222,37 @@ func SvcReservationSearch(w http.ResponseWriter, r *http.Request, d *ServiceData
 		order = orderClause
 	}
 
-	//--------------------------------------------------
-	// Transactant Query Text Template
-	//--------------------------------------------------
-	mainQuery := `
-SELECT {{.SelectClause}}
-FROM RentableTypeRef
-LEFT JOIN RentableLeaseStatus on RentableLeaseStatus.RID = RentableTypeRef.RID
-LEFT JOIN RentableUseStatus on RentableUseStatus.RID = RentableTypeRef.RID
-LEFT JOIN Rentable on Rentable.RID = RentableTypeRef.RID
-WHERE {{.WhereClause}}
-ORDER BY {{.OrderClause}}
-` // don't add ';', later some parts will be added in query
-
-	// select clause
-	// RentableTypeRef.RTRID,
-	// RentableTypeRef.RTID,
-	// RentableTypeRef.RID,
-	// RentableTypeRef.BID
-
-	// where clause
+	// Rentables Query Text Template
+	reservationsQuery := `
+SELECT
+	{{.SelectClause}}
+FROM
+    RentableTypeRef
+        LEFT JOIN
+    RentableTypes ON (RentableTypeRef.RTID = RentableTypes.RTID)
+		LEFT JOIN
+	RentableLeaseStatus ON (RentableLeaseStatus.RID = RentableTypeRef.RID)
+		LEFT JOIN
+	Rentable ON (Rentable.RID = RentableTypeRef.RID)
+WHERE
+	{{.WhereClause}}
+ORDER BY
+	{{.OrderClause}}` // don't add ';', later some parts will be added in query
 
 	// will be substituted as query clauses
 	qc := rlib.QueryClause{
-		"SelectClause": strings.Join(resSelectFields, ","),
+		"SelectClause": strings.Join(reservationQuerySelectFields, ","),
 		"WhereClause":  srch,
 		"OrderClause":  order,
+		"currentTime":  currentTime.Format(rlib.RRDATEFMTSQL),                 // show associated instance(s) active as of current time
+		"searchStart":  d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL), // selected range start
+		"searchStop":   d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL),  // selected range stop
+		"BID":          strconv.FormatInt(d.BID, 10),
 	}
 
-	// GET TOTAL COUNTS of query
-	countQuery := rlib.RenderSQLQuery(mainQuery, qc)
-	g.Total, err = rlib.GetQueryCount(countQuery) // total number of rows that match the criteria
+	// GET TOTAL COUNT OF RESULTS
+	countQuery := rlib.RenderSQLQuery(reservationsQuery, qc)
+	g.Total, err = rlib.GetQueryCount(countQuery)
 	if err != nil {
 		rlib.Console("Error from rlib.GetQueryCount: %s\n", err.Error())
 		SvcErrorReturn(w, err, funcname)
@@ -272,19 +263,19 @@ ORDER BY {{.OrderClause}}
 	// FETCH the records WITH LIMIT AND OFFSET
 	// limit the records to fetch from server, page by page
 	limitAndOffsetClause := `
-	LIMIT {{.LimitClause}}
-	OFFSET {{.OffsetClause}};`
+LIMIT {{.LimitClause}}
+OFFSET {{.OffsetClause}};`
 
 	// build query with limit and offset clause
 	// if query ends with ';' then remove it
-	resQueryWithLimit := mainQuery + limitAndOffsetClause
+	reservationsQueryWithLimit := reservationsQuery + limitAndOffsetClause
 
 	// Add limit and offset value
 	qc["LimitClause"] = strconv.Itoa(limitClause)
 	qc["OffsetClause"] = strconv.Itoa(d.wsSearchReq.Offset)
 
 	// get formatted query with substitution of select, where, order clause
-	qry := rlib.RenderSQLQuery(resQueryWithLimit, qc)
+	qry := rlib.RenderSQLQuery(reservationsQueryWithLimit, qc)
 	rlib.Console("db query = %s\n", qry)
 
 	// execute the query
@@ -295,25 +286,27 @@ ORDER BY {{.OrderClause}}
 	}
 	defer rows.Close()
 
-	j := int64(d.wsSearchReq.Offset)
+	// get records by iteration
+	i := int64(d.wsSearchReq.Offset)
 	count := 0
 	for rows.Next() {
-		var t Reservation
-		t.Recid = j
+		var q Reservation
+		q.Recid = i
+		// q.BID = rlib.XJSONBud(fmt.Sprintf("%d", d.BID))
 
-		// get record of res
-		t, err = resRowScan(rows, t)
+		// get records in q struct
+		q, err = reservationRowScan(rows, q)
 		if err != nil {
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
 
-		g.Records = append(g.Records, t)
+		g.Records = append(g.Records, q)
 		count++ // update the count only after adding the record
 		if count >= d.wsSearchReq.Limit {
 			break // if we've added the max number requested, then exit
 		}
-		j++ // update the index no matter what
+		i++
 	}
 	// error check
 	err = rows.Err()
@@ -326,18 +319,12 @@ ORDER BY {{.OrderClause}}
 	g.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
 	SvcWriteResponse(d.BID, &g, w)
-
-}
-
-func getReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	const funcname = "getReservation"
-	rlib.Console("Entered %s\n", funcname)
 }
 
 // saveReservation
 // wsdoc {
 //  @Title  SaveReservation
-//	@URL /v1/reservation/:BUI/[RLID]
+//	@URL /v1/available/:BUI/[RLID]
 //  @Method  POST
 //	@Synopsis Returns a list of RIDs
 //  @Description  Saves the ReleaseStatus. If RLID is 0, a new status is created.
@@ -375,26 +362,27 @@ func saveReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	ctx := rlib.SetSessionContextKey(r.Context(), d.sess)
 
 	var rls = rlib.RentableLeaseStatus{
-		RLID:        res.RLID,
-		RID:         res.RID,
-		BID:         d.BID, // DEBUG: res.BID is 0 in ws func test 41b ?????
-		DtStart:     time.Time(res.DtStart),
-		DtStop:      time.Time(res.DtStop),
-		LeaseStatus: res.LeaseStatus,
-		Comment:     res.Comment,
-		FirstName:   res.FirstName,
-		LastName:    res.LastName,
-		Email:       res.Email,
-		Phone:       res.Phone,
-		Address:     res.Street,
-		City:        res.City,
-		State:       res.State,
-		PostalCode:  res.PostalCode,
-		Country:     res.Country,
-		CCName:      res.CCName,
-		CCType:      res.CCType,
-		CCNumber:    res.CCNumber,
-		CCExpMonth:  res.CCExpMonth,
+		RLID:             res.RLID,
+		RID:              res.RID,
+		BID:              d.BID, // DEBUG: res.BID is 0 in ws func test 41b ?????
+		DtStart:          time.Time(res.DtStart),
+		DtStop:           time.Time(res.DtStop),
+		LeaseStatus:      res.LeaseStatus,
+		Comment:          res.Comment,
+		FirstName:        res.FirstName,
+		LastName:         res.LastName,
+		Email:            res.Email,
+		Phone:            res.Phone,
+		Address:          res.Street,
+		City:             res.City,
+		State:            res.State,
+		PostalCode:       res.PostalCode,
+		Country:          res.Country,
+		CCName:           res.CCName,
+		CCType:           res.CCType,
+		CCNumber:         res.CCNumber,
+		CCExpMonth:       res.CCExpMonth,
+		ConfirmationCode: rlib.GenerateUserRefNo(),
 	}
 
 	err = rlib.SetRentableLeaseStatus(ctx, &rls, false)

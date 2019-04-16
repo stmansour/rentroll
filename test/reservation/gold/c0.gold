@@ -1,0 +1,90 @@
+{
+    "records": [
+        {
+            "ConfirmationCode": "JUK4J5D0A5V5AZ8Z3K0P",
+            "DtStart": "2018-04-16 00:00:00 UTC",
+            "DtStop": "2018-04-22 00:00:00 UTC",
+            "Email": "DBrewer6266@comcast.net",
+            "FirstName": "Digna",
+            "LastName": "Brewer",
+            "Name": "HotelStd",
+            "Phone": "(331) 304-8228",
+            "RID": 10,
+            "RLID": 120,
+            "RentableName": "Rentable010",
+            "recid": 0
+        },
+        {
+            "ConfirmationCode": "JUK4J5IE8JAHCG124NZQ",
+            "DtStart": "2018-04-16 00:00:00 UTC",
+            "DtStop": "2018-04-21 00:00:00 UTC",
+            "Email": "STravis73@aol.com",
+            "FirstName": "Seth",
+            "LastName": "Travis",
+            "Name": "HotelGold",
+            "Phone": "(870) 771-2639",
+            "RID": 11,
+            "RLID": 227,
+            "RentableName": "Rentable011",
+            "recid": 1
+        },
+        {
+            "ConfirmationCode": "JUK4J5VAIERXAL9J69YS",
+            "DtStart": "2018-04-17 00:00:00 UTC",
+            "DtStop": "2018-04-23 00:00:00 UTC",
+            "Email": "JBauer9883@bdiddy.com",
+            "FirstName": "Jodi",
+            "LastName": "Bauer",
+            "Name": "HotelPlatinum",
+            "Phone": "(458) 493-8318",
+            "RID": 14,
+            "RLID": 468,
+            "RentableName": "Rentable014",
+            "recid": 2
+        },
+        {
+            "ConfirmationCode": "JUK4J5NRXZE8SGM2BSD9",
+            "DtStart": "2018-04-19 00:00:00 UTC",
+            "DtStop": "2018-04-22 00:00:00 UTC",
+            "Email": "GertrudisM8870@hotmail.com",
+            "FirstName": "Gertrudis",
+            "LastName": "Melendez",
+            "Name": "HotelGold",
+            "Phone": "(587) 634-9246",
+            "RID": 12,
+            "RLID": 332,
+            "RentableName": "Rentable012",
+            "recid": 3
+        },
+        {
+            "ConfirmationCode": "JUK4J5GAGJHAGMQZ8B1A",
+            "DtStart": "2018-04-22 00:00:00 UTC",
+            "DtStop": "2018-04-26 00:00:00 UTC",
+            "Email": "LMendoza2297@aol.com",
+            "FirstName": "Len",
+            "LastName": "Mendoza",
+            "Name": "HotelStd",
+            "Phone": "(687) 990-7493",
+            "RID": 10,
+            "RLID": 189,
+            "RentableName": "Rentable010",
+            "recid": 4
+        },
+        {
+            "ConfirmationCode": "JUK4J5JEB57XL36WA78G",
+            "DtStart": "2018-04-23 00:00:00 UTC",
+            "DtStop": "2018-04-24 00:00:00 UTC",
+            "Email": "ZWarner639@bdiddy.com",
+            "FirstName": "Zena",
+            "LastName": "Warner",
+            "Name": "HotelGold",
+            "Phone": "(246) 119-0249",
+            "RID": 11,
+            "RLID": 249,
+            "RentableName": "Rentable011",
+            "recid": 5
+        }
+    ],
+    "status": "success",
+    "total": 6
+}

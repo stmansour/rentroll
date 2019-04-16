@@ -455,7 +455,7 @@ func createRentableTypesAndRentables(ctx context.Context, dbConf *GenDBConf) err
 			return err
 		}
 
-		if err = createRentables(ctx, dbConf, &dbConf.RT[i], &mr, rt.RTID); err != nil {
+		if err = createRentables(ctx, dbConf, &dbConf.RT[i], &mr, &rt); err != nil {
 			return err
 		}
 
@@ -527,7 +527,7 @@ func createChildRentableTypes(ctx context.Context, dbConf *GenDBConf) error {
 	rt.RentCycle = dbConf.CPRentCycle
 	rt.Proration = dbConf.CPProrateCycle
 	rt.GSRPC = dbConf.CPProrateCycle
-	rt.FLAGS |= 0x2 /*child*/ | 0x4 /*manage to budget*/
+	rt.FLAGS |= 0x2 /*child*/ | 0x4 /*manage to budget*/ | 0x8 /*reserve it after lease expires*/
 	rt.ARID = ar.ARID
 	_, err = rlib.InsertRentableType(ctx, &rt)
 	if err != nil {
@@ -609,6 +609,7 @@ func createChildRentableTypes(ctx context.Context, dbConf *GenDBConf) error {
 		rl.BID = dbConf.BIZ[0].BID
 		rl.RID = r.RID
 		rl.LeaseStatus = rlib.LEASESTATUSnotleased
+		rl.ConfirmationCode = rlib.GenerateUserRefNo()
 		_, err = rlib.InsertRentableLeaseStatus(ctx, &rl)
 		if err != nil {
 			return err
@@ -619,7 +620,7 @@ func createChildRentableTypes(ctx context.Context, dbConf *GenDBConf) error {
 
 // createRentables
 //-----------------------------------------------------------------------------
-func createRentables(ctx context.Context, dbConf *GenDBConf, rt *RType, mr *rlib.RentableMarketRate, RTID int64) error {
+func createRentables(ctx context.Context, dbConf *GenDBConf, rt *RType, mr *rlib.RentableMarketRate, rntType *rlib.RentableType) error {
 	for i := 0; i < rt.Count; i++ {
 		var r rlib.Rentable
 		var err error
@@ -636,7 +637,7 @@ func createRentables(ctx context.Context, dbConf *GenDBConf, rt *RType, mr *rlib
 		rtr.DtStart = dbConf.DtBOT
 		rtr.DtStop = dbConf.DtEOT
 		rtr.BID = dbConf.BIZ[0].BID
-		rtr.RTID = RTID
+		rtr.RTID = rntType.RTID
 		rtr.RID = r.RID
 		_, err = rlib.InsertRentableTypeRef(ctx, &rtr)
 		if err != nil {
@@ -671,6 +672,7 @@ func createRentables(ctx context.Context, dbConf *GenDBConf, rt *RType, mr *rlib
 		rl.BID = dbConf.BIZ[0].BID
 		rl.RID = r.RID
 		rl.LeaseStatus = rlib.LEASESTATUSnotleased
+
 		_, err = rlib.InsertRentableLeaseStatus(ctx, &rl)
 		if err != nil {
 			return err

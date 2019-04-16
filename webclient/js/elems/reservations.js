@@ -101,8 +101,8 @@ window.buildReservationsElements = function () {
     $().w2form({
         name: 'reservationForm',
         style: 'border: 0px; background-color: transparent;',
-        header: 'Reservations',
-        url: '/v1/reservation',
+        header: 'Make A Reservation',
+        url: '/v1/available',
         formURL: '/webclient/html/formreservation.html',
 
         fields: [
@@ -232,7 +232,6 @@ window.buildReservationsElements = function () {
     //------------------------------------------------------------------------
     $().w2grid({
         name: 'reservationGrid',
-        // url: '/v1/expense',
         multiSelect: false,
         show: {
             toolbar         : false,
@@ -464,7 +463,7 @@ window.reservationSrch = function() {
         DtStop:         dtStop.toUTCString(),
     };
     w2ui.reservationGrid.postData.record = f;
-    w2ui.reservationGrid.url = '/v1/reservation/'+BID;
+    w2ui.reservationGrid.url = '/v1/available/'+BID;
     w2ui.reservationGrid.reload();
 };
 

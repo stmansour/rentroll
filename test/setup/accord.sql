@@ -1,8 +1,8 @@
 -- MySQL dump 10.13  Distrib 5.7.22, for osx10.12 (x86_64)
 --
--- Host: phbk.cjkdwqbdvxyu.us-east-1.rds.amazonaws.com    Database: accord
+-- Host: localhost    Database: rentroll
 -- ------------------------------------------------------
--- Server version	5.7.16-log
+-- Server version	5.7.22
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -389,4 +389,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-04-10 16:41:18
+-- Dump completed on 2019-04-15 15:49:25

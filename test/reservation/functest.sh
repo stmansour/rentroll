@@ -105,18 +105,33 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     mysql --no-defaults rentroll < x${TFILES}.sql
     startRentRollServer
 
-    # # Send the command to change the flow to Active:
-    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%228%2F1%2F2018%22%2C%22searchDtStop%22%3A%228%2F31%2F2018%22%2C%22record%22%3A%7B%22BID%22%3A1%2C%22DtStart%22%3A%222019-02-14%22%2C%22DtStop%22%3A%222019-02-15%22%2C%22RLID%22%3A0%2C%22RTRID%22%3A0%2C%22RTID%22%3A5%2C%22RID%22%3A0%7D%7D" > request
-    dojsonPOST "http://localhost:8270/v1/reservation/1" "request" "${TFILES}0"  "reservation-searchAvailable"
-    #
-    # # Generate an assessment report from Aug 1 to Oct 1. The security deposit
-    # # assessment for RAID 1 should no longer be present
-    # docsvtest "a1" "-G ${BUD} -g 8/1/18,10/1/18 -L 11,${BUD}" "Assessments-2018-AUG"
-    #
-    # # Generate a payor statement -- ensure that 2 RAs are there and have correct
-    # # info.
-    # echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%228%2F1%2F2018%22%2C%22searchDtStop%22%3A%228%2F31%2F2018%22%2C%22Bool1%22%3Afalse%7D" > request
-    # dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "a2"  "PayorStatement--StmtInfo"
+    # search for availability
+    encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0,"searchDtStart":"8/1/2018","searchDtStop":"8/31/2018","record":{"BID":1,"DtStart":"2019-02-14","DtStop":"2019-02-15","RLID":0,"RTRID":0,"RTID":5,"RID":0}}' > request
+    dojsonPOST "http://localhost:8270/v1/available/1" "request" "${TFILES}0"  "reservation-searchAvailable"
+
+fi
+#------------------------------------------------------------------------------
+#  TEST c
+#
+#  Test the ability to search and list existing reservations
+#
+#  Scenario:
+#  Search reservations from 4/20/2018 to 4/23/2018
+#
+#  Expected Results:
+#   1.  There should be six reservations.
+#------------------------------------------------------------------------------
+TFILES="c"
+if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
+
+    stopRentRollServer
+    mysql --no-defaults rentroll < x${TFILES}.sql
+    startRentRollServer
+
+    # search for availability
+    encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0,"searchDtStart":"4/20/2018","searchDtStop":"4/23/2018"}' > request
+    dojsonPOST "http://localhost:8270/v1/reservation/1" "request" "${TFILES}0"  "reservation-searchReservations"
+
 fi
 
 stopRentRollServer

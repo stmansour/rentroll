@@ -645,6 +645,7 @@ func ReadRentableLeaseStatus(row *sql.Row, a *RentableLeaseStatus) error {
 		&a.CCExpMonth,
 		&a.CreateTS,
 		&a.CreateBy,
+		&a.ConfirmationCode,
 		&a.LastModTime,
 		&a.LastModBy)
 	SkipSQLNoRowsError(&err)
@@ -675,6 +676,7 @@ func ReadRentableLeaseStatuses(rows *sql.Rows, a *RentableLeaseStatus) error {
 		&a.CCType,
 		&a.CCNumber,
 		&a.CCExpMonth,
+		&a.ConfirmationCode,
 		&a.CreateTS,
 		&a.CreateBy,
 		&a.LastModTime,

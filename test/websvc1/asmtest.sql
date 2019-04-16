@@ -1675,6 +1675,7 @@ CREATE TABLE `RentableLeaseStatus` (
   `CCNumber` varchar(100) NOT NULL DEFAULT '',
   `CCExpMonth` varchar(100) NOT NULL DEFAULT '',
   `CCExpYear` varchar(100) NOT NULL DEFAULT '',
+  `ConfirmationCode` varchar(20) NOT NULL DEFAULT '',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -2691,4 +2692,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-04-10 10:06:14
+-- Dump completed on 2019-04-15 15:49:40

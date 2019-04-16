@@ -157,6 +157,7 @@ var Svcs = []ServiceHandler{
 	{Cmd: "asm", Handler: SvcFormHandlerAssessment, NeedBiz: true, NeedSession: true},
 	{Cmd: "asms", Handler: SvcSearchHandlerAssessments, NeedBiz: true, NeedSession: true},
 	{Cmd: "authn", Handler: SvcAuthenticate, NeedBiz: false, NeedSession: false},
+	{Cmd: "available", Handler: SvcAvailable, NeedBiz: true, NeedSession: true},
 	{Cmd: "buildtime", Handler: SvcHandlerBuildTime, NeedBiz: false, NeedSession: false},
 	{Cmd: "buildmachine", Handler: SvcHandlerBuildMachine, NeedBiz: false, NeedSession: false},
 	{Cmd: "business", Handler: SvcHandlerBusiness, NeedBiz: false, NeedSession: true},

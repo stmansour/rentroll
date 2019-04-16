@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"math/rand"
 	"rentroll/rlib"
 	"time"
 )
@@ -61,10 +63,22 @@ func HotelBookings(ctx context.Context, dbConf *GenDBConf) error {
 				// Add RentableLeaseStatus - find some available time.
 				// start with a guess on the time range
 				//------------------------------------------------------
+				fn := GenerateRandomFirstName()
+				ln := GenerateRandomLastName()
 				var ls = rlib.RentableLeaseStatus{ // we start with this info, then check and modify as needed
-					BID:         1,
-					RID:         r.RID,
-					LeaseStatus: rlib.LEASESTATUSreserved,
+					BID:              1,
+					RID:              r.RID,
+					LeaseStatus:      rlib.LEASESTATUSreserved,
+					FirstName:        fn,
+					LastName:         ln,
+					Email:            GenerateRandomEmail(ln, fn),
+					Phone:            GenerateRandomPhoneNumber(),
+					Address:          GenerateRandomAddress(),
+					City:             GenerateRandomCity(),
+					State:            GenerateRandomState(),
+					PostalCode:       fmt.Sprintf("%05d", rand.Intn(100000)),
+					Country:          "USA",
+					ConfirmationCode: rlib.GenerateUserRefNo(),
 				}
 
 				//--------------------------------------------------------------
@@ -93,7 +107,7 @@ func HotelBookings(ctx context.Context, dbConf *GenDBConf) error {
 
 				// rlib.Console("Found date range that works: %s\n", rlib.ConsoleDRange(&ls.DtStart, &ls.DtStop))
 				m = append(m, ls) // we'll use this time
-				if err := rlib.SetRentableLeaseStatusAbbr(ctx, ls.BID, ls.RID, ls.LeaseStatus, &ls.DtStart, &ls.DtStop, false); err != nil {
+				if err := rlib.SetRentableLeaseStatus(ctx, &ls, false); err != nil {
 					return err
 				}
 				//--------------------------------------------------
