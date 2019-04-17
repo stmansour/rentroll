@@ -2,7 +2,7 @@
     parseInt, w2ui, getDepMeth, getReservation, $, app, getBUDfromBID, getCurrentBusiness, console,
     saveReservationForm, switchToReservationss, finishReservationsForm, reservationsUpdateRTList,
     getReservationInitRecord, reservationSrch, daysBetweenDates, switchToBookRes,
-    getBookResInitRecord, resSaveCB,
+    getBookResInitRecord, resSaveCB, setToForm, setResUpdateRecordForUI,
 */
 
 "use strict";
@@ -10,7 +10,6 @@
 // buildResUpdateElements creates the rid and reservation form to find
 //------------------------------------------------------------------------------
 window.buildResUpdateElements = function () {
-
     //------------------------------------------------------------------------
     //          resUpdateGrid
     //------------------------------------------------------------------------
@@ -55,16 +54,19 @@ window.buildResUpdateElements = function () {
             {field: 'Email',            caption: 'Email',           size: '175px', hidden: false, sortable: true },
             {field: 'Phone',            caption: 'Phone',           size: '100px', hidden: false, sortable: true },
             {field: 'RentableName',     caption: 'RentableName',    size: '100px', hidden: false, sortable: true },
-            {field: 'Name',             caption: 'Name',            size: '90px', hidden: false, sortable: true },
+            {field: 'Name',             caption: 'Name',            size: '5%', hidden: false, sortable: true },
                 ],
         onClick: function(event) {
             event.onComplete = function () {
-                if(w2ui.resUpdateGrid.getColumn("Book", true) == event.column) {
-                    var rec = w2ui.resUpdateGrid.get(event.recid);
-                    console.log('book RID = ' + rec.RID);
-                    switchToBookRes(rec.RID,rec.RentableName);
-                    return;
-                }
+                var rec = w2ui.resUpdateGrid.get(event.recid);
+                console.log('book RLID = ' + rec.RLID);
+                // switchToResUpdate(rec.RLID);
+                var BID = getCurrentBID();
+                var BUD = getBUDfromBID(BID);
+                getRentableTypes(BUD, function() {
+                    var url = '/v1/reservation/' + BID + '/' + rec.RLID;
+                    setToForm('resUpdateForm',url,500,true);
+                });
             };
         },
 
@@ -86,28 +88,148 @@ window.buildResUpdateElements = function () {
     });
 
     addDateNavToToolbar('resUpdate');
+
+    //------------------------------------------------------------------------
+    //          reservation Update Form
+    //------------------------------------------------------------------------
+    $().w2form({
+        name: 'resUpdateForm',
+        style: 'border: 0px; background-color: transparent;',
+        header: 'Change A Reservation',
+        url: '/v1/reservation/',
+        formURL: '/webclient/html/formresup.html',
+        fields: [
+            { field: 'BUD',              type: 'list',  required: false, options: {items: app.businesses} },
+            { field: 'RLID',             type: 'int',   required: false },
+            { field: 'RTRID',            type: 'int',   required: false },
+            { field: 'rdRTID',           type: 'list',   required: false },
+            { field: 'RID',              type: 'int',   required: false },
+            { field: 'rdBID',            type: 'int',   required: false },
+            { field: 'ConfirmationCode', type: 'text',  required: false },
+            { field: 'LeaseStatus',      type: 'int',   required: false },
+            { field: 'DtStart',          type: 'date',  required: true },
+            { field: 'DtStop',           type: 'date',  required: true },
+            { field: 'Nights',           type: 'int',   required: false },
+            { field: 'FirstName',        type: 'text',  required: true },
+            { field: 'LastName',         type: 'text',  required: true },
+            { field: 'Phone',            type: 'text',  required: false },
+            { field: 'Email',            type: 'text',  required: false },
+            { field: 'Street',           type: 'text',  required: false },
+            { field: 'City',             type: 'text',  required: false },
+            { field: 'State',            type: 'text',  required: false },
+            { field: 'PostalCode',       type: 'text',  required: false },
+            { field: 'CCName',           type: 'text',  required: false },
+            { field: 'CCType',           type: 'text',  required: false },
+            { field: 'CCNumber',         type: 'text',  required: false },
+            { field: 'CCExpMonth',       type: 'text',  required: false },
+            { field: 'CCExpYear',        type: 'text',  required: false },
+            { field: 'Comment',          type: 'text',  required: false },
+            { field: 'LastModTime',      type: 'time',  required: false },
+            { field: 'LastModBy',        type: 'int',   required: false },
+            { field: 'CreateTS',         type: 'time',  required: false },
+            { field: 'CreateBy',         type: 'int',   required: false },
+        ],
+        toolbar: {
+            items: [
+                { id: 'btnNotes', type: 'button', icon: 'far fa-sticky-note' },
+                { id: 'bt3', type: 'spacer' },
+                { id: 'btnClose', type: 'button', icon: 'fas fa-times' },
+            ],
+            onClick: function (event) {
+                switch(event.target) {
+                case 'btnClose':
+                    var no_callBack = function() { return false; },
+                        yes_callBack = function() {
+                            w2ui.toplayout.hide('right',true);
+                            w2ui.reservationGrid.render();
+                        };
+                    form_dirty_alert(yes_callBack, no_callBack);
+                    break;
+                }
+            },
+        },
+        onLoad: function(event) {
+            // Need to add the BUD value...
+            event.onComplete = function() {
+                var f = this;
+                var r = this.record;
+                r.BUD = getBUDfromBID(r.rdBID);
+                var d = new Date(r.DtStart);
+                r.DtStart = dateFmtStr(d);
+                d = new Date(r.DtStop);
+                r.DtStop = dateFmtStr(d);
+            };
+        },
+        onRender: function(event) {
+            setResUpdateRecordForUI(this);
+        },
+        onRefresh: function(event) {
+            setResUpdateRecordForUI(this);
+        },
+        onChange: function(event) {
+            event.onComplete = function() {
+                var x,y;
+                var f = this;
+                var draw=false;
+                switch (event.target) {
+                case "DtStart":
+                    x = dateFromString(event.value_new);
+                    y = dateFromString(f.record.DtStop);
+                    x.setDate(x.getDate() + f.record.Nights);
+                    f.record.DtStop = w2uiDateControlString(x);
+                    draw = true;
+                    break;
+                case "DtStop":
+                    x = dateFromString(event.value_new);
+                    y = dateFromString(f.record.DtStart);
+                    if (x <= y) {
+                        x.setDate(x.getDate() - f.record.Nights);
+                        f.record.DtStart = w2uiDateControlString(x);
+                    }
+                    x = dateFromString(f.record.DtStart);
+                    y = dateFromString(f.record.DtStop);
+                    f.record.Nights = daysBetweenDates(x,y);
+                    draw = true;
+                    break;
+                case "Nights":
+                    x = dateFromString(f.record.DtStart);
+                    y = dateFromString(f.record.DtStop);
+                    x.setDate(x.getDate() + event.value_new);
+                    f.record.DtStop = w2uiDateControlString(x);
+                    draw = true;
+                    break;
+                }
+                if (draw) { f.refresh(); }
+            };
+        },
+        onSubmit: function(target, data) {
+            delete data.postData.record.LastModTime;
+            delete data.postData.record.LastModBy;
+            delete data.postData.record.CreateTS;
+            delete data.postData.record.CreateBy;
+            // modify form data for server request
+            //getFormSubmitData(data.postData.record);
+        },
+    });
 };
 
 //---------------------------------------------------------------------------------
-// switchToResUpdate - changes the main view of the program to the
+// setResUpdateRecordForUI - changes the main view of the program to the
 //                        Reservations form
 //
 // @params
-//          svcOverride = name of webservice to call if the name does not
-//                match the name of the svc
-//
+//      f = the form 
 // @return
 //
 //---------------------------------------------------------------------------------
-window.switchToResUpdate = function (svcOverride) {
-    var g = w2ui.resUpdateGrid;
-    // w2ui[grid].url = url;
-    w2ui.reservationForm.last.sel_recid = null; // whenever switch grid, erase last selected record
-    app.last.grid_sel_recid = -1;
-    app.active_grid = "resUpdateGrid"; // mark active grid in app.active_grid
-    w2ui.toplayout.content('main',g);
-    w2ui.toplayout.hide('right',true);
-
+window.setResUpdateRecordForUI = function (f) {
+    var r = f.record;
     var BID = getCurrentBID();
-    g.url = '/v1/reservation/' + BID;
+    var BUD = getBUDfromBID(BID);
+    if (typeof f.get('rdRTID').options != "undefined") {
+        f.get('rdRTID').options.items = app.rt_list[BUD];
+    }
+    if (typeof f.get('BUD').options != "undefined") {
+        f.get('BUD').options.items = app.businesses;
+    }
 };

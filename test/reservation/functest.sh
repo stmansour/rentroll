@@ -128,9 +128,13 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     mysql --no-defaults rentroll < x${TFILES}.sql
     startRentRollServer
 
-    # search for availability
+    # search for reservations in a time range
     encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0,"searchDtStart":"4/20/2018","searchDtStop":"4/23/2018"}' > request
     dojsonPOST "http://localhost:8270/v1/reservation/1" "request" "${TFILES}0"  "reservation-searchReservations"
+
+    # get a particular Reservation
+    encodeRequest '{"cmd":"get"}' > request
+    dojsonPOST "http://localhost:8270/v1/reservation/1/167" "request" "${TFILES}1"  "reservation-getReservation"
 fi
 
 stopRentRollServer

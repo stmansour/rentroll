@@ -31,13 +31,13 @@ window.getReservationInitRecord = function (BID, BUD, previousFormRecord){
 
     // if it called after 'save and add another' action there previous form
     // record is passed as Object else it is null
-    if ( previousFormRecord ) {
-        defaultFormData = setDefaultFormFieldAsPreviousRecord(
-            [ 'FLAGS', 'Amount', 'ClearedAmount', 'LastModTime', 'Comment'], // Fields to Reset
-            defaultFormData,
-            previousFormRecord
-        );
-    }
+    // if ( previousFormRecord ) {
+    //     defaultFormData = setDefaultFormFieldAsPreviousRecord(
+    //         [ 'FLAGS', 'Amount', 'ClearedAmount', 'LastModTime', 'Comment'], // Fields to Reset
+    //         defaultFormData,
+    //         previousFormRecord
+    //     );
+    // }
 
     return defaultFormData;
 };
@@ -92,7 +92,7 @@ window.getBookResInitRecord = function (BID, BUD, previousFormRecord){
     return defaultFormData;
 };
 
-// buildReservationElements creates the reservation form
+// buildReservationsElements creates the reservation form
 //------------------------------------------------------------------------------
 window.buildReservationsElements = function () {
     //------------------------------------------------------------------------

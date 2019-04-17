@@ -193,7 +193,8 @@ window.buildSidebar = function(flag) {
                             switchToReservations();
                             break;
                         case 'changeReservation':
-                            switchToResUpdate();
+                            var BID = getCurrentBID();
+                            switchToGrid('resUpdate','reservation');
                             break;
 
                         case 'goRatePlan':

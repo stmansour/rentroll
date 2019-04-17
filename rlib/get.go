@@ -5794,12 +5794,7 @@ func GetRentableTypeRefForDate(ctx context.Context, RID int64, d1 *time.Time) (R
 
 // GetRentableLeaseStatus gets RentableLeaseStatus record for given RSID -- RentableLeaseStatus ID (unique ID)
 func GetRentableLeaseStatus(ctx context.Context, rsid int64) (RentableLeaseStatus, error) {
-
-	var (
-		// err error
-		rs RentableLeaseStatus
-	)
-
+	var rs RentableLeaseStatus
 	if getSessionCheck(ctx) {
 		return rs, ErrSessionRequired
 	}

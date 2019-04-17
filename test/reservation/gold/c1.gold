@@ -1,0 +1,32 @@
+{
+    "record": {
+        "CCExpMonth": "",
+        "CCExpYear": "",
+        "CCName": "",
+        "CCNumber": "",
+        "CCType": "",
+        "City": "Huntington Beach",
+        "Comment": "",
+        "ConfirmationCode": "JUK4J5F45KUIXSJQB2EB",
+        "Country": "USA",
+        "DtStart": "2018-02-22 00:00:00 UTC",
+        "DtStop": "2018-02-23 00:00:00 UTC",
+        "Email": "BulaSchmidt581@yahoo.com",
+        "FirstName": "Bula",
+        "LastName": "Schmidt",
+        "LeaseStatus": 2,
+        "Nights": 0,
+        "Phone": "(490) 847-5948",
+        "PostalCode": "95695",
+        "RID": 10,
+        "RLID": 167,
+        "RTRID": 0,
+        "RentableName": "",
+        "State": "IA",
+        "Street": "",
+        "rdBID": 1,
+        "rdRTID": 0,
+        "recid": 167
+    },
+    "status": "success"
+}

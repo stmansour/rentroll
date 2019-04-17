@@ -179,7 +179,6 @@ window.get2XReversalSymbolHTML = function () {
 // @params  svc = prefix of grid name
 //          svcOverride = name of webservice to call if the name does not
 //                match the name of the svc
-//
 //---------------------------------------------------------------------------------
 window.switchToGrid = function (svc, svcOverride) {
     var grid = svc + 'Grid'; // this builds the name of the w2ui grid we want
@@ -354,17 +353,13 @@ window.getBUDfromBID = function (BID) {
 // setToForm -  enable form sform in toplayout.  Also, set the forms url and
 //              request data from the server
 // @params
-//   sform   = name of the form
-//   url     = request URL for the form
-//   [width] = optional, if specified it is the width of the form
-//   doRequest =
+//   sform     = name of the form
+//   url       = request URL for the form
+//   [width]   = optional, if specified it is the width of the form
+//   doRequest = optional, boolean, if true we wait until after the form
+//               has requested and received data before rendering the form.
 //-----------------------------------------------------------------------------
 window.setToForm = function (sform, url, width, doRequest) {
-    // if not url defined then return
-    // var url_len=url.length > 0;
-    // if (!url_len) {
-    //     return false;
-    // }
 
     // if form not found then return
     var f = w2ui[sform];

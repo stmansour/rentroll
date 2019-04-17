@@ -613,6 +613,9 @@ EOF
 #     CreateBy BIGINT NOT NULL DEFAULT 0,                             -- employee UID (from phonebook) that created this record
 #     PRIMARY KEY (UTID)
 # );
+#
+# April 16, 2019
+# ALTER TABLE RentableLeaseStatus ADD ConfirmationCode VARCHAR(20) NOT NULL DEFAULT '' AFTER CCExpYear;
 
 
 ########################################
@@ -661,7 +664,6 @@ shift $((OPTIND-1))
 #  Put modifications to schema in the lines below
 #=====================================================
 cat >${MODFILE} <<EOF
-ALTER TABLE RentableLeaseStatus ADD ConfirmationCode VARCHAR(20) NOT NULL DEFAULT '' AFTER CCExpYear;
 EOF
 
 #==============================================================================

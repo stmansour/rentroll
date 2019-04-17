@@ -21,6 +21,7 @@ type Reservation struct {
 	Recid            int64             `json:"recid"`
 	RLID             int64             // rentable lease status id (reservation id)
 	RID              int64             // specific rentable reserved
+	RTID             int64             // the rentable type
 	ConfirmationCode string            // reservation ConfirmationCode
 	DtStart          rlib.JSONDateTime // res start time
 	DtStop           rlib.JSONDateTime // res stop time
@@ -45,32 +46,33 @@ type SearchReservationResponse struct {
 
 // ResDet is the structure that fully describes a reservation
 type ResDet struct {
-	Recid        int64             `json:"recid"`
-	BID          int64             `json:"rdBID"`
-	DtStart      rlib.JSONDateTime `json:"DtStart"`
-	DtStop       rlib.JSONDateTime `json:"DtStop"`
-	RLID         int64             `json:"RLID"`
-	RTRID        int64             `json:"RTRID"`
-	RTID         int64             `json:"rdRTID"`
-	RID          int64             `json:"RID"`
-	LeaseStatus  int64             `json:"LeaseStatus"`
-	Nights       int64             // computed field `json:"Nights"`
-	RentableName string            `json:"RentableName"`
-	FirstName    string            `json:"FirstName"`
-	LastName     string            `json:"LastName"`
-	Email        string            `json:"Email"`
-	Phone        string            `json:"Phone"`
-	Street       string            `json:"Street"`
-	City         string            `json:"City"`
-	Country      string            `json:"Country"`
-	State        string            `json:"State"`
-	PostalCode   string            `json:"PostalCode"`
-	CCName       string            `json:"CCName"`
-	CCType       string            `json:"CCType"`
-	CCNumber     string            `json:"CCNumber"`
-	CCExpMonth   string            `json:"CCExpMonth"`
-	CCExpYear    string            `json:"CCExpYear"`
-	Comment      string            `json:"Comment"`
+	Recid            int64             `json:"recid"`
+	BID              int64             `json:"rdBID"`
+	DtStart          rlib.JSONDateTime `json:"DtStart"`
+	DtStop           rlib.JSONDateTime `json:"DtStop"`
+	RLID             int64             `json:"RLID"`
+	RTRID            int64             `json:"RTRID"`
+	RTID             int64             `json:"rdRTID"`
+	RID              int64             `json:"RID"`
+	LeaseStatus      int64             `json:"LeaseStatus"`
+	Nights           int64             // computed field `json:"Nights"`
+	RentableName     string            `json:"RentableName"`
+	FirstName        string            `json:"FirstName"`
+	LastName         string            `json:"LastName"`
+	Email            string            `json:"Email"`
+	Phone            string            `json:"Phone"`
+	Street           string            `json:"Street"`
+	City             string            `json:"City"`
+	Country          string            `json:"Country"`
+	State            string            `json:"State"`
+	PostalCode       string            `json:"PostalCode"`
+	CCName           string            `json:"CCName"`
+	CCType           string            `json:"CCType"`
+	CCNumber         string            `json:"CCNumber"`
+	CCExpMonth       string            `json:"CCExpMonth"`
+	CCExpYear        string            `json:"CCExpYear"`
+	ConfirmationCode string            `json:"ConfirmationCode"`
+	Comment          string            `json:"Comment"`
 }
 
 // SaveReservation is sent to save one of open time slots as a reservation
@@ -83,7 +85,11 @@ type SaveReservation struct {
 //                         **** GET ****
 //-------------------------------------------------------------------
 
-// GetReservation may be called to change a reservation time
+// GetReservation is the struct returned on a request for a reservation.
+type GetReservation struct {
+	Status string `json:"status"`
+	Record ResDet `json:"record"`
+}
 
 //-----------------------------------------------------------------------------
 //##########################################################################################################################################################
@@ -135,14 +141,10 @@ func reservationRowScan(rows *sql.Rows, q Reservation) (Reservation, error) {
 		&q.Phone,
 		&q.ConfirmationCode,
 		&q.RentableName,
+		&q.RTID,
 		&q.Name,
 	)
 	return q, err
-}
-
-func getReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	const funcname = "getReservation"
-	rlib.Console("Entered %s\n", funcname)
 }
 
 // reservationGridFields holds the map of field (to be shown on grid)
@@ -158,6 +160,7 @@ var reservationGridFieldsMap = map[string][]string{
 	"Phone":            {"RentableLeaseStatus.Phone"},
 	"ConfirmationCode": {"RentableLeaseStatus.ConfirmationCode"},
 	"RentableName":     {"Rentable.RentableName"},
+	"RTID":             {"RentableTypeRef.RTID"},
 	"Name":             {"RentableType.Name"},
 	//	"RentableType":         {"RT.Name"},
 }
@@ -174,6 +177,7 @@ var reservationQuerySelectFields = []string{
 	"RentableLeaseStatus.Phone",
 	"RentableLeaseStatus.ConfirmationCode",
 	"Rentable.RentableName",
+	"RentableTypeRef.RTID",
 	"RentableTypes.Name",
 }
 
@@ -398,4 +402,44 @@ func saveReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 func deleteReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "deleteReservation"
 	rlib.Console("Entered %s\n", funcname)
+}
+
+// getReservation
+// wsdoc {
+//  @Title  Get Reservation
+//	@URL /v1/reservation/:BUI/[RLID]
+//  @Method  POST
+//	@Synopsis Returns a reservation associated with the supplied RLID
+//  @Description  Saves the ReleaseStatus. If RLID is 0, a new status is created.
+//  @Description  If RLID is > 0 it is simply updated
+//	@Input WebGridSearchRequest
+//  @Response Reservation
+// wsdoc }
+//------------------------------------------------------------------------------
+func getReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "getReservation"
+	var g GetReservation
+	var a rlib.RentableLeaseStatus
+	var err error
+
+	rlib.Console("entered %s, getting RLID = %d\n", funcname, d.ID)
+	a, err = rlib.GetRentableLeaseStatus(r.Context(), d.ID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+	b, err := rlib.GetRentableTypeRefForDate(r.Context(), a.RID, &a.DtStart)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+	if a.RLID > 0 {
+		var gg ResDet
+		rlib.MigrateStructVals(&a, &gg)
+		gg.RTID = b.RTID
+		gg.Recid = gg.RLID
+		g.Record = gg
+	}
+	g.Status = "success"
+	SvcWriteResponse(d.BID, &g, w)
 }
