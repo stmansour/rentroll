@@ -1,6 +1,6 @@
 /*global
     w2ui, app, console, $, plural, switchToGrid, showReport, form_dirty_alert, loginPopupOptions, getAboutInfo,
-    switchToClosePeriod, switchToReservations, setToAbout,
+    switchToClosePeriod, switchToReservations, setToAbout, switchToResUpdate,
 */
 "use strict";
 
@@ -191,6 +191,9 @@ window.buildSidebar = function(flag) {
                             break;
                         case 'bookReservation':
                             switchToReservations();
+                            break;
+                        case 'changeReservation':
+                            switchToResUpdate();
                             break;
 
                         case 'goRatePlan':

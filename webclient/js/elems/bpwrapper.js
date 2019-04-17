@@ -13,6 +13,7 @@
     buildClosePeriodElements,buildRAFlowElements,buildBusinessElements,
     finishBizForm, buildReservationsElements, finishReservationsForm,
     buildHelpElements, finishHelpSystem, buildAboutElements, finishAboutSystem,
+    buildResUpdateElements,
 */
 
 "use strict";
@@ -46,6 +47,7 @@ window.buildPageElementsWrapper = function (uitype) {
     buildAssessmentElements();
     buildExpenseElements();
     buildReservationsElements();
+    buildResUpdateElements();
     buildARElements();
     buildPaymentTypeElements();
     buildDepositoryElements();

@@ -108,8 +108,8 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     # search for availability
     encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0,"searchDtStart":"8/1/2018","searchDtStop":"8/31/2018","record":{"BID":1,"DtStart":"2019-02-14","DtStop":"2019-02-15","RLID":0,"RTRID":0,"RTID":5,"RID":0}}' > request
     dojsonPOST "http://localhost:8270/v1/available/1" "request" "${TFILES}0"  "reservation-searchAvailable"
-
 fi
+
 #------------------------------------------------------------------------------
 #  TEST c
 #
@@ -131,7 +131,6 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     # search for availability
     encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0,"searchDtStart":"4/20/2018","searchDtStop":"4/23/2018"}' > request
     dojsonPOST "http://localhost:8270/v1/reservation/1" "request" "${TFILES}0"  "reservation-searchReservations"
-
 fi
 
 stopRentRollServer
