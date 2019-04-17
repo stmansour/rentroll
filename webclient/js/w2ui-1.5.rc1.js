@@ -12931,7 +12931,7 @@ var w2prompt = function (label, title, callBack) {
                 if (forceRefresh == true) {
                     $el.w2tag(w2utils.lang(txt), { position: pos });
                 }
-            }, 1);
+            }, 1000);
         },
 
         tooltipHide: function (id) {
@@ -13912,7 +13912,7 @@ var w2prompt = function (label, title, callBack) {
                 if (forceRefresh == true) {
                     $el.w2tag(w2utils.lang(txt), { position: pos });
                 }
-            }, 1);
+            }, 1000);
         },
 
         tooltipHide: function (id, event) {
