@@ -113,11 +113,12 @@ window.localtimeToUTC = function (s) {
 //           day.
 // @params
 //   dc = date control
+//    n = number of days to go back
 // @return string value that was set in dc
 //-----------------------------------------------------------------------------
-window.dayBack = function (dc) {
+window.dayBack = function (dc,n) {
     var x = dateFromString(dc.value);
-    x.setDate(x.getDate() - 1);
+    x.setDate(x.getDate() - n);
     return setDateControl(dc, x);
 };
 
@@ -125,11 +126,12 @@ window.dayBack = function (dc) {
 // dayFwd - supply the date control and this function will go to the next day.
 // @params
 //   dc = date control
+//    n = number of days forward
 // @return string value that was set in dc
 //-----------------------------------------------------------------------------
-window.dayFwd = function (dc) {
+window.dayFwd = function (dc,n) {
     var x = dateFromString(dc.value);
-    x.setDate(x.getDate() + 1);
+    x.setDate(x.getDate() + n);
     return setDateControl(dc, x);
 };
 
