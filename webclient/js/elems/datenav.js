@@ -1,6 +1,8 @@
 /*global
-    app, w2ui, $, monthBack, monthFwd, dayBack, dayFwd, setToCurrentMonth, setToNextMonth,
-    console, dateFromString, dateControlString, w2uiDateControlString, setDateControl, updateGridPostDataDates
+    app, w2ui, $, monthBack, monthFwd, dayBack, dayFwd, setToCurrentMonth,
+    setToNextMonth, yearBack, yearFwd,
+    console, dateFromString, dateControlString, w2uiDateControlString,
+    setDateControl, updateGridPostDataDates,
 */
 "use strict";
 
@@ -22,12 +24,32 @@ window.handleDateToolbarAction = function (event,prefix) {
     var xd2 = document.getElementsByName(prefix + 'D2')[0];
     switch (event.target) {
         case 'monthback':
+            //-- ------------------------------------------
+            // if metaKey is pressed, make it a Year back
+            //--------------------------------------------
+            if (event.originalEvent.metaKey) {
+                app.D1 = yearBack(xd1);
+                if (!event.originalEvent.shiftKey) {
+                    app.D2 = yearBack(xd2);
+                }
+                return;
+            }
             app.D1 = monthBack(xd1);
             if ( !event.originalEvent.shiftKey ) {
                 app.D2 = monthBack(xd2);
             }
             break;
         case 'monthfwd':
+            //-- ------------------------------------------
+            // if metaKey is pressed, make it a Year FWD
+            //--------------------------------------------
+            if (event.originalEvent.metaKey) {
+                app.D1 = yearFwd(xd1);
+                if (!event.originalEvent.shiftKey) {
+                    app.D2 = yearFwd(xd2);
+                }
+                return;
+            }
             if ( !event.originalEvent.shiftKey ) {
                 app.D1 = monthFwd(xd1);
             }

@@ -1,7 +1,8 @@
 "use strict";
+'esversion 6';
 /*global
   app, setDateControl, dateMonthBack, getDateFromDT, getTimeFromDT, dateFromString,
-  dateFmtStr, zeroPad,
+  dateFmtStr, zeroPad, yearFwd, dateYearFwd, yearBack, dateYearBack,
 */
 
 //-----------------------------------------------------------------------------
@@ -180,6 +181,82 @@ window.monthFwd = function (dc,strval) {
         y = dateFromString(strval);
     }
     var d2 = dateMonthFwd(y);
+    return setDateControl(dc, d2);
+};
+
+//-----------------------------------------------------------------------------
+// dateYearFwd - return a date that is one year from the supplied date. It
+//                will snap the date to the end of the month if the
+//                current date is the end of the month.
+// @params
+//   y = starting date
+// @return - a date that is one year from y
+//-----------------------------------------------------------------------------
+window.dateYearFwd = function (y) {
+    var m = y.getMonth();
+    var d = y.getDate();
+    var d2;
+    if (m == 1 /*feb*/ && d >= 28) {
+        d2 = new Date(y.getFullYear() + 1, 2/*mar*/, 0, 0, 0, 0);
+    } else {
+        d2 = new Date(y.getFullYear() + 1, m, d, 0, 0, 0);
+    }
+    return d2;
+};
+//-----------------------------------------------------------------------------
+// yearFwd - supply the date control and this function will go to the next
+//            year. It will snap the date to the end of the month if the
+//            current date is the end of the month.
+// @params
+//   dc     = date control
+//   strval = if provided, it needs to the string value to use for the existing
+//            date rather than the value of the supplied date control
+// @return string value that was set in dc
+//-----------------------------------------------------------------------------
+window.yearFwd = function (dc,strval) {
+    var y = dateFromString(dc.value);
+    if (typeof strval == "string") {
+        y = dateFromString(strval);
+    }
+    var d2 = dateYearFwd(y);
+    return setDateControl(dc, d2);
+};
+
+//-----------------------------------------------------------------------------
+// dateYearBack - return a date that is one year prior to the supplied date. It
+//                will snap the date to the end of the month if the
+//                current date is the end of the month.
+// @params
+//   y = starting date
+// @return - a date that is one year from y
+//-----------------------------------------------------------------------------
+window.dateYearBack = function (y) {
+    var m = y.getMonth();
+    var d = y.getDate();
+    var d2;
+    if (m == 1 /*feb*/ && d >= 28) {
+        d2 = new Date(y.getFullYear() - 1, 2/*mar*/, 0, 0, 0, 0);
+    } else {
+        d2 = new Date(y.getFullYear() - 1, m, d, 0, 0, 0);
+    }
+    return d2;
+};
+//-----------------------------------------------------------------------------
+// yearBack - supply the date control and this function will go to the previous
+//            year. It will snap the date to the end of the month if the
+//            current date is the end of the month.
+// @params
+//   dc     = date control
+//   strval = if provided, it needs to the string value to use for the existing
+//            date rather than the value of the supplied date control
+// @return string value that was set in dc
+//-----------------------------------------------------------------------------
+window.yearBack = function (dc,strval) {
+    var y = dateFromString(dc.value);
+    if (typeof strval == "string") {
+        y = dateFromString(strval);
+    }
+    var d2 = dateYearBack(y);
     return setDateControl(dc, d2);
 };
 
