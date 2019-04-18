@@ -175,10 +175,9 @@ window.buildResUpdateElements = function () {
         ],
         toolbar: {
             items: [
-                { id: 'btnNotes', type: 'button', icon: 'far fa-sticky-note' },
-                { type: 'button', id: 'checkAvailability', caption: 'Check Availability', icon: 'far fa-calendar-check' },
-                { id: 'bt3', type: 'spacer' },
-                { id: 'btnClose', type: 'button', icon: 'fas fa-times' },
+                { id: 'checkAvailability', type: 'button', caption: 'Check Availability', icon: 'far fa-calendar-check' },
+                { id: 'bt3',               type: 'spacer' },
+                { id: 'btnClose',          type: 'button', icon: 'fas fa-times' },
             ],
             onClick: function (event) {
                 switch(event.target) {
