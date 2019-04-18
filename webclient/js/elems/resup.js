@@ -70,6 +70,8 @@ window.buildResUpdateElements = function () {
                 var BID = getCurrentBID();
                 var BUD = getBUDfromBID(BID);
                 getRentableTypes(BUD, function() {
+                    w2ui.availabilityGrid.clear(); // remove any contents from prior checks
+                    w2ui.availabilityGrid.url = '';
                     var url = '/v1/reservation/' + BID + '/' + rec.RLID;
                     setToForm('resUpdateForm',url,750,true,w2ui.resFormLayout);
                 });
