@@ -113,13 +113,13 @@ func SvcAvailable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		RentableTypeRef.DtStart <= %q AND RentableTypeRef.DtStop >= %q AND RentableTypeRef.RTID = %d AND
 		RentableUseStatus.DtStart <= %q AND RentableUseStatus.DtStop >= %q AND RentableUseStatus.UseStatus = 0`,
 		res.BID,
-		dtStart.Format(rlib.RRDATEFMTSQL),
 		dtStop.Format(rlib.RRDATEFMTSQL),
 		dtStart.Format(rlib.RRDATEFMTSQL),
 		dtStop.Format(rlib.RRDATEFMTSQL),
+		dtStart.Format(rlib.RRDATEFMTSQL),
 		res.RTID,
-		dtStart.Format(rlib.RRDATEFMTSQL),
 		dtStop.Format(rlib.RRDATEFMTSQL),
+		dtStart.Format(rlib.RRDATEFMTSQL),
 	)
 	order := "RentableLeaseStatus.DtStart ASC" // default ORDER
 
@@ -138,7 +138,7 @@ func SvcAvailable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// Transactant Query Text Template
 	//--------------------------------------------------
 	mainQuery := `
-SELECT {{.SelectClause}}
+SELECT DISTINCT {{.SelectClause}}
 FROM RentableTypeRef
 LEFT JOIN RentableLeaseStatus on RentableLeaseStatus.RID = RentableTypeRef.RID
 LEFT JOIN RentableUseStatus on RentableUseStatus.RID = RentableTypeRef.RID

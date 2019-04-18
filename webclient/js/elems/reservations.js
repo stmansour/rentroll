@@ -92,6 +92,7 @@ window.getBookResInitRecord = function (BID, BUD, previousFormRecord){
     return defaultFormData;
 };
 
+
 // buildReservationsElements creates the reservation form
 //------------------------------------------------------------------------------
 window.buildReservationsElements = function () {
@@ -132,7 +133,7 @@ window.buildReservationsElements = function () {
                 //     var no_callBack = function() { return false; },
                 //         yes_callBack = function() {
                 //             w2ui.toplayout.hide('right',true);
-                //             w2ui.reservationGrid.render();
+                //             w2ui.availabilityGrid.render();
                 //         };
                 //     form_dirty_alert(yes_callBack, no_callBack);
                 //     break;
@@ -228,10 +229,10 @@ window.buildReservationsElements = function () {
 
 
     //------------------------------------------------------------------------
-    //          reservationGrid
+    //          availabilityGrid
     //------------------------------------------------------------------------
     $().w2grid({
-        name: 'reservationGrid',
+        name: 'availabilityGrid',
         multiSelect: false,
         show: {
             toolbar         : false,
@@ -273,8 +274,8 @@ window.buildReservationsElements = function () {
         ],
         onClick: function(event) {
             event.onComplete = function () {
-                if(w2ui.reservationGrid.getColumn("Book", true) == event.column) {
-                    var rec = w2ui.reservationGrid.get(event.recid);
+                if(w2ui.availabilityGrid.getColumn("Book", true) == event.column) {
+                    var rec = w2ui.availabilityGrid.get(event.recid);
                     console.log('book RID = ' + rec.RID);
                     switchToBookRes(rec.RID,rec.RentableName);
                     return;
@@ -462,9 +463,9 @@ window.reservationSrch = function() {
         DtStart:        dtStart.toUTCString(),
         DtStop:         dtStop.toUTCString(),
     };
-    w2ui.reservationGrid.postData.record = f;
-    w2ui.reservationGrid.url = '/v1/available/'+BID;
-    w2ui.reservationGrid.reload();
+    w2ui.availabilityGrid.postData.record = f;
+    w2ui.availabilityGrid.url = '/v1/available/'+BID;
+    w2ui.availabilityGrid.reload();
 };
 
 
@@ -480,11 +481,12 @@ window.reservationSrch = function() {
 //      expired.
 //
 // @params  BUD - business unit descriptor where we got the rentable types
+//          cb  - callback to call on successfully updating app.rt_list.
 //
 // @return
 //
 //---------------------------------------------------------------------------------
-window.reservationsUpdateRTList = function (BUD) {
+window.reservationsUpdateRTList = function (BUD,cb) {
     if (typeof w2ui.reservationForm.get('RTID').options != "undefined") {
         var rtlist = [];
         var i;
@@ -506,8 +508,6 @@ window.reservationsUpdateRTList = function (BUD) {
 //                        Reservations form
 //
 // @params
-//          svcOverride = name of webservice to call if the name does not
-//                match the name of the svc
 //
 // @return
 //
@@ -555,6 +555,6 @@ window.switchToBookRes = function (RID,n) {
 //---------------------------------------------------------------------------------
 window.finishReservationsForm = function () {
     w2ui.reservationLayout.content('top',w2ui.reservationForm);
-    w2ui.reservationLayout.content('main', w2ui.reservationGrid);
+    w2ui.reservationLayout.content('main', w2ui.availabilityGrid);
     w2ui.reservationLayout.content('right', w2ui.bookResForm);
 };

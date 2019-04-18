@@ -358,8 +358,12 @@ window.getBUDfromBID = function (BID) {
 //   [width]   = optional, if specified it is the width of the form
 //   doRequest = optional, boolean, if true we wait until after the form
 //               has requested and received data before rendering the form.
+//   layout    = optional - sometimes the "form" is complex and made up of
+//               multiple parts that are contained in a w2layout.  If this is
+//               the case, you can pass the main form in as normal in sform
+//               but pass the container w2layout in the layout parameter.
 //-----------------------------------------------------------------------------
-window.setToForm = function (sform, url, width, doRequest) {
+window.setToForm = function (sform, url, width, doRequest, layout) {
 
     // if form not found then return
     var f = w2ui[sform];
@@ -377,6 +381,11 @@ window.setToForm = function (sform, url, width, doRequest) {
     if (!doRequest) {
         doRequest = false;
     }
+
+    if (!layout) {
+        layout = null;
+    }
+    var l = layout;
 
     if (url.length > 0 ) {
         f.url = url;
@@ -398,13 +407,17 @@ window.setToForm = function (sform, url, width, doRequest) {
     var showForm = function() {
         // if the same content is there, then no need to render toplayout again
         if (f !== right_panel_content) {
-            w2ui.toplayout.content('right', f);
+            w2ui.toplayout.content('right', (l === null) ? f : l);
             w2ui.toplayout.sizeTo('right', width);
             w2ui.toplayout.render();
         }
         else{
             // if same form is there then just refresh the form
-            f.refresh();
+            if (l === null) {
+                f.refresh();
+            } else {
+                l.refresh();
+            }
         }
         // NOTE: remove any error tags bound to field from previous form
         $().w2tag();

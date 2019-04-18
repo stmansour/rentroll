@@ -46,7 +46,7 @@ section[name="asmEpochForm"] .w2ui-form-box .w2ui-field > label,
     width: 160px;
 }
 
-section[name="asmEpochForm"] .w2ui-form-box .w2ui-field > div, 
+section[name="asmEpochForm"] .w2ui-form-box .w2ui-field > div,
     div[name="asmInstForm"] .w2ui-form-box .w2ui-field > div,
     div[name="arsForm"] .w2ui-form-box .w2ui-field > div {
     margin-left: 168px;
@@ -92,6 +92,12 @@ section[name="asmEpochForm"] .w2ui-form-box .w2ui-field > div,
     border-radius: 4px;
     margin: 0 5px 10px 10px;
     text-align: left;
+}
+
+.creditcard {
+    font-size: 16pt;
+    color: #666666;
+    border: 8;
 }
 
 .asmInfoContainer p:not(:last-child) {

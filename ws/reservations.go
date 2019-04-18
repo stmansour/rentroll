@@ -437,6 +437,7 @@ func getReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		var gg ResDet
 		rlib.MigrateStructVals(&a, &gg)
 		gg.RTID = b.RTID
+		gg.Street = a.Address
 		gg.Recid = gg.RLID
 		g.Record = gg
 	}

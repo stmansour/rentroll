@@ -13,7 +13,7 @@
     buildClosePeriodElements,buildRAFlowElements,buildBusinessElements,
     finishBizForm, buildReservationsElements, finishReservationsForm,
     buildHelpElements, finishHelpSystem, buildAboutElements, finishAboutSystem,
-    buildResUpdateElements,
+    buildResUpdateElements, finishResUpForm,
 */
 
 "use strict";
@@ -87,6 +87,7 @@ window.finishForms = function () {
     finishTLDForm();
     finishBizForm();
     finishReservationsForm();
+    finishResUpForm();
     finishHelpSystem();
     finishAboutSystem();
 };
