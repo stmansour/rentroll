@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"rentroll/bizlogic"
 	"rentroll/rlib"
 	"strconv"
 	"strings"
@@ -61,6 +62,11 @@ type RentableTypedownResponse struct {
 	Status  string                  `json:"status"`
 	Total   int64                   `json:"total"`
 	Records []rlib.RentableTypeDown `json:"records"`
+}
+
+// DeleteRentableResponse wraps the status response to a delete request
+type DeleteRentableResponse struct {
+	Status string `json:"status"`
 }
 
 // RentableDetails holds the details about other detailed associated data with specific rentable
@@ -350,6 +356,8 @@ func SvcFormHandlerRentable(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	case "save":
 		saveRentable(w, r, d)
 		break
+	case "delete":
+		deleteRentable(w, r, d)
 	default:
 		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
 		SvcErrorReturn(w, err, funcname)
@@ -490,6 +498,36 @@ func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	g.Record = gg
 
 	// write response
+	g.Status = "success"
+	SvcWriteResponse(d.BID, &g, w)
+}
+
+// deleteRentable returns the requested rentable
+// wsdoc {
+//  @Title  Get Rentable
+//	@URL /v1/rentable/:BUI/:RID
+//  @Method  POST
+//	@Synopsis Delete the Rentable with the supplied RID.
+//  @Description  deletes rentable RID if it is not being used. Error if used.
+//	@Input WebGridSearchRequest
+//  @Response GetRentableResponse
+// wsdoc }
+func deleteRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "deleteRentable"
+	var g DeleteRentableResponse
+	rlib.Console("entered %s\n", funcname)
+
+	rentable, err := rlib.GetRentable(r.Context(), d.RID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	if err := bizlogic.DeleteRentable(r.Context(), &rentable); err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
 	g.Status = "success"
 	SvcWriteResponse(d.BID, &g, w)
 }

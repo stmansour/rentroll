@@ -209,6 +209,7 @@ func SvcSearchHandlerBusinesses(w http.ResponseWriter, r *http.Request, d *Servi
 	var g SearchBizResponse
 	var err error
 	rlib.Console("Entered %s\n", funcname)
+	rlib.BuildBusinessDesignationMap(r.Context()) // update BUDList cache
 
 	whr := ""
 	order := `Business.Name ASC` // default ORDER

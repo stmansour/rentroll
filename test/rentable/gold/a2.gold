@@ -1,0 +1,4 @@
+{
+    "message": "Rentable 9 cannot be deleted because there are 6 reservation(s) for it in the future",
+    "status": "error"
+}

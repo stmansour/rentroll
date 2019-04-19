@@ -1,0 +1,4 @@
+{
+    "message": "Rentable 23 cannot be deleted as it is referenced by 5 Assessment(s)",
+    "status": "error"
+}

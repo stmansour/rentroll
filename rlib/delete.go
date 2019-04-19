@@ -817,6 +817,27 @@ func DeleteRentableTypeRefWithRTID(ctx context.Context, rtid int64) error {
 	return err
 }
 
+// DeleteRentable deletes the records with the supplied RTID
+func DeleteRentable(ctx context.Context, rid int64) error {
+	var err error
+	if err = deleteSessionCheck(ctx); err != nil {
+		return err
+	}
+
+	fields := []interface{}{rid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.DeleteRentable)
+		defer stmt.Close()
+		_, err = stmt.Exec(fields...)
+	} else {
+		_, err = RRdb.Prepstmt.DeleteRentable.Exec(fields...)
+	}
+	if err != nil {
+		Ulog("Error deleting Rentable with RID=%d: %s\n", rid, err.Error())
+	}
+	return err
+}
+
 // DeleteRentableTypeRef deletes RentableTypeRef records with the supplied rtrid
 func DeleteRentableTypeRef(ctx context.Context, rtrid int64) error {
 	var err error

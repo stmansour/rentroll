@@ -32,13 +32,13 @@ window.getAccountInitRecord = function (BID, BUD, previousFormRecord){
 
     // if it called after 'save and add another' action there previous form record is passed as Object
     // else it is null
-    if ( previousFormRecord ) {
-        defaultFormData = setDefaultFormFieldAsPreviousRecord(
-            [ 'Name', 'Description'], // Fields to Reset
-            defaultFormData,
-            previousFormRecord
-        );
-    }
+    // if ( previousFormRecord ) {
+    //     defaultFormData = setDefaultFormFieldAsPreviousRecord(
+    //         [ 'Description'], // Fields to Reset
+    //         defaultFormData,
+    //         previousFormRecord
+    //     );
+    // }
 
     return defaultFormData;
 };

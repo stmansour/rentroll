@@ -290,51 +290,23 @@ window.buildBusinessElements = function () {
             { field: 'ClassCode',               type: 'hidden',   required: false },
             { field: 'CoCode',                  type: 'hidden',   required: false },
         ],
-        actions: {
-            // save: function(target, data){
-            //     var f = w2ui.bizDetailForm;
-            //     var r = f.record;
-            //     f.url = '/v1/business/' + r.BID ;
-            //     var s = r.Name.text;
-            //     r.TLDID = r.Name.id;
-            //     r.Name = s;
-            //     r.Pivot = localtimeToUTC(r.Pivot);
-            //     r.Timezone = app.timezone;
-            //     var params = {cmd: 'save', formname: f.name, record: r };
-            //
-            //     var dat = JSON.stringify(params);
-            //     var BID = r.BID;
-            //
-            //     // submit request
-            //     $.post(f.url, dat, null, "json")
-            //     .done(function(data) {
-            //         if (data.status != "success") {
-            //             return;
-            //         }
-            //         w2ui.tlsGrid.reload();
-            //         var tlid = data.recid;
-            //         setToTLForm(BID, tlid, app.D1, app.D2);
-            //         w2popup.close();
-            //     })
-            //     .fail(function(/*data*/){
-            //         console.log("Payor Fund Allocation failed.");
-            //     });
-            //
-            // },
-        },
         onLoad: function(event) {
             event.onComplete = function(event) {
                 setBUDSpinner();
                 setTimeout(BUDHandler, 500);
-                // BUDHandler();
             };
         },
-        // onRender: function(event) {
-        //     if (this.record.BID > 0) {
-        //         setBUDSpinner();
-        //         setTimeout(BUDHandler, 750);
-        //     }
-        // },
+        onRender: function(event) {
+            var f = this;
+            event.onComplete = function(event) {
+                var x = $(f.box).find("input[name=BUD]");
+                if (x.length > 0) {
+                    x[0].addEventListener('keydown', function(event) {
+                        console.log('got keydown... '+event.code);
+                    });
+                }
+            };
+        },
         onRefresh: function(event) {
             var f = this;
             event.onComplete = function(event) {
@@ -362,6 +334,17 @@ window.buildBusinessElements = function () {
                 }
             };
         },
+    });
+    $(document).on("keypress change", "input[name=BUD]", function(e) {
+        console.log('got a keypress');
+        // if event type is keypress then
+        if (e.type == 'keypress'){
+            // do not proceed further until the user presses the Enter key
+            if (e.which != 9) {
+                return;
+            }
+            console.log('got a tab key');
+        }
     });
 
     //------------------------------------------------------------------------

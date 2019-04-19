@@ -906,6 +906,8 @@ WHERE RAID=? AND RID=? AND Start >= ? AND Stop < ? AND RentCycle=0 ORDER By Asse
 	Errcheck(err)
 	RRdb.Prepstmt.UpdateRentable, err = RRdb.Dbrr.Prepare("UPDATE Rentable SET " + s3 + " WHERE RID=?")
 	Errcheck(err)
+	RRdb.Prepstmt.DeleteRentable, err = RRdb.Dbrr.Prepare("DELETE FROM Rentable WHERE RID=?")
+	Errcheck(err)
 
 	//===============================
 	//  Rental Agreement

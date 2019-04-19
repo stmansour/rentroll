@@ -310,7 +310,7 @@ window.buildRentableElements = function () {
                 getRentableTypes(BUD)
                 .done(function (data) {
                     if ('status' in data && data.status !== 'success') {
-                        w2ui.rentableForm.message(data.message);
+                        w2ui.rentablesGrid.message(data.message);
                     } else {
                         //-----------------------------------------------------------
                         // before we even attempt this, we must ensure that there is
@@ -334,8 +334,8 @@ window.buildRentableElements = function () {
                         setRentableLayout(BID, 0);
                     }
                 })
-                .fail(function () {
-                    console.log('Error getting /v1/uival/' + BID + '/app.ReceiptRules');
+                .fail(function (xhr, textStatus, errorThrown) {
+                    console.log('Error getting /v1/uival/' + BID + '/app.ReceiptRules: ' + xhr.responseText);
                 });
             };
 
@@ -527,7 +527,29 @@ window.buildRentableElements = function () {
 
             saveadd: function () {
                 saveRentableCore(finishRentableSaveAdd);
-            }
+            },
+
+            delete: function() {
+                var f = w2ui.rentableForm;
+                var r = f.record;
+                console.log('delete Rentable: ' + r.RID );
+                var request={cmd: "delete"};
+                var url = '/v1/rentable/' + r.BID + '/' + r.RID;
+                var dat = JSON.stringify(request);
+                $.post(url, dat, null, "json")
+                .done(function(data) {
+                    if (data.status === "error") {
+                        f.error(data.message);
+                        return;
+                    }
+                    w2ui.toplayout.hide('right',true);
+                    w2ui.rentablesGrid.render();
+                })
+                .fail(function(xhr, textStatus, errorThrown){
+                    f.error(xhr.responseText);
+                    return;
+                });
+            },
         },
     });
 };

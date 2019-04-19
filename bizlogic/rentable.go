@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"rentroll/rlib"
 	"strings"
+	"time"
 )
 
 // InsertRentable first validates that inserting the rentable does
@@ -333,4 +334,62 @@ func ValidateRentableTypeRef(ctx context.Context, rtr *rlib.RentableTypeRef) []B
 		}
 	}*/
 	return errlist
+}
+
+// DeleteRentable first validates that it can be deleted.  If so, it performs
+// the delete. Otherwise it returns an error indicating the problem.
+//
+// INPUTS
+//  r - the rentable to delete
+//
+// RETURNS
+//  any error encountered
+//-----------------------------------------------------------------------------
+func DeleteRentable(ctx context.Context, r *rlib.Rentable) error {
+	var count int
+
+	//-----------------------------------------------------------
+	// Are there any assessments associated with the rentable?
+	// If so, we cannot delete it.
+	//-----------------------------------------------------------
+	q := fmt.Sprintf("SELECT COUNT(ASMID) FROM Assessments WHERE BID = %d and RID = %d", r.BID, r.RID)
+	row := rlib.RRdb.Dbrr.QueryRow(q)
+	if err := row.Scan(&count); err != nil {
+		return err
+	}
+	if count > 0 {
+		err := fmt.Errorf("Rentable %d cannot be deleted as it is referenced by %d Assessment(s)", r.RID, count)
+		return err
+	}
+
+	//-----------------------------------------------------------
+	// Is this rentable called out in any rental agreement?
+	// If so, we cannot delete it.
+	//-----------------------------------------------------------
+	q = fmt.Sprintf("SELECT COUNT(RARID) FROM RentalAgreementRentables WHERE BID = %d and RID = %d", r.BID, r.RID)
+	row = rlib.RRdb.Dbrr.QueryRow(q)
+	if err := row.Scan(&count); err != nil {
+		return err
+	}
+	if count > 0 {
+		err := fmt.Errorf("Rentable %d cannot be deleted as it is referenced by %d Rental Agreement(s)", r.RID, count)
+		return err
+	}
+
+	//-----------------------------------------------------------
+	// Is this rentable reserved in the future?
+	// If so, we cannot delete it.
+	//-----------------------------------------------------------
+	now := time.Now()
+	q = fmt.Sprintf("SELECT COUNT(RLID) FROM RentableLeaseStatus WHERE LeaseStatus=%d and BID=%d and RID=%d and DtStart > %q", rlib.LEASESTATUSreserved, r.BID, r.RID, now.Format(rlib.RRDATEFMTSQL))
+	row = rlib.RRdb.Dbrr.QueryRow(q)
+	if err := row.Scan(&count); err != nil {
+		return err
+	}
+	if count > 0 {
+		err := fmt.Errorf("Rentable %d cannot be deleted because there are %d reservation(s) for it in the future", r.RID, count)
+		return err
+	}
+
+	return rlib.DeleteRentable(ctx, r.RID)
 }

@@ -440,7 +440,7 @@ window.saveReservationForm = function (BID, BUD, DtStart, DtStop, RTID) {
 };
 
 //---------------------------------------------------------------------------------
-// reservationSrch - called when the user clicks the search butting in the
+// reservationSrch - called when the user clicks the search button in the
 //                   reservationForm.  Collect all the data and ask the server
 //                   for available rentables.
 //

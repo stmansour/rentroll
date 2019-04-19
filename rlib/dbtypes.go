@@ -2056,6 +2056,7 @@ type RRprepSQL struct {
 	UpdateRentableUseType                   *sql.Stmt
 	DeleteRentableUseType                   *sql.Stmt
 	GetASMInstancesByRIDandDateRange        *sql.Stmt
+	DeleteRentable                          *sql.Stmt
 }
 
 // DeleteBusinessFromDB deletes information from all tables if it is part of the supplied BID.
@@ -2117,13 +2118,21 @@ var RRdb struct {
 
 // BuildBusinessDesignationMap builds a map of biz designations to BIDs
 func BuildBusinessDesignationMap(ctx context.Context) (map[string]int64, map[int64]BusinessCache) {
-	var sl = map[string]int64{}
-	var bc = make(map[int64]BusinessCache)
-
 	bl, err := GetAllBiz(ctx)
 	if err != nil {
 		Ulog("GetAllBusinesses: err = %s\n", err.Error())
 	}
+	return BuildBizDesMapCore(bl)
+}
+
+// BuildBizDesMapCore was refactored out of BuildBusinessDesignationMap so
+// that any call to GetAllBiz will also rebuild the cache.  This provides a
+// way to cause the list to rebuild from the UI (select Business view).
+//
+//-----------------------------------------------------------------------------
+func BuildBizDesMapCore(bl []Business) (map[string]int64, map[int64]BusinessCache) {
+	var sl = map[string]int64{}
+	var bc = make(map[int64]BusinessCache)
 	for i := 0; i < len(bl); i++ {
 		sl[bl[i].Designation] = bl[i].BID
 		bc[bl[i].BID] = BusinessCache{BID: bl[i].BID, BUD: bl[i].Designation, FLAGS: bl[i].FLAGS}
