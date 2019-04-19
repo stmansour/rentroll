@@ -2,7 +2,7 @@
     setDefaultFormFieldAsPreviousRecord, w2uiDateControlString, $, w2ui, app, getCurrentBusiness, parseInt, getBUDfromBID,
     getRentableTypes, setToForm, form_dirty_alert, console, getFormSubmitData, addDateNavToToolbar, setRentableLayout,
     getRentableInitRecord, saveRentableLeaseStatus, RentableEdits, addRentableTypeRef,
-    w2uiDateTimeControlString,
+    w2uiDateTimeControlString, addRentableLeaseStatus,
 */
 /*jshint esversion: 6 */
 

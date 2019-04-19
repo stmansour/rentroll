@@ -787,7 +787,26 @@ window.showRentableForm = function() {
         w2ui.rentableUseTypeGrid.url     = '/v1/rentableusetype/' + br;
         w2ui.rentableTypeRefGrid.url     = '/v1/rentabletyperef/' + br;
         w2ui.rentableForm.url            = '/v1/rentable/' + br;
+    } else {
+        w2ui.rentableLeaseStatusGrid.url = '';
+        w2ui.rentableUseStatusGrid.url   = '';
+        w2ui.rentableUseTypeGrid.url     = '';
+        w2ui.rentableTypeRefGrid.url     = '';
+        w2ui.rentableForm.url            = '';
     }
+
+    //------------------------------------------------------------------------
+    // Clear the contents of all lists.  We may be adding a new record and
+    // if so, there will be nothing to query from the server to reset the
+    // grid. So, clear them all now...
+    //------------------------------------------------------------------------
+    console.log("clearing grids for RLS, RUS, RUT, RT");
+    w2ui.rentableUseStatusGrid.clear();
+    w2ui.rentableUseStatusGrid.records = [];
+    w2ui.rentableUseTypeGrid.clear();
+    w2ui.rentableUseTypeGrid.records = [];
+    w2ui.rentableTypeRefGrid.clear();
+    w2ui.rentableTypeRefGrid.records = [];
 
     //------------------------------------------------------------------------
     // We need to reset any changes in the change lists now
