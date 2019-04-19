@@ -267,6 +267,7 @@ window.addRentableUseType = function (/*event*/) {
     if (g.records.length === 0) {
         ndStart = new Date();
     } else {
+        basedOnListDate = true;
         g.records.forEach(function (rec) {
             if (ndStart === undefined) {
                 ndStart = new Date(rec.DtStop);
@@ -275,7 +276,6 @@ window.addRentableUseType = function (/*event*/) {
                 var rdStop = new Date(rec.DtStop);
                 if (ndStart < rdStop) {
                     ndStart = rdStop;
-                    basedOnListDate = true;
                 }
             }
         });
