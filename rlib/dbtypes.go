@@ -115,12 +115,12 @@ const (
 	RENTABLESTATUSLAST     = 5 // keep in sync with last
 
 	// USESTATUSready etc all Rentable Use Status
-	USESTATUSready        = 0
-	USESTATUSinService    = 1
-	USESTATUSmajorRepair  = 5
-	USESTATUShousekeeping = 6
-	USESTATUSinactive     = 7
-	USESTATUSLAST         = 7
+	USESTATUSready        = 0 // I think we don't need both ready and inService
+	USESTATUSinService    = 1 // I think we don't need both ready and inService
+	USESTATUSmajorRepair  = 2
+	USESTATUShousekeeping = 3
+	USESTATUSinactive     = 4
+	USESTATUSLAST         = 4
 
 	// USETYPEstandard and the rest define RentableUseType values
 	USETYPEstandard       = 100
@@ -129,17 +129,16 @@ const (
 	USETYPEownerOccupied  = 103
 	USETYPELAST           = 103
 
+	// LEASESTATUSnotleased etc all Rentable Lease Status
+	LEASESTATUSnotleased = 0
+	LEASESTATUSleased    = 1
+	LEASESTATUSreserved  = 2
+
 	// MRSTATUShouseKeeping etc all Rentable Make Ready Status
 	MRSTATUShouseKeeping = 1
 	MRSTATUSmaintenance  = 2
 	MRSTATUSinspection   = 3
 	MRSTATUSready        = 4
-
-	// LEASESTATUSnotleased etc all Rentable Lease Status
-	// -- 0 = Not Leased, 1 = Leased, 2 = Reserved
-	LEASESTATUSnotleased = 0
-	LEASESTATUSleased    = 1
-	LEASESTATUSreserved  = 2
 
 	CREDIT = 0
 	DEBIT  = 1
