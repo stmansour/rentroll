@@ -631,28 +631,9 @@ func deleteXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	// rlib.Console("del = %#v\n", del)
-
-	// delete Prospect
-	if err := rlib.DeleteProspect(r.Context(), del.TCID); err != nil {
+	if err := bizlogic.DeleteTransactant(r.Context(), d.BID, del.TCID); err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
-	// delete Payor
-	if err := rlib.DeletePayor(r.Context(), del.TCID); err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
-	}
-	// delete User
-	if err := rlib.DeleteUser(r.Context(), del.TCID); err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
-	}
-	// finally delete Transactant
-	if err := rlib.DeleteTransactant(r.Context(), del.TCID); err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
-	}
-
 	SvcWriteSuccessResponse(d.BID, w)
 }
