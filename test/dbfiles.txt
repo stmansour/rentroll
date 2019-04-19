@@ -29,6 +29,7 @@
 ./raflow/initraflow/ra0.sql
 ./raflow/validation/validateraflow.sql
 ./receipts/iso.sql
+./rentable/xa.sql
 ./reservation/xa.sql
 ./reservation/xb.sql
 ./reservation/xc.sql

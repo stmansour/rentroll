@@ -961,7 +961,6 @@ func GetAllBiz(ctx context.Context) ([]Business, error) {
 		m = append(m, p)
 	}
 
-	Console("*** UPDATED RRdb.BUDlist and RRdb.BizCache ***\n")
 	RRdb.BUDlist, RRdb.BizCache = BuildBizDesMapCore(m) // take the opportunity to rebuild the cache
 
 	return m, rows.Err()
