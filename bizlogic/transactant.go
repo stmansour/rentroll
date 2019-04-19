@@ -52,7 +52,16 @@ func DeleteTransactant(ctx context.Context, BID, TCID int64) error {
 		return err
 	}
 	if count > 0 {
-		err := fmt.Errorf("Transactant %d cannot be deleted as it is referenced as a User of%d Rentable(s)", TCID, count)
+		err := fmt.Errorf("Transactant %d cannot be deleted as it is referenced as a User of %d Rentable(s)", TCID, count)
+		return err
+	}
+	q = fmt.Sprintf("SELECT COUNT(RCPTID) from Receipt WHERE BID=%d and TCID=%d", BID, TCID)
+	row = rlib.RRdb.Dbrr.QueryRow(q)
+	if err := row.Scan(&count); err != nil {
+		return err
+	}
+	if count > 0 {
+		err := fmt.Errorf("Transactant %d cannot be deleted as it is referenced as a Payor of %d Receipt(s)", TCID, count)
 		return err
 	}
 
