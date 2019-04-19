@@ -23,9 +23,9 @@
         "RTRID": 0,
         "RentableName": "",
         "State": "IA",
-        "Street": "",
+        "Street": "72858 Pleasant",
         "rdBID": 1,
-        "rdRTID": 0,
+        "rdRTID": 5,
         "recid": 167
     },
     "status": "success"

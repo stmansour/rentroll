@@ -10,8 +10,30 @@
             "RTRID": 10,
             "RentableName": "Rentable010",
             "recid": 0
+        },
+        {
+            "BID": 1,
+            "DtStart": "2019-02-07 00:00:00 UTC",
+            "DtStop": "2019-02-14 00:00:00 UTC",
+            "RID": 9,
+            "RLID": 31,
+            "RTID": 5,
+            "RTRID": 9,
+            "RentableName": "Rentable009",
+            "recid": 1
+        },
+        {
+            "BID": 1,
+            "DtStart": "2019-02-15 00:00:00 UTC",
+            "DtStop": "2019-02-16 00:00:00 UTC",
+            "RID": 9,
+            "RLID": 37,
+            "RTID": 5,
+            "RTRID": 9,
+            "RentableName": "Rentable009",
+            "recid": 2
         }
     ],
     "status": "success",
-    "total": 1
+    "total": 3
 }
