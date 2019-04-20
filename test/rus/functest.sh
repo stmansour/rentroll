@@ -73,9 +73,9 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     # INITIAL RENTABLE USE STATUS
     #  Use  DtStart      DtStop
     #  ----------------------------
-    #   2   08/01/2019 - 12/31/9999
-    #   2   04/01/2019 - 08/01/2019
-    #   1   03/01/2019   04/01/2019
+    #   0   08/01/2019 - 12/31/9999
+    #   0   04/01/2019 - 08/01/2019
+    #   4   03/01/2019   04/01/2019
     #   0   01/01/2018   03/01/2019
     # Total Records: 4
     #-----------------------------------
@@ -87,10 +87,11 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     # Result needs to be:
     #  Use  DtStart      DtStop
     #  ----------------------------
-    #   2   04/01/2019 - 12/31/9999
-    #   1   03/01/2019   04/01/2019
+    #   0   04/01/2019 - 12/31/9999
+    #   4   03/01/2019   04/01/2019
     #   0   01/01/2018   03/01/2019
     # Total Records: 3
+    # c0,c1
     #--------------------------------------------------
     encodeRequest '{"cmd":"save","selected":[],"limit":0,"offset":0,"changes":[{"recid":1,"RSID":13,"BID":1,"BUD":"REX","RID":1,"UseStatus":0,"DtStart":"4/1/2019","DtStop":"8/31/2019","Comment":"","CreateBy":211,"LastModBy":211,"w2ui":{}}],"RID":1}'
     dojsonPOST "http://localhost:8270/v1/rentableusestatus/1/1" "request" "${TFILES}${STEP}"  "RentableUseStatus-Save"
@@ -99,16 +100,17 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
 
     #--------------------------------------------------
     # SetRentableUseStatus - Case 1c
-    # SetStatus  3 (employee) 4/1/2019 - 9/1/2019
+    # SetStatus  3  4/1/2019 - 9/1/2019
     # Note: EDI in effect, DtStop expressed as "through 8/31/2019"
     # Result needs to be:
     #  Use  DtStart      DtStop
     #  ----------------------------
-    #   2   09/01/2019 - 12/31/9999
+    #   0   09/01/2019 - 12/31/9999
     #   3   04/01/2019 - 09/01/2019
-    #   1   03/01/2019   04/01/2019
+    #   4   03/01/2019   04/01/2019
     #   0   01/01/2018   03/01/2019
     # Total Records: 4
+    # c3,c4
     #--------------------------------------------------
     encodeRequest '{"cmd":"save","selected":[],"limit":0,"offset":0,"changes":[{"recid":1,"RSID":13,"BID":1,"BUD":"REX","RID":1,"UseStatus":3,"DtStart":"4/1/2019","DtStop":"8/31/2019","Comment":"","CreateBy":211,"LastModBy":211,"w2ui":{}}],"RID":1}'
     dojsonPOST "http://localhost:8270/v1/rentableusestatus/1/1" "request" "${TFILES}${STEP}"  "RentableUseStatus-Save"
@@ -124,18 +126,19 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     #      rus:      ############
     #   Result: @@@@@############@@@@
     #----------------------------------------------------
-    # SetStatus  2 (administrative) 9/15/2019 - 9/22/2019
+    # SetStatus  2 9/15/2019 - 9/22/2019
     # Note: EDI in effect, DtStop expressed as "through 9/21/2019"
     # Result needs to be:
     #  Use  DtStart      DtStop     RSID
     #  ---------------------------- ----
-    #   2   09/22/2019 - 12/31/9999  15
-    #   6   09/15/2019 - 09/22/2019  16
-    #   2   09/01/2019 - 09/15/2019  10
+    #   0   09/22/2019 - 12/31/9999  15
+    #   2   09/15/2019 - 09/22/2019  16
+    #   0   09/01/2019 - 09/15/2019  10
     #   3   04/01/2019 - 09/01/2019  14
-    #   1   03/01/2019   04/01/2019  11
+    #   4   03/01/2019   04/01/2019  11
     #   0   01/01/2018   03/01/2019   5
     # Total Records: 6
+    # c5,c6
     #-------------------------------------------------------
     encodeRequest '{"cmd":"save","selected":[],"limit":0,"offset":0,"changes":[{"recid":1,"RSID":13,"UseStatus":2,"DtStart":"9/15/2019","DtStop":"9/21/2019","BID":1,"BUD":"REX","RID":1,"Comment":"","CreateBy":211,"LastModBy":211,"w2ui":{}}],"RID":1}'
     dojsonPOST "http://localhost:8270/v1/rentableusestatus/1/1" "request" "${TFILES}${STEP}"  "RentableUseStatus-Save"
@@ -151,20 +154,21 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     #     b[0]: ##########
     #   Result: ####@@@@@@@@@@@@
     #-----------------------------------------------
-    # SetStatus  5 (repair) 3/15/2019 - 9/1/2019
+    # SetStatus  1 (repair) 3/15/2019 - 9/1/2019
     # Note: EDI in effect, DtStop expressed as "through 8/31/2019"
     # Result needs to be:
     #  Use  DtStart      DtStop
     #  ----------------------------
-    #   2   09/22/2019 - 12/31/9999
-    #   6   09/15/2019 - 09/22/2019
-    #   2   09/01/2019 - 09/15/2019
-    #   5   03/15/2019 - 09/01/2019
-    #   1   03/01/2018   03/15/2019
+    #   0   09/22/2019 - 12/31/9999
+    #   2   09/15/2019 - 09/22/2019
+    #   0   09/01/2019 - 09/15/2019
+    #   1   03/15/2019 - 09/01/2019
+    #   4   03/01/2018   03/15/2019
     #   0   01/01/2018   03/01/2019
     # Total Records: 6
+    # c7,c8
     #-------------------------------------------------------
-    encodeRequest '{"cmd":"save","selected":[],"limit":0,"offset":0,"changes":[{"recid":1,"RSID":0,"UseStatus":5,"DtStart":"3/15/2019","DtStop":"8/31/2019","BID":1,"BUD":"REX","RID":1,"Comment":"","CreateBy":211,"LastModBy":211,"w2ui":{}}],"RID":1}'
+    encodeRequest '{"cmd":"save","selected":[],"limit":0,"offset":0,"changes":[{"recid":1,"RSID":0,"UseStatus":1,"DtStart":"3/15/2019","DtStop":"8/31/2019","BID":1,"BUD":"REX","RID":1,"Comment":"","CreateBy":211,"LastModBy":211,"w2ui":{}}],"RID":1}'
     dojsonPOST "http://localhost:8270/v1/rentableusestatus/1/1" "request" "${TFILES}${STEP}"  "RentableUseStatus-Save"
     encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0}'
     dojsonPOST "http://localhost:8270/v1/rentableusestatus/1/1" "request" "${TFILES}${STEP}"  "RentableUseStatus-Search"
@@ -178,19 +182,20 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     #   rus            #######
     #   Result   @@@@@@#######*********
     #-----------------------------------------------
-    # SetStatus  3 (employee) 8/1/2019 - 9/7/2019
+    # SetStatus  3 8/1/2019 - 9/7/2019
     # Note: EDI in effect, DtStop expressed as "through 9/6/2019"
     # Result needs to be:
     #  Use  DtStart      DtStop
     #  ----------------------------
-    #   2   09/22/2019 - 12/31/9999
-    #   6   09/15/2019 - 09/22/2019
-    #   2   09/01/2019 - 09/15/2019
+    #   0   09/22/2019 - 12/31/9999
+    #   2   09/15/2019 - 09/22/2019
+    #   0   09/01/2019 - 09/15/2019
     #   3   08/01/2019 - 09/07/2019
-    #   5   03/15/2019 - 08/01/2019
-    #   1   03/01/2018   03/15/2019
+    #   1   03/15/2019 - 08/01/2019
+    #   4   03/01/2018   03/15/2019
     #   0   01/01/2018   03/01/2019
     # Total Records: 7
+    # c9,c10
     #-------------------------------------------------------
     encodeRequest '{"cmd":"save","selected":[],"limit":0,"offset":0,"changes":[{"recid":1,"RSID":13,"UseStatus":3,"DtStart":"8/1/2019","DtStop":"9/6/2019","BID":1,"BUD":"REX","RID":1,"Comment":"","CreateBy":211,"LastModBy":211,"w2ui":{}}],"RID":1}'
     dojsonPOST "http://localhost:8270/v1/rentableusestatus/1/1" "request" "${TFILES}${STEP}"  "RentableUseStatus-Save"
@@ -206,21 +211,22 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     #   rus            @@@@@@@
     #   Result   @@@@@@@@@@@@@*********
     #-----------------------------------------------
-    # SetStatus  5 (repair) 7/1/2019 - 8/7/2019
+    # SetStatus  1 7/1/2019 - 8/7/2019
     # Note: EDI in effect, DtStop expressed as "through 8/6/2019"
     # Result needs to be:
     #  Use  DtStart      DtStop
     #  ----------------------------
-    #   2   09/22/2019 - 12/31/9999
-    #   6   09/15/2019 - 09/22/2019
-    #   2   09/01/2019 - 09/15/2019
+    #   0   09/22/2019 - 12/31/9999
+    #   2   09/15/2019 - 09/22/2019
+    #   0   09/01/2019 - 09/15/2019
     #   3   08/07/2019 - 09/07/2019
-    #   5   03/15/2019 - 08/07/2019
-    #   1   03/01/2018   03/15/2019
+    #   1   03/15/2019 - 08/07/2019
+    #   4   03/01/2018   03/15/2019
     #   0   01/01/2018   03/01/2019
     # Total Records: 7
+    # c11,c12
     #-------------------------------------------------------
-    encodeRequest '{"cmd":"save","selected":[],"limit":0,"offset":0,"changes":[{"recid":1,"RSID":13,"UseStatus":5,"DtStart":"7/1/2019","DtStop":"8/6/2019","BID":1,"BUD":"REX","RID":1,"Comment":"","CreateBy":211,"LastModBy":211,"w2ui":{}}],"RID":1}'
+    encodeRequest '{"cmd":"save","selected":[],"limit":0,"offset":0,"changes":[{"recid":1,"RSID":13,"UseStatus":1,"DtStart":"7/1/2019","DtStop":"8/6/2019","BID":1,"BUD":"REX","RID":1,"Comment":"","CreateBy":211,"LastModBy":211,"w2ui":{}}],"RID":1}'
     dojsonPOST "http://localhost:8270/v1/rentableusestatus/1/1" "request" "${TFILES}${STEP}"  "RentableUseStatus-Save"
     encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0}'
     dojsonPOST "http://localhost:8270/v1/rentableusestatus/1/1" "request" "${TFILES}${STEP}"  "RentableUseStatus-Search"
@@ -239,14 +245,15 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     # Result needs to be:
     #  Use  DtStart      DtStop
     #  ----------------------------
-    #   2   09/22/2019 - 12/31/9999
-    #   6   09/15/2019 - 09/22/2019
-    #   2   09/01/2019 - 09/15/2019
+    #   0   09/22/2019 - 12/31/9999
+    #   2   09/15/2019 - 09/22/2019
+    #   0   09/01/2019 - 09/15/2019
     #   3   08/01/2019 - 09/07/2019
-    #   5   03/15/2019 - 08/01/2019
-    #   1   03/01/2018   03/15/2019
+    #   1   03/15/2019 - 08/01/2019
+    #   4   03/01/2018   03/15/2019
     #   0   01/01/2018   03/01/2019
     # Total Records: 7
+    # c13,c14
     #-------------------------------------------------------
     encodeRequest '{"cmd":"save","selected":[],"limit":0,"offset":0,"changes":[{"recid":1,"RSID":13,"UseStatus":3,"DtStart":"8/1/2019","DtStop":"8/10/2019","BID":1,"BUD":"REX","RID":1,"Comment":"","CreateBy":211,"LastModBy":211,"w2ui":{}}],"RID":1}'
     dojsonPOST "http://localhost:8270/v1/rentableusestatus/1/1" "request" "${TFILES}${STEP}"  "RentableUseStatus-Save"
@@ -267,10 +274,10 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     # Result needs to be:
     #  Use  DtStart      DtStop
     #  ----------------------------
-    #   2   09/01/2019 - 12/31/9999
+    #   0   09/01/2019 - 12/31/9999
     #   3   08/01/2019 - 09/07/2019
-    #   5   03/15/2019 - 08/01/2019
-    #   1   03/01/2018   03/15/2019
+    #   1   03/15/2019 - 08/01/2019
+    #   4   03/01/2018   03/15/2019
     #   0   01/01/2018   03/01/2019
     # Total Records: 7
     #-------------------------------------------------------
