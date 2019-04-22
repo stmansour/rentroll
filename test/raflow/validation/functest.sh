@@ -192,8 +192,9 @@ dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "p10"  "Valid
 #  Expected Results:
 #  1. Error: Start dates must be prior to stop dates
 #------------------------------------------------------------------------------
-echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A13%7D" > request
-dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "d0"  "Validate RAFlow -- Dates"
+# sman 4/22/2019
+# echo "%7B%22cmd%22%3A%22get%22%2C%22FlowID%22%3A13%7D" > request
+# dojsonPOST "http://localhost:8270/v1/validate-raflow/1/" "request" "d0"  "Validate RAFlow -- Dates"
 
 #------------------------------------------------------------------------------
 #  TEST pt0

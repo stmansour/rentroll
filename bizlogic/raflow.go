@@ -220,14 +220,10 @@ func ValidateRAFlowParts(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsEr
 // 2. If RAID > 0 then the all Start Dates on the Dates/Agent flow part must be >= Start dates on the RAID
 // ---------------------------------------------
 func validateDates(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, raFlowNonFieldsErrors *RAFlowNonFieldsErrors, a *rlib.RAFlowJSONData, RAID int64) error {
-
-	var (
-		err error
-	)
+	var err error
 
 	// NOTE: Validation not require for the date type fields.
 	// Because it handles while Unmarshalling string into rlib.JSONDate
-
 	dates := a.Dates
 	// call validation function
 	errs := rtags.ValidateStructFromTagRules(dates)
@@ -236,6 +232,8 @@ func validateDates(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, 
 		Total:  len(errs),
 		Errors: errs,
 	}
+
+	// rlib.Console("A: datesFieldsErrors.Total = %d\n", datesFieldsErrors.Total)
 
 	// -----------------------------------------------
 	// -------- Agreements Date check ----------------
@@ -253,6 +251,7 @@ func validateDates(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, 
 		datesFieldsErrors.Total++
 	}
 
+	// rlib.Console("B: datesFieldsErrors.Total = %d\n", datesFieldsErrors.Total)
 	// -----------------------------------------------
 	// -------- Rent Date check ---------------------
 	// -----------------------------------------------
@@ -269,6 +268,7 @@ func validateDates(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, 
 		datesFieldsErrors.Total++
 	}
 
+	// rlib.Console("C: datesFieldsErrors.Total = %d\n", datesFieldsErrors.Total)
 	// -----------------------------------------------
 	// --------- Possession Date check ---------------
 	// -----------------------------------------------
@@ -285,50 +285,59 @@ func validateDates(ctx context.Context, raFlowFieldsErrors *RAFlowFieldsErrors, 
 		datesFieldsErrors.Total++
 	}
 
-	// --------------------------------------------------
-	// 2. If RAID > 0 then the all Start Dates on the Dates/Agent flow part must be >= Start dates on the RAID
-	// --------------------------------------------------
-	if RAID > 0 {
-
-		ra, err := rlib.GetRentalAgreement(ctx, RAID)
-		if err != nil {
-			return err
-		}
-
-		raAgreementStartDate := time.Time(ra.AgreementStart)
-		raRentStartDate := time.Time(ra.RentStart)
-		raPossessionStartDate := time.Time(ra.PossessionStart)
-
-		if !(agreementStartDate.Equal(raAgreementStartDate) || agreementStartDate.After(raAgreementStartDate)) {
-			// define and assign error
-			err = fmt.Errorf("agreement start date must be after or equal to RAID: %d agreement start date", RAID)
-			datesFieldsErrors.Errors["AgreementStart"] = append(datesFieldsErrors.Errors["AgreementStart"], err.Error())
-
-			// Modify date section error count
-			datesFieldsErrors.Total++
-		}
-
-		if !(rentStartDate.Equal(raRentStartDate) || rentStartDate.After(raRentStartDate)) {
-
-			// define and assign error
-			err = fmt.Errorf("rent start date must be after or equal to RAID: %d rent start date", RAID)
-			datesFieldsErrors.Errors["RentStart"] = append(datesFieldsErrors.Errors["RentStart"], err.Error())
-
-			// Modify date section error count
-			datesFieldsErrors.Total++
-		}
-
-		if !(possessionStartDate.Equal(raPossessionStartDate) || possessionStartDate.After(raPossessionStartDate)) {
-
-			// define and assign error
-			err = fmt.Errorf("possession start date must be after or equal to RAID: %d possession start date", RAID)
-			datesFieldsErrors.Errors["PossessionStart"] = append(datesFieldsErrors.Errors["PossessionStart"], err.Error())
-
-			// Modify date section error count
-			datesFieldsErrors.Total++
-		}
-
-	}
+	// The following check is just wrong. Not sure why it was added.
+	// sman 4/22/2019
+	// rlib.Console("D: datesFieldsErrors.Total = %d\n", datesFieldsErrors.Total)
+	// // --------------------------------------------------
+	// // 2. If RAID > 0 then the all Start Dates on the Dates/Agent flow part must be >= Start dates on the RAID
+	// // --------------------------------------------------
+	// if RAID > 0 {
+	//
+	// 	ra, err := rlib.GetRentalAgreement(ctx, RAID)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	//
+	// 	raAgreementStartDate := time.Time(ra.AgreementStart)
+	// 	raRentStartDate := time.Time(ra.RentStart)
+	// 	raPossessionStartDate := time.Time(ra.PossessionStart)
+	//
+	// 	rlib.Console("agreementStartDate %s, raAgreementStartDate =%s\n", rlib.ConDt(&agreementStartDate), rlib.ConDt(&raAgreementStartDate))
+	// 	if !(agreementStartDate.Equal(raAgreementStartDate) || agreementStartDate.After(raAgreementStartDate)) {
+	// 		// define and assign error
+	// 		err = fmt.Errorf("agreement start date must be after or equal to RAID: %d agreement start date", RAID)
+	// 		datesFieldsErrors.Errors["AgreementStart"] = append(datesFieldsErrors.Errors["AgreementStart"], err.Error())
+	//
+	// 		// Modify date section error count
+	// 		datesFieldsErrors.Total++
+	// 	}
+	//
+	// 	rlib.Console("E: datesFieldsErrors.Total = %d\n", datesFieldsErrors.Total)
+	// 	rlib.Console("rentStartDate %s, raRentStartDate =%s\n", rlib.ConDt(&rentStartDate), rlib.ConDt(&raRentStartDate))
+	// 	if !(rentStartDate.Equal(raRentStartDate) || rentStartDate.After(raRentStartDate)) {
+	//
+	// 		// define and assign error
+	// 		err = fmt.Errorf("rent start date must be after or equal to RAID: %d rent start date", RAID)
+	// 		datesFieldsErrors.Errors["RentStart"] = append(datesFieldsErrors.Errors["RentStart"], err.Error())
+	//
+	// 		// Modify date section error count
+	// 		datesFieldsErrors.Total++
+	// 	}
+	//
+	// 	rlib.Console("F: datesFieldsErrors.Total = %d\n", datesFieldsErrors.Total)
+	// 	rlib.Console("possessionStartDate %s, raPossessionStartDate =%s\n", rlib.ConDt(&possessionStartDate), rlib.ConDt(&raPossessionStartDate))
+	// 	if !(possessionStartDate.Equal(raPossessionStartDate) || possessionStartDate.After(raPossessionStartDate)) {
+	//
+	// 		// define and assign error
+	// 		err = fmt.Errorf("possession start date must be after or equal to RAID: %d possession start date", RAID)
+	// 		datesFieldsErrors.Errors["PossessionStart"] = append(datesFieldsErrors.Errors["PossessionStart"], err.Error())
+	//
+	// 		// Modify date section error count
+	// 		datesFieldsErrors.Total++
+	// 	}
+	// 	rlib.Console("G: datesFieldsErrors.Total = %d\n", datesFieldsErrors.Total)
+	//
+	// }
 
 	raFlowFieldsErrors.Dates = datesFieldsErrors
 

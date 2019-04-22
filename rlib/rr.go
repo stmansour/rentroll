@@ -398,7 +398,7 @@ func getRentRollStaticInfoMap(ctx context.Context, BID int64, startDt, stopDt ti
 		rentableStaticInfoMap   = make(map[int64][]RentRollStaticInfo)
 		noRentableStaticInfoMap = make(map[int64][]RentRollStaticInfo)
 	)
-	Console("Entered in %s\n", funcname)
+	Console("Entered %s\n", funcname)
 
 	// initialize some structures and some required things
 	InitBizInternals(BID, &xbiz)
@@ -407,6 +407,7 @@ func getRentRollStaticInfoMap(ctx context.Context, BID int64, startDt, stopDt ti
 	fmtQuery := formatrentRollStaticInfoQuery(BID, startDt, stopDt, "", "", -1, -1)
 
 	// Execute query in current transaction for Rentable section
+	Console("formatrentRollStaticInfoQuery: = %s\n", fmtQuery)
 	rrRows, err := RRdb.Dbrr.Query(fmtQuery)
 	if err != nil {
 		return rentableStaticInfoMap, noRentableStaticInfoMap, err

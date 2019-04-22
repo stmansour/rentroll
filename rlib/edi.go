@@ -282,6 +282,17 @@ func EDIHandleIncomingDateRange(BID int64, dtStart, dtStop *time.Time) {
 	}
 }
 
+// EDIHandleIncomingJSONDateRange will modify front end dates coming from web
+// service/command line app. If edi is enabled for BID then it will modify
+// stopDate incrementing by one day.
+// -----------------------------------------------------------------------------
+func EDIHandleIncomingJSONDateRange(BID int64, dtStart, dtStop *JSONDate) {
+	d1 := time.Time(*dtStart)
+	d2 := time.Time(*dtStop)
+	EDIHandleIncomingDateRange(BID, &d1, &d2)
+	*dtStop = JSONDate(d2)
+}
+
 // EDIHandleOutgoingDateRange will modify give stopDate if EDI is enabled for
 // the given business
 // -----------------------------------------------------------------------------

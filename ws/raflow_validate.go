@@ -31,8 +31,8 @@ func SvcValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var (
 		err error
 	)
-	fmt.Printf("Entered %s\n", funcname)
-	fmt.Printf("Request: %s:  BID = %d,  FlowID = %d\n", d.wsSearchReq.Cmd, d.BID, d.ID)
+	rlib.Console("Entered %s\n", funcname)
+	rlib.Console("Request: %s:  BID = %d,  FlowID = %d\n", d.wsSearchReq.Cmd, d.BID, d.ID)
 
 	switch d.wsSearchReq.Cmd {
 	case "get":
@@ -48,7 +48,7 @@ func SvcValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 // ValidateRAFlow validate RAFlow's fields section wise
 func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "ValidateRAFlow"
-	fmt.Printf("Entered %s\n", funcname)
+	rlib.Console("Entered %s\n", funcname)
 
 	var (
 		err                   error
@@ -120,6 +120,12 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
+	rlib.EDIHandleIncomingJSONDateRange(raFlowData.Meta.BID, &raFlowData.Dates.AgreementStart, &raFlowData.Dates.AgreementStop)
+	rlib.EDIHandleIncomingJSONDateRange(raFlowData.Meta.BID, &raFlowData.Dates.PossessionStart, &raFlowData.Dates.PossessionStop)
+	rlib.EDIHandleIncomingJSONDateRange(raFlowData.Meta.BID, &raFlowData.Dates.RentStart, &raFlowData.Dates.RentStop)
+
+	rlib.Console("DtStart, DtStop = %s\n", rlib.ConsoleJSONDRange(&raFlowData.Dates.AgreementStart, &raFlowData.Dates.AgreementStop))
+
 	// CHECK DATA FULFILLED
 	bizlogic.DataFulfilledRAFlow(ctx, &raFlowData, &raflowRespData.DataFulfilled)
 
@@ -138,6 +144,8 @@ func ValidateRAFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	g.Total += totalFieldsError + totalNonFieldsError
 	g.Errors = raFlowFieldsErrors
 	g.NonFieldsErrors = raFlowNonFieldsErrors
+
+	rlib.Console("Total Field errors: %d, non-field errors: %d\n", totalFieldsError, totalNonFieldsError)
 
 	if g.Total == 0 {
 		// SET STATE OF THIS FLOW TO PENDING FIRST APPROVAL

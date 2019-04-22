@@ -335,17 +335,6 @@ window.buildBusinessElements = function () {
             };
         },
     });
-    $(document).on("keypress change", "input[name=BUD]", function(e) {
-        console.log('got a keypress');
-        // if event type is keypress then
-        if (e.type == 'keypress'){
-            // do not proceed further until the user presses the Enter key
-            if (e.which != 9) {
-                return;
-            }
-            console.log('got a tab key');
-        }
-    });
 
     //------------------------------------------------------------------------
     //  bizCloseForm
