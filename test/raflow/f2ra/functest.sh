@@ -726,6 +726,46 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}${STEP}"  "LeaseStatus"
 fi
 
+#------------------------------------------------------------------------------
+#  TEST n
+#  Bug was found. Original rental agreement for a hotel room was made on the
+#  default date of 4/21/2019.  The actual desired date was 1/10/2019.
+#  When the Rental Agreement was updated
+#  the rent assessments for the month of November were missed.  This test is
+#  used to verify that bug fixes to make this scenario work.
+#
+#  Scenario
+#  RA 1 is from 7/1/2018 to 6/30/2019
+#  Periods for 7/31, 8/31, 9/30, and 10/31 have been closed.
+#  Amend RA 1 on Nov 6. backdate the amendment to 10/15/2018
+#
+#  Expected Results:
+#  1. Ensure that Prorated assessments for October Rent and PetRent are
+#     created October for both RA 1 and RA 2.
+#  2. Ensure that the rent assessments for November are created for RA 2
+#  3. Validate Lease Status
+#------------------------------------------------------------------------------
+TFILES="n"
+STEP=0
+if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
+    echo "Test ${TFILES}"
+    echo "Create new database... x${TFILES}.sql"
+
+    RENTROLLSERVERNOW="-testDtNow 4/25/2019"
+    stopRentRollServer
+    mysql --no-defaults rentroll < x${TFILES}.sql
+    startRentRollServer
+
+    RAIDREFNO="JUXN487MMYD7V8NGG9WT"
+
+    #----------------------------------------------------------------
+    # Make the updated RefNo an Active RA
+    #----------------------------------------------------------------
+    encodeRequest '{"UserRefNo":"JUXN487MMYD7V8NGG9WT","RAID":2,"Version":"refno","Action":4,"Mode":"Action"}' > request
+    dojsonPOST "http://localhost:8270/v1/raactions/1/2" "request" "${TFILES}${STEP}"  "WebService--Activate-RefNo"
+
+fi
+
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
 

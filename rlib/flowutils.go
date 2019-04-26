@@ -126,3 +126,55 @@ func GenerateUserRefNo() string {
 	}
 	return string(guid[:])
 }
+
+// F2RATimeGap looks for a gap between the old and new version of the Rental
+// Agreement in which Rentables associated with the RenalAgreements then we
+// need to identify that time period and see if any of the Rentables need to
+// have their RentalAgreementRentable reference updated.
+//
+// Examples:
+//
+//                             now
+//                              |
+//     Case 1                 ##|## RA1  RID 1 ####
+//                              |                  @@@@ RA2  RID 1,2 @@@@
+//                              |
+//     Case 2                 ##|## RA1  RID 1 ####
+//                              |              @@@@ RA2  RID 1,2 @@@@
+//                              |
+//     Case 3                 ##|## RA1  RID 1 ####|     |
+//                              |                  |<gap>|@@@@ RA2  RID 1,2 @@@@
+//                              |
+//     Case 4                 ##|## RA1  RID 2 ####
+//            @@ RA2, RID 1,2 @@|<------gap------>|
+//
+//     Case 5                 ##|## RA1  RID 2 ####
+//        @@ RA2, RID 1,2 @@    |<------gap------>|
+//
+// INPUTS
+//     ra1 - prior rental agreement
+//     ra2 - newest rental agreement
+//
+// RETURNS
+//     bool = if true then there is a gap, if false then no gap
+//     g1,g2 = if bool is true then g1,g2 define the gap in time where rentables
+//         refs should be cleared from any reference to a rental agreement
+//------------------------------------------------------------------------------
+func F2RATimeGap(ra1, ra2 *RentalAgreement) (bool, time.Time, time.Time) {
+	var g1, g2 time.Time
+	haveGap := false
+	now := time.Now()
+	if ra2.PossessionStart.After(ra1.PossessionStop) && ra2.PossessionStop.After(now) { // case 3
+		g1 = ra2.PossessionStart
+		g2 = ra2.PossessionStop
+		haveGap = true
+	} else if ra2.PossessionStop.Before(ra1.PossessionStop) && ra1.PossessionStop.After(now) { // case 4 & 5
+		g1 = ra1.PossessionStart
+		g2 = ra1.PossessionStop
+		haveGap = true
+	}
+	if haveGap && g1.Before(now) { // snap to "now" if needed...
+		g1 = now
+	}
+	return haveGap, g1, g2
+}
