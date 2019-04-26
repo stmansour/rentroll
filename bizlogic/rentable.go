@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"rentroll/rlib"
 	"strings"
-	"time"
 )
 
 // InsertRentable first validates that inserting the rentable does
@@ -380,7 +379,7 @@ func DeleteRentable(ctx context.Context, r *rlib.Rentable) error {
 	// Is this rentable reserved in the future?
 	// If so, we cannot delete it.
 	//-----------------------------------------------------------
-	now := time.Now()
+	now := rlib.Now()
 	q = fmt.Sprintf("SELECT COUNT(RLID) FROM RentableLeaseStatus WHERE LeaseStatus=%d and BID=%d and RID=%d and DtStart > %q", rlib.LEASESTATUSreserved, r.BID, r.RID, now.Format(rlib.RRDATEFMTSQL))
 	row = rlib.RRdb.Dbrr.QueryRow(q)
 	if err := row.Scan(&count); err != nil {
