@@ -126,8 +126,8 @@ window.genDateRangeNavigator = function (prefix) {
     var html1 = '<div class="w2ui-field" style="padding: 0px 5px;">From: <input type="us-dateA" name="' + prefix + 'D1"></div>';
     var html2 = '<div class="w2ui-field" style="padding: 0px 5px;">To: <input  type="us-dateB" name="' + prefix + 'D2">' + '</div>';
     var tmp = [{ type: 'break', id: 'break1' },
-        { type: 'button', id: 'monthback', icon: 'fas fa-backward', tooltip: 'month back<br>[Shift] extend<br>[meta] year back' },
-        { type: 'button', id: 'dayback', icon: 'fas fa-chevron-circle-left', tooltip: 'day back<br>[Shift] extend<br>[meta] week back' },
+        { type: 'button', id: 'monthback', icon: 'fas fa-backward'/*, tooltip: 'month back<br>[Shift] extend<br>[meta] year back'*/ },
+        { type: 'button', id: 'dayback', icon: 'fas fa-chevron-circle-left' /*, tooltip: 'day back<br>[Shift] extend<br>[meta] week back'*/ },
         { type: 'html', id: 'D1', html: function() {return html1; },
         onRefresh: function(event) {
                if(event.target == 'D1'){
@@ -141,7 +141,7 @@ window.genDateRangeNavigator = function (prefix) {
                }
             }
         },
-        { type: 'button', id: 'today', icon: 'far fa-circle', tooltip: 'this month<br>[Shift] today' },
+        { type: 'button', id: 'today', icon: 'far fa-circle'/*, tooltip: 'this month<br>[Shift] today'*/ },
         { type: 'html', id: 'D2', html: function() {return html2; },
         onRefresh: function(event) {
                if(event.target == 'D2'){
@@ -155,8 +155,8 @@ window.genDateRangeNavigator = function (prefix) {
                }
             }
         },
-        { type: 'button', id: 'dayfwd', icon: 'fas fa-chevron-circle-right', tooltip: 'day fwd<br>[Shift] extend<br>[meta] week fwd' },
-        { type: 'button', id: 'monthfwd', icon: 'fas fa-forward', tooltip: 'month fwd<br>[Shift] extend<br>[meta] year fwd' },
+        { type: 'button', id: 'dayfwd', icon: 'fas fa-chevron-circle-right'/*, tooltip: 'day fwd<br>[Shift] extend<br>[meta] week fwd'*/ },
+        { type: 'button', id: 'monthfwd', icon: 'fas fa-forward'/*, tooltip: 'month fwd<br>[Shift] extend<br>[meta] year fwd'*/ },
     ];
     return tmp;
 };
