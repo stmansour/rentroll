@@ -137,7 +137,7 @@
                             {
                                 "ARID": 24,
                                 "ARName": "Pet Rent",
-                                "ASMID": 457,
+                                "ASMID": 500,
                                 "AtSigningPreTax": 0,
                                 "Comment": "prorated for 12 of 31 days | Derived from RAID 2, ASMID 19",
                                 "ContractAmount": 3.87,
@@ -152,7 +152,7 @@
                             {
                                 "ARID": 24,
                                 "ARName": "Pet Rent",
-                                "ASMID": 458,
+                                "ASMID": 501,
                                 "AtSigningPreTax": 0,
                                 "Comment": "Derived from RAID 2, ASMID 19",
                                 "ContractAmount": 10,
@@ -180,7 +180,7 @@
                             {
                                 "ARID": 26,
                                 "ARName": "Rent Non-Taxable",
-                                "ASMID": 452,
+                                "ASMID": 495,
                                 "AtSigningPreTax": 0,
                                 "Comment": "prorated for 12 of 31 days | Derived from RAID 2, ASMID 11",
                                 "ContractAmount": 387.1,
@@ -195,7 +195,7 @@
                             {
                                 "ARID": 26,
                                 "ARName": "Rent Non-Taxable",
-                                "ASMID": 453,
+                                "ASMID": 496,
                                 "AtSigningPreTax": 0,
                                 "Comment": "Derived from RAID 2, ASMID 11",
                                 "ContractAmount": 1000,
@@ -210,7 +210,7 @@
                             {
                                 "ARID": 28,
                                 "ARName": "Security Deposit Assessment",
-                                "ASMID": 456,
+                                "ASMID": 499,
                                 "AtSigningPreTax": 0,
                                 "Comment": "Derived from RAID 2, ASMID 402",
                                 "ContractAmount": 4500,

@@ -24,6 +24,7 @@
 ./raflow/f2ra/xk.sql
 ./raflow/f2ra/xl.sql
 ./raflow/f2ra/xm.sql
+./raflow/f2ra/xn.sql
 ./raflow/flow2ra/rr.sql
 ./raflow/flow2ra/rrsm1.sql
 ./raflow/initraflow/ra0.sql
@@ -54,9 +55,7 @@
 ./rut/xb.sql
 ./rut/xf.sql
 ./setup/accord.sql
-./sqlschema/receipts.sql
 ./strlist/refdb.sql
-./testdb/restore.sql
 ./tws/rr.sql
 ./tws3/rr.sql
 ./webclient/webclientTest.sql

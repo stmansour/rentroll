@@ -32,7 +32,7 @@ ASM00000017  RA00000002  Rentable002  monthly        daily            1,000.00  
 ASM00000036  RA00000003  Rentable003  monthly        daily            1,000.00           Rent Non-Taxable           
 ASM00000055  RA00000004  Rentable004  monthly        daily            1,000.00           Rent Non-Taxable           
 ASM00000073  RA00000005  Rentable005  monthly        daily            1,000.00           Rent Non-Taxable           
-ASM00000451  RA00000001  Rentable001  non-recurring  non-recurring      612.90           Rent Non-Taxable           
+ASM00000452  RA00000001  Rentable001  non-recurring  non-recurring      612.90           Rent Non-Taxable           
 ASM00000263  RA00000016  Rentable016  monthly        daily               10.00           Pet Rent                   
 ASM00000025  RA00000002  Rentable002  monthly        daily               10.00           Pet Rent                   
 ASM00000282  RA00000017  Rentable017  monthly        daily               10.00           Pet Rent                   
@@ -52,7 +52,7 @@ ASM00000177  RA00000011  Rentable011  monthly        daily               10.00  
 ASM00000196  RA00000012  Rentable012  monthly        daily               10.00           Pet Rent                   
 ASM00000215  RA00000013  Rentable013  monthly        daily               10.00           Pet Rent                   
 ASM00000244  RA00000015  Rentable015  monthly        daily               10.00           Pet Rent                   
-ASM00000450  RA00000001  Rentable001  monthly        daily           -1,000.00           Rent Non-Taxable           
+ASM00000451  RA00000001  Rentable001  monthly        daily           -1,000.00           Rent Non-Taxable           
 ASM00000445  RA00000024  Rentable001  non-recurring  daily              387.10           Rent Non-Taxable           
 ASM00000447  RA00000024  Rentable001  monthly        daily            1,000.00           Rent Non-Taxable           
 ASM00000402  RA00000002  Rentable002  non-recurring  non-recurring    4,500.00           Security Deposit Assessment

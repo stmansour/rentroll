@@ -118,7 +118,7 @@
             "Assessment": 1000,
             "Balance": 0,
             "Date": "8/1/2018",
-            "Description": "REVERSAL: Rent Non-Taxable (Reversed by ASM00000450)",
+            "Description": "REVERSAL: Rent Non-Taxable (Reversed by ASM00000451)",
             "Payor": "Louann Lezlie Mejia",
             "RAID": "RA-1",
             "RCPTID": "",
@@ -129,7 +129,7 @@
             "recid": 7
         },
         {
-            "ASMID": "ASM-451",
+            "ASMID": "ASM-452",
             "AppliedAmount": 0,
             "Assessment": 612.9,
             "Balance": 612.9,
@@ -145,7 +145,7 @@
             "recid": 8
         },
         {
-            "ASMID": "ASM-450",
+            "ASMID": "ASM-451",
             "AppliedAmount": 0,
             "Assessment": -1000,
             "Balance": 612.9,

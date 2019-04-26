@@ -617,7 +617,7 @@ func HandleNonOverlapAmendment(ctx context.Context, x *rlib.F2RAWriteHandlerCont
 		now := rlib.Now()
 		q := fmt.Sprintf(`SELECT %s
 			FROM Assessments
-			WHERE PASMID = 0 AND BID=%d AND RAID=%d AND RentCycle > 0 AND Start > %q
+			WHERE PASMID = 0 AND BID=%d AND RAID=%d  AND Start > %q
 			ORDER By Start ASC, Amount DESC;`,
 			rlib.RRdb.DBFields["Assessments"],
 			raUnchanged.BID, raUnchanged.RAID,
@@ -634,6 +634,9 @@ func HandleNonOverlapAmendment(ctx context.Context, x *rlib.F2RAWriteHandlerCont
 				return err
 			}
 			rlib.Console("Process Future assessment: ASMID = %d\n", a.ASMID)
+			if be := ReverseAssessment(ctx, &a, 2, &now, &x.LastClose); len(be) > 0 {
+				return BizErrorListToError(be)
+			}
 		}
 
 		if err = rows.Err(); err != nil {

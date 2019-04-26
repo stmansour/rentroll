@@ -756,13 +756,13 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     mysql --no-defaults rentroll < x${TFILES}.sql
     startRentRollServer
 
-    RAIDREFNO="JUXN487MMYD7V8NGG9WT"
+    RAIDREFNO="JUYIPZL6L4Q74Q3DI2N8"
 
     #----------------------------------------------------------------
     # Make the updated RefNo an Active RA
     #----------------------------------------------------------------
-    encodeRequest '{"UserRefNo":"JUXN487MMYD7V8NGG9WT","RAID":2,"Version":"refno","Action":4,"Mode":"Action"}' > request
-    dojsonPOST "http://localhost:8270/v1/raactions/1/2" "request" "${TFILES}${STEP}"  "WebService--Activate-RefNo"
+    encodeRequest '{"UserRefNo":"JUYIPZL6L4Q74Q3DI2N8","RAID":1,"Version":"refno","Action":4,"Mode":"Action"}' > request
+    dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}${STEP}"  "WebService--Activate-RefNo"
 
 fi
 
