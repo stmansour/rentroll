@@ -242,6 +242,10 @@ func F2RAHandleOldAssessments(ctx context.Context, x *rlib.F2RAWriteHandlerConte
 	// var skipASMID int64
 	rlib.Console("Entered F2RAHandleOldAssessments\n")
 
+	if err = HandleNonOverlapAmendment(ctx, x); err != nil {
+		return err
+	}
+
 	//=========================================================================
 	//  FOR EVERY RENTAL AGREEMENT THAT IS IMPACTED BY THIS UPDATE...
 	//=========================================================================
@@ -574,6 +578,68 @@ func F2RAHandleOldAssessments(ctx context.Context, x *rlib.F2RAWriteHandlerConte
 	// rlib.Console("raChain[%d] = RAID = %d, start/stop = %s\n", i, x.RaChainOrig[i].RAID, rlib.ConsoleDRange(&x.RaChainOrig[i].RentStart, &x.RaChainOrig[i].RentStop))
 	//
 	// }
+
+	return nil
+}
+
+// HandleNonOverlapAmendment handles amended rental agreements where the amended
+// date range does not overlap the current rental agreement date range.
+//------------------------------------------------------------------------------
+func HandleNonOverlapAmendment(ctx context.Context, x *rlib.F2RAWriteHandlerContext) error {
+	rlib.Console("Entered HandleNonOverlapAmendment\n")
+	for i := 0; i < len(x.RaChainOrig); i++ {
+		ra := x.RaChainOrig[i]
+		x.LastClose.ExpandAsmDtStop = ra.RentStop // do not expand past this date
+		raUnchanged := x.RaChainOrigUnchanged[i]
+
+		//-------------------------------------------------------------------------
+		// If there is overlap in the ranges, then the assessments are handled by
+		// F2RAHandleOldAssessments()
+		//-------------------------------------------------------------------------
+		if rlib.DateRangeOverlap(&x.Ra.RentStart, &x.Ra.RentStop, &raUnchanged.RentStart, &raUnchanged.RentStop) {
+			continue
+		}
+
+		//--------------------------------------------------------------
+		// Here's how we process the assessments...
+		//
+		//                            now
+		//                             |
+		//     ###-ASM1-###       ###-ASM2-###        ###-ASM3-###
+		//
+		// If the term of the assessment has passed, skip it (ASM1).
+		//
+		// If the term of the assessment started before now and ends
+		// after now, we need to process it (prorate recurring asms).
+		//
+		// If the assessment period is in the future, reverse it.
+		//--------------------------------------------------------------
+		now := rlib.Now()
+		q := fmt.Sprintf(`SELECT %s
+			FROM Assessments
+			WHERE PASMID = 0 AND BID=%d AND RAID=%d AND RentCycle > 0 AND Start > %q
+			ORDER By Start ASC, Amount DESC;`,
+			rlib.RRdb.DBFields["Assessments"],
+			raUnchanged.BID, raUnchanged.RAID,
+			now)
+		rows, err := rlib.RRdb.Dbrr.Query(q)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var a rlib.Assessment
+			if err := rlib.ReadAssessments(rows, &a); err != nil {
+				return err
+			}
+			rlib.Console("Process Future assessment: ASMID = %d\n", a.ASMID)
+		}
+
+		if err = rows.Err(); err != nil {
+			return err
+		}
+	}
 
 	return nil
 }
