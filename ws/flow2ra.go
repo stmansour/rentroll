@@ -61,14 +61,18 @@ func Flow2RA(ctx context.Context, flowid int64) (int64, error) {
 	//----------------------------------------------------------------------------
 	x.IsNewOriginRaid = x.Raf.Meta.RAID == 0
 	rlib.Console("isNewOriginRaid = %t\n", x.IsNewOriginRaid)
+
+	//---------------------------------------------
+	//  UPDATE AN EXISTING RENTAL AGREEMENT...
+	//---------------------------------------------
 	if !x.IsNewOriginRaid { // update existing
 		changes, err := rlib.RAFlowDataDiff(ctx, x.Raf.Meta.RAID)
 		if err != nil {
 			rlib.Console("\n\nERROR IN FlowDataDIFF: %s\n\n\n", err.Error())
 			return nraid, err
 		}
-
 		rlib.Console("\tData changes found = %t\n", changes)
+
 		//-----------------------------------------------------------------------
 		// If there were changes to the data, create an amended Rental Agreement
 		//-----------------------------------------------------------------------
@@ -82,6 +86,7 @@ func Flow2RA(ctx context.Context, flowid int64) (int64, error) {
 			err = fmt.Errorf("there are no data changes")
 			return x.NewRAID, err
 		}
+
 		//------------------------------------------------------------
 		// if there are meta data changes, then updated existing RAID
 		//------------------------------------------------------------
@@ -92,7 +97,11 @@ func Flow2RA(ctx context.Context, flowid int64) (int64, error) {
 			return nraid, err
 		}
 		// rlib.Console("\tMetaData data updated on RAID=%d\n", nraid)
-	} else { // this is a new origin RA
+
+	} else {
+		//---------------------------------------------
+		//  CREATE A NEW RENTAL AGREEMENT...
+		//---------------------------------------------
 		nraid, err = FlowSaveRA(ctx, &x)
 		if err != nil {
 			rlib.Console("\n\nERROR IN FlowSaveRA: %s\n\n\n", err.Error())
@@ -296,6 +305,7 @@ func FlowSaveRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (int64, er
 	}
 
 	rlib.Console("A x.Raf.Dates.Term %s\n", rlib.ConsoleJSONDRange(&x.Raf.Dates.AgreementStart, &x.Raf.Dates.AgreementStop))
+	rlib.Console("x.Raf.Meta.RAID = %d\n", x.Raf.Meta.RAID)
 	if x.Raf.Meta.RAID > 0 {
 		rlib.Console("A1\n")
 		//------------------------------------------------------------
@@ -332,6 +342,8 @@ func FlowSaveRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (int64, er
 		RStop := time.Time(x.Raf.Dates.RentStop)
 		PStop := time.Time(x.Raf.Dates.PossessionStop)
 		now := rlib.Now() // can only override system time during testing
+		rlib.Console("AStart/AStop = %s\n", rlib.ConsoleDRange(&AStart, &AStop))
+		rlib.Console("rlib.Now() = %s\n", rlib.ConDt(&now))
 
 		chgs := 0
 		x.RaOrigIndex = -1 // mark that there is nothing to link to at the moment
@@ -343,53 +355,107 @@ func FlowSaveRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (int64, er
 		//  amended RA
 		//------------------------------------------------------------------
 		for i := 0; i < len(x.RaChainOrig); i++ {
+			rlib.Console("RAChain[%d] = RAID %d. Date mods...\n", i, x.RaChainOrig[i].RAID)
 			state := x.RaChainOrig[i].FLAGS & 0xf
 			if !(state == rlib.RASTATEActive || state == rlib.RASTATENoticeToMove) {
+				rlib.Console("state indicates not active, skipping\n")
 				continue // we're only interested in active RAs
 			}
 
 			x.RaOrigIndex = i // keep track of the RA currently active.
-			rlib.Console("RAChain[%d] = RAID %d. Date mods...\n", i, x.RaChainOrig[i].RAID)
 
 			//------------------------------------------------------------------
 			//  The not-so-obvious change is if the new RentalAgreement has a
 			//  timespan that is disjoint from the existing rental agreement AND
 			//  the existing rental agreement stop time is in the future (i.e.,
-			//  after the system "now" date/time).
+			//  after the system "now" date/time).  We need to make sure that we
+			//  properly adjust RentableLeaseStatus if the old and new RAs are
+			//  disjoint.  We also need to adjust if the old RA had a stop date
+			//  in the future and we need to trim its stop date back to "now".
+			//
+			//  scenario 1:    ###### new ######|<---gap--->|**** old ****
+			//  scenario 2:    ###### old ######|<---gap--->|**** new ****
+			//
+			//  modifier:                  now
+			//                              |
+			//                 ###### old ######
 			//------------------------------------------------------------------
 			if true {
-
 				if x.RaChainOrig[i].AgreementStop.After(AStart) && AStop.After(x.RaChainOrig[i].AgreementStart) {
-					rlib.Console("\tsetting AgreementStop to %s\n", AStart.Format(rlib.RRDATEFMT3))
+					rlib.Console("\t(a.) setting AgreementStop to %s\n", AStart.Format(rlib.RRDATEFMT3))
 					x.RaChainOrig[i].AgreementStop = AStart
 					chgs++
 				} else if x.RaChainOrig[i].AgreementStop.After(now) {
-					rlib.Console("\tsetting AgreementStop to %s\n", now.Format(rlib.RRDATEFMT3))
+					rlib.Console("\t(b.) setting AgreementStop to %s\n", now.Format(rlib.RRDATEFMT3))
 					x.RaChainOrig[i].AgreementStop = now
 					chgs++
 				}
 
 				if x.RaChainOrig[i].RentStop.After(RStart) && RStop.After(x.RaChainOrig[i].RentStart) {
-					rlib.Console("\tsetting RentStop to %s\n", RStart.Format(rlib.RRDATEFMT3))
+					rlib.Console("\t(a.) setting RentStop to %s\n", RStart.Format(rlib.RRDATEFMT3))
 					x.RaChainOrig[i].RentStop = RStart
 					chgs++
 				} else if x.RaChainOrig[i].RentStop.After(now) {
-					rlib.Console("\tsetting RentStop to %s\n", now.Format(rlib.RRDATEFMT3))
+					rlib.Console("\t(b.) setting RentStop to %s\n", now.Format(rlib.RRDATEFMT3))
 					x.RaChainOrig[i].RentStop = now
 					chgs++
 				}
 
 				if x.RaChainOrig[i].PossessionStop.After(PStart) && PStop.After(x.RaChainOrig[i].PossessionStart) {
-					rlib.Console("\tsetting PossessionStop to %s\n", PStart.Format(rlib.RRDATEFMT3))
+					rlib.Console("\t(a.) setting PossessionStop to %s\n", PStart.Format(rlib.RRDATEFMT3))
 					x.RaChainOrig[i].PossessionStop = PStart
 					chgs++
 				} else if x.RaChainOrig[i].PossessionStop.After(now) {
-					rlib.Console("\tsetting PossessionStop to %s\n", now.Format(rlib.RRDATEFMT3))
+					rlib.Console("\t(b.) setting PossessionStop to %s\n", now.Format(rlib.RRDATEFMT3))
 					x.RaChainOrig[i].PossessionStop = now
 					chgs++
 				}
-			} else {
+				disjoint := x.RaChainOrig[i].PossessionStart.After(PStop) || x.RaChainOrig[i].PossessionStop.Before(PStart)
 
+				//---------------------------------------------------------------------------------
+				// If the periods are disjoint, then we need to update the RentableLeaseStatus
+				// of all Rentables in the RentalAgreement
+				//---------------------------------------------------------------------------------
+				rlib.Console("disjoint = %t, PossessionStop = %s\n", disjoint, rlib.ConDt(&x.RaChainOrig[i].PossessionStop))
+				if disjoint && x.RaChainOrigUnchanged[i].PossessionStop.After(now) {
+					rlib.Console("\n\n***** ADJUSTING LEASE STATUS *****\n\n")
+					var ls rlib.RentableLeaseStatus
+					d1 := x.RaChainOrig[i].PossessionStart
+					if d1.Before(now) {
+						d1 = now
+					}
+					q := fmt.Sprintf("select %s from RentableLeaseStatus where DtStart >= %q ORDER BY DtStart LIMIT 1;",
+						rlib.RRdb.DBFields["RentableLeaseStatus"], x.RaChainOrigUnchanged[i].PossessionStop)
+					row := rlib.RRdb.Dbrr.QueryRow(q)
+					if err = rlib.ReadRentableLeaseStatus(row, &ls); err != nil {
+						return nraid, err
+					}
+					d2 := rlib.ENDOFTIME
+					if ls.RLID > 0 {
+						d2 = ls.DtStart
+					}
+					var l = rlib.RentableLeaseStatus{
+						BID:         x.RaChainOrig[i].BID,
+						DtStart:     d1,
+						DtStop:      d2,
+						LeaseStatus: rlib.LEASESTATUSnotleased,
+					}
+					rarl, err := rlib.GetAllRentalAgreementRentables(ctx, x.Raf.Meta.RAID)
+					if err != nil {
+						return nraid, err
+					}
+					for _, v := range rarl {
+						l.RID = v.RID
+						if err = rlib.SetRentableLeaseStatus(ctx, &l, false /*purge the 3rd arg asap*/); err != nil {
+							return nraid, err
+						}
+					}
+				}
+
+			} else {
+				//----------------------------------------------------------------
+				// DEPRECATE THIS CODE AS SOON AS THE ABOVE CODE PASSES ALL TESTS
+				//----------------------------------------------------------------
 				if x.RaChainOrig[i].AgreementStop.After(AStart) {
 					// rlib.Console("\tsetting AgreementStop to %s\n", AStart.Format(rlib.RRDATEFMT3))
 					x.RaChainOrig[i].AgreementStop = AStart
@@ -456,7 +522,7 @@ func FlowSaveRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (int64, er
 		x.Ra.RentCycleEpoch = x.RaChainOrig[i].RentCycleEpoch
 
 	} else {
-		// rlib.Console("B1\n")
+		rlib.Console("B1\n")
 		//-------------------------------------
 		// This is a new Rental Agreement...
 		//-------------------------------------
@@ -507,19 +573,6 @@ func FlowSaveRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (int64, er
 	for i := 0; i < len(x.RaChainOrig); i++ {
 		// rlib.Console("Checking RAID %d\n", x.RaChainOrig[i].RAID)
 		if x.RaChainOrig[i].PRAID == 0 {
-
-			// REMOVED 10/23/2018 sman
-			// Not sure why this was inserted in the first place.  It it
-			// definitely not correct for test k in test/raflow/f2ra
-			// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-			// rlib.Console("RAID %d has PRAID == 0, setting to %d\n", x.RaChainOrig[i].RAID, x.Ra.RAID)
-			// //---------------------------------------------------------------
-			// // The agreement timespan overalps the agreement timespan of x.Ra
-			// // so x.Ra either amends it or replaces it.  Either way, that's
-			// // the new parent for this rental agreement...
-			// //---------------------------------------------------------------
-			// x.RaChainOrig[i].PRAID = x.Ra.RAID
-
 			//---------------------------------------------------------------
 			// One last check before updating... if this RAID's State is not
 			// Terminated, then we need to terminate it and set the reason
@@ -641,46 +694,6 @@ func FlowSaveRentables(ctx context.Context, x *rlib.F2RAWriteHandlerContext) err
 			return err
 		}
 		for _, v := range rarl {
-			// //----------------------------------------------------------------
-			// // Fix up the LeaseStatus on the rentable.
-			// //----------------------------------------------------------------
-			// d1 := x.RaChainOrig[x.RaOrigIndex].RentStart
-			// if x.RaChainOrig[x.RaOrigIndex].PossessionStart.Before(d1) {
-			// 	d1 = x.RaChainOrig[x.RaOrigIndex].PossessionStart
-			// }
-			// d2 := x.Ra.RentStop
-			// if x.RaChainOrig[x.RaOrigIndex].PossessionStop.After(d2) {
-			// 	d2 = x.RaChainOrig[x.RaOrigIndex].PossessionStop
-			// }
-			// if x.RaChainOrig[x.RaOrigIndex].RentStop.After(d2) {
-			// 	d2 = x.RaChainOrig[x.RaOrigIndex].RentStop
-			// }
-
-			// d3 := x.Ra.RentStart
-			// if d2.After(x.Ra.PossessionStart) {
-			// 	d3 = x.Ra.PossessionStart
-			// }
-			//
-			// lstat, err := rlib.GetRentableLeaseStatusByRange(ctx, v.RID, &d1, &d2)
-			// if err != nil {
-			// 	return err
-			// }
-			// for this list of records, set LeaseStatus to "notleased" if the
-			// time as after x.Ra.RentStart
-			// for i := 0; i < len(lstat); i++ {
-			// 	if lstat[i].DtStart.Equal(x.Ra.RentStart) || lstat[i].DtStart.Equal(x.Ra.RentStart) { // if this record is on or after the new RA start time
-			// 		lstat[i].LeaseStatus = rlib.LEASESTATUSnotleased // then set its status to "notleased"
-			// 		if err = rlib.UpdateRentableLeaseStatus(ctx, &lstat[i]); err != nil {
-			// 			return err
-			// 		}
-			// 	} else if lstat[i].DtStop.After(x.Ra.RentStart) { // if this record goes past the new RA start time
-			// 		lstat[i].DtStop = d3 // then set its stop time where the new RA takes over
-			// 		if err = rlib.UpdateRentableLeaseStatus(ctx, &lstat[i]); err != nil {
-			// 			return err
-			// 		}
-			// 	}
-			// }
-
 			v.RARDtStop = time.Time(x.Raf.Dates.AgreementStart)
 			if err = rlib.UpdateRentalAgreementRentable(ctx, &v); err != nil {
 				return err
@@ -1238,20 +1251,3 @@ func F2RAUpdatePeople(ctx context.Context, x *rlib.F2RAWriteHandlerContext) erro
 	}
 	return nil
 }
-
-//
-// // F2RAUpdateRA creates a new rental agreement and links it to its
-// // parent
-// //
-// // INPUTS
-// //     ctx    - db context for transactions
-// //     x - all the contextual info we need for performing this operation
-// //
-// // RETURNS
-// //     Any errors encountered
-// //-----------------------------------------------------------------------------
-// func F2RAUpdateRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) error {
-// 	// var err error
-// 	rlib.Console("Entered F2RAUpdateRA\n")
-// 	return nil
-// }

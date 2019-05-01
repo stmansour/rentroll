@@ -610,14 +610,16 @@ func HandleNonOverlapAmendment(ctx context.Context, x *rlib.F2RAWriteHandlerCont
 		// If the term of the assessment has passed, skip it (ASM1).
 		//
 		// If the term of the assessment started before now and ends
-		// after now, we need to process it (prorate recurring asms).
+		// after now, it must be processed. This is done in
+		// F2RAHandleOldAssessments
 		//
-		// If the assessment period is in the future, reverse it.
+		// If the assessment period is in the future, reverse it. That
+		// is what is handled in this function.
 		//--------------------------------------------------------------
 		now := rlib.Now()
 		q := fmt.Sprintf(`SELECT %s
 			FROM Assessments
-			WHERE PASMID = 0 AND BID=%d AND RAID=%d  AND Start > %q
+			WHERE PASMID = 0 AND BID=%d AND RAID=%d AND Start > %q
 			ORDER By Start ASC, Amount DESC;`,
 			rlib.RRdb.DBFields["Assessments"],
 			raUnchanged.BID, raUnchanged.RAID,
@@ -633,7 +635,7 @@ func HandleNonOverlapAmendment(ctx context.Context, x *rlib.F2RAWriteHandlerCont
 			if err := rlib.ReadAssessments(rows, &a); err != nil {
 				return err
 			}
-			rlib.Console("Process Future assessment: ASMID = %d\n", a.ASMID)
+			// rlib.Console("Process Future assessment: ASMID = %d\n", a.ASMID)
 			if be := ReverseAssessment(ctx, &a, 2, &now, &x.LastClose); len(be) > 0 {
 				return BizErrorListToError(be)
 			}
