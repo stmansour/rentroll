@@ -56,6 +56,14 @@ func Flow2RA(ctx context.Context, flowid int64) (int64, error) {
 	}
 
 	//----------------------------------------------------------------------------
+	// The flow datastruct is not updated with EDI correction.  Do those corrections
+	// here...
+	//----------------------------------------------------------------------------
+	rlib.EDIHandleIncomingJSONDateRange(x.Raf.Meta.BID, &x.Raf.Dates.AgreementStart, &x.Raf.Dates.AgreementStop)
+	rlib.EDIHandleIncomingJSONDateRange(x.Raf.Meta.BID, &x.Raf.Dates.RentStart, &x.Raf.Dates.RentStop)
+	rlib.EDIHandleIncomingJSONDateRange(x.Raf.Meta.BID, &x.Raf.Dates.PossessionStart, &x.Raf.Dates.PossessionStop)
+
+	//----------------------------------------------------------------------------
 	// If this is an update of an existing RAID, check to see if any changes
 	// were made. Otherwise treat it as a new RAID
 	//----------------------------------------------------------------------------
