@@ -388,98 +388,119 @@ func FlowSaveRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (int64, er
 			//                              |
 			//                 ###### old ######
 			//------------------------------------------------------------------
-			if true {
-				if x.RaChainOrig[i].AgreementStop.After(AStart) && AStop.After(x.RaChainOrig[i].AgreementStart) {
-					rlib.Console("\t(a.) setting AgreementStop to %s\n", AStart.Format(rlib.RRDATEFMT3))
-					x.RaChainOrig[i].AgreementStop = AStart
-					chgs++
-				} else if x.RaChainOrig[i].AgreementStop.After(now) {
-					rlib.Console("\t(b.) setting AgreementStop to %s\n", now.Format(rlib.RRDATEFMT3))
-					x.RaChainOrig[i].AgreementStop = now
-					chgs++
-				}
+			if x.RaChainOrig[i].AgreementStop.After(AStart) && AStop.After(x.RaChainOrig[i].AgreementStart) {
+				rlib.Console("\t(a.) setting AgreementStop to %s\n", AStart.Format(rlib.RRDATEFMT3))
+				x.RaChainOrig[i].AgreementStop = AStart
+				chgs++
+			}
+			if x.RaChainOrig[i].AgreementStop.After(now) && !AStart.Equal(x.RaChainOrig[i].AgreementStop) { // not adjacent check
+				rlib.Console("\t(b.) setting AgreementStop to %s\n", now.Format(rlib.RRDATEFMT3))
+				x.RaChainOrig[i].AgreementStop = now
+				chgs++
+			}
 
-				if x.RaChainOrig[i].RentStop.After(RStart) && RStop.After(x.RaChainOrig[i].RentStart) {
-					rlib.Console("\t(a.) setting RentStop to %s\n", RStart.Format(rlib.RRDATEFMT3))
-					x.RaChainOrig[i].RentStop = RStart
-					chgs++
-				} else if x.RaChainOrig[i].RentStop.After(now) {
-					rlib.Console("\t(b.) setting RentStop to %s\n", now.Format(rlib.RRDATEFMT3))
-					x.RaChainOrig[i].RentStop = now
-					chgs++
-				}
+			if x.RaChainOrig[i].RentStop.After(RStart) && RStop.After(x.RaChainOrig[i].RentStart) {
+				rlib.Console("\t(a.) setting RentStop to %s\n", RStart.Format(rlib.RRDATEFMT3))
+				x.RaChainOrig[i].RentStop = RStart
+				chgs++
+			}
+			if x.RaChainOrig[i].RentStop.After(now) && !PStart.Equal(x.RaChainOrig[i].RentStop) { // not adjacent check
+				rlib.Console("\t(b.) setting RentStop to %s\n", now.Format(rlib.RRDATEFMT3))
+				x.RaChainOrig[i].RentStop = now
+				chgs++
+			}
 
-				if x.RaChainOrig[i].PossessionStop.After(PStart) && PStop.After(x.RaChainOrig[i].PossessionStart) {
-					rlib.Console("\t(a.) setting PossessionStop to %s\n", PStart.Format(rlib.RRDATEFMT3))
-					x.RaChainOrig[i].PossessionStop = PStart
-					chgs++
-				} else if x.RaChainOrig[i].PossessionStop.After(now) {
-					rlib.Console("\t(b.) setting PossessionStop to %s\n", now.Format(rlib.RRDATEFMT3))
-					x.RaChainOrig[i].PossessionStop = now
-					chgs++
-				}
-				disjoint := x.RaChainOrig[i].PossessionStart.After(PStop) || x.RaChainOrig[i].PossessionStop.Before(PStart)
+			if x.RaChainOrig[i].PossessionStop.After(PStart) && PStop.After(x.RaChainOrig[i].PossessionStart) {
+				rlib.Console("\t(a.) setting PossessionStop to %s\n", PStart.Format(rlib.RRDATEFMT3))
+				x.RaChainOrig[i].PossessionStop = PStart
+				chgs++
+			}
+			if x.RaChainOrig[i].PossessionStop.After(now) && !PStart.Equal(x.RaChainOrig[i].PossessionStop) { // not adjacent check
+				rlib.Console("\t(b.) setting PossessionStop to %s\n", now.Format(rlib.RRDATEFMT3))
+				x.RaChainOrig[i].PossessionStop = now
+				chgs++
+			}
 
-				//---------------------------------------------------------------------------------
-				// If the periods are disjoint, then we need to update the RentableLeaseStatus
-				// of all Rentables in the RentalAgreement
-				//---------------------------------------------------------------------------------
-				rlib.Console("disjoint = %t, PossessionStop = %s\n", disjoint, rlib.ConDt(&x.RaChainOrig[i].PossessionStop))
-				if disjoint && x.RaChainOrigUnchanged[i].PossessionStop.After(now) {
-					rlib.Console("\n\n***** ADJUSTING LEASE STATUS *****\n\n")
-					var ls rlib.RentableLeaseStatus
-					d1 := x.RaChainOrig[i].PossessionStart
-					if d1.Before(now) {
-						d1 = now
-					}
-					q := fmt.Sprintf("select %s from RentableLeaseStatus where DtStart >= %q ORDER BY DtStart LIMIT 1;",
-						rlib.RRdb.DBFields["RentableLeaseStatus"], x.RaChainOrigUnchanged[i].PossessionStop)
-					row := rlib.RRdb.Dbrr.QueryRow(q)
-					if err = rlib.ReadRentableLeaseStatus(row, &ls); err != nil {
-						return nraid, err
-					}
-					d2 := rlib.ENDOFTIME
-					if ls.RLID > 0 {
-						d2 = ls.DtStart
-					}
+			p1 := rlib.Earliest(&x.RaChainOrig[i].PossessionStart, &x.RaChainOrig[i].RentStart)
+			p2 := rlib.Latest(&x.RaChainOrig[i].PossessionStop, &x.RaChainOrig[i].RentStop)
+			disjoint := p1.After(PStop) || p2.Before(PStart)
+
+			//---------------------------------------------------------------------------------
+			// If the periods are disjoint, then we need to update the RentableLeaseStatus
+			// of all Rentables in the RentalAgreement
+			//---------------------------------------------------------------------------------
+			rlib.Console("disjoint = %t, PossessionStop = %s\n", disjoint, rlib.ConDt(&x.RaChainOrig[i].PossessionStop))
+			if disjoint && x.RaChainOrigUnchanged[i].PossessionStop.After(now) {
+				rlib.Console("\n\n***** ADJUSTING LEASE STATUS *****\n\n")
+				d1 := x.RaChainOrig[i].PossessionStart
+				if d1.Before(now) {
+					d1 = now
+				}
+				// Find all rentables in the old rental agreement
+				rarl, err := rlib.GetAllRentalAgreementRentables(ctx, x.Raf.Meta.RAID)
+				if err != nil {
+					return nraid, err
+				}
+				for _, v := range rarl {
 					var l = rlib.RentableLeaseStatus{
 						BID:         x.RaChainOrig[i].BID,
 						DtStart:     d1,
-						DtStop:      d2,
+						DtStop:      rlib.ENDOFTIME,
 						LeaseStatus: rlib.LEASESTATUSnotleased,
+						RID:         v.RID,
 					}
-					rarl, err := rlib.GetAllRentalAgreementRentables(ctx, x.Raf.Meta.RAID)
-					if err != nil {
+					q := fmt.Sprintf("select %s from RentableLeaseStatus where RID=%d AND BID=%d AND DtStart >= %q ORDER BY DtStart LIMIT 1;",
+						rlib.RRdb.DBFields["RentableLeaseStatus"], v.RID, v.BID, x.RaChainOrigUnchanged[i].PossessionStop.Format(rlib.RRDATEFMTSQL))
+					row := rlib.RRdb.Dbrr.QueryRow(q)
+					var lsNext rlib.RentableLeaseStatus
+					if err = rlib.ReadRentableLeaseStatus(row, &lsNext); err != nil {
 						return nraid, err
 					}
-					for _, v := range rarl {
-						l.RID = v.RID
+					rlib.Console("Found RentableLeaseStatus: %d  %s\n", lsNext.LeaseStatus, rlib.ConsoleDRange(&lsNext.DtStart, &lsNext.DtStop))
+
+					if lsNext.RLID > 0 {
+						futurelimit := now.AddDate(0, rlib.FUTURERESLIMIT, 0)
+						if x.RaChainOrigUnchanged[i].PossessionStop.Equal(lsNext.DtStart) && lsNext.DtStop.After(futurelimit) {
+							//---------------------------------------------------------------
+							// If the next lease status is adjacent to the old RA's DtStop,
+							// then just extend.
+							//---------------------------------------------------------------
+							l = lsNext
+							l.DtStart = d1
+							l.LeaseStatus = rlib.LEASESTATUSnotleased
+						} else {
+							//---------------------------------------------------------------
+							// If it is disjoint, then terminate the
+							// new one at the beginning of the record just found...
+							//---------------------------------------------------------------
+							l.DtStop = lsNext.DtStart
+						}
 						if err = rlib.SetRentableLeaseStatus(ctx, &l, false /*purge the 3rd arg asap*/); err != nil {
 							return nraid, err
 						}
 					}
 				}
-
-			} else {
-				//----------------------------------------------------------------
-				// DEPRECATE THIS CODE AS SOON AS THE ABOVE CODE PASSES ALL TESTS
-				//----------------------------------------------------------------
-				if x.RaChainOrig[i].AgreementStop.After(AStart) {
-					// rlib.Console("\tsetting AgreementStop to %s\n", AStart.Format(rlib.RRDATEFMT3))
-					x.RaChainOrig[i].AgreementStop = AStart
-					chgs++
-				}
-				if x.RaChainOrig[i].RentStop.After(RStart) {
-					// rlib.Console("\tsetting RentStop to %s\n", RStart.Format(rlib.RRDATEFMT3))
-					x.RaChainOrig[i].RentStop = RStart
-					chgs++
-				}
-				if x.RaChainOrig[i].PossessionStop.After(PStart) {
-					// rlib.Console("\tsetting PossessionStop to %s\n", PStart.Format(rlib.RRDATEFMT3))
-					x.RaChainOrig[i].PossessionStop = PStart
-					chgs++
-				}
 			}
+
+			// //----------------------------------------------------------------
+			// // DEPRECATE THIS CODE AS SOON AS THE ABOVE CODE PASSES ALL TESTS
+			// //----------------------------------------------------------------
+			// if x.RaChainOrig[i].AgreementStop.After(AStart) {
+			// 	// rlib.Console("\tsetting AgreementStop to %s\n", AStart.Format(rlib.RRDATEFMT3))
+			// 	x.RaChainOrig[i].AgreementStop = AStart
+			// 	chgs++
+			// }
+			// if x.RaChainOrig[i].RentStop.After(RStart) {
+			// 	// rlib.Console("\tsetting RentStop to %s\n", RStart.Format(rlib.RRDATEFMT3))
+			// 	x.RaChainOrig[i].RentStop = RStart
+			// 	chgs++
+			// }
+			// if x.RaChainOrig[i].PossessionStop.After(PStart) {
+			// 	// rlib.Console("\tsetting PossessionStop to %s\n", PStart.Format(rlib.RRDATEFMT3))
+			// 	x.RaChainOrig[i].PossessionStop = PStart
+			// 	chgs++
+			// }
+
 			//------------------------------------------------------------------
 			// If there are changes, then we stop the old Rental Agreement and
 			// create a new one linked to x.RaChainOrig[i].
@@ -644,9 +665,10 @@ func initRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) {
 
 	rlib.Console("initRA: Agreement start/stop = %s\n", rlib.ConsoleJSONDRange(&x.Raf.Dates.AgreementStart, &x.Raf.Dates.AgreementStop))
 
-	rlib.EDIHandleIncomingDateRange(x.Raf.Meta.BID, &AStart, &AStop)
-	rlib.EDIHandleIncomingDateRange(x.Raf.Meta.BID, &RStart, &RStop)
-	rlib.EDIHandleIncomingDateRange(x.Raf.Meta.BID, &PStart, &PStop)
+	// This is handled much earlier now
+	// rlib.EDIHandleIncomingDateRange(x.Raf.Meta.BID, &AStart, &AStop)
+	// rlib.EDIHandleIncomingDateRange(x.Raf.Meta.BID, &RStart, &RStop)
+	// rlib.EDIHandleIncomingDateRange(x.Raf.Meta.BID, &PStart, &PStop)
 
 	x.Ra.PRAID = int64(0)
 	x.Ra.ORIGIN = int64(0)

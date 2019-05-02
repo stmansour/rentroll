@@ -51,3 +51,33 @@ func InitQAInfra() {
 	isNotProd = AppConfig.Env != extres.APPENVPROD
 	haveTime = QAInfra.Now.Year() > TIME0.Year()
 }
+
+// Earliest returns the earlier of two dates.
+//
+// INPUTS
+//   two dates to compare
+//
+// RETURNS
+//   the earlier of the two dates
+//------------------------------------------------------------------------------
+func Earliest(d1, d2 *time.Time) time.Time {
+	if d1.Before(*d2) {
+		return *d1
+	}
+	return *d2
+}
+
+// Latest returns the later of two dates.
+//
+// INPUTS
+//   two dates to compare
+//
+// RETURNS
+//   the later of the two dates
+//------------------------------------------------------------------------------
+func Latest(d1, d2 *time.Time) time.Time {
+	if d1.After(*d2) {
+		return *d1
+	}
+	return *d2
+}

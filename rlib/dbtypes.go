@@ -208,6 +208,9 @@ var TIME0 = time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
 // ENDOFTIME can be used when there is no end time
 var ENDOFTIME = time.Date(9999, time.December, 31, 0, 0, 0, 0, time.UTC)
 
+// FUTURERESLIMIT is the number of months in the future that a reservation can be made
+var FUTURERESLIMIT = 60
+
 // Period describes a span of time by specifying a start
 // and end time.
 type Period struct {

@@ -78,7 +78,7 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     dojsonPOST "http://localhost:8270/v1/payorstmt/1/1" "request" "${TFILES}${STEP}"  "PayorStatement--StmtInfo"
 
     # validate lease status
-    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%221%2F1%2F2017%22%2C%22searchDtStop%22%3A%221%2F1%2F2021%22%2C%22Bool1%22%3Afalse%7D" > request
+    encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0,"searchDtStart":"1/1/2017","searchDtStop":"1/1/2021","Bool1":false}' > request
     dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}${STEP}"  "LeaseStatus"
 fi
 
@@ -740,10 +740,7 @@ fi
 #  Amend RA 1 on Nov 6. backdate the amendment to 10/15/2018
 #
 #  Expected Results:
-#  1. Ensure that Prorated assessments for October Rent and PetRent are
-#     created October for both RA 1 and RA 2.
-#  2. Ensure that the rent assessments for November are created for RA 2
-#  3. Validate Lease Status
+#   see below in specific tests
 #------------------------------------------------------------------------------
 TFILES="n"
 STEP=0
@@ -759,10 +756,13 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     RAIDREFNO="JUYIPZL6L4Q74Q3DI2N8"
 
     #----------------------------------------------------------------
-    # Make the updated RefNo an Active RA
+    # Active RentalAgreement is 1/1/2019
     #----------------------------------------------------------------
     encodeRequest '{"UserRefNo":"JUYIPZL6L4Q74Q3DI2N8","RAID":1,"Version":"refno","Action":4,"Mode":"Action"}' > request
     dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}${STEP}"  "WebService--Activate-RefNo"
+    # validate lease status
+    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%221%2F1%2F2017%22%2C%22searchDtStop%22%3A%221%2F1%2F2021%22%2C%22Bool1%22%3Afalse%7D" > request
+    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}${STEP}"  "LeaseStatus"
 
 fi
 
