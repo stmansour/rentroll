@@ -616,6 +616,9 @@ EOF
 #
 # April 16, 2019
 # ALTER TABLE RentableLeaseStatus ADD ConfirmationCode VARCHAR(20) NOT NULL DEFAULT '' AFTER CCExpYear;
+#
+# May 3, 2019
+# ALTER TABLE RentableLeaseStatus ADD FLAGS BIGINT NOT NULL DEFAULT 0 AFTER ConfirmationCode;
 
 
 ########################################

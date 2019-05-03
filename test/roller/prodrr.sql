@@ -1684,6 +1684,7 @@ CREATE TABLE `RentableLeaseStatus` (
   `CCExpMonth` varchar(100) NOT NULL DEFAULT '',
   `CCExpYear` varchar(100) NOT NULL DEFAULT '',
   `ConfirmationCode` varchar(20) NOT NULL DEFAULT '',
+  `FLAGS` bigint(20) NOT NULL DEFAULT '0',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -2348,7 +2349,6 @@ CREATE TABLE `TWS` (
 
 LOCK TABLES `TWS` WRITE;
 /*!40000 ALTER TABLE `TWS` DISABLE KEYS */;
-INSERT INTO `TWS` VALUES (2,'CreateAssessmentInstances','','CreateAssessmentInstances','2018-01-17 00:00:00','ip-172-31-51-141.ec2.internal',4,'2018-01-16 00:00:02','2018-01-16 00:00:02','2017-11-27 21:24:27','2018-01-16 00:00:02'),(3,'CleanRARBalanceCache','','CleanRARBalanceCache','2018-01-16 18:34:07','ip-172-31-51-141.ec2.internal',4,'2018-01-16 18:29:07','2018-01-16 18:29:07','2017-11-30 17:39:57','2018-01-16 18:29:06'),(4,'CleanSecDepBalanceCache','','CleanSecDepBalanceCache','2018-01-16 18:33:47','ip-172-31-51-141.ec2.internal',4,'2018-01-16 18:28:47','2018-01-16 18:28:47','2017-11-30 17:39:57','2018-01-16 18:28:46'),(5,'CleanAcctSliceCache','','CleanAcctSliceCache','2018-01-16 18:33:27','ip-172-31-51-141.ec2.internal',4,'2018-01-16 18:28:27','2018-01-16 18:28:27','2017-11-30 17:39:57','2018-01-16 18:28:26'),(6,'CleanARSliceCache','','CleanARSliceCache','2018-01-16 18:37:56','ip-172-31-51-141.ec2.internal',4,'2018-01-16 18:32:47','2018-01-16 18:32:56','2017-11-30 17:39:57','2018-01-16 18:32:55'),(7,'CreateAssessmentInstances','','CreateAssessmentInstances','2018-01-11 00:00:00','ip-172-31-56-225.ec2.internal',4,'2018-01-10 22:45:36','2018-01-10 22:45:36','2018-01-10 22:45:25','2018-01-10 22:45:35'),(8,'CleanRARBalanceCache','','CleanRARBalanceCache','2018-01-10 23:56:52','ip-172-31-56-225.ec2.internal',4,'2018-01-10 23:51:52','2018-01-10 23:51:52','2018-01-10 22:45:25','2018-01-10 23:51:52'),(9,'CleanSecDepBalanceCache','','CleanSecDepBalanceCache','2018-01-10 23:56:52','ip-172-31-56-225.ec2.internal',4,'2018-01-10 23:51:52','2018-01-10 23:51:52','2018-01-10 22:45:25','2018-01-10 23:51:52'),(10,'CleanAcctSliceCache','','CleanAcctSliceCache','2018-01-10 23:56:52','ip-172-31-56-225.ec2.internal',4,'2018-01-10 23:51:52','2018-01-10 23:51:52','2018-01-10 22:45:25','2018-01-10 23:51:52'),(11,'CleanARSliceCache','','CleanARSliceCache','2018-01-10 23:56:52','ip-172-31-56-225.ec2.internal',4,'2018-01-10 23:51:52','2018-01-10 23:51:52','2018-01-10 22:45:25','2018-01-10 23:51:52'),(12,'CreateAssessmentInstances','','CreateAssessmentInstances','2018-01-12 00:00:00','ip-172-31-52-71.ec2.internal',4,'2018-01-11 00:00:05','2018-01-11 00:00:05','2018-01-10 22:47:08','2018-01-11 00:00:05'),(13,'CleanRARBalanceCache','','CleanRARBalanceCache','2018-01-11 00:19:05','ip-172-31-52-71.ec2.internal',4,'2018-01-11 00:14:05','2018-01-11 00:14:05','2018-01-10 22:47:08','2018-01-11 00:14:05'),(14,'CleanSecDepBalanceCache','','CleanSecDepBalanceCache','2018-01-11 00:19:05','ip-172-31-52-71.ec2.internal',4,'2018-01-11 00:14:05','2018-01-11 00:14:05','2018-01-10 22:47:08','2018-01-11 00:14:05'),(15,'CleanAcctSliceCache','','CleanAcctSliceCache','2018-01-11 00:19:05','ip-172-31-52-71.ec2.internal',4,'2018-01-11 00:14:05','2018-01-11 00:14:05','2018-01-10 22:47:08','2018-01-11 00:14:05'),(16,'CleanARSliceCache','','CleanARSliceCache','2018-01-11 00:19:05','ip-172-31-52-71.ec2.internal',4,'2018-01-11 00:14:05','2018-01-11 00:14:05','2018-01-10 22:47:08','2018-01-11 00:14:05');
 /*!40000 ALTER TABLE `TWS` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2701,4 +2701,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-04-15 15:49:04
+-- Dump completed on 2019-05-03 12:29:03

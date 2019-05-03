@@ -214,7 +214,9 @@ CREATE TABLE RentalAgreement (
     RentableTypePreference BIGINT NOT NULL DEFAULT 0,                   -- This would be "model" preference  (Rentable Type name) for room or residence, but could apply to all rentables
     FLAGS BIGINT NOT NULL DEFAULT 0,                                    /* 0:3 - DecisionStatus for the application state as defined below
                                                                            1<<4 - Approver1 decision, only valid if Approver1 > 0, 0 = Declined, 1 = Approved
-           bits 0:3                                                        1<<5 - Approver2 decision, only valid if Approver2 > 0, 0 = Declined, 1 = Approved
+                                                                           1<<5 - Approver2 decision, only valid if Approver2 > 0, 0 = Declined, 1 = Approved
+                                                                           1<<6 - VOID indicator: 0 = not voided, 1 = this RentalAgreement was voided - before its term arrived it was amended with a new Rental Agreement
+           bits 0:3
         -------------  ---------------------------     --------------------------------------
         (FLAGS & 0xF)  State                           Meaning
         -------------  ---------------------------     --------------------------------------
@@ -227,7 +229,7 @@ CREATE TABLE RentalAgreement (
               4        Active                          Tenant has moved in and the RA remains valid
               5        Notice To Move                  Resident has given notice that they will leave
               6        Terminated                      Agreement terminated. Reason in Outcome (SLSID of string from WhyLeaving)
-              7        VOID / Cancelled                The agreement was created for the future but it was canceled before Rent and Possession began
+              7        unused
               8        unused
               9        unused                          reserved for future expansion
              10        unused                          reserved for future expansion
@@ -853,7 +855,7 @@ CREATE TABLE RentableLeaseStatus (
     CCExpMonth VARCHAR(100) NOT NULL DEFAULT '',
     CCExpYear VARCHAR(100) NOT NULL DEFAULT '',
     ConfirmationCode VARCHAR(20) NOT NULL DEFAULT '',
-
+    FLAGS BIGINT NOT NULL DEFAULT 0,                                -- 1<<0 = Canceled:  0 means active, 1 means cancelled
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                            -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,          -- when was this record created

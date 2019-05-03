@@ -1686,6 +1686,7 @@ CREATE TABLE `RentableLeaseStatus` (
   `CCExpMonth` varchar(100) NOT NULL DEFAULT '',
   `CCExpYear` varchar(100) NOT NULL DEFAULT '',
   `ConfirmationCode` varchar(20) NOT NULL DEFAULT '',
+  `FLAGS` bigint(20) NOT NULL DEFAULT '0',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -1700,7 +1701,7 @@ CREATE TABLE `RentableLeaseStatus` (
 
 LOCK TABLES `RentableLeaseStatus` WRITE;
 /*!40000 ALTER TABLE `RentableLeaseStatus` DISABLE KEYS */;
-INSERT INTO `RentableLeaseStatus` VALUES (1,1,1,0,'2019-01-01 00:00:00','2019-05-01 00:00:00','','','','','','','','','','','','','','','','','','2019-04-26 20:12:22',0,'2019-04-26 20:12:22',0),(3,1,1,1,'2019-05-01 00:00:00','2019-08-01 00:00:00','','','','','','','','','','','','','','','','','','2019-04-26 20:12:22',0,'2019-04-26 20:12:22',0),(4,1,1,2,'2019-08-01 00:00:00','9999-12-31 00:00:00','','','','','','','','','','','','','','','','','','2019-04-26 20:12:22',0,'2019-04-26 20:12:22',0);
+INSERT INTO `RentableLeaseStatus` VALUES (1,1,1,0,'2019-01-01 00:00:00','2019-05-01 00:00:00','','','','','','','','','','','','','','','','','',0,'2019-04-26 20:12:22',0,'2019-04-26 20:12:22',0),(3,1,1,1,'2019-05-01 00:00:00','2019-08-01 00:00:00','','','','','','','','','','','','','','','','','',0,'2019-04-26 20:12:22',0,'2019-04-26 20:12:22',0),(4,1,1,2,'2019-08-01 00:00:00','9999-12-31 00:00:00','','','','','','','','','','','','','','','','','',0,'2019-04-26 20:12:22',0,'2019-04-26 20:12:22',0);
 /*!40000 ALTER TABLE `RentableLeaseStatus` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2355,7 +2356,7 @@ CREATE TABLE `TWS` (
 
 LOCK TABLES `TWS` WRITE;
 /*!40000 ALTER TABLE `TWS` DISABLE KEYS */;
-INSERT INTO `TWS` VALUES (6,'RARBcacheBot','','RARBcacheBot','2019-04-26 20:22:46','Steves-MacBook-Pro-2.local',4,'2019-04-26 20:17:46','2019-04-26 20:17:46','2018-06-02 13:09:58','2019-04-26 13:17:46'),(7,'ARSliceCacheBot','','ARSliceCacheBot','2019-04-26 20:22:46','Steves-MacBook-Pro-2.local',4,'2019-04-26 20:17:46','2019-04-26 20:17:46','2018-06-02 13:09:58','2019-04-26 13:17:46'),(8,'TLReportBot','','TLReportBot','2019-04-26 20:20:46','Steves-MacBook-Pro-2.local',4,'2019-04-26 20:18:46','2019-04-26 20:18:46','2018-06-02 13:09:58','2019-04-26 13:18:46'),(9,'ManualTaskBot','','ManualTaskBot','2019-04-27 20:12:46','Steves-MacBook-Pro-2.local',4,'2019-04-26 20:12:46','2019-04-26 20:12:46','2018-06-02 13:09:58','2019-04-26 13:12:46'),(11,'SecDepCacheBot','','SecDepCacheBot','2019-04-26 20:22:46','Steves-MacBook-Pro-2.local',4,'2019-04-26 20:17:46','2019-04-26 20:17:46','2018-06-02 13:09:58','2019-04-26 13:17:46'),(12,'AcctSliceCacheBot','','AcctSliceCacheBot','2019-04-26 20:22:46','Steves-MacBook-Pro-2.local',4,'2019-04-26 20:17:46','2019-04-26 20:17:46','2018-06-02 13:09:58','2019-04-26 13:17:46');
+INSERT INTO `TWS` VALUES (6,'RARBcacheBot','','RARBcacheBot','2019-05-03 19:33:23','Steves-MacBook-Pro-2.local',4,'2019-05-03 19:28:23','2019-05-03 19:28:23','2018-06-02 13:09:58','2019-05-03 12:28:23'),(7,'ARSliceCacheBot','','ARSliceCacheBot','2019-05-03 19:33:23','Steves-MacBook-Pro-2.local',4,'2019-05-03 19:28:23','2019-05-03 19:28:23','2018-06-02 13:09:58','2019-05-03 12:28:23'),(8,'TLReportBot','','TLReportBot','2019-05-03 19:30:23','Steves-MacBook-Pro-2.local',4,'2019-05-03 19:28:23','2019-05-03 19:28:23','2018-06-02 13:09:58','2019-05-03 12:28:23'),(9,'ManualTaskBot','','ManualTaskBot','2019-05-04 19:28:23','Steves-MacBook-Pro-2.local',4,'2019-05-03 19:28:23','2019-05-03 19:28:23','2018-06-02 13:09:58','2019-05-03 12:28:23'),(11,'SecDepCacheBot','','SecDepCacheBot','2019-05-03 19:33:23','Steves-MacBook-Pro-2.local',4,'2019-05-03 19:28:23','2019-05-03 19:28:23','2018-06-02 13:09:58','2019-05-03 12:28:23'),(12,'AcctSliceCacheBot','','AcctSliceCacheBot','2019-05-03 19:33:23','Steves-MacBook-Pro-2.local',4,'2019-05-03 19:28:23','2019-05-03 19:28:23','2018-06-02 13:09:58','2019-05-03 12:28:23');
 /*!40000 ALTER TABLE `TWS` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2713,4 +2714,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-04-26 13:19:47
+-- Dump completed on 2019-05-03 12:28:23

@@ -809,7 +809,7 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     encodeRequest '{"UserRefNo":"JV71FYOQUDPZZ3Q0DM3S","RAID":1,"Version":"refno","Action":4,"Mode":"Action"}' > request
     dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}${STEP}"  "WebService--Activate-RefNo"
     # validate lease status
-    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%221%2F1%2F2017%22%2C%22searchDtStop%22%3A%221%2F1%2F2021%22%2C%22Bool1%22%3Afalse%7D" > request
+    encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0,"searchDtStart":"1/1/2017","searchDtStop":"1/1/2021","Bool1":false}' > request
     dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}${STEP}"  "LeaseStatus"
 
     # FlowID 3  -->  UserRefNo = JV7KM0D9SHCOP754WC6O
@@ -819,7 +819,7 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     encodeRequest '{"UserRefNo":"JV7KM0D9SHCOP754WC6O","RAID":0,"Version":"refno","Action":4,"Mode":"Action"}' > request
     dojsonPOST "http://localhost:8270/v1/raactions/1/3" "request" "${TFILES}${STEP}"  "WebService--Activate-RefNo"
     # validate lease status
-    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%221%2F1%2F2017%22%2C%22searchDtStop%22%3A%221%2F1%2F2021%22%2C%22Bool1%22%3Afalse%7D" > request
+    encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0,"searchDtStart":"1/1/2017","searchDtStop":"1/1/2021","Bool1":false}' > request
     dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}${STEP}"  "LeaseStatus"
 
 fi

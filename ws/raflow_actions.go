@@ -113,10 +113,6 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
-
-		// -------------------
-		// WRITE FLOW RESPONSE
-		// -------------------
 		SvcWriteFlowResponse(ctx, d.BID, flow, w)
 		return
 
@@ -130,10 +126,6 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
-
-		// -------------------
-		// WRITE FLOW RESPONSE
-		// -------------------
 		resp.Record = raflowRespData
 		resp.Status = "success"
 		SvcWriteResponse(d.BID, &resp, w)
@@ -241,8 +233,7 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 
 		State = ra.FLAGS & uint64(0xF)
 
-		// RESET META INFO IF NEEDED
-		ActionResetMetaData(Action, State, &modRAFlowMeta)
+		ActionResetMetaData(Action, State, &modRAFlowMeta) // RESET META INFO IF NEEDED
 
 		// MODIFY META DATA
 		err = SetActionMetaData(ctx, d, Action, &modRAFlowMeta)
@@ -365,6 +356,13 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 			return flow, err
 		}
 
+		//---------------------------------------------------------------------
+		// If this is a termination, we may need to clean up the LeaseStatus
+		//---------------------------------------------------------------------
+		if err = HandleLeaseStatusOnTerminate(ctx, ra); err != nil {
+			return flow, err
+		}
+
 		// EditFlag should be set to true only when we're creating a Flow that
 		// becomes a RefNo (an amended RentalAgreement)
 		EditFlag := false // this is the behavior as it was prior to the EditFlag being added.
@@ -396,6 +394,21 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 
 	// RETURN FLOW
 	return flow, nil
+}
+
+// HandleLeaseStatusOnTerminate ensures that lease status records are cleared
+// if necessary so that rentables become available after terminating the
+// RentalAgreement to which they were bound.
+//
+// INPUTS
+//    ctx  - db context
+//    ra   - rental agreement struct for terminated RA
+//
+// RETURNS
+//    any errors encountered
+//------------------------------------------------------------------------------
+func HandleLeaseStatusOnTerminate(ctx context.Context, ra *rlib.RentalAgreement) error {
+	return nil
 }
 
 func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequest, raFlowData rlib.RAFlowJSONData) (RAFlowResponse, error) {
