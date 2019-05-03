@@ -29,9 +29,11 @@ window.buildAboutElements = function () {
     $().w2grid({
         name: 'sessionGrid',
         url: '/v1/sessions',
+        header: 'Active Sessions',
         multiSelect: false,
         show: {
             toolbar         : false,
+            header          : true,
             footer          : true,
             toolbarAdd      : false,   // indicates if toolbar add new button is visible
             toolbarDelete   : false,   // indicates if toolbar delete button is visible

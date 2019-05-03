@@ -93,7 +93,7 @@ FROM (
         LEFT JOIN Flow ON Flow.ID=RentalAgreement.RAID
         WHERE
 			RentalAgreement.BID={{.BID}}
-			AND RentalAgreement.AgreementStart <= "{{.Stop}}"
+			AND RentalAgreement.AgreementStart < "{{.Stop}}"
 			AND RentalAgreement.AgreementStop > "{{.Start}}"
 			{{.IncludeCancelled}}
         GROUP BY RentalAgreement.RAID
