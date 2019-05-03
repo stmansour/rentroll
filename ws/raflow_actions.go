@@ -359,7 +359,7 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 		//---------------------------------------------------------------------
 		// If this is a termination, we may need to clean up the LeaseStatus
 		//---------------------------------------------------------------------
-		if err = HandleLeaseStatusOnTerminate(ctx, ra); err != nil {
+		if err = HandleLeaseStatusOnTerminate(ctx, &ra); err != nil {
 			return flow, err
 		}
 
@@ -398,7 +398,8 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 
 // HandleLeaseStatusOnTerminate ensures that lease status records are cleared
 // if necessary so that rentables become available after terminating the
-// RentalAgreement to which they were bound.
+// RentalAgreement to which they were bound.  This function should only be
+// called with the RentalAgreement is cancelled.
 //
 // INPUTS
 //    ctx  - db context
@@ -408,6 +409,7 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 //    any errors encountered
 //------------------------------------------------------------------------------
 func HandleLeaseStatusOnTerminate(ctx context.Context, ra *rlib.RentalAgreement) error {
+
 	return nil
 }
 
