@@ -11,6 +11,7 @@ var RTFLAGS = rlib.Str2Int64Map{
 	"IsActive":        0, // 0 = active, 1 = inactive
 	"IsChildRentable": 1, // 0 = NO > can't be child, 1 = Yes > can be child
 	"ManageToBudget":  2, // 0 = No , 1 = Yes
+	"ReserveAfter":    3, // 0 = No, 1 = Yes
 }
 
 // IsValidRTFlag checks whether FLAGS value is valid or not

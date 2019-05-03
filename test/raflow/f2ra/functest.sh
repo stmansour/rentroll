@@ -238,6 +238,7 @@ fi
 #  Scenario:
 #  Amend the existing rental agreement so that the amended RA starts immediately
 #  after the old RA stops
+#  Initial RA term:  1/1/2018 - 12/1/2018
 #
 #  Expected Results:
 #   1. Walk through the entire approval flow...
@@ -321,7 +322,7 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}${STEP}"  "WebService--Activate-RefNo"
 
     # validate lease status
-    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%221%2F1%2F2017%22%2C%22searchDtStop%22%3A%221%2F1%2F2021%22%2C%22Bool1%22%3Afalse%7D" > request
+    encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0,"searchDtStart":"1/1/2017","searchDtStop":"1/1/2021","Bool1":false}' > request
     dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}${STEP}"  "LeaseStatus"
 
 fi
@@ -728,16 +729,14 @@ fi
 
 #------------------------------------------------------------------------------
 #  TEST n
-#  Bug was found. Original rental agreement for a hotel room was made on the
-#  default date of 4/21/2019.  The actual desired date was 1/10/2019.
-#  When the Rental Agreement was updated
-#  the rent assessments for the month of November were missed.  This test is
-#  used to verify that bug fixes to make this scenario work.
+#  Ensure proper handling of an amended RA where the amendment occurs
+#  disjoint and prior to the RA it amends.
 #
 #  Scenario
-#  RA 1 is from 7/1/2018 to 6/30/2019
-#  Periods for 7/31, 8/31, 9/30, and 10/31 have been closed.
-#  Amend RA 1 on Nov 6. backdate the amendment to 10/15/2018
+#  RA 1 is from 5/1/2019 to 8/1/2019
+#  Amend this RA to 1/1/2019 - 1/3/2019
+#
+#  on a timeline:
 #
 #  Expected Results:
 #   see below in specific tests
@@ -760,6 +759,65 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     #----------------------------------------------------------------
     encodeRequest '{"UserRefNo":"JUYIPZL6L4Q74Q3DI2N8","RAID":1,"Version":"refno","Action":4,"Mode":"Action"}' > request
     dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}${STEP}"  "WebService--Activate-RefNo"
+    # validate lease status
+    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%221%2F1%2F2017%22%2C%22searchDtStop%22%3A%221%2F1%2F2021%22%2C%22Bool1%22%3Afalse%7D" > request
+    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}${STEP}"  "LeaseStatus"
+
+fi
+
+#------------------------------------------------------------------------------
+#  TEST o
+#  Ensure proper handling of an amended RA where the amendment occurs
+#  disjoint and after to the RA it amends.
+#
+#  Scenario
+#  RA 1 is from 5/1/2019 to 7/31/2019
+#  RA 2 is from 12/1/2019 to 1/1/2020
+#  New RA not yet active from 11/1/2019 to 12/1/2019
+#  Amend RA 1 to 9/1/2019 to 11/1/2019
+#  Then create a new RA from 11/1/2019 - 12/1/2019
+#
+#  on a timeline:
+#
+#  Expected Results:
+#   There will be a gap between RA 1 and its amended version. RA 1 should
+#   be cancelled, the lease status in the gap should be LEASESTATUSnotleased.
+#   There will be a gap between the amendment (RA 3) and RA 2. This gap should
+#   be LEASESTATUSreserved - 11/1/2019 - 12/1/2019.
+#
+#   Next, create the new RA from 11/1 - 12/1. The key check is to ensure that
+#   the LeaseStatus record right after the one from 11/1 - 12/1 does not
+#   get overwritten with either "not leased" or "reserved" status because
+#   that record corresponds to RA2
+#------------------------------------------------------------------------------
+TFILES="o"
+STEP=0
+if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
+    echo "Test ${TFILES}"
+    echo "Create new database... x${TFILES}.sql"
+
+    RENTROLLSERVERNOW="-testDtNow 4/25/2019"
+    stopRentRollServer
+    mysql --no-defaults rentroll < x${TFILES}.sql
+    startRentRollServer
+
+    RAIDREFNO="JV71FYOQUDPZZ3Q0DM3S"
+
+    #----------------------------------------------------------------
+    # Make the new rental agreement amendment (RAID = 3) active
+    #----------------------------------------------------------------
+    encodeRequest '{"UserRefNo":"JV71FYOQUDPZZ3Q0DM3S","RAID":1,"Version":"refno","Action":4,"Mode":"Action"}' > request
+    dojsonPOST "http://localhost:8270/v1/raactions/1/1" "request" "${TFILES}${STEP}"  "WebService--Activate-RefNo"
+    # validate lease status
+    echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%221%2F1%2F2017%22%2C%22searchDtStop%22%3A%221%2F1%2F2021%22%2C%22Bool1%22%3Afalse%7D" > request
+    dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}${STEP}"  "LeaseStatus"
+
+    # FlowID 3  -->  UserRefNo = JV7KM0D9SHCOP754WC6O
+    #----------------------------------------------------------------
+    # Make the new rental agreement from 11/1 - 12/1 active
+    #----------------------------------------------------------------
+    encodeRequest '{"UserRefNo":"JV7KM0D9SHCOP754WC6O","RAID":0,"Version":"refno","Action":4,"Mode":"Action"}' > request
+    dojsonPOST "http://localhost:8270/v1/raactions/1/3" "request" "${TFILES}${STEP}"  "WebService--Activate-RefNo"
     # validate lease status
     echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%221%2F1%2F2017%22%2C%22searchDtStop%22%3A%221%2F1%2F2021%22%2C%22Bool1%22%3Afalse%7D" > request
     dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}${STEP}"  "LeaseStatus"

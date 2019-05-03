@@ -1950,6 +1950,38 @@ func InsertSLStrings(ctx context.Context, a *StringList) (int64, error) {
 	return rid, err
 }
 
+// InsertSLString inserts a new SLString into the database.
+func InsertSLString(ctx context.Context, s *SLString) (int64, error) {
+	var id int64
+	var err error
+	var res sql.Result
+
+	if err = insertSessionProblem(ctx, &s.CreateBy, &s.LastModBy); err != nil {
+		return id, err
+	}
+
+	fields := []interface{}{s.BID, s.SLID, s.Value, s.LastModBy, s.CreateBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertSLString)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertSLString.Exec(fields...)
+	}
+
+	if nil == err {
+		x, err := res.LastInsertId()
+		if err == nil {
+			id = int64(x)
+			s.SLSID = id
+		}
+	} else {
+		err = insertError(err, "SLString", *s)
+	}
+	return id, err
+
+}
+
 // InsertSubAR writes a SubAR to the database
 func InsertSubAR(ctx context.Context, a *SubAR) (int64, error) {
 	var rid = int64(0)

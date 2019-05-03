@@ -22,6 +22,7 @@ type GridRAFlowRecord struct {
 	Payors         rlib.NullString // payors list attached with this RA within same time
 	FlowID         rlib.NullInt64  // FlowID
 	UserRefNo      rlib.NullString // FlowID - reference number
+	FLAGS          rlib.NullInt64  // FLAGS
 }
 
 // GridRAFlowResponse is the response data for a Rental Agreement Search
@@ -48,6 +49,7 @@ var RAFlowGridFieldsMap = map[string][]string{
 	"Payors":         {"RA_CUM_FLOW.Payors"},
 	"FlowID":         {"RA_CUM_FLOW.FlowID"},
 	"UserRefNo":      {"RA_CUM_FLOW.UserRefNo"},
+	"FLAGS":          {"RA_CUM_FLOW.FLAGS"},
 }
 
 // RAFlowQuerySelectFields defines which fields needs to be fetched for SQL query for rental agreements
@@ -59,6 +61,7 @@ var RAFlowQuerySelectFields = []string{
 	"RA_CUM_FLOW.Payors",
 	"RA_CUM_FLOW.FlowID",
 	"RA_CUM_FLOW.UserRefNo",
+	"RA_CUM_FLOW.FLAGS",
 }
 
 // RAFlowListQuery to fetch all rental agreements and flow w or w/o inter-relation
@@ -81,13 +84,18 @@ FROM (
             RentalAgreement.AgreementStart AS AgreementStart,
             RentalAgreement.AgreementStop AS AgreementStop,
             GROUP_CONCAT(DISTINCT CASE WHEN Payor.IsCompany > 0 THEN Payor.CompanyName ELSE CONCAT(Payor.FirstName, ' ', Payor.LastName) END ORDER BY 1 SEPARATOR ', ') AS Payors,
+			RentalAgreement.FLAGS AS FLAGS,
             Flow.FlowID AS FlowID,
             Flow.UserRefNo AS UserRefNo
         FROM RentalAgreement
         LEFT JOIN RentalAgreementPayors ON RentalAgreementPayors.RAID=RentalAgreement.RAID
         LEFT JOIN Transactant AS Payor ON Payor.TCID=RentalAgreementPayors.TCID
         LEFT JOIN Flow ON Flow.ID=RentalAgreement.RAID
-        WHERE RentalAgreement.BID={{.BID}} AND RentalAgreement.AgreementStart <= "{{.Stop}}" AND RentalAgreement.AgreementStop > "{{.Start}}"
+        WHERE
+			RentalAgreement.BID={{.BID}}
+			AND RentalAgreement.AgreementStart <= "{{.Stop}}"
+			AND RentalAgreement.AgreementStop > "{{.Start}}"
+			{{.IncludeCancelled}}
         GROUP BY RentalAgreement.RAID
         ORDER BY Payors ASC, AgreementStart ASC
     )
@@ -103,6 +111,7 @@ FROM (
             NULL AS AgreementStart,
             NULL AS AgreementStop,
             NULL AS Payors,
+			NULL AS FLAGS,
             Flow.FlowID AS FlowID,
             Flow.UserRefNo AS UserRefNo
         FROM Flow
@@ -121,12 +130,13 @@ ORDER BY {{.OrderClause}}
 
 // RAFlowQueryClause contains query clauses for raflow query
 var RAFlowQueryClause = rlib.QueryClause{
-	"BID":          "",
-	"Start":        "",
-	"Stop":         "",
-	"SelectClause": strings.Join(RAFlowQuerySelectFields, ","),
-	"WhereClause":  "",
-	"OrderClause":  "RA_CUM_FLOW.Payors ASC, RA_CUM_FLOW.AgreementStart ASC",
+	"BID":              "",
+	"Start":            "",
+	"Stop":             "",
+	"IncludeCancelled": "AND RentalAgreement.Flags & 64 = 0", // set this to = 1 if you only want the cancelled ones
+	"SelectClause":     strings.Join(RAFlowQuerySelectFields, ","),
+	"WhereClause":      "",
+	"OrderClause":      "RA_CUM_FLOW.Payors ASC, RA_CUM_FLOW.AgreementStart ASC",
 }
 
 // GetAllRAFlows returns all existing Rental Agreements and all Flows
@@ -209,7 +219,7 @@ func GetAllRAFlows(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	for rows.Next() {
 		var q GridRAFlowRecord
 		q.Recid = i
-		if err = rows.Scan(&q.BID, &q.RAID, &q.AgreementStart, &q.AgreementStop, &q.Payors, &q.FlowID, &q.UserRefNo); err != nil {
+		if err = rows.Scan(&q.BID, &q.RAID, &q.AgreementStart, &q.AgreementStop, &q.Payors, &q.FlowID, &q.UserRefNo, &q.FLAGS); err != nil {
 			SvcErrorReturn(w, err, funcname)
 			return
 		}

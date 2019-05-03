@@ -38,6 +38,7 @@ type RentableTypeGridRecord struct {
 	Proration       int64
 	GSRPC           int64
 	ManageToBudget  bool
+	ReserveAfter    bool
 	flags           int64 // keep it in lowercase, don't send to client side
 	IsActive        bool
 	IsChildRentable bool
@@ -89,7 +90,7 @@ func SvcRentableTypesTD(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 	var (
 		g RentableTypesTDResponse
 	)
-	fmt.Printf("Entered in %s, service handler for SvcRentableTypesList\n", funcname)
+	rlib.Console("Entered in %s, service handler for SvcRentableTypesList\n", funcname)
 
 	// get rentable types for a business
 	m, _ := rlib.GetBusinessRentableTypes(r.Context(), d.BID)
@@ -107,7 +108,7 @@ func SvcRentableTypesTD(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 		rentableTypesList = append(rentableTypesList, RentableTypeTD{RTID: m[rtid].RTID, FLAGS: m[rtid].FLAGS, Name: m[rtid].Name})
 	}
 	g.Records = rentableTypesList
-	fmt.Printf("GetBusinessRentableTypes returned %d records\n", len(g.Records))
+	rlib.Console("GetBusinessRentableTypes returned %d records\n", len(g.Records))
 	g.Total = int64(len(g.Records))
 	g.Status = "success"
 	SvcWriteResponse(d.BID, &g, w)
@@ -127,8 +128,8 @@ func SvcHandlerRentableType(w http.ResponseWriter, r *http.Request, d *ServiceDa
 		err error
 	)
 
-	fmt.Printf("Entered %s\n", funcname)
-	fmt.Printf("Request: %s:  BID = %d,  RTID = %d\n", d.wsSearchReq.Cmd, d.BID, d.ID)
+	rlib.Console("Entered %s\n", funcname)
+	rlib.Console("Request: %s:  BID = %d,  RTID = %d\n", d.wsSearchReq.Cmd, d.BID, d.ID)
 
 	switch d.wsSearchReq.Cmd {
 	case "get":
@@ -217,7 +218,7 @@ func SvcSearchHandlerRentableTypes(w http.ResponseWriter, r *http.Request, d *Se
 		order = `RentableTypes.RTID ASC` // default ORDER in sql result
 		whr   = fmt.Sprintf(`RentableTypes.BID=%d`, d.BID)
 	)
-	fmt.Printf("Entered %s\n", funcname)
+	rlib.Console("Entered %s\n", funcname)
 
 	// get where clause and order clause for sql query
 	whereClause, orderClause := GetSearchAndSortSQL(d, rtSearchFieldMap)
@@ -244,11 +245,11 @@ func SvcSearchHandlerRentableTypes(w http.ResponseWriter, r *http.Request, d *Se
 	countQuery := rlib.RenderSQLQuery(rentableTypeSearchQuery, qc)
 	g.Total, err = rlib.GetQueryCount(countQuery)
 	if err != nil {
-		fmt.Printf("%s: Error from rlib.GetQueryCount: %s\n", funcname, err.Error())
+		rlib.Console("%s: Error from rlib.GetQueryCount: %s\n", funcname, err.Error())
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
-	fmt.Printf("g.Total = %d\n", g.Total)
+	rlib.Console("g.Total = %d\n", g.Total)
 
 	// FETCH the records WITH LIMIT AND OFFSET
 	// limit the records to fetch from server, page by page
@@ -266,11 +267,11 @@ func SvcSearchHandlerRentableTypes(w http.ResponseWriter, r *http.Request, d *Se
 
 	// get formatted query with substitution of select, where, order clause
 	qry := rlib.RenderSQLQuery(rentableTypeQueryWithLimit, qc)
-	fmt.Printf("db query = %s\n", qry)
+	rlib.Console("db query = %s\n", qry)
 
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
-		fmt.Printf("%s: Error from DB Query: %s\n", funcname, err.Error())
+		rlib.Console("%s: Error from DB Query: %s\n", funcname, err.Error())
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
@@ -290,26 +291,10 @@ func SvcSearchHandlerRentableTypes(w http.ResponseWriter, r *http.Request, d *Se
 			return
 		}
 
-		// active or inactive for the grid summary
-		if q.flags&0x1 == 0 { // 1<<0
-			q.IsActive = true // 0 = is available
-		} else {
-			q.IsActive = false // 1 = out of service
-		}
-
-		// child rentable?
-		if q.flags&0x2 != 0 { // 1<<1
-			q.IsChildRentable = true // 1 = can be child
-		} else {
-			q.IsChildRentable = false // 0 = can't be child
-		}
-
-		// manage to budget
-		if q.flags&0x4 != 0 { // 1<<2
-			q.ManageToBudget = true // 1 = can be child
-		} else {
-			q.ManageToBudget = false // 0 = can't be child
-		}
+		q.IsActive = q.flags&(1<<0) == 0        // Inactive when bit is set
+		q.IsChildRentable = q.flags&(1<<1) != 0 // can be a child if set
+		q.ManageToBudget = q.flags&(1<<2) != 0  // manage to budget when set
+		q.ReserveAfter = q.flags&(1<<3) != 0    // reserve after when set
 
 		g.Records = append(g.Records, q)
 		count++ // update the count only after adding the record
@@ -347,7 +332,7 @@ func getRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		whr = fmt.Sprintf("RentableTypes.RTID=%d", d.ID)
 	)
 
-	fmt.Printf("entered %s\n", funcname)
+	rlib.Console("entered %s\n", funcname)
 
 	rentableTypeQuery := `
 	SELECT
@@ -365,7 +350,7 @@ func getRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
-		fmt.Printf("%s: Error from DB Query: %s\n", funcname, err.Error())
+		rlib.Console("%s: Error from DB Query: %s\n", funcname, err.Error())
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
@@ -382,26 +367,12 @@ func getRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			return
 		}
 
-		// active or inactive for the grid summary
-		if q.flags&0x1 == 0 { // 1<<0
-			q.IsActive = true // 0 = is available
-		} else {
-			q.IsActive = false // 1 = out of service
-		}
+		rlib.Console("\n\n******\nRTID = %d, FLAGS = %d\n******\n\n", q.RTID, q.flags)
 
-		// is child type
-		if q.flags&0x2 != 0 { // 1<<1
-			q.IsChildRentable = true // 1 = can be child
-		} else {
-			q.IsChildRentable = false // 0 = can't be child
-		}
-
-		// managetobudget
-		if q.flags&0x4 != 0 { // 1<<2
-			q.ManageToBudget = true // 1 = yes
-		} else {
-			q.ManageToBudget = false // 0 = no
-		}
+		q.IsActive = q.flags&(1<<0) == 0        // Inactive when bit is set
+		q.IsChildRentable = q.flags&(1<<1) != 0 // can be a child if set
+		q.ManageToBudget = q.flags&(1<<2) != 0  // manage to budget when set
+		q.ReserveAfter = q.flags&(1<<3) != 0    // reserve after when set
 
 		q.Recid = q.RTID
 		g.Record = q
@@ -429,8 +400,8 @@ func getRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 // wsdoc }
 func deactivateRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "deactivateRentableType"
-	fmt.Printf("Entered %s\n", funcname)
-	fmt.Printf("record data = %s\n", d.data)
+	rlib.Console("Entered %s\n", funcname)
+	rlib.Console("record data = %s\n", d.data)
 
 	var foo RIDRequest
 	if err := json.Unmarshal([]byte(d.data), &foo); err != nil {
@@ -459,8 +430,8 @@ func deactivateRentableType(w http.ResponseWriter, r *http.Request, d *ServiceDa
 // wsdoc }
 func reactivateRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "reactivateRentableType"
-	fmt.Printf("Entered %s\n", funcname)
-	fmt.Printf("record data = %s\n", d.data)
+	rlib.Console("Entered %s\n", funcname)
+	rlib.Console("record data = %s\n", d.data)
 
 	var foo RIDRequest
 	if err := json.Unmarshal([]byte(d.data), &foo); err != nil {
@@ -494,8 +465,8 @@ func saveRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		err error
 	)
 
-	fmt.Printf("Entered %s\n", funcname)
-	fmt.Printf("record data = %s\n", d.data)
+	rlib.Console("Entered %s\n", funcname)
+	rlib.Console("record data = %s\n", d.data)
 
 	// get data
 	data := []byte(d.data)
@@ -508,16 +479,19 @@ func saveRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	var a rlib.RentableType
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
-	fmt.Printf("RentableType Record: %#v\n", a)
+	rlib.Console("RentableType Record: %#v\n", a)
 
-	var ok bool
-	a.BID, ok = rlib.RRdb.BUDlist[string(foo.Record.BUD)]
-	if !ok {
-		e := fmt.Errorf("%s: Could not map BID value: %s", funcname, foo.Record.BUD)
-		rlib.Ulog("%s", e.Error())
-		SvcErrorReturn(w, e, funcname)
-		return
-	}
+	//
+	// var ok bool
+	// a.BID, ok = rlib.RRdb.BUDlist[string(foo.Record.BUD)]
+	// if !ok {
+	// 	e := fmt.Errorf("%s: Could not map BID value: %s", funcname, foo.Record.BUD)
+	// 	rlib.Ulog("%s", e.Error())
+	// 	SvcErrorReturn(w, e, funcname)
+	// 	return
+	// }
+	rlib.Console("foo.Record.IsChildRentable = %v\n", foo.Record.IsChildRentable)
+	rlib.Console("foo.Record.ManageToBudget = %v\n", foo.Record.ManageToBudget)
 
 	// NOTE: There is a separate API to deactive/reactive rentabletypes
 
@@ -530,6 +504,9 @@ func saveRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	if foo.Record.ManageToBudget { // 1<<
 		a.FLAGS |= (1 << 2) // set it to 1
+	}
+	if foo.Record.ReserveAfter { // 1<<
+		a.FLAGS |= (1 << 3) // set it to 1
 	}
 
 	errlist := bizlogic.ValidateRentableType(r.Context(), &a)
@@ -549,7 +526,7 @@ func saveRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 	} else {
 		// update existing record
-		fmt.Printf("Updating existing RentableType: %d\n", a.RTID)
+		rlib.Console("Updating existing RentableType: %d, FLAGS = %x\n", a.RTID, a.FLAGS)
 		err = rlib.UpdateRentableType(r.Context(), &a)
 		if err != nil {
 			e := fmt.Errorf("%s: unable to update RentableType (RTID=%d\n: %s", funcname, a.RTID, err.Error())

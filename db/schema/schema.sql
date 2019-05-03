@@ -227,7 +227,7 @@ CREATE TABLE RentalAgreement (
               4        Active                          Tenant has moved in and the RA remains valid
               5        Notice To Move                  Resident has given notice that they will leave
               6        Terminated                      Agreement terminated. Reason in Outcome (SLSID of string from WhyLeaving)
-              7        unused
+              7        VOID / Cancelled                The agreement was created for the future but it was canceled before Rent and Possession began
               8        unused
               9        unused                          reserved for future expansion
              10        unused                          reserved for future expansion

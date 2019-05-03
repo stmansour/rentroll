@@ -179,7 +179,7 @@
                             }
                         ],
                         "RID": 3,
-                        "RTFLAGS": 4,
+                        "RTFLAGS": 12,
                         "RTID": 1,
                         "RentCycle": 6,
                         "RentableName": "Rentable003",

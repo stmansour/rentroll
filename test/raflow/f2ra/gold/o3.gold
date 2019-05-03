@@ -1,0 +1,97 @@
+{
+    "records": [
+        {
+            "BID": 1,
+            "BUD": "REX",
+            "Comment": "",
+            "CreateBy": 211,
+            "DtStart": "1/1/2020",
+            "DtStop": "12/30/9999",
+            "LastModBy": 211,
+            "LeaseStatus": 2,
+            "RID": 1,
+            "RLID": 5,
+            "recid": 0
+        },
+        {
+            "BID": 1,
+            "BUD": "REX",
+            "Comment": "",
+            "CreateBy": 211,
+            "DtStart": "12/1/2019",
+            "DtStop": "12/31/2019",
+            "LastModBy": 211,
+            "LeaseStatus": 1,
+            "RID": 1,
+            "RLID": 6,
+            "recid": 1
+        },
+        {
+            "BID": 1,
+            "BUD": "REX",
+            "Comment": "",
+            "CreateBy": 0,
+            "DtStart": "11/1/2019",
+            "DtStop": "11/30/2019",
+            "LastModBy": 0,
+            "LeaseStatus": 1,
+            "RID": 1,
+            "RLID": 10,
+            "recid": 2
+        },
+        {
+            "BID": 1,
+            "BUD": "REX",
+            "Comment": "",
+            "CreateBy": 0,
+            "DtStart": "9/1/2019",
+            "DtStop": "10/31/2019",
+            "LastModBy": 0,
+            "LeaseStatus": 1,
+            "RID": 1,
+            "RLID": 9,
+            "recid": 3
+        },
+        {
+            "BID": 1,
+            "BUD": "REX",
+            "Comment": "",
+            "CreateBy": 0,
+            "DtStart": "8/1/2019",
+            "DtStop": "8/31/2019",
+            "LastModBy": 211,
+            "LeaseStatus": 0,
+            "RID": 1,
+            "RLID": 4,
+            "recid": 4
+        },
+        {
+            "BID": 1,
+            "BUD": "REX",
+            "Comment": "",
+            "CreateBy": 0,
+            "DtStart": "5/1/2019",
+            "DtStop": "7/31/2019",
+            "LastModBy": 0,
+            "LeaseStatus": 0,
+            "RID": 1,
+            "RLID": 7,
+            "recid": 5
+        },
+        {
+            "BID": 1,
+            "BUD": "REX",
+            "Comment": "",
+            "CreateBy": 0,
+            "DtStart": "1/1/2019",
+            "DtStop": "4/30/2019",
+            "LastModBy": 0,
+            "LeaseStatus": 0,
+            "RID": 1,
+            "RLID": 1,
+            "recid": 6
+        }
+    ],
+    "status": "success",
+    "total": 7
+}

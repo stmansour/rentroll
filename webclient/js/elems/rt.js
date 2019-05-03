@@ -21,6 +21,7 @@ window.getRTInitRecord = function (BID, BUD){
         ManageToBudget: false,
         IsActive: true,
         IsChildRentable: false,
+        ReserveAfter: true,
         RMRID: 0,
         LastModTime: y.toISOString(),
         LastModBy: 0,
@@ -287,6 +288,7 @@ window.buildRentableTypeElements = function () {
             { field: 'ManageToBudget',  type: 'checkbox',   required: true,     html: { page: 0, column: 0 } },
             { field: 'IsActive',        type: 'checkbox',   required: true,     html: { page: 0, column: 0 } },
             { field: 'IsChildRentable', type: 'checkbox',   required: true,     html: { page: 0, column: 0 } },
+            { field: 'ReserveAfter',    type: 'checkbox',   required: true,     html: { page: 0, column: 0 } },
             { field: 'ARID',            type: 'list',       required: true,     html: { page: 0, column: 0 },   options: {items: [], selected: {}} },
             { field: 'LastModTime',     type: 'time',       required: false,    html: { page: 0, column: 0 } },
             { field: 'LastModBy',       type: 'int',        required: false,    html: { page: 0, column: 0 } },
@@ -346,6 +348,7 @@ window.buildRentableTypeElements = function () {
             data.postData.record.ManageToBudget = int_to_bool(data.postData.record.ManageToBudget);
             data.postData.record.IsActive = int_to_bool(data.postData.record.IsActive);
             data.postData.record.IsChildRentable = int_to_bool(data.postData.record.IsChildRentable);
+            data.postData.record.ReserveAfter = int_to_bool(data.postData.record.ReserveAfter);
 
             // server request form data
             getFormSubmitData(data.postData.record);
