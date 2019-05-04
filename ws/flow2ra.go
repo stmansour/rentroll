@@ -483,53 +483,51 @@ func FlowSaveRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (int64, er
 				if d1.Before(now) {
 					d1 = now
 				}
-				// Find all rentables in the old rental agreement
-				rarl, err = rlib.GetAllRentalAgreementRentables(ctx, x.RaChainOrig[i].RAID)
-				if err != nil {
+				if err = SetLeaseStatusPostStop(ctx, x.RaChainOrig[i].BID, x.RaChainOrig[i].RAID, &d1, &x.RaChainOrigUnchanged[i].PossessionStop); err != nil {
 					return nraid, err
 				}
-				for _, v := range rarl {
-					var leasestatus = int64(rlib.LEASESTATUSnotleased)
-					var l = rlib.RentableLeaseStatus{
-						BID:         x.RaChainOrig[i].BID,
-						DtStart:     d1,
-						DtStop:      rlib.ENDOFTIME,
-						LeaseStatus: leasestatus,
-						RID:         v.RID,
-					}
-					//------------------------------------------------------------------
-					// Update the LeaseStatus for the time range that we're cancelling
-					// and possibly update the LeaseStatus immediatly following.
-					//------------------------------------------------------------------
-
-					// q := fmt.Sprintf("select %s from RentableLeaseStatus where RID=%d AND BID=%d AND DtStart >= %q ORDER BY DtStart LIMIT 1;",
-					// 	rlib.RRdb.DBFields["RentableLeaseStatus"], v.RID, v.BID, x.RaChainOrigUnchanged[i].PossessionStop.Format(rlib.RRDATEFMTSQL))
-					// row := rlib.RRdb.Dbrr.QueryRow(q)
-					var lsNext rlib.RentableLeaseStatus
-					lsNext, err = GetRentableStatusOnOrAfter(ctx, v.RID, &x.RaChainOrigUnchanged[i].PossessionStop)
-					if err != nil {
-						return nraid, err
-					}
-
-					rlib.Console("Found RentableLeaseStatus: RLID = %d, LeaseStatus = %d,  %s\n", lsNext.RLID, lsNext.LeaseStatus, rlib.ConsoleDRange(&lsNext.DtStart, &lsNext.DtStop))
-
-					if lsNext.RLID > 0 {
-						l.DtStop = lsNext.DtStart
-						if err = rlib.SetRentableLeaseStatus(ctx, &l, false /*purge the 3rd arg asap*/); err != nil {
-							return nraid, err
-						}
-						//--------------------------------------------------------------------------------
-						// if lsNext is reserved, we need to unreserve it here because we have cancelled
-						// the RentalAgreement in front of it that caused it to be reserved.
-						//--------------------------------------------------------------------------------
-						if lsNext.LeaseStatus == rlib.LEASESTATUSreserved {
-							lsNext.LeaseStatus = rlib.LEASESTATUSnotleased
-							if err = rlib.UpdateRentableLeaseStatus(ctx, &lsNext); err != nil {
-								return nraid, err
-							}
-						}
-					}
-				}
+				// Find all rentables in the old rental agreement
+				// rarl, err = rlib.GetAllRentalAgreementRentables(ctx, x.RaChainOrig[i].RAID)
+				// if err != nil {
+				// 	return nraid, err
+				// }
+				// for _, v := range rarl {
+				// var l = rlib.RentableLeaseStatus{
+				// 	BID:         x.RaChainOrig[i].BID,
+				// 	DtStart:     d1,
+				// 	DtStop:      rlib.ENDOFTIME,
+				// 	LeaseStatus: int64(rlib.LEASESTATUSnotleased),
+				// 	RID:         v.RID,
+				// }
+				// //------------------------------------------------------------------
+				// // Update the LeaseStatus for the time range that we're cancelling
+				// // and possibly update the LeaseStatus immediatly following.
+				// //------------------------------------------------------------------
+				// var lsNext rlib.RentableLeaseStatus
+				// lsNext, err = GetRentableStatusOnOrAfter(ctx, v.RID, &x.RaChainOrigUnchanged[i].PossessionStop)
+				// if err != nil {
+				// 	return nraid, err
+				// }
+				//
+				// rlib.Console("Found RentableLeaseStatus: RLID = %d, LeaseStatus = %d,  %s\n", lsNext.RLID, lsNext.LeaseStatus, rlib.ConsoleDRange(&lsNext.DtStart, &lsNext.DtStop))
+				//
+				// if lsNext.RLID > 0 {
+				// 	l.DtStop = lsNext.DtStart
+				// 	if err = rlib.SetRentableLeaseStatus(ctx, &l, false /*purge the 3rd arg asap*/); err != nil {
+				// 		return nraid, err
+				// 	}
+				// 	//--------------------------------------------------------------------------------
+				// 	// if lsNext is reserved, we need to unreserve it here because we have cancelled
+				// 	// the RentalAgreement in front of it that caused it to be reserved.
+				// 	//--------------------------------------------------------------------------------
+				// 	if lsNext.LeaseStatus == rlib.LEASESTATUSreserved {
+				// 		lsNext.LeaseStatus = rlib.LEASESTATUSnotleased
+				// 		if err = rlib.UpdateRentableLeaseStatus(ctx, &lsNext); err != nil {
+				// 			return nraid, err
+				// 		}
+				// 	}
+				// }
+				// }
 			}
 
 			//------------------------------------------------------------------
@@ -727,6 +725,68 @@ func setRATerminator(ctx context.Context, ra *rlib.RentalAgreement) error {
 	ra.TerminatorUID = sess.UID
 	// ra.TerminationDate = time.Now()
 	ra.TerminationDate = rlib.Now()
+	return nil
+}
+
+// SetLeaseStatusPostStop sets the lease status for the time immediately
+// following a newly terminated RentalAgreement.  It sets the lease status
+// for all Rentables associated with the RentalAgreement
+//
+// INPUTS
+//    ctx  - db context
+//    bid  - the business unit
+//   raid  - the rental agreement being terminated
+//     d1  - start time of new lease status record -- the time stop time of
+//           the RA that is being terminated.
+//     d2  - the original stop time of the RA being terminated. May be the
+//           same as d1 if the termination is because the RA has run its full
+//           term.  It will be prior to d1 if the termination is for other
+//           reasons (eviction, failure to pay, job transfer, etc.)
+//
+// RETURNS
+//    any errors encountered
+//-----------------------------------------------------------------------------
+func SetLeaseStatusPostStop(ctx context.Context, bid, raid int64, d1, d2 *time.Time) error {
+	var lsNext rlib.RentableLeaseStatus
+	var rarl []rlib.RentalAgreementRentable
+	var err error
+
+	// Find all rentables in the old rental agreement
+	rarl, err = rlib.GetAllRentalAgreementRentables(ctx, raid)
+	if err != nil {
+		return err
+	}
+
+	for _, v := range rarl {
+		var l = rlib.RentableLeaseStatus{
+			BID:         bid,
+			DtStart:     *d1,
+			DtStop:      rlib.ENDOFTIME,
+			LeaseStatus: int64(rlib.LEASESTATUSnotleased),
+			RID:         v.RID,
+		}
+		if lsNext, err = GetRentableStatusOnOrAfter(ctx, v.RID, d2); err != nil {
+			return err
+		}
+		// rlib.Console("Found RentableLeaseStatus: RLID = %d, LeaseStatus = %d,  %s\n", lsNext.RLID, lsNext.LeaseStatus, rlib.ConsoleDRange(&lsNext.DtStart, &lsNext.DtStop))
+
+		if lsNext.RLID > 0 {
+			l.DtStop = lsNext.DtStart
+			if err = rlib.SetRentableLeaseStatus(ctx, &l, false /*purge the 3rd arg asap*/); err != nil {
+				return err
+			}
+			//--------------------------------------------------------------------------------
+			// if lsNext is reserved, we need to unreserve it here because we have cancelled
+			// the RentalAgreement in front of it that caused it to be reserved.
+			//--------------------------------------------------------------------------------
+			if lsNext.LeaseStatus == rlib.LEASESTATUSreserved {
+				lsNext.LeaseStatus = rlib.LEASESTATUSnotleased
+				if err = rlib.UpdateRentableLeaseStatus(ctx, &lsNext); err != nil {
+					return err
+				}
+			}
+		}
+	}
 	return nil
 }
 

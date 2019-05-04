@@ -350,17 +350,20 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 		ra.NoticeToMoveDate = time.Time(modRAFlowMeta.NoticeToMoveDate)
 		ra.NoticeToMoveReported = time.Time(modRAFlowMeta.NoticeToMoveReported)
 
-		// UPDATE RA in REAL TABLE
-		err = rlib.UpdateRentalAgreement(ctx, &ra)
-		if err != nil {
-			return flow, err
-		}
+		//---------------------------------------------------------------------
+		// If this is a termination, clean up the loose ends
+		//---------------------------------------------------------------------
+		if Action == rlib.RAActionTerminate {
+			if err = TerminateRentalAgreement(ctx, &ra); err != nil {
+				return flow, err
+			}
+		} else {
+			// UPDATE RA in REAL TABLE
+			err = rlib.UpdateRentalAgreement(ctx, &ra)
+			if err != nil {
+				return flow, err
+			}
 
-		//---------------------------------------------------------------------
-		// If this is a termination, we may need to clean up the LeaseStatus
-		//---------------------------------------------------------------------
-		if err = HandleLeaseStatusOnTerminate(ctx, &ra); err != nil {
-			return flow, err
 		}
 
 		// EditFlag should be set to true only when we're creating a Flow that
@@ -396,10 +399,11 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 	return flow, nil
 }
 
-// HandleLeaseStatusOnTerminate ensures that lease status records are cleared
-// if necessary so that rentables become available after terminating the
-// RentalAgreement to which they were bound.  This function should only be
-// called with the RentalAgreement is cancelled.
+// TerminateRentalAgreement is called when an active RA is set to the terminated
+// state. It will stop assessments, update User / payor references to end on the
+// termination date, and it will update the LeaseStatus for the time after the
+// Termination Date.  This is a simpler scenario than what happens in Flow2RA().
+// It will terminate on the date set in ra.TerminationDate
 //
 // INPUTS
 //    ctx  - db context
@@ -408,7 +412,35 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 // RETURNS
 //    any errors encountered
 //------------------------------------------------------------------------------
-func HandleLeaseStatusOnTerminate(ctx context.Context, ra *rlib.RentalAgreement) error {
+func TerminateRentalAgreement(ctx context.Context, ra *rlib.RentalAgreement) error {
+	var err error
+	origStopDate := rlib.Latest(&ra.RentStop, &ra.PossessionStop)
+
+	ra.AgreementStop = ra.TerminationDate
+	ra.RentStop = ra.TerminationDate
+	ra.PossessionStop = ra.TerminationDate
+
+	// UPDATE RA in REAL TABLE
+	if err = rlib.UpdateRentalAgreement(ctx, ra); err != nil {
+		return err
+	}
+
+	//--------------------------------------------------------------------------
+	//  Stop all recurring assessments on the termination date
+	//--------------------------------------------------------------------------
+	qry := fmt.Sprintf("UPDATE Assessments SET Stop = %q WHERE RAID=%d AND PASMID=0 AND RentCycle>0 AND Stop>%q;", ra.RentStop.Format(rlib.RRDATETIMESQL), ra.RAID, ra.RentStop.Format(rlib.RRDATETIMESQL))
+	tx, ok := rlib.DBTxFromContext(ctx)
+	if !ok {
+		return fmt.Errorf("Could not get transaction info from context")
+	}
+	if _, err = tx.Exec(qry); err != nil {
+		return err
+	}
+
+	//--------------------------------------------------------------------------
+	//  Look at the Lease Status following the stop date. Adjust if necessary.
+	//--------------------------------------------------------------------------
+	SetLeaseStatusPostStop(ctx, ra.BID, ra.RAID, &ra.TerminationDate, &origStopDate)
 
 	return nil
 }
