@@ -175,6 +175,7 @@ FROM
                 AND RentalAgreement.RAID = RentalAgreementRentables.RAID
                 AND "{{.DtStart}}" <= RentalAgreement.AgreementStop
                 AND "{{.DtStop}}" > RentalAgreement.AgreementStart)
+                AND (RentalAgreement.FLAGS & 64) = 0
         WHERE
             Rentable.BID = {{.BID}}
         )
@@ -206,6 +207,7 @@ FROM
             AND RentalAgreementRentables.RAID IS NULL
             AND "{{.DtStart}}" <= RentalAgreement.AgreementStop
             AND "{{.DtStop}}" > RentalAgreement.AgreementStart
+            AND (RentalAgreement.FLAGS & 64) = 0
         )
     ) AS Rentable_CUM_RA
         /*

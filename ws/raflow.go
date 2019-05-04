@@ -84,7 +84,7 @@ FROM (
             RentalAgreement.AgreementStart AS AgreementStart,
             RentalAgreement.AgreementStop AS AgreementStop,
             GROUP_CONCAT(DISTINCT CASE WHEN Payor.IsCompany > 0 THEN Payor.CompanyName ELSE CONCAT(Payor.FirstName, ' ', Payor.LastName) END ORDER BY 1 SEPARATOR ', ') AS Payors,
-			RentalAgreement.FLAGS AS FLAGS,
+            RentalAgreement.FLAGS AS FLAGS,
             Flow.FlowID AS FlowID,
             Flow.UserRefNo AS UserRefNo
         FROM RentalAgreement
@@ -92,10 +92,10 @@ FROM (
         LEFT JOIN Transactant AS Payor ON Payor.TCID=RentalAgreementPayors.TCID
         LEFT JOIN Flow ON Flow.ID=RentalAgreement.RAID
         WHERE
-			RentalAgreement.BID={{.BID}}
-			AND RentalAgreement.AgreementStart < "{{.Stop}}"
-			AND RentalAgreement.AgreementStop > "{{.Start}}"
-			{{.IncludeCancelled}}
+            RentalAgreement.BID={{.BID}}
+            AND RentalAgreement.AgreementStart < "{{.Stop}}"
+            AND RentalAgreement.AgreementStop > "{{.Start}}"
+            {{.IncludeCancelled}}
         GROUP BY RentalAgreement.RAID
         ORDER BY Payors ASC, AgreementStart ASC
     )
@@ -111,7 +111,7 @@ FROM (
             NULL AS AgreementStart,
             NULL AS AgreementStop,
             NULL AS Payors,
-			NULL AS FLAGS,
+            NULL AS FLAGS,
             Flow.FlowID AS FlowID,
             Flow.UserRefNo AS UserRefNo
         FROM Flow
@@ -133,7 +133,7 @@ var RAFlowQueryClause = rlib.QueryClause{
 	"BID":              "",
 	"Start":            "",
 	"Stop":             "",
-	"IncludeCancelled": "AND RentalAgreement.Flags & 64 = 0", // set this to = 1 if you only want the cancelled ones
+	"IncludeCancelled": "AND (RentalAgreement.FLAGS & 64) = 0", // set this to = 1 if you only want the cancelled ones
 	"SelectClause":     strings.Join(RAFlowQuerySelectFields, ","),
 	"WhereClause":      "",
 	"OrderClause":      "RA_CUM_FLOW.Payors ASC, RA_CUM_FLOW.AgreementStart ASC",
