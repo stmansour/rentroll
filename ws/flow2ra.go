@@ -333,11 +333,14 @@ func FlowSaveRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (int64, er
 	var err error
 	var nraid int64
 	var raOrig rlib.RentalAgreement
-	var rarl []rlib.RentalAgreementRentable
 	var cancelled, disjoint bool
 
 	if err = rlib.InitBizInternals(x.Raf.Meta.BID, &x.Xbiz); err != nil {
 		return nraid, err
+	}
+	sess, ok := rlib.SessionFromContext(ctx)
+	if !ok {
+		return nraid, rlib.ErrSessionRequired
 	}
 
 	rlib.Console("A x.Raf.Dates.Term %s\n", rlib.ConsoleJSONDRange(&x.Raf.Dates.AgreementStart, &x.Raf.Dates.AgreementStop))
@@ -486,48 +489,6 @@ func FlowSaveRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (int64, er
 				if err = SetLeaseStatusPostStop(ctx, x.RaChainOrig[i].BID, x.RaChainOrig[i].RAID, &d1, &x.RaChainOrigUnchanged[i].PossessionStop); err != nil {
 					return nraid, err
 				}
-				// Find all rentables in the old rental agreement
-				// rarl, err = rlib.GetAllRentalAgreementRentables(ctx, x.RaChainOrig[i].RAID)
-				// if err != nil {
-				// 	return nraid, err
-				// }
-				// for _, v := range rarl {
-				// var l = rlib.RentableLeaseStatus{
-				// 	BID:         x.RaChainOrig[i].BID,
-				// 	DtStart:     d1,
-				// 	DtStop:      rlib.ENDOFTIME,
-				// 	LeaseStatus: int64(rlib.LEASESTATUSnotleased),
-				// 	RID:         v.RID,
-				// }
-				// //------------------------------------------------------------------
-				// // Update the LeaseStatus for the time range that we're cancelling
-				// // and possibly update the LeaseStatus immediatly following.
-				// //------------------------------------------------------------------
-				// var lsNext rlib.RentableLeaseStatus
-				// lsNext, err = GetRentableStatusOnOrAfter(ctx, v.RID, &x.RaChainOrigUnchanged[i].PossessionStop)
-				// if err != nil {
-				// 	return nraid, err
-				// }
-				//
-				// rlib.Console("Found RentableLeaseStatus: RLID = %d, LeaseStatus = %d,  %s\n", lsNext.RLID, lsNext.LeaseStatus, rlib.ConsoleDRange(&lsNext.DtStart, &lsNext.DtStop))
-				//
-				// if lsNext.RLID > 0 {
-				// 	l.DtStop = lsNext.DtStart
-				// 	if err = rlib.SetRentableLeaseStatus(ctx, &l, false /*purge the 3rd arg asap*/); err != nil {
-				// 		return nraid, err
-				// 	}
-				// 	//--------------------------------------------------------------------------------
-				// 	// if lsNext is reserved, we need to unreserve it here because we have cancelled
-				// 	// the RentalAgreement in front of it that caused it to be reserved.
-				// 	//--------------------------------------------------------------------------------
-				// 	if lsNext.LeaseStatus == rlib.LEASESTATUSreserved {
-				// 		lsNext.LeaseStatus = rlib.LEASESTATUSnotleased
-				// 		if err = rlib.UpdateRentableLeaseStatus(ctx, &lsNext); err != nil {
-				// 			return nraid, err
-				// 		}
-				// 	}
-				// }
-				// }
 			}
 
 			//------------------------------------------------------------------
@@ -558,8 +519,9 @@ func FlowSaveRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (int64, er
 			// update RentalAgreement Payors if needed (dates changed)
 			//------------------------------------------------------------
 			if !x.RaChainOrig[i].RentStop.Equal(x.RaChainOrigUnchanged[i].RentStop) {
-				qry := fmt.Sprintf("UPDATE RentalAgreementPayors SET DtStop = %q WHERE RAID=%d AND DtStart>=%q AND DtStop<=%q;",
+				qry := fmt.Sprintf("UPDATE RentalAgreementPayors SET DtStop = %q,LastModBy=%d WHERE RAID=%d AND DtStart>=%q AND DtStop<=%q;",
 					x.RaChainOrig[i].RentStop.Format(rlib.RRDATETIMESQL),
+					sess.UID,
 					x.RaChainOrigUnchanged[i].RAID,
 					x.RaChainOrigUnchanged[i].RentStart.Format(rlib.RRDATETIMESQL),
 					x.RaChainOrigUnchanged[i].RentStop.Format(rlib.RRDATETIMESQL))
@@ -574,29 +536,16 @@ func FlowSaveRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (int64, er
 			}
 
 			if !x.RaChainOrig[i].PossessionStop.Equal(x.RaChainOrigUnchanged[i].PossessionStop) {
-				//----------------------------------------------------------------
-				// Get the rentables for this RA so we can update the users...
-				//----------------------------------------------------------------
-				if len(rarl) == 0 { // we may have loaded rarl above
-					rarl, err = rlib.GetAllRentalAgreementRentables(ctx, x.RaChainOrig[i].RAID)
-					if err != nil {
-						return nraid, err
-					}
-				}
 				//------------------------------------------------------------
 				// Update Rentable Users...
 				//------------------------------------------------------------
-				s := "("
-				nm1 := len(rarl) - 1
-				for k, v := range rarl {
-					s += fmt.Sprintf("%d", v.RID)
-					if k < nm1 {
-						s += ","
-					}
+				var s string
+				if s, err = GetQueryRentableList(ctx, x.RaChainOrig[i].RAID); err != nil {
+					return nraid, err
 				}
-				s += ")"
-				qry := fmt.Sprintf("UPDATE RentableUsers SET DtStop=%q WHERE DtStart>=%q AND DtStop<=%q AND RID IN %s",
+				qry := fmt.Sprintf("UPDATE RentableUsers SET DtStop=%q,LastModBy=%d WHERE DtStart>=%q AND DtStop<=%q AND RID IN %s",
 					x.RaChainOrig[i].PossessionStop.Format(rlib.RRDATETIMESQL),
+					sess.UID,
 					x.RaChainOrigUnchanged[i].PossessionStart.Format(rlib.RRDATETIMESQL),
 					x.RaChainOrigUnchanged[i].PossessionStop.Format(rlib.RRDATETIMESQL),
 					s)
@@ -726,6 +675,45 @@ func setRATerminator(ctx context.Context, ra *rlib.RentalAgreement) error {
 	// ra.TerminationDate = time.Now()
 	ra.TerminationDate = rlib.Now()
 	return nil
+}
+
+// GetQueryRentableList lists all the RIDs for Rentables associated with
+// the supplied RAID and returns a string suitable for use in an SQL
+// query
+//
+// INPUTS
+//    ctx  - db context
+//   RAID  - the rental agreement being terminated
+//
+// RETURNS
+//    string of the form "(23,55,82)"
+//    any errors encountered
+//-----------------------------------------------------------------------------
+func GetQueryRentableList(ctx context.Context, RAID int64) (string, error) {
+	var s string
+	var err error
+	var rarl []rlib.RentalAgreementRentable
+
+	//----------------------------------------------------------------
+	// Get the rentables for this RA so we can update the users...
+	//----------------------------------------------------------------
+	rarl, err = rlib.GetAllRentalAgreementRentables(ctx, RAID)
+	if err != nil {
+		return s, err
+	}
+	//------------------------------------------------------------
+	// Update Rentable Users...
+	//------------------------------------------------------------
+	s = "("
+	nm1 := len(rarl) - 1
+	for k, v := range rarl {
+		s += fmt.Sprintf("%d", v.RID)
+		if k < nm1 {
+			s += ","
+		}
+	}
+	s += ")"
+	return s, err
 }
 
 // SetLeaseStatusPostStop sets the lease status for the time immediately

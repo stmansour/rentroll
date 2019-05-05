@@ -26,7 +26,6 @@
 ./raflow/f2ra/xm.sql
 ./raflow/f2ra/xn.sql
 ./raflow/f2ra/xo.sql
-./raflow/f2ra/xxxe.sql
 ./raflow/flow2ra/rr.sql
 ./raflow/flow2ra/rrsm1.sql
 ./raflow/initraflow/ra0.sql

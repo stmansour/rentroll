@@ -667,6 +667,7 @@ shift $((OPTIND-1))
 #  Put modifications to schema in the lines below
 #=====================================================
 cat >${MODFILE} <<EOF
+ALTER TABLE RentalAgreement ADD TerminationStarted DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00' AFTER TerminationDate;
 EOF
 
 #==============================================================================

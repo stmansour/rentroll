@@ -622,7 +622,8 @@ type RentalAgreement struct {
 	NoticeToMoveDate       time.Time   // datetime renter proposes to terminate the Rental Agreement (move out).
 	NoticeToMoveReported   time.Time   // date/time when customer notified the business of NoticeToMoveDate. Note: this is not the system datetime.
 	TerminatorUID          int64       // User who set State = Terminated
-	TerminationDate        time.Time   // timestamp when State was set to Terminated.
+	TerminationDate        time.Time   // timestamp when RA needs to be terminated
+	TerminationStarted     time.Time   // timestamp when State was set to Terminated.
 	OtherPreferences       string      // user prefs
 	LeaseTerminationReason int64       // this is an SLSID for stringlist WhyLeaving
 	LastModTime            time.Time   // when was this record last written

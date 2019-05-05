@@ -414,25 +414,60 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 //------------------------------------------------------------------------------
 func TerminateRentalAgreement(ctx context.Context, ra *rlib.RentalAgreement) error {
 	var err error
+	origStartDate := rlib.Earliest(&ra.RentStart, &ra.PossessionStart)
 	origStopDate := rlib.Latest(&ra.RentStop, &ra.PossessionStop)
+	var tx *sql.Tx
+	var ok bool
+	var sess *rlib.Session
 
+	//-----------------------------------------------
+	// We terminate everything on the TerminationDate
+	//-----------------------------------------------
 	ra.AgreementStop = ra.TerminationDate
 	ra.RentStop = ra.TerminationDate
 	ra.PossessionStop = ra.TerminationDate
 
-	// UPDATE RA in REAL TABLE
 	if err = rlib.UpdateRentalAgreement(ctx, ra); err != nil {
 		return err
+	}
+	if sess, ok = rlib.SessionFromContext(ctx); !ok {
+		return rlib.ErrSessionRequired
+	}
+	if tx, ok = rlib.DBTxFromContext(ctx); !ok {
+		return fmt.Errorf("Could not get transaction info from context")
 	}
 
 	//--------------------------------------------------------------------------
 	//  Stop all recurring assessments on the termination date
 	//--------------------------------------------------------------------------
-	qry := fmt.Sprintf("UPDATE Assessments SET Stop = %q WHERE RAID=%d AND PASMID=0 AND RentCycle>0 AND Stop>%q;", ra.RentStop.Format(rlib.RRDATETIMESQL), ra.RAID, ra.RentStop.Format(rlib.RRDATETIMESQL))
-	tx, ok := rlib.DBTxFromContext(ctx)
-	if !ok {
-		return fmt.Errorf("Could not get transaction info from context")
+	qry := fmt.Sprintf("UPDATE Assessments SET Stop = %q,LastModBy=%d WHERE RAID=%d AND PASMID=0 AND RentCycle>0 AND Stop>%q;",
+		ra.RentStop.Format(rlib.RRDATETIMESQL), sess.UID, ra.RAID, ra.RentStop.Format(rlib.RRDATETIMESQL))
+	if _, err = tx.Exec(qry); err != nil {
+		return err
 	}
+
+	//--------------------------------------------------------------------------
+	//  Update Payors with changed end date
+	//--------------------------------------------------------------------------
+	qry = fmt.Sprintf("UPDATE RentalAgreementPayors SET DtStop=%q,LastModBy=%d WHERE RAID=%d AND DtStop>%q;",
+		ra.RentStop.Format(rlib.RRDATETIMESQL), sess.UID, ra.RAID, ra.RentStop.Format(rlib.RRDATETIMESQL))
+	if _, err = tx.Exec(qry); err != nil {
+		return err
+	}
+
+	//--------------------------------------------------------------------------
+	//  Update Users with changed end date
+	//--------------------------------------------------------------------------
+	var s string
+	if s, err = GetQueryRentableList(ctx, ra.RAID); err != nil {
+		return err
+	}
+	qry = fmt.Sprintf("UPDATE RentableUsers SET DtStop=%q,LastModBy=%d WHERE DtStart>=%q AND DtStop<=%q AND RID IN %s",
+		ra.RentStop,
+		sess.UID,
+		origStartDate.Format(rlib.RRDATETIMESQL),
+		origStopDate.Format(rlib.RRDATETIMESQL),
+		s)
 	if _, err = tx.Exec(qry); err != nil {
 		return err
 	}

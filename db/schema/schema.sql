@@ -257,7 +257,8 @@ CREATE TABLE RentalAgreement (
     NoticeToMoveDate DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- datetime RA was set to Terminated, valid only if TerminatorUID >0
     NoticeToMoveReported DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',   -- datetime RA was given Notice-To-Move, valid only if NoticeToMoveUID >0
     TerminatorUID BIGINT NOT NULL DEFAULT 0,                           -- if > 0 it is the UID of the person who set this RA to state Terminated
-    TerminationDate DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',   -- datetime RA was set to Terminated, valid only if TerminatorUID >0
+    TerminationDate DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',   -- datetime RA should be terminated
+    TerminationStarted DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',-- datetime RA was set to Terminated, valid only if TerminatorUID >0
     LeaseTerminationReason BIGINT NOT NULL DEFAULT 0,                  -- This is an SLSID for stringlist WhyLeaving.
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                               -- employee UID (from phonebook) that modified it
