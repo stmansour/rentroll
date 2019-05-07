@@ -616,6 +616,7 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 				modRAFlowMeta.TerminatorUID = UID
 				modRAFlowMeta.TerminatorName = fullName
 				modRAFlowMeta.TerminationDate = rlib.JSONDateTime(today)
+				modRAFlowMeta.TerminationStarted = rlib.JSONDateTime(today)
 
 				// IF BIZCACHE NOT INITIALIZED THEN
 				if rlib.RRdb.BizTypes[d.BID] == nil {
@@ -671,6 +672,7 @@ func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataReq
 				modRAFlowMeta.TerminatorUID = UID
 				modRAFlowMeta.TerminatorName = fullName
 				modRAFlowMeta.TerminationDate = rlib.JSONDateTime(today)
+				modRAFlowMeta.TerminationStarted = rlib.JSONDateTime(today)
 
 				// IF BIZCACHE NOT INITIALIZED THEN
 				if rlib.RRdb.BizTypes[d.BID] == nil {
@@ -964,7 +966,7 @@ func SetActionMetaData(ctx context.Context, d *ServiceData, Action int64, modRAF
 			modRAFlowMeta.RAFLAGS = (clearedState | 6)
 
 			rlib.Console("Termination Date: %s\n", rlib.ConsoleJSONDate(&data.TerminationDate))
-			rlib.Console("Termination Started: %s\n", rlib.ConsoleDate(&today))
+			rlib.Console("Termination Started: %s\n", rlib.ConsoleJSONDate(&data.TerminationStarted))
 
 		} else { // NO TERMINATION REASON
 			err = fmt.Errorf("termination reason is not provided")

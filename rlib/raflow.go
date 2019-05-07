@@ -1085,6 +1085,7 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement, EditFlag bool) (RA
 			TerminatorUID:          ra.TerminatorUID,
 			TerminatorName:         TerminatorName.DisplayName(),
 			TerminationDate:        JSONDateTime(ra.TerminationDate),
+			TerminationStarted:     JSONDateTime(ra.TerminationStarted),
 			LeaseTerminationReason: ra.LeaseTerminationReason,
 			DocumentDate:           JSONDateTime(ra.DocumentDate),
 			NoticeToMoveUID:        ra.NoticeToMoveUID,

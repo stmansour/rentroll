@@ -12,11 +12,11 @@ Response( RAID: 2, UserRefNo:  )
             "Data": {
                 "dates": {
                     "AgreementStart": "2/13/2018",
-                    "AgreementStop": "2/29/2020",
+                    "AgreementStop": "5/6/2019",
                     "RentStart": "2/13/2018",
-                    "RentStop": "2/29/2020",
+                    "RentStop": "5/6/2019",
                     "PossessionStart": "2/13/2018",
-                    "PossessionStop": "2/29/2020",
+                    "PossessionStop": "5/6/2019",
                     "CSAgent": 105
                 },
                 "people": [
@@ -137,7 +137,7 @@ Response( RAID: 2, UserRefNo:  )
                                 "RentCycle": 6,
                                 "ProrationCycle": 4,
                                 "Start": "3/1/2018",
-                                "Stop": "2/29/2020",
+                                "Stop": "5/6/2019",
                                 "AtSigningPreTax": 0,
                                 "SalesTax": 0,
                                 "TransOccTax": 0,
@@ -260,7 +260,7 @@ Response( RAID: 2, UserRefNo:  )
                                 "RentCycle": 6,
                                 "ProrationCycle": 4,
                                 "Start": "3/1/2018",
-                                "Stop": "2/29/2020",
+                                "Stop": "5/6/2019",
                                 "AtSigningPreTax": 0,
                                 "SalesTax": 0,
                                 "TransOccTax": 0,
@@ -307,7 +307,8 @@ Response( RAID: 2, UserRefNo:  )
                     "ActiveDate": "2018-02-13 00:00:00 UTC",
                     "TerminatorUID": -99999,
                     "TerminatorName": "UID-0",
-                    "TerminationDate": "2018-10-15 00:00:00 UTC",
+                    "TerminationDate": "2019-05-07 00:00:00 UTC",
+                    "TerminationStarted": "1900-01-01 00:00:00 UTC",
                     "LeaseTerminationReason": 83,
                     "DocumentDate": "1900-01-01 00:00:00 UTC",
                     "NoticeToMoveUID": 0,

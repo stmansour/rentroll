@@ -1,12 +1,12 @@
 Test 8: action "application being completed" on RA with state NoticeToMove 
 Request( RAID: 8, UserRefNo:  )
-Response( RAID: 8, UserRefNo: OVERRIDEEN1234567890 )
+Response( RAID: 8, UserRefNo: OVERRIDE1234567890 )
 {
     "record": {
         "Flow": {
             "BID": 1,
             "FlowID": 3,
-            "UserRefNo": "OVERRIDEEN1234567890",
+            "UserRefNo": "OVERRIDE1234567890",
             "FlowType": "RA",
             "ID": 8,
             "Data": {
@@ -49,6 +49,7 @@ Response( RAID: 8, UserRefNo: OVERRIDEEN1234567890 )
                     "TerminationDate": "1900-01-01 00:00:00 UTC",
                     "NoticeToMoveDate": "1900-01-01 00:00:00 UTC",
                     "NoticeToMoveName": "",
+                    "TerminationStarted": "1970-01-01 00:00:00 UTC",
                     "ApplicationReadyUID": 0,
                     "ApplicationReadyDate": "1900-01-01 00:00:00 UTC",
                     "ApplicationReadyName": "",
@@ -285,9 +286,9 @@ Response( RAID: 8, UserRefNo: OVERRIDEEN1234567890 )
                 ],
                 "parentchild": []
             },
-            "LastModTime": "2019-02-12T13:09:33Z",
+            "LastModTime": "2019-05-07T14:16:28Z",
             "LastModBy": -99999,
-            "CreateTS": "2019-02-12T13:09:33Z",
+            "CreateTS": "2019-05-07T14:16:28Z",
             "CreateBy": -99999
         },
         "ValidationCheck": {

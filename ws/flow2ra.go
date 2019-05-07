@@ -249,6 +249,10 @@ func FlowSaveMetaDataChanges(ctx context.Context, x *rlib.F2RAWriteHandlerContex
 		changes++
 		x.Ra.TerminationDate = time.Time(x.Raf.Meta.TerminationDate)
 	}
+	if !x.Ra.TerminationStarted.Equal(time.Time(x.Raf.Meta.TerminationStarted)) {
+		changes++
+		x.Ra.TerminationStarted = time.Time(x.Raf.Meta.TerminationStarted)
+	}
 	if x.Ra.LeaseTerminationReason != x.Raf.Meta.LeaseTerminationReason {
 		changes++
 		x.Ra.LeaseTerminationReason = x.Raf.Meta.LeaseTerminationReason
@@ -674,6 +678,7 @@ func setRATerminator(ctx context.Context, ra *rlib.RentalAgreement) error {
 	ra.TerminatorUID = sess.UID
 	// ra.TerminationDate = time.Now()
 	ra.TerminationDate = rlib.Now()
+	ra.TerminationStarted = rlib.Now()
 	return nil
 }
 
@@ -830,6 +835,7 @@ func initRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) {
 	x.Ra.NoticeToMoveReported = time.Time(x.Raf.Meta.NoticeToMoveReported)
 	x.Ra.TerminatorUID = x.Raf.Meta.TerminatorUID
 	x.Ra.TerminationDate = time.Time(x.Raf.Meta.TerminationDate)
+	x.Ra.TerminationStarted = time.Time(x.Raf.Meta.TerminationStarted)
 	// x.Ra.FollowUpDate = time.Time(x.Raf.Meta.FollowUpDate)
 	// x.Ra.Outcome = x.Raf.Meta.Outcome
 	// x.Ra.NoticeToMoveUID = x.Raf.Meta.NoticeToMoveUID

@@ -30,10 +30,10 @@ Response( RAID: 0, UserRefNo: 5PR115PPMA585W88ZL3W )
                     "ActiveDate": "1900-01-01 00:00:00 UTC",
                     "ActiveName": "",
                     "LastTMPVID": 1,
-                    "MoveInDate": "2018-08-28 06:28:00 UTC",
+                    "MoveInDate": "2018-10-15 00:00:00 UTC",
                     "MoveInName": "UID-0",
                     "LastTMPTCID": 1,
-                    "DocumentDate": "2018-09-02 00:00:00 UTC",
+                    "DocumentDate": "2019-05-12 00:00:00 UTC",
                     "HaveVehicles": true,
                     "LastTMPASMID": 6,
                     "LastTMPPETID": 1,
@@ -49,6 +49,7 @@ Response( RAID: 0, UserRefNo: 5PR115PPMA585W88ZL3W )
                     "TerminationDate": "1900-01-01 00:00:00 UTC",
                     "NoticeToMoveDate": "1900-01-01 00:00:00 UTC",
                     "NoticeToMoveName": "",
+                    "TerminationStarted": "1900-01-01 00:00:00 UTC",
                     "ApplicationReadyUID": 0,
                     "ApplicationReadyDate": "1900-01-01 00:00:00 UTC",
                     "ApplicationReadyName": "",
@@ -270,9 +271,9 @@ Response( RAID: 0, UserRefNo: 5PR115PPMA585W88ZL3W )
                 ],
                 "parentchild": []
             },
-            "LastModTime": "2018-08-28T11:58:42Z",
+            "LastModTime": "2019-05-07T09:59:15Z",
             "LastModBy": 269,
-            "CreateTS": "2018-08-23T17:39:01Z",
+            "CreateTS": "2018-08-23T05:09:01Z",
             "CreateBy": 269
         },
         "ValidationCheck": {

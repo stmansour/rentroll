@@ -57,6 +57,7 @@
                     "RAFLAGS": 54,
                     "RAID": 3,
                     "TerminationDate": "2018-10-24 00:00:00 UTC",
+                    "TerminationStarted": "2018-10-24 00:00:00 UTC",
                     "TerminatorName": "UID-0",
                     "TerminatorUID": -99999
                 },

@@ -12,7 +12,7 @@
         "Flow": {
             "BID": 1,
             "CreateBy": 269,
-            "CreateTS": "2018-08-22T11:41:49Z",
+            "CreateTS": "2018-08-21T23:11:49Z",
             "Data": {
                 "dates": {
                     "AgreementStart": "8/22/2018",
@@ -57,6 +57,7 @@
                     "RAFLAGS": 0,
                     "RAID": 3,
                     "TerminationDate": "1900-01-01 00:00:00 UTC",
+                    "TerminationStarted": "1900-01-01 00:00:00 UTC",
                     "TerminatorName": "",
                     "TerminatorUID": 0
                 },
@@ -247,7 +248,7 @@
             "FlowType": "RA",
             "ID": 3,
             "LastModBy": 269,
-            "LastModTime": "2018-08-22T22:42:38Z",
+            "LastModTime": "2019-05-07T09:10:43Z",
             "UserRefNo": "A02QXP7Z2D5SC8U74Y79"
         },
         "ValidationCheck": {

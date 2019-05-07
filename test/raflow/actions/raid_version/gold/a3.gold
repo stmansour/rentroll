@@ -277,6 +277,7 @@ Response( RAID: 3, UserRefNo:  )
                     "TerminatorUID": 0,
                     "TerminatorName": "UID-0",
                     "TerminationDate": "1900-01-01 00:00:00 UTC",
+                    "TerminationStarted": "1970-01-01 00:00:00 UTC",
                     "LeaseTerminationReason": 0,
                     "DocumentDate": "1900-01-01 00:00:00 UTC",
                     "NoticeToMoveUID": 0,

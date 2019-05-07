@@ -735,12 +735,14 @@ window.loadRAActionForm = function() {
 
                     case 'RATerminationReason':
                         var ok = true;
-                        var dt = this.record.RATerminationDate;
-                        if (typeof dt == "string" && dt.length > 0) {
-                            var x = new Date(dt);
-                            if (x.getFullYear() < 2000) {
-                                ok = false;
-                            }
+                        var dt = new Date(this.record.RATerminationDate);
+                        var DtStart = new Date(app.raflow.Flow.Data.dates.AgreementStart);
+
+                        if (dt.getTime() < DtStart.getTime()) {
+                            dt = DtStart;
+                        }
+                        if (dt.getFullYear() < 2000) {
+                            ok = false;
                         }
                         if(event.value_new.id === 0 && !ok) {
                             $('button[name=updateAction]').attr('disabled',true);
