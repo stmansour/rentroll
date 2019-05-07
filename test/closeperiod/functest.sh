@@ -177,15 +177,22 @@ fi
 TFILES="c"
 STEP=0
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
+    echo "Loading database x${TFILES}.sql"
     mysql --no-defaults rentroll < x${TFILES}.sql
 
-    # Attempt to REOPEN A CLOSED PERIOD but not the last closed period.  This should fail
+    #----------------------------------------------------------------------------
+    # Attempt to REOPEN A CLOSED PERIOD but not the last closed period.  In this
+    # case we try to open CPID 6.  It should fail.
+    #----------------------------------------------------------------------------
     encodeRequest '{"cmd":"delete","record":{"BID":1,"CPID":6,"TLID":1,"TLName":"Monthly Close","LastDtDone":"1900-01-01 00:00:00 UTC","LastDtClose":"1900-01-01 00:00:00 UTC","LastLedgerMarker":"1900-01-01 00:00:00 UTC","CloseTarget":"2018-01-31 17:00:00 UTC","TLIDTarget":1,"TLNameTarget":"Monthly Close","DtDueTarget":"2018-01-31 17:00:00 UTC","DtDoneTarget":"2018-09-24 18:46:00 UTC","DtDone":"1900-01-01 00:00:00 UTC"}}' > request
-    dojsonPOST "http://localhost:8270/v1/closeperiod/1/5" "request" "${TFILES}${STEP}"  "CloseInfo-AttemptToDeleteClosePeriod"
+    dojsonPOST "http://localhost:8270/v1/closeperiod/1/6" "request" "${TFILES}${STEP}"  "CloseInfo-AttemptToDeleteClosePeriod"
 
-    # REOPEN A CLOSED PERIOD (by deleting a Closed Period)
-    encodeRequest '{"cmd":"delete","record":{"BID":1,"CPID":6,"TLID":1,"TLName":"Monthly Close","LastDtDone":"1900-01-01 00:00:00 UTC","LastDtClose":"1900-01-01 00:00:00 UTC","LastLedgerMarker":"1900-01-01 00:00:00 UTC","CloseTarget":"2018-01-31 17:00:00 UTC","TLIDTarget":1,"TLNameTarget":"Monthly Close","DtDueTarget":"2018-01-31 17:00:00 UTC","DtDoneTarget":"2018-09-24 18:46:00 UTC","DtDone":"1900-01-01 00:00:00 UTC"}}' > request
-    dojsonPOST "http://localhost:8270/v1/closeperiod/1/6" "request" "${TFILES}${STEP}"  "CloseInfo-DeleteLastClosePeriod"
+    #----------------------------------------------------------------------------
+    # REOPEN A CLOSED PERIOD (by deleting a Closed Period).  CPID=10 is the last
+    # closed period. Deleting it should be successful.
+    #----------------------------------------------------------------------------
+    encodeRequest '{"cmd":"delete","record":{"CPID":10,"BID":1,"TLID":1,"TLName":"Monthly Close","LastDtDone":"2019-05-07 22:36:00 UTC","LastDtClose":"2019-04-30 17:00:00 UTC","LastLedgerMarker":"1900-01-01 00:00:00 UTC","CloseTarget":"2019-05-31 17:00:00 UTC","TLIDTarget":11,"TLNameTarget":"Monthly Close","DtDueTarget":"2019-05-31 17:00:00 UTC","DtDoneTarget":"1900-01-01 00:00:00 UTC","DtDone":"1900-01-01 00:00:00 UTC"}}' > request
+    dojsonPOST "http://localhost:8270/v1/closeperiod/1/10" "request" "${TFILES}${STEP}"  "CloseInfo-DeleteLastClosePeriod"
 
 
 fi
