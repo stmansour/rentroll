@@ -619,6 +619,8 @@ EOF
 #
 # May 3, 2019
 # ALTER TABLE RentableLeaseStatus ADD FLAGS BIGINT NOT NULL DEFAULT 0 AFTER ConfirmationCode;
+# May 4, 2019
+# ALTER TABLE RentalAgreement ADD TerminationStarted DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00' AFTER TerminationDate;
 
 
 ########################################
@@ -667,7 +669,6 @@ shift $((OPTIND-1))
 #  Put modifications to schema in the lines below
 #=====================================================
 cat >${MODFILE} <<EOF
-ALTER TABLE RentalAgreement ADD TerminationStarted DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00' AFTER TerminationDate;
 EOF
 
 #==============================================================================

@@ -24,7 +24,7 @@
                     "RentStop": "7/31/2018"
                 },
                 "meta": {
-                    "ActiveDate": "2018-09-20 20:42:00 UTC",
+                    "ActiveDate": "2018-10-24 00:00:00 UTC",
                     "ActiveName": "UID-0",
                     "ActiveUID": -99999,
                     "ApplicationReadyDate": "2018-09-20 00:37:00 UTC",
@@ -57,6 +57,7 @@
                     "RAFLAGS": 52,
                     "RAID": 2,
                     "TerminationDate": "1900-01-01 00:00:00 UTC",
+                    "TerminationStarted": "1900-01-01 00:00:00 UTC",
                     "TerminatorName": "UID-0",
                     "TerminatorUID": 0
                 },

@@ -1,19 +1,21 @@
 /*global
-    loadRAActionTemplate,
+    ChangeRAFlowVersionToolbar,
+    dateTodayStr,
+    displayActiveComponentError,
+    displayErrorDot,
+    dtFormatISOToW2ui,
+    GetCurrentFlowID, CloseRAFlowLayout,
+    getSLStringList,
+    GetVehicleIdentity,
     loadRAActionForm,
+    loadRAActionTemplate,
+    localtimeToUTC,
+    RAFlowAJAX,
+    refreshLabels,
     reloadActionForm,
     submitActionForm,
-    getSLStringList,
-    refreshLabels,
-    GetVehicleIdentity,
-    dtFormatISOToW2ui,
-    localtimeToUTC,
     UpdateRAFlowLocalData,
-    GetCurrentFlowID, CloseRAFlowLayout,
-    ChangeRAFlowVersionToolbar,
-    displayErrorDot,
-    displayActiveComponentError,
-    w2uiUTCDateControlString, RAFlowAJAX
+    w2uiUTCDateControlString,
 */
 "use strict";
 
@@ -145,6 +147,7 @@ window.reloadActionForm = function() {
     w2ui.RAActionForm.get('RAApprovalDecision2').hidden = true;
     w2ui.RAActionForm.get('RADeclineReason2').hidden = true;
     w2ui.RAActionForm.get('RATerminationReason').hidden = true;
+    w2ui.RAActionForm.get('RATerminationDate').hidden = true;
     w2ui.RAActionForm.get('RADocumentDate').hidden = true;
     w2ui.RAActionForm.get('RANoticeToMoveDate').hidden = true;
 
@@ -327,7 +330,7 @@ window.refreshLabels = function () {
                 }
             }
             tReasonText = tReason ? tReason.text : "";
-            x.innerHTML = dtFormatISOToW2ui((meta.TerminationDate).replace(" ", "T").replace(" UTC", "Z")) + ' by '+ meta.TerminatorName + ' (' + tReasonText + ')';
+            x.innerHTML = dtFormatISOToW2ui((meta.TerminationStarted).replace(" ", "T").replace(" UTC", "Z")) + ' by '+ meta.TerminatorName + ' (' + tReasonText + ')';
         }
     }
 
@@ -338,7 +341,7 @@ window.refreshLabels = function () {
     x = document.getElementById("bannerTerminatedBy");
     if (x !== null) {
         if (meta.TerminatorUID > 0) {
-            x.innerHTML = dtFormatISOToW2ui((meta.TerminationDate).replace(" ", "T").replace(" UTC", "Z")) + ' by ' + meta.TerminatorName;
+            x.innerHTML = dtFormatISOToW2ui((meta.TerminationStarted).replace(" ", "T").replace(" UTC", "Z")) + ' by ' + meta.TerminatorName;
         } else {
             x.innerHTML = '';
         }
@@ -628,6 +631,8 @@ window.loadRAActionForm = function() {
                 },
                 { field: 'RADocumentDate', type: 'date', hidden: true, options: { start: '01/01/2000' } },
                 { field: 'RANoticeToMoveDate', type: 'date', hidden: true, options: { start: w2uiDateControlString(new Date()) } },
+                { field: 'RATerminationDate', type: 'date', hidden: true, required: true, options: { start: w2uiDateControlString(new Date()) } },
+                //{ field: 'RATerminationStarted',  type: 'date', hidden: true, required: false },
                 { field: 'RATerminationReason', type: 'list', width: 120, required: true, hidden: true,
                     options: {
                         items: getSLStringList(getCurrentBID(), "WhyLeaving")
@@ -659,15 +664,22 @@ window.loadRAActionForm = function() {
 
                             case 6: // Terminate
                                 w2ui.RAActionForm.get('RATerminationReason').hidden = false;
+                                w2ui.RAActionForm.get('RATerminationDate').hidden = false;
+                                w2ui.RAActionForm.record.RATerminationDate = dateTodayStr();
                                 $('button[name=updateAction]').attr('disabled',true);
 
-                                delete this.record.RANoticeToMoveDate;
-                                w2ui.RAActionForm.get('RANoticeToMoveDate').hidden = true;
+                                // auto load date in component if it is present in meta
+                                if (app.raflow.Flow.Data.meta.TerminationDate != "1900-01-01 00:00:00 UTC"){
+                                    var termDate = w2uiUTCDateControlString(new Date((app.raflow.Flow.Data.meta.TerminationDate).replace(" ", "T").replace(" UTC", "Z")));
+                                    this.record.RATerminationDate = termDate;
+                                }
                                 break;
 
                             default:
                                 w2ui.RAActionForm.get('RATerminationReason').hidden = true;
+                                w2ui.RAActionForm.get('RATerminationDate').hidden = true;
                                 delete this.record.RATerminationReason;
+                                delete this.record.RATerminationDate;
                                 $('button[name=updateAction]').attr('disabled',false);
 
                                 delete this.record.RANoticeToMoveDate;
@@ -722,7 +734,15 @@ window.loadRAActionForm = function() {
                         break;
 
                     case 'RATerminationReason':
-                        if(event.value_new.id === 0) {
+                        var ok = true;
+                        var dt = this.record.RATerminationDate;
+                        if (typeof dt == "string" && dt.length > 0) {
+                            var x = new Date(dt);
+                            if (x.getFullYear() < 2000) {
+                                ok = false;
+                            }
+                        }
+                        if(event.value_new.id === 0 && !ok) {
                             $('button[name=updateAction]').attr('disabled',true);
                         } else {
                             $('button[name=updateAction]').attr('disabled',false);
@@ -824,6 +844,7 @@ window.loadRAActionForm = function() {
                     var Action = this.record.RAActions.id;
                     var TerminationReason = 0;
                     var NoticeToMoveDate = "1/1/1900";
+                    var TerminationDate = "1/1/1900";
                     var Mode = "Action";
                     var Version = app.raflow.version;
 
@@ -872,13 +893,20 @@ window.loadRAActionForm = function() {
                             if(w2ui.RAActionForm.record.RATerminationReason.id >0) {
                                 TerminationReason = w2ui.RAActionForm.record.RATerminationReason.id;
                             }
+                            if(w2ui.RAActionForm.record.RATerminationDate) {
+                                TerminationDate = w2ui.RAActionForm.record.RATerminationDate;
+                            }
+                            var now = new Date();
+
                             reqData = {
                                 "UserRefNo": UserRefNo,
                                 "RAID": RAID,
                                 "Version": Version,
                                 "Action": Action,
                                 "Mode": Mode,
-                                "TerminationReason": TerminationReason
+                                "TerminationReason": TerminationReason,
+                                "TerminationDate": TerminationDate,
+                                "TerminationStarted": now.toUTCString(),
                             };
                             submitActionForm(reqData);
                             break;

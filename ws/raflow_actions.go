@@ -39,7 +39,9 @@ type RAMoveInData struct {
 
 // RATerminationData is a struct to hold data about termination of RentalAgreement
 type RATerminationData struct {
-	TerminationReason int64 // 0 - NoTerminationReasonField, great than 0 - Reason for Termination
+	TerminationReason  int64             // 0 - NoTerminationReasonField, great than 0 - Reason for Termination
+	TerminationDate    rlib.JSONDateTime // the date on which we terminate the agreement
+	TerminationStarted rlib.JSONDateTime // the date on which we made the change to the RA to terminate it (need not be the same as TerminationDate)
 }
 
 // RANoticeToMoveData is a struct to hold data about Notice to Move
@@ -223,6 +225,7 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 			TerminatorUID:          ra.TerminatorUID,
 			TerminatorName:         TerminatorName.DisplayName(),
 			TerminationDate:        rlib.JSONDateTime(ra.TerminationDate),
+			TerminationStarted:     rlib.JSONDateTime(ra.TerminationStarted),
 			LeaseTerminationReason: ra.LeaseTerminationReason,
 			DocumentDate:           rlib.JSONDateTime(ra.DocumentDate),
 			NoticeToMoveUID:        ra.NoticeToMoveUID,
@@ -308,6 +311,7 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 			TerminatorUID:          ra.TerminatorUID,
 			TerminatorName:         TerminatorName.DisplayName(),
 			TerminationDate:        rlib.JSONDateTime(ra.TerminationDate),
+			TerminationStarted:     rlib.JSONDateTime(ra.TerminationStarted),
 			LeaseTerminationReason: ra.LeaseTerminationReason,
 			DocumentDate:           rlib.JSONDateTime(ra.DocumentDate),
 			NoticeToMoveUID:        ra.NoticeToMoveUID,
@@ -344,11 +348,14 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 		ra.ActiveDate = time.Time(modRAFlowMeta.ActiveDate)
 		ra.TerminatorUID = modRAFlowMeta.TerminatorUID
 		ra.TerminationDate = time.Time(modRAFlowMeta.TerminationDate)
+		ra.TerminationStarted = time.Time(modRAFlowMeta.TerminationStarted)
 		ra.LeaseTerminationReason = modRAFlowMeta.LeaseTerminationReason
 		ra.DocumentDate = time.Time(modRAFlowMeta.DocumentDate)
 		ra.NoticeToMoveUID = modRAFlowMeta.NoticeToMoveUID
 		ra.NoticeToMoveDate = time.Time(modRAFlowMeta.NoticeToMoveDate)
 		ra.NoticeToMoveReported = time.Time(modRAFlowMeta.NoticeToMoveReported)
+
+		rlib.Console("ACTION: %d.  ra.TerminationDate = %s, ra.TerminationStarted = %s\n", Action, rlib.ConDt(&ra.TerminationDate), rlib.ConDt(&ra.TerminationStarted))
 
 		//---------------------------------------------------------------------
 		// If this is a termination, clean up the loose ends
@@ -413,6 +420,8 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 //    any errors encountered
 //------------------------------------------------------------------------------
 func TerminateRentalAgreement(ctx context.Context, ra *rlib.RentalAgreement) error {
+	rlib.Console("Entered TerminateRentalAgreement\n")
+
 	var err error
 	origStartDate := rlib.Earliest(&ra.RentStart, &ra.PossessionStart)
 	origStopDate := rlib.Latest(&ra.RentStop, &ra.PossessionStop)
@@ -839,6 +848,7 @@ func ActionResetMetaData(Action int64, State uint64, modRAFlowMeta *rlib.RAFlowM
 				modRAFlowMeta.TerminatorName = ""
 				modRAFlowMeta.LeaseTerminationReason = 0
 				modRAFlowMeta.TerminationDate = rlib.JSONDateTime(time.Time{})
+				modRAFlowMeta.TerminationStarted = rlib.JSONDateTime(time.Time{})
 			}
 		}
 	}
@@ -932,6 +942,7 @@ func SetActionMetaData(ctx context.Context, d *ServiceData, Action int64, modRAF
 		modRAFlowMeta.RAFLAGS = (clearedState | 5)
 
 	case rlib.RAActionTerminate:
+		rlib.Console("Entered case: RAActionTerminate")
 		var data RATerminationData
 		if err = json.Unmarshal([]byte(d.data), &data); err != nil {
 			return err
@@ -946,10 +957,14 @@ func SetActionMetaData(ctx context.Context, d *ServiceData, Action int64, modRAF
 
 			modRAFlowMeta.TerminatorUID = UID
 			modRAFlowMeta.TerminatorName = fullName
-			modRAFlowMeta.TerminationDate = rlib.JSONDateTime(today)
+			modRAFlowMeta.TerminationDate = data.TerminationDate
+			modRAFlowMeta.TerminationStarted = data.TerminationStarted
 			modRAFlowMeta.LeaseTerminationReason = data.TerminationReason
 
 			modRAFlowMeta.RAFLAGS = (clearedState | 6)
+
+			rlib.Console("Termination Date: %s\n", rlib.ConsoleJSONDate(&data.TerminationDate))
+			rlib.Console("Termination Started: %s\n", rlib.ConsoleDate(&today))
 
 		} else { // NO TERMINATION REASON
 			err = fmt.Errorf("termination reason is not provided")

@@ -129,6 +129,7 @@ type RAFlowMetaInfo struct {
 	TerminatorUID          int64
 	TerminatorName         string
 	TerminationDate        JSONDateTime
+	TerminationStarted     JSONDateTime
 	LeaseTerminationReason int64
 	DocumentDate           JSONDateTime
 	NoticeToMoveUID        int64

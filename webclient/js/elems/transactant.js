@@ -550,7 +550,7 @@ window.getSLStringList = function(BID, SLName){
                     defaultItem = {id: 0, text: " -- Select Industry -- "};
                     break;
                 default:
-                    console.log("SLName doesn't exists");
+                    console.log("No dropdown list for: " + SLName);
             }
 
             // if default item is defined then

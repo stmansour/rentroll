@@ -57,6 +57,7 @@
                     "RAFLAGS": 51,
                     "RAID": 1,
                     "TerminationDate": "1900-01-01 00:00:00 UTC",
+                    "TerminationStarted": "1900-01-01 00:00:00 UTC",
                     "TerminatorName": "",
                     "TerminatorUID": 0
                 },
@@ -201,7 +202,7 @@
             "FlowType": "RA",
             "ID": 1,
             "LastModBy": 211,
-            "LastModTime": "2019-03-01T10:59:35Z",
+            "LastModTime": "2019-05-06T09:54:11Z",
             "UserRefNo": "DUO6X142Z3GC1597BHG0"
         },
         "ValidationCheck": {
