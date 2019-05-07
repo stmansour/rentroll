@@ -330,7 +330,7 @@ window.refreshLabels = function () {
                 }
             }
             tReasonText = tReason ? tReason.text : "";
-            x.innerHTML = dtFormatISOToW2ui((meta.TerminationStarted).replace(" ", "T").replace(" UTC", "Z")) + ' by '+ meta.TerminatorName + ' (' + tReasonText + ')';
+            x.innerHTML = dtFormatISOToW2ui(meta.TerminationStarted) + ' by '+ meta.TerminatorName + ' (' + tReasonText + ')';
         }
     }
 
@@ -341,7 +341,7 @@ window.refreshLabels = function () {
     x = document.getElementById("bannerTerminatedBy");
     if (x !== null) {
         if (meta.TerminatorUID > 0) {
-            x.innerHTML = dtFormatISOToW2ui((meta.TerminationStarted).replace(" ", "T").replace(" UTC", "Z")) + ' by ' + meta.TerminatorName;
+            x.innerHTML = dtFormatISOToW2ui(meta.TerminationStarted) + ' by ' + meta.TerminatorName;
         } else {
             x.innerHTML = '';
         }
@@ -663,9 +663,15 @@ window.loadRAActionForm = function() {
                                 break;
 
                             case 6: // Terminate
+                                var dtTerm = new Date();
+                                var agStart = new Date(app.raflow.Flow.Data.dates.AgreementStart);
+                                var agStop = new Date(app.raflow.Flow.Data.dates.AgreementStop);
+                                if (agStart.getTime() > dtTerm.getTime()) { // if start date is in the future...
+                                    dtTerm = agStop; // set the default stop date to AgreementStop
+                                }
                                 w2ui.RAActionForm.get('RATerminationReason').hidden = false;
                                 w2ui.RAActionForm.get('RATerminationDate').hidden = false;
-                                w2ui.RAActionForm.record.RATerminationDate = dateTodayStr();
+                                w2ui.RAActionForm.record.RATerminationDate = w2uiDateControlString(dtTerm);
                                 $('button[name=updateAction]').attr('disabled',true);
 
                                 // auto load date in component if it is present in meta
