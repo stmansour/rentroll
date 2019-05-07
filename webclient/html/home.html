@@ -64,7 +64,10 @@ var app = {
     Depositories: {},    // gets loaded as needed
     ExpenseRules: {},
     StringList: {},
-    CloseInfo: {},       // info for each business about last close
+    CloseInfo: {},          // info for each business about last close
+    CloseInfoTime: 0.0,     // number of seconds past unix epoch since last call to get CloseInfo
+    CloseInfoInProg: false, // true if we are currently waiting on a response from the server
+    CloseInfoReqStart: 0.0, // number of seconds past unix epoch since we initiated a query
     uid: 0,              // this is username's UID (user id)
     username: "",        // this is the logged in user's username
     name: "",            // first (or preferred) name of logged in user
