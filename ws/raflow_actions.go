@@ -83,13 +83,13 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// HTTP METHOD CHECK
 	if r.Method != "POST" {
 		err = fmt.Errorf("only POST method is allowed")
-		SvcErrorReturn(w, err, funcname)
+		// SvcErrorReturn(w, err, funcname)   // err is returned by defer function
 		return
 	}
 
 	// SEE IF WE CAN UNMARSHAL THE DATA
 	if err = json.Unmarshal([]byte(d.data), &foo); err != nil {
-		SvcErrorReturn(w, err, funcname)
+		// SvcErrorReturn(w, err, funcname)   // err is returned by defer function
 		return
 	}
 
@@ -98,7 +98,7 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//-------------------------------------------------------
 	tx, ctx, err = rlib.NewTransactionWithContext(r.Context())
 	if err != nil {
-		SvcErrorReturn(w, err, funcname)
+		// SvcErrorReturn(w, err, funcname)   // err is returned by defer function
 		return
 	}
 
@@ -110,9 +110,9 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	switch foo.Version {
 	case "raid":
 		rlib.Console("%s: handleRAIDVersion\n", funcname)
-		flow, err = handleRAIDVersion(ctx, d, foo, raFlowData)
-		if err != nil {
-			SvcErrorReturn(w, err, funcname)
+		if flow, err = handleRAIDVersion(ctx, d, foo, raFlowData); err != nil {
+			rlib.Console("error returned. Message length = %d, message: <<%s>>\n\n", len(err.Error()), err.Error())
+			// SvcErrorReturn(w, err, funcname)   // err is returned by defer function
 			return
 		}
 		SvcWriteFlowResponse(ctx, d.BID, flow, w)
@@ -125,7 +125,7 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 		raflowRespData, err = handleRefNoVersion(ctx, d, foo, raFlowData)
 		if err != nil {
-			SvcErrorReturn(w, err, funcname)
+			// SvcErrorReturn(w, err, funcname)   // err is returned by defer function
 			return
 		}
 		resp.Record = raflowRespData
@@ -141,7 +141,6 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 	var err error
 	RAID := foo.RAID
 	Action := foo.Action
-	rlib.Console("Entered: handleRAIDVersion.  \n")
 
 	// GET RENTAL AGREEMENT
 	var ra rlib.RentalAgreement
@@ -155,7 +154,8 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 			return flow, err
 		}
 		if ra.FLAGS&0xF == rlib.RASTATETerminated {
-			return flow, fmt.Errorf("Rental Agreement has been Terminated, its state can no longer be modified")
+			err = fmt.Errorf("Rental Agreement has been Terminated, its state can no longer be modified")
+			return flow, err
 		}
 	}
 
