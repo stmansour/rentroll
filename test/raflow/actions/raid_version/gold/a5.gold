@@ -1,233 +1,15 @@
 Test 5: action "complete move in" on RA with state Terminated 
 Request( RAID: 5, UserRefNo:  )
-Response( RAID: 5, UserRefNo:  )
+Response( RAID: 0, UserRefNo:  )
 {
     "record": {
         "Flow": {
-            "BID": 1,
+            "BID": 0,
             "FlowID": 0,
             "UserRefNo": "",
-            "FlowType": "RA",
-            "ID": 5,
-            "Data": {
-                "dates": {
-                    "AgreementStart": "2/13/2018",
-                    "AgreementStop": "2/29/2020",
-                    "RentStart": "2/13/2018",
-                    "RentStop": "2/29/2020",
-                    "PossessionStart": "2/13/2018",
-                    "PossessionStop": "2/29/2020",
-                    "CSAgent": 55
-                },
-                "people": [
-                    {
-                        "TMPTCID": 1,
-                        "TCID": 5,
-                        "IsRenter": true,
-                        "IsOccupant": true,
-                        "IsGuarantor": false,
-                        "FirstName": "Willis",
-                        "MiddleName": "Evie",
-                        "LastName": "Miranda",
-                        "PreferredName": "Isaura",
-                        "IsCompany": false,
-                        "CompanyName": "Calpine Corp.",
-                        "PrimaryEmail": "WillisMiranda740@aol.com",
-                        "SecondaryEmail": "WillisM9129@comcast.net",
-                        "WorkPhone": "(959) 162-4684",
-                        "CellPhone": "(957) 442-4502",
-                        "Address": "25896 Hampton",
-                        "Address2": "",
-                        "City": "Norwich",
-                        "State": "NJ",
-                        "PostalCode": "58047",
-                        "Country": "USA",
-                        "Website": "",
-                        "Comment": "",
-                        "CompanyAddress": "23853 Sixth",
-                        "CompanyCity": "Spartanburg",
-                        "CompanyState": "IA",
-                        "CompanyPostalCode": "32888",
-                        "CompanyEmail": "CSpartanburg7845@bdiddy.com",
-                        "CompanyPhone": "(207) 923-2497",
-                        "Occupation": "sound engineer",
-                        "CurrentAddress": "83304 13th, Port Orange, DE 92790",
-                        "CurrentLandLordName": "Franklin Foster",
-                        "CurrentLandLordPhoneNo": "(530) 381-5982",
-                        "CurrentLengthOfResidency": "5 years 10 months",
-                        "CurrentReasonForMoving": 103,
-                        "PriorAddress": "22379 10th, Riverside, AK 93015",
-                        "PriorLandLordName": "Justine Murray",
-                        "PriorLandLordPhoneNo": "(129) 285-8392",
-                        "PriorLengthOfResidency": "5 years 5 months",
-                        "PriorReasonForMoving": 102,
-                        "Evicted": false,
-                        "EvictedDes": "",
-                        "Convicted": false,
-                        "ConvictedDes": "",
-                        "Bankruptcy": false,
-                        "BankruptcyDes": "",
-                        "OtherPreferences": "",
-                        "SpecialNeeds": "",
-                        "ThirdPartySource": "Chiquita Brock",
-                        "CreditLimit": 3319,
-                        "TaxpayorID": "06411978",
-                        "GrossIncome": 66908,
-                        "DriversLicense": "T4610553",
-                        "EligibleFuturePayor": true,
-                        "Points": 0,
-                        "DateofBirth": "8/31/1961",
-                        "EmergencyContactName": "Joann Peterson",
-                        "EmergencyContactAddress": "86802 5th,Hagerstown,NH 79947",
-                        "EmergencyContactTelephone": "(634) 758-7391",
-                        "EmergencyContactEmail": "JoannP5786@aol.com",
-                        "AlternateEmailAddress": "49977 North Carolina,Newport News,GA 38287",
-                        "EligibleFutureUser": true,
-                        "Industry": 315,
-                        "SourceSLSID": 41
-                    }
-                ],
-                "pets": [],
-                "vehicles": [
-                    {
-                        "TMPVID": 1,
-                        "VID": 6,
-                        "TMPTCID": 1,
-                        "VIN": "MA3TTY6VRZT7P4PS",
-                        "VehicleType": "car",
-                        "VehicleMake": "Honda",
-                        "VehicleModel": "Accord",
-                        "VehicleColor": "Tan",
-                        "VehicleYear": 1996,
-                        "LicensePlateState": "MA",
-                        "LicensePlateNumber": "N79J0X8",
-                        "ParkingPermitNumber": "0172237",
-                        "Fees": [
-                            {
-                                "TMPASMID": 3,
-                                "ASMID": 87,
-                                "ARID": 39,
-                                "ARName": "Vehicle Registration Fee",
-                                "ContractAmount": 10,
-                                "RentCycle": 0,
-                                "ProrationCycle": 0,
-                                "Start": "2/13/2018",
-                                "Stop": "2/13/2018",
-                                "AtSigningPreTax": 0,
-                                "SalesTax": 0,
-                                "TransOccTax": 0,
-                                "Comment": ""
-                            }
-                        ]
-                    }
-                ],
-                "rentables": [
-                    {
-                        "RID": 5,
-                        "RTID": 2,
-                        "RTFLAGS": 4,
-                        "RentableName": "Rentable005",
-                        "RentCycle": 6,
-                        "AtSigningPreTax": 0,
-                        "SalesTax": 0,
-                        "TransOccTax": 0,
-                        "Fees": [
-                            {
-                                "TMPASMID": 1,
-                                "ASMID": 85,
-                                "ARID": 28,
-                                "ARName": "Security Deposit Assessment",
-                                "ContractAmount": 3000,
-                                "RentCycle": 0,
-                                "ProrationCycle": 0,
-                                "Start": "2/13/2018",
-                                "Stop": "2/13/2018",
-                                "AtSigningPreTax": 0,
-                                "SalesTax": 0,
-                                "TransOccTax": 0,
-                                "Comment": ""
-                            },
-                            {
-                                "TMPASMID": 2,
-                                "ASMID": 86,
-                                "ARID": 26,
-                                "ARName": "Rent Non-Taxable",
-                                "ContractAmount": 857.14,
-                                "RentCycle": 0,
-                                "ProrationCycle": 0,
-                                "Start": "2/13/2018",
-                                "Stop": "2/13/2018",
-                                "AtSigningPreTax": 0,
-                                "SalesTax": 0,
-                                "TransOccTax": 0,
-                                "Comment": "prorated for 16 of 28 days"
-                            },
-                            {
-                                "TMPASMID": 4,
-                                "ASMID": 78,
-                                "ARID": 26,
-                                "ARName": "Rent Non-Taxable",
-                                "ContractAmount": 1500,
-                                "RentCycle": 6,
-                                "ProrationCycle": 4,
-                                "Start": "3/1/2018",
-                                "Stop": "2/29/2020",
-                                "AtSigningPreTax": 0,
-                                "SalesTax": 0,
-                                "TransOccTax": 0,
-                                "Comment": ""
-                            }
-                        ]
-                    }
-                ],
-                "parentchild": [],
-                "tie": {
-                    "people": [
-                        {
-                            "PRID": 5,
-                            "TMPTCID": 1
-                        }
-                    ]
-                },
-                "meta": {
-                    "BID": 1,
-                    "RAID": 5,
-                    "LastTMPPETID": 0,
-                    "LastTMPVID": 1,
-                    "LastTMPTCID": 1,
-                    "LastTMPASMID": 4,
-                    "HavePets": false,
-                    "HaveVehicles": false,
-                    "RAFLAGS": 52,
-                    "ApplicationReadyUID": 85,
-                    "ApplicationReadyName": "Kristy Koon",
-                    "ApplicationReadyDate": "2018-02-13 00:00:00 UTC",
-                    "Approver1": 282,
-                    "Approver1Name": "Silvia Loera",
-                    "DecisionDate1": "2018-02-13 00:00:00 UTC",
-                    "DeclineReason1": 0,
-                    "Approver2": 276,
-                    "Approver2Name": "Christian Birt",
-                    "DecisionDate2": "2018-02-13 00:00:00 UTC",
-                    "DeclineReason2": 0,
-                    "MoveInUID": 162,
-                    "MoveInName": "Clifton States",
-                    "MoveInDate": "2018-02-13 00:00:00 UTC",
-                    "ActiveUID": -99999,
-                    "ActiveName": "UID-0",
-                    "ActiveDate": "2018-10-15 00:00:00 UTC",
-                    "TerminatorUID": 0,
-                    "TerminatorName": "UID-0",
-                    "TerminationDate": "1900-01-01 00:00:00 UTC",
-                    "TerminationStarted": "1900-01-01 00:00:00 UTC",
-                    "LeaseTerminationReason": 0,
-                    "DocumentDate": "1900-01-01 00:00:00 UTC",
-                    "NoticeToMoveUID": 0,
-                    "NoticeToMoveName": "UID-0",
-                    "NoticeToMoveDate": "1900-01-01 00:00:00 UTC",
-                    "NoticeToMoveReported": "1900-01-01 00:00:00 UTC"
-                }
-            },
+            "FlowType": "",
+            "ID": 0,
+            "Data": null,
             "LastModTime": "0001-01-01T00:00:00Z",
             "LastModBy": 0,
             "CreateTS": "0001-01-01T00:00:00Z",
@@ -238,54 +20,55 @@ Response( RAID: 5, UserRefNo:  )
             "errors": {
                 "dates": {
                     "total": 0,
-                    "errors": {}
+                    "errors": null
                 },
                 "people": {
                     "total": 0,
-                    "errors": []
+                    "errors": null
                 },
                 "pets": {
                     "total": 0,
-                    "errors": []
+                    "errors": null
                 },
                 "vehicles": {
                     "total": 0,
-                    "errors": []
+                    "errors": null
                 },
                 "rentables": {
                     "total": 0,
-                    "errors": []
+                    "errors": null
                 },
                 "parentchild": {
                     "total": 0,
-                    "errors": []
+                    "errors": null
                 },
                 "tie": {
                     "people": {
                         "total": 0,
-                        "errors": []
+                        "errors": null
                     }
                 }
             },
             "nonFieldsErrors": {
-                "dates": [],
-                "people": [],
-                "pets": [],
-                "vehicles": [],
-                "rentables": [],
-                "parentchild": [],
-                "tie": []
+                "dates": null,
+                "people": null,
+                "pets": null,
+                "vehicles": null,
+                "rentables": null,
+                "parentchild": null,
+                "tie": null
             }
         },
         "DataFulfilled": {
-            "dates": true,
-            "people": true,
-            "pets": true,
-            "vehicles": true,
-            "rentables": true,
-            "parentchild": true,
-            "tie": true
+            "dates": false,
+            "people": false,
+            "pets": false,
+            "vehicles": false,
+            "rentables": false,
+            "parentchild": false,
+            "tie": false
         }
     },
-    "status": "success"
+    "message": "Rental Agreement has been Terminated, its state can no longer be modified",
+    "status": "error"
 }

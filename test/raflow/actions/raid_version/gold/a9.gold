@@ -1,349 +1,74 @@
 Test 9: action "application being completed" on RA with state Terminated 
 Request( RAID: 9, UserRefNo:  )
-Response( RAID: 9, UserRefNo: OVERRIDE1234567890 )
+Response( RAID: 0, UserRefNo:  )
 {
     "record": {
         "Flow": {
-            "BID": 1,
-            "FlowID": 4,
-            "UserRefNo": "OVERRIDE1234567890",
-            "FlowType": "RA",
-            "ID": 9,
-            "Data": {
-                "tie": {
-                    "people": [
-                        {
-                            "PRID": 9,
-                            "TMPTCID": 1
-                        }
-                    ]
-                },
-                "meta": {
-                    "BID": 1,
-                    "RAID": 9,
-                    "RAFLAGS": 0,
-                    "HavePets": false,
-                    "ActiveUID": 0,
-                    "Approver1": 0,
-                    "Approver2": 0,
-                    "MoveInUID": 0,
-                    "ActiveDate": "1900-01-01 00:00:00 UTC",
-                    "ActiveName": "",
-                    "LastTMPVID": 0,
-                    "MoveInDate": "1900-01-01 00:00:00 UTC",
-                    "MoveInName": "",
-                    "LastTMPTCID": 0,
-                    "DocumentDate": "1900-01-01 00:00:00 UTC",
-                    "HaveVehicles": false,
-                    "LastTMPASMID": 0,
-                    "LastTMPPETID": 0,
-                    "Approver1Name": "",
-                    "Approver2Name": "",
-                    "DecisionDate1": "1900-01-01 00:00:00 UTC",
-                    "DecisionDate2": "1900-01-01 00:00:00 UTC",
-                    "TerminatorUID": 0,
-                    "DeclineReason1": 0,
-                    "DeclineReason2": 0,
-                    "TerminatorName": "",
-                    "NoticeToMoveUID": 0,
-                    "TerminationDate": "1900-01-01 00:00:00 UTC",
-                    "NoticeToMoveDate": "1900-01-01 00:00:00 UTC",
-                    "NoticeToMoveName": "",
-                    "TerminationStarted": "1900-01-01 00:00:00 UTC",
-                    "ApplicationReadyUID": 0,
-                    "ApplicationReadyDate": "1900-01-01 00:00:00 UTC",
-                    "ApplicationReadyName": "",
-                    "NoticeToMoveReported": "1900-01-01 00:00:00 UTC",
-                    "LeaseTerminationReason": 0
-                },
-                "pets": [
-                    {
-                        "Fees": [
-                            {
-                                "ARID": 23,
-                                "Stop": "10/15/2018",
-                                "ASMID": 143,
-                                "Start": "10/15/2018",
-                                "ARName": "Pet Fee",
-                                "Comment": "",
-                                "SalesTax": 0,
-                                "TMPASMID": 8,
-                                "RentCycle": 0,
-                                "TransOccTax": 0,
-                                "ContractAmount": 50,
-                                "ProrationCycle": 0,
-                                "AtSigningPreTax": 0
-                            },
-                            {
-                                "ARID": 24,
-                                "Stop": "10/15/2018",
-                                "ASMID": 135,
-                                "Start": "10/15/2018",
-                                "ARName": "Pet Rent",
-                                "Comment": "prorated for 17 of 31 days",
-                                "SalesTax": 0,
-                                "TMPASMID": 9,
-                                "RentCycle": 0,
-                                "TransOccTax": 0,
-                                "ContractAmount": 5.48,
-                                "ProrationCycle": 0,
-                                "AtSigningPreTax": 0
-                            },
-                            {
-                                "ARID": 24,
-                                "Stop": "2/29/2020",
-                                "ASMID": 135,
-                                "Start": "11/1/2018",
-                                "ARName": "Pet Rent",
-                                "Comment": "",
-                                "SalesTax": 0,
-                                "TMPASMID": 10,
-                                "RentCycle": 6,
-                                "TransOccTax": 0,
-                                "ContractAmount": 10,
-                                "ProrationCycle": 4,
-                                "AtSigningPreTax": 0
-                            }
-                        ],
-                        "Name": "Leo",
-                        "Type": "dog",
-                        "Breed": "Curly-Coated Retriever",
-                        "Color": "Chocolate",
-                        "PETID": 6,
-                        "Weight": 45,
-                        "TMPTCID": 1,
-                        "TMPPETID": 1
-                    }
-                ],
-                "dates": {
-                    "CSAgent": 222,
-                    "RentStop": "2/29/2020",
-                    "RentStart": "10/15/2018",
-                    "AgreementStop": "2/29/2020",
-                    "AgreementStart": "10/15/2018",
-                    "PossessionStop": "2/29/2020",
-                    "PossessionStart": "10/15/2018"
-                },
-                "people": [
-                    {
-                        "City": "Stamford",
-                        "TCID": 9,
-                        "State": "NM",
-                        "Points": 0,
-                        "Address": "36860 11th",
-                        "Comment": "",
-                        "Country": "USA",
-                        "Evicted": false,
-                        "TMPTCID": 1,
-                        "Website": "",
-                        "Address2": "",
-                        "Industry": 298,
-                        "IsRenter": true,
-                        "LastName": "Flowers",
-                        "CellPhone": "(641) 716-1413",
-                        "Convicted": false,
-                        "FirstName": "Wendy",
-                        "IsCompany": false,
-                        "WorkPhone": "(904) 352-3548",
-                        "Bankruptcy": false,
-                        "EvictedDes": "",
-                        "IsOccupant": true,
-                        "MiddleName": "Tia",
-                        "Occupation": "mine rescue service mechanic",
-                        "PostalCode": "16159",
-                        "TaxpayorID": "00329814",
-                        "CompanyCity": "Birmingham",
-                        "CompanyName": "Silicon Graphics Inc",
-                        "CreditLimit": 24819,
-                        "DateofBirth": "2/14/1972",
-                        "GrossIncome": 18562,
-                        "IsGuarantor": false,
-                        "SourceSLSID": 57,
-                        "CompanyEmail": "SBirmingham4247@hotmail.com",
-                        "CompanyPhone": "(785) 304-3355",
-                        "CompanyState": "AL",
-                        "ConvictedDes": "",
-                        "PrimaryEmail": "WFlowers5254@bdiddy.com",
-                        "PriorAddress": "69652 Hemlock, Aurora, FL 82199",
-                        "SpecialNeeds": "",
-                        "BankruptcyDes": "",
-                        "PreferredName": "Jason",
-                        "CompanyAddress": "97968 Third",
-                        "CurrentAddress": "78501 Sycamore, Victorville, MN 27189",
-                        "DriversLicense": "V9316460",
-                        "SecondaryEmail": "WendyF1664@gmail.com",
-                        "OtherPreferences": "",
-                        "ThirdPartySource": "Tawanda Donovan",
-                        "CompanyPostalCode": "43721",
-                        "PriorLandLordName": "Karl Meadows",
-                        "EligibleFutureUser": true,
-                        "CurrentLandLordName": "Nina Rush",
-                        "EligibleFuturePayor": true,
-                        "EmergencyContactName": "Dani Fuller",
-                        "PriorLandLordPhoneNo": "(113) 510-2557",
-                        "PriorReasonForMoving": 101,
-                        "AlternateEmailAddress": "36858 Lakeview,Garland,CO 51957",
-                        "EmergencyContactEmail": "DaniFuller641@comcast.net",
-                        "CurrentLandLordPhoneNo": "(714) 382-0703",
-                        "CurrentReasonForMoving": 121,
-                        "PriorLengthOfResidency": "10 years 2 months",
-                        "EmergencyContactAddress": "27057 Thirteenth,Fargo,MI 71353",
-                        "CurrentLengthOfResidency": "8 years 11 months",
-                        "EmergencyContactTelephone": "(552) 939-2578"
-                    }
-                ],
-                "vehicles": [
-                    {
-                        "VID": 10,
-                        "VIN": "8GGICSBPYIFXDFLL",
-                        "Fees": [
-                            {
-                                "ARID": 39,
-                                "Stop": "10/15/2018",
-                                "ASMID": 145,
-                                "Start": "10/15/2018",
-                                "ARName": "Vehicle Registration Fee",
-                                "Comment": "",
-                                "SalesTax": 0,
-                                "TMPASMID": 11,
-                                "RentCycle": 0,
-                                "TransOccTax": 0,
-                                "ContractAmount": 10,
-                                "ProrationCycle": 0,
-                                "AtSigningPreTax": 0
-                            }
-                        ],
-                        "TMPVID": 1,
-                        "TMPTCID": 1,
-                        "VehicleMake": "Kia",
-                        "VehicleType": "car",
-                        "VehicleYear": 2009,
-                        "VehicleColor": "Brown",
-                        "VehicleModel": "Rondo",
-                        "LicensePlateState": "KS",
-                        "LicensePlateNumber": "30U8I5U",
-                        "ParkingPermitNumber": "2427243"
-                    }
-                ],
-                "rentables": [
-                    {
-                        "RID": 9,
-                        "Fees": [
-                            {
-                                "ARID": 28,
-                                "Stop": "10/15/2018",
-                                "ASMID": 134,
-                                "Start": "10/15/2018",
-                                "ARName": "Security Deposit Assessment",
-                                "Comment": "",
-                                "SalesTax": 0,
-                                "TMPASMID": 12,
-                                "RentCycle": 0,
-                                "TransOccTax": 0,
-                                "ContractAmount": 5000,
-                                "ProrationCycle": 0,
-                                "AtSigningPreTax": 0
-                            },
-                            {
-                                "ARID": 26,
-                                "Stop": "10/15/2018",
-                                "ASMID": 127,
-                                "Start": "10/15/2018",
-                                "ARName": "Rent Non-Taxable",
-                                "Comment": "prorated for 17 of 31 days",
-                                "SalesTax": 0,
-                                "TMPASMID": 13,
-                                "RentCycle": 0,
-                                "TransOccTax": 0,
-                                "ContractAmount": 1370.97,
-                                "ProrationCycle": 0,
-                                "AtSigningPreTax": 0
-                            },
-                            {
-                                "ARID": 26,
-                                "Stop": "2/29/2020",
-                                "ASMID": 127,
-                                "Start": "11/1/2018",
-                                "ARName": "Rent Non-Taxable",
-                                "Comment": "",
-                                "SalesTax": 0,
-                                "TMPASMID": 14,
-                                "RentCycle": 6,
-                                "TransOccTax": 0,
-                                "ContractAmount": 2500,
-                                "ProrationCycle": 4,
-                                "AtSigningPreTax": 0
-                            }
-                        ],
-                        "RTID": 4,
-                        "RTFLAGS": 4,
-                        "SalesTax": 0,
-                        "RentCycle": 6,
-                        "TransOccTax": 0,
-                        "RentableName": "Rentable009",
-                        "AtSigningPreTax": 0
-                    }
-                ],
-                "parentchild": []
-            },
-            "LastModTime": "2019-05-07T14:16:28Z",
-            "LastModBy": -99999,
-            "CreateTS": "2019-05-07T14:16:28Z",
-            "CreateBy": -99999
+            "BID": 0,
+            "FlowID": 0,
+            "UserRefNo": "",
+            "FlowType": "",
+            "ID": 0,
+            "Data": null,
+            "LastModTime": "0001-01-01T00:00:00Z",
+            "LastModBy": 0,
+            "CreateTS": "0001-01-01T00:00:00Z",
+            "CreateBy": 0
         },
         "ValidationCheck": {
             "total": 0,
             "errors": {
                 "dates": {
                     "total": 0,
-                    "errors": {}
+                    "errors": null
                 },
                 "people": {
                     "total": 0,
-                    "errors": []
+                    "errors": null
                 },
                 "pets": {
                     "total": 0,
-                    "errors": []
+                    "errors": null
                 },
                 "vehicles": {
                     "total": 0,
-                    "errors": []
+                    "errors": null
                 },
                 "rentables": {
                     "total": 0,
-                    "errors": []
+                    "errors": null
                 },
                 "parentchild": {
                     "total": 0,
-                    "errors": []
+                    "errors": null
                 },
                 "tie": {
                     "people": {
                         "total": 0,
-                        "errors": []
+                        "errors": null
                     }
                 }
             },
             "nonFieldsErrors": {
-                "dates": [],
-                "people": [],
-                "pets": [],
-                "vehicles": [],
-                "rentables": [],
-                "parentchild": [],
-                "tie": []
+                "dates": null,
+                "people": null,
+                "pets": null,
+                "vehicles": null,
+                "rentables": null,
+                "parentchild": null,
+                "tie": null
             }
         },
         "DataFulfilled": {
-            "dates": true,
-            "people": true,
-            "pets": true,
-            "vehicles": true,
-            "rentables": true,
-            "parentchild": true,
-            "tie": true
+            "dates": false,
+            "people": false,
+            "pets": false,
+            "vehicles": false,
+            "rentables": false,
+            "parentchild": false,
+            "tie": false
         }
     },
-    "status": "success"
+    "message": "Rental Agreement has been Terminated, its state can no longer be modified",
+    "status": "error"
 }
