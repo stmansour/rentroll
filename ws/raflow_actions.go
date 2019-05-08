@@ -136,15 +136,28 @@ func SvcSetRAState(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 }
 
 func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequest, raFlowData rlib.RAFlowJSONData) (rlib.Flow, error) {
+	var flow rlib.Flow
+	var State uint64
+	var err error
 	RAID := foo.RAID
 	Action := foo.Action
+	rlib.Console("Entered: handleRAIDVersion.  \n")
 
-	// GET THE CURRENT STATE FROM THE LAST 4 BITS
-	var State uint64
-	//  State := raFlowData.Meta.RAFLAGS & uint64(0xF)  // sm: this is ineffectual
-
-	var flow rlib.Flow
-	var err error
+	// GET RENTAL AGREEMENT
+	var ra rlib.RentalAgreement
+	if RAID > 0 {
+		ra, err = rlib.GetRentalAgreement(ctx, RAID)
+		if err != nil {
+			return flow, err
+		}
+		if ra.RAID == 0 {
+			err = fmt.Errorf("rental Agreement not found with given RAID: %d", RAID)
+			return flow, err
+		}
+		if ra.FLAGS&0xF == rlib.RASTATETerminated {
+			return flow, fmt.Errorf("Rental Agreement has been Terminated, its state can no longer be modified")
+		}
+	}
 
 	switch Action {
 	case
@@ -168,15 +181,18 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 
 		// IF NOT FOUND THEN TRY TO CREATE NEW ONE FROM RAID
 		// GET RENTAL AGREEMENT
-		var ra rlib.RentalAgreement
-		ra, err = rlib.GetRentalAgreement(ctx, RAID)
-		if err != nil {
-			return flow, err
-		}
-		if ra.RAID == 0 {
-			err = fmt.Errorf("rental Agreement not found with given RAID: %d", RAID)
-			return flow, err
-		}
+		// var ra rlib.RentalAgreement
+		// ra, err = rlib.GetRentalAgreement(ctx, RAID)
+		// if err != nil {
+		// 	return flow, err
+		// }
+		// if ra.RAID == 0 {
+		// 	err = fmt.Errorf("rental Agreement not found with given RAID: %d", RAID)
+		// 	return flow, err
+		// }
+		// if ra.FLAGS&0xF == rlib.RASTATETerminated {
+		// 	return flow, fmt.Errorf("Rental Agreement has been Terminated, its state can no longer be modified")
+		// }
 
 		// GET THE NEW FLOW ID CREATED USING PERMANENT DATA
 		var flowID int64
@@ -266,17 +282,6 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 		rlib.RAActionCompleteMoveIn,
 		rlib.RAActionReceivedNoticeToMove,
 		rlib.RAActionTerminate:
-
-		// GET RENTAL AGREEMENT
-		var ra rlib.RentalAgreement
-		ra, err = rlib.GetRentalAgreement(ctx, RAID)
-		if err != nil {
-			return flow, err
-		}
-		if ra.RAID == 0 {
-			err = fmt.Errorf("rental Agreement not found with given RAID: %d", RAID)
-			return flow, err
-		}
 
 		ApplicationReadyName, _ := rlib.GetDirectoryPerson(ctx, ra.ApplicationReadyUID)
 		MoveInName, _ := rlib.GetDirectoryPerson(ctx, ra.MoveInUID)

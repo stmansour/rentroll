@@ -207,6 +207,12 @@ window.reloadActionForm = function() {
 
         default:
     }
+    //-------------------------------------------------------------------
+    // Ensure that the update button is disabled if the RA is terminated
+    //-------------------------------------------------------------------
+    if (app.raflow.Flow.Data.meta.RAFLAGS & 0x7 == 6) {
+        $('button[name=updateAction]').attr('disabled',true);
+    }
     w2ui.RAActionForm.refresh();
 };
 
@@ -501,6 +507,7 @@ window.refreshLabels = function () {
             x.innerHTML = '';
         }
     }
+
 };
 
 //------------------------------------------------------------------------
@@ -560,6 +567,12 @@ window.loadRAActionTemplate = function() {
             onRefresh: function(event) {
                 event.onComplete = function() {
                     refreshLabels();
+                    //-------------------------------------------------------------------
+                    // Ensure that the update button is disabled if the RA is terminated
+                    //-------------------------------------------------------------------
+                    if (app.raflow.Flow.Data.meta.RAFLAGS & 0x7 == 6) {
+                        $('button[name=updateAction]').attr('disabled',true);
+                    }
                 };
             },
             onRender: function(event) {
@@ -691,6 +704,12 @@ window.loadRAActionForm = function() {
                                 delete this.record.RANoticeToMoveDate;
                                 w2ui.RAActionForm.get('RANoticeToMoveDate').hidden = true;
                         }
+                        //-------------------------------------------------------------------
+                        // Ensure that the update button is disabled if the RA is terminated
+                        //-------------------------------------------------------------------
+                        if (app.raflow.Flow.Data.meta.RAFLAGS & 0x7 == 6) {
+                            $('button[name=updateAction]').attr('disabled',true);
+                        }
                         break;
 
                     case 'RAApprovalDecision1':
@@ -775,11 +794,18 @@ window.loadRAActionForm = function() {
                 $('#RAActionStateLable').text(raStateString);
 
                 refreshLabels();
+
             },
             onRender: function (event) {
                 w2ui.RAActionForm.record = {
                     RAActions: {id: -1, text: "--Select an Action--"},
                 };
+                //-------------------------------------------------------------------
+                // Ensure that the update button is disabled if the RA is terminated
+                //-------------------------------------------------------------------
+                if (app.raflow.Flow.Data.meta.RAFLAGS & 0x7 == 6) {
+                    $('button[name=updateAction]').attr('disabled',true);
+                }
 
                 // load sl stringlist in app
                 getSLStringList(getCurrentBID(), "RollerMsgs");
