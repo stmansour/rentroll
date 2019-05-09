@@ -89,7 +89,7 @@ window.buildHelpElements = function() {
                         { id: 'EXPref',  text: plural(app.sExpense),            /* icon: 'fas fa-book' */ },
                         { id: 'DEPref',  text: 'Deposits',                      /* icon: 'fas fa-book' */ },
                         { id: 'ALFref',  text: 'Apply '+plural(app.sReceipt),   /* icon: 'fas fa-book' */ },
-                        { id: 'RAref',   text: plural(app.sRentalAgreement),    /* icon: 'fas fa-book' */ },
+                        { id: 'RAref',   text: plural(app.sRentalAgreement),    icon: 'fas fa-book', fname: 'ref/RentalAgreements.html'},
                         { id: 'RESref',  text: plural(app.sReservation),        /* icon: 'fas fa-book' */ },
                         { id: 'Tref',    text: plural(app.sTransactant),        /* icon: 'fas fa-book' */ },
                         { id: 'RRref',   text: 'Rent Roll',                     /* icon: 'fas fa-book' */ },

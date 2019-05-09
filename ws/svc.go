@@ -551,7 +551,6 @@ func getBIDfromBUI(s string) (int64, error) {
 
 // SvcErrorReturn formats an error return to the grid widget and sends it
 func SvcErrorReturn(w http.ResponseWriter, err error, funcname string) {
-	rlib.Console("ENTERED: SvcErrorReturn\n")
 	// rlib.Console("<Function>: %s | <Error Message>: <<begin>>\n%s\n<<end>>\n", funcname, err.Error())
 	rlib.Console("%s: %s\n", funcname, err.Error())
 	var e SvcStatus

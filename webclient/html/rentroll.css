@@ -1,9 +1,13 @@
 @charset "ISO-8859-1";
 
-@import url(https://fonts.googleapis.com/css?family=Roboto);
+@import url(https://fonts.googleapis.com/css?family=Roboto|Maven+Pro|Open+Sans|Russo+One);
 
-@import url(https://fonts.googleapis.com/css?family=Open+Sans);
-
+h1, h2, h3, h4, h5, h6 {
+    font-family: "Russo One", "Open Sans","Roboto",sans-serif;
+}
+table, td, th {
+    font-family: "Maven Pro","Open Sans","Roboto",sans-serif;
+}
 div, section {
     box-sizing: border-box;
     display: block;
@@ -11,7 +15,6 @@ div, section {
 
 table, td {
     border-collapse: collapse;
-    font-family: "Open Sans","Roboto",sans-serif;
     border: 0px solid #bbb;
     font-size: 9pt;
     border-spacing: 6px;
@@ -29,7 +32,7 @@ th {
 
 p {
     font-family: "Open Sans","Roboto", sans-serif;
-    font-size: 9pt;
+    font-size: 10pt;
 }
 
 input:not([type=button]):not([type=submit]).w2ui-input:focus,
@@ -53,7 +56,9 @@ section[name="asmEpochForm"] .w2ui-form-box .w2ui-field > div,
 }
 
 
-
+.help {
+    font-size: 10pt;
+}
 
 .bannerTitle {
     font-family: "Open Sans","Roboto", sans-serif;

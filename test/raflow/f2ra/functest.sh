@@ -823,7 +823,7 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}${STEP}"  "LeaseStatus"
 
     #----------------------------------------------------------------
-    # Terminate the rental agreement from 11/1 - 12/1 active
+    # Terminate the rental agreement from 12/1 to 12/31 as of 12/q5
     #----------------------------------------------------------------
     # encodeRequest '{"UserRefNo":"JV7KM0D9SHCOP754WC6O","RAID":0,"Version":"refno","Action":6,"Mode":"Action"}' > request
     # dojsonPOST "http://localhost:8270/v1/raactions/1/3" "request" "${TFILES}${STEP}"  "WebService--Terminate-RefNo"

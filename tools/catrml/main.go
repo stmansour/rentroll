@@ -1,7 +1,7 @@
 package main
 
 // This is a simple program to read two files, a lineNumbers files, and an
-// Text file.  The program outputs the Text file` lines but it
+// Text file.  The program outputs the Text file`lines but it
 // filters out the lines listed in the lineNumbers file.
 
 import (

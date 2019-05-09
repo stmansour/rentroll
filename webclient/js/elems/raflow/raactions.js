@@ -37,7 +37,7 @@ window.submitActionForm = function(data) {
     return RAFlowAJAX(url, "POST", data, false)
     .done(function(data) {
         if (data.status !== "success") {
-            console.error(data.message);
+            // console.error(data.message);
             w2ui.RAActionForm.error(data.message);
             return;
         }
