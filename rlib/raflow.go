@@ -1187,13 +1187,19 @@ func ConvertRA2Flow(ctx context.Context, ra *RentalAgreement, EditFlag bool) (RA
 					// Console("Rejected: reversed or partially or fully paid\n")
 					continue
 				}
-				if !DateRangeOverlap(&now, &ra.AgreementStop, &asms[j].Start, &asms[j].Stop) {
-					// Console("Rejected: no overlap: %s - %s  with  %s - %s\n", now.Format(RRDATEREPORTFMT), ra.AgreementStop.Format(RRDATEREPORTFMT), asms[j].Start.Format(RRDATEREPORTFMT), asms[j].Stop.Format(RRDATEREPORTFMT))
-					continue
-				}
-				if asms[j].RentCycle == RECURNONE && !DateRangeOverlap(&now, &ra.AgreementStop, &asms[j].Start, &asms[j].Stop) {
-					// Console("Rejected: norecur and no overlap: %s - %s  with  %s - %s\n", now.Format(RRDATEREPORTFMT), ra.AgreementStop.Format(RRDATEREPORTFMT), asms[j].Start.Format(RRDATEREPORTFMT), asms[j].Stop.Format(RRDATEREPORTFMT))
-					continue
+				//-------------------------------------------------------------
+				// we will NOT reject anything if "now" is after this RA has
+				// completed or before it has started...
+				//-------------------------------------------------------------
+				if !(now.After(ra.AgreementStop) || now.Before(ra.AgreementStart)) {
+					if !DateRangeOverlap(&now, &ra.AgreementStop, &asms[j].Start, &asms[j].Stop) {
+						// Console("Rejected: no overlap: %s - %s  with  %s - %s\n", now.Format(RRDATEREPORTFMT), ra.AgreementStop.Format(RRDATEREPORTFMT), asms[j].Start.Format(RRDATEREPORTFMT), asms[j].Stop.Format(RRDATEREPORTFMT))
+						continue
+					}
+					if asms[j].RentCycle == RECURNONE && !DateRangeOverlap(&now, &ra.AgreementStop, &asms[j].Start, &asms[j].Stop) {
+						// Console("Rejected: norecur and no overlap: %s - %s  with  %s - %s\n", now.Format(RRDATEREPORTFMT), ra.AgreementStop.Format(RRDATEREPORTFMT), asms[j].Start.Format(RRDATEREPORTFMT), asms[j].Stop.Format(RRDATEREPORTFMT))
+						continue
+					}
 				}
 			} else {
 				// Console("Checking for VIEWING\n")
