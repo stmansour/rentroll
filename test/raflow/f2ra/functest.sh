@@ -823,10 +823,57 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}${STEP}"  "LeaseStatus"
 
     #----------------------------------------------------------------
-    # Terminate the rental agreement from 12/1 to 12/31 as of 12/q5
+    # Terminate the rental agreement from 12/1 to 12/31 on 12/15
     #----------------------------------------------------------------
-    # encodeRequest '{"UserRefNo":"JV7KM0D9SHCOP754WC6O","RAID":0,"Version":"refno","Action":6,"Mode":"Action"}' > request
-    # dojsonPOST "http://localhost:8270/v1/raactions/1/3" "request" "${TFILES}${STEP}"  "WebService--Terminate-RefNo"
+    encodeRequest '{"UserRefNo":"","RAID":2,"Version":"raid","Action":6,"Mode":"Action","TerminationReason":83,"TerminationDate":"12/15/2019","TerminationStarted":"Fri, 10 May 2019 00:57:51 GMT"}' > request
+    dojsonPOST "http://localhost:8270/v1/raactions/1/0" "request" "${TFILES}${STEP}"  "WebService--Terminate-RefNo"
+
+fi
+
+#------------------------------------------------------------------------------
+#  TEST p
+#  If a RentalAgreement in the past is edited, ensure that we do not change
+#  the start date as we do on RAs that are not yet completed.
+#
+#  Scenario
+#  RA 1 is from 5/1/2018 to 7/31/2018
+#  Attempt to edit the RA -- this will cause it to create a flow, make sure
+#  that the Start dates on the flow version are not changed to the current
+#  date.
+#
+#  Expected Results:
+#   There will be a gap between RA 1 and its amended version. RA 1 should
+#   be cancelled, the lease status in the gap should be LEASESTATUSnotleased.
+#   There will be a gap between the amendment (RA 3) and RA 2. This gap should
+#   be LEASESTATUSreserved - 11/1/2019 - 12/1/2019.
+#
+#   Next, create the new RA from 11/1 - 12/1. The key check is to ensure that
+#   the LeaseStatus record right after the one from 11/1 - 12/1 does not
+#   get overwritten with either "not leased" or "reserved" status because
+#   that record corresponds to RA2
+#------------------------------------------------------------------------------
+TFILES="p"
+STEP=0
+if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
+    echo "Test ${TFILES}"
+    echo "Create new database... x${TFILES}.sql"
+
+    RENTROLLSERVERNOW=""
+    stopRentRollServer
+    mysql --no-defaults rentroll < x${TFILES}.sql
+    startRentRollServer
+
+    RAIDREFNO="JV71FYOQUDPZZ3Q0DM3S"
+
+    #----------------------------------------------------------------
+    # Edit Rental Agreement 1
+    #----------------------------------------------------------------
+    # encodeRequest '{"UserRefNo":"JV71FYOQUDPZZ3Q0DM3S","RAID":1,"Version":"refno","Action":4,"Mode":"Action"}' > request
+    # dojsonPOST "http://localhost:8270/v1/raactions/1/0" "request" "${TFILES}${STEP}"  "WebService--Activate-RefNo"
+    # # validate lease status
+    # encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0,"searchDtStart":"1/1/2017","searchDtStop":"1/1/2021","Bool1":false}' > request
+    # dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}${STEP}"  "LeaseStatus"
+
 
 fi
 
