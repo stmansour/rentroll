@@ -26,15 +26,16 @@ func GetRA2FlowCore(ctx context.Context, ra *rlib.RentalAgreement, d *ServiceDat
 
 	// convert permanent ra to flow data and get it
 	var raf rlib.RAFlowJSONData
-	raf, err = rlib.ConvertRA2Flow(ctx, ra, EditFlag)
-	if err != nil {
+	if raf, err = rlib.ConvertRA2Flow(ctx, ra, EditFlag); err != nil {
 		return
 	}
 	//---------------------------------------------------------------------
-	//  Don't change any dates if the entire agreement is in the past...
+	//  Don't change any dates if the entire agreement ended in the past
+	//  or starts in the future.
 	//---------------------------------------------------------------------
 	now := time.Now()
-	if now.Before(time.Time(raf.Dates.AgreementStop)) {
+	//    FUTURE: "now" is before the agreement starts      PAST:  now is after the agreement stopped
+	if !(now.Before(time.Time(raf.Dates.AgreementStart)) || now.After(time.Time(raf.Dates.AgreementStop))) {
 		// CHANGE THE START DATES TO TODAY
 		raf.Dates.AgreementStart = rlib.JSONDate(rlib.GetTodayUTCRoundingDate())
 		raf.Dates.RentStart = rlib.JSONDate(rlib.GetTodayUTCRoundingDate())

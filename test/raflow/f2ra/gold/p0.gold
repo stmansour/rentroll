@@ -1,0 +1,285 @@
+{
+    "record": {
+        "DataFulfilled": {
+            "dates": true,
+            "parentchild": true,
+            "people": true,
+            "pets": true,
+            "rentables": true,
+            "tie": true,
+            "vehicles": true
+        },
+        "Flow": {
+            "BID": 1,
+            "CreateBy": -99999,
+            "CreateTS": "2019-05-09T18:17:37Z",
+            "Data": {
+                "dates": {
+                    "AgreementStart": "5/1/2018",
+                    "AgreementStop": "7/31/2018",
+                    "CSAgent": 265,
+                    "PossessionStart": "5/1/2018",
+                    "PossessionStop": "7/31/2018",
+                    "RentStart": "5/1/2018",
+                    "RentStop": "7/31/2018"
+                },
+                "meta": {
+                    "ActiveDate": "1900-01-01 00:00:00 UTC",
+                    "ActiveName": "",
+                    "ActiveUID": 0,
+                    "ApplicationReadyDate": "1900-01-01 00:00:00 UTC",
+                    "ApplicationReadyName": "",
+                    "ApplicationReadyUID": 0,
+                    "Approver1": 0,
+                    "Approver1Name": "",
+                    "Approver2": 0,
+                    "Approver2Name": "",
+                    "BID": 1,
+                    "DecisionDate1": "1900-01-01 00:00:00 UTC",
+                    "DecisionDate2": "1900-01-01 00:00:00 UTC",
+                    "DeclineReason1": 0,
+                    "DeclineReason2": 0,
+                    "DocumentDate": "1900-01-01 00:00:00 UTC",
+                    "HavePets": false,
+                    "HaveVehicles": false,
+                    "LastTMPASMID": 0,
+                    "LastTMPPETID": 0,
+                    "LastTMPTCID": 0,
+                    "LastTMPVID": 0,
+                    "LeaseTerminationReason": 0,
+                    "MoveInDate": "1900-01-01 00:00:00 UTC",
+                    "MoveInName": "",
+                    "MoveInUID": 0,
+                    "NoticeToMoveDate": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveName": "UID-0",
+                    "NoticeToMoveReported": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveUID": 0,
+                    "RAFLAGS": 0,
+                    "RAID": 1,
+                    "TerminationDate": "1900-01-01 00:00:00 UTC",
+                    "TerminationStarted": "1900-01-01 00:00:00 UTC",
+                    "TerminatorName": "UID-0",
+                    "TerminatorUID": 0
+                },
+                "parentchild": [],
+                "people": [
+                    {
+                        "Address": "71045 Apache",
+                        "Address2": "",
+                        "AlternateEmailAddress": "33195 Meadow,Saint Paul,IA 31847",
+                        "Bankruptcy": false,
+                        "BankruptcyDes": "",
+                        "CellPhone": "(619) 528-3435",
+                        "City": "Atlanta",
+                        "Comment": "",
+                        "CompanyAddress": "55866 County Line",
+                        "CompanyCity": "Champaign",
+                        "CompanyEmail": "LucentTechnologiesIncChampaign946@comcast.net",
+                        "CompanyName": "Lucent Technologies Inc.",
+                        "CompanyPhone": "(535) 357-1248",
+                        "CompanyPostalCode": "84059",
+                        "CompanyState": "NE",
+                        "Convicted": false,
+                        "ConvictedDes": "",
+                        "Country": "USA",
+                        "CreditLimit": 24873,
+                        "CurrentAddress": "85375 4th, Tampa, CA 02081",
+                        "CurrentLandLordName": "Norberto Velazquez",
+                        "CurrentLandLordPhoneNo": "(297) 632-9195",
+                        "CurrentLengthOfResidency": "4 years 11 months",
+                        "CurrentReasonForMoving": 85,
+                        "DateofBirth": "11/6/1969",
+                        "DriversLicense": "V7283899",
+                        "EligibleFuturePayor": true,
+                        "EligibleFutureUser": true,
+                        "EmergencyContactAddress": "45678 Fifth,Waterbury,SC 27887",
+                        "EmergencyContactEmail": "DLove2664@hotmail.com",
+                        "EmergencyContactName": "Dana Love",
+                        "EmergencyContactTelephone": "(733) 875-8253",
+                        "Evicted": false,
+                        "EvictedDes": "",
+                        "FirstName": "Keena",
+                        "GrossIncome": 20577,
+                        "Industry": 258,
+                        "IsCompany": false,
+                        "IsGuarantor": false,
+                        "IsOccupant": true,
+                        "IsRenter": true,
+                        "LastName": "Hendrix",
+                        "MiddleName": "Valentin",
+                        "Occupation": "tanner",
+                        "OtherPreferences": "",
+                        "Points": 0,
+                        "PostalCode": "98081",
+                        "PreferredName": "Merilyn",
+                        "PrimaryEmail": "KeenaH6512@gmail.com",
+                        "PriorAddress": "87635 Quail, Kailua, FL 41318",
+                        "PriorLandLordName": "Charles Marquez",
+                        "PriorLandLordPhoneNo": "(586) 824-2214",
+                        "PriorLengthOfResidency": "4 years 7 months",
+                        "PriorReasonForMoving": 126,
+                        "SecondaryEmail": "KHendrix1054@yahoo.com",
+                        "SourceSLSID": 28,
+                        "SpecialNeeds": "",
+                        "State": "IA",
+                        "TCID": 1,
+                        "TMPTCID": 1,
+                        "TaxpayorID": "07138069",
+                        "ThirdPartySource": "Kesha Gonzalez",
+                        "Website": "",
+                        "WorkPhone": "(548) 721-7762"
+                    }
+                ],
+                "pets": [
+                    {
+                        "Breed": "Curly-Coated Retriever",
+                        "Color": "Grey",
+                        "Fees": [
+                            {
+                                "ARID": 24,
+                                "ARName": "Pet Rent",
+                                "ASMID": 6,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 10,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "5/1/2018",
+                                "Stop": "7/31/2018",
+                                "TMPASMID": 3,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "Name": "Finn",
+                        "PETID": 1,
+                        "TMPPETID": 1,
+                        "TMPTCID": 1,
+                        "Type": "dog",
+                        "Weight": 59
+                    }
+                ],
+                "rentables": [
+                    {
+                        "AtSigningPreTax": 0,
+                        "Fees": [
+                            {
+                                "ARID": 28,
+                                "ARName": "Security Deposit Assessment",
+                                "ASMID": 5,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 2000,
+                                "ProrationCycle": 0,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "5/1/2018",
+                                "Stop": "5/1/2018",
+                                "TMPASMID": 1,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 26,
+                                "ARName": "Rent Non-Taxable",
+                                "ASMID": 1,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 1000,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "5/1/2018",
+                                "Stop": "7/31/2018",
+                                "TMPASMID": 2,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "RID": 1,
+                        "RTFLAGS": 12,
+                        "RTID": 1,
+                        "RentCycle": 6,
+                        "RentableName": "Rentable001",
+                        "SalesTax": 0,
+                        "TransOccTax": 0
+                    }
+                ],
+                "tie": {
+                    "people": [
+                        {
+                            "PRID": 1,
+                            "TMPTCID": 1
+                        }
+                    ]
+                },
+                "vehicles": [
+                    {
+                        "Fees": [],
+                        "LicensePlateNumber": "PHU1912",
+                        "LicensePlateState": "MN",
+                        "ParkingPermitNumber": "1982504",
+                        "TMPTCID": 1,
+                        "TMPVID": 1,
+                        "VID": 1,
+                        "VIN": "WF0RUL1DEDT6UFN3",
+                        "VehicleColor": "Rust",
+                        "VehicleMake": "Honda",
+                        "VehicleModel": "Prelude",
+                        "VehicleType": "car",
+                        "VehicleYear": 1996
+                    }
+                ]
+            },
+            "FlowID": 2,
+            "FlowType": "RA",
+            "ID": 1,
+            "LastModBy": -99999,
+            "LastModTime": "2019-05-09T18:17:37Z",
+            "UserRefNo": "JVHE5BG98CG5QLDQ3QDC"
+        },
+        "ValidationCheck": {
+            "errors": {
+                "dates": {
+                    "errors": {},
+                    "total": 0
+                },
+                "parentchild": {
+                    "errors": [],
+                    "total": 0
+                },
+                "people": {
+                    "errors": [],
+                    "total": 0
+                },
+                "pets": {
+                    "errors": [],
+                    "total": 0
+                },
+                "rentables": {
+                    "errors": [],
+                    "total": 0
+                },
+                "tie": {
+                    "people": {
+                        "errors": [],
+                        "total": 0
+                    }
+                },
+                "vehicles": {
+                    "errors": [],
+                    "total": 0
+                }
+            },
+            "nonFieldsErrors": {
+                "dates": [],
+                "parentchild": [],
+                "people": [],
+                "pets": [],
+                "rentables": [],
+                "tie": [],
+                "vehicles": []
+            },
+            "total": 0
+        }
+    },
+    "status": "success"
+}

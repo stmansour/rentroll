@@ -146,26 +146,11 @@ window.loadRARentablesGrid = function () {
             multiSelect: false,
             style: 'border-color: silver; border-style: solid; border-width: 1px 0 0 0; display: block;',
             columns: [
-                {
-                    field: 'recid',
-                    hidden: true
-                },
-                {
-                    field: 'RID',
-                    hidden: true
-                },
-                {
-                    field: 'RTID',
-                    hidden: true
-                },
-                {
-                    field: 'RTFLAGS',
-                    hidden: true
-                },
-                {
-                    field: 'haveError',
-                    size: '30px',
-                    hidden: false,
+                { field: 'recid', hidden: true },
+                { field: 'RID', hidden: true },
+                { field: 'RTID', hidden: true },
+                { field: 'RTFLAGS', hidden: true },
+                { field: 'haveError', size: '30px', hidden: false,
                     render: function (record) {
                         var haveError = false;
                         if (app.raflow.validationErrors.rentables) {
@@ -184,58 +169,19 @@ window.loadRARentablesGrid = function () {
                         }
                     }
                 },
-                {
-                    field: 'RentableName',
-                    caption: 'Rentable',
-                    size: '100%'
-                },
-                {
-                    field: 'RentCycle',
-                    hidden: true
-                },
-                {
-                    field: 'RentCycleText',
-                    caption: 'RentCycle',
-                    size: '100px',
+                { field: 'RentableName', caption: 'Rentable', size: '100%' },
+                { field: 'RentCycle', hidden: true },
+                { field: 'RentCycleText', caption: 'RentCycle', size: '100px',
                     render: function (record) {
                         return app.cycleFreq[record.RentCycle];
                     }
                 },
-                {
-                    field: 'AtSigningPreTax',
-                    caption: 'At Signing<br>(pre-tax)',
-                    size: '100px',
-                    render: 'money'
-                },
-                {
-                    field: 'SalesTax',
-                    caption: 'Sales Tax',
-                    size: '100px',
-                    render: 'money'
-                },
-                /*{ // FUTURE RELEASE
-                    field: 'SalesTaxAmt',
-                    caption: 'Sales Tax Amt',
-                    size: '100px',
-                    render: 'money'
-                },*/
-                {
-                    field: 'TransOccTax',
-                    caption: 'Trans Occ Tax',
-                    size: '100px',
-                    render: 'money'
-                },
-                /*{ // FUTURE RELEASE
-                    field: 'TransOccAmt',
-                    caption: 'Trans Occ Amt',
-                    size: '100px',
-                    render: 'money'
-                },*/
-                {
-                    field: 'RowTotal',
-                    caption: 'Grand Total',
-                    size: '100px',
-                    style: 'text-align: right',
+                { field: 'AtSigningPreTax', caption: 'At Signing<br>(pre-tax)', size: '100px', render: 'money' },
+                { field: 'SalesTax', caption: 'Sales Tax', size: '100px', render: 'money' },
+                /*{ // FUTURE RELEASE field: 'SalesTaxAmt', caption: 'Sales Tax Amt', size: '100px', render: 'money' },*/
+                { field: 'TransOccTax', caption: 'Trans Occ Tax', size: '100px', render: 'money' },
+                /*{ // FUTURE RELEASE field: 'TransOccAmt', caption: 'Trans Occ Amt', size: '100px', render: 'money' },*/
+                { field: 'RowTotal', caption: 'Grand Total', size: '100px', style: 'text-align: right',
                     render: function(record) {
                         var html = "";
                         var total = 0.0;
@@ -312,11 +258,9 @@ window.loadRARentablesGrid = function () {
                             // get local data of this rentable
                             var localRData = GetRentableLocalData(rec.RID);
 
-                            // just render the record from local data if fees are available
-                            if(localRData.hasOwnProperty("Fees") && localRData.Fees.length > 0) {
-                                // set fees grid records
-                                AssignRentableFeesGridRecords(rec.RID);
-                            }
+                            // set fees grid records
+                            AssignRentableFeesGridRecords(rec.RID);
+
 
                             // show slider content
                             ShowSliderContentW2UIComp(w2ui.RARentableFeesGrid, RACompConfig.rentables.sliderWidth);

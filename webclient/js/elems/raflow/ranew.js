@@ -91,64 +91,15 @@ window.buildRAFlowElements = function() {
             { field: 'UserRefNo', caption: 'Reference Number', type: 'text' },
         ],
         columns: [
-            {
-                field: 'recid',
-                caption: 'recid',
-                size: '40px',
-                hidden: true,
-                sortable: true
-            },
-            {
-                field: 'BID',
-                caption: 'BID',
-                hidden: true
-            },
-            {
-                field: 'BUD',
-                caption: 'BUD',
-                hidden: true
-            },
-            {
-                field: 'RAID',
-                caption: 'RAID',
-                size: "60px",
-                sortable: true
-            },
-            {
-                field: 'Payors',
-                caption: 'Payor(s)',
-                size: '250px',
-                sortable: true
-            },
-            {
-                field: 'AgreementStart',
-                caption: 'Agreement<br>Start',
-                render: 'date',
-                size: '80px',
-                sortable: true,
-                style: 'text-align: right'
-            },
-            {
-                field: 'AgreementStop',
-                caption: 'Agreement<br>Stop',
-                render: 'date',
-                size: '80px',
-                sortable: true,
-                style: 'text-align: right'
-            },
-            {
-                field: 'FlowID',
-                caption: 'Flow ID',
-                size: '50px',
-                hidden: true,
-                sortable:   true
-            },
-            {
-                field: 'UserRefNo',
-                caption: 'Ref No',
-                size: '200px',
-                sortable:   true
-            },
+            { field: 'recid',          caption: 'recid',              size: '40px', hidden: true, sortable: true },
+            { field: 'BID',            caption: 'BID',  hidden: true },
+            { field: 'BUD',            caption: 'BUD', hidden: true },
+            { field: 'RAID',           caption: 'RAID',               size: "60px", sortable: true },
+            { field: 'Payors',         caption: 'Payor(s)',           size: '250px', sortable: true },
+            { field: 'AgreementStart', caption: 'Agreement<br>Start', size: '80px', render: 'date', sortable: true, style: 'text-align: right' },
+            { field: 'AgreementStop',  caption: 'Agreement<br>Stop',  size: '80px', render: 'date', sortable: true, style: 'text-align: right' },
+            { field: 'FlowID',         caption: 'Flow ID',            size: '50px', hidden: true, sortable:   true },
+            { field: 'UserRefNo',      caption: 'Ref No',             size: '200px', sortable:   true },
         ],
         onRequest: function(event) {
             event.postData.cmd = "all";

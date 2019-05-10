@@ -833,24 +833,18 @@ fi
 #------------------------------------------------------------------------------
 #  TEST p
 #  If a RentalAgreement in the past is edited, ensure that we do not change
-#  the start date as we do on RAs that are not yet completed.
+#  the start date as we do on RAs that are not yet completed. Same thing for
+#  a Rental Agreement that starts in the future, don't changed the dates.
 #
 #  Scenario
 #  RA 1 is from 5/1/2018 to 7/31/2018
-#  Attempt to edit the RA -- this will cause it to create a flow, make sure
-#  that the Start dates on the flow version are not changed to the current
-#  date.
+#  RA 2 is from 5/1/2020 to 4/30/2021
+#  Testing Date is set to 4/25/2019
+#
+#  So RA 1 is completely in the past and RA 2 is in the future.
 #
 #  Expected Results:
-#   There will be a gap between RA 1 and its amended version. RA 1 should
-#   be cancelled, the lease status in the gap should be LEASESTATUSnotleased.
-#   There will be a gap between the amendment (RA 3) and RA 2. This gap should
-#   be LEASESTATUSreserved - 11/1/2019 - 12/1/2019.
-#
-#   Next, create the new RA from 11/1 - 12/1. The key check is to ensure that
-#   the LeaseStatus record right after the one from 11/1 - 12/1 does not
-#   get overwritten with either "not leased" or "reserved" status because
-#   that record corresponds to RA2
+#   The dates in the flow version created will be exactly those in the RA.
 #------------------------------------------------------------------------------
 TFILES="p"
 STEP=0
@@ -858,21 +852,18 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     echo "Test ${TFILES}"
     echo "Create new database... x${TFILES}.sql"
 
-    RENTROLLSERVERNOW=""
+    RENTROLLSERVERNOW="-testDtNow 4/25/2019"
     stopRentRollServer
     mysql --no-defaults rentroll < x${TFILES}.sql
     startRentRollServer
 
     RAIDREFNO="JV71FYOQUDPZZ3Q0DM3S"
 
-    #----------------------------------------------------------------
-    # Edit Rental Agreement 1
-    #----------------------------------------------------------------
-    # encodeRequest '{"UserRefNo":"JV71FYOQUDPZZ3Q0DM3S","RAID":1,"Version":"refno","Action":4,"Mode":"Action"}' > request
-    # dojsonPOST "http://localhost:8270/v1/raactions/1/0" "request" "${TFILES}${STEP}"  "WebService--Activate-RefNo"
-    # # validate lease status
-    # encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0,"searchDtStart":"1/1/2017","searchDtStop":"1/1/2021","Bool1":false}' > request
-    # dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}${STEP}"  "LeaseStatus"
+    encodeRequest '{"cmd":"get","UserRefNo":null,"RAID":1,"Version":"raid","FlowType":"RA"}' > request
+    dojsonPOST "http://localhost:8270/v1/raactions/1/0" "request" "${TFILES}${STEP}"  "WebService--EditRA1"
+
+    encodeRequest '{"cmd":"get","UserRefNo":null,"RAID":2,"Version":"raid","FlowType":"RA"}' > request
+    dojsonPOST "http://localhost:8270/v1/raactions/1/0" "request" "${TFILES}${STEP}"  "WebService--EditRA2"
 
 
 fi
