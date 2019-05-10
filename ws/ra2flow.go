@@ -30,33 +30,43 @@ func GetRA2FlowCore(ctx context.Context, ra *rlib.RentalAgreement, d *ServiceDat
 	if err != nil {
 		return
 	}
+	//---------------------------------------------------------------------
+	//  Don't change any dates if the entire agreement is in the past...
+	//---------------------------------------------------------------------
+	now := time.Now()
+	if now.Before(time.Time(raf.Dates.AgreementStop)) {
+		// CHANGE THE START DATES TO TODAY
+		raf.Dates.AgreementStart = rlib.JSONDate(rlib.GetTodayUTCRoundingDate())
+		raf.Dates.RentStart = rlib.JSONDate(rlib.GetTodayUTCRoundingDate())
+		raf.Dates.PossessionStart = rlib.JSONDate(rlib.GetTodayUTCRoundingDate())
 
-	// CHANGE THE START DATES AS OF TODAY
-	raf.Dates.AgreementStart = rlib.JSONDate(rlib.GetTodayUTCRoundingDate())
-	raf.Dates.RentStart = rlib.JSONDate(rlib.GetTodayUTCRoundingDate())
-	raf.Dates.PossessionStart = rlib.JSONDate(rlib.GetTodayUTCRoundingDate())
-
-	// ----- RENT DATES CHANGED CHECK ----- //
-	newRStart := (time.Time)(raf.Dates.RentStart)
-	newRStop := (time.Time)(raf.Dates.RentStop)
-	if !ra.RentStart.Equal(newRStart) { // SINCE WE CHANGED ONLY START DATE
-		err = rlib.RentDateChangeRAFlowUpdates(ctx, raf.Meta.BID, newRStart, newRStop, &raf)
-		if err != nil {
-			return
+		// ----- RENT DATES CHANGED CHECK ----- //
+		newRStart := (time.Time)(raf.Dates.RentStart)
+		newRStop := (time.Time)(raf.Dates.RentStop)
+		if !ra.RentStart.Equal(newRStart) { // SINCE WE CHANGED ONLY START DATE
+			err = rlib.RentDateChangeRAFlowUpdates(ctx, raf.Meta.BID, newRStart, newRStop, &raf)
+			if err != nil {
+				return
+			}
 		}
 	}
 
-	// CHANGE THE STATE TO APPLICATION BEING COMPLETED
-	// AS WE'RE CREATING NEW FLOW
+	//--------------------------------------------------
+	// Change the state to application being completed
+	// as we're creating new flow
+	//--------------------------------------------------
 	action := int64(rlib.RAActionApplicationBeingCompleted)
 	state := raf.Meta.RAFLAGS & uint64(0xF)
 
+	//--------------------------------------------------
 	// reset meta info
+	//--------------------------------------------------
 	ActionResetMetaData(action, state, &raf.Meta)
 
+	//--------------------------------------------------
 	// set data in meta based on Action
-	err = SetActionMetaData(ctx, d, action, &raf.Meta)
-	if err != nil {
+	//--------------------------------------------------
+	if err = SetActionMetaData(ctx, d, action, &raf.Meta); err != nil {
 		return
 	}
 
@@ -64,8 +74,7 @@ func GetRA2FlowCore(ctx context.Context, ra *rlib.RentalAgreement, d *ServiceDat
 	// Save the flow to the db
 	//-------------------------------------------------------------------------
 	var raflowJSONData []byte
-	raflowJSONData, err = json.Marshal(&raf)
-	if err != nil {
+	if raflowJSONData, err = json.Marshal(&raf); err != nil {
 		return
 	}
 
@@ -85,8 +94,7 @@ func GetRA2FlowCore(ctx context.Context, ra *rlib.RentalAgreement, d *ServiceDat
 	}
 
 	// insert new flow
-	FlowID, err = rlib.InsertFlow(ctx, &a)
-	if err != nil {
+	if FlowID, err = rlib.InsertFlow(ctx, &a); err != nil {
 		return
 	}
 	return
