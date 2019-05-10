@@ -1,0 +1,316 @@
+{
+    "record": {
+        "DataFulfilled": {
+            "dates": true,
+            "parentchild": true,
+            "people": true,
+            "pets": true,
+            "rentables": true,
+            "tie": true,
+            "vehicles": true
+        },
+        "Flow": {
+            "BID": 1,
+            "CreateBy": 0,
+            "CreateTS": "0001-01-01T00:00:00Z",
+            "Data": {
+                "dates": {
+                    "AgreementStart": "12/1/2019",
+                    "AgreementStop": "12/14/2019",
+                    "CSAgent": 211,
+                    "PossessionStart": "12/1/2019",
+                    "PossessionStop": "12/14/2019",
+                    "RentStart": "12/1/2019",
+                    "RentStop": "12/14/2019"
+                },
+                "meta": {
+                    "ActiveDate": "2019-05-03 03:57:00 UTC",
+                    "ActiveName": "Steve Mansour",
+                    "ActiveUID": 211,
+                    "ApplicationReadyDate": "2019-05-03 03:56:00 UTC",
+                    "ApplicationReadyName": "Steve Mansour",
+                    "ApplicationReadyUID": 211,
+                    "Approver1": 211,
+                    "Approver1Name": "Steve Mansour",
+                    "Approver2": 211,
+                    "Approver2Name": "Steve Mansour",
+                    "BID": 1,
+                    "DecisionDate1": "2019-05-03 03:56:00 UTC",
+                    "DecisionDate2": "2019-05-03 03:56:00 UTC",
+                    "DeclineReason1": 0,
+                    "DeclineReason2": 0,
+                    "DocumentDate": "2019-12-01 00:00:00 UTC",
+                    "HavePets": false,
+                    "HaveVehicles": false,
+                    "LastTMPASMID": 5,
+                    "LastTMPPETID": 1,
+                    "LastTMPTCID": 1,
+                    "LastTMPVID": 1,
+                    "LeaseTerminationReason": 83,
+                    "MoveInDate": "2019-05-03 03:57:00 UTC",
+                    "MoveInName": "Steve Mansour",
+                    "MoveInUID": 211,
+                    "NoticeToMoveDate": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveName": "UID-0",
+                    "NoticeToMoveReported": "1900-01-01 00:00:00 UTC",
+                    "NoticeToMoveUID": 0,
+                    "RAFLAGS": 54,
+                    "RAID": 2,
+                    "TerminationDate": "2019-12-15 00:00:00 UTC",
+                    "TerminationStarted": "2019-05-10 00:57:00 GMT",
+                    "TerminatorName": "UID-0",
+                    "TerminatorUID": -99999
+                },
+                "parentchild": [],
+                "people": [
+                    {
+                        "Address": "8163 Lakeview",
+                        "Address2": "",
+                        "AlternateEmailAddress": "31021 Lake,Huntington,NE 31847",
+                        "Bankruptcy": false,
+                        "BankruptcyDes": "",
+                        "CellPhone": "(118) 422-2177",
+                        "City": "Trenton",
+                        "Comment": "",
+                        "CompanyAddress": "37287 A",
+                        "CompanyCity": "Pensacola",
+                        "CompanyEmail": "JonesApparelGroupIncP6639@hotmail.com",
+                        "CompanyName": "Jones Apparel Group Inc.",
+                        "CompanyPhone": "(927) 181-4990",
+                        "CompanyPostalCode": "84059",
+                        "CompanyState": "OH",
+                        "Convicted": false,
+                        "ConvictedDes": "",
+                        "Country": "USA",
+                        "CreditLimit": 15628,
+                        "CurrentAddress": "93590 Zoo, Racine, CA 02081",
+                        "CurrentLandLordName": "Estela Mcleod",
+                        "CurrentLandLordPhoneNo": "(650) 994-8283",
+                        "CurrentLengthOfResidency": "4 years 7 months",
+                        "CurrentReasonForMoving": 121,
+                        "DateofBirth": "10/10/1992",
+                        "DriversLicense": "K3307785",
+                        "EligibleFuturePayor": true,
+                        "EligibleFutureUser": true,
+                        "EmergencyContactAddress": "60619 Smith,Toledo,UT 27887",
+                        "EmergencyContactEmail": "LHerring8108@aol.com",
+                        "EmergencyContactName": "Luanna Herring",
+                        "EmergencyContactTelephone": "(799) 685-8693",
+                        "Evicted": false,
+                        "EvictedDes": "",
+                        "FirstName": "Donald",
+                        "GrossIncome": 10110,
+                        "Industry": 196,
+                        "IsCompany": false,
+                        "IsGuarantor": false,
+                        "IsOccupant": true,
+                        "IsRenter": true,
+                        "LastName": "Richards",
+                        "MiddleName": "Maudie",
+                        "Occupation": "invoice clerk",
+                        "OtherPreferences": "",
+                        "Points": 0,
+                        "PostalCode": "98081",
+                        "PreferredName": "Samira",
+                        "PrimaryEmail": "DonaldRichards383@bdiddy.com",
+                        "PriorAddress": "36061 Lee, Bradenton, IA 41318",
+                        "PriorLandLordName": "Ola Riggs",
+                        "PriorLandLordPhoneNo": "(942) 797-2423",
+                        "PriorLengthOfResidency": "4 months",
+                        "PriorReasonForMoving": 112,
+                        "SecondaryEmail": "DonaldR4559@bdiddy.com",
+                        "SourceSLSID": 60,
+                        "SpecialNeeds": "",
+                        "State": "NJ",
+                        "TCID": 1,
+                        "TMPTCID": 1,
+                        "TaxpayorID": "01987815",
+                        "ThirdPartySource": "Thanh Compton",
+                        "Website": "",
+                        "WorkPhone": "(948) 831-8080"
+                    }
+                ],
+                "pets": [
+                    {
+                        "Breed": "Traditional Siamese cat",
+                        "Color": "Flame point",
+                        "Fees": [
+                            {
+                                "ARID": 23,
+                                "ARName": "Pet Fee",
+                                "ASMID": 8,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 50,
+                                "ProrationCycle": 0,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "12/1/2019",
+                                "Stop": "12/1/2019",
+                                "TMPASMID": 3,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 24,
+                                "ARName": "Pet Rent",
+                                "ASMID": 9,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 10,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "12/1/2019",
+                                "Stop": "12/14/2019",
+                                "TMPASMID": 4,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "Name": "Toby ",
+                        "PETID": 1,
+                        "TMPPETID": 1,
+                        "TMPTCID": 1,
+                        "Type": "cat",
+                        "Weight": 18
+                    }
+                ],
+                "rentables": [
+                    {
+                        "AtSigningPreTax": 0,
+                        "Fees": [
+                            {
+                                "ARID": 45,
+                                "ARName": "Rent ST000",
+                                "ASMID": 7,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 1000,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "12/1/2019",
+                                "Stop": "12/14/2019",
+                                "TMPASMID": 1,
+                                "TransOccTax": 0
+                            },
+                            {
+                                "ARID": 16,
+                                "ARName": "Gas Base Fee",
+                                "ASMID": 6,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 50,
+                                "ProrationCycle": 4,
+                                "RentCycle": 6,
+                                "SalesTax": 0,
+                                "Start": "12/1/2019",
+                                "Stop": "12/14/2019",
+                                "TMPASMID": 2,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "RID": 1,
+                        "RTFLAGS": 12,
+                        "RTID": 1,
+                        "RentCycle": 6,
+                        "RentableName": "Rentable001",
+                        "SalesTax": 0,
+                        "TransOccTax": 0
+                    }
+                ],
+                "tie": {
+                    "people": [
+                        {
+                            "PRID": 1,
+                            "TMPTCID": 1
+                        }
+                    ]
+                },
+                "vehicles": [
+                    {
+                        "Fees": [
+                            {
+                                "ARID": 39,
+                                "ARName": "Vehicle Registration Fee",
+                                "ASMID": 10,
+                                "AtSigningPreTax": 0,
+                                "Comment": "",
+                                "ContractAmount": 10,
+                                "ProrationCycle": 0,
+                                "RentCycle": 0,
+                                "SalesTax": 0,
+                                "Start": "12/1/2019",
+                                "Stop": "12/1/2019",
+                                "TMPASMID": 5,
+                                "TransOccTax": 0
+                            }
+                        ],
+                        "LicensePlateNumber": "92PWR77",
+                        "LicensePlateState": "CT",
+                        "ParkingPermitNumber": "2282624",
+                        "TMPTCID": 1,
+                        "TMPVID": 1,
+                        "VID": 1,
+                        "VIN": "3FA8HTCQPLR9PYXW",
+                        "VehicleColor": "Cream",
+                        "VehicleMake": "GMC",
+                        "VehicleModel": "Vandura G2500",
+                        "VehicleType": "car",
+                        "VehicleYear": 1995
+                    }
+                ]
+            },
+            "FlowID": 0,
+            "FlowType": "RA",
+            "ID": 2,
+            "LastModBy": 0,
+            "LastModTime": "0001-01-01T00:00:00Z",
+            "UserRefNo": ""
+        },
+        "ValidationCheck": {
+            "errors": {
+                "dates": {
+                    "errors": {},
+                    "total": 0
+                },
+                "parentchild": {
+                    "errors": [],
+                    "total": 0
+                },
+                "people": {
+                    "errors": [],
+                    "total": 0
+                },
+                "pets": {
+                    "errors": [],
+                    "total": 0
+                },
+                "rentables": {
+                    "errors": [],
+                    "total": 0
+                },
+                "tie": {
+                    "people": {
+                        "errors": [],
+                        "total": 0
+                    }
+                },
+                "vehicles": {
+                    "errors": [],
+                    "total": 0
+                }
+            },
+            "nonFieldsErrors": {
+                "dates": [],
+                "parentchild": [],
+                "people": [],
+                "pets": [],
+                "rentables": [],
+                "tie": [],
+                "vehicles": []
+            },
+            "total": 0
+        }
+    },
+    "status": "success"
+}
