@@ -644,7 +644,7 @@ window.loadRAActionForm = function() {
                 },
                 { field: 'RADocumentDate', type: 'date', hidden: true, options: { start: '01/01/2000' } },
                 { field: 'RANoticeToMoveDate', type: 'date', hidden: true, options: { start: w2uiDateControlString(new Date()) } },
-                { field: 'RATerminationDate', type: 'date', hidden: true, required: true, options: { start: w2uiDateControlString(new Date()) } },
+                { field: 'RATerminationDate', type: 'date', hidden: true, required: true, /* options: { start: w2uiDateControlString(new Date()) }*/ },
                 //{ field: 'RATerminationStarted',  type: 'date', hidden: true, required: false },
                 { field: 'RATerminationReason', type: 'list', width: 120, required: true, hidden: true,
                     options: {
