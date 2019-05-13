@@ -93,7 +93,10 @@ func SvcRentableTypesTD(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 	rlib.Console("Entered in %s, service handler for SvcRentableTypesList\n", funcname)
 
 	// get rentable types for a business
-	m, _ := rlib.GetBusinessRentableTypes(r.Context(), d.BID)
+	m, err := rlib.GetBusinessRentableTypes(r.Context(), d.BID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+	}
 
 	// sort keys
 	var keys rlib.Int64Range

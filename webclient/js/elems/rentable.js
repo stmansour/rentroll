@@ -125,7 +125,8 @@ window.getRentableTypes = function (BUD,cb) {
     }).done(function (data) {
         if (data.status == "success") {
             if (data.records) {
-                app.rt_list[BUD] = data.records;
+                var list=[ {id: 0, FLAGS: 0, text: "anything available"}];
+                app.rt_list[BUD] = list.concat(data.records);
             } else {
                 w2ui.rentablesGrid.error(data.message);
                 app.rt_list[BUD] = [];

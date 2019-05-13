@@ -106,18 +106,43 @@ func SvcAvailable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//---------------------------------------
 	// Now we can build the query...
 	//---------------------------------------
+	var sr string
+	if res.RTID == 0 { // search for any rentable type
+		m, err := rlib.GetBusinessRentableTypes(r.Context(), d.BID)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+		}
+		l := len(m)
+		count := 0
+		for j := 0; j < l; j++ {
+			if m[int64(j)].FLAGS&0x8 == 0 {
+				count++
+				sr += fmt.Sprintf("%d", m[int64(j)].RTID)
+				if j+1 < l {
+					sr += ","
+				}
+			}
+		}
+		if count == 0 {
+			SvcErrorReturn(w, fmt.Errorf("no appropriate rentable types found"), funcname)
+			return
+		}
+	} else {
+		sr = fmt.Sprintf("%d", res.RTID)
+	}
 	dtStart := time.Time(res.DtStart)
 	dtStop := time.Time(res.DtStop)
 	srch := fmt.Sprintf(`RentableTypeRef.BID=%d AND
         RentableLeaseStatus.DtStart <= %q AND RentableLeaseStatus.DtStop >= %q AND RentableLeaseStatus.LeaseStatus = 0 AND
-		RentableTypeRef.DtStart <= %q AND RentableTypeRef.DtStop >= %q AND RentableTypeRef.RTID = %d AND
+		RentableTypeRef.DtStart <= %q AND RentableTypeRef.DtStop >= %q AND
+		RentableTypeRef.RTID IN (%s) AND
 		RentableUseStatus.DtStart <= %q AND RentableUseStatus.DtStop >= %q AND RentableUseStatus.UseStatus = 0`,
 		res.BID,
-		dtStop.Format(rlib.RRDATEFMTSQL),
 		dtStart.Format(rlib.RRDATEFMTSQL),
 		dtStop.Format(rlib.RRDATEFMTSQL),
 		dtStart.Format(rlib.RRDATEFMTSQL),
-		res.RTID,
+		dtStop.Format(rlib.RRDATEFMTSQL),
+		sr,
 		dtStop.Format(rlib.RRDATEFMTSQL),
 		dtStart.Format(rlib.RRDATEFMTSQL),
 	)

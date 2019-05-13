@@ -3,7 +3,7 @@
     saveReservationForm, switchToReservationss, finishReservationsForm, reservationsUpdateRTList,
     getReservationInitRecord, reservationSrch, daysBetweenDates, switchToBookRes,
     getBookResInitRecord, resSaveCB, setToForm, setResUpdateRecordForUI,
-    useRentableForReservation,
+    useRentableForReservation, checkRentableAvailability,
 */
 
 "use strict";
@@ -144,39 +144,39 @@ window.buildResUpdateElements = function () {
         url: '/v1/reservation/',
         formURL: '/webclient/html/formresup.html',
         fields: [
-            { field: 'BUD',              type: 'list',     required: false, html: { page: 0, column: 0 }, options: {items: app.businesses} },
-            { field: 'RLID',             type: 'int',      required: false, html: { page: 0, column: 0 } },
-            { field: 'RTRID',            type: 'int',      required: false, html: { page: 0, column: 0 } },
-            { field: 'rdRTID',           type: 'list',     required: false, html: { page: 0, column: 0 } },
-            { field: 'RID',              type: 'int',      required: false, html: { page: 0, column: 0 } },
-            { field: 'rdBID',            type: 'int',      required: false, html: { page: 0, column: 0 } },
-            { field: 'ConfirmationCode', type: 'text',     required: false, html: { page: 0, column: 0 } },
-            { field: 'LeaseStatus',      type: 'int',      required: false, html: { page: 0, column: 0 } },
-            { field: 'DtStart',          type: 'date',     required: false, html: { page: 0, column: 0 } },
-            { field: 'DtStop',           type: 'date',     required: false, html: { page: 0, column: 0 } },
-            { field: 'Nights',           type: 'int',      required: false, html: { page: 0, column: 0 } },
-            { field: 'FirstName',        type: 'text',     required: true , html: { page: 0, column: 1 }},
-            { field: 'LastName',         type: 'text',     required: true , html: { page: 0, column: 1 }},
-            { field: 'Phone',            type: 'text',     required: false, html: { page: 0, column: 1 } },
-            { field: 'Email',            type: 'text',     required: false, html: { page: 0, column: 1 } },
-            { field: 'Street',           type: 'text',     required: false, html: { page: 0, column: 1 } },
-            { field: 'City',             type: 'text',     required: false, html: { page: 0, column: 1 } },
-            { field: 'State',            type: 'text',     required: false, html: { page: 0, column: 1 } },
-            { field: 'PostalCode',       type: 'text',     required: false, html: { page: 0, column: 0 } },
-            { field: 'CCName',           type: 'text',     required: false, html: { page: 0, column: 0 } },
-            { field: 'CCType',           type: 'text',     required: false, html: { page: 0, column: 0 } },
-            { field: 'CCNumber',         type: 'text',     required: false, html: { page: 0, column: 0 } },
-            { field: 'CCExpMonth',       type: 'text',     required: false, html: { page: 0, column: 0 } },
-            { field: 'CCExpYear',        type: 'text',     required: false, html: { page: 0, column: 0 } },
-            { field: 'Comment',          type: 'textarea', required: false, html: { page: 0, column: 0 } },
-            { field: 'LastModTime',      type: 'time',     required: false, html: { page: 0, column: 0 } },
-            { field: 'LastModBy',        type: 'int',      required: false, html: { page: 0, column: 0 } },
-            { field: 'CreateTS',         type: 'time',     required: false, html: { page: 0, column: 0 } },
-            { field: 'CreateBy',         type: 'int',      required: false, html: { page: 0, column: 0 } },
+            { field: 'BUD',              type: 'list',     required: false,  options: {items: app.businesses} },
+            { field: 'RLID',             type: 'int',      required: false,  },
+            { field: 'RTRID',            type: 'int',      required: false,  },
+            { field: 'rdRTID',           type: 'list',     required: false,  },
+            { field: 'RID',              type: 'int',      required: false,  },
+            { field: 'rdBID',            type: 'int',      required: false,  },
+            { field: 'ConfirmationCode', type: 'text',     required: false,  },
+            { field: 'LeaseStatus',      type: 'int',      required: false,  },
+            { field: 'DtStart',          type: 'date',     required: false,  },
+            { field: 'DtStop',           type: 'date',     required: false,  },
+            { field: 'Nights',           type: 'int',      required: false,  },
+            { field: 'FirstName',        type: 'text',     required: true ,  },
+            { field: 'LastName',         type: 'text',     required: true ,  },
+            { field: 'Phone',            type: 'text',     required: false,  },
+            { field: 'Email',            type: 'text',     required: false,  },
+            { field: 'Street',           type: 'text',     required: false,  },
+            { field: 'City',             type: 'text',     required: false,  },
+            { field: 'State',            type: 'text',     required: false,  },
+            { field: 'PostalCode',       type: 'text',     required: false,  },
+            { field: 'CCName',           type: 'text',     required: false,  },
+            { field: 'CCType',           type: 'text',     required: false,  },
+            { field: 'CCNumber',         type: 'text',     required: false,  },
+            { field: 'CCExpMonth',       type: 'text',     required: false,  },
+            { field: 'CCExpYear',        type: 'text',     required: false,  },
+            { field: 'Comment',          type: 'textarea', required: false,  },
+            { field: 'LastModTime',      type: 'time',     required: false,  },
+            { field: 'LastModBy',        type: 'int',      required: false,  },
+            { field: 'CreateTS',         type: 'time',     required: false,  },
+            { field: 'CreateBy',         type: 'int',      required: false,  },
         ],
         toolbar: {
             items: [
-                { id: 'checkAvailability', type: 'button', caption: 'Check Availability', icon: 'far fa-calendar-check' },
+                //{ id: 'checkAvailability', type: 'button', caption: 'Check Availability', icon: 'far fa-calendar-check' },
                 { id: 'bt3',               type: 'spacer' },
                 { id: 'btnClose',          type: 'button', icon: 'fas fa-times' },
             ],
@@ -190,25 +190,9 @@ window.buildResUpdateElements = function () {
                         };
                     form_dirty_alert(yes_callBack, no_callBack);
                     break;
-                case 'checkAvailability':
-                    var BID = getCurrentBID();
-                    var BUD = getBUDfromBID(BID);
-                    var f = w2ui.resUpdateForm;
-                    var r = f.record;
-                    var dtStart = dateFromString(r.DtStart);
-                    var dtStop = dateFromString(r.DtStop);
-                    var req = {
-                        recid:          0,
-                        BID:            BID,
-                        BUD:            BUD,
-                        RTID:           r.rdRTID.id,
-                        Nights:         r.Nights,
-                        DtStart:        dtStart.toUTCString(),
-                        DtStop:         dtStop.toUTCString(),
-                    };
-                    w2ui.availabilityGrid.postData.record = req;
-                    w2ui.availabilityGrid.url = '/v1/available/'+BID;
-                    w2ui.availabilityGrid.reload();
+                // case 'checkAvailability':
+                //     checkRentableAvailability();
+                //     break;
                 }
             },
         },
@@ -304,9 +288,18 @@ window.buildResUpdateElements = function () {
         columns: [
             {field: 'recid',        caption: 'recid',              size: '40px',  hidden: true,  sortable: true },
             {field: 'BID',          caption: 'RID',                size: '60px',  hidden: true,  sortable: true, style: 'text-align: right'},
-            {field: 'RID',          caption: 'RID',                size: '60px',  hidden: false, sortable: true, style: 'text-align: right'},
+            {field: 'RID',          caption: 'RID',                size: '30px',  hidden: false, sortable: true, style: 'text-align: right'},
             {field: 'RentableName', caption: app.sRentable,        size: '150px', hidden: false, sortable: true, style: 'text-align: left'},
-            {field: 'RTID',         caption: 'RTID',                              hidden: true,  sortable: false },
+            {field: 'RTID',         caption: 'RTID',               size: '150px', hidden: false,  sortable: false,
+                render: function(record/*, index, col_index*/) {
+                    var BUD = getBUDfromBID(getCurrentBID());
+                    for (var i = 0; i < app.rt_list[BUD].length; i++) {
+                        if (app.rt_list[BUD][i].id == record.RTID) {
+                            return app.rt_list[BUD][i].text;
+                        }
+                    }
+                },
+            },
             {field: 'DtStart',      caption: 'DtStart',            size: '90px',  hidden: false, sortable: true, style: 'text-align: right',
                 render: function(record/*, index, col_index*/) { return w2uiDateControlString(new Date(record.DtStart)); },
             },
@@ -437,4 +430,34 @@ window.setResUpdateRecordForUI = function (f) {
         f.get('BUD').options.items = app.businesses;
     }
 
+};
+
+//---------------------------------------------------------------------------------
+// checkRentableAvailability - pull together the info in the form, make a query
+//     to the server to see what's available.
+//
+// @params
+//     f = the form
+// @return
+//
+//---------------------------------------------------------------------------------
+window.checkRentableAvailability = function() {
+    var BID = getCurrentBID();
+    var BUD = getBUDfromBID(BID);
+    var f = w2ui.resUpdateForm;
+    var r = f.record;
+    var dtStart = dateFromString(r.DtStart);
+    var dtStop = dateFromString(r.DtStop);
+    var req = {
+        recid:          0,
+        BID:            BID,
+        BUD:            BUD,
+        RTID:           r.rdRTID.id,
+        Nights:         r.Nights,
+        DtStart:        dtStart.toUTCString(),
+        DtStop:         dtStop.toUTCString(),
+    };
+    w2ui.availabilityGrid.postData.record = req;
+    w2ui.availabilityGrid.url = '/v1/available/'+BID;
+    w2ui.availabilityGrid.reload();
 };
