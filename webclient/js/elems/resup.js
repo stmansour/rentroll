@@ -3,6 +3,7 @@
     saveReservationForm, switchToReservationss, finishReservationsForm, reservationsUpdateRTList,
     getReservationInitRecord, reservationSrch, daysBetweenDates, switchToBookRes,
     getBookResInitRecord, resSaveCB, setToForm, setResUpdateRecordForUI,
+    useRentableForReservation,
 */
 
 "use strict";
@@ -109,8 +110,8 @@ window.buildResUpdateElements = function () {
         padding: 0,
         panels: [
             { type: 'left',    size: 0,     hidden: true,  content: 'left'    },
-            { type: 'top',     size: '44%', hidden: false, content: 'top',    resizable: true, style: app.pstyle },
-            { type: 'main',    size: '56%', hidden: false,  content: 'main',   resizable: true, style: app.pstyle },
+            { type: 'top',     size: '50%', hidden: false, content: 'top',    resizable: true, style: app.pstyle },
+            { type: 'main',    size: '50%', hidden: false,  content: 'main',   resizable: true, style: app.pstyle },
             { type: 'preview', size: 0,     hidden: true,  content: 'preview' },
             { type: 'bottom',  size: '50px',hidden: false,  content: 'bottom', resizable: false, style: app.pstyle },
             { type: 'right',   size: 0,     hidden: true,  content: 'right',  resizable: true, style: app.pstyle }
@@ -132,8 +133,8 @@ window.buildResUpdateElements = function () {
     //------------------------------------------------------------------------
     //          resUpdateForm
     //
-    //                top    = resUpdateForm
-    //    >>>>>>>>>   main   = availabilityGrid    <<<<<<<<<<<
+    //    >>>>>>>>>   top    = resUpdateForm       <<<<<<<<<<<
+    //                main   = availabilityGrid
     //                bottom = resUpFormBtns
     //------------------------------------------------------------------------
     $().w2form({
@@ -276,7 +277,94 @@ window.buildResUpdateElements = function () {
         },
     });
     //------------------------------------------------------------------------
-    //     resUpFormBtns
+    //    availabilityGrid
+    //
+    //                top    = resUpdateForm
+    //    >>>>>>>>>   main   = availabilityGrid    <<<<<<<<<<<
+    //                bottom = resUpFormBtns
+    //------------------------------------------------------------------------
+    $().w2grid({
+        name: 'availabilityGrid',
+        multiSelect: false,
+        show: {
+            toolbar         : false,
+            footer          : false,
+            toolbarAdd      : false,   // indicates if toolbar add new button is visible
+            toolbarDelete   : false,   // indicates if toolbar delete button is visible
+            toolbarSave     : false,   // indicates if toolbar save button is visible
+            selectColumn    : false,
+            expandColumn    : false,
+            toolbarEdit     : false,
+            toolbarSearch   : false,
+            toolbarInput    : false,
+            searchAll       : false,
+            toolbarReload   : false,
+            toolbarColumns  : false,
+        },
+        columns: [
+            {field: 'recid',        caption: 'recid',              size: '40px',  hidden: true,  sortable: true },
+            {field: 'BID',          caption: 'RID',                size: '60px',  hidden: true,  sortable: true, style: 'text-align: right'},
+            {field: 'RID',          caption: 'RID',                size: '60px',  hidden: false, sortable: true, style: 'text-align: right'},
+            {field: 'RentableName', caption: app.sRentable,        size: '150px', hidden: false, sortable: true, style: 'text-align: left'},
+            {field: 'RTID',         caption: 'RTID',                              hidden: true,  sortable: false },
+            {field: 'DtStart',      caption: 'DtStart',            size: '90px',  hidden: false, sortable: true, style: 'text-align: right',
+                render: function(record/*, index, col_index*/) { return w2uiDateControlString(new Date(record.DtStart)); },
+            },
+            {field: 'DtStop',       caption: 'DtStop',             size: '90px',  hidden: false, sortable: true, style: 'text-align: right',
+                render: function(record/*, index, col_index*/) { return w2uiDateControlString(new Date(record.DtStop)); },
+            },
+            {
+                field: 'Book',
+                caption: "Book it",
+                size: '55px',
+                style: 'text-align: center',
+                render: function (record/*, index, col_index*/) {
+                    // SPECIAL CHECK FOR THIS REMOVE BUTTON
+                    var html = "";
+                    if (record.RID && record.RID > 0) {
+                        html = '<i class="far fa-calendar-check fa-lg" style="color: #2A64A4; cursor: pointer;" title="make reservation"></i>';
+                    }
+                    return html;
+                },
+            }
+        ],
+        onClick: function(event) {
+            event.onComplete = function () {
+                var rec = w2ui.availabilityGrid.get(event.recid);
+                console.log('book RID = ' + rec.RID);
+                useRentableForReservation(rec);
+                return;
+            };
+        },
+
+        onRequest: function(/*event*/) {
+            w2ui.expenseGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
+        },
+        onRefresh: function(event) {
+            event.onComplete = function() {
+                if (app.active_grid == this.name) {
+                    if (app.new_form_rec) {
+                        this.selectNone();
+                    }
+                    else{
+                        this.select(app.last.grid_sel_recid);
+                    }
+                }
+
+                // if (event.target == 'monthfwd') {  // we do these tasks after monthfwd is refreshed so we know that the 2 date controls exist
+                //     setDateControlsInToolbar('asms');
+                //     w2ui.expenseGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
+                // }
+            };
+        }
+    });
+
+    //------------------------------------------------------------------------
+    //    resUpFormBtns
+    //
+    //                top    = resUpdateForm
+    //                main   = availabilityGrid
+    //    >>>>>>>>>   bottom = resUpFormBtns      <<<<<<<<<
     //------------------------------------------------------------------------
     $().w2form({
         name: 'resUpFormBtns',
@@ -286,6 +374,20 @@ window.buildResUpdateElements = function () {
         fields: [],
         actions: {
             save: function () {
+                console.log("Book this res!");
+                var BID = getCurrentBID();
+                var BUD = getBUDfromBID(BID);
+                var f = w2ui.resUpdateForm;
+                var r = f.record;
+                f.url = '/v1/reservation/' + BID;
+                var rtid = r.rdRTID.id;
+                r.LeaseStatus = 2; // 2 = Reserved
+                r.rdRTID = rtid;
+                if (typeof r.RID === "undefined") {
+                    r.RID = 0;
+                }
+                //this.save({},resSaveCB);
+
                 // w2ui.rentablesGrid.selectNone();
                 // saveRentableCore(finishRentableSave);
             },
@@ -295,6 +397,24 @@ window.buildResUpdateElements = function () {
             }
         },
     });
+};
+
+
+//---------------------------------------------------------------------------------
+// useRentableForReservation - use the supplied record from the availabilityGrid
+//     as the rentable to use for this reservation
+//
+// @params
+//      f = the form
+// @return
+//
+//---------------------------------------------------------------------------------
+window.useRentableForReservation = function(rec) {
+    document.getElementById("reservationRentableName").innerHTML = rec.RentableName;
+    var d1 = new Date(rec.DtStart);
+    var d2 = new Date(rec.DtStop);
+    var s = 'available: ' + w2uiDateControlString(d1) + ' - ' + w2uiDateControlString(d2);
+    document.getElementById("reservationRentableFreePeriod").innerHTML = s;
 };
 
 //---------------------------------------------------------------------------------

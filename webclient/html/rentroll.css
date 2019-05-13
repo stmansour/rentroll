@@ -55,6 +55,9 @@ section[name="asmEpochForm"] .w2ui-form-box .w2ui-field > div,
     margin-left: 168px;
 }
 
+.reservationRentable {
+    font-size: 10pt;
+}
 
 .help {
     font-size: 10pt;
