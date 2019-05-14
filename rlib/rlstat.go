@@ -351,10 +351,10 @@ func RentableLeaseStatusCompare(a, b *RentableLeaseStatus) bool {
 		a.State != b.State ||
 		a.PostalCode != b.PostalCode ||
 		a.Country != b.Country ||
-		a.CCName != b.CCName ||
-		a.CCType != b.CCType ||
-		a.CCNumber != b.CCNumber ||
-		a.CCExpMonth != b.CCExpMonth ||
+		// a.CCName != b.CCName ||
+		// a.CCType != b.CCType ||
+		// a.CCNumber != b.CCNumber ||
+		// a.CCExpMonth != b.CCExpMonth ||
 		a.ConfirmationCode != b.ConfirmationCode ||
 		a.LeaseStatus != b.LeaseStatus {
 		return false

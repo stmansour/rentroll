@@ -83,6 +83,13 @@ window.newDateKeepOldTime = function(orig,y,m,d) {
     return ddt;
 };
 
+
+//-----------------------------------------------------------------------------
+//
+//                   DATE FORMATING  UTILITIES
+//
+//-----------------------------------------------------------------------------
+
 //-----------------------------------------------------------------------------
 // zeroPad - if the string value of the number is < size,
 //           left pad it with '0' to make it the requested size.
@@ -151,6 +158,88 @@ window.localtimeToUTC = function (s) {
     }
     return '';
 };
+
+//-----------------------------------------------------------------------------
+// dateControlString
+//           - return a date string based on the supplied date that can be
+//             used as the .value attribute of a date control.  That is, in
+//             the format  m/d/yyyy.
+// @params
+//   dt = java date value
+// @return string value m/d/yyyy
+//-----------------------------------------------------------------------------
+window.dateControlString = function (dt) {
+    var m = dt.getMonth() + 1;
+    var d = dt.getDate();
+    // if (m < 10) { s += '0'; }
+    var s = '' + m + '/';
+    // if (d < 10) { s += '0'; }
+    s += d;
+    s += '/' + dt.getFullYear();
+    return s;
+};
+
+//-----------------------------------------------------------------------------
+// w2uiDateControlString
+//           - return a date string formatted the way the w2ui dates are
+//             expected, based on the supplied date that can be
+//             used as the .value attribute of a date control.  That is, in
+//             the format  m/d/yyyy.
+// @params
+//   dt = java date value
+// @return string value mm-dd-yyyy
+//-----------------------------------------------------------------------------
+window.w2uiDateControlString = function (dt) {
+    var m = dt.getMonth() + 1;
+    var d = dt.getDate();
+    var s = '' + m + '/' + d+'/' + dt.getFullYear();
+    return s;
+};
+
+//-----------------------------------------------------------------------------
+// w2uiUTCDateControlString
+//           - return a UTC date string formatted the way the w2ui dates are
+//             expected, based on the supplied date that can be
+//             used as the .value attribute of a date control.  That is, in
+//             the format  m/d/yyyy.
+// @params
+//   dt = java date value
+// @return string value mm-dd-yyyy
+//-----------------------------------------------------------------------------
+window.w2uiUTCDateControlString = function (dt) {
+    var m = dt.getUTCMonth() + 1;
+    var d = dt.getUTCDate();
+    var s = '' + m + '/' + d+'/' + dt.getUTCFullYear();
+    return s;
+};
+
+//-----------------------------------------------------------------------------
+// w2uiDateTimeControlString
+//           - return a datetime string formatted the way the w2ui datetimes
+//             are expected, based on the supplied date that can be
+//             used as the .value attribute of a date control.  That is, in
+//             the format  m/d/yyyy HH:MM {am|pm}.
+// @params
+//   dt = java date value
+// @return string value mm-dd-yyyy HH:MM {am|pm}
+//-----------------------------------------------------------------------------
+window.w2uiDateTimeControlString = function (dt) {
+    var m = dt.getMonth() + 1;
+    var d = dt.getDate();
+    var H = dt.getHours();
+    var M = dt.getMinutes();
+    var s = m + '/' + d + '/' + dt.getFullYear() + ' ';
+    var bPM = H >= 12;
+    if (H > 12) { H = H-12;}
+    s += H + ':';
+    if (M < 10) {
+        s += '0';
+    }
+    s += M + ' ' + ((bPM) ? 'p':'a') + 'm';
+    return s;
+};
+
+
 
 //-----------------------------------------------------------------------------
 // dayBack - supply the date control and this function will go to the previous

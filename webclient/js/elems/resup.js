@@ -174,8 +174,8 @@ window.buildResUpdateElements = function () {
         padding: 0,
         panels: [
             { type: 'left',    size: 0,     hidden: true,  content: 'left'    },
-            { type: 'top',     size: '50%', hidden: false, content: 'top',    resizable: true, style: app.pstyle },
-            { type: 'main',    size: '50%', hidden: false,  content: 'main',   resizable: true, style: app.pstyle },
+            { type: 'top',     size: '55%', hidden: false, content: 'top',    resizable: true, style: app.pstyle },
+            { type: 'main',    size: '45%', hidden: false,  content: 'main',   resizable: true, style: app.pstyle },
             { type: 'preview', size: 0,     hidden: true,  content: 'preview' },
             { type: 'bottom',  size: '50px',hidden: false,  content: 'bottom', resizable: false, style: app.pstyle },
             { type: 'right',   size: 0,     hidden: true,  content: 'right',  resizable: true, style: app.pstyle }
@@ -529,10 +529,14 @@ window.showReservationRentable = function(rec) {
     if (r.RTID == undefined) {
         r.RTID = rec.rdRTID;
     }
-    var s = rec.RentableName;
-    if (typeof r.RTID  != undefined) {
-        s += ' &nbsp;&nbsp(' + getRTName(r.RTID) + ')';
+    var s = '[ no rentable selected ]';
+    if (r.RID > 0 || rec.RentableName.length > 0 ) {
+        s = rec.RentableName;
+        if (typeof r.RTID  != undefined) {
+            s += ' &nbsp;&nbsp(' + getRTName(r.RTID) + ')';
+        }
     }
+
     document.getElementById("reservationRentableName").innerHTML = s;
     var d1 = new Date(rec.DtStart);
     var d2 = new Date(rec.DtStop);
