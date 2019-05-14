@@ -5,9 +5,44 @@
     getBookResInitRecord, resSaveCB, setToForm, setResUpdateRecordForUI,
     showReservationRentable, checkRentableAvailability, cancelReservation, getRTName,
     closeResUpdateDialog, UTCstringToLocaltimeString,applyLocaltimeDateOffset,
+    newReservationRecord,
 */
 
 "use strict";
+window.newReservationRecord = function() {
+    var BID = getCurrentBID();
+    var now = new Date();
+    var res = {
+        rdBID: BID,
+        BUD: getBUDfromBID(BID),
+        DtStart: w2uiDateControlString(now),
+        DtStop: w2uiDateControlString(new Date(now.getFullYear(),now.getMonth(), 1+now.getDate())),
+        Nights: 1,
+        RLID: 0,
+        RTRID: 0,
+        rdRTID: 0,
+        RID: 0,
+        LeaseStatus: 2, // reserved
+        RentableName: '',
+        FirstName: '',
+        LastName: '',
+        Email: '',
+        Phone: '',
+        Street: '',
+        City: '',
+        Country: '',
+        State: '',
+        PostalCode: '',
+        CCName: '',
+        CCType: '',
+        CCNumber: '',
+        CCExpMonth: '',
+        CCExpYear: '',
+        ConfirmationCode: '',
+        Comment: '',
+    };
+    return res;
+};
 
 // buildResUpdateElements creates the rid and reservation form to find
 //------------------------------------------------------------------------------
@@ -63,7 +98,26 @@ window.buildResUpdateElements = function () {
             {field: 'Phone',            caption: 'Phone',           size: '100px', hidden: false, sortable: true },
             {field: 'RentableName',     caption: 'Rentable Name',   size: '100px', hidden: false, sortable: true },
             {field: 'Name',             caption: 'Rentable Type',   size: '5%',    hidden: false, sortable: true },
-                ],
+        ],
+        onAdd: function (/*event*/) {
+            var yes_args = [this],
+                no_callBack = function() {
+                    return false;
+                },
+                yes_callBack = function(grid) {
+                    app.last.grid_sel_recid = -1; // reset grid sel recid
+                    grid.selectNone();
+                    var BUD = getBUDfromBID(getCurrentBID());
+                    getRentableTypes(BUD, function() {
+                        w2ui.availabilityGrid.clear(); // remove any contents from prior checks
+                        w2ui.availabilityGrid.url = '';
+                        w2ui.resUpdateForm.url = '';
+                        w2ui.resUpdateForm.record = newReservationRecord();
+                        setToForm('resUpdateForm','',750,false,w2ui.resFormLayout);
+                    });
+                };
+                form_dirty_alert(yes_callBack, no_callBack, yes_args); // warn user if form content has been changed
+        },
         onClick: function(event) {
             event.onComplete = function () {
                 var rec = w2ui.resUpdateGrid.get(event.recid);
@@ -343,7 +397,7 @@ window.buildResUpdateElements = function () {
             // and localtime which is used by Javascript.  Convert the date strings
             // to localtime...
             //---------------------------------------------------------------------
-            var r = this.record;
+            var r = w2ui.resUpdateForm.record;
             var dt = new Date(r.DtStart);  // input is UTC string
             r.DtStart = dt.toString(); // localtime string
             dt = new Date(r.DtStop);
@@ -505,6 +559,7 @@ window.setResUpdateRecordForUI = function (f) {
     if (typeof f.get('BUD').options != "undefined") {
         f.get('BUD').options.items = app.businesses;
     }
+
 
 };
 
