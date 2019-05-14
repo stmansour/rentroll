@@ -433,10 +433,16 @@ func getReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
+	u, err := rlib.GetRentable(r.Context(), a.RID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
 	if a.RLID > 0 {
 		var gg ResDet
 		rlib.MigrateStructVals(&a, &gg)
 		gg.RTID = b.RTID
+		gg.RentableName = u.RentableName
 		gg.Street = a.Address
 		gg.Recid = gg.RLID
 		g.Record = gg

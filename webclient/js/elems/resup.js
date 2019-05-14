@@ -3,7 +3,7 @@
     saveReservationForm, switchToReservationss, finishReservationsForm, reservationsUpdateRTList,
     getReservationInitRecord, reservationSrch, daysBetweenDates, switchToBookRes,
     getBookResInitRecord, resSaveCB, setToForm, setResUpdateRecordForUI,
-    useRentableForReservation, checkRentableAvailability,
+    showReservationRentable, checkRentableAvailability, cancelReservation, getRTName,
 */
 
 "use strict";
@@ -147,6 +147,7 @@ window.buildResUpdateElements = function () {
             { field: 'BUD',              type: 'list',     required: false,  options: {items: app.businesses} },
             { field: 'RLID',             type: 'int',      required: false,  },
             { field: 'RTRID',            type: 'int',      required: false,  },
+            { field: 'RTID',             type: 'int',      required: false,  },
             { field: 'rdRTID',           type: 'list',     required: false,  },
             { field: 'RID',              type: 'int',      required: false,  },
             { field: 'rdBID',            type: 'int',      required: false,  },
@@ -176,7 +177,7 @@ window.buildResUpdateElements = function () {
         ],
         toolbar: {
             items: [
-                //{ id: 'checkAvailability', type: 'button', caption: 'Check Availability', icon: 'far fa-calendar-check' },
+                { id: 'cancelReservation', type: 'button', caption: 'Cancel Reservation', icon: "fas fa-ban"},
                 { id: 'bt3',               type: 'spacer' },
                 { id: 'btnClose',          type: 'button', icon: 'fas fa-times' },
             ],
@@ -190,9 +191,11 @@ window.buildResUpdateElements = function () {
                         };
                     form_dirty_alert(yes_callBack, no_callBack);
                     break;
-                // case 'checkAvailability':
-                //     checkRentableAvailability();
-                //     break;
+                case 'cancelReservation':
+                    var f = w2ui.resUpdateForm;
+                    var r = f.record;
+                    cancelReservation(r.RLID);
+                    break;
                 }
             },
         },
@@ -214,6 +217,7 @@ window.buildResUpdateElements = function () {
         },
         onRefresh: function(event) {
             setResUpdateRecordForUI(this);
+            showReservationRentable(this.record);
         },
         onChange: function(event) {
             event.onComplete = function() {
@@ -288,16 +292,11 @@ window.buildResUpdateElements = function () {
         columns: [
             {field: 'recid',        caption: 'recid',              size: '40px',  hidden: true,  sortable: true },
             {field: 'BID',          caption: 'RID',                size: '60px',  hidden: true,  sortable: true, style: 'text-align: right'},
-            {field: 'RID',          caption: 'RID',                size: '30px',  hidden: false, sortable: true, style: 'text-align: right'},
+            {field: 'RID',          caption: 'RID',                size: '45px',  hidden: false, sortable: true, style: 'text-align: right'},
             {field: 'RentableName', caption: app.sRentable,        size: '150px', hidden: false, sortable: true, style: 'text-align: left'},
             {field: 'RTID',         caption: 'RTID',               size: '150px', hidden: false,  sortable: false,
                 render: function(record/*, index, col_index*/) {
-                    var BUD = getBUDfromBID(getCurrentBID());
-                    for (var i = 0; i < app.rt_list[BUD].length; i++) {
-                        if (app.rt_list[BUD][i].id == record.RTID) {
-                            return app.rt_list[BUD][i].text;
-                        }
-                    }
+                    return getRTName(record.RTID);
                 },
             },
             {field: 'DtStart',      caption: 'DtStart',            size: '90px',  hidden: false, sortable: true, style: 'text-align: right',
@@ -324,8 +323,8 @@ window.buildResUpdateElements = function () {
         onClick: function(event) {
             event.onComplete = function () {
                 var rec = w2ui.availabilityGrid.get(event.recid);
-                console.log('book RID = ' + rec.RID);
-                useRentableForReservation(rec);
+                // console.log('book RID = ' + rec.RID);
+                showReservationRentable(rec);
                 return;
             };
         },
@@ -394,7 +393,7 @@ window.buildResUpdateElements = function () {
 
 
 //---------------------------------------------------------------------------------
-// useRentableForReservation - use the supplied record from the availabilityGrid
+// showReservationRentable - use the supplied record on the resUpdateForm
 //     as the rentable to use for this reservation
 //
 // @params
@@ -402,11 +401,22 @@ window.buildResUpdateElements = function () {
 // @return
 //
 //---------------------------------------------------------------------------------
-window.useRentableForReservation = function(rec) {
-    document.getElementById("reservationRentableName").innerHTML = rec.RentableName;
+window.showReservationRentable = function(rec) {
+    var f = w2ui.resUpdateForm;
+    var r = f.record;
+    r.RID = rec.RID;
+    r.RTID = rec.RTID;
+    if (r.RTID == undefined) {
+        r.RTID = rec.rdRTID;
+    }
+    var s = rec.RentableName;
+    if (typeof r.RTID  != undefined) {
+        s += ' &nbsp;&nbsp(' + getRTName(r.RTID) + ')';
+    }
+    document.getElementById("reservationRentableName").innerHTML = s;
     var d1 = new Date(rec.DtStart);
     var d2 = new Date(rec.DtStop);
-    var s = 'available: ' + w2uiDateControlString(d1) + ' - ' + w2uiDateControlString(d2);
+    s = 'available: ' + w2uiDateControlString(d1) + ' - ' + w2uiDateControlString(d2);
     document.getElementById("reservationRentableFreePeriod").innerHTML = s;
 };
 
@@ -460,4 +470,37 @@ window.checkRentableAvailability = function() {
     w2ui.availabilityGrid.postData.record = req;
     w2ui.availabilityGrid.url = '/v1/available/'+BID;
     w2ui.availabilityGrid.reload();
+};
+
+//---------------------------------------------------------------------------------
+// getRTName - search for and return the rentable type name. return an empty string
+//     if not found.
+//
+// @params
+//     RTID = the RenttableType ID
+//
+// @return
+//     the rentable type name or '' if not found
+//---------------------------------------------------------------------------------
+window.getRTName = function(RTID) {
+    var BUD = getBUDfromBID(getCurrentBID());
+    for (var i = 0; i < app.rt_list[BUD].length; i++) {
+        if (app.rt_list[BUD][i].id == RTID) {
+            return app.rt_list[BUD][i].text;
+        }
+    }
+    return '';
+};
+
+//---------------------------------------------------------------------------------
+// cancelReservation - cancel the supplied RLID
+//
+// @params
+//     RLID = the Reservation ID
+//
+// @return
+//
+//---------------------------------------------------------------------------------
+window.cancelReservation = function(RLID) {
+    console.log("cancel RLID = " + RLID);
 };
