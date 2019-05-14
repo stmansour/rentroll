@@ -4,6 +4,7 @@
     getReservationInitRecord, reservationSrch, daysBetweenDates, switchToBookRes,
     getBookResInitRecord, resSaveCB, setToForm, setResUpdateRecordForUI,
     showReservationRentable, checkRentableAvailability, cancelReservation, getRTName,
+    closeResUpdateDialog, UTCstringToLocaltimeString,applyLocaltimeDateOffset,
 */
 
 "use strict";
@@ -56,12 +57,12 @@ window.buildResUpdateElements = function () {
                     return dateFmtStr(d); // if non-recur assessment then do nothing
                 },
             },
-            {field: 'FirstName',        caption: 'FirstName',       size: '90px', hidden: false, sortable: true },
-            {field: 'LastName',         caption: 'LastName',        size: '90px', hidden: false, sortable: true },
+            {field: 'FirstName',        caption: 'FirstName',       size: '90px',  hidden: false, sortable: true },
+            {field: 'LastName',         caption: 'LastName',        size: '90px',  hidden: false, sortable: true },
             {field: 'Email',            caption: 'Email',           size: '175px', hidden: false, sortable: true },
             {field: 'Phone',            caption: 'Phone',           size: '100px', hidden: false, sortable: true },
-            {field: 'RentableName',     caption: 'RentableName',    size: '100px', hidden: false, sortable: true },
-            {field: 'Name',             caption: 'Name',            size: '5%', hidden: false, sortable: true },
+            {field: 'RentableName',     caption: 'Rentable Name',   size: '100px', hidden: false, sortable: true },
+            {field: 'Name',             caption: 'Rentable Type',   size: '5%',    hidden: false, sortable: true },
                 ],
         onClick: function(event) {
             event.onComplete = function () {
@@ -78,7 +79,16 @@ window.buildResUpdateElements = function () {
                 });
             };
         },
-
+        onLoad: function() {
+            var r = this.records;
+            var s;
+            for (var i = 0; i < r.length; i++) {
+                s = UTCstringToLocaltimeString(r[i].DtStart);
+                r[i].DtStart = s;
+                s = UTCstringToLocaltimeString(r[i].DtStop);
+                r[i].DtStop = s;
+            }
+        },
         onRequest: function(/*event*/) {
             w2ui.expenseGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
         },
@@ -186,8 +196,7 @@ window.buildResUpdateElements = function () {
                 case 'btnClose':
                     var no_callBack = function() { return false; },
                         yes_callBack = function() {
-                            w2ui.toplayout.hide('right',true);
-                            w2ui.resUpdateGrid.render();
+                            closeResUpdateDialog();
                         };
                     form_dirty_alert(yes_callBack, no_callBack);
                     break;
@@ -328,7 +337,18 @@ window.buildResUpdateElements = function () {
                 return;
             };
         },
-
+        onLoad: function() {
+            // Since we deal with dates only here, we have to be careful with the
+            // hours conversion between UTC (which is supplied from the server)
+            // and localtime which is used by Javascript.  Convert the date strings
+            // to localtime...
+            //---------------------------------------------------------------------
+            var r = this.record;
+            var dt = new Date(r.DtStart);  // input is UTC string
+            r.DtStart = dt.toString(); // localtime string
+            dt = new Date(r.DtStop);
+            r.DtStop = dt.toString();
+        },
         onRequest: function(/*event*/) {
             w2ui.expenseGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
         },
@@ -371,17 +391,63 @@ window.buildResUpdateElements = function () {
                 var BUD = getBUDfromBID(BID);
                 var f = w2ui.resUpdateForm;
                 var r = f.record;
-                f.url = '/v1/reservation/' + BID;
                 var rtid = r.rdRTID.id;
                 r.LeaseStatus = 2; // 2 = Reserved
                 r.rdRTID = rtid;
                 if (typeof r.RID === "undefined") {
                     r.RID = 0;
                 }
-                //this.save({},resSaveCB);
 
-                // w2ui.rentablesGrid.selectNone();
-                // saveRentableCore(finishRentableSave);
+                if (r.RID == 0) {
+                    f.error("You must select a specific " + app.sRentable);
+                    return;
+                }
+                f.url = '/v1/reservation/' + BID + '/' + r.RID;
+                var d1 = applyLocaltimeDateOffset(new Date(r.DtStart));
+                var d2 = applyLocaltimeDateOffset(new Date(r.DtStop));
+
+                var res = {
+                    rdBID: BID,
+                    DtStart: d1.toUTCString(),
+                    DtStop: d2.toUTCString(),
+                    RLID: r.RLID,
+                    RTRID: r.RTRID,
+                    rdRTID: rtid,
+                    RID: r.RID,
+                    LeaseStatus: r.LeaseStatus,
+                    RentableName: r.RentableName,
+                    FirstName: r.FirstName,
+                    LastName: r.LastName,
+                    Email: r.Email,
+                    Phone: r.Phone,
+                    Street: r.Street,
+                    City: r.City,
+                    Country: r.Country,
+                    State: r.State,
+                    PostalCode: r.PostalCode,
+                    CCName: r.CCName,
+                    CCType: r.CCType,
+                    CCNumber: r.CCNumber,
+                    CCExpMonth: r.CCExpMonth,
+                    CCExpYear: r.CCExpYear,
+                    ConfirmationCode: r.ConfirmationCode,
+                    Comment: r.Comment,
+                };
+                var params = {cmd: "save", record: res};
+                var dat = JSON.stringify(params);
+
+                $.post(f.url, dat, null, "json")
+                .done(function(data) {
+                    if (data.status === "error") {
+                        f.error(w2utils.lang(data.message));
+                        return;
+                    }
+                    closeResUpdateDialog();
+                })
+                .fail(function(/*data*/){
+                    f.error("Save Reservation failed.");
+                    return;
+                });
             },
 
             saveadd: function () {
@@ -503,4 +569,16 @@ window.getRTName = function(RTID) {
 //---------------------------------------------------------------------------------
 window.cancelReservation = function(RLID) {
     console.log("cancel RLID = " + RLID);
+};
+//---------------------------------------------------------------------------------
+// closeResUpdateDialog - closes the form
+//
+// @params
+//
+// @return
+//
+//---------------------------------------------------------------------------------
+window.closeResUpdateDialog = function() {
+    w2ui.toplayout.hide('right',true);
+    w2ui.resUpdateGrid.render();
 };

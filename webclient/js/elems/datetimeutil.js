@@ -6,6 +6,50 @@
 */
 
 //-----------------------------------------------------------------------------
+//
+//                   TIMEZONE CONVERSION  UTILITIES
+//
+//-----------------------------------------------------------------------------
+window.UTCstringToLocaltimeString = function(u) {
+    var x = new Date(u);
+    return x.toString();  // this will be a localtime value
+};
+
+// applyLocaltimeDateOffset returns a date with the hours properly adjusted so
+// that the UTC dates are at 00:00:00.  This can be useful when working with
+// dates so that you don't lose or gain days due to editing accross timezones.
+// Example:
+//    4/30/2019 00:00:00 UTC is equivalent to  4/29/2019 17:00:00 GMT-0700
+//    If your browser is in localtime GMT-0700 and you load the date into
+//    a UI date control that ONLY MAINTAINS THE DATE (not the time), then
+//    what hours:mins:secs should you use when you get an updated date and
+//    send it back to the server -- which requires the input to be in UTC.
+//    Suppose you just set that date into your UI date control and didn't
+//    change it.  When you retrieve it from the UI, you only get 4/29/2019
+//    No hours, mins, or secs.  That is: 4/29/2019 00:00:00. Translate that
+//    to UTC and you get 4/29/2019 07:00:00 which is 10 hours different from
+//    its initial value. Repeat this operation several times and the date
+//    will start to decrease to 28, then 27, etc.
+// To address this, we adopt the standard to always make the UTC hrs, mins,
+// and secs equal 00:00:00 for DATE-ONLY datetime values. This ensures that
+// changes across timezones will keep the dates from drifting.
+//
+// INPUTS
+//    d = a datevalue with the time assumed to be 00:00:00
+//
+// RETURNS
+//    the adjusted date such that when it is converted to UTC, its hrs:mins:secs
+//    will be 00:00:00
+//------------------------------------------------------------------------------
+window.applyLocaltimeDateOffset = function(d) {
+    var m = d.getTimezoneOffset();
+    if (m > 0) {
+        return new Date(d.getFullYear(),d.getMonth(),d.getDate(),0,(1440-m));
+    }
+    return new Date(d.getFullYear(),d.getMonth(),d.getDate(),0,m);
+};
+
+//-----------------------------------------------------------------------------
 // daysBetweenDates - returns the number of days between 2 dates.
 //
 // @params

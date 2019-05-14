@@ -389,9 +389,13 @@ func saveReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		ConfirmationCode: rlib.GenerateUserRefNo(),
 	}
 
+	// rlib.Console("***  BEFORE EDI updates:  %s\n", rlib.ConsoleDRange(&rls.DtStart, &rls.DtStop))
+	// rlib.EDIHandleIncomingDateRange(rls.BID, &rls.DtStart, &rls.DtStop)
+	// rlib.Console("***  AFTER EDI updates:   %s\n", rlib.ConsoleDRange(&rls.DtStart, &rls.DtStop))
+
 	err = rlib.SetRentableLeaseStatus(ctx, &rls, false)
 	if err != nil {
-		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
+		e := fmt.Errorf("Error in SetRentableLeaseStatus:  %s", err.Error())
 		SvcErrorReturn(w, e, funcname)
 		return
 	}

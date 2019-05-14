@@ -64,8 +64,8 @@ func SetRentableLeaseStatusAbbr(ctx context.Context, bid, rid, us int64, d1, d2 
 //     x -bool  PURGE IT
 //-----------------------------------------------------------------------------
 func SetRentableLeaseStatus(ctx context.Context, rls *RentableLeaseStatus, x bool) error {
-	// funcname := "SetRentableLeaseStatus"
-	// Console("\nEntered %s.  range = %s, LeaseStatus = %d\n", funcname, ConsoleDRange(&rls.DtStart, &rls.DtStop), rls.LeaseStatus)
+	funcname := "SetRentableLeaseStatus"
+	Console("\nEntered %s.  range = %s, LeaseStatus = %d\n", funcname, ConsoleDRange(&rls.DtStart, &rls.DtStop), rls.LeaseStatus)
 
 	var err error
 	var b []RentableLeaseStatus
@@ -76,21 +76,21 @@ func SetRentableLeaseStatus(ctx context.Context, rls *RentableLeaseStatus, x boo
 		return err
 	}
 
-	// Console("%s: Range = %s    found %d records\n", funcname, ConsoleDRange(&d1, &d2), len(a))
+	Console("%s: Range = %s    found %d records\n", funcname, ConsoleDRange(&d1, &d2), len(a))
 
 	//--------------------------------------------------------------------------
 	// Remove any status records that are fully encompassed by rls.
 	//--------------------------------------------------------------------------
 	for i := 0; i < len(a); i++ {
-		// Console("i = %d, RLID = %d\n", i, a[i].RLID)
+		Console("i = %d, RLID = %d\n", i, a[i].RLID)
 		if (d1.Before(a[i].DtStart) || d1.Equal(a[i].DtStart)) &&
 			(d2.After(a[i].DtStop) || d2.Equal(a[i].DtStop)) {
-			// Console("%s: deleting RLID = %d ------------------------------------\n", funcname, a[i].RLID)
+			Console("%s: deleting RLID = %d ------------------------------------\n", funcname, a[i].RLID)
 			if err = DeleteRentableLeaseStatus(ctx, a[i].RLID); err != nil {
 				return err
 			}
 		} else {
-			// Console("Appending RLID=%d to a[]\n", a[i].RLID)
+			Console("Appending RLID=%d to a[]\n", a[i].RLID)
 			b = append(b, a[i])
 		}
 	}
@@ -108,7 +108,8 @@ func SetRentableLeaseStatus(ctx context.Context, rls *RentableLeaseStatus, x boo
 	// CASE 1  -  after simplification, there is overlap on only one record
 	//------------------------------------------------------------------------
 	if len(b) == 1 {
-		match := b[0].LeaseStatus == rls.LeaseStatus
+		// match := b[0].LeaseStatus == rls.LeaseStatus
+		match := RentableLeaseStatusCompare(&b[0], rls)
 		before := b[0].DtStart.Before(d1)
 		after := b[0].DtStop.After(d2)
 		if match {
@@ -119,7 +120,7 @@ func SetRentableLeaseStatus(ctx context.Context, rls *RentableLeaseStatus, x boo
 			//      rls:      @@@@@@@@@@@@
 			//   Result: @@@@@@@@@@@@@@@@@@@@@
 			//-----------------------------------------------
-			// Console("%s: Case 1a\n", funcname)
+			Console("%s: Case 1a\n", funcname)
 			if !before {
 				b[0].DtStart = d1
 			}
@@ -137,7 +138,7 @@ func SetRentableLeaseStatus(ctx context.Context, rls *RentableLeaseStatus, x boo
 			//      rls:      ############
 			//   Result: @@@@@############@@@@
 			//-----------------------------------------------
-			// Console("%s: Case 1b\n", funcname)
+			Console("%s: Case 1b\n", funcname)
 			n := b[0]
 			n.DtStart = d2
 			if _, err = InsertRentableLeaseStatus(ctx, &n); err != nil {
@@ -156,7 +157,7 @@ func SetRentableLeaseStatus(ctx context.Context, rls *RentableLeaseStatus, x boo
 			//     b[0]:       ##########
 			//   Result: @@@@@@@@@@@@####
 			//-----------------------------------------------
-			// Console("%s: Case 1c\n", funcname)
+			Console("%s: Case 1c\n", funcname)
 			b[0].DtStart = d2
 			if err = UpdateRentableLeaseStatus(ctx, &b[0]); err != nil {
 				return err
@@ -170,13 +171,13 @@ func SetRentableLeaseStatus(ctx context.Context, rls *RentableLeaseStatus, x boo
 			//     b[0]: ##########
 			//   Result: ####@@@@@@@@@@@@
 			//-----------------------------------------------
-			// Console("%s: Case 1d\n", funcname)
+			Console("%s: Case 1d\n", funcname)
 			b[0].DtStop = d1
 			if err = UpdateRentableLeaseStatus(ctx, &b[0]); err != nil {
 				return err
 			}
 		}
-		// Console("%s: Inserting %s LeaseStatus = %d\n", funcname, ConsoleDRange(&rls.DtStart, &rls.DtStop), rls.LeaseStatus)
+		Console("%s: Inserting %s LeaseStatus = %d\n", funcname, ConsoleDRange(&rls.DtStart, &rls.DtStop), rls.LeaseStatus)
 		_, err = InsertRentableLeaseStatus(ctx, rls)
 		return err
 	}
@@ -185,18 +186,20 @@ func SetRentableLeaseStatus(ctx context.Context, rls *RentableLeaseStatus, x boo
 	// CASE 2  -  after simplification, there is overlap with two records
 	//------------------------------------------------------------------------
 	if len(b) == 2 {
-		match0 := b[0].LeaseStatus == rls.LeaseStatus
-		match1 := b[1].LeaseStatus == rls.LeaseStatus
+		// match0 := b[0].LeaseStatus == rls.LeaseStatus
+		// match1 := b[1].LeaseStatus == rls.LeaseStatus
+		match0 := RentableLeaseStatusCompare(&b[0], rls)
+		match1 := RentableLeaseStatusCompare(&b[1], rls)
 		before := b[0].DtStart.Before(d1)
 		after := b[1].DtStop.After(d2)
-		// Console("%s: Case 2 and match0 = %t, match1 = %t\n", funcname, match0, match1)
+		Console("%s: Case 2 and match0 = %t, match1 = %t\n", funcname, match0, match1)
 		if match0 && match1 {
 			// Case 2a
 			// all are the same, merge them all into b[0], delete b[1]
 			//  b[0:1]   ********* ************
 			//  rls            *******
 			//  Result   **********************
-			// Console("%s: Case 2a All match\n", funcname)
+			Console("%s: Case 2a All match\n", funcname)
 			if !before {
 				b[0].DtStart = d1
 			}
@@ -216,7 +219,7 @@ func SetRentableLeaseStatus(ctx context.Context, rls *RentableLeaseStatus, x boo
 			//  b[0:1]   @@@@@@@@@@************
 			//  rls            #######
 			//  Result   @@@@@@#######*********
-			// Console("%s: Case 2b Both do not match\n", funcname)
+			Console("%s: Case 2b Both do not match\n", funcname)
 			if d1.After(b[0].DtStart) {
 				b[0].DtStop = d1
 				if err = UpdateRentableLeaseStatus(ctx, &b[0]); err != nil {
@@ -239,7 +242,7 @@ func SetRentableLeaseStatus(ctx context.Context, rls *RentableLeaseStatus, x boo
 			//  b[0:1]   @@@@@@@@@@************
 			//  rls            @@@@@@@
 			//  Result   @@@@@@@@@@@@@*********
-			// Console("%s: Case 2c b[0] matches\n", funcname)
+			Console("%s: Case 2c b[0] matches\n", funcname)
 			b[0].DtStop = d2
 			if err = UpdateRentableLeaseStatus(ctx, &b[0]); err != nil {
 				return err
@@ -254,7 +257,7 @@ func SetRentableLeaseStatus(ctx context.Context, rls *RentableLeaseStatus, x boo
 			//  b[0:1]   @@@@@@@@@@************
 			//  rls            *******
 			//  Result   @@@@@@****************
-			// Console("%s: Case 2d b[0] matches\n", funcname)
+			Console("%s: Case 2d b[0] matches\n", funcname)
 			b[1].DtStart = d1
 			if err = UpdateRentableLeaseStatus(ctx, &b[1]); err != nil {
 				return err
@@ -263,9 +266,98 @@ func SetRentableLeaseStatus(ctx context.Context, rls *RentableLeaseStatus, x boo
 			return UpdateRentableLeaseStatus(ctx, &b[0])
 		}
 
-		// Console("%s: UNHANDLED CASE???\n", funcname)
+		Console("%s: UNHANDLED CASE???\n", funcname)
 	}
 
 	return nil
 
+}
+
+// RentableLeaseStatusCompare a deep comparison of the two lease status structs
+//     on all fields EXCEPT dates and credit card info
+//
+// INPUTS
+//     a - pointer to one of the lease status structs
+//     b = a pointer to the other
+//
+// RETURNS
+//     true if the fields match, false otherwise
+//-----------------------------------------------------------------------------
+func RentableLeaseStatusCompare(a, b *RentableLeaseStatus) bool {
+	// if a.RID != b.RID {
+	// 	Console("*** MISCOMPARE on RID ***\n")
+	// }
+	// if a.BID != b.BID {
+	// 	Console("*** MISCOMPARE on BID ***\n")
+	// }
+	// if a.Comment != b.Comment {
+	// 	Console("*** MISCOMPARE on Comment ***\n")
+	// }
+	// if a.FirstName != b.FirstName {
+	// 	Console("*** MISCOMPARE on FirstName ***\n")
+	// }
+	// if a.LastName != b.LastName {
+	// 	Console("*** MISCOMPARE on LastName ***\n")
+	// }
+	// if a.Email != b.Email {
+	// 	Console("*** MISCOMPARE on Email ***\n")
+	// }
+	// if a.Phone != b.Phone {
+	// 	Console("*** MISCOMPARE on Phone ***\n")
+	// }
+	// if a.Address != b.Address {
+	// 	Console("*** MISCOMPARE on Address ***\n")
+	// }
+	// if a.Address2 != b.Address2 {
+	// 	Console("*** MISCOMPARE on Address2 ***\n")
+	// }
+	// if a.City != b.City {
+	// 	Console("*** MISCOMPARE on City ***\n")
+	// }
+	// if a.State != b.State {
+	// 	Console("*** MISCOMPARE on State ***\n")
+	// }
+	// if a.PostalCode != b.PostalCode {
+	// 	Console("*** MISCOMPARE on PostalCode ***\n")
+	// }
+	// if a.Country != b.Country {
+	// 	Console("*** MISCOMPARE on Country ***\n")
+	// }
+	// if a.CCName != b.CCName {
+	// 	Console("*** MISCOMPARE on CCName ***\n")
+	// }
+	// if a.CCType != b.CCType {
+	// 	Console("*** MISCOMPARE on CCType ***\n")
+	// }
+	// if a.CCNumber != b.CCNumber {
+	// 	Console("*** MISCOMPARE on CCNumber ***\n")
+	// }
+	// if a.CCExpMonth != b.CCExpMonth {
+	// 	Console("*** MISCOMPARE on CCExpMonth ***\n")
+	// }
+	// if a.ConfirmationCode != b.ConfirmationCode {
+	// 	Console("*** MISCOMPARE on ConfirmationCode ***\n")
+	// }
+	if a.RID != b.RID ||
+		a.BID != b.BID ||
+		a.Comment != b.Comment ||
+		a.FirstName != b.FirstName ||
+		a.LastName != b.LastName ||
+		a.Email != b.Email ||
+		a.Phone != b.Phone ||
+		a.Address != b.Address ||
+		a.Address2 != b.Address2 ||
+		a.City != b.City ||
+		a.State != b.State ||
+		a.PostalCode != b.PostalCode ||
+		a.Country != b.Country ||
+		a.CCName != b.CCName ||
+		a.CCType != b.CCType ||
+		a.CCNumber != b.CCNumber ||
+		a.CCExpMonth != b.CCExpMonth ||
+		a.ConfirmationCode != b.ConfirmationCode ||
+		a.LeaseStatus != b.LeaseStatus {
+		return false
+	}
+	return true
 }
