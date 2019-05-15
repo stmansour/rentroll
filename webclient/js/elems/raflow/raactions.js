@@ -528,7 +528,9 @@ window.loadRAActionTemplate = function() {
                         items: [
                             { id: 'btnBackToRA',    type: 'button',     icon: 'fas fa-angle-left', text: '' },
                             { id: 'bt3',            type: 'spacer' },
-                            { id: 'btnClose',       type: 'button',     icon: 'fas fa-times' }
+                            { id: 'btnVoid',        type: 'html'},
+                            {                       type: 'break' },
+                            { id: 'btnClose',       type: 'button',     icon: 'fas fa-times' },
                         ],
                         onClick: function (event) {
                             switch(event.target) {
@@ -573,6 +575,13 @@ window.loadRAActionTemplate = function() {
                     if (app.raflow.Flow.Data.meta.RAFLAGS & 0x7 == 6) {
                         $('button[name=updateAction]').attr('disabled',true);
                     }
+                    if (app.raflow.Flow.Data.meta.RAID >= 1 && app.raflow.version !== "refno") {
+                        w2ui.raActionLayout.get("top").toolbar.show('btnVoid');
+                        w2ui.raActionLayout.get("top").toolbar.set('btnVoid', {html: "<button onclick='voidRentalAgreement();' class='w2ui-btn' id='btnVoid' name='btnVoid' style='margin-right: 7px;'><i class='fas fa-ban'></i>&nbsp;&nbsp;Void</button>"});
+                    } else {
+                        w2ui.raActionLayout.get("top").toolbar.hide('btnVoid');
+                    }
+
                 };
             },
             onRender: function(event) {
@@ -587,6 +596,7 @@ window.loadRAActionTemplate = function() {
                         btnBackToRAText = "<p style='font-size: 10pt; margin: 0 5px;'>Back to <strong>" + UserRefNo + "</strong></p>";
                     }
                     layout.get("top").toolbar.set('btnBackToRA', {text: btnBackToRAText});
+
                     // REFRESH THE TOOLBAR TO GET THE EFFECT
                     layout.get("top").toolbar.refresh();
                 };
@@ -601,6 +611,15 @@ window.loadRAActionTemplate = function() {
 
     w2ui.newraLayout.show('right', true);
     w2ui.newraLayout.sizeTo('right', 950);
+};
+
+// voidRentalAgreement - this is a function that should only be called in the
+//     most dire circumstances. It will reverse all assessments associated with
+//     the rental agreement and mark it as
+window.voidRentalAgreement = function() {
+    var data = app.raflow.Flow.Data;
+
+    console.log('void RAID ' + data.meta.RAID);
 };
 
 // -------------------------------------------------------------------------------
