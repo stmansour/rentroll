@@ -524,8 +524,17 @@ func UpdatePayor(ctx context.Context, a *Payor) error {
 	}
 	d := hex.EncodeToString(d1)
 
-	fields := []interface{}{a.TCID, a.BID, a.CreditLimit, t, a.EligibleFuturePayor,
-		a.FLAGS, d, a.GrossIncome, a.LastModBy}
+	fields := []interface{}{
+		a.BID,
+		a.CreditLimit,
+		t, // encrypted TaxpayorID
+		a.EligibleFuturePayor,
+		a.FLAGS,
+		d, // encrypted DriversLicense
+		a.GrossIncome,
+		a.LastModBy,
+		a.TCID,
+	}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdatePayor)
 		defer stmt.Close()

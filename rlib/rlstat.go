@@ -323,6 +323,11 @@ func RentableLeaseStatusCompare(a, b *RentableLeaseStatus) bool {
 	// if a.Country != b.Country {
 	// 	Console("*** MISCOMPARE on Country ***\n")
 	// }
+	// if a.ConfirmationCode != b.ConfirmationCode {
+	// 	Console("*** MISCOMPARE on ConfirmationCode ***\n")
+	// }
+
+	/*
 	// if a.CCName != b.CCName {
 	// 	Console("*** MISCOMPARE on CCName ***\n")
 	// }
@@ -335,9 +340,8 @@ func RentableLeaseStatusCompare(a, b *RentableLeaseStatus) bool {
 	// if a.CCExpMonth != b.CCExpMonth {
 	// 	Console("*** MISCOMPARE on CCExpMonth ***\n")
 	// }
-	// if a.ConfirmationCode != b.ConfirmationCode {
-	// 	Console("*** MISCOMPARE on ConfirmationCode ***\n")
-	// }
+	*/
+
 	if a.RID != b.RID ||
 		a.BID != b.BID ||
 		a.Comment != b.Comment ||

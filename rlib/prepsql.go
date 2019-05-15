@@ -3,7 +3,9 @@ package rlib
 import
 // "fmt"
 
-"strings"
+(
+	"strings"
+)
 
 // Define all the SQL prepared statements.
 
@@ -716,6 +718,9 @@ WHERE RAID=? AND RID=? AND Start >= ? AND Stop < ? AND RentCycle=0 ORDER By Asse
 	_, _, s3, s4, s5 = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.InsertPayor, err = RRdb.Dbrr.Prepare("INSERT INTO Payor (" + s4 + ") VALUES(" + s5 + ")")
 	Errcheck(err)
+
+	Console("UpdatePayor sql = UPDATE Payor SET %s WHERE TCID=?\n", s3)
+
 	RRdb.Prepstmt.UpdatePayor, err = RRdb.Dbrr.Prepare("UPDATE Payor SET " + s3 + " WHERE TCID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.DeletePayor, err = RRdb.Dbrr.Prepare("DELETE from Payor WHERE TCID=?")

@@ -388,6 +388,7 @@ func SvcFormHandlerXPerson(w http.ResponseWriter, r *http.Request, d *ServiceDat
 
 func xpUpdatePerson(w http.ResponseWriter, r *http.Request, xp *rlib.XPerson) bool {
 	funcname := "xpUpdatePerson"
+	rlib.Console("Entered %s\n", funcname)
 	err := rlib.UpdateTransactant(r.Context(), &xp.Trn)
 	if err != nil {
 		e := fmt.Errorf("%s: UpdateTransactant error:  %s", funcname, err.Error())
@@ -409,12 +410,14 @@ func xpUpdatePerson(w http.ResponseWriter, r *http.Request, xp *rlib.XPerson) bo
 		return true
 	}
 
+	rlib.Console("Calling UpdatePayor, xp.Pay.CreditLimit = %6.2f\n", xp.Pay.CreditLimit)
 	err = rlib.UpdatePayor(r.Context(), &xp.Pay)
 	if err != nil {
 		e := fmt.Errorf("%s: UpdatePayor err.Pay %s", funcname, err.Error())
 		SvcErrorReturn(w, e, funcname)
 		return true
 	}
+	rlib.Console("successfully updated payor\n")
 	return false
 
 }
@@ -512,7 +515,7 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.MigrateStructVals(&gxp, &xp.Psp)
 	rlib.MigrateStructVals(&gxp, &xp.Pay)
 	rlib.Console("saveXPersonL Finished migration\n")
-
+	rlib.Console("CreditLimit = %6.2f, TaxpayorID = %s, GrossIncome = %6.2f, DriversLicense = %s\n", xp.Pay.CreditLimit, xp.Pay.TaxpayorID, xp.Pay.GrossIncome, xp.Pay.DriversLicense)
 	//---------------------------
 	// Handle all the list data
 	//---------------------------
