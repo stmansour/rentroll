@@ -166,7 +166,7 @@ func ReverseAssessment(ctx context.Context, aold *rlib.Assessment, mode int, dt 
 		if aold.PASMID != 0 {
 			epoch, err = rlib.GetAssessment(ctx, aold.PASMID)
 			if err != nil {
-				rlib.Console("EXITING ReverseAssessment.  PT 1\n")
+				// rlib.Console("EXITING ReverseAssessment.  PT 1\n")
 				return bizErrSys(&err)
 			}
 		} else {
@@ -177,7 +177,7 @@ func ReverseAssessment(ctx context.Context, aold *rlib.Assessment, mode int, dt 
 		// If it is not recurring then reverse it and we're done
 		//---------------------------------------------------------
 		if epoch.RentCycle == rlib.RECURNONE {
-			rlib.Console("EXITING ReverseAssessment.  PT 2\n")
+			// rlib.Console("EXITING ReverseAssessment.  PT 2\n")
 			return ReverseAssessmentInstance(ctx, &epoch, dt, lc)
 		}
 
@@ -186,32 +186,32 @@ func ReverseAssessment(ctx context.Context, aold *rlib.Assessment, mode int, dt 
 		//---------------------------------------------------------
 		inst, err = rlib.GetAssessmentFirstInstance(ctx, epoch.ASMID)
 		if err != nil {
-			rlib.Console("EXITING ReverseAssessment.  PT 3\n")
+			// rlib.Console("EXITING ReverseAssessment.  PT 3\n")
 			return bizErrSys(&err)
 		}
 		if inst.ASMID > 0 { // only need to do the following if any instances have been created
-			rlib.Console("*** -- GetAssesmentFirstInstance returns: ASMID = %d\n", inst.ASMID)
-			rlib.Console("*** -- Calling ReverseAssessmentGoingFwd(ctx, asmid=%d)\n", inst.ASMID)
+			// rlib.Console("*** -- GetAssesmentFirstInstance returns: ASMID = %d\n", inst.ASMID)
+			// rlib.Console("*** -- Calling ReverseAssessmentGoingFwd(ctx, asmid=%d)\n", inst.ASMID)
 			errlist = ReverseAssessmentsGoingForward(ctx, &inst, &inst.Start, dt, lc) // reverse from start of recurring instances forward
 			if len(errlist) > 0 {
-				rlib.Console("EXITING ReverseAssessment.  PT 4\n")
+				// rlib.Console("EXITING ReverseAssessment.  PT 4\n")
 				return errlist
 			}
 		}
 		epoch.FLAGS |= 0x4 // mark that this is void
 		err = rlib.UpdateAssessment(ctx, &epoch)
 		if err != nil {
-			rlib.Console("EXITING ReverseAssessment.  PT 5\n")
+			// rlib.Console("EXITING ReverseAssessment.  PT 5\n")
 			return bizErrSys(&err)
 		}
 
 	default:
 		err := fmt.Errorf("%s:  unsupported mode: %d", funcname, mode)
 		rlib.LogAndPrintError(funcname, err)
-		rlib.Console("EXITING ReverseAssessment.  PT 6\n")
+		// rlib.Console("EXITING ReverseAssessment.  PT 6\n")
 		return bizErrSys(&err)
 	}
-	rlib.Console("EXITING ReverseAssessment\n")
+	// rlib.Console("EXITING ReverseAssessment\n")
 	return errlist
 }
 

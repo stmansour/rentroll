@@ -139,6 +139,8 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetAssessmentsByRAIDRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE (RentCycle=0  OR (RentCycle>0 AND PASMID>0)) AND RAID=? AND Stop>=? AND Start<? ORDER By Start ASC, Amount DESC")
 	Errcheck(err)
+	RRdb.Prepstmt.GetAllRAIDAssessments, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE RAID=? ORDER By Start ASC, Amount DESC")
+	Errcheck(err)
 	RRdb.Prepstmt.GetInstancesByDateRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE PASMID=? AND Stop>=? AND Start<? ORDER By Start ASC, Amount DESC")
 	Errcheck(err)
 	RRdb.Prepstmt.GetASMInstancesByRIDandDateRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE ((PASMID=0 AND RentCycle=0) OR (PASMID>0 AND RentCycle>0)) AND Stop>=? AND Start<? ORDER By Start ASC, Amount DESC")
@@ -719,7 +721,7 @@ WHERE RAID=? AND RID=? AND Start >= ? AND Stop < ? AND RentCycle=0 ORDER By Asse
 	RRdb.Prepstmt.InsertPayor, err = RRdb.Dbrr.Prepare("INSERT INTO Payor (" + s4 + ") VALUES(" + s5 + ")")
 	Errcheck(err)
 
-	Console("UpdatePayor sql = UPDATE Payor SET %s WHERE TCID=?\n", s3)
+	// Console("UpdatePayor sql = UPDATE Payor SET %s WHERE TCID=?\n", s3)
 
 	RRdb.Prepstmt.UpdatePayor, err = RRdb.Dbrr.Prepare("UPDATE Payor SET " + s3 + " WHERE TCID=?")
 	Errcheck(err)

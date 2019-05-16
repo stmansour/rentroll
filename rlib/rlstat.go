@@ -40,9 +40,8 @@ func LeaseStatusString(ls int64) string {
 //     us  - new lease status
 //     d1  - start time for status us
 //     d2  - stop time for status us
-//     res - *** REMOVE THIS *** if true, all the records beginning at d1 will be set to RESERVED
 //-----------------------------------------------------------------------------
-func SetRentableLeaseStatusAbbr(ctx context.Context, bid, rid, us int64, d1, d2 *time.Time, res bool) error {
+func SetRentableLeaseStatusAbbr(ctx context.Context, bid, rid, us int64, d1, d2 *time.Time) error {
 	var b = RentableLeaseStatus{
 		RID:         rid,
 		BID:         bid,
@@ -52,7 +51,7 @@ func SetRentableLeaseStatusAbbr(ctx context.Context, bid, rid, us int64, d1, d2 
 		LeaseStatus: us,
 	}
 
-	return SetRentableLeaseStatus(ctx, &b, res)
+	return SetRentableLeaseStatus(ctx, &b)
 }
 
 // SetRentableLeaseStatus implements the proper insertion of a use status
@@ -61,9 +60,8 @@ func SetRentableLeaseStatusAbbr(ctx context.Context, bid, rid, us int64, d1, d2 
 // INPUTS
 //     ctx - db context
 //     rls - the new use status structure
-//     x -bool  PURGE IT
 //-----------------------------------------------------------------------------
-func SetRentableLeaseStatus(ctx context.Context, rls *RentableLeaseStatus, x bool) error {
+func SetRentableLeaseStatus(ctx context.Context, rls *RentableLeaseStatus) error {
 	funcname := "SetRentableLeaseStatus"
 	Console("\nEntered %s.  range = %s, LeaseStatus = %d\n", funcname, ConsoleDRange(&rls.DtStart, &rls.DtStop), rls.LeaseStatus)
 
@@ -328,18 +326,18 @@ func RentableLeaseStatusCompare(a, b *RentableLeaseStatus) bool {
 	// }
 
 	/*
-	// if a.CCName != b.CCName {
-	// 	Console("*** MISCOMPARE on CCName ***\n")
-	// }
-	// if a.CCType != b.CCType {
-	// 	Console("*** MISCOMPARE on CCType ***\n")
-	// }
-	// if a.CCNumber != b.CCNumber {
-	// 	Console("*** MISCOMPARE on CCNumber ***\n")
-	// }
-	// if a.CCExpMonth != b.CCExpMonth {
-	// 	Console("*** MISCOMPARE on CCExpMonth ***\n")
-	// }
+		// if a.CCName != b.CCName {
+		// 	Console("*** MISCOMPARE on CCName ***\n")
+		// }
+		// if a.CCType != b.CCType {
+		// 	Console("*** MISCOMPARE on CCType ***\n")
+		// }
+		// if a.CCNumber != b.CCNumber {
+		// 	Console("*** MISCOMPARE on CCNumber ***\n")
+		// }
+		// if a.CCExpMonth != b.CCExpMonth {
+		// 	Console("*** MISCOMPARE on CCExpMonth ***\n")
+		// }
 	*/
 
 	if a.RID != b.RID ||

@@ -347,8 +347,7 @@ window.ChangeRAFlowVersionToolbar = function(version, RAID, RefNo, FLAGS) {
             break;
 
         case "refno":
-            idString = "<p style='margin:0 10px; font-size: 12pt;'><strong>" + RefNo + "</strong></p>";
-            editViewBtnHTML = "<button class='w2ui-btn' id='edit_view_raflow' name='edit_view_raflow'><i class='fas fa-eye fa-sm' style='margin-right: 7px;'></i>" + (RAID ? "View RA" + RAID : "") + "</button>";
+            idString = "<p style='margin:0 10px; font-size: 12pt;'><strong>" + RefNo + "</strong></p>";            editViewBtnHTML = "<button class='w2ui-btn' id='edit_view_raflow' name='edit_view_raflow'><i class='fas fa-eye fa-sm' style='margin-right: 7px;'></i>" + (RAID ? "View RA" + RAID : "") + "</button>";
             versionMode = "Editing";
             btnBackToRAText = "Back to " + RefNo;
 

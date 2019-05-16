@@ -281,7 +281,8 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 	case
 		rlib.RAActionCompleteMoveIn,
 		rlib.RAActionReceivedNoticeToMove,
-		rlib.RAActionTerminate:
+		rlib.RAActionTerminate,
+		rlib.RAActionVoid:
 
 		ApplicationReadyName, _ := rlib.GetDirectoryPerson(ctx, ra.ApplicationReadyUID)
 		MoveInName, _ := rlib.GetDirectoryPerson(ctx, ra.MoveInUID)
@@ -369,13 +370,17 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 			if err = TerminateRentalAgreement(ctx, &ra); err != nil {
 				return flow, err
 			}
+		} else if Action == rlib.RAActionVoid {
+			if err = VoidRentalAgreement(ctx, &ra); err != nil {
+				return flow, err
+			}
+
 		} else {
 			// UPDATE RA in REAL TABLE
 			err = rlib.UpdateRentalAgreement(ctx, &ra)
 			if err != nil {
 				return flow, err
 			}
-
 		}
 
 		// EditFlag should be set to true only when we're creating a Flow that
@@ -405,17 +410,210 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 			CreateBy:  0,
 			LastModBy: 0,
 		}
+
 	}
 
 	// RETURN FLOW
 	return flow, nil
 }
 
+// VoidRentalAgreement is called when an active RA is set to the terminated
+// state. It will stop assessments, update User / payor references to end on the
+// termination date, and it will update the LeaseStatus for the time after the
+// Termination Date.  This is a simpler scenario than what happens in Flow2RA().
+// It will terminate on the date set in ra.TerminationDate.
+//
+// It can also be invoked with the Void command from the UI.
+//
+// A Rental Agreement cannot be voided if there are ANY assessment instances
+// in a closed period.
+//
+// INPUTS
+//    ctx  - db context
+//    ra   - rental agreement struct for terminated RA
+//
+// RETURNS
+//    any errors encountered
+//------------------------------------------------------------------------------
+func VoidRentalAgreement(ctx context.Context, ra *rlib.RentalAgreement) (err error) {
+	var lc rlib.ClosePeriod
+	var m []rlib.Assessment
+	rlib.Console("Entered VoidRentalAgreement\n")
+	now := time.Now()
+	lastClose := rlib.TIME0
+	if lc, err = rlib.GetLastClosePeriod(ctx, ra.BID); err != nil {
+		return
+	}
+	if lc.CPID > 0 {
+		lastClose = lc.Dt
+	}
+
+	//----------------------------------------------------------------
+	// Get all assessments associated with this RA...
+	//----------------------------------------------------------------
+	if m, err = rlib.GetAllRAIDAssessments(ctx, ra.RAID); err != nil {
+		return
+	}
+
+	//----------------------------------------------------------------
+	// Make sure all instances are after the last close dt...
+	//----------------------------------------------------------------
+	for _, v := range m {
+		if v.PASMID > 0 || (v.PASMID == 0 && v.RentCycle == 0) {
+			if v.Start.Before(lastClose) {
+				err = fmt.Errorf("Error - RAID %d cannot be voided as it contains 1 or more assessments in a closed financial period", ra.RAID)
+				return
+			}
+		}
+	}
+
+	//----------------------------------------------------------------
+	// fix lease status for all RA rentables. do this before removing
+	// the records in RentalAgreementRentables and prior to changing
+	// any dates in the rental agreement...
+	//----------------------------------------------------------------
+	d1 := rlib.Earliest(&ra.PossessionStart, &ra.RentStart)
+	d2 := rlib.Latest(&ra.PossessionStop, &ra.RentStop)
+	rlib.Console("calling SetLeaseStatusPostVoid  d1,d2 = %s\n", rlib.ConsoleDRange(&d1, &d2))
+	if err = SetLeaseStatusPostVoid(ctx, ra.BID, ra.RAID, &d1, &d2); err != nil {
+		return
+	}
+
+	//----------------------------------------------------------------
+	// If we get this far, then it's ok to void the RA
+	//----------------------------------------------------------------
+	var xbiz rlib.XBusiness
+	if err = rlib.InitBizInternals(ra.BID, &xbiz); err != nil {
+		return err
+	}
+
+	ra.TerminationStarted = now
+	ra.TerminationDate = now
+	ra.FLAGS &= ^uint64(0xf)
+	ra.FLAGS |= rlib.RASTATETerminated
+	// ra.FLAGS |= 1 << 6 // this marks that it has been voided // had to remove -- reversed assessments may show up
+	ra.LeaseTerminationReason = rlib.RRdb.BizTypes[ra.BID].Msgs.S[rlib.MSGRAVOIDED].SLSID
+
+	if err = rlib.UpdateRentalAgreement(ctx, ra); err != nil {
+		return
+	}
+
+	//----------------------------------------------------------------
+	// Reverse all assessments...
+	//----------------------------------------------------------------
+	for _, v := range m {
+		if v.PASMID == 0 && v.RentCycle > 0 { // recurring definition?
+			if v.Stop.After(now) {
+				v.Stop = rlib.Latest(&now, &v.Start) // stop it ASAP
+			}
+		}
+		if v.PASMID == 0 || (v.PASMID == 0 && v.RentCycle == 0) { // recurring definitions and non-recurring instances
+			if be := bizlogic.ReverseAssessment(ctx, &v, 2 /*all instances*/, &now, &lc); len(be) > 0 {
+				err = bizlogic.BizErrorListToError(be)
+				return
+			}
+		}
+		rlib.Console("Reversed ASMID = %d\n", v.ASMID)
+	}
+
+	//----------------------------------------------------------------
+	// Remove the users / payors from any obligations....
+	//----------------------------------------------------------------
+	// will skip this for now... this is our only record of associated people
+
+	//----------------------------------------------------------------
+	// Remove the references in RentalAgreementRentables...
+	//----------------------------------------------------------------
+	var tx *sql.Tx
+	var ok bool
+	if tx, ok = rlib.DBTxFromContext(ctx); !ok {
+		return fmt.Errorf("Could not get transaction info from context")
+	}
+	qry := fmt.Sprintf("DELETE from RentalAgreementRentables WHERE RAID=%d;", ra.RAID)
+	_, err = tx.Exec(qry)
+	return
+}
+
+// SetLeaseStatusPostVoid sets the lease status for the time immediately
+// following a newly voided RentalAgreement.  It sets the lease status
+// for all Rentables associated with the RentalAgreement
+//
+// INPUTS
+//    ctx  - db context
+//    bid  - the business unit
+//   raid  - the rental agreement being voided
+//     d1  - start time of new lease status record -- the time stop time of
+//           the RA that is being voided.
+//     d2  - the original stop time of the RA being voided. May be the
+//           same as d1 if the termination is because the RA has run its full
+//           term.  It will be prior to d1 if the termination is for other
+//           reasons (eviction, failure to pay, job transfer, etc.)
+//
+// RETURNS
+//    any errors encountered
+//-----------------------------------------------------------------------------
+func SetLeaseStatusPostVoid(ctx context.Context, bid, raid int64, d1, d2 *time.Time) error {
+	var lsNext rlib.RentableLeaseStatus
+	var rarl []rlib.RentalAgreementRentable
+	var err error
+
+	rlib.Console("Entered SetLeaseStatusPostVoid: d1,d2 = %s\n", rlib.ConsoleDRange(d1, d2))
+
+	// Find all rentables in the old rental agreement
+	rarl, err = rlib.GetAllRentalAgreementRentables(ctx, raid)
+	if err != nil {
+		return err
+	}
+
+	for _, v := range rarl {
+		var l = rlib.RentableLeaseStatus{
+			BID:         bid,
+			DtStart:     *d1,
+			DtStop:      rlib.ENDOFTIME,
+			LeaseStatus: int64(rlib.LEASESTATUSnotleased),
+			RID:         v.RID,
+		}
+		if lsNext, err = GetRentableStatusOnOrAfter(ctx, v.RID, d2); err != nil {
+			return err
+		}
+		rlib.Console("RID = %d, Found RentableLeaseStatus: RLID = %d, LeaseStatus = %d,  %s\n", v.RID, lsNext.RLID, lsNext.LeaseStatus, rlib.ConsoleDRange(&lsNext.DtStart, &lsNext.DtStop))
+
+		if lsNext.RLID > 0 {
+			l.DtStop = lsNext.DtStart
+			//--------------------------------------------------------------------------------
+			// if lsNext is reserved, we need to unreserve it here because we have cancelled
+			// the RentalAgreement in front of it that caused it to be reserved.
+			//--------------------------------------------------------------------------------
+			if lsNext.LeaseStatus == rlib.LEASESTATUSreserved && len(lsNext.FirstName) == 0 && len(lsNext.LastName) == 0 {
+				lsNext.LeaseStatus = rlib.LEASESTATUSnotleased
+				if err = rlib.UpdateRentableLeaseStatus(ctx, &lsNext); err != nil {
+					return err
+				}
+			}
+
+			//------------------------------------------------------------------
+			// If the next lease status is NotLeased we can set the stop date
+			// of our new lease status.
+			//------------------------------------------------------------------
+			if lsNext.LeaseStatus == rlib.LEASESTATUSnotleased {
+				l.DtStop = lsNext.DtStop
+			}
+		}
+		if err = rlib.SetRentableLeaseStatus(ctx, &l); err != nil {
+			return err
+		}
+
+	}
+	return nil
+}
+
 // TerminateRentalAgreement is called when an active RA is set to the terminated
 // state. It will stop assessments, update User / payor references to end on the
 // termination date, and it will update the LeaseStatus for the time after the
 // Termination Date.  This is a simpler scenario than what happens in Flow2RA().
-// It will terminate on the date set in ra.TerminationDate
+// It will terminate on the date set in ra.TerminationDate.
+//
+// It can also be invoked with the Void command from the UI.
 //
 // INPUTS
 //    ctx  - db context
@@ -461,9 +659,9 @@ func TerminateRentalAgreement(ctx context.Context, ra *rlib.RentalAgreement) err
 	}
 
 	//--------------------------------------------------------------------------
-	//  Update Payors with changed end date
+	//  Update RentalAgreementRentables records
 	//--------------------------------------------------------------------------
-	qry = fmt.Sprintf("UPDATE RentalAgreementPayors SET DtStop=%q,LastModBy=%d WHERE RAID=%d AND DtStop>%q;",
+	qry = fmt.Sprintf("UPDATE RentalAgreementRentables SET RARDtStop=%q,LastModBy=%d WHERE RAID=%d AND RARDtStop>%q;",
 		ra.RentStop.Format(rlib.RRDATETIMESQL), sess.UID, ra.RAID, ra.RentStop.Format(rlib.RRDATETIMESQL))
 	if _, err = tx.Exec(qry); err != nil {
 		return err
@@ -489,9 +687,7 @@ func TerminateRentalAgreement(ctx context.Context, ra *rlib.RentalAgreement) err
 	//--------------------------------------------------------------------------
 	//  Look at the Lease Status following the stop date. Adjust if necessary.
 	//--------------------------------------------------------------------------
-	SetLeaseStatusPostStop(ctx, ra.BID, ra.RAID, &ra.TerminationDate, &origStopDate)
-
-	return nil
+	return SetLeaseStatusPostVoid(ctx, ra.BID, ra.RAID, &ra.TerminationDate, &origStopDate)
 }
 
 func handleRefNoVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequest, raFlowData rlib.RAFlowJSONData) (RAFlowResponse, error) {

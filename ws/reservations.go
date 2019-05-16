@@ -393,7 +393,7 @@ func saveReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// rlib.EDIHandleIncomingDateRange(rls.BID, &rls.DtStart, &rls.DtStop)
 	// rlib.Console("***  AFTER EDI updates:   %s\n", rlib.ConsoleDRange(&rls.DtStart, &rls.DtStop))
 
-	err = rlib.SetRentableLeaseStatus(ctx, &rls, false)
+	err = rlib.SetRentableLeaseStatus(ctx, &rls)
 	if err != nil {
 		e := fmt.Errorf("Error in SetRentableLeaseStatus:  %s", err.Error())
 		SvcErrorReturn(w, e, funcname)

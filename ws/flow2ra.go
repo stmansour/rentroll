@@ -504,7 +504,7 @@ func FlowSaveRA(ctx context.Context, x *rlib.F2RAWriteHandlerContext) (int64, er
 				x.RaChainOrig[i].FLAGS |= rlib.RAActionTerminate // set the state to Terminated
 				idx := rlib.MSGRAUPDATED
 				if cancelled {
-					idx = rlib.MSGRACANCELLED
+					idx = rlib.MSGRAVOIDED
 				}
 				x.RaChainOrig[i].LeaseTerminationReason =
 					rlib.RRdb.BizTypes[x.RaChainOrig[i].BID].Msgs.S[idx].SLSID // "Rental Agreement was updated"
@@ -744,6 +744,8 @@ func SetLeaseStatusPostStop(ctx context.Context, bid, raid int64, d1, d2 *time.T
 	var rarl []rlib.RentalAgreementRentable
 	var err error
 
+	rlib.Console("Entered SetLeaseStatusPostStop: d1,d2 = %s\n", rlib.ConsoleDRange(d1, d2))
+
 	// Find all rentables in the old rental agreement
 	rarl, err = rlib.GetAllRentalAgreementRentables(ctx, raid)
 	if err != nil {
@@ -761,23 +763,30 @@ func SetLeaseStatusPostStop(ctx context.Context, bid, raid int64, d1, d2 *time.T
 		if lsNext, err = GetRentableStatusOnOrAfter(ctx, v.RID, d2); err != nil {
 			return err
 		}
-		// rlib.Console("Found RentableLeaseStatus: RLID = %d, LeaseStatus = %d,  %s\n", lsNext.RLID, lsNext.LeaseStatus, rlib.ConsoleDRange(&lsNext.DtStart, &lsNext.DtStop))
+		rlib.Console("RID = %d, Found RentableLeaseStatus: RLID = %d, LeaseStatus = %d,  %s\n", v.RID, lsNext.RLID, lsNext.LeaseStatus, rlib.ConsoleDRange(&lsNext.DtStart, &lsNext.DtStop))
 
 		if lsNext.RLID > 0 {
 			l.DtStop = lsNext.DtStart
-			if err = rlib.SetRentableLeaseStatus(ctx, &l, false /*purge the 3rd arg asap*/); err != nil {
-				return err
-			}
 			//--------------------------------------------------------------------------------
 			// if lsNext is reserved, we need to unreserve it here because we have cancelled
 			// the RentalAgreement in front of it that caused it to be reserved.
 			//--------------------------------------------------------------------------------
-			if lsNext.LeaseStatus == rlib.LEASESTATUSreserved {
+			if lsNext.LeaseStatus == rlib.LEASESTATUSreserved && len(lsNext.FirstName) == 0 && len(lsNext.LastName) == 0 {
 				lsNext.LeaseStatus = rlib.LEASESTATUSnotleased
 				if err = rlib.UpdateRentableLeaseStatus(ctx, &lsNext); err != nil {
 					return err
 				}
 			}
+			//------------------------------------------------------------------
+			// If the next lease status is NotLeased we can set the stop date
+			// of our new lease status.
+			//------------------------------------------------------------------
+			if lsNext.LeaseStatus == rlib.LEASESTATUSnotleased {
+				l.DtStop = lsNext.DtStop
+			}
+		}
+		if err = rlib.SetRentableLeaseStatus(ctx, &l); err != nil {
+			return err
 		}
 	}
 	return nil
@@ -940,7 +949,7 @@ func FlowSaveRentables(ctx context.Context, x *rlib.F2RAWriteHandlerContext) err
 		}
 		rlib.Console("FlowSaveRentables: calling SetRentableLeaseStatus\n")
 		rlib.Console("\n\n********************\nSetRentableLeaseStatus:  %s  lease status = %d\n", rlib.ConsoleDRange(&rls.DtStart, &rls.DtStop), rls.LeaseStatus)
-		if err = rlib.SetRentableLeaseStatus(ctx, &rls, true); err != nil {
+		if err = rlib.SetRentableLeaseStatus(ctx, &rls); err != nil {
 			return err
 		}
 

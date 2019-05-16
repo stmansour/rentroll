@@ -10,14 +10,14 @@ import (
 var RollerStrings = []string{
 	"Application was declined",     // 0: automatic - when RA is terminated due to applicaion being declined
 	"Rental Agreement was updated", // 1: automatic - when RA is updated with a changed version
-	"Voided by an amended version", // 2: automatic - when RA in the future is amended by a different RA
+	"Rental Agreement was Voided",  // 2: when RA is voided
 }
 
 // MSGAPPDECLINED et al are indeces into the the stringlist for ROLLERSL.
 const (
 	MSGAPPDECLINED = 0
 	MSGRAUPDATED   = 1
-	MSGRACANCELLED = 2
+	MSGRAVOIDED = 2
 )
 
 // GetRollerStringList creates a stringlist that Roller must have in order

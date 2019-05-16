@@ -9,6 +9,7 @@ const (
 	RAActionCompleteMoveIn            = 4
 	RAActionReceivedNoticeToMove      = 5
 	RAActionTerminate                 = 6
+	RAActionVoid                      = 7 // special case of Terminate
 )
 
 // RAStates is an array that maps the Rental Agreement state number to a

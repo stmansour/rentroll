@@ -559,6 +559,40 @@ func GetRecurringAssessmentDefsByRAID(ctx context.Context, RAID int64, d1, d2 *t
 	return getAssessmentsByRows(ctx, rows)
 }
 
+// GetAllRAIDAssessments returns a slice of all assessments associated with
+// the supplied RAID.  Note that it includes both Recurring Definitions as
+// well as the instances.
+//
+// INPUTS
+//    ctx   - context
+//    RAID  - Rental Agreement id of interest
+//
+// RETURNS
+//    slice of assessments where RAID is the supplied value
+//    error = any error encountered
+//-----------------------------------------------------------------------------
+func GetAllRAIDAssessments(ctx context.Context, RAID int64) ([]Assessment, error) {
+	var err error
+	var t []Assessment
+	if _, ok := SessionCheck(ctx); !ok {
+		return t, ErrSessionRequired
+	}
+
+	var rows *sql.Rows
+	fields := []interface{}{RAID}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAllRAIDAssessments)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetAllRAIDAssessments.Query(fields...)
+	}
+	if err != nil {
+		return t, err
+	}
+	return getAssessmentsByRows(ctx, rows)
+}
+
 // GetAssessmentInstancesByRAIDRange returns a list of the recurring instances and
 // non-recurring assessments for the supplied RAID that happen in the supplied
 // time range

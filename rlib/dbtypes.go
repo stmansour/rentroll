@@ -2060,6 +2060,7 @@ type RRprepSQL struct {
 	DeleteRentableUseType                   *sql.Stmt
 	GetASMInstancesByRIDandDateRange        *sql.Stmt
 	DeleteRentable                          *sql.Stmt
+	GetAllRAIDAssessments                   *sql.Stmt
 }
 
 // DeleteBusinessFromDB deletes information from all tables if it is part of the supplied BID.
@@ -2231,8 +2232,7 @@ func InitBizInternals(bid int64, xbiz *XBusiness) error {
 	ctx := context.Background()
 	ctx = SetSessionContextKey(ctx, ssn)
 
-	RRdb.BizTypes[bid].Msgs, err = GetRollerStringList(ctx, bid)
-	if err != nil {
+	if RRdb.BizTypes[bid].Msgs, err = GetRollerStringList(ctx, bid); err != nil {
 		return err
 	}
 

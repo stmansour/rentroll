@@ -293,7 +293,7 @@ func saveRentableLeaseStatus(w http.ResponseWriter, r *http.Request, d *ServiceD
 		// Insert / update doesn't really matter here. SetRentableLeaseStatus
 		// will determine what it needs to update, delete, and insert in order
 		// to fill the span as
-		if err = rlib.SetRentableLeaseStatus(r.Context(), &a, false); err != nil {
+		if err = rlib.SetRentableLeaseStatus(r.Context(), &a); err != nil {
 			e := fmt.Errorf("Error from SetRentableLeaseStatus (%d), RID=%d : %s", a.RLID, a.RID, err.Error())
 			SvcErrorReturn(w, e, funcname)
 			return

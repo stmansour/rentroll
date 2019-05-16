@@ -107,7 +107,7 @@ func HotelBookings(ctx context.Context, dbConf *GenDBConf) error {
 
 				// rlib.Console("Found date range that works: %s\n", rlib.ConsoleDRange(&ls.DtStart, &ls.DtStop))
 				m = append(m, ls) // we'll use this time
-				if err := rlib.SetRentableLeaseStatus(ctx, &ls, false); err != nil {
+				if err := rlib.SetRentableLeaseStatus(ctx, &ls); err != nil {
 					return err
 				}
 				//--------------------------------------------------

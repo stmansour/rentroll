@@ -53,20 +53,12 @@ window.submitActionForm = function(data) {
                     w2ui.newraLayout.hide('right', true);
                     app.raflow.version = 'raid'; // AS IT WAS MIGRATED
                 }
-
-                // Update flow local copy and green checks
-                UpdateRAFlowLocalData(data, true);
+                UpdateRAFlowLocalData(data, true); // Update flow local copy and green checks
                 break;
             case (data.record.Flow.FlowID > 0):
-
-                // FlowID > 0 that means it is refno version
-                app.raflow.version = 'refno';
-
-                // Update flow local copy and green checks
-                UpdateRAFlowLocalData(data, true);
-
-                // validation errors based on validation check
-                app.raflow.validationErrors = {
+                app.raflow.version = 'refno';      // FlowID > 0 that means it is refno version
+                UpdateRAFlowLocalData(data, true); // Update flow local copy and green checks
+                app.raflow.validationErrors = {    // validation errors based on validation check
                     dates: app.raflow.validationCheck.errors.dates.total > 0 || app.raflow.validationCheck.nonFieldsErrors.dates.length > 0,
                     people: app.raflow.validationCheck.errors.people.total > 0 || app.raflow.validationCheck.nonFieldsErrors.people.length > 0,
                     pets: app.raflow.validationCheck.errors.pets.total > 0 || app.raflow.validationCheck.nonFieldsErrors.pets.length > 0,
@@ -75,28 +67,20 @@ window.submitActionForm = function(data) {
                     parentchild: app.raflow.validationCheck.errors.parentchild.total > 0 || app.raflow.validationCheck.nonFieldsErrors.parentchild.length > 0,
                     tie: app.raflow.validationCheck.errors.tie.people.total > 0 || app.raflow.validationCheck.nonFieldsErrors.tie.length > 0
                 };
-
                 displayErrorDot();
-
                 displayActiveComponentError();
-
                 if(app.raflow.validationCheck.total > 0){
                     w2ui.raActionLayout.get('top').toolbar.click('btnBackToRA');
                     return false;
                 }
-
                 break;
         }
 
         if("raActionLayout" in w2ui){
             w2ui.raActionLayout.get('main').content = "";
         }
-
         loadRAActionTemplate();
-        setTimeout(function() {
-            reloadActionForm();
-        },200);
-
+        setTimeout( function() { reloadActionForm(); }, 200);
     })
     .fail(function(data) {
         if (typeof data == "object") {
@@ -613,13 +597,37 @@ window.loadRAActionTemplate = function() {
     w2ui.newraLayout.sizeTo('right', 950);
 };
 
-// voidRentalAgreement - this is a function that should only be called in the
-//     most dire circumstances. It will reverse all assessments associated with
-//     the rental agreement and mark it as
+// voidRentalAgreement - make sure the user understands what they are doing.
+//------------------------------------------------------------------------------
 window.voidRentalAgreement = function() {
     var data = app.raflow.Flow.Data;
-
     console.log('void RAID ' + data.meta.RAID);
+    w2popup.open({
+        title     : 'Void RAID ' + data.meta.RAID,
+        showClose : true,
+        buttons   : '<button class="w2ui-btn w2ui-btn-red" onclick="doVoidRA();">Yes, void RAID '+data.meta.RAID+' </button><button class="w2ui-btn" onclick="w2popup.close();">Cancel</button>',
+        width     : 450,
+        height    : 260,
+        body      : '<div style="margin: 10px;"><div style="padding: 10px;">Voiding RAID '+data.meta.RAID+' will do the following:<ul><li>its state will be set to Terminated</li><li>all its assessments will be reversed</li><li>it will no longer be visible in the Rental Agreements view</li></ul><p>Are you sure you want to void RAID '+data.meta.RAID+' ?</p></div></div>'
+    });
+};
+
+// doVoidRA - this is a function that should only be called in the
+//     most dire circumstances. It will reverse all assessments associated with
+//     the rental agreement and mark it as Terminated.
+//------------------------------------------------------------------------------
+window.doVoidRA = function() {
+    w2popup.close();
+    var RAID = app.raflow.Flow.Data.meta.RAID;
+    console.log('do void RAID ' + RAID);
+    var reqData = {
+        "UserRefNo": app.raflow.Flow.UserRefNo,
+        "RAID": RAID,
+        "Version": "raid",
+        "Action": 7, // special case of terminate:  void the RA
+        "Mode": "Action",
+    };
+    submitActionForm(reqData);
 };
 
 // -------------------------------------------------------------------------------
