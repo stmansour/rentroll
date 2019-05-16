@@ -20,6 +20,7 @@ type GridRAFlowRecord struct {
 	AgreementStart rlib.NullDate   // start date for rental agreement contract
 	AgreementStop  rlib.NullDate   // stop date for rental agreement contract
 	Payors         rlib.NullString // payors list attached with this RA within same time
+	RNames         rlib.NullString // rentables list attached with this RA within same time
 	FlowID         rlib.NullInt64  // FlowID
 	UserRefNo      rlib.NullString // FlowID - reference number
 	FLAGS          rlib.NullInt64  // FLAGS
@@ -47,6 +48,7 @@ var RAFlowGridFieldsMap = map[string][]string{
 	"AgreementStart": {"RA_CUM_FLOW.AgreementStart"},
 	"AgreementStop":  {"RA_CUM_FLOW.AgreementStop"},
 	"Payors":         {"RA_CUM_FLOW.Payors"},
+	"RNames":         {"RA_CUM_FLOW.RNames"},
 	"FlowID":         {"RA_CUM_FLOW.FlowID"},
 	"UserRefNo":      {"RA_CUM_FLOW.UserRefNo"},
 	"FLAGS":          {"RA_CUM_FLOW.FLAGS"},
@@ -59,6 +61,7 @@ var RAFlowQuerySelectFields = []string{
 	"RA_CUM_FLOW.AgreementStart",
 	"RA_CUM_FLOW.AgreementStop",
 	"RA_CUM_FLOW.Payors",
+	"RA_CUM_FLOW.RNames",
 	"RA_CUM_FLOW.FlowID",
 	"RA_CUM_FLOW.UserRefNo",
 	"RA_CUM_FLOW.FLAGS",
@@ -84,6 +87,7 @@ FROM (
             RentalAgreement.AgreementStart AS AgreementStart,
             RentalAgreement.AgreementStop AS AgreementStop,
             GROUP_CONCAT(DISTINCT CASE WHEN Payor.IsCompany > 0 THEN Payor.CompanyName ELSE CONCAT(Payor.FirstName, ' ', Payor.LastName) END ORDER BY 1 SEPARATOR ', ') AS Payors,
+			GROUP_CONCAT(DISTINCT Rentable.RentableName SEPARATOR ', ') AS RNames,
             RentalAgreement.FLAGS AS FLAGS,
             Flow.FlowID AS FlowID,
             Flow.UserRefNo AS UserRefNo
@@ -91,11 +95,13 @@ FROM (
         LEFT JOIN RentalAgreementPayors ON RentalAgreementPayors.RAID=RentalAgreement.RAID
         LEFT JOIN Transactant AS Payor ON Payor.TCID=RentalAgreementPayors.TCID
         LEFT JOIN Flow ON Flow.ID=RentalAgreement.RAID
+		LEFT JOIN RentalAgreementRentables AS RAR ON RAR.RAID = RentalAgreement.RAID
+        LEFT JOIN Rentable ON Rentable.RID = RAR.RID
         WHERE
             RentalAgreement.BID={{.BID}}
             AND RentalAgreement.AgreementStart < "{{.Stop}}"
             AND RentalAgreement.AgreementStop > "{{.Start}}"
---          {{.IncludeCancelled}}
+--          {{.IncludeVoided}}
         GROUP BY RentalAgreement.RAID
         ORDER BY Payors ASC, AgreementStart ASC
     )
@@ -111,6 +117,7 @@ FROM (
             NULL AS AgreementStart,
             NULL AS AgreementStop,
             NULL AS Payors,
+			NULL AS RNames,
             NULL AS FLAGS,
             Flow.FlowID AS FlowID,
             Flow.UserRefNo AS UserRefNo
@@ -130,13 +137,13 @@ ORDER BY {{.OrderClause}}
 
 // RAFlowQueryClause contains query clauses for raflow query
 var RAFlowQueryClause = rlib.QueryClause{
-	"BID":              "",
-	"Start":            "",
-	"Stop":             "",
-	"IncludeCancelled": "AND (RentalAgreement.FLAGS & 64) = 0", // I've commented it out above because we need to see it in the RentalAgreements grid, just not in the Rentroll report or view
-	"SelectClause":     strings.Join(RAFlowQuerySelectFields, ","),
-	"WhereClause":      "",
-	"OrderClause":      "RA_CUM_FLOW.Payors ASC, RA_CUM_FLOW.AgreementStart ASC",
+	"BID":           "",
+	"Start":         "",
+	"Stop":          "",
+	"IncludeVoided": "AND (RentalAgreement.FLAGS & 64) = 0", // I've commented it out above because we need to see it in the RentalAgreements grid, just not in the Rentroll report or view
+	"SelectClause":  strings.Join(RAFlowQuerySelectFields, ","),
+	"WhereClause":   "",
+	"OrderClause":   "RA_CUM_FLOW.Payors ASC, RA_CUM_FLOW.AgreementStart ASC",
 }
 
 // GetAllRAFlows returns all existing Rental Agreements and all Flows
@@ -219,7 +226,7 @@ func GetAllRAFlows(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	for rows.Next() {
 		var q GridRAFlowRecord
 		q.Recid = i
-		if err = rows.Scan(&q.BID, &q.RAID, &q.AgreementStart, &q.AgreementStop, &q.Payors, &q.FlowID, &q.UserRefNo, &q.FLAGS); err != nil {
+		if err = rows.Scan(&q.BID, &q.RAID, &q.AgreementStart, &q.AgreementStop, &q.Payors, &q.RNames, &q.FlowID, &q.UserRefNo, &q.FLAGS); err != nil {
 			SvcErrorReturn(w, err, funcname)
 			return
 		}

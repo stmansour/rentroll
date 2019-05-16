@@ -209,6 +209,8 @@ func GetSQLWhereClause(fieldMap map[GenSearch][]string, searchLogic string) stri
 			likeFmt = "%s='%s'"
 		case "between":
 			likeFmt = "%s like '%%%s%%'"
+		case "contains":
+			likeFmt = "%s like '%%%s%%'"
 		default:
 			rlib.Console("Unhandled search operator: %s\n", gsrch.Operator)
 		}
