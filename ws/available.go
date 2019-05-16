@@ -112,21 +112,18 @@ func SvcAvailable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		if err != nil {
 			SvcErrorReturn(w, err, funcname)
 		}
-		l := len(m)
-		count := 0
-		for j := 0; j < l; j++ {
-			if m[int64(j)].FLAGS&0x8 == 0 {
-				count++
-				sr += fmt.Sprintf("%d", m[int64(j)].RTID)
-				if j+1 < l {
-					sr += ","
-				}
+		var sa []string
+		for _, v := range m {
+			rlib.Console("RTID = %d, FLAGS = %x\n", v.RTID, v.FLAGS)
+			if v.FLAGS&0x8 == 0 {
+				sa = append(sa, fmt.Sprintf("%d", v.RTID))
 			}
 		}
-		if count == 0 {
+		if len(sa) == 0 {
 			SvcErrorReturn(w, fmt.Errorf("no appropriate rentable types found"), funcname)
 			return
 		}
+		sr = strings.Join(sa, ",")
 	} else {
 		sr = fmt.Sprintf("%d", res.RTID)
 	}
@@ -136,7 +133,7 @@ func SvcAvailable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
         RentableLeaseStatus.DtStart <= %q AND RentableLeaseStatus.DtStop >= %q AND RentableLeaseStatus.LeaseStatus = 0 AND
 		RentableTypeRef.DtStart <= %q AND RentableTypeRef.DtStop >= %q AND
 		RentableTypeRef.RTID IN (%s) AND
-		RentableUseStatus.DtStart <= %q AND RentableUseStatus.DtStop >= %q AND RentableUseStatus.UseStatus = 0`,
+		RentableUseType.DtStart <= %q AND RentableUseType.DtStop >= %q AND RentableUseType.UseType = 100`,
 		res.BID,
 		dtStart.Format(rlib.RRDATEFMTSQL),
 		dtStop.Format(rlib.RRDATEFMTSQL),
@@ -166,7 +163,7 @@ func SvcAvailable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 SELECT DISTINCT {{.SelectClause}}
 FROM RentableTypeRef
 LEFT JOIN RentableLeaseStatus on RentableLeaseStatus.RID = RentableTypeRef.RID
-LEFT JOIN RentableUseStatus on RentableUseStatus.RID = RentableTypeRef.RID
+LEFT JOIN RentableUseType on RentableUseType.RID = RentableTypeRef.RID
 LEFT JOIN Rentable on Rentable.RID = RentableTypeRef.RID
 WHERE {{.WhereClause}}
 ORDER BY {{.OrderClause}}

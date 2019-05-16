@@ -6252,21 +6252,19 @@ func GetRentableTypeByName(ctx context.Context, name string, bid int64) (Rentabl
 
 // getBizRentableTypes returns a slice of RentableType indexed by the RTID
 func getBizRentableTypes(bid int64) (map[int64]RentableType, error) {
-
-	var (
-		err error
-		t   = make(map[int64]RentableType)
-	)
-
+	var err error
+	var t = make(map[int64]RentableType)
 	var rows *sql.Rows
 	fields := []interface{}{bid}
-	/*if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.GetAllBusinessRentableTypes)
-		defer stmt.Close()
-		rows, err = stmt.Query(fields...)
-	} else {
-		rows, err = RRdb.Prepstmt.GetAllBusinessRentableTypes.Query(fields...)
-	}*/
+
+	// if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+	// 	stmt := tx.Stmt(RRdb.Prepstmt.GetAllBusinessRentableTypes)
+	// 	defer stmt.Close()
+	// 	rows, err = stmt.Query(fields...)
+	// } else {
+	// 	rows, err = RRdb.Prepstmt.GetAllBusinessRentableTypes.Query(fields...)
+	// }
+
 	rows, err = RRdb.Prepstmt.GetAllBusinessRentableTypes.Query(fields...)
 	if err != nil {
 		return t, err
@@ -6296,7 +6294,39 @@ func GetBusinessRentableTypes(ctx context.Context, bid int64) (map[int64]Rentabl
 	if getSessionCheck(ctx) {
 		return t, ErrSessionRequired
 	}
-	return getBizRentableTypes(bid)
+	var err error
+	var rows *sql.Rows
+	fields := []interface{}{bid}
+
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAllBusinessRentableTypes)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetAllBusinessRentableTypes.Query(fields...)
+		defer rows.Close()
+	}
+
+	// rows, err = RRdb.Prepstmt.GetAllBusinessRentableTypes.Query(fields...)
+	if err != nil {
+		return t, err
+	}
+
+	for rows.Next() {
+		var a RentableType
+		if err = ReadRentableTypes(rows, &a); err != nil {
+			return t, err
+		}
+
+		a.MR = []RentableMarketRate{}
+		err = getRentableMarketRates(&a)
+		if err != nil {
+			return t, err
+		}
+		t[a.RTID] = a
+	}
+
+	return t, rows.Err()
 }
 
 // getListOfRentableMarketRates returns a list of RentableMarketRate structs

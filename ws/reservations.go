@@ -183,12 +183,12 @@ var reservationQuerySelectFields = []string{
 
 // searchReservations
 // wsdoc {
-//  @Title  SaveReservation
+//  @Title  Search Reservations
 //	@URL /v1/reservation/:BUI/
 //  @Method  POST
 //	@Synopsis Returns a list of reservations matching the supplied criteria
-//  @Description  Saves the ReleaseStatus. If RLID is 0, a new status is created.
-//  @Description  If RLID is > 0 it is simply updated
+//  @Description
+//  @Description
 //	@Input WebGridSearchRequest
 //  @Response Reservation
 // wsdoc }
