@@ -491,7 +491,7 @@ func VoidRentalAgreement(ctx context.Context, ra *rlib.RentalAgreement) (err err
 	ra.TerminationDate = now
 	ra.FLAGS &= ^uint64(0xf)
 	ra.FLAGS |= rlib.RASTATETerminated
-	// ra.FLAGS |= 1 << 6 // this marks that it has been voided // had to remove -- reversed assessments may show up
+	ra.FLAGS |= 1 << 6 // this marks that it has been voided - skipped in Rentroll printouts
 	ra.LeaseTerminationReason = rlib.RRdb.BizTypes[ra.BID].Msgs.S[rlib.MSGRAVOIDED].SLSID
 
 	if err = rlib.UpdateRentalAgreement(ctx, ra); err != nil {

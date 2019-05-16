@@ -95,7 +95,7 @@ FROM (
             RentalAgreement.BID={{.BID}}
             AND RentalAgreement.AgreementStart < "{{.Stop}}"
             AND RentalAgreement.AgreementStop > "{{.Start}}"
-            {{.IncludeCancelled}}
+--          {{.IncludeCancelled}}
         GROUP BY RentalAgreement.RAID
         ORDER BY Payors ASC, AgreementStart ASC
     )
@@ -133,7 +133,7 @@ var RAFlowQueryClause = rlib.QueryClause{
 	"BID":              "",
 	"Start":            "",
 	"Stop":             "",
-	"IncludeCancelled": "AND (RentalAgreement.FLAGS & 64) = 0", // set this to = 1 if you only want the cancelled ones
+	"IncludeCancelled": "AND (RentalAgreement.FLAGS & 64) = 0", // I've commented it out above because we need to see it in the RentalAgreements grid, just not in the Rentroll report or view
 	"SelectClause":     strings.Join(RAFlowQuerySelectFields, ","),
 	"WhereClause":      "",
 	"OrderClause":      "RA_CUM_FLOW.Payors ASC, RA_CUM_FLOW.AgreementStart ASC",
