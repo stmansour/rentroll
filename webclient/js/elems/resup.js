@@ -47,6 +47,8 @@ window.newReservationRecord = function() {
 // buildResUpdateElements creates the rid and reservation form to find
 //------------------------------------------------------------------------------
 window.buildResUpdateElements = function () {
+    var formWidth = 800;  // controled by the table width of the form in the html file
+
     //------------------------------------------------------------------------
     //          resUpdateGrid
     //------------------------------------------------------------------------
@@ -113,7 +115,7 @@ window.buildResUpdateElements = function () {
                         w2ui.availabilityGrid.url = '';
                         w2ui.resUpdateForm.url = '';
                         w2ui.resUpdateForm.record = newReservationRecord();
-                        setToForm('resUpdateForm','',750,false,w2ui.resFormLayout);
+                        setToForm('resUpdateForm','',formWidth,false,w2ui.resFormLayout);
                     });
                 };
                 form_dirty_alert(yes_callBack, no_callBack, yes_args); // warn user if form content has been changed
@@ -129,7 +131,7 @@ window.buildResUpdateElements = function () {
                     w2ui.availabilityGrid.clear(); // remove any contents from prior checks
                     w2ui.availabilityGrid.url = '';
                     var url = '/v1/reservation/' + BID + '/' + rec.RLID;
-                    setToForm('resUpdateForm',url,750,true,w2ui.resFormLayout);
+                    setToForm('resUpdateForm',url,formWidth,true,w2ui.resFormLayout);
                 });
             };
         },
@@ -364,10 +366,10 @@ window.buildResUpdateElements = function () {
                     return getRTName(record.RTID);
                 },
             },
-            {field: 'DtStart',      caption: 'DtStart',            size: '90px',  hidden: false, sortable: true, style: 'text-align: right',
+            {field: 'DtStart',      caption: 'Check in',            size: '90px',  hidden: false, sortable: true, style: 'text-align: right',
                 render: function(record/*, index, col_index*/) { return w2uiDateControlString(new Date(record.DtStart)); },
             },
-            {field: 'DtStop',       caption: 'DtStop',             size: '90px',  hidden: false, sortable: true, style: 'text-align: right',
+            {field: 'DtStop',       caption: 'Check out',             size: '90px',  hidden: false, sortable: true, style: 'text-align: right',
                 render: function(record/*, index, col_index*/) { return w2uiDateControlString(new Date(record.DtStop)); },
             },
             {

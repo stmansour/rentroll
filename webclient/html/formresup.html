@@ -10,7 +10,7 @@
     <div class="w2ui-field"><input type="hidden" name="LastModBy" /></div>
     <div class="w2ui-field"><input type="hidden" name="CreateTS" /></div>
     <div class="w2ui-field"><input type="hidden" name="CreateBy" /></div>
-    <table width="675">
+    <table width="745">
         <tr>
             <td valign="top" width="45%">
                 <div class="w2ui-field">
@@ -18,16 +18,16 @@
                     <div><input name="BUD" type="list" disabled /></div>
                 </div>
                 <div class="w2ui-field">
-                    <label>Confirmation Code:</label>
+                    <label>Conf Code:</label>
                     <div><input name="ConfirmationCode" type="text" size="20" style="width: 100%" disabled /></div>
                 </div>
 
                 <div class="w2ui-field">
-                    <label>Rentable Type:</label>
+                    <label>Room Type:</label>
                     <div><input name="rdRTID" type="list" style="width: 100%" /></div>
                 </div>
                 <div class="w2ui-field">
-                    <label>Start Date:</label>
+                    <label>Check in:</label>
                     <div>
                         <input name="DtStart" type="us-date1" size="11" tabindex="1">
                         &nbsp;&nbsp;Nights:&nbsp;
@@ -35,10 +35,10 @@
                     </div>
                 </div>
                 <div class="w2ui-field">
-                    <label>Stop Date:</label>
+                    <label>Check out:</label>
                     <div>
                         <input name="DtStop" type="us-date1" size="11" tabindex="3">
-                        <button class="w2ui-btn" onclick='checkRentableAvailability();'>Check <i class="far fa-calendar-check"></i></button>
+                        <button class="w2ui-btn" onclick='checkRentableAvailability();'><i class="far fa-calendar-check"></i> Availability</button>
                     </div>
                 </div>
                 <hr>
@@ -63,7 +63,7 @@
                     <div><input name="CCType" type="text" style="width: 100%" /></div>
                 </div>
                 <div class="w2ui-field">
-                    <label>Card Name:</label>
+                    <label>Name on Card:</label>
                     <div><input name="CCName" type="text" style="width: 100%" /></div>
                 </div>
                 <div class="w2ui-field">
