@@ -563,8 +563,6 @@ window.setResUpdateRecordForUI = function (f) {
     if (typeof f.get('BUD').options != "undefined") {
         f.get('BUD').options.items = app.businesses;
     }
-
-
 };
 
 //---------------------------------------------------------------------------------
@@ -581,8 +579,8 @@ window.checkRentableAvailability = function() {
     var BUD = getBUDfromBID(BID);
     var f = w2ui.resUpdateForm;
     var r = f.record;
-    var dtStart = dateFromString(r.DtStart);
-    var dtStop = dateFromString(r.DtStop);
+    var dtStart = (typeof(r.DtStart) == "string") ? new Date(r.DtStart) : r.DtStart;
+    var dtStop = (typeof(r.DtStop) == "string") ? new Date(r.DtStop) : r.DtStop;
     var req = {
         recid:          0,
         BID:            BID,
