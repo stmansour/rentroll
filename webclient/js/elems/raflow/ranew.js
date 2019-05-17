@@ -85,17 +85,17 @@ window.buildRAFlowElements = function() {
             toolbarEdit: false,
             toolbarSearch: true,
             toolbarInput: true,
-            searchAll: false,
+            searchAll: true,  // when no specific field is set, selects all
             toolbarReload: true,
             toolbarColumns: false,
         },
         searches: [
             // { field: 'RAID', caption: 'RAID', type: 'text' },
-            { field: 'Payors', caption: 'Payor(s)', type: 'text' },
-            { field: 'RNames', caption: 'Rentable(s)', type: 'text' },
+            { field: 'Payors', caption: 'Payor(s)', type: 'text', operator: 'contains' },
+            { field: 'RNames', caption: 'Rentable(s)', type: 'text', operator: 'contains' },
             // { field: 'AgreementStart', caption: 'Agreement Start Date', type: 'date' },
             // { field: 'AgreementStop', caption: 'Agreement Stop Date', type: 'date' },
-            { field: 'UserRefNo', caption: 'Reference Number', type: 'text' },
+            { field: 'UserRefNo', caption: 'Reference Number', type: 'text', operator: 'contains' },
         ],
         columns: [
             { field: 'recid',          caption: 'recid',              size: '40px', hidden: true, sortable: true },
