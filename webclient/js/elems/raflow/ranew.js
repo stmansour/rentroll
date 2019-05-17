@@ -90,17 +90,25 @@ window.buildRAFlowElements = function() {
             toolbarColumns: false,
         },
         searches: [
-            // { field: 'RAID', caption: 'RAID', type: 'text' },
             { field: 'Payors', caption: 'Payor(s)', type: 'text', operator: 'contains' },
             { field: 'RNames', caption: 'Rentable(s)', type: 'text', operator: 'contains' },
+            { field: 'UserRefNo', caption: 'Reference Number', type: 'text', operator: 'contains' },
+            // { field: 'RAID', caption: 'RAID', type: 'number' },
             // { field: 'AgreementStart', caption: 'Agreement Start Date', type: 'date' },
             // { field: 'AgreementStop', caption: 'Agreement Stop Date', type: 'date' },
-            { field: 'UserRefNo', caption: 'Reference Number', type: 'text', operator: 'contains' },
         ],
         columns: [
             { field: 'recid',          caption: 'recid',              size: '40px', hidden: true, sortable: true },
             { field: 'BID',            caption: 'BID',  hidden: true },
             { field: 'BUD',            caption: 'BUD', hidden: true },
+            { field: 'FLAGS',          caption: 'void',               size: '40px', hidden: false, sortable: true, style: 'text-align: center',
+                render: function(record/*, index, col_index*/) {
+                    if ((record.FLAGS & 64) != 0) {
+                        return '<i class="fas fa-ban" title="void" aria-hidden="true" style="color: #FF0000;"></i>';
+                    }
+                    return '';
+                }
+            },
             { field: 'RAID',           caption: 'RAID',               size: "45px", sortable: true },
             { field: 'UserRefNo',      caption: 'Ref No',             size: '165px', sortable:   true },
             { field: 'AgreementStart', caption: 'Agreement<br>Start', size: '80px', render: 'date', sortable: true, style: 'text-align: right' },

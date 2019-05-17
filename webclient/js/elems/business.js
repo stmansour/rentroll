@@ -50,22 +50,22 @@ window.getBusinessInitRecord = function() {
     return y;
 };
 
-//-----------------------------------------------------------------------------
-// renderReversalIcon - Show the reversal icon if FLAGS bit 2 is set
-//
-// @params
-//   bid = business id (or the BUD)
-// d1,d2 = date range to use
-//-----------------------------------------------------------------------------
-window.renderReversalIcon = function (record /*, index, col_index*/) {
-    if (typeof record === "undefined") {
-        return;
-    }
-    if ( (record.FLAGS & (1<<2)) !== 0 ) { // if reversed then
-        return getGridReversalSymbolHTML();
-    }
-    return '';
-};
+// //-----------------------------------------------------------------------------
+// // renderReversalIcon - Show the reversal icon if FLAGS bit 2 is set
+// //
+// // @params
+// //   bid = business id (or the BUD)
+// // d1,d2 = date range to use
+// //-----------------------------------------------------------------------------
+// window.renderReversalIcon = function (record /*, index, col_index*/) {
+//     if (typeof record === "undefined") {
+//         return;
+//     }
+//     if ( (record.FLAGS & (1<<2)) !== 0 ) { // if reversed then
+//         return getGridReversalSymbolHTML();
+//     }
+//     return '';
+// };
 
 // // buildBizDropdownHTML creates the HTML for a dropdown menu of businesses
 // //
