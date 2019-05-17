@@ -336,10 +336,12 @@ window.buildResUpdateElements = function () {
     //------------------------------------------------------------------------
     $().w2grid({
         name: 'availabilityGrid',
+        header: 'Rentables Available',
         multiSelect: false,
         show: {
             toolbar         : false,
             footer          : false,
+            header          : true,
             toolbarAdd      : false,   // indicates if toolbar add new button is visible
             toolbarDelete   : false,   // indicates if toolbar delete button is visible
             toolbarSave     : false,   // indicates if toolbar save button is visible
@@ -593,6 +595,7 @@ window.checkRentableAvailability = function() {
     w2ui.availabilityGrid.postData.record = req;
     w2ui.availabilityGrid.url = '/v1/available/'+BID;
     w2ui.availabilityGrid.reload();
+    w2ui.availabilityGrid.header = 'Rentables (' + r.rdRTID.text + ') available ' + w2uiDateControlString(dtStart) + ' - ' + w2uiDateControlString(dtStop);
 };
 
 //---------------------------------------------------------------------------------
