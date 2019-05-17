@@ -62,8 +62,8 @@ func SetRentableLeaseStatusAbbr(ctx context.Context, bid, rid, us int64, d1, d2 
 //     rls - the new use status structure
 //-----------------------------------------------------------------------------
 func SetRentableLeaseStatus(ctx context.Context, rls *RentableLeaseStatus) error {
-	funcname := "SetRentableLeaseStatus"
-	Console("\nEntered %s.  range = %s, LeaseStatus = %d\n", funcname, ConsoleDRange(&rls.DtStart, &rls.DtStop), rls.LeaseStatus)
+	// funcname := "SetRentableLeaseStatus"
+	// Console("\nEntered %s.  range = %s, LeaseStatus = %d\n", funcname, ConsoleDRange(&rls.DtStart, &rls.DtStop), rls.LeaseStatus)
 
 	var err error
 	var b []RentableLeaseStatus
@@ -74,21 +74,21 @@ func SetRentableLeaseStatus(ctx context.Context, rls *RentableLeaseStatus) error
 		return err
 	}
 
-	Console("%s: Range = %s    found %d records\n", funcname, ConsoleDRange(&d1, &d2), len(a))
+	// Console("%s: Range = %s    found %d records\n", funcname, ConsoleDRange(&d1, &d2), len(a))
 
 	//--------------------------------------------------------------------------
 	// Remove any status records that are fully encompassed by rls.
 	//--------------------------------------------------------------------------
 	for i := 0; i < len(a); i++ {
-		Console("i = %d, RLID = %d\n", i, a[i].RLID)
+		// Console("i = %d, RLID = %d\n", i, a[i].RLID)
 		if (d1.Before(a[i].DtStart) || d1.Equal(a[i].DtStart)) &&
 			(d2.After(a[i].DtStop) || d2.Equal(a[i].DtStop)) {
-			Console("%s: deleting RLID = %d ------------------------------------\n", funcname, a[i].RLID)
+			// Console("%s: deleting RLID = %d ------------------------------------\n", funcname, a[i].RLID)
 			if err = DeleteRentableLeaseStatus(ctx, a[i].RLID); err != nil {
 				return err
 			}
 		} else {
-			Console("Appending RLID=%d to a[]\n", a[i].RLID)
+			// Console("Appending RLID=%d to a[]\n", a[i].RLID)
 			b = append(b, a[i])
 		}
 	}
@@ -118,7 +118,7 @@ func SetRentableLeaseStatus(ctx context.Context, rls *RentableLeaseStatus) error
 			//      rls:      @@@@@@@@@@@@
 			//   Result: @@@@@@@@@@@@@@@@@@@@@
 			//-----------------------------------------------
-			Console("%s: Case 1a\n", funcname)
+			// Console("%s: Case 1a\n", funcname)
 			if !before {
 				b[0].DtStart = d1
 			}
@@ -136,7 +136,7 @@ func SetRentableLeaseStatus(ctx context.Context, rls *RentableLeaseStatus) error
 			//      rls:      ############
 			//   Result: @@@@@############@@@@
 			//-----------------------------------------------
-			Console("%s: Case 1b\n", funcname)
+			// Console("%s: Case 1b\n", funcname)
 			n := b[0]
 			n.DtStart = d2
 			if _, err = InsertRentableLeaseStatus(ctx, &n); err != nil {
@@ -155,7 +155,7 @@ func SetRentableLeaseStatus(ctx context.Context, rls *RentableLeaseStatus) error
 			//     b[0]:       ##########
 			//   Result: @@@@@@@@@@@@####
 			//-----------------------------------------------
-			Console("%s: Case 1c\n", funcname)
+			// Console("%s: Case 1c\n", funcname)
 			b[0].DtStart = d2
 			if err = UpdateRentableLeaseStatus(ctx, &b[0]); err != nil {
 				return err
@@ -169,13 +169,13 @@ func SetRentableLeaseStatus(ctx context.Context, rls *RentableLeaseStatus) error
 			//     b[0]: ##########
 			//   Result: ####@@@@@@@@@@@@
 			//-----------------------------------------------
-			Console("%s: Case 1d\n", funcname)
+			// Console("%s: Case 1d\n", funcname)
 			b[0].DtStop = d1
 			if err = UpdateRentableLeaseStatus(ctx, &b[0]); err != nil {
 				return err
 			}
 		}
-		Console("%s: Inserting %s LeaseStatus = %d\n", funcname, ConsoleDRange(&rls.DtStart, &rls.DtStop), rls.LeaseStatus)
+		// Console("%s: Inserting %s LeaseStatus = %d\n", funcname, ConsoleDRange(&rls.DtStart, &rls.DtStop), rls.LeaseStatus)
 		_, err = InsertRentableLeaseStatus(ctx, rls)
 		return err
 	}
@@ -190,14 +190,14 @@ func SetRentableLeaseStatus(ctx context.Context, rls *RentableLeaseStatus) error
 		match1 := RentableLeaseStatusCompare(&b[1], rls)
 		before := b[0].DtStart.Before(d1)
 		after := b[1].DtStop.After(d2)
-		Console("%s: Case 2 and match0 = %t, match1 = %t\n", funcname, match0, match1)
+		// Console("%s: Case 2 and match0 = %t, match1 = %t\n", funcname, match0, match1)
 		if match0 && match1 {
 			// Case 2a
 			// all are the same, merge them all into b[0], delete b[1]
 			//  b[0:1]   ********* ************
 			//  rls            *******
 			//  Result   **********************
-			Console("%s: Case 2a All match\n", funcname)
+			// Console("%s: Case 2a All match\n", funcname)
 			if !before {
 				b[0].DtStart = d1
 			}
@@ -217,7 +217,7 @@ func SetRentableLeaseStatus(ctx context.Context, rls *RentableLeaseStatus) error
 			//  b[0:1]   @@@@@@@@@@************
 			//  rls            #######
 			//  Result   @@@@@@#######*********
-			Console("%s: Case 2b Both do not match\n", funcname)
+			// Console("%s: Case 2b Both do not match\n", funcname)
 			if d1.After(b[0].DtStart) {
 				b[0].DtStop = d1
 				if err = UpdateRentableLeaseStatus(ctx, &b[0]); err != nil {
@@ -240,7 +240,7 @@ func SetRentableLeaseStatus(ctx context.Context, rls *RentableLeaseStatus) error
 			//  b[0:1]   @@@@@@@@@@************
 			//  rls            @@@@@@@
 			//  Result   @@@@@@@@@@@@@*********
-			Console("%s: Case 2c b[0] matches\n", funcname)
+			// Console("%s: Case 2c b[0] matches\n", funcname)
 			b[0].DtStop = d2
 			if err = UpdateRentableLeaseStatus(ctx, &b[0]); err != nil {
 				return err
@@ -255,7 +255,7 @@ func SetRentableLeaseStatus(ctx context.Context, rls *RentableLeaseStatus) error
 			//  b[0:1]   @@@@@@@@@@************
 			//  rls            *******
 			//  Result   @@@@@@****************
-			Console("%s: Case 2d b[0] matches\n", funcname)
+			// Console("%s: Case 2d b[0] matches\n", funcname)
 			b[1].DtStart = d1
 			if err = UpdateRentableLeaseStatus(ctx, &b[1]); err != nil {
 				return err
@@ -264,7 +264,7 @@ func SetRentableLeaseStatus(ctx context.Context, rls *RentableLeaseStatus) error
 			return UpdateRentableLeaseStatus(ctx, &b[0])
 		}
 
-		Console("%s: UNHANDLED CASE???\n", funcname)
+		// Console("%s: UNHANDLED CASE???\n", funcname)
 	}
 
 	return nil

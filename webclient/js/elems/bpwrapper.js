@@ -46,7 +46,6 @@ window.buildPageElementsWrapper = function (uitype) {
     }
     buildAssessmentElements();
     buildExpenseElements();
-    //buildReservationsElements();
     buildResUpdateElements();
     buildARElements();
     buildPaymentTypeElements();
@@ -86,7 +85,6 @@ window.finishForms = function () {
     finishTaskListForm();
     finishTLDForm();
     finishBizForm();
-    //finishReservationsForm();
     finishResUpForm();
     finishHelpSystem();
     finishAboutSystem();
