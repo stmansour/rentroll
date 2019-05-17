@@ -191,7 +191,15 @@ window.addDateNavToToolbar = function (prefix) {
     var grid = w2ui[prefix+'Grid'];
     grid.toolbar.add( genDateRangeNavigator(prefix) );
     grid.toolbar.on('click', function(event) {
-        if (event.target == 'w2ui-add') {
+        //----------------------------------------------------------
+        // if it's not one of the datenav buttons, just return...
+        //----------------------------------------------------------
+        //console.log('event.target = ' + event.target);
+        if (event.target != 'monthback' &&
+            event.target != 'dayback' &&
+            event.target != 'dayfwd' &&
+            event.target != 'monthfwd' &&
+            event.target != 'today' ) {
             return; // this function does not handle 'w2ui-add'
         }
         handleDateToolbarAction(event,prefix); // adjusts dates and loads into date controls

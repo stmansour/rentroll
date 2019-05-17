@@ -67,6 +67,12 @@ window.buildRAFlowElements = function() {
     $().w2grid({
         name: 'raflowsGrid',
         multiSelect: false,
+        // show: {
+        //     toolbar: true,
+        //     footer: true,
+        //     toolbarAdd: true,
+        // },
+        // multiSearch: true,
         show: {
             toolbar: true,
             footer: true,
@@ -79,7 +85,7 @@ window.buildRAFlowElements = function() {
             toolbarEdit: false,
             toolbarSearch: true,
             toolbarInput: true,
-            searchAll: true,
+            searchAll: false,
             toolbarReload: true,
             toolbarColumns: false,
         },
@@ -222,6 +228,14 @@ window.buildRAFlowElements = function() {
             form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);
         }
     });
+
+    // w2ui.raflowsGrid.toolbar.add([{ type: 'button', id: 'rsearch'}]);
+    // w2ui.raflowsGrid.toolbar.on('click', function(event) {
+    //     if (event.target == 'rsearch') {
+    //         console.log('pop up search');
+    //         w2ui.raflowsGrid.searchOpen();
+    //     }
+    // });
 
     // add date navigation toolbar for new rental agreement form
     addDateNavToToolbar('raflows');
