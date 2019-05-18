@@ -46,6 +46,16 @@ window.newReservationRecord = function() {
     return res;
 };
 
+// pvtReservation should be considered private to this file. It is managed
+// by the functions in this file as the reservation being viewed and edited
+// in the forms.
+//------------------------------------------------------------------------------
+var pvtReservation = {
+    res: null,
+    locked: true,
+};
+
+
 // buildResUpdateElements creates the rid and reservation form to find
 //------------------------------------------------------------------------------
 window.buildResUpdateElements = function () {
@@ -117,6 +127,8 @@ window.buildResUpdateElements = function () {
                         w2ui.availabilityGrid.url = '';
                         w2ui.resUpdateForm.url = '';
                         w2ui.resUpdateForm.record = newReservationRecord();
+                        pvtReservation.res = $.extend(true,{},w2ui.resUpdateForm.record); // deep copy
+                        pvtReservation.locked = true;
                         setToForm('resUpdateForm','',formWidth,false,w2ui.resFormLayout);
                     });
                 };
@@ -277,6 +289,8 @@ window.buildResUpdateElements = function () {
                 var x = new Date(r.DtStop);
                 r.DtStop = dateFmtStr(x);
                 f.record.Nights = daysBetweenDates(x,y);
+                pvtReservation.res = $.extend(true, {}, r ); // deep copy
+                pvtReservation.locked = true; // lock it by default
             };
         },
         onRender: function(event) {
@@ -284,7 +298,7 @@ window.buildResUpdateElements = function () {
         },
         onRefresh: function(event) {
             setResUpdateRecordForUI(this);
-            showReservationRentable(this.record);
+            showReservationRentable();
         },
         onChange: function(event) {
             event.onComplete = function() {
@@ -292,6 +306,8 @@ window.buildResUpdateElements = function () {
                 var f = this;
                 var r = f.record;
                 var draw=false;
+                var check=false;
+                console.log('event.target = ' + event.target);
                 switch (event.target) {
                 case "DtStart":
                     x = new Date(event.value_new);
@@ -320,9 +336,14 @@ window.buildResUpdateElements = function () {
                     r.DtStop = w2uiDateControlString(x);
                     draw = true;
                     break;
+                case "rdRTID":
+                    check = true;
+                    break;
                 }
                 if (draw) {
                     f.refresh();
+                }
+                if (check) {
                     checkRentableAvailability();
                 }
             };
@@ -403,7 +424,10 @@ window.buildResUpdateElements = function () {
                 r.RID = rec.RID;
                 r.RTID = rec.RTID;
                 r.RentableName = rec.RentableName;
-                showReservationRentable(r);
+                if (!pvtReservation.locked) {
+                    pvtReservation.res = $.extend(true,{},r); // it's unlocked, copy to reservation
+                }
+                showReservationRentable();
                 return;
             };
         },
@@ -518,28 +542,47 @@ window.buildResUpdateElements = function () {
 
 //---------------------------------------------------------------------------------
 // showReservationRentable - use the supplied record on the resUpdateForm
-//     as the rentable to use for this reservation
+//     as the rentable to use for this reservation. It always show
+//     pvtReservation.res
 //
 // @params
-//      r - form record
+//
 // @return
 //
 //---------------------------------------------------------------------------------
-window.showReservationRentable = function(r) {
-    if (r.RTID == undefined) {
-        r.RTID = r.rdRTID;
-    }
-
+window.showReservationRentable = function() {
+    var r = pvtReservation.res;
     var s = '[ no rentable selected ]';
     feedbackMessage("reservationRentableName", (r.RID > 0 || r.RentableName.length > 0 ) ? r.RentableName : s);
     feedbackMessage("reservationRentableType", (typeof r.RTID  != undefined) ?getRTName(r.RTID) : '');
     feedbackMessage("resConfirmationCode",r.ConfirmationCode);
+
+    s  = '<button onclick="toggleReservationLock();" class="w2ui-btn">&nbsp;<i class="fas fa-lock';
+    s += pvtReservation.locked ? '' : '-open';
+    s += ' fa-2x" style="color:';
+    s += pvtReservation.locked ? 'red' : 'green';
+    s += ';"></i>&nbsp;</button>';
+    feedbackMessage("rrReservationLock", s);
+
     var d1 = new Date(r.DtStart);
     var d2 = new Date(r.DtStop);
     feedbackMessage("reservationCheckIn", w2uiDateControlString(d1));
     feedbackMessage("reservationCheckOut", w2uiDateControlString(d2));
 };
 
+//---------------------------------------------------------------------------------
+// toggleReservationLock - locks the reservation if it is unlocked. Unlocks it
+//      if it is locked.
+//
+// @params
+//
+// @return
+//
+//---------------------------------------------------------------------------------
+window.toggleReservationLock = function () {
+    pvtReservation.locked = !pvtReservation.locked;
+    showReservationRentable();
+};
 //---------------------------------------------------------------------------------
 // setResUpdateRecordForUI - changes the main view of the program to the
 //                        Reservations form

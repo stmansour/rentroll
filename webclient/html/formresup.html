@@ -43,7 +43,7 @@
                         <button class="w2ui-btn" onclick='checkRentableAvailability();'><i class="far fa-calendar-check"></i> Availability</button>
                     </div>
                 </div>
-                
+
                 <p>&nbsp;</p>
                 <hr>
                 <p>&nbsp;</p>
@@ -135,7 +135,12 @@
             </table>
             <table id="reservationTable" width="745" style="border-spacing:1px; background-color:#BEBEBE;">
                 <tr>
-                    <td style='padding:4px; color:#E3E3E3; background-color:#2C2C2C; font-size:11pt;' colspan="2" align="center">Reservation</td>
+                    <td style='padding:4px; color:#F3F3F3; background-color:#2C2C2C; font-size:14pt;' colspan="2">
+                        <span id="rrReservationLock" align="left">
+                            <button onclick="toggleReservationLock();">&nbsp;<i class="fas fa-lock fa-2x"></i>&nbsp;</button>
+                        </span>
+                        <span align="center">Reservation</span>
+                    </td>
                     <td></td>
                 </tr>
                 <tr>
