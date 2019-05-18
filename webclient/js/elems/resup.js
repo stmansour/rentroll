@@ -290,32 +290,34 @@ window.buildResUpdateElements = function () {
             event.onComplete = function() {
                 var x,y;
                 var f = this;
+                var r = f.record;
                 var draw=false;
                 switch (event.target) {
                 case "DtStart":
-                    x = dateFromString(event.value_new);
-                    y = dateFromString(f.record.DtStop);
-                    x.setDate(x.getDate() + f.record.Nights);
-                    f.record.DtStop = w2uiDateControlString(x);
+                    x = new Date(event.value_new);
+                    y = new Date(r.DtStop);
+                    x.setDate(x.getDate() + r.Nights);
+                    r.DtStop = w2uiDateControlString(x);
                     draw = true;
                     break;
                 case "DtStop":
-                    x = dateFromString(event.value_new);
-                    y = dateFromString(f.record.DtStart);
+                    x = new Date(event.value_new);
+                    y = new Date(r.DtStart);
                     if (x <= y) {
-                        x.setDate(x.getDate() - f.record.Nights);
-                        f.record.DtStart = w2uiDateControlString(x);
+                        x.setDate(x.getDate() - r.Nights);
+                        r.DtStart = w2uiDateControlString(x);
                     }
-                    x = dateFromString(f.record.DtStart);
-                    y = dateFromString(f.record.DtStop);
-                    f.record.Nights = daysBetweenDates(x,y);
+                    x = new Date(r.DtStart);
+                    y = new Date(r.DtStop);
+                    r.Nights = daysBetweenDates(x,y);
                     draw = true;
                     break;
                 case "Nights":
-                    x = dateFromString(f.record.DtStart);
-                    y = dateFromString(f.record.DtStop);
+                    x = new Date(r.DtStart);
+                    r.DtStart = w2uiDateControlString(x); // not sure why, but r.DtStart gets reformated
+                    // y = new Date(r.DtStop);
                     x.setDate(x.getDate() + event.value_new);
-                    f.record.DtStop = w2uiDateControlString(x);
+                    r.DtStop = w2uiDateControlString(x);
                     draw = true;
                     break;
                 }
@@ -404,18 +406,6 @@ window.buildResUpdateElements = function () {
                 showReservationRentable(r);
                 return;
             };
-        },
-        onLoad: function() {
-            // Since we deal with dates only here, we have to be careful with the
-            // hours conversion between UTC (which is supplied from the server)
-            // and localtime which is used by Javascript.  Convert the date strings
-            // to localtime...
-            //---------------------------------------------------------------------
-            var r = w2ui.resUpdateForm.record;
-            var dt = new Date(r.DtStart);  // input is UTC string
-            r.DtStart = dt.toString(); // localtime string
-            dt = new Date(r.DtStop);
-            r.DtStop = dt.toString();
         },
         onRequest: function(/*event*/) {
             w2ui.expenseGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};

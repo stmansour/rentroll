@@ -48,7 +48,7 @@ func Errcheck(err error) {
 			fmt.Printf("error = %v\n", err)
 		}
 		debug.PrintStack()
-		log.Fatal(err)
+		// log.Fatal(err)
 	}
 }
 
