@@ -55,5 +55,8 @@ window.warnMsgHTML = function(msg) {
 //   msg     = the message to display
 //------------------------------------------------------------
 window.feedbackMessage = function(msgArea,msg) {
-    document.getElementById(msgArea).innerHTML = msg;
+    var x = document.getElementById(msgArea);
+    if (x != null) {
+        x.innerHTML = msg;
+    }
 };

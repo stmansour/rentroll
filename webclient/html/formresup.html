@@ -5,6 +5,8 @@
     <div class="w2ui-field"><input type="hidden" name="RTRID" /></div>
     <div class="w2ui-field"><input type="hidden" name="RTID" /></div>
     <div class="w2ui-field"><input type="hidden" name="RID" /></div>
+    <div class="w2ui-field"><input type="hidden" name="BUD" /></div>
+    <div class="w2ui-field"><input type="hidden" name="ConfirmationCode" /></div>
     <div class="w2ui-field"><input type="hidden" name="LeaseStatus" /></div>
     <div class="w2ui-field"><input type="hidden" name="LastModTime" /></div>
     <div class="w2ui-field"><input type="hidden" name="LastModBy" /></div>
@@ -13,14 +15,14 @@
     <table width="745">
         <tr>
             <td valign="top" width="45%">
-                <div class="w2ui-field">
+                <!-- <div class="w2ui-field">
                     <label>Business Unit:</label>
                     <div><input name="BUD" type="list" disabled /></div>
                 </div>
                 <div class="w2ui-field">
                     <label>Conf Code:</label>
                     <div><input name="ConfirmationCode" type="text" size="20" style="width: 100%" disabled /></div>
-                </div>
+                </div> -->
 
                 <div class="w2ui-field">
                     <label>Room Type:</label>
@@ -41,10 +43,13 @@
                         <button class="w2ui-btn" onclick='checkRentableAvailability();'><i class="far fa-calendar-check"></i> Availability</button>
                     </div>
                 </div>
+                
+                <p>&nbsp;</p>
                 <hr>
+                <p>&nbsp;</p>
 
                 <div class="w2ui-field">
-                    <label>DEPOSIT</label>
+                    <label>Accepted Cards</label>
                     <div>
                         <p class="creditcard">
                             <i class="fab fa-cc-visa" fa-2x></i>
@@ -73,9 +78,9 @@
                 <div class="w2ui-field">
                     <label>Exp Month:</label>
                     <div>
-                        <input name="CCExpMonth" type="number" min="1" max="12" size="2"/>
+                        <input name="CCExpMonth" type="number" min="1" max="12" size="2" />
                         <span style="color: #666; vertical-align: 2px;">&nbsp;&nbsp;Exp Year:</span>
-                        <input name="CCExpYear" type="number" min="2019" max="2050" size="4"/>
+                        <input name="CCExpYear" type="number" min="2019" max="2050" size="4" />
                     </div>
                 </div>
             </td>
@@ -119,19 +124,56 @@
                 </div>
             </td>
         </tr>
-        <tr><td height="6" colspan="2" ></td></tr>
-        <tr>
-            <td colspan=2 width="100%" bgcolor="#d2f0e0">
-                <span class="reservationRentable" border="5">
-                    <br>
-                    <span font-color:"#666">&nbsp;&nbsp;Reserve Rentable: &nbsp;&nbsp;</span>
-                    <span id="reservationRentableName"></span>
-                    &nbsp;&nbsp;&nbsp;&nbsp;
-                    <span id="reservationRentableFreePeriod"></span>
-                    <br>&nbsp;
-                </span>
-            </td>
-        </tr>
-        <tr><td height="6" colspan="2" ></td></tr>
     </table>
+    <hr>
+    <section id="reservationSection">
+        <div>
+            <table>
+                <tr>
+                    <td height="6"> </td>
+                </tr>
+            </table>
+            <table id="reservationTable" width="745" style="border-spacing:1px; background-color:#BEBEBE;">
+                <tr>
+                    <td style='padding:4px; color:#E3E3E3; background-color:#2C2C2C; font-size:11pt;' colspan="2" align="center">Reservation</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td style='padding:4px; color:#2C2C2C; background-color:#D8D8D8; font-size:10pt;'  width=160>Confirmation Code</td>
+                    <td id="resConfirmationCode" style='padding:4px; color:#000000; background-color:#F5F5F5; font-size: 11pt;'></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td style='padding:4px; color:#2C2C2C; background-color:#D8D8D8; font-size:10pt;'>Check in</td>
+                    <td id="reservationCheckIn" style='padding:4px; color:#000000; background-color:#F5F5F5; font-size: 11pt;'></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td style='padding:4px; color:#2C2C2C; background-color:#D8D8D8; font-size:10pt;'>Check out</td>
+                    <td id="reservationCheckOut" style='padding:4px; color:#000000; background-color:#F5F5F5; font-size: 11pt;'></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td style='padding:4px; color:#2C2C2C; background-color:#D8D8D8; font-size:10pt;'>Room</td>
+                    <td id="reservationRentableName" style='padding:4px; color:#000000; background-color:#F5F5F5; font-size: 11pt;'></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td style='padding:4px; color:#2C2C2C; background-color:#D8D8D8; font-size:10pt;'>Room Type</td>
+                    <td id="reservationRentableType" style='padding:4px; color:#000000; background-color:#F5F5F5; font-size: 11pt;'></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td style='padding:4px; color:#2C2C2C; background-color:#D8D8D8; font-size: 10pt;'>Room Rate</td>
+                    <td id="reservationRoomRate" style='padding:4px; color:#000000; background-color:#F5F5F5; font-size: 11pt;'></td>
+                    <td></td>
+                </tr>
+            </table>
+            <table>
+                <tr>
+                    <td height="6"> </td>
+                </tr>
+            </table>
+        </div>
+    </section>
 </div>

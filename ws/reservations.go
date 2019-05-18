@@ -326,6 +326,13 @@ OFFSET {{.OffsetClause}};`
 }
 
 // saveReservation
+// The steps to do this are:
+// 1. If this is updating an existing reservation (RLID > 0) read the current
+//    version in the database first.
+// 	  a. If either the start or stop time moved, then free up the rentable
+//       during the old timeslot.
+// 2. Write the new RentableLeaseStatus
+//
 // wsdoc {
 //  @Title  SaveReservation
 //	@URL /v1/available/:BUI/[RLID]
@@ -339,6 +346,8 @@ OFFSET {{.OffsetClause}};`
 //------------------------------------------------------------------------------
 func saveReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "saveReservation"
+	var oldRls rlib.RentableLeaseStatus
+
 	rlib.Console("Entered %s\n", funcname)
 	target := `"record":`
 	i := strings.Index(d.data, target)
@@ -361,9 +370,20 @@ func saveReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	// rlib.Console("Successfully unmarshaled reservation: %s %s\n", res.FirstName, res.LastName)
-	// rlib.Console("    res.BID: %d   d.BID = %d\n", res.BID, d.BID)
-	ctx := rlib.SetSessionContextKey(r.Context(), d.sess)
+	tx, ctx, err := rlib.NewTransactionWithContext(r.Context())
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	cc := rlib.GenerateUserRefNo()
+	if res.RLID > 0 {
+		if oldRls, err = rlib.GetRentableLeaseStatus(ctx, res.RLID); err != nil {
+			tx.Rollback()
+			SvcErrorReturn(w, err, funcname)
+		}
+		cc = oldRls.ConfirmationCode
+	}
 
 	var rls = rlib.RentableLeaseStatus{
 		RLID:             res.RLID,
@@ -386,20 +406,54 @@ func saveReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		CCType:           res.CCType,
 		CCNumber:         res.CCNumber,
 		CCExpMonth:       res.CCExpMonth,
-		ConfirmationCode: rlib.GenerateUserRefNo(),
+		ConfirmationCode: cc,
 	}
 
-	// rlib.Console("***  BEFORE EDI updates:  %s\n", rlib.ConsoleDRange(&rls.DtStart, &rls.DtStop))
-	// rlib.EDIHandleIncomingDateRange(rls.BID, &rls.DtStart, &rls.DtStop)
-	// rlib.Console("***  AFTER EDI updates:   %s\n", rlib.ConsoleDRange(&rls.DtStart, &rls.DtStop))
+	//-----------------------------------------------------------------------------
+	// If the reservation time changes or the Rentable changes, free the old slot
+	//-----------------------------------------------------------------------------
+	dtOrRIDchanged := !rls.DtStart.Equal(oldRls.DtStart) || !rls.DtStop.Equal(oldRls.DtStop) || rls.RID != oldRls.RID
+	if dtOrRIDchanged {
+		var x = rlib.RentableLeaseStatus{
+			RID:         oldRls.RID,
+			BID:         oldRls.BID,
+			LeaseStatus: rlib.LEASESTATUSnotleased,
+			DtStart:     oldRls.DtStart,
+			DtStop:      oldRls.DtStop,
+		}
+		if err = rlib.SetRentableLeaseStatus(ctx, &x); err != nil {
+			e := fmt.Errorf("Error in SetRentableLeaseStatus:  %s", err.Error())
+			tx.Rollback()
+			SvcErrorReturn(w, e, funcname)
+			return
+		}
+	}
 
-	err = rlib.SetRentableLeaseStatus(ctx, &rls)
-	if err != nil {
-		e := fmt.Errorf("Error in SetRentableLeaseStatus:  %s", err.Error())
-		SvcErrorReturn(w, e, funcname)
+	if rls.RLID == 0 || dtOrRIDchanged {
+		err = rlib.SetRentableLeaseStatus(ctx, &rls)
+		if err != nil {
+			e := fmt.Errorf("Error in SetRentableLeaseStatus:  %s", err.Error())
+			tx.Rollback()
+			SvcErrorReturn(w, e, funcname)
+			return
+		}
+	} else {
+		if err = rlib.UpdateRentableLeaseStatus(ctx, &rls); err != nil {
+			e := fmt.Errorf("Error in SetRentableLeaseStatus:  %s", err.Error())
+			tx.Rollback()
+			SvcErrorReturn(w, e, funcname)
+			return
+		}
+	}
+
+	//----------------------------------
+	// All done, commit and exit
+	//----------------------------------
+	if err := tx.Commit(); err != nil {
+		tx.Rollback()
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
-
 	SvcWriteSuccessResponse(rls.BID, w)
 }
 

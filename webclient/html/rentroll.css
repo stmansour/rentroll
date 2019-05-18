@@ -2,6 +2,22 @@
 
 @import url(https://fonts.googleapis.com/css?family=Roboto|Maven+Pro|Open+Sans|Russo+One);
 
+/*
+ * Precedence of selectors is calculated as the following:
+ *
+ *     highest priority:  id
+ *     next highest:      class / attribute
+ *     lowest:            tags / elements
+ *
+ *    id - class - tags
+ */
+#reservationTable table {
+    cellspacing: 4px;
+    cellpadding: 4px;
+    font-size: 14pt;
+    background-color: "yellow";
+}
+
 h1, h2, h3, h4, h5, h6 {
     font-family: "Russo One", "Open Sans","Roboto",sans-serif;
 }
@@ -13,13 +29,14 @@ div, section {
     display: block;
 }
 
-table, td {
+/*table, td {
     border-collapse: collapse;
     border: 0px solid #bbb;
-    font-size: 9pt;
+    font-size: 12pt;
     border-spacing: 6px;
     padding: 6px;
 }
+*/
 
 th {
     font-family: "Roboto","Open Sans",sans-serif;
@@ -55,9 +72,6 @@ section[name="asmEpochForm"] .w2ui-form-box .w2ui-field > div,
     margin-left: 168px;
 }
 
-.reservationRentable {
-    font-size: 10pt;
-}
 
 .help {
     font-size: 10pt;

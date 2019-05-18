@@ -5,10 +5,12 @@
     getBookResInitRecord, resSaveCB, setToForm, setResUpdateRecordForUI,
     showReservationRentable, checkRentableAvailability, cancelReservation, getRTName,
     closeResUpdateDialog, UTCstringToLocaltimeString,applyLocaltimeDateOffset,
-    newReservationRecord,
+    newReservationRecord,feedbackMessage,
 */
 
 "use strict";
+
+
 window.newReservationRecord = function() {
     var BID = getCurrentBID();
     var now = new Date();
@@ -176,8 +178,8 @@ window.buildResUpdateElements = function () {
         padding: 0,
         panels: [
             { type: 'left',    size: 0,     hidden: true,  content: 'left'    },
-            { type: 'top',     size: '55%', hidden: false, content: 'top',    resizable: true, style: app.pstyle },
-            { type: 'main',    size: '45%', hidden: false,  content: 'main',   resizable: true, style: app.pstyle },
+            { type: 'top',     size: '65%', hidden: false, content: 'top',    resizable: true, style: app.pstyle },
+            { type: 'main',    size: '35%', hidden: false,  content: 'main',   resizable: true, style: app.pstyle },
             { type: 'preview', size: 0,     hidden: true,  content: 'preview' },
             { type: 'bottom',  size: '50px',hidden: false,  content: 'bottom', resizable: false, style: app.pstyle },
             { type: 'right',   size: 0,     hidden: true,  content: 'right',  resizable: true, style: app.pstyle }
@@ -317,7 +319,10 @@ window.buildResUpdateElements = function () {
                     draw = true;
                     break;
                 }
-                if (draw) { f.refresh(); }
+                if (draw) {
+                    f.refresh();
+                    checkRentableAvailability();
+                }
             };
         },
         onSubmit: function(target, data) {
@@ -358,7 +363,7 @@ window.buildResUpdateElements = function () {
         },
         columns: [
             {field: 'recid',        caption: 'recid',              size: '40px',  hidden: true,  sortable: true },
-            {field: 'BID',          caption: 'RID',                size: '60px',  hidden: true,  sortable: true, style: 'text-align: right'},
+            {field: 'BID',          caption: 'BID',                size: '60px',  hidden: true,  sortable: true, style: 'text-align: right'},
             {field: 'RID',          caption: 'RID',                size: '45px',  hidden: false, sortable: true, style: 'text-align: right'},
             {field: 'RentableName', caption: app.sRentable,        size: '150px', hidden: false, sortable: true, style: 'text-align: left'},
             {field: 'RTID',         caption: 'RTID',               size: '150px', hidden: false,  sortable: false,
@@ -391,7 +396,12 @@ window.buildResUpdateElements = function () {
             event.onComplete = function () {
                 var rec = w2ui.availabilityGrid.get(event.recid);
                 // console.log('book RID = ' + rec.RID);
-                showReservationRentable(rec);
+                var f = w2ui.resUpdateForm;
+                var r = f.record;
+                r.RID = rec.RID;
+                r.RTID = rec.RTID;
+                r.RentableName = rec.RentableName;
+                showReservationRentable(r);
                 return;
             };
         },
@@ -521,31 +531,23 @@ window.buildResUpdateElements = function () {
 //     as the rentable to use for this reservation
 //
 // @params
-//      f = the form
+//      r - form record
 // @return
 //
 //---------------------------------------------------------------------------------
-window.showReservationRentable = function(rec) {
-    var f = w2ui.resUpdateForm;
-    var r = f.record;
-    r.RID = rec.RID;
-    r.RTID = rec.RTID;
+window.showReservationRentable = function(r) {
     if (r.RTID == undefined) {
-        r.RTID = rec.rdRTID;
-    }
-    var s = '[ no rentable selected ]';
-    if (r.RID > 0 || rec.RentableName.length > 0 ) {
-        s = rec.RentableName;
-        if (typeof r.RTID  != undefined) {
-            s += ' &nbsp;&nbsp(' + getRTName(r.RTID) + ')';
-        }
+        r.RTID = r.rdRTID;
     }
 
-    document.getElementById("reservationRentableName").innerHTML = s;
-    var d1 = new Date(rec.DtStart);
-    var d2 = new Date(rec.DtStop);
-    s = 'available: ' + w2uiDateControlString(d1) + ' - ' + w2uiDateControlString(d2);
-    document.getElementById("reservationRentableFreePeriod").innerHTML = s;
+    var s = '[ no rentable selected ]';
+    feedbackMessage("reservationRentableName", (r.RID > 0 || r.RentableName.length > 0 ) ? r.RentableName : s);
+    feedbackMessage("reservationRentableType", (typeof r.RTID  != undefined) ?getRTName(r.RTID) : '');
+    feedbackMessage("resConfirmationCode",r.ConfirmationCode);
+    var d1 = new Date(r.DtStart);
+    var d2 = new Date(r.DtStop);
+    feedbackMessage("reservationCheckIn", w2uiDateControlString(d1));
+    feedbackMessage("reservationCheckOut", w2uiDateControlString(d2));
 };
 
 //---------------------------------------------------------------------------------
