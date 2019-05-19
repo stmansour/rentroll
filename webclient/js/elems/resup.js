@@ -51,8 +51,10 @@ window.newReservationRecord = function() {
 // in the forms.
 //------------------------------------------------------------------------------
 var pvtReservation = {
-    res: null,
-    locked: true,
+    res: null,        // the reservation record.
+    locked: true,     // the rentable / rentabletype / date details cannot be modified in the UI
+    modified: false,  // indicates if the res has been modified from its original value
+    datesValid: false,// true when loading existing RentableLeaseStatus or selecting from Availability list
 };
 
 
@@ -128,7 +130,9 @@ window.buildResUpdateElements = function () {
                         w2ui.resUpdateForm.url = '';
                         w2ui.resUpdateForm.record = newReservationRecord();
                         pvtReservation.res = $.extend(true,{},w2ui.resUpdateForm.record); // deep copy
-                        pvtReservation.locked = true;
+                        pvtReservation.locked = false;
+                        pvtReservation.modified = false;
+                        pvtReservation.datesValid = false;
                         setToForm('resUpdateForm','',formWidth,false,w2ui.resFormLayout);
                     });
                 };
@@ -257,8 +261,11 @@ window.buildResUpdateElements = function () {
         ],
         toolbar: {
             items: [
+                { id: 'checkIn',  type: 'button', caption: 'Check In', icon: "fas fa-sign-in-alt"},
+                { id: 'checkOut', type: 'button', caption: 'Check Out', icon: "fas fa-sign-out-alt"},
+                { id: 'spc',               type: 'spacer' },
                 { id: 'cancelReservation', type: 'button', caption: 'Cancel Reservation', icon: "fas fa-ban"},
-                { id: 'bt3',               type: 'spacer' },
+                { id: 'brk',               type: 'break' },
                 { id: 'btnClose',          type: 'button', icon: 'fas fa-times' },
             ],
             onClick: function (event) {
@@ -291,6 +298,8 @@ window.buildResUpdateElements = function () {
                 f.record.Nights = daysBetweenDates(x,y);
                 pvtReservation.res = $.extend(true, {}, r ); // deep copy
                 pvtReservation.locked = true; // lock it by default
+                pvtReservation.modified = false;
+                pvtReservation.datesValid = true;
             };
         },
         onRender: function(event) {
@@ -307,6 +316,7 @@ window.buildResUpdateElements = function () {
                 var r = f.record;
                 var draw=false;
                 var check=false;
+                var extend=true;
                 console.log('event.target = ' + event.target);
                 switch (event.target) {
                 case "DtStart":
@@ -315,6 +325,9 @@ window.buildResUpdateElements = function () {
                     x.setDate(x.getDate() + r.Nights);
                     r.DtStop = w2uiDateControlString(x);
                     draw = true;
+                    extend = false; // must be selected from avalability list
+                    check = true;
+                    pvtReservation.datesValid = false;
                     break;
                 case "DtStop":
                     x = new Date(event.value_new);
@@ -327,6 +340,9 @@ window.buildResUpdateElements = function () {
                     y = new Date(r.DtStop);
                     r.Nights = daysBetweenDates(x,y);
                     draw = true;
+                    extend = false; // must be selected from avalability list
+                    check = true;
+                    pvtReservation.datesValid = false;
                     break;
                 case "Nights":
                     x = new Date(r.DtStart);
@@ -335,10 +351,22 @@ window.buildResUpdateElements = function () {
                     x.setDate(x.getDate() + event.value_new);
                     r.DtStop = w2uiDateControlString(x);
                     draw = true;
+                    extend = false; // must be selected from avalability list
+                    check = true;
+                    pvtReservation.datesValid = false;
                     break;
                 case "rdRTID":
                     check = true;
+                    pvtReservation.datesValid = false;
                     break;
+                }
+                //-----------------------------------------------------------------------
+                // If the reservation is unlocked, copy info into  pvtReservation.res.
+                // Exception:  if rdRTID was set to "any type"
+                //-----------------------------------------------------------------------
+                if (extend && !pvtReservation.locked && (event.target != "rdRTID" || (event.target == "rdRTID" && r.rdRTID > 0))) {
+                    pvtReservation.res = $.extend(true,{},r);
+                    showReservationRentable();
                 }
                 if (draw) {
                     f.refresh();
@@ -423,11 +451,14 @@ window.buildResUpdateElements = function () {
                 var r = f.record;
                 r.RID = rec.RID;
                 r.RTID = rec.RTID;
+                r.rdRTID = rec.RTID;
                 r.RentableName = rec.RentableName;
                 if (!pvtReservation.locked) {
                     pvtReservation.res = $.extend(true,{},r); // it's unlocked, copy to reservation
+                    pvtReservation.modified = true;
                 }
                 showReservationRentable();
+                f.refresh();
                 return;
             };
         },
@@ -488,33 +519,10 @@ window.buildResUpdateElements = function () {
                 var d1 = applyLocaltimeDateOffset(new Date(r.DtStart));
                 var d2 = applyLocaltimeDateOffset(new Date(r.DtStop));
 
-                var res = {
-                    rdBID: BID,
-                    DtStart: d1.toUTCString(),
-                    DtStop: d2.toUTCString(),
-                    RLID: r.RLID,
-                    RTRID: r.RTRID,
-                    rdRTID: rtid,
-                    RID: r.RID,
-                    LeaseStatus: r.LeaseStatus,
-                    RentableName: r.RentableName,
-                    FirstName: r.FirstName,
-                    LastName: r.LastName,
-                    Email: r.Email,
-                    Phone: r.Phone,
-                    Street: r.Street,
-                    City: r.City,
-                    Country: r.Country,
-                    State: r.State,
-                    PostalCode: r.PostalCode,
-                    CCName: r.CCName,
-                    CCType: r.CCType,
-                    CCNumber: r.CCNumber,
-                    CCExpMonth: r.CCExpMonth,
-                    CCExpYear: r.CCExpYear,
-                    ConfirmationCode: r.ConfirmationCode,
-                    Comment: r.Comment,
-                };
+                var res = $.extend(true,{},pvtReservation.res);
+                    res.DtStart = d1.toUTCString();
+                    res.DtStop = d2.toUTCString();
+                    res.rdRTID = rtid;
                 var params = {cmd: "save", record: res};
                 var dat = JSON.stringify(params);
 
@@ -524,7 +532,12 @@ window.buildResUpdateElements = function () {
                         f.error(w2utils.lang(data.message));
                         return;
                     }
-                    closeResUpdateDialog();
+                    // closeResUpdateDialog();
+                    // reload updated info...
+                    w2ui.availabilityGrid.clear(); // remove any contents from prior checks
+                    w2ui.availabilityGrid.url = '';
+                    var url = '/v1/reservation/' + BID + '/' + data.recid;
+                    setToForm('resUpdateForm',url,formWidth,true,w2ui.resFormLayout);
                 })
                 .fail(function(/*data*/){
                     f.error("Save Reservation failed.");
@@ -554,8 +567,11 @@ window.showReservationRentable = function() {
     var r = pvtReservation.res;
     var s = '[ no rentable selected ]';
     feedbackMessage("reservationRentableName", (r.RID > 0 || r.RentableName.length > 0 ) ? r.RentableName : s);
-    feedbackMessage("reservationRentableType", (typeof r.RTID  != undefined) ?getRTName(r.RTID) : '');
-    feedbackMessage("resConfirmationCode",r.ConfirmationCode);
+    feedbackMessage("reservationRentableType", (typeof r.rdRTID  != undefined) ?getRTName(r.rdRTID) : '');
+
+    s = r.ConfirmationCode;
+    s += pvtReservation.modified ? '&nbsp;&nbsp; (will be changed on Save)' : '';
+    feedbackMessage("resConfirmationCode",s);
 
     s  = '<button onclick="toggleReservationLock();" class="w2ui-btn">&nbsp;<i class="fas fa-lock';
     s += pvtReservation.locked ? '' : '-open';
@@ -568,6 +584,16 @@ window.showReservationRentable = function() {
     var d2 = new Date(r.DtStop);
     feedbackMessage("reservationCheckIn", w2uiDateControlString(d1));
     feedbackMessage("reservationCheckOut", w2uiDateControlString(d2));
+
+    feedbackMessage("resFirstName",r.FirstName);
+    feedbackMessage("resLastName",r.LastName);
+    feedbackMessage("resPhone",r.Phone);
+    feedbackMessage("resEmail",r.Email);
+    feedbackMessage("resStreet",r.Street);
+    feedbackMessage("resCity",r.City);
+    feedbackMessage("resState",r.State);
+    feedbackMessage("resPostalCode",r.PostalCode);
+    feedbackMessage("resComment",r.Comment);
 };
 
 //---------------------------------------------------------------------------------
@@ -581,6 +607,28 @@ window.showReservationRentable = function() {
 //---------------------------------------------------------------------------------
 window.toggleReservationLock = function () {
     pvtReservation.locked = !pvtReservation.locked;
+    if (!pvtReservation.locked) {
+        var RID = pvtReservation.res.RID;
+        var rdRTID = pvtReservation.res.rdRTID;
+        var DtStart = pvtReservation.res.DtStart;
+        var DtStop = pvtReservation.res.DtStop;
+        pvtReservation.res = $.extend(true,{},w2ui.resUpdateForm.record);
+
+        //-----------------------------------------------------------------
+        // If reservation date/rid/rtid info is in unknown state
+        // then set to the best known good info possible...
+        //-----------------------------------------------------------------
+        if (typeof w2ui.resUpdateForm.record.rdRTID == "object") {
+            var x = w2ui.resUpdateForm.record.rdRTID.id;
+            pvtReservation.res.rdRTID = x;
+        }
+        if (!pvtReservation.datesValid) {
+            pvtReservation.res.RID = RID;
+            pvtReservation.res.rdRTID = rdRTID;
+            pvtReservation.res.DtStart = DtStart;
+            pvtReservation.res.DtStop = DtStop;
+        }
+    }
     showReservationRentable();
 };
 //---------------------------------------------------------------------------------

@@ -454,7 +454,7 @@ func saveReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
-	SvcWriteSuccessResponse(rls.BID, w)
+	SvcWriteSuccessResponseWithID(rls.BID, w, rls.RLID)
 }
 
 func deleteReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {

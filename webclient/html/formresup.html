@@ -52,14 +52,14 @@
                     <label>Accepted Cards</label>
                     <div>
                         <p class="creditcard">
-                            <i class="fab fa-cc-visa" fa-2x></i>
-                            <i class="fab fa-cc-mastercard" fa-2x></i>
-                            <i class="fab fa-cc-amex" fa-2x></i>
-                            <i class="fab fa-cc-discover" fa-2x></i>
-                            <i class="fab fa-cc-stripe" fa-2x></i>
-                            <i class="fab fa-cc-paypal" fa-2x></i>
-                            <i class="fab fa-cc-apple-pay" fa-2x></i>
-                            <i class="fab fa-cc-amazon-pay" fa-2x></i>
+                            <i class="fab fa-cc-visa" fa-3x></i>
+                            <i class="fab fa-cc-mastercard" fa-3x></i>
+                            <i class="fab fa-cc-amex" fa-3x></i>
+                            <i class="fab fa-cc-discover" fa-3x></i>
+                            <i class="fab fa-cc-stripe" fa-3x></i>
+                            <i class="fab fa-cc-paypal" fa-3x></i>
+                            <i class="fab fa-cc-apple-pay" fa-3x></i>
+                            <i class="fab fa-cc-amazon-pay" fa-3x></i>
                         </p>
                     </div>
                 </div>
@@ -135,48 +135,78 @@
             </table>
             <table id="reservationTable" width="745" style="border-spacing:1px; background-color:#BEBEBE;">
                 <tr>
-                    <td style='padding:4px; color:#F3F3F3; background-color:#2C2C2C; font-size:14pt;' colspan="2">
+                    <td style='padding:4px; color:#F3F3F3; background-color:#2C2C2C; font-size:14pt;' colspan="4">
                         <span id="rrReservationLock" align="left">
                             <button onclick="toggleReservationLock();">&nbsp;<i class="fas fa-lock fa-2x"></i>&nbsp;</button>
                         </span>
                         <span align="center">Reservation</span>
                     </td>
-                    <td></td>
                 </tr>
                 <tr>
-                    <td style='padding:4px; color:#2C2C2C; background-color:#D8D8D8; font-size:10pt;'  width=160>Confirmation Code</td>
-                    <td id="resConfirmationCode" style='padding:4px; color:#000000; background-color:#F5F5F5; font-size: 11pt;'></td>
-                    <td></td>
+                    <td width=130 align="right" style='padding:4px; color:#2C2C2C; background-color:#D8D8D8; font-size:10pt;'>Confirmation Code</td>
+                    <td width=200 id="resConfirmationCode" style='padding:4px; color:#000000; background-color:#F5F5F5; font-size:10pt;'></td>
+                    <td width=120 align="right" style='padding:4px; color:#2C2C2C; background-color:#D8D8D8; font-size:10pt;'>First Name</td>
+                    <td width=260 id="resFirstName" style='padding:4px; color:#000000; background-color:#F5F5F5; font-size:10pt;'></td>
                 </tr>
                 <tr>
-                    <td style='padding:4px; color:#2C2C2C; background-color:#D8D8D8; font-size:10pt;'>Check in</td>
-                    <td id="reservationCheckIn" style='padding:4px; color:#000000; background-color:#F5F5F5; font-size: 11pt;'></td>
-                    <td></td>
+                    <td align="right" style='padding:4px; color:#2C2C2C; background-color:#D8D8D8; font-size:10pt;'>Check in</td>
+                    <td id="reservationCheckIn" style='padding:4px; color:#000000; background-color:#F5F5F5; font-size:10pt;'></td>
+                    <td align="right" style='padding:4px; color:#2C2C2C; background-color:#D8D8D8; font-size:10pt;'>Last Name</td>
+                    <td id="resLastName" style='padding:4px; color:#000000; background-color:#F5F5F5; font-size:10pt;'></td>
                 </tr>
                 <tr>
-                    <td style='padding:4px; color:#2C2C2C; background-color:#D8D8D8; font-size:10pt;'>Check out</td>
-                    <td id="reservationCheckOut" style='padding:4px; color:#000000; background-color:#F5F5F5; font-size: 11pt;'></td>
-                    <td></td>
+                    <td align="right" style='padding:4px; color:#2C2C2C; background-color:#D8D8D8; font-size:10pt;'>Check out</td>
+                    <td id="reservationCheckOut" style='padding:4px; color:#000000; background-color:#F5F5F5; font-size:10pt;'></td>
+                    <td align="right" style='padding:4px; color:#2C2C2C; background-color:#D8D8D8; font-size:10pt;'>Phone</td>
+                    <td id="resPhone" style='padding:4px; color:#000000; background-color:#F5F5F5; font-size:10pt;'></td>
                 </tr>
                 <tr>
-                    <td style='padding:4px; color:#2C2C2C; background-color:#D8D8D8; font-size:10pt;'>Room</td>
-                    <td id="reservationRentableName" style='padding:4px; color:#000000; background-color:#F5F5F5; font-size: 11pt;'></td>
-                    <td></td>
+                    <td align="right" style='padding:4px; color:#2C2C2C; background-color:#D8D8D8; font-size:10pt;'>Room</td>
+                    <td id="reservationRentableName" style='padding:4px; color:#000000; background-color:#F5F5F5; font-size:10pt;'></td>
+                    <td align="right" style='padding:4px; color:#2C2C2C; background-color:#D8D8D8; font-size:10pt;'>Email</td>
+                    <td id="resEmail" style='padding:4px; color:#000000; background-color:#F5F5F5; font-size:10pt;'></td>
                 </tr>
                 <tr>
-                    <td style='padding:4px; color:#2C2C2C; background-color:#D8D8D8; font-size:10pt;'>Room Type</td>
-                    <td id="reservationRentableType" style='padding:4px; color:#000000; background-color:#F5F5F5; font-size: 11pt;'></td>
-                    <td></td>
+                    <td align="right" style='padding:4px; color:#2C2C2C; background-color:#D8D8D8; font-size:10pt;'>Room Type</td>
+                    <td id="reservationRentableType" style='padding:4px; color:#000000; background-color:#F5F5F5; font-size:10pt;'></td>
+                    <td align="right" style='padding:4px; color:#2C2C2C; background-color:#D8D8D8; font-size:10pt;'>Street</td>
+                    <td id="resStreet" style='padding:4px; color:#000000; background-color:#F5F5F5; font-size:10pt;'></td>
                 </tr>
                 <tr>
-                    <td style='padding:4px; color:#2C2C2C; background-color:#D8D8D8; font-size: 10pt;'>Room Rate</td>
-                    <td id="reservationRoomRate" style='padding:4px; color:#000000; background-color:#F5F5F5; font-size: 11pt;'></td>
-                    <td></td>
+                    <td align="right" style='padding:4px; color:#2C2C2C; background-color:#D8D8D8; font-size: 10pt;'></td>
+                    <td id="reservationRoomRate" style='padding:4px; color:#000000; background-color:#F5F5F5; font-size:10pt;'></td>
+                    <td align="right" style='padding:4px; color:#2C2C2C; background-color:#D8D8D8; font-size: 10pt;'>City</td>
+                    <td id="resCity" style='padding:4px; color:#000000; background-color:#F5F5F5; font-size:10pt;'></td>
                 </tr>
-            </table>
-            <table>
                 <tr>
-                    <td height="6"> </td>
+                    <td align="right" style='padding:4px; color:#2C2C2C; background-color:#D8D8D8; font-size: 10pt;'>Comment</td>
+                    <td id="resComment" style='padding:4px; color:#000000; background-color:#F5F5F5; font-size:10pt;'></td>
+                    <td align="right" style='padding:4px; color:#2C2C2C; background-color:#D8D8D8; font-size: 10pt;'>State</td>
+                    <td id="resState" style='padding:4px; color:#000000; background-color:#F5F5F5; font-size:10pt;'></td>
+                </tr>
+                <tr>
+                    <td align="right" style='padding:4px; color:#2C2C2C; background-color:#D8D8D8; font-size: 10pt;'></td>
+                    <td id="r1" style='padding:4px; color:#000000; background-color:#F5F5F5; font-size:10pt;'></td>
+                    <td align="right" style='padding:4px; color:#2C2C2C; background-color:#D8D8D8; font-size: 10pt;'>Postal Code</td>
+                    <td id="resPostalCode" style='padding:4px; color:#000000; background-color:#F5F5F5; font-size:10pt;'></td>
+                </tr>
+                <tr>
+                    <td align="right" style='padding:4px; color:#2C2C2C; background-color:#D8D8D8; font-size:10pt;'>Card Type</td>
+                    <td id="reservationCCType" style='padding:4px; color:#000000; background-color:#F5F5F5; font-size:10pt;'></td>
+                    <td align="right" style='padding:4px; color:#2C2C2C; background-color:#D8D8D8; font-size:10pt;'></td>
+                    <td id="rr7" style='padding:4px; color:#000000; background-color:#F5F5F5; font-size:10pt;'></td>
+                </tr>
+                <tr>
+                    <td align="right" style='padding:4px; color:#2C2C2C; background-color:#D8D8D8; font-size:10pt;'>Card Number</td>
+                    <td id="reservationCCNumber" style='padding:4px; color:#000000; background-color:#F5F5F5; font-size:10pt;'></td>
+                    <td align="right" style='padding:4px; color:#2C2C2C; background-color:#D8D8D8; font-size:10pt;'>Name on Card</td>
+                    <td id="reservationCCName" style='padding:4px; color:#000000; background-color:#F5F5F5; font-size:10pt;'></td>
+                </tr>
+                <tr>
+                    <td align="right" style='padding:4px; color:#2C2C2C; background-color:#D8D8D8; font-size:10pt;'>Exp Month</td>
+                    <td id="reservationCCExpMonth" style='padding:4px; color:#000000; background-color:#F5F5F5; font-size:10pt;'></td>
+                    <td align="right" style='padding:4px; color:#2C2C2C; background-color:#D8D8D8; font-size:10pt;'>Exp Year</td>
+                    <td id="reservationCCExpYear" style='padding:4px; color:#000000; background-color:#F5F5F5; font-size:10pt;'></td>
                 </tr>
             </table>
         </div>
