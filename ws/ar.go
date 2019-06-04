@@ -26,8 +26,8 @@ type ARSendForm struct {
 	CreditLID             int64
 	CreditLedgerName      string
 	Description           string
-	DtStart               rlib.JSONDate
-	DtStop                rlib.JSONDate
+	DtStart               rlib.JSONDateTime
+	DtStop                rlib.JSONDateTime
 	FLAGS                 uint64
 	AutoPopulateToNewRA   bool
 	raRequired            int
@@ -66,8 +66,8 @@ type ARSaveForm struct {
 	ARType                int64
 	Name                  string
 	Description           string
-	DtStart               rlib.JSONDate
-	DtStop                rlib.JSONDate
+	DtStart               rlib.JSONDateTime
+	DtStop                rlib.JSONDateTime
 	PriorToRAStart        bool // is it ok to charge prior to RA start
 	PriorToRAStop         bool // is it ok to charge after RA stop
 	ApplyRcvAccts         bool
@@ -96,8 +96,8 @@ type PrARGrid struct {
 	CreditLID        int64
 	CreditLedgerName string
 	Description      string
-	DtStart          rlib.JSONDate
-	DtStop           rlib.JSONDate
+	DtStart          rlib.JSONDateTime
+	DtStop           rlib.JSONDateTime
 }
 
 // SaveARInput is the input data format for a Save command
@@ -371,6 +371,8 @@ func saveARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// migrate foo.Record data to a struct's fields
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
 	fmt.Printf("saveAR - first migrate: a = %#v\n", a)
+
+	rlib.EDIHandleIncomingDateRange(d.BID, &a.DtStart, &a.DtStop)
 
 	var ok bool
 	a.BID, ok = rlib.RRdb.BUDlist[string(foo.Record.BUD)]

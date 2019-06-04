@@ -594,6 +594,11 @@ window.showReservationRentable = function() {
     feedbackMessage("resState",r.State);
     feedbackMessage("resPostalCode",r.PostalCode);
     feedbackMessage("resComment",r.Comment);
+    feedbackMessage("reservationCCType",r.CCType);
+    feedbackMessage("reservationCCNumber",r.CCNumber);
+    feedbackMessage("reservationCCName",r.CCName);
+    feedbackMessage("reservationCCExpMonth",r.CCExpMonth);
+    feedbackMessage("reservationCCExpYear",r.CCExpYear);
 };
 
 //---------------------------------------------------------------------------------

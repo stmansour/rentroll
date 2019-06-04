@@ -2,7 +2,8 @@
     w2ui,console,$,setDefaultFormFieldAsPreviousRecord,w2uiDateControlString,
     app,getBUDfromBID,getPostAccounts,setToForm,getCurrentBusiness,form_dirty_alert,
     w2confirm,w2utils,getFormSubmitData,int_to_bool,formRefreshCallBack,formRecDiffer,
-    getARRulesInitRecord,updateBUDFormList
+    getARRulesInitRecord,updateBUDFormList, applyLocaltimeDateOffset,
+    adjustARDates
 */
 "use strict";
 
@@ -90,8 +91,18 @@ $().w2grid({
         {field: 'DebitLedgerName', hidden: false, caption: 'Debit',      size: '200px',sortable: true, style: 'text-align: left'},
         {field: 'CreditLID',       hidden: true,  caption: 'CreditLID',  size: '50px', sortable: true},
         {field: 'CreditLedgerName',hidden: false, caption: 'Credit',     size: '200px',sortable: true, style: 'text-align: left'},
-        {field: 'DtStart',                        caption: 'Start',      size: '80px', sortable: true, style: 'text-align: right'},
-        {field: 'DtStop',                         caption: 'Stop',       size: '80px', sortable: true, style: 'text-align: right'},
+        {field: 'DtStart',                        caption: 'Start',      size: '80px', sortable: true, style: 'text-align: right',
+            render: function(record,index,col_index) {
+                var y = new Date(record.DtStart);
+                return dateFmtStr(y);
+            }
+        },
+        {field: 'DtStop',                         caption: 'Stop',       size: '80px', sortable: true, style: 'text-align: right',
+            render: function(record,index,col_index) {
+                var y = new Date(record.DtStop);
+                return dateFmtStr(y);
+            }
+        },
         {field: 'Description',     hidden: false, caption: 'Description',size: '20%',  sortable: true, style: 'text-align: left'},
     ],
     onRefresh: function(event) {
@@ -103,6 +114,19 @@ $().w2grid({
                 else{
                     this.select(app.last.grid_sel_recid);
                 }
+            }
+        };
+    },
+    onLoad: function(event) {
+        event.onComplete = function() {
+            var rs = this.records;
+            var r;
+            for (var i = 0; i < rs.length; i++) {
+                r = rs[i];
+                var y = new Date(r.DtStart);
+                r.DtStart = dateFmtStr(y);
+                var x = new Date(r.DtStop);
+                r.DtStop = dateFmtStr(x);
             }
         };
     },
@@ -287,13 +311,23 @@ $().w2grid({
                 });
             }
         },
+        onLoad: function(event) {
+            event.onComplete = function() {
+                var r = this.record;
+                var y = new Date(r.DtStart);
+                r.DtStart = dateFmtStr(y);
+                var x = new Date(r.DtStop);
+                r.DtStop = dateFmtStr(x);
+            };
+        },
         actions: {
             saveadd: function() {
-                var f = this,
-                    grid = w2ui.arsGrid,
-                    x = getCurrentBusiness(),
-                    BID=parseInt(x.value),
-                    BUD=getBUDfromBID(BID);
+                var f = this;
+                var r = f.record;
+                var grid = w2ui.arsGrid;
+                var x = getCurrentBusiness();
+                var BID=parseInt(x.value);
+                var BUD=getBUDfromBID(BID);
 
                 // clean dirty flag of form
                 app.form_is_dirty = false;
@@ -302,6 +336,7 @@ $().w2grid({
 
                 // select none if you're going to add new record
                 grid.selectNone();
+                adjustARDates(r);
 
                 f.save({}, function (data) {
                     if (data.status == 'error') {
@@ -336,6 +371,21 @@ $().w2grid({
                     f.refresh();
                 });
             },
+            save: function () {
+                var r = this.record;
+                var tgrid = w2ui.arsGrid;
+                tgrid.selectNone();
+                adjustARDates(r);
+
+                this.save({}, function (data) {
+                    if (data.status == 'error') {
+                        console.log('ERROR: '+ data.message);
+                        return;
+                    }
+                    w2ui.toplayout.hide('right',true);
+                    tgrid.render();
+                });
+            },
             delete: function() {
                 var form = this;
                 w2confirm(delete_confirm_options)
@@ -362,20 +412,6 @@ $().w2grid({
                 })
                 .no(function () {
                     return;
-                });
-            },
-            save: function () {
-                //var obj = this;
-                var tgrid = w2ui.arsGrid;
-                tgrid.selectNone();
-
-                this.save({}, function (data) {
-                    if (data.status == 'error') {
-                        console.log('ERROR: '+ data.message);
-                        return;
-                    }
-                    w2ui.toplayout.hide('right',true);
-                    tgrid.render();
                 });
             },
         },

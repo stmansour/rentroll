@@ -2,7 +2,8 @@
 'esversion 6';
 /*global
   app, setDateControl, dateMonthBack, getDateFromDT, getTimeFromDT, dateFromString,
-  dateFmtStr, zeroPad, yearFwd, dateYearFwd, yearBack, dateYearBack,
+  dateFmtStr, zeroPad, yearFwd, dateYearFwd, yearBack, dateYearBack, applyLocaltimeDateOffset,
+  UTCDateStringToW2UIValidDate,
 */
 
 //-----------------------------------------------------------------------------
@@ -47,6 +48,51 @@ window.applyLocaltimeDateOffset = function(d) {
         return new Date(d.getFullYear(),d.getMonth(),d.getDate(),0,(1440-m));
     }
     return new Date(d.getFullYear(),d.getMonth(),d.getDate(),0,m);
+};
+
+//-----------------------------------------------------------------------------
+// UTCDateStringToW2UIValidDate
+//               - Javascript's toUTCString returns a date string like this:
+//
+//                 "Fri, 31 Dec 9999 00:00:00 GMT"
+//
+//                 This fails w2ui's validation check on dates.  This function
+//                 changes the string above into m/d/y format -- which is in
+//                 utc format and which will pass the validation check.  For
+//                 the date above, the return value is "12/31/9999"
+//
+//                 Only the date is returned, not the time.
+//
+// @params
+//   x = date in utc format
+//
+// @return  string representing the UTC date
+//-----------------------------------------------------------------------------
+window.UTCDateStringToW2UIValidDate = function(x) {
+    var z = {Jan: "01", Feb: "02", Mar: "03", Apr: "04", May: "05", Jun: "06",
+             Jul: "07", Aug: "08", Sep: "09", Oct: "10", Nov: "11", Dec: "12"};
+    var d = x.substring(5,7);
+    var mn = x.substring(8,11);
+    var m = z[mn];
+    var y = x.substring(12,16);
+    return m + '/' + d + '/' + y;
+};
+//-----------------------------------------------------------------------------
+// adjustARDates - a convenience function to apply the offset to 2 localtime
+//                 dates just prior to sending them to the server.  This puts
+//                 the dates into the appropriate value for saving in UTC.
+//
+// @params
+//   d1 = first date
+//   d2 = second date
+//
+// @return number of days between the dates
+//-----------------------------------------------------------------------------
+window.adjustARDates = function(r) {
+    var d1 = applyLocaltimeDateOffset(new Date(r.DtStart));
+    var d2 = applyLocaltimeDateOffset(new Date(r.DtStop));
+    r.DtStart = UTCDateStringToW2UIValidDate(d1.toUTCString());
+    r.DtStop = UTCDateStringToW2UIValidDate(d2.toUTCString());
 };
 
 //-----------------------------------------------------------------------------
