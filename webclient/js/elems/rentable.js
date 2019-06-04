@@ -114,10 +114,12 @@ window.getRentableInitRecord = function (BID, BUD, previousFormRecord) {
 // getRentableTypes - return the RentableTypes list with respect of BUD
 // @params
 //      BUD - current business designation
+//      mode - 0 = include all
+//             1 = exclude child types
 //      cb  - callback routine (optional param)
 // @return  the Rentable Types List
 //-----------------------------------------------------------------------------
-window.getRentableTypes = function (BUD,cb) {
+window.getRentableTypes = function (BUD,mode,cb) {
     return jQuery.ajax({
         type: "GET",
         url: "/v1/rtlist/" + BUD,
@@ -126,7 +128,22 @@ window.getRentableTypes = function (BUD,cb) {
         if (data.status == "success") {
             if (data.records) {
                 var list=[ {id: 0, FLAGS: 0, text: "any type"}];
-                app.rt_list[BUD] = list.concat(data.records);
+                switch (mode) {
+                case 0: // include all
+                    app.rt_list[BUD] = list.concat(data.records);
+                    break;
+                case 1: // exclude child
+                    for (var i = 0; i < data.records.length; i++) {
+                        if ((data.records[i].FLAGS & 0xA) == 0) {
+                            list.push(data.records[i]);
+                        }
+                    }
+                    app.rt_list[BUD] = list;
+                    break;
+                default:
+                    console.log("getRentableTypes: unrecognized mode: " + mode);
+                    return;
+                }
             } else {
                 w2ui.rentablesGrid.error(data.message);
                 app.rt_list[BUD] = [];
@@ -270,7 +287,7 @@ window.buildRentableElements = function () {
                         var BID = parseInt(x.value);
                         var BUD = getBUDfromBID(BID);
 
-                        getRentableTypes(BUD)
+                        getRentableTypes(BUD,0)
                         .done(function (data) {
                             if ('status' in data && data.status !== 'success') {
                                 w2ui.rentableForm.message(data.message);
@@ -308,7 +325,7 @@ window.buildRentableElements = function () {
                 RentableEdits.RTRChgList.push(w2ui.rentableForm.record.recid);
                 w2ui.rentableForm.refresh();
 
-                getRentableTypes(BUD)
+                getRentableTypes(BUD,0)
                 .done(function (data) {
                     if ('status' in data && data.status !== 'success') {
                         w2ui.rentablesGrid.message(data.message);

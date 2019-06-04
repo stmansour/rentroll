@@ -124,7 +124,7 @@ window.buildResUpdateElements = function () {
                     app.last.grid_sel_recid = -1; // reset grid sel recid
                     grid.selectNone();
                     var BUD = getBUDfromBID(getCurrentBID());
-                    getRentableTypes(BUD, function() {
+                    getRentableTypes(BUD, 1, function() {
                         w2ui.availabilityGrid.clear(); // remove any contents from prior checks
                         w2ui.availabilityGrid.url = '';
                         w2ui.resUpdateForm.url = '';
@@ -145,7 +145,7 @@ window.buildResUpdateElements = function () {
                 // switchToResUpdate(rec.RLID);
                 var BID = getCurrentBID();
                 var BUD = getBUDfromBID(BID);
-                getRentableTypes(BUD, function() {
+                getRentableTypes(BUD, 1, function() {
                     w2ui.availabilityGrid.clear(); // remove any contents from prior checks
                     w2ui.availabilityGrid.url = '';
                     var url = '/v1/reservation/' + BID + '/' + rec.RLID;
