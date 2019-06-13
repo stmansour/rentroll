@@ -5,7 +5,7 @@
     getBookResInitRecord, resSaveCB, setToForm, setResUpdateRecordForUI,
     showReservationRentable, checkRentableAvailability, cancelReservation, getRTName,
     closeResUpdateDialog, UTCstringToLocaltimeString,applyLocaltimeDateOffset,
-    newReservationRecord,feedbackMessage,
+    newReservationRecord,feedbackMessage,number_format,
 */
 
 "use strict";
@@ -24,10 +24,18 @@ window.newReservationRecord = function() {
         RTRID: 0,
         rdRTID: 0,
         RID: 0,
+        RAID: 0,
+        TCID: 0,
+        Amounmt: 0.0,
+        Deposit: 0.0,
         LeaseStatus: 2, // reserved
         RentableName: '',
         FirstName: '',
+        UnspecifiedAdults: 0,
+        UnspecifiedChildren: 0,
         LastName: '',
+        IsCompany: false,
+        CompanyName: '',
         Email: '',
         Phone: '',
         Street: '',
@@ -110,6 +118,8 @@ window.buildResUpdateElements = function () {
             },
             {field: 'FirstName',        caption: 'FirstName',       size: '90px',  hidden: false, sortable: true },
             {field: 'LastName',         caption: 'LastName',        size: '90px',  hidden: false, sortable: true },
+            {field: 'CompanyName',      caption: 'CompanyName',     size: '90px',  hidden: false, sortable: true },
+            {field: 'IsCompany',        caption: 'IsCompany',       size: '90px',  hidden: true, sortable: true },
             {field: 'Email',            caption: 'Email',           size: '175px', hidden: false, sortable: true },
             {field: 'Phone',            caption: 'Phone',           size: '100px', hidden: false, sortable: true },
             {field: 'RentableName',     caption: 'Rentable Name',   size: '100px', hidden: false, sortable: true },
@@ -194,8 +204,8 @@ window.buildResUpdateElements = function () {
         padding: 0,
         panels: [
             { type: 'left',    size: 0,     hidden: true,  content: 'left'    },
-            { type: 'top',     size: '65%', hidden: false, content: 'top',    resizable: true, style: app.pstyle },
-            { type: 'main',    size: '35%', hidden: false,  content: 'main',   resizable: true, style: app.pstyle },
+            { type: 'top',     size: '75%', hidden: false, content: 'top',    resizable: true, style: app.pstyle },
+            { type: 'main',    size: '25%', hidden: false,  content: 'main',   resizable: true, style: app.pstyle },
             { type: 'preview', size: 0,     hidden: true,  content: 'preview' },
             { type: 'bottom',  size: '50px',hidden: false,  content: 'bottom', resizable: false, style: app.pstyle },
             { type: 'right',   size: 0,     hidden: true,  content: 'right',  resizable: true, style: app.pstyle }
@@ -228,36 +238,41 @@ window.buildResUpdateElements = function () {
         url: '/v1/reservation/',
         formURL: '/webclient/html/formresup.html',
         fields: [
-            { field: 'BUD',              type: 'list',     required: false,  options: {items: app.businesses} },
-            { field: 'RLID',             type: 'int',      required: false,  },
-            { field: 'RTRID',            type: 'int',      required: false,  },
-            { field: 'RTID',             type: 'int',      required: false,  },
-            { field: 'rdRTID',           type: 'list',     required: false,  },
-            { field: 'RID',              type: 'int',      required: false,  },
-            { field: 'rdBID',            type: 'int',      required: false,  },
-            { field: 'ConfirmationCode', type: 'text',     required: false,  },
-            { field: 'LeaseStatus',      type: 'int',      required: false,  },
-            { field: 'DtStart',          type: 'date',     required: false,  },
-            { field: 'DtStop',           type: 'date',     required: false,  },
-            { field: 'Nights',           type: 'int',      required: false,  },
-            { field: 'FirstName',        type: 'text',     required: true ,  },
-            { field: 'LastName',         type: 'text',     required: true ,  },
-            { field: 'Phone',            type: 'text',     required: false,  },
-            { field: 'Email',            type: 'text',     required: false,  },
-            { field: 'Street',           type: 'text',     required: false,  },
-            { field: 'City',             type: 'text',     required: false,  },
-            { field: 'State',            type: 'text',     required: false,  },
-            { field: 'PostalCode',       type: 'text',     required: false,  },
-            { field: 'CCName',           type: 'text',     required: false,  },
-            { field: 'CCType',           type: 'text',     required: false,  },
-            { field: 'CCNumber',         type: 'text',     required: false,  },
-            { field: 'CCExpMonth',       type: 'text',     required: false,  },
-            { field: 'CCExpYear',        type: 'text',     required: false,  },
-            { field: 'Comment',          type: 'textarea', required: false,  },
-            { field: 'LastModTime',      type: 'time',     required: false,  },
-            { field: 'LastModBy',        type: 'int',      required: false,  },
-            { field: 'CreateTS',         type: 'time',     required: false,  },
-            { field: 'CreateBy',         type: 'int',      required: false,  },
+            { field: 'BUD',                type: 'list',     required: false,  options: {items: app.businesses} },
+            { field: 'RLID',               type: 'int',      required: false,  },
+            { field: 'RTRID',              type: 'int',      required: false,  },
+            { field: 'RTID',               type: 'int',      required: false,  },
+            { field: 'rdRTID',             type: 'list',     required: false,  },
+            { field: 'RID',                type: 'int',      required: false,  },
+            { field: 'rdBID',              type: 'int',      required: false,  },
+            { field: 'ConfirmationCode',   type: 'text',     required: false,  },
+            { field: 'LeaseStatus',        type: 'int',      required: false,  },
+            { field: 'DtStart',            type: 'date',     required: false,  },
+            { field: 'DtStop',             type: 'date',     required: false,  },
+            { field: 'Amount',             type: 'money',    required: false,  },
+            { field: 'Deposit',            type: 'money',    required: false,  },
+            { field: 'Discount',           type: 'hidden',   required: false,  },
+            { field: 'Nights',             type: 'int',      required: false,  },
+            { field: 'UnspecifiedAdults',  type: 'int',      required: false,  },
+            { field: 'UnspecifiedChildren',type: 'int',      required: false,  },
+            { field: 'FirstName',          type: 'text',     required: true ,  },
+            { field: 'LastName',           type: 'text',     required: true ,  },
+            { field: 'Phone',              type: 'text',     required: false,  },
+            { field: 'Email',              type: 'text',     required: false,  },
+            { field: 'Street',             type: 'text',     required: false,  },
+            { field: 'City',               type: 'text',     required: false,  },
+            { field: 'State',              type: 'text',     required: false,  },
+            { field: 'PostalCode',         type: 'text',     required: false,  },
+            { field: 'CCName',             type: 'text',     required: false,  },
+            { field: 'CCType',             type: 'text',     required: false,  },
+            { field: 'CCNumber',           type: 'text',     required: false,  },
+            { field: 'CCExpMonth',         type: 'text',     required: false,  },
+            { field: 'CCExpYear',          type: 'text',     required: false,  },
+            { field: 'Comment',            type: 'textarea', required: false,  },
+            { field: 'LastModTime',        type: 'time',     required: false,  },
+            { field: 'LastModBy',          type: 'int',      required: false,  },
+            { field: 'CreateTS',           type: 'time',     required: false,  },
+            { field: 'CreateBy',           type: 'int',      required: false,  },
         ],
         toolbar: {
             items: [
@@ -519,7 +534,7 @@ window.buildResUpdateElements = function () {
                 var d1 = applyLocaltimeDateOffset(new Date(r.DtStart));
                 var d2 = applyLocaltimeDateOffset(new Date(r.DtStop));
 
-                var res = $.extend(true,{},pvtReservation.res);
+                var res = $.extend(true,{},r);
                     res.DtStart = d1.toUTCString();
                     res.DtStop = d2.toUTCString();
                     res.rdRTID = rtid;
@@ -599,6 +614,10 @@ window.showReservationRentable = function() {
     feedbackMessage("reservationCCName",r.CCName);
     feedbackMessage("reservationCCExpMonth",r.CCExpMonth);
     feedbackMessage("reservationCCExpYear",r.CCExpYear);
+
+    feedbackMessage("reservationBaseRate", '<span style="position:relative; top:4;">$' + number_format(r.Amount,2)+"</span>" );
+    feedbackMessage("reservationRateDiscounts", '$' + number_format(r.Discount,2) );
+
 };
 
 //---------------------------------------------------------------------------------

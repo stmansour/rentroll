@@ -1060,6 +1060,7 @@ type BizProps struct {
 	Epochs      BizPropsEpochs // default epochs for recurring assessments
 	PetFees     []string       // AR names of all Pet Fees
 	VehicleFees []string       // AR names of all Vehicle Fees
+	ResDepARID  int64          // Account Rule to use on Reservation Deposits
 }
 
 // Building defines the location of a Building that is part of a Business
@@ -1439,6 +1440,7 @@ type RentableLeaseStatus struct {
 	RLID             int64     // unique ID for this Rentable Lease Status
 	RID              int64     // associated Rentable
 	BID              int64     // associated business
+	RAID             int64     // The payor associated with this reservation
 	DtStart          time.Time // start of period
 	DtStop           time.Time // end of period
 	Comment          string    // comment

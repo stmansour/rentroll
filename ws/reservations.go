@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -18,19 +19,25 @@ import (
 // Reservation defines the timerange, the type of rentable, and the specific
 // rentable being reserved.
 type Reservation struct {
-	Recid            int64             `json:"recid"`
-	RLID             int64             // rentable lease status id (reservation id)
-	RID              int64             // specific rentable reserved
-	RTID             int64             // the rentable type
-	ConfirmationCode string            // reservation ConfirmationCode
-	DtStart          rlib.JSONDateTime // res start time
-	DtStop           rlib.JSONDateTime // res stop time
-	FirstName        string            // res name
-	LastName         string            // res name
-	Email            string            // email on reservation
-	Phone            string            // phone on reservation
-	RentableName     string            // rentable name
-	Name             string            // Rentable Type Name
+	Recid               int64             `json:"recid"`
+	RLID                int64             // rentable lease status id (reservation id)
+	RID                 int64             // specific rentable reserved
+	RTID                int64             // the rentable type
+	TCID                int64             `json:"TCID"`
+	RAID                int64             `json:"RAID"`
+	UnspecifiedAdults   int               `json:"UnspecifiedAdults"`
+	UnspecifiedChildren int               `json:"UnspecifiedChildren"`
+	ConfirmationCode    string            // reservation ConfirmationCode
+	DtStart             rlib.JSONDateTime // res start time
+	DtStop              rlib.JSONDateTime // res stop time
+	IsCompany           bool              `json:"IsCompany"`
+	CompanyName         string            `json:"CompanyName"`
+	FirstName           string            // res name
+	LastName            string            // res name
+	Email               string            // email on reservation
+	Phone               string            // phone on reservation
+	RentableName        string            // rentable name
+	Name                string            // Rentable Type Name
 }
 
 // SearchReservationResponse is the response data for a Rental Agreement Search
@@ -46,33 +53,45 @@ type SearchReservationResponse struct {
 
 // ResDet is the structure that fully describes a reservation
 type ResDet struct {
-	Recid            int64             `json:"recid"`
-	BID              int64             `json:"rdBID"`
-	DtStart          rlib.JSONDateTime `json:"DtStart"`
-	DtStop           rlib.JSONDateTime `json:"DtStop"`
-	RLID             int64             `json:"RLID"`
-	RTRID            int64             `json:"RTRID"`
-	RTID             int64             `json:"rdRTID"`
-	RID              int64             `json:"RID"`
-	LeaseStatus      int64             `json:"LeaseStatus"`
-	Nights           int64             // computed field `json:"Nights"`
-	RentableName     string            `json:"RentableName"`
-	FirstName        string            `json:"FirstName"`
-	LastName         string            `json:"LastName"`
-	Email            string            `json:"Email"`
-	Phone            string            `json:"Phone"`
-	Street           string            `json:"Street"`
-	City             string            `json:"City"`
-	Country          string            `json:"Country"`
-	State            string            `json:"State"`
-	PostalCode       string            `json:"PostalCode"`
-	CCName           string            `json:"CCName"`
-	CCType           string            `json:"CCType"`
-	CCNumber         string            `json:"CCNumber"`
-	CCExpMonth       string            `json:"CCExpMonth"`
-	CCExpYear        string            `json:"CCExpYear"`
-	ConfirmationCode string            `json:"ConfirmationCode"`
-	Comment          string            `json:"Comment"`
+	Recid               int64             `json:"recid"`               //
+	BID                 int64             `json:"rdBID"`               //
+	TCID                int64             `json:"TCID"`                // Transactant
+	RAID                int64             `json:"RAID"`                //
+	DtStart             rlib.JSONDateTime `json:"DtStart"`             //
+	DtStop              rlib.JSONDateTime `json:"DtStop"`              //
+	RLID                int64             `json:"RLID"`                //
+	RTRID               int64             `json:"RTRID"`               //
+	RTID                int64             `json:"rdRTID"`              //
+	RID                 int64             `json:"RID"`                 //
+	Rate                float64           `json:"Rate"`                // base room rate (default amount in default AR for RTID)
+	DBAmount            rlib.NullFloat64  `json:"DBAmount"`            // amount being charged for the rentable
+	Amount              float64           `json:"Amount"`              // deposit on the rentable
+	Deposit             float64           `json:"Deposit"`             // deposit on the rentable
+	Discount            float64           `json:"Discount"`            // discount rate
+	LeaseStatus         int64             `json:"LeaseStatus"`         //
+	Nights              int64             `json:"Nights"`              //
+	UnspecifiedAdults   int               `json:"UnspecifiedAdults"`   //
+	UnspecifiedChildren int               `json:"UnspecifiedChildren"` //
+	RentableName        string            `json:"RentableName"`        //
+	IsCompany           bool              `json:"IsCompany"`           // Transactant
+	CompanyName         string            `json:"CompanyName"`         // Transactant
+	FirstName           string            `json:"FirstName"`           // Transactant
+	MiddleName          string            `json:"MiddleName"`          // Transactant
+	LastName            string            `json:"LastName"`            // Transactant
+	Email               string            `json:"Email"`               // Transactant
+	Phone               string            `json:"Phone"`               // Transactant
+	Street              string            `json:"Street"`              // Transactant
+	City                string            `json:"City"`                // Transactant
+	Country             string            `json:"Country"`             // Transactant
+	State               string            `json:"State"`               // Transactant
+	PostalCode          string            `json:"PostalCode"`          // Transactant
+	CCName              string            `json:"CCName"`
+	CCType              string            `json:"CCType"`
+	CCNumber            string            `json:"CCNumber"`
+	CCExpMonth          string            `json:"CCExpMonth"`
+	CCExpYear           string            `json:"CCExpYear"`
+	ConfirmationCode    string            `json:"ConfirmationCode"`
+	Comment             string            `json:"Comment"`
 }
 
 // SaveReservation is sent to save one of open time slots as a reservation
@@ -133,10 +152,16 @@ func reservationRowScan(rows *sql.Rows, q Reservation) (Reservation, error) {
 	err := rows.Scan(
 		&q.RLID,
 		&q.RID,
-		&q.DtStart,
-		&q.DtStop,
+		&q.RAID,
+		&q.TCID,
+		&q.UnspecifiedAdults,
+		&q.UnspecifiedChildren,
+		&q.IsCompany,
+		&q.CompanyName,
 		&q.FirstName,
 		&q.LastName,
+		&q.DtStart,
+		&q.DtStop,
 		&q.Email,
 		&q.Phone,
 		&q.ConfirmationCode,
@@ -150,18 +175,24 @@ func reservationRowScan(rows *sql.Rows, q Reservation) (Reservation, error) {
 // reservationGridFields holds the map of field (to be shown on grid)
 // to actual database fields, multiple db fields means combine those
 var reservationGridFieldsMap = map[string][]string{
-	"RLID":             {"RentableLeaseStatus.RLID"},
-	"RID":              {"RentableLeaseStatus.RID"},
-	"DtStart":          {"RentableLeaseStatus.DtStart"},
-	"DtStop":           {"RentableLeaseStatus.DtStop"},
-	"FirstName":        {"RentableLeaseStatus.FirstName"},
-	"LastName":         {"RentableLeaseStatus.LastName"},
-	"Email":            {"RentableLeaseStatus.Email"},
-	"Phone":            {"RentableLeaseStatus.Phone"},
-	"ConfirmationCode": {"RentableLeaseStatus.ConfirmationCode"},
-	"RentableName":     {"Rentable.RentableName"},
-	"RTID":             {"RentableTypeRef.RTID"},
-	"Name":             {"RentableType.Name"},
+	"RLID":                {"RentableLeaseStatus.RLID"},
+	"RID":                 {"RentableLeaseStatus.RID"},
+	"RAID":                {"RentableLeaseStatus.RAID"},
+	"TCID":                {"RentalAgreementPayors.TCID"},
+	"UnspecifiedAdults":   {"RentalAgreement.UnspecifiedAdults"},
+	"UnspecifiedChildren": {"RentalAgreement.UnspecifiedChildren"},
+	"IsCompany":           {"Transactant.IsCompany"},
+	"CompanyName":         {"Transactant.CompanyName"},
+	"FirstName":           {"Transactant.FirstName"},
+	"LastName":            {"Transactant.LastName"},
+	"DtStart":             {"RentableLeaseStatus.DtStart"},
+	"DtStop":              {"RentableLeaseStatus.DtStop"},
+	"Email":               {"Transactant.PrimaryEmail"},
+	"Phone":               {"Transactant.CellPhone"},
+	"ConfirmationCode":    {"RentableLeaseStatus.ConfirmationCode"},
+	"RentableName":        {"Rentable.RentableName"},
+	"RTID":                {"RentableTypeRef.RTID"},
+	"Name":                {"RentableType.Name"},
 	//	"RentableType":         {"RT.Name"},
 }
 
@@ -169,12 +200,18 @@ var reservationGridFieldsMap = map[string][]string{
 var reservationQuerySelectFields = []string{
 	"RentableLeaseStatus.RLID",
 	"RentableLeaseStatus.RID",
+	"RentableLeaseStatus.RAID",
+	"RentalAgreementPayors.TCID",
+	"RentalAgreement.UnspecifiedAdults",
+	"RentalAgreement.UnspecifiedChildren",
+	"Transactant.IsCompany",
+	"Transactant.CompanyName",
+	"Transactant.FirstName",
+	"Transactant.LastName",
 	"RentableLeaseStatus.DtStart",
 	"RentableLeaseStatus.DtStop",
-	"RentableLeaseStatus.FirstName",
-	"RentableLeaseStatus.LastName",
-	"RentableLeaseStatus.Email",
-	"RentableLeaseStatus.Phone",
+	"Transactant.PrimaryEmail",
+	"Transactant.CellPhone",
 	"RentableLeaseStatus.ConfirmationCode",
 	"Rentable.RentableName",
 	"RentableTypeRef.RTID",
@@ -238,6 +275,12 @@ FROM
 	RentableLeaseStatus ON (RentableLeaseStatus.RID = RentableTypeRef.RID)
 		LEFT JOIN
 	Rentable ON (Rentable.RID = RentableTypeRef.RID)
+		LEFT JOIN
+	RentalAgreement ON (RentalAgreement.RAID = RentableLeaseStatus.RAID)
+		LEFT JOIN
+	RentalAgreementPayors ON (RentalAgreementPayors.RAID = RentableLeaseStatus.RAID)
+		Left JOIN
+	Transactant ON (Transactant.TCID = RentalAgreementPayors.TCID)
 WHERE
 	{{.WhereClause}}
 ORDER BY
@@ -325,6 +368,108 @@ OFFSET {{.OffsetClause}};`
 	SvcWriteResponse(d.BID, &g, w)
 }
 
+// getReservation
+// wsdoc {
+//  @Title  Get Reservation
+//	@URL /v1/reservation/:BUI/[RLID]
+//  @Method  POST
+//	@Synopsis Returns a reservation associated with the supplied RLID
+//  @Description  Saves the ReleaseStatus. If RLID is 0, a new status is created.
+//  @Description  If RLID is > 0 it is simply updated
+//	@Input WebGridSearchRequest
+//  @Response Reservation
+// wsdoc }
+//------------------------------------------------------------------------------
+func getReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "getReservation"
+	var g GetReservation
+	//var a rlib.RentableLeaseStatus
+	var err error
+	var a ResDet
+
+	rlib.Console("entered %s, getting RLID = %d\n", funcname, d.ID)
+	q := fmt.Sprintf(`SELECT
+	RentableLeaseStatus.RLID,
+    RentableLeaseStatus.RID,
+    RentableLeaseStatus.RAID,
+    RentalAgreementPayors.TCID,
+	RentalAgreement.UnspecifiedAdults,
+	RentalAgreement.UnspecifiedChildren,
+	AR.DefaultAmount,
+    Transactant.IsCompany,
+    Transactant.CompanyName,
+    Transactant.FirstName,
+    Transactant.LastName,
+    RentableLeaseStatus.DtStart,
+    RentableLeaseStatus.DtStop,
+    Transactant.PrimaryEmail,
+    Transactant.CellPhone,
+    Transactant.Address,
+    Transactant.City,
+    Transactant.State,
+    Transactant.PostalCode,
+    RentableLeaseStatus.Comment,
+    RentableLeaseStatus.ConfirmationCode,
+    Rentable.RentableName,
+    RentableTypeRef.RTID
+FROM
+    RentableTypeRef
+        LEFT JOIN
+    RentableTypes ON (RentableTypeRef.RTID = RentableTypes.RTID)
+		LEFT JOIN
+	RentableLeaseStatus ON (RentableLeaseStatus.RID = RentableTypeRef.RID)
+		LEFT JOIN
+	Rentable ON (Rentable.RID = RentableTypeRef.RID)
+		LEFT JOIN
+	RentalAgreement ON (RentalAgreement.RAID = RentableLeaseStatus.RAID)
+		LEFT JOIN
+	RentalAgreementPayors ON (RentalAgreementPayors.RAID = RentableLeaseStatus.RAID)
+        Left JOIN
+	Transactant ON (Transactant.TCID = RentalAgreementPayors.TCID)
+		LEFT JOIN
+	AR on (RentableTypes.ARID = AR.ARID)
+WHERE
+	RentableLeaseStatus.RLID = %d;`, d.ID)
+	rlib.Console("Query = %s\n", q)
+	row := rlib.RRdb.Dbrr.QueryRow(q)
+	rlib.Console("Created row\n")
+	err = row.Scan(
+		&a.RLID,
+		&a.RID,
+		&a.RAID,
+		&a.TCID,
+		&a.UnspecifiedAdults,
+		&a.UnspecifiedChildren,
+		&a.DBAmount,
+		&a.IsCompany,
+		&a.CompanyName,
+		&a.FirstName,
+		&a.LastName,
+		&a.DtStart,
+		&a.DtStop,
+		&a.Email,
+		&a.Phone,
+		&a.Street,
+		&a.City,
+		&a.State,
+		&a.PostalCode,
+		&a.Comment,
+		&a.ConfirmationCode,
+		&a.RentableName,
+		&a.RTID,
+	)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+	if a.DBAmount.Valid {
+		a.Amount = a.DBAmount.Float64
+	}
+	g.Status = "success"
+	g.Record = a
+	SvcWriteResponse(d.BID, &g, w)
+}
+
 // saveReservation
 // The steps to do this are:
 // 1. If this is updating an existing reservation (RLID > 0) read the current
@@ -347,6 +492,8 @@ OFFSET {{.OffsetClause}};`
 func saveReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "saveReservation"
 	var oldRls rlib.RentableLeaseStatus
+	var dtOrRIDchanged bool
+	var err error
 
 	rlib.Console("Entered %s\n", funcname)
 	target := `"record":`
@@ -361,12 +508,24 @@ func saveReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	// rlib.Console("Data to unmarshal = %s\n", s)
 
-	// Reservation
+	//---------------------------------------------------
+	// Read the Reservation Form data from the client
+	//---------------------------------------------------
 	var res ResDet
-	err := json.Unmarshal([]byte(s), &res)
+	err = json.Unmarshal([]byte(s), &res)
 	if err != nil {
 		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
 		SvcErrorReturn(w, e, funcname)
+		return
+	}
+	rlib.Console("UnspecifiedAdults = %d, UnspecifiedChildren = %d\n", res.UnspecifiedAdults, res.UnspecifiedChildren)
+
+	now := rlib.Now()
+	dt := time.Time(res.DtStart).AddDate(0, 0, 1) // give it one day grace period, which will account for all timezone issues
+
+	if now.After(dt) {
+		err = fmt.Errorf("You cannot create reservations in the past")
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -376,60 +535,91 @@ func saveReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	cc := rlib.GenerateUserRefNo()
-	if res.RLID > 0 {
-		if oldRls, err = rlib.GetRentableLeaseStatus(ctx, res.RLID); err != nil {
-			tx.Rollback()
-			SvcErrorReturn(w, err, funcname)
-		}
-		cc = oldRls.ConfirmationCode
+	//-------------------------------------------
+	// create / update transactant info...
+	//-------------------------------------------
+	var t rlib.Transactant
+	rlib.MigrateStructVals(&res, &t)
+	t.PrimaryEmail = res.Email
+	t.CellPhone = res.Phone
+	t.Address = res.Street
+	if res.TCID > 0 {
+		err = updateResTransactant(ctx, r, d, &res, &t)
+	} else {
+		_, err = rlib.InsertTransactant(ctx, &t)
+	}
+	if err != nil {
+		e := fmt.Errorf("Error saving Transactant:  %s", err.Error())
+		tx.Rollback()
+		SvcErrorReturn(w, e, funcname)
+		return
 	}
 
+	//----------------------------------------------------------
+	// Create / update Rental Agreement...
+	//----------------------------------------------------------
+	var ra rlib.RentalAgreement
+	if res.RAID > 0 {
+		updateResRentalAgreement(ctx, r, d, &res, &t, &ra)
+	} else {
+		insertResRentalAgreement(ctx, r, d, &res, &t, &ra)
+	}
+	//----------------------------------------------------------
+	// Create the Rentable Lease Status
+	//----------------------------------------------------------
+	rlib.Console("res.Comment = %s\n", res.Comment)
 	var rls = rlib.RentableLeaseStatus{
 		RLID:             res.RLID,
 		RID:              res.RID,
 		BID:              d.BID, // DEBUG: res.BID is 0 in ws func test 41b ?????
+		RAID:             ra.RAID,
 		DtStart:          time.Time(res.DtStart),
 		DtStop:           time.Time(res.DtStop),
 		LeaseStatus:      res.LeaseStatus,
 		Comment:          res.Comment,
-		FirstName:        res.FirstName,
-		LastName:         res.LastName,
-		Email:            res.Email,
-		Phone:            res.Phone,
-		Address:          res.Street,
-		City:             res.City,
-		State:            res.State,
-		PostalCode:       res.PostalCode,
-		Country:          res.Country,
 		CCName:           res.CCName,
 		CCType:           res.CCType,
 		CCNumber:         res.CCNumber,
 		CCExpMonth:       res.CCExpMonth,
-		ConfirmationCode: cc,
+		ConfirmationCode: res.ConfirmationCode,
 	}
 
-	//-----------------------------------------------------------------------------
-	// If the reservation time changes or the Rentable changes, free the old slot
-	//-----------------------------------------------------------------------------
-	dtOrRIDchanged := !rls.DtStart.Equal(oldRls.DtStart) || !rls.DtStop.Equal(oldRls.DtStop) || rls.RID != oldRls.RID
-	if dtOrRIDchanged {
-		var x = rlib.RentableLeaseStatus{
-			RID:         oldRls.RID,
-			BID:         oldRls.BID,
-			LeaseStatus: rlib.LEASESTATUSnotleased,
-			DtStart:     oldRls.DtStart,
-			DtStop:      oldRls.DtStop,
-		}
-		if err = rlib.SetRentableLeaseStatus(ctx, &x); err != nil {
-			e := fmt.Errorf("Error in SetRentableLeaseStatus:  %s", err.Error())
+	if res.RLID > 0 {
+		if oldRls, err = rlib.GetRentableLeaseStatus(ctx, res.RLID); err != nil {
+			e := fmt.Errorf("Error saving Transactant:  %s", err.Error())
 			tx.Rollback()
 			SvcErrorReturn(w, e, funcname)
 			return
 		}
+
+		//-----------------------------------------------------------------------------
+		// If the reservation time changes or the Rentable changes, free the old slot
+		//-----------------------------------------------------------------------------
+		dtOrRIDchanged = !rls.DtStart.Equal(oldRls.DtStart) || !rls.DtStop.Equal(oldRls.DtStop) || rls.RID != oldRls.RID
+		if dtOrRIDchanged {
+			var x = rlib.RentableLeaseStatus{
+				RID:         oldRls.RID,
+				BID:         oldRls.BID,
+				LeaseStatus: rlib.LEASESTATUSnotleased,
+				DtStart:     oldRls.DtStart,
+				DtStop:      oldRls.DtStop,
+			}
+			if err = rlib.SetRentableLeaseStatus(ctx, &x); err != nil {
+				e := fmt.Errorf("Error in SetRentableLeaseStatus:  %s", err.Error())
+				tx.Rollback()
+				SvcErrorReturn(w, e, funcname)
+				return
+			}
+		}
 	}
 
 	if rls.RLID == 0 || dtOrRIDchanged {
+		if res.RLID > 0 {
+			rls.ConfirmationCode = oldRls.ConfirmationCode
+		} else {
+			rls.ConfirmationCode = rlib.GenerateUserRefNo()
+		}
+
 		err = rlib.SetRentableLeaseStatus(ctx, &rls)
 		if err != nil {
 			e := fmt.Errorf("Error in SetRentableLeaseStatus:  %s", err.Error())
@@ -457,54 +647,257 @@ func saveReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	SvcWriteSuccessResponseWithID(rls.BID, w, rls.RLID)
 }
 
+// updateResTransactant
+// Update the transactant based on the information in the res struct
+//
+// INPUTS
+//    ctx - database context
+//    r   - the http request
+//    d   - service data
+//    res - the data from the Reservation Form
+//    t   - transactant struct prefilled with data from res
+//
+// RETURNS
+//    any error encountered
+//------------------------------------------------------------------------------
+func updateResTransactant(ctx context.Context, r *http.Request, d *ServiceData, res *ResDet, t *rlib.Transactant) error {
+	var t0 rlib.Transactant
+	rlib.Console("Entered updateResTransactant\n")
+
+	//------------------------------------------------------------------
+	// update existing transactant but don't destroy any fields that
+	// are not available in the reservation form
+	//------------------------------------------------------------------
+	if err := rlib.GetTransactant(ctx, t.TCID, &t0); err != nil {
+		return err
+	}
+	count := 0
+	if t.IsCompany != t0.IsCompany {
+		t0.IsCompany = t.IsCompany
+		count++
+	}
+	if t.CompanyName != t0.CompanyName {
+		t0.CompanyName = t.CompanyName
+		count++
+	}
+	if t.FirstName != t0.FirstName {
+		t0.FirstName = t.FirstName
+		count++
+	}
+	if t.MiddleName != t0.MiddleName {
+		t0.MiddleName = t.MiddleName
+		count++
+	}
+	if t.LastName != t0.LastName {
+		t0.LastName = t.LastName
+		count++
+	}
+	if t.PrimaryEmail != t0.PrimaryEmail {
+		t0.PrimaryEmail = t.PrimaryEmail
+		count++
+	}
+	if t.CellPhone != t0.CellPhone {
+		t0.CellPhone = t.CellPhone
+		count++
+	}
+	if t.Address != t0.Address {
+		t0.Address = t.Address
+		count++
+	}
+	if t.City != t0.City {
+		t0.City = t.City
+		count++
+	}
+	if t.Country != t0.Country {
+		t0.Country = t.Country
+		count++
+	}
+	if t.State != t0.State {
+		t0.State = t.State
+		count++
+	}
+	if t.PostalCode != t0.PostalCode {
+		t0.PostalCode = t.PostalCode
+		count++
+	}
+	if count > 0 {
+		return rlib.UpdateTransactant(ctx, &t0)
+	}
+	return nil // if nothing changed, no update was necessary
+}
+
+func initRAfromReservation(ra *rlib.RentalAgreement, res *ResDet, d *ServiceData) {
+	rlib.Console("Entered initRAfromReservation\n")
+
+	x := time.Time(res.DtStart)
+	dt1 := time.Date(x.Year(), x.Month(), x.Day(), 15, 0, 0, 0, rlib.RRdb.Zone) // check in at 3:00pm
+	x = time.Time(res.DtStop)
+	epoch := time.Date(x.Year(), x.Month(), x.Day(), 0, 0, 0, 0, rlib.RRdb.Zone) // midnight in this timezone
+	dt2 := time.Date(x.Year(), x.Month(), x.Day(), 11, 0, 0, 0, rlib.RRdb.Zone)  // check in at 11:00am
+	(*ra) = rlib.RentalAgreement{
+		BID:                 res.BID,
+		AgreementStart:      dt1,
+		AgreementStop:       dt2,
+		PossessionStart:     dt1,
+		PossessionStop:      dt2,
+		RentStart:           dt1,
+		RentStop:            dt2,
+		RentCycleEpoch:      epoch,
+		FLAGS:               0,
+		CSAgent:             d.sess.UID,
+		UnspecifiedAdults:   int64(res.UnspecifiedAdults),
+		UnspecifiedChildren: int64(res.UnspecifiedChildren),
+	}
+}
+
+// insertResRentalAgreement
+// Create a new rental agreement for the reservation
+//
+// INPUTS
+//    ctx - database context
+//    r   - the http request
+//    d   - service data
+//    res - the data from the Reservation Form
+//    t   - transactant struct prefilled with data from res
+//
+// RETURNS
+//    any error encountered
+//------------------------------------------------------------------------------
+func insertResRentalAgreement(ctx context.Context, r *http.Request, d *ServiceData, res *ResDet, t *rlib.Transactant, ra *rlib.RentalAgreement) error {
+	var err error
+	rlib.Console("Entered insertResRentalAgreement\n")
+	initRAfromReservation(ra, res, d)
+	rlib.Console("New RA: UnspecifiedAdults = %d, UnspecifiedChildren = %d\n", ra.UnspecifiedAdults, ra.UnspecifiedChildren)
+	if _, err = rlib.InsertRentalAgreement(ctx, ra); err != nil {
+		return err
+	}
+
+	//----------------------------------------------------------
+	// Create RentalAgreementRentable
+	//----------------------------------------------------------
+	var rar rlib.RentalAgreementRentable
+	rar.BID = res.BID
+	rar.RARDtStart = time.Time(res.DtStart)
+	rar.RARDtStop = time.Time(res.DtStop)
+	rar.RAID = ra.RAID
+	rar.RID = res.RID
+	if _, err = rlib.InsertRentalAgreementRentable(ctx, &rar); err != nil {
+		return err
+	}
+
+	//----------------------------------------------------------
+	// Create Payor
+	//----------------------------------------------------------
+	var rap rlib.RentalAgreementPayor
+	rap.BID = res.BID
+	rap.DtStart = time.Time(res.DtStart)
+	rap.DtStop = time.Time(res.DtStop)
+	rap.RAID = ra.RAID
+	rap.TCID = t.TCID
+	if _, err = rlib.InsertRentalAgreementPayor(ctx, &rap); err != nil {
+		return err
+	}
+
+	//----------------------------------------------------------
+	// Create Deposit assessment
+	//----------------------------------------------------------
+	// if res.Deposit > float64(0) {
+	// 	var a = rlib.Assessment{
+	// 		BID:            res.BID,
+	// 		RID:            res.RID,
+	// 		AssocElemType:  res.BID,
+	// 		AssocElemID:    res.BID,
+	// 		RAID:           res.BID,
+	// 		Amount:         res.Deposit,
+	// 		Start:          ra.RentStart,
+	// 		Stop:           ra.RentStop,
+	// 		RentCycle:      res.BID,
+	// 		ProrationCycle: res.BID,
+	// 		InvoiceNo:      res.BID,
+	// 		ARID:           res.BID,
+	// 	}
+	// }
+
+	return nil
+}
+
+// deleteResRentalAgreement
+// Delete everything associated with the reservation's rental agreement
+//
+// INPUTS
+//    ctx - database context
+//    r   - the http request
+//    d   - service data
+//    res - the data from the Reservation Form
+//
+// RETURNS
+//    any error encountered
+//------------------------------------------------------------------------------
+func deleteResRentalAgreement(ctx context.Context, r *http.Request, d *ServiceData, res *ResDet) error {
+	funcname := "deleteResRentalAgreement"
+	var err error
+	rlib.Console("Entered %s\n", funcname)
+
+	tx, ok := rlib.DBTxFromContext(ctx)
+	if !ok {
+		return fmt.Errorf("%s: Could not get transaction info from context", funcname)
+	}
+
+	//---------------------------------------
+	// Delete RentalAgreementRentables...
+	//---------------------------------------
+	qry := fmt.Sprintf("DELETE from RentalAgreementRentables WHERE BID=%d AND RAID=%d", res.BID, res.RAID)
+	if _, err = tx.Exec(qry); err != nil {
+		return err
+	}
+
+	//---------------------------------------
+	// Delete Payors
+	//---------------------------------------
+	qry = fmt.Sprintf("DELETE from RentalAgreementPayors WHERE BID=%d AND RAID=%d", res.BID, res.RAID)
+	if _, err = tx.Exec(qry); err != nil {
+		return err
+	}
+
+	//---------------------------------------
+	// Delete Assessments
+	//---------------------------------------
+
+	//---------------------------------------
+	// Delete the RentalAgreement
+	//---------------------------------------
+	return rlib.DeleteRentalAgreement(ctx, res.RAID)
+}
+
+// updateResRentalAgreement
+// Examine the differences between the existing RA and the info supplied in
+// res.  Update the existing RA if possible, otherwise delete it and create
+// a new one based on what's in res
+//
+// INPUTS
+//    ctx - database context
+//    r   - the http request
+//    d   - service data
+//    res - the data from the Reservation Form
+//    t   - transactant struct prefilled with data from res
+//
+// RETURNS
+//    any error encountered
+//------------------------------------------------------------------------------
+func updateResRentalAgreement(ctx context.Context, r *http.Request, d *ServiceData, res *ResDet, t *rlib.Transactant, ra *rlib.RentalAgreement) error {
+	rlib.Console("Entered updateResRentalAgreement\n")
+	var err error
+	if err = deleteResRentalAgreement(ctx, r, d, res); err != nil {
+		return err
+	}
+	if err = insertResRentalAgreement(ctx, r, d, res, t, ra); err != nil {
+		return err
+	}
+	res.RAID = ra.RAID
+	return nil
+}
+
 func deleteReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "deleteReservation"
 	rlib.Console("Entered %s\n", funcname)
-}
-
-// getReservation
-// wsdoc {
-//  @Title  Get Reservation
-//	@URL /v1/reservation/:BUI/[RLID]
-//  @Method  POST
-//	@Synopsis Returns a reservation associated with the supplied RLID
-//  @Description  Saves the ReleaseStatus. If RLID is 0, a new status is created.
-//  @Description  If RLID is > 0 it is simply updated
-//	@Input WebGridSearchRequest
-//  @Response Reservation
-// wsdoc }
-//------------------------------------------------------------------------------
-func getReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	const funcname = "getReservation"
-	var g GetReservation
-	var a rlib.RentableLeaseStatus
-	var err error
-
-	rlib.Console("entered %s, getting RLID = %d\n", funcname, d.ID)
-	a, err = rlib.GetRentableLeaseStatus(r.Context(), d.ID)
-	if err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
-	}
-	b, err := rlib.GetRentableTypeRefForDate(r.Context(), a.RID, &a.DtStart)
-	if err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
-	}
-	u, err := rlib.GetRentable(r.Context(), a.RID)
-	if err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
-	}
-	if a.RLID > 0 {
-		var gg ResDet
-		rlib.MigrateStructVals(&a, &gg)
-		gg.RTID = b.RTID
-		gg.RentableName = u.RentableName
-		gg.Street = a.Address
-		gg.Recid = gg.RLID
-		g.Record = gg
-	}
-	g.Status = "success"
-	SvcWriteResponse(d.BID, &g, w)
 }

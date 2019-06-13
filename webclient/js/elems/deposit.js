@@ -4,7 +4,7 @@
     getGridReversalSymbolHTML, dateControlString, w2utils, saveDepositForm, w2confirm,
     delete_confirm_options, getBusinessDepMethods, getBusinessDepositories, setToDepositForm, getDepositInitRecord,
     calcTotalCheckedReceipts, saveDepositFormAndAnother, getCheckedReceipts,
-    updateBUDFormList,
+    updateBUDFormList, saveDep,
 */
 
 "use strict";
@@ -296,8 +296,8 @@ window.buildDepositElements = function () {
                         };
                     form_dirty_alert(yes_callBack, no_callBack);
                     break;
-                case 'formSave':
-                    saveDepositForm();
+                // case 'formSave':
+                //     saveDep(saveDepositForm);
                 }
             },
         },
@@ -433,8 +433,12 @@ window.buildDepositElements = function () {
         formURL: '/webclient/html/formdepositbtns.html',
         fields: [],
         actions: {
-            save: saveDepositForm,
-            saveadd: saveDepositFormAndAnother,
+            save: function() {
+                saveDep(saveDepositForm);
+            },
+            saveadd: function() {
+                saveDep(saveDepositFormAndAnother);
+            },
             delete: function() {
                 var form = this;
                 w2confirm(delete_confirm_options)
@@ -485,13 +489,20 @@ window.buildDepositElements = function () {
 
 
 //-----------------------------------------------------------------------------
-// saveDepositForm - pull the checked Receipts, extend the return values
-//      and save the form.
+// saveDep - save tasks common to Save and SaveAndAddAnother
 // @params
+//      f - will be set to the form
+//     cb - function to call back on successful save
 //-----------------------------------------------------------------------------
-window.saveDepositForm = function () {
+window.saveDep = function(cb) {
     var rcpts = getCheckedReceipts();
     var f = w2ui.depositForm;
+    if (f.record.DPMName == undefined) {
+        return;
+    }
+    if (f.record.DPMName.id == undefined) {
+        return;
+    }
     f.record.DPMID = f.record.DPMName.id;
     f.record.DEPID = f.record.DEPName.id;
     if (typeof f.record.DID == "string" || typeof f.record.DID == "undefined") {
@@ -508,11 +519,21 @@ window.saveDepositForm = function () {
             f.error('ERROR: '+ data.message);
             return;
         }
-        w2ui.toplayout.hide('right',true);
-        app.form_is_dirty = false;// clean dirty flag of form
-        app.last.grid_sel_recid  =-1;// clear the grid select recid
-        w2ui.depositGrid.render();
+        cb();
     });
+};
+
+
+//-----------------------------------------------------------------------------
+// saveDepositForm - pull the checked Receipts, extend the return values
+//      and save the form.
+// @params
+//-----------------------------------------------------------------------------
+window.saveDepositForm = function () {
+    w2ui.toplayout.hide('right',true);
+    app.form_is_dirty = false;// clean dirty flag of form
+    app.last.grid_sel_recid  =-1;// clear the grid select recid
+    w2ui.depositGrid.reload();
 };
 
 //-----------------------------------------------------------------------------
@@ -521,39 +542,24 @@ window.saveDepositForm = function () {
 // @params
 //-----------------------------------------------------------------------------
 window.saveDepositFormAndAnother = function () {
-    var rcpts = getCheckedReceipts();
-    var f = w2ui.depositForm,
-        grid = w2ui.receiptsGrid,
-        x = getCurrentBusiness(),
-        BID=parseInt(x.value),
-        BUD = getBUDfromBID(BID);
+    var f = w2ui.depositForm;
+    var grid = w2ui.receiptsGrid;
+    var x = getCurrentBusiness();
+    var BID=parseInt(x.value);
+    var BUD = getBUDfromBID(BID);
 
-    f.record.DPMID = f.record.DPMName.id;
-    f.record.DEPID = f.record.DEPName.id;
-    if (typeof f.record.DID == "string" || typeof f.record.DID == "undefined") {
-        f.record.DID = 0;
-    }
-    if (typeof f.record.FLAGS == "string" || typeof f.record.FLAGS == "undefined") {
-        f.record.FLAGS = 0;
-    }
-    if (typeof f.record.ClearedAmount == "string" || typeof f.record.ClearedAmount == "undefined") {
-        f.record.ClearedAmount = 0.0;
-    }
-    f.save({Receipts: rcpts},function (data) {
-        if (data.status == 'error') {
-            f.error('ERROR: '+ data.message);
-            return;
-        }
-        app.form_is_dirty = false;// clean dirty flag of form
-        app.last.grid_sel_recid  =-1;// clear the grid select recid
-        w2ui.depositGrid.render();
+    app.form_is_dirty = false;      // clean dirty flag of form
+    app.last.grid_sel_recid  =-1;   // clear the grid select recid
+    w2ui.depositGrid.reload();      // show the new deposit in main grid
+    w2ui.depositListGrid.reload();  // show only undeposited receipts in depositList grid
 
-        // add new initial record
-        f.record = getDepositInitRecord(BID, BUD, f.record);
-        f.header = "Edit Deposit (new)";
-        f.url = "/v1/deposit/"+BID+"/0";
-        f.refresh();
-    });
+    //-----------------------------
+    // add new initial record
+    //-----------------------------
+    f.record = getDepositInitRecord(BID, BUD, f.record);
+    f.header = "Edit Deposit (new)";
+    f.url = "/v1/deposit/"+BID+"/0";
+    f.refresh();
 };
 
 //-----------------------------------------------------------------------------

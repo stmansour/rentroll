@@ -621,7 +621,10 @@ EOF
 # ALTER TABLE RentableLeaseStatus ADD FLAGS BIGINT NOT NULL DEFAULT 0 AFTER ConfirmationCode;
 # May 4, 2019
 # ALTER TABLE RentalAgreement ADD TerminationStarted DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00' AFTER TerminationDate;
-
+# June 5, 2019
+# ALTER TABLE RentableLeaseStatus ADD TCID BIGINT NOT NULL DEFAULT 0 AFTER BID;
+# June 6, 2019
+# ALTER TABLE RentableLeaseStatus CHANGE TCID RAID BIGINT NOT NULL DEFAULT 0;
 
 ########################################
 # schemamod()

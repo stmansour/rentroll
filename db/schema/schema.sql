@@ -835,6 +835,7 @@ CREATE TABLE RentableLeaseStatus (
     RLID BIGINT NOT NULL AUTO_INCREMENT,                            -- unique id for Rentable Status
     RID BIGINT NOT NULL DEFAULT 0,                                  -- associated Rentable
     BID BIGINT NOT NULL DEFAULT 0,                                  -- Business
+    RAID BIGINT NOT NULL DEFAULT 0,                                 -- associated RAID
     LeaseStatus SMALLINT NOT NULL DEFAULT 0,                        -- 0 = Not Leased, 1 = Leased, 2 = Reserved
     DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',        -- start time for this state
     DtStop DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',         -- stop time for this state

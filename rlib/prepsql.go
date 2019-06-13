@@ -1171,7 +1171,7 @@ WHERE RAID=? AND RID=? AND Start >= ? AND Stop < ? AND RentCycle=0 ORDER By Asse
 	//===============================
 	//  RentableLeaseStatus
 	//===============================
-	flds = "RLID,RID,BID,DtStart,DtStop,LeaseStatus,Comment,FirstName,LastName,Email,Phone,Address,Address2,City,State,PostalCode,Country,CCName,CCType,CCNumber,CCExpMonth,ConfirmationCode,CreateTS,CreateBy,LastModTime,LastModBy"
+	flds = "RLID,RID,BID,RAID,DtStart,DtStop,LeaseStatus,Comment,FirstName,LastName,Email,Phone,Address,Address2,City,State,PostalCode,Country,CCName,CCType,CCNumber,CCExpMonth,ConfirmationCode,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["RentableLeaseStatus"] = flds
 	RRdb.Prepstmt.GetRentableLeaseStatus, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableLeaseStatus WHERE RLID=?")
 	Errcheck(err)

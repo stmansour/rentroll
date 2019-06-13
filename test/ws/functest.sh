@@ -21,6 +21,8 @@ source ../share/base.sh
 
 echo "STARTING RENTROLL SERVER"
 RENTROLLSERVERAUTH="-noauth"
+RENTROLLSERVERNOW="-testDtNow 1/1/2015"
+
 startRentRollServer
 
 # get GLAccounts list for the business
@@ -149,7 +151,7 @@ encodeRequest '{"cmd":"save","selected":[],"limit":100,"offset":0,"changes":[{"r
 dojsonPOST "http://localhost:8270/v1/rentableusetype/1/1129" "request" "ws40a"  "WebService--SaveRentableUseType-Rentable(1129)"
 
 # save rentable Lease status with LeaseStatus: Reserved
-echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22bookResForm%22%2C%22record%22%3A%7B%22BID%22%3A1%2C%22BUD%22%3A%22%22%2C%22RTID%22%3A1%2C%22RID%22%3A1129%2C%22Nights%22%3A1%2C%22DtStart%22%3A%221%2F1%2F2014%22%2C%22DtStop%22%3A%2212%2F31%2F9999%22%2C%22RLID%22%3A0%2C%22FirstName%22%3A%22Steve%22%2C%22LastName%22%3A%22Mansour%22%2C%22Email%22%3A%22sman%40stevemansour.com%22%2C%22Phone%22%3A%224089219957%22%2C%22Street%22%3A%22%22%2C%22City%22%3A%22Milpitas%22%2C%22Country%22%3A%22United%2BStates%22%2C%22State%22%3A%22CA%22%2C%22PostalCode%22%3A%2295035%22%2C%22CCName%22%3A%22STEVE%20MANSOUR%22%2C%22CCType%22%3A%22VISA%22%2C%22CCNumber%22%3A%221234111112341111%22%2C%22CCExpMonth%22%3A%2209%22%2C%22CCExpYear%22%3A%222014%22%2C%22Comment%22%3A%22%22%2C%22RentableName%22%3A%22Rentable010%22%2C%22Address%22%3A%222215%2BWellington%2BDrive%22%2C%22Address2%22%3A%22%22%7D%7D" > request
+encodeRequest '{"cmd":"save","recid":0,"name":"bookResForm","record":{"BID":1,"BUD":"","RTID":1,"RID":1129,"Nights":1,"DtStart":"1/1/2016","DtStop":"12/31/9999","RLID":0,"FirstName":"Steve","LastName":"Mansour","Email":"sman@stevemansour.com","Phone":"4089219957","Street":"","City":"Milpitas","Country":"United+States","State":"CA","PostalCode":"95035","CCName":"STEVE MANSOUR","CCType":"VISA","CCNumber":"1234111112341111","CCExpMonth":"09","CCExpYear":"2014","Comment":"","RentableName":"Rentable010","Address":"2215+Wellington+Drive","Address2":""}}' > request
 dojsonPOST "http://localhost:8270/v1/reservation/1/1129" "request" "ws40b"  "WebService--SaveRentableLeaseStatus-Rentable(1129)"
 
 # save rentable type ref
@@ -158,7 +160,7 @@ dojsonPOST "http://localhost:8270/v1/rentabletyperef/1/1129" "request" "ws41"  "
 
 # Get Rentables
 # echo "request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D" > request
-echo "request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%228%2F1%2F2016%22%2C%22searchDtStop%22%3A%229%2F1%2F2016%22%7D" > request
+encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0,"searchDtStart":"8/1/2016","searchDtStop":"9/1/2016"}' > request
 dojsonPOST "http://localhost:8270/v1/rentables/1" "request" "ws42"  "WebService--GetRentables"
 
 # Get Rentable Use Status list for Rentable(1129)

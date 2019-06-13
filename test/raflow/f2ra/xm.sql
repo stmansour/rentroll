@@ -1668,6 +1668,7 @@ CREATE TABLE `RentableLeaseStatus` (
   `RLID` bigint(20) NOT NULL AUTO_INCREMENT,
   `RID` bigint(20) NOT NULL DEFAULT '0',
   `BID` bigint(20) NOT NULL DEFAULT '0',
+  `RAID` bigint(20) NOT NULL DEFAULT '0',
   `LeaseStatus` smallint(6) NOT NULL DEFAULT '0',
   `DtStart` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `DtStop` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
@@ -1703,7 +1704,7 @@ CREATE TABLE `RentableLeaseStatus` (
 
 LOCK TABLES `RentableLeaseStatus` WRITE;
 /*!40000 ALTER TABLE `RentableLeaseStatus` DISABLE KEYS */;
-INSERT INTO `RentableLeaseStatus` VALUES (27,1,1,0,'2017-01-01 00:00:00','2018-07-01 00:00:00','','','','','','','','','','','','','','','','','',0,'2019-02-12 19:08:47',211,'2019-02-12 19:08:47',211),(28,1,1,1,'2018-07-01 00:00:00','2019-07-01 00:00:00','','','','','','','','','','','','','','','','','',0,'2019-02-12 19:08:47',211,'2019-02-12 19:08:47',211),(29,1,1,2,'2019-07-01 00:00:00','9999-12-31 00:00:00','','','','','','','','','','','','','','','','','',0,'2019-02-12 19:08:47',211,'2019-02-12 19:08:47',211);
+INSERT INTO `RentableLeaseStatus` VALUES (27,1,1,0,0,'2017-01-01 00:00:00','2018-07-01 00:00:00','','','','','','','','','','','','','','','','','',0,'2019-02-12 19:08:47',211,'2019-02-12 19:08:47',211),(28,1,1,0,1,'2018-07-01 00:00:00','2019-07-01 00:00:00','','','','','','','','','','','','','','','','','',0,'2019-02-12 19:08:47',211,'2019-02-12 19:08:47',211),(29,1,1,0,2,'2019-07-01 00:00:00','9999-12-31 00:00:00','','','','','','','','','','','','','','','','','',0,'2019-02-12 19:08:47',211,'2019-02-12 19:08:47',211);
 /*!40000 ALTER TABLE `RentableLeaseStatus` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2716,4 +2717,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-05-04 17:49:18
+-- Dump completed on 2019-06-06 12:28:15

@@ -77,6 +77,7 @@ window.UTCDateStringToW2UIValidDate = function(x) {
     var y = x.substring(12,16);
     return m + '/' + d + '/' + y;
 };
+
 //-----------------------------------------------------------------------------
 // adjustARDates - a convenience function to apply the offset to 2 localtime
 //                 dates just prior to sending them to the server.  This puts

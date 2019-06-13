@@ -21,6 +21,15 @@ import (
 func HotelBookings(ctx context.Context, dbConf *GenDBConf) error {
 	rlib.Console("Entered HotelBookings\n")
 
+	//--------------------------------
+	// set the epoch time as 1:00 AM
+	// This can be replaced when we save the proper epoch values for each RT
+	//--------------------------------
+	epoch := time.Now()
+	if epoch.Hour() > 1 {
+		epoch = epoch.AddDate(0, 0, 1) // use tommorrow's date
+	}
+
 	q := "SELECT " + rlib.RRdb.DBFields["Rentable"] + " from Rentable WHERE BID=1;"
 	rows, err := rlib.RRdb.Dbrr.Query(q)
 	if err != nil {
@@ -63,21 +72,10 @@ func HotelBookings(ctx context.Context, dbConf *GenDBConf) error {
 				// Add RentableLeaseStatus - find some available time.
 				// start with a guess on the time range
 				//------------------------------------------------------
-				fn := GenerateRandomFirstName()
-				ln := GenerateRandomLastName()
 				var ls = rlib.RentableLeaseStatus{ // we start with this info, then check and modify as needed
 					BID:              1,
 					RID:              r.RID,
 					LeaseStatus:      rlib.LEASESTATUSreserved,
-					FirstName:        fn,
-					LastName:         ln,
-					Email:            GenerateRandomEmail(ln, fn),
-					Phone:            GenerateRandomPhoneNumber(),
-					Address:          GenerateRandomAddress(),
-					City:             GenerateRandomCity(),
-					State:            GenerateRandomState(),
-					PostalCode:       fmt.Sprintf("%05d", rand.Intn(100000)),
-					Country:          "USA",
 					ConfirmationCode: rlib.GenerateUserRefNo(),
 				}
 
@@ -104,43 +102,95 @@ func HotelBookings(ctx context.Context, dbConf *GenDBConf) error {
 					}
 					available = !overlap // if no overlaps were found, the outer loope terminates
 				}
-
 				// rlib.Console("Found date range that works: %s\n", rlib.ConsoleDRange(&ls.DtStart, &ls.DtStop))
 				m = append(m, ls) // we'll use this time
-				if err := rlib.SetRentableLeaseStatus(ctx, &ls); err != nil {
+
+				//-------------------------------------------------
+				// create a Transactant...
+				//-------------------------------------------------
+				fn := GenerateRandomFirstName()
+				ln := GenerateRandomLastName()
+				var t = rlib.Transactant{
+					BID:          ls.BID,
+					FirstName:    fn,
+					LastName:     ln,
+					PrimaryEmail: GenerateRandomEmail(ln, fn),
+					CellPhone:    GenerateRandomPhoneNumber(),
+					Address:      GenerateRandomAddress(),
+					City:         GenerateRandomCity(),
+					State:        GenerateRandomState(),
+					PostalCode:   fmt.Sprintf("%05d", rand.Intn(100000)),
+					Country:      "USA",
+				}
+				if _, err = rlib.InsertTransactant(ctx, &t); err != nil {
 					return err
 				}
-				//--------------------------------------------------
-				// Add some reasonable UseStatus values as well...
-				// 7 - 5 hours prior  Housekeeping
-				// 4 - 2 hours prior  Ready
-				// (selected range)   InService
-				//--------------------------------------------------
-				dd := ls.DtStart.Unix()
-				hrs := 300 + IG.Rand.Intn(180)
-				d1 := time.Unix(dd-int64(hrs), int64(0)) // Housekeeping
-				mns := 120
-				d2 := time.Unix(dd-int64(mns), int64(0)) // ready
-				var us = rlib.RentableUseStatus{
-					BID:       1,
-					RID:       r.RID,
-					UseStatus: rlib.USESTATUShousekeeping,
-					DtStart:   d1,
-					DtStop:    d2,
+
+				//-------------------------------------------------
+				// create a RentalAgreement...
+				//-------------------------------------------------
+				var ra = rlib.RentalAgreement{
+					BID:                 ls.BID,
+					AgreementStart:      ls.DtStart,
+					AgreementStop:       ls.DtStop,
+					PossessionStart:     ls.DtStart,
+					PossessionStop:      ls.DtStop,
+					RentStart:           ls.DtStart,
+					RentStop:            ls.DtStop,
+					RentCycleEpoch:      epoch,
+					FLAGS:               0,
+					CSAgent:             GenerateValidUID(),
+					UnspecifiedAdults:   int64(1 + IG.Rand.Intn(3)),
+					UnspecifiedChildren: int64(IG.Rand.Intn(3)),
 				}
-				if err := rlib.SetRentableUseStatus(ctx, &us); err != nil { // sets Housekeeping status
+				if _, err = rlib.InsertRentalAgreement(ctx, &ra); err != nil {
 					return err
 				}
-				us.UseStatus = rlib.USESTATUSready
-				us.DtStart = d2
-				us.DtStop = ls.DtStart
-				if err := rlib.SetRentableUseStatus(ctx, &us); err != nil { // sets ready status
+
+				//-------------------------------------
+				// Assign the Rentable
+				//-------------------------------------
+				var rar rlib.RentalAgreementRentable
+				rar.BID = ls.BID
+				rar.RARDtStart = ls.DtStart
+				rar.RARDtStop = ls.DtStop
+				rar.RAID = ra.RAID
+				rar.RID = ls.RID
+				if _, err = rlib.InsertRentalAgreementRentable(ctx, &rar); err != nil {
 					return err
 				}
-				us.UseStatus = rlib.USESTATUSinService
-				us.DtStart = ls.DtStart
-				us.DtStop = ls.DtStop
-				if err := rlib.SetRentableUseStatus(ctx, &us); err != nil { // sets in use status
+
+				//-------------------------------------
+				// Assign Payor
+				//-------------------------------------
+				var rap rlib.RentalAgreementPayor
+				rap.BID = ls.BID
+				rap.DtStart = ls.DtStart
+				rap.DtStop = ls.DtStop
+				rap.RAID = ra.RAID
+				rap.TCID = t.TCID
+				if _, err = rlib.InsertRentalAgreementPayor(ctx, &rap); err != nil {
+					return err
+				}
+
+				//-------------------------------------
+				// Assign Users...
+				//-------------------------------------
+				var rau rlib.RentableUser
+				rau.BID = ls.BID
+				rau.RID = ls.RID
+				rau.DtStart = ls.DtStart
+				rau.DtStop = ls.DtStop
+				rau.TCID = t.TCID
+				if _, err = rlib.InsertRentableUser(ctx, &rau); err != nil {
+					return err
+				}
+
+				//-------------------------------------
+				// Now create the Lease Status (reservation)
+				//-------------------------------------
+				ls.RAID = ra.RAID
+				if err = rlib.SetRentableLeaseStatus(ctx, &ls); err != nil {
 					return err
 				}
 
