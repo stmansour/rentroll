@@ -111,7 +111,7 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     # Total Records: 3
     # 0 1
     #--------------------------------------------------
-    encodeRequest '{"cmd":"save","selected":[],"limit":0,"offset":0,"changes":[{"RTID":5,"DtStart":"4/1/2019","DtStop":"8/31/2019","BID":1,"BUD":"REX","recid":0,"RTRID":23,"RID":1,"OverrideRentCycle":0,"OverrideProrationCycle":0,"CreateBy":211,"LastModBy":211,"w2ui":{}}],"RID":1}'
+    encodeRequest '{"cmd":"save","selected":[],"limit":0,"offset":0,"changes":[{"RTID":5,"DtStart":"4/1/2019","DtStop":"8/31/2019","BID":1,"BUD":"REX","recid":0,"RTRID":23,"RID":1,"OverrideRentCycle":0,"OverrideProrationCycle":0,"CreateBy":0,"LastModBy":0,"w2ui":{}}],"RID":1}'
     dojsonPOST "http://localhost:8270/v1/rentabletyperef/1/1" "request" "${TFILES}${STEP}"  "RentableTypeRef-Save"
     encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0}'
     dojsonPOST "http://localhost:8270/v1/rentabletyperef/1/1" "request" "${TFILES}${STEP}"  "RentableTypeRef-Search"
@@ -137,7 +137,7 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     # Total Records: 4
     # 2 3
     #--------------------------------------------------
-    encodeRequest '{"cmd":"save","selected":[],"limit":0,"offset":0,"changes":[{"RTID":7,"DtStart":"4/1/2019","DtStop":"8/31/2019","BID":1,"BUD":"REX","recid":0,"RTRID":23,"RID":1,"OverrideRentCycle":0,"OverrideProrationCycle":0,"CreateBy":211,"LastModBy":211,"w2ui":{}}],"RID":1}'
+    encodeRequest '{"cmd":"save","selected":[],"limit":0,"offset":0,"changes":[{"RTID":7,"DtStart":"4/1/2019","DtStop":"8/31/2019","BID":1,"BUD":"REX","recid":0,"RTRID":23,"RID":1,"OverrideRentCycle":0,"OverrideProrationCycle":0,"CreateBy":0,"LastModBy":0,"w2ui":{}}],"RID":1}'
     dojsonPOST "http://localhost:8270/v1/rentabletyperef/1/1" "request" "${TFILES}${STEP}"  "RentableTypeRef-Save"
     encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0}'
     dojsonPOST "http://localhost:8270/v1/rentabletyperef/1/1" "request" "${TFILES}${STEP}"  "RentableTypeRef-Search"
@@ -165,7 +165,7 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     # Total Records: 6
     # 4 5
     #-------------------------------------------------------
-    encodeRequest '{"cmd":"save","selected":[],"limit":0,"offset":0,"changes":[{"RTID":6,"DtStart":"9/15/2019","DtStop":"9/21/2019","BID":1,"BUD":"REX","recid":0,"RTRID":23,"RID":1,"OverrideRentCycle":0,"OverrideProrationCycle":0,"CreateBy":211,"LastModBy":211,"w2ui":{}}],"RID":1}'
+    encodeRequest '{"cmd":"save","selected":[],"limit":0,"offset":0,"changes":[{"RTID":6,"DtStart":"9/15/2019","DtStop":"9/21/2019","BID":1,"BUD":"REX","recid":0,"RTRID":23,"RID":1,"OverrideRentCycle":0,"OverrideProrationCycle":0,"CreateBy":0,"LastModBy":0,"w2ui":{}}],"RID":1}'
     dojsonPOST "http://localhost:8270/v1/rentabletyperef/1/1" "request" "${TFILES}${STEP}"  "RentableTypeRef-Save"
     encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0}'
     dojsonPOST "http://localhost:8270/v1/rentabletyperef/1/1" "request" "${TFILES}${STEP}"  "RentableTypeRef-Search"
@@ -194,7 +194,7 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     # Total Records: 6
     # 6 7
     #-------------------------------------------------------
-    encodeRequest '{"cmd":"save","selected":[],"limit":0,"offset":0,"changes":[{"RTID":6,"DtStart":"3/15/2019","DtStop":"8/31/2019","BID":1,"BUD":"REX","recid":0,"RTRID":23,"RID":1,"OverrideRentCycle":0,"OverrideProrationCycle":0,"CreateBy":211,"LastModBy":211,"w2ui":{}}],"RID":1}'
+    encodeRequest '{"cmd":"save","selected":[],"limit":0,"offset":0,"changes":[{"RTID":6,"DtStart":"3/15/2019","DtStop":"8/31/2019","BID":1,"BUD":"REX","recid":0,"RTRID":23,"RID":1,"OverrideRentCycle":0,"OverrideProrationCycle":0,"CreateBy":0,"LastModBy":0,"w2ui":{}}],"RID":1}'
     dojsonPOST "http://localhost:8270/v1/rentabletyperef/1/1" "request" "${TFILES}${STEP}"  "RentableTypeRef-Save"
     encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0}'
     dojsonPOST "http://localhost:8270/v1/rentabletyperef/1/1" "request" "${TFILES}${STEP}"  "RentableTypeRef-Search"
@@ -223,7 +223,7 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     # Total Records: 7
     # 8 9
     #-------------------------------------------------------
-    encodeRequest '{"cmd":"save","selected":[],"limit":0,"offset":0,"changes":[{"RTID":3,"DtStart":"8/1/2019","DtStop":"9/6/2019","BID":1,"BUD":"REX","recid":0,"RTRID":23,"RID":1,"OverrideRentCycle":0,"OverrideProrationCycle":0,"CreateBy":211,"LastModBy":211,"w2ui":{}}],"RID":1}'
+    encodeRequest '{"cmd":"save","selected":[],"limit":0,"offset":0,"changes":[{"RTID":3,"DtStart":"8/1/2019","DtStop":"9/6/2019","BID":1,"BUD":"REX","recid":0,"RTRID":23,"RID":1,"OverrideRentCycle":0,"OverrideProrationCycle":0,"CreateBy":0,"LastModBy":0,"w2ui":{}}],"RID":1}'
     dojsonPOST "http://localhost:8270/v1/rentabletyperef/1/1" "request" "${TFILES}${STEP}"  "RentableTypeRef-Save"
     encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0}'
     dojsonPOST "http://localhost:8270/v1/rentabletyperef/1/1" "request" "${TFILES}${STEP}"  "RentableTypeRef-Search"
@@ -252,7 +252,7 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     # Total Records: 7
     # 10 11
     #-------------------------------------------------------
-    encodeRequest '{"cmd":"save","selected":[],"limit":0,"offset":0,"changes":[{"RTID":6,"DtStart":"7/1/2019","DtStop":"8/6/2019","BID":1,"BUD":"REX","recid":0,"RTRID":23,"RID":1,"OverrideRentCycle":0,"OverrideProrationCycle":0,"CreateBy":211,"LastModBy":211,"w2ui":{}}],"RID":1}'
+    encodeRequest '{"cmd":"save","selected":[],"limit":0,"offset":0,"changes":[{"RTID":6,"DtStart":"7/1/2019","DtStop":"8/6/2019","BID":1,"BUD":"REX","recid":0,"RTRID":23,"RID":1,"OverrideRentCycle":0,"OverrideProrationCycle":0,"CreateBy":0,"LastModBy":0,"w2ui":{}}],"RID":1}'
     dojsonPOST "http://localhost:8270/v1/rentabletyperef/1/1" "request" "${TFILES}${STEP}"  "RentableTypeRef-Save"
     encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0}'
     dojsonPOST "http://localhost:8270/v1/rentabletyperef/1/1" "request" "${TFILES}${STEP}"  "RentableTypeRef-Search"
@@ -273,7 +273,7 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     #  ----------------------------
     #   5   09/22/2019 - 12/31/9999
     #   6   09/15/2019 - 09/22/2019
-    #   5   09/01/2019 - 09/15/2019
+    #   5   09/07/2019 - 09/15/2019
     #   3   08/01/2019 - 09/07/2019
     #   6   03/15/2019 - 08/01/2019
     #   2   03/01/2018   03/15/2019
@@ -281,7 +281,7 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     # Total Records: 7
     # 12 13
     #-------------------------------------------------------
-    encodeRequest '{"cmd":"save","selected":[],"limit":0,"offset":0,"changes":[{"RTID":3,"DtStart":"8/1/2019","DtStop":"8/9/2019","BID":1,"BUD":"REX","recid":0,"RTRID":23,"RID":1,"OverrideRentCycle":0,"OverrideProrationCycle":0,"CreateBy":211,"LastModBy":211,"w2ui":{}}],"RID":1}'
+    encodeRequest '{"cmd":"save","selected":[],"limit":0,"offset":0,"changes":[{"RTID":3,"DtStart":"8/1/2019","DtStop":"8/9/2019","BID":1,"BUD":"REX","recid":0,"RTRID":23,"RID":1,"OverrideRentCycle":0,"OverrideProrationCycle":0,"CreateBy":0,"LastModBy":0,"w2ui":{}}],"RID":1}'
     dojsonPOST "http://localhost:8270/v1/rentabletyperef/1/1" "request" "${TFILES}${STEP}"  "RentableTypeRef-Save"
     encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0}'
     dojsonPOST "http://localhost:8270/v1/rentabletyperef/1/1" "request" "${TFILES}${STEP}"  "RentableTypeRef-Search"
@@ -307,7 +307,7 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     # Total Records: 7
     # 14 15
     #-------------------------------------------------------
-    encodeRequest '{"cmd":"save","selected":[],"limit":0,"offset":0,"changes":[{"RTID":6,"DtStart":"7/1/2019","DtStop":"9/19/2019","BID":1,"BUD":"REX","recid":0,"RTRID":23,"RID":1,"OverrideRentCycle":0,"OverrideProrationCycle":0,"CreateBy":211,"LastModBy":211,"w2ui":{}}],"RID":1}'
+    encodeRequest '{"cmd":"save","selected":[],"limit":0,"offset":0,"changes":[{"RTID":6,"DtStart":"7/1/2019","DtStop":"9/19/2019","BID":1,"BUD":"REX","recid":0,"RTRID":23,"RID":1,"OverrideRentCycle":0,"OverrideProrationCycle":0,"CreateBy":0,"LastModBy":0,"w2ui":{}}],"RID":1}'
     dojsonPOST "http://localhost:8270/v1/rentabletyperef/1/1" "request" "${TFILES}${STEP}"  "RentableTypeRef-Save"
     encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0}'
     dojsonPOST "http://localhost:8270/v1/rentabletyperef/1/1" "request" "${TFILES}${STEP}"  "RentableTypeRef-Search"
