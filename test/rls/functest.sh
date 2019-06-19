@@ -174,6 +174,7 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     # LeaseStatus state. But it should not add a new record)
     encodeRequest '{"cmd":"save","selected":[],"limit":0,"offset":0,"changes":[{"recid":1,"RLID":3,"BID":1,"BUD":"REX","RID":1,"LeaseStatus":1,"DtStart":"7/1/2018","DtStop":"6/20/2019","Comment":"","CreateBy":0,"LastModBy":0,"w2ui":{}}],"RID":1}' > request
     dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}${STEP}"  "RentableTypeRefs-Save"
+
     encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0}'
     dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}${STEP}"  "RentableTypeRefs-Get"
 

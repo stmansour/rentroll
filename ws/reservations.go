@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"rentroll/bizlogic"
 	"rentroll/rlib"
 	"strconv"
 	"strings"
@@ -252,7 +253,7 @@ func searchReservations(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 		d.wsSearchReq.SearchDtStop.Format(rlib.RRDATETIMESQL),
 		d.wsSearchReq.SearchDtStart.Format(rlib.RRDATETIMESQL))
 
-	order := "RentableLeaseStatus.DtStart ASC,RentableLeaseStatus.LastName ASC,RentableLeaseStatus.Email ASC" // default ORDER is by start date
+	order := "RentableLeaseStatus.DtStart ASC,Transactant.LastName ASC,Transactant.PrimaryEmail ASC" // default ORDER is by start date
 
 	// get where clause and order clause for sql query
 	whereClause, orderClause := GetSearchAndSortSQL(d, reservationGridFieldsMap)
@@ -577,10 +578,6 @@ func saveReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		DtStop:           time.Time(res.DtStop),
 		LeaseStatus:      res.LeaseStatus,
 		Comment:          res.Comment,
-		CCName:           res.CCName,
-		CCType:           res.CCType,
-		CCNumber:         res.CCNumber,
-		CCExpMonth:       res.CCExpMonth,
 		ConfirmationCode: res.ConfirmationCode,
 	}
 
@@ -801,28 +798,34 @@ func insertResRentalAgreement(ctx context.Context, r *http.Request, d *ServiceDa
 	//----------------------------------------------------------
 	// Create Deposit assessment
 	//----------------------------------------------------------
-	// if res.Deposit > float64(0) {
-	// 	var a = rlib.Assessment{
-	// 		BID:            res.BID,
-	// 		RID:            res.RID,
-	// 		AssocElemType:  res.BID,
-	// 		AssocElemID:    res.BID,
-	// 		RAID:           res.BID,
-	// 		Amount:         res.Deposit,
-	// 		Start:          ra.RentStart,
-	// 		Stop:           ra.RentStop,
-	// 		RentCycle:      res.BID,
-	// 		ProrationCycle: res.BID,
-	// 		InvoiceNo:      res.BID,
-	// 		ARID:           res.BID,
-	// 	}
-	// }
+	if res.Deposit > float64(0) {
+		var bp rlib.BizProps
+		if bp, err = rlib.GetDataFromBusinessPropertyName(ctx, "general", res.BID); err != nil {
+			return err
+		}
+
+		var a = rlib.Assessment{
+			BID:            res.BID,
+			RID:            res.RID,
+			RAID:           res.RAID,
+			Amount:         res.Deposit,
+			Start:          ra.RentStart,
+			Stop:           ra.RentStop,
+			RentCycle:      rlib.RECURNONE,
+			ProrationCycle: rlib.RECURNONE,
+			ARID:           bp.ResDepARID,
+		}
+		if be := bizlogic.InsertAssessment(ctx, &a, 0, &noClose); len(be) > 0 {
+			return bizlogic.BizErrorListToError(be)
+		}
+	}
 
 	return nil
 }
 
-// deleteResRentalAgreement
-// Delete everything associated with the reservation's rental agreement
+// cancelReservation
+// Void the rental agreement for this reservation, reverse its assessments,
+// and free up its rentables.
 //
 // INPUTS
 //    ctx - database context
@@ -833,40 +836,20 @@ func insertResRentalAgreement(ctx context.Context, r *http.Request, d *ServiceDa
 // RETURNS
 //    any error encountered
 //------------------------------------------------------------------------------
-func deleteResRentalAgreement(ctx context.Context, r *http.Request, d *ServiceData, res *ResDet) error {
-	funcname := "deleteResRentalAgreement"
+func cancelReservation(ctx context.Context, r *http.Request, d *ServiceData, res *ResDet) error {
+	funcname := "cancelReservation"
 	var err error
+	var ra rlib.RentalAgreement
 	rlib.Console("Entered %s\n", funcname)
 
-	tx, ok := rlib.DBTxFromContext(ctx)
-	if !ok {
-		return fmt.Errorf("%s: Could not get transaction info from context", funcname)
-	}
-
-	//---------------------------------------
-	// Delete RentalAgreementRentables...
-	//---------------------------------------
-	qry := fmt.Sprintf("DELETE from RentalAgreementRentables WHERE BID=%d AND RAID=%d", res.BID, res.RAID)
-	if _, err = tx.Exec(qry); err != nil {
+	//--------------------------------------------------------------------------
+	// Terminate the Rental Agreement, mark the reason as Reservation Canceled.
+	// This call also reverses all assessments associated with the RA
+	//--------------------------------------------------------------------------
+	if ra, err = rlib.GetRentalAgreement(ctx, res.RAID); err != nil {
 		return err
 	}
-
-	//---------------------------------------
-	// Delete Payors
-	//---------------------------------------
-	qry = fmt.Sprintf("DELETE from RentalAgreementPayors WHERE BID=%d AND RAID=%d", res.BID, res.RAID)
-	if _, err = tx.Exec(qry); err != nil {
-		return err
-	}
-
-	//---------------------------------------
-	// Delete Assessments
-	//---------------------------------------
-
-	//---------------------------------------
-	// Delete the RentalAgreement
-	//---------------------------------------
-	return rlib.DeleteRentalAgreement(ctx, res.RAID)
+	return VoidRentalAgreement(ctx, &ra, rlib.MSGRESCANCELED)
 }
 
 // updateResRentalAgreement
@@ -887,7 +870,7 @@ func deleteResRentalAgreement(ctx context.Context, r *http.Request, d *ServiceDa
 func updateResRentalAgreement(ctx context.Context, r *http.Request, d *ServiceData, res *ResDet, t *rlib.Transactant, ra *rlib.RentalAgreement) error {
 	rlib.Console("Entered updateResRentalAgreement\n")
 	var err error
-	if err = deleteResRentalAgreement(ctx, r, d, res); err != nil {
+	if err = cancelReservation(ctx, r, d, res); err != nil {
 		return err
 	}
 	if err = insertResRentalAgreement(ctx, r, d, res, t, ra); err != nil {
@@ -898,6 +881,7 @@ func updateResRentalAgreement(ctx context.Context, r *http.Request, d *ServiceDa
 }
 
 func deleteReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	const funcname = "deleteReservation"
-	rlib.Console("Entered %s\n", funcname)
+	// const funcname = "deleteReservation"
+	// rlib.Console("Entered %s\n", funcname)
+	// rls, err := rlib.GetRentableLeaseStatus(r.Context(), d.ID)
 }

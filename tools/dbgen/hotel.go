@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
+	"rentroll/bizlogic"
 	"rentroll/rlib"
 	"time"
 )
@@ -171,6 +172,28 @@ func HotelBookings(ctx context.Context, dbConf *GenDBConf) error {
 				rap.TCID = t.TCID
 				if _, err = rlib.InsertRentalAgreementPayor(ctx, &rap); err != nil {
 					return err
+				}
+
+				//-------------------------------------
+				// Create the deposit...
+				// assume it's $50 / night
+				//-------------------------------------
+				var asm rlib.Assessment
+				asm.ARID = dbConf.ResDepARID
+				asm.Amount = float64(bk * 50)
+				asm.RAID = ra.RAID
+				asm.BID = ls.BID
+				asm.RID = ls.RID
+				asm.Start = rlib.Now()
+				asm.Stop = asm.Start
+				asm.RentCycle = rlib.RECURNONE
+				asm.ProrationCycle = rlib.RECURNONE
+				// if _, err = rlib.InsertAssessment(ctx, &asm); err != nil {
+				// 	return err
+				// }
+				be := bizlogic.InsertAssessment(ctx, &asm, 1, &noClose)
+				if be != nil {
+					return bizlogic.BizErrorListToError(be)
 				}
 
 				//-------------------------------------

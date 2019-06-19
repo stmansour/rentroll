@@ -137,6 +137,43 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     dojsonPOST "http://localhost:8270/v1/reservation/1/167" "request" "${TFILES}1"  "reservation-getReservation"
 fi
 
+#------------------------------------------------------------------------------
+#  TEST d
+#
+#  Test the ability search for available rentables...
+#
+#  Scenario:
+#  see individual calls below
+#
+#  Expected Results:
+#   see individual commands below
+#------------------------------------------------------------------------------
+TFILES="d"
+if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
+
+    stopRentRollServer
+    mysql --no-defaults rentroll < x${TFILES}.sql
+    startRentRollServer
+
+    #-------------------------------------------------------------------------
+    # search all rentable types for availability, this search should produce
+    # no results
+    #-------------------------------------------------------------------------
+    encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0,"record":{"recid":0,"BID":1,"BUD":"REX","RTID":0,"Nights":3,"DtStart":"Thu, 20 Jun 2019 07:00:00 GMT","DtStop":"Sun, 23 Jun 2019 07:00:00 GMT"}}' > request
+    dojsonPOST "http://localhost:8270/v1/available/1" "request" "${TFILES}0"  "reservation-searchForAvailableRooms"
+
+    #-------------------------------------------------------------------------
+    # search all rentable types for availability, this search should produce
+    # 4 results
+    #-------------------------------------------------------------------------
+    encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0,"record":{"recid":0,"BID":1,"BUD":"REX","RTID":0,"Nights":3,"DtStart":"Tue, 17 Sep 2019 07:00:00 GMT","DtStop":"Fri, 20 Sep 2019 07:00:00 GMT"}}' > request
+    dojsonPOST "http://localhost:8270/v1/available/1" "request" "${TFILES}1"  "reservation-searchForAvailableRooms"
+
+    # Create a Reservation
+    encodeRequest '{"cmd":"save","record":{"rdBID":1,"BUD":{"id":"REX","text":"REX"},"DtStart":"Tue, 18 Jun 2019 00:00:00 GMT","DtStop":"Fri, 21 Jun 2019 00:00:00 GMT","Nights":3,"RLID":0,"RTRID":0,"rdRTID":4,"RID":7,"RAID":0,"TCID":0,"Amounmt":0,"Deposit":10,"LeaseStatus":2,"RentableName":"Rentable007","FirstName":"Billy Bob","UnspecifiedAdults":0,"UnspecifiedChildren":0,"LastName":"Thorton","IsCompany":false,"CompanyName":"","Email":"bbt@boozer.com","Phone":"1234567890","Street":"123 Elm","City":"Murfreesboro","Country":"","State":"AK","PostalCode":"12345","CCName":"","CCType":"","CCNumber":"","CCExpMonth":"","CCExpYear":"","ConfirmationCode":"","Comment":"","RTID":4,"Amount":25}}' > request
+    dojsonPOST "http://localhost:8270/v1/reservation/1/0" "request" "${TFILES}2"  "reservation-saveReservation"
+fi
+
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
 

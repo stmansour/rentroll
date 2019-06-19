@@ -1671,21 +1671,6 @@ CREATE TABLE `RentableLeaseStatus` (
   `DtStart` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `DtStop` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `Comment` varchar(2048) NOT NULL DEFAULT '',
-  `FirstName` varchar(50) NOT NULL DEFAULT '',
-  `LastName` varchar(50) NOT NULL DEFAULT '',
-  `Email` varchar(100) NOT NULL DEFAULT '',
-  `Phone` varchar(100) NOT NULL DEFAULT '',
-  `Address` varchar(100) NOT NULL DEFAULT '',
-  `Address2` varchar(100) NOT NULL DEFAULT '',
-  `City` varchar(100) NOT NULL DEFAULT '',
-  `State` char(25) NOT NULL DEFAULT '',
-  `PostalCode` varchar(100) NOT NULL DEFAULT '',
-  `Country` varchar(100) NOT NULL DEFAULT '',
-  `CCName` varchar(100) NOT NULL DEFAULT '',
-  `CCType` varchar(100) NOT NULL DEFAULT '',
-  `CCNumber` varchar(100) NOT NULL DEFAULT '',
-  `CCExpMonth` varchar(100) NOT NULL DEFAULT '',
-  `CCExpYear` varchar(100) NOT NULL DEFAULT '',
   `ConfirmationCode` varchar(20) NOT NULL DEFAULT '',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -1702,7 +1687,7 @@ CREATE TABLE `RentableLeaseStatus` (
 
 LOCK TABLES `RentableLeaseStatus` WRITE;
 /*!40000 ALTER TABLE `RentableLeaseStatus` DISABLE KEYS */;
-INSERT INTO `RentableLeaseStatus` VALUES (1,1,1,0,0,'2018-01-01 00:00:00','2018-05-01 00:00:00','','','','','','','','','','','','','','','','','',0,'2019-05-10 00:43:21',0,'2019-05-10 00:43:21',0),(3,1,1,0,1,'2018-05-01 00:00:00','2018-08-01 00:00:00','','','','','','','','','','','','','','','','','',0,'2019-05-10 00:43:21',0,'2019-05-10 00:43:21',0),(4,1,1,0,2,'2018-08-01 00:00:00','2020-05-01 00:00:00','','','','','','','','','','','','','','','','','',0,'2019-05-10 01:14:47',211,'2019-05-10 00:43:21',0),(5,1,1,0,2,'2021-05-01 00:00:00','9999-12-31 00:00:00','','','','','','','','','','','','','','','','','',0,'2019-05-10 01:14:47',211,'2019-05-10 01:14:47',211),(6,1,1,0,1,'2020-05-01 00:00:00','2021-05-01 00:00:00','','','','','','','','','','','','','','','','','',0,'2019-05-10 01:14:47',211,'2019-05-10 01:14:47',211);
+INSERT INTO `RentableLeaseStatus` VALUES (1,1,1,0,0,'2018-01-01 00:00:00','2018-05-01 00:00:00','','',0,'2019-05-10 00:43:21',0,'2019-05-10 00:43:21',0),(3,1,1,0,1,'2018-05-01 00:00:00','2018-08-01 00:00:00','','',0,'2019-05-10 00:43:21',0,'2019-05-10 00:43:21',0),(4,1,1,0,2,'2018-08-01 00:00:00','2020-05-01 00:00:00','','',0,'2019-05-10 01:14:47',211,'2019-05-10 00:43:21',0),(5,1,1,0,2,'2021-05-01 00:00:00','9999-12-31 00:00:00','','',0,'2019-05-10 01:14:47',211,'2019-05-10 01:14:47',211),(6,1,1,0,1,'2020-05-01 00:00:00','2021-05-01 00:00:00','','',0,'2019-05-10 01:14:47',211,'2019-05-10 01:14:47',211);
 /*!40000 ALTER TABLE `RentableLeaseStatus` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2716,4 +2701,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-06-06 12:28:38
+-- Dump completed on 2019-06-17 14:12:52

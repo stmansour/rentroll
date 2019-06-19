@@ -371,7 +371,7 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 				return flow, err
 			}
 		} else if Action == rlib.RAActionVoid {
-			if err = VoidRentalAgreement(ctx, &ra); err != nil {
+			if err = VoidRentalAgreement(ctx, &ra, rlib.MSGRAVOIDED); err != nil {
 				return flow, err
 			}
 
@@ -431,11 +431,17 @@ func handleRAIDVersion(ctx context.Context, d *ServiceData, foo RAActionDataRequ
 // INPUTS
 //    ctx  - db context
 //    ra   - rental agreement struct for terminated RA
+//    reason - index into internal message list describing reason. Should be
+//				rlib.MSGAPPDECLINED = 0
+//				rlib.MSGRAUPDATED   = 1
+//				rlib.MSGRAVOIDED    = 2
+//				rlib.MSGRESCANCELED = 3
+//				...
 //
 // RETURNS
 //    any errors encountered
 //------------------------------------------------------------------------------
-func VoidRentalAgreement(ctx context.Context, ra *rlib.RentalAgreement) (err error) {
+func VoidRentalAgreement(ctx context.Context, ra *rlib.RentalAgreement, reason int) (err error) {
 	var lc rlib.ClosePeriod
 	var m []rlib.Assessment
 	rlib.Console("Entered VoidRentalAgreement\n")
@@ -492,7 +498,7 @@ func VoidRentalAgreement(ctx context.Context, ra *rlib.RentalAgreement) (err err
 	ra.FLAGS &= ^uint64(0xf)
 	ra.FLAGS |= rlib.RASTATETerminated
 	ra.FLAGS |= 1 << 6 // this marks that it has been voided - skipped in Rentroll printouts
-	ra.LeaseTerminationReason = rlib.RRdb.BizTypes[ra.BID].Msgs.S[rlib.MSGRAVOIDED].SLSID
+	ra.LeaseTerminationReason = rlib.RRdb.BizTypes[ra.BID].Msgs.S[reason].SLSID
 
 	if err = rlib.UpdateRentalAgreement(ctx, ra); err != nil {
 		return
@@ -584,7 +590,7 @@ func SetLeaseStatusPostVoid(ctx context.Context, bid, raid int64, d1, d2 *time.T
 			// if lsNext is reserved, we need to unreserve it here because we have cancelled
 			// the RentalAgreement in front of it that caused it to be reserved.
 			//--------------------------------------------------------------------------------
-			if lsNext.LeaseStatus == rlib.LEASESTATUSreserved && len(lsNext.FirstName) == 0 && len(lsNext.LastName) == 0 {
+			if lsNext.LeaseStatus == rlib.LEASESTATUSreserved {
 				lsNext.LeaseStatus = rlib.LEASESTATUSnotleased
 				if err = rlib.UpdateRentableLeaseStatus(ctx, &lsNext); err != nil {
 					return err

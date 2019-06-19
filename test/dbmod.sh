@@ -621,6 +621,7 @@ EOF
 # ALTER TABLE RentableLeaseStatus ADD FLAGS BIGINT NOT NULL DEFAULT 0 AFTER ConfirmationCode;
 # May 4, 2019
 # ALTER TABLE RentalAgreement ADD TerminationStarted DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00' AFTER TerminationDate;
+
 # June 5, 2019
 # ALTER TABLE RentableLeaseStatus ADD TCID BIGINT NOT NULL DEFAULT 0 AFTER BID;
 # June 6, 2019
@@ -672,6 +673,22 @@ shift $((OPTIND-1))
 #  Put modifications to schema in the lines below
 #=====================================================
 cat >${MODFILE} <<EOF
+ALTER TABLE RentableLeaseStatus
+DROP COLUMN FirstName,
+DROP COLUMN LastName,
+DROP COLUMN Email,
+DROP COLUMN Phone,
+DROP COLUMN Address,
+DROP COLUMN Address2,
+DROP COLUMN City,
+DROP COLUMN State,
+DROP COLUMN PostalCode,
+DROP COLUMN Country,
+DROP COLUMN CCName,
+DROP COLUMN CCType,
+DROP COLUMN CCNumber,
+DROP COLUMN CCExpMonth,
+DROP COLUMN CCExpYear;
 EOF
 
 #==============================================================================

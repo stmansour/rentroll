@@ -1689,7 +1689,7 @@ func InsertRentableLeaseStatus(ctx context.Context, a *RentableLeaseStatus) (int
 	}
 
 	// transaction... context
-	fields := []interface{}{a.RID, a.BID, a.RAID, a.DtStart, a.DtStop, a.LeaseStatus, a.Comment, a.FirstName, a.LastName, a.Email, a.Phone, a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.CCName, a.CCType, a.CCNumber, a.CCExpMonth, a.ConfirmationCode, a.CreateBy, a.LastModBy}
+	fields := []interface{}{a.RID, a.BID, a.RAID, a.DtStart, a.DtStop, a.LeaseStatus, a.Comment, a.ConfirmationCode, a.CreateBy, a.LastModBy}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertRentableLeaseStatus)
 		defer stmt.Close()

@@ -840,22 +840,6 @@ CREATE TABLE RentableLeaseStatus (
     DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',        -- start time for this state
     DtStop DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',         -- stop time for this state
     Comment VARCHAR(2048) NOT NULL DEFAULT '',                      -- company notes for this person
-    -- Reservation info
-    FirstName VARCHAR(50) NOT NULL DEFAULT '',                      -- for reservations
-    LastName VARCHAR(50) NOT NULL DEFAULT '',                       -- for reservations
-    Email VARCHAR(100) NOT NULL DEFAULT '',
-    Phone VARCHAR(100) NOT NULL DEFAULT '',
-    Address VARCHAR(100) NOT NULL DEFAULT '',
-    Address2 VARCHAR(100) NOT NULL DEFAULT '',
-    City VARCHAR(100) NOT NULL DEFAULT '',
-    State CHAR(25) NOT NULL DEFAULT '',
-    PostalCode VARCHAR(100) NOT NULL DEFAULT '',
-    Country VARCHAR(100) NOT NULL DEFAULT '',
-    CCName VARCHAR(100) NOT NULL DEFAULT '',
-    CCType VARCHAR(100) NOT NULL DEFAULT '',
-    CCNumber VARCHAR(100) NOT NULL DEFAULT '',
-    CCExpMonth VARCHAR(100) NOT NULL DEFAULT '',
-    CCExpYear VARCHAR(100) NOT NULL DEFAULT '',
     ConfirmationCode VARCHAR(20) NOT NULL DEFAULT '',
     FLAGS BIGINT NOT NULL DEFAULT 0,                                -- 1<<0 = Canceled:  0 means active, 1 means cancelled
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written

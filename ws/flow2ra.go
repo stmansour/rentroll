@@ -771,7 +771,7 @@ func SetLeaseStatusPostStop(ctx context.Context, bid, raid int64, d1, d2 *time.T
 			// if lsNext is reserved, we need to unreserve it here because we have cancelled
 			// the RentalAgreement in front of it that caused it to be reserved.
 			//--------------------------------------------------------------------------------
-			if lsNext.LeaseStatus == rlib.LEASESTATUSreserved && len(lsNext.FirstName) == 0 && len(lsNext.LastName) == 0 {
+			if lsNext.LeaseStatus == rlib.LEASESTATUSreserved {
 				lsNext.LeaseStatus = rlib.LEASESTATUSnotleased
 				if err = rlib.UpdateRentableLeaseStatus(ctx, &lsNext); err != nil {
 					return err

@@ -343,20 +343,6 @@ func RentableLeaseStatusCompare(a, b *RentableLeaseStatus) bool {
 	if a.RID != b.RID ||
 		a.BID != b.BID ||
 		a.Comment != b.Comment ||
-		a.FirstName != b.FirstName ||
-		a.LastName != b.LastName ||
-		a.Email != b.Email ||
-		a.Phone != b.Phone ||
-		a.Address != b.Address ||
-		a.Address2 != b.Address2 ||
-		a.City != b.City ||
-		a.State != b.State ||
-		a.PostalCode != b.PostalCode ||
-		a.Country != b.Country ||
-		// a.CCName != b.CCName ||
-		// a.CCType != b.CCType ||
-		// a.CCNumber != b.CCNumber ||
-		// a.CCExpMonth != b.CCExpMonth ||
 		a.ConfirmationCode != b.ConfirmationCode ||
 		a.LeaseStatus != b.LeaseStatus {
 		return false

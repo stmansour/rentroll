@@ -58,6 +58,7 @@ type GenDBConf struct {
 	PetFees              []rlib.AR           // account rules applied to new Rental Agreements for pets
 	VehicleFees          []rlib.AR           // account rules applied to new Rental Agreements for vehicles
 	Epochs               rlib.BizPropsEpochs // default epochs (triggers)
+	ResDepARID           int64               // ARID of rule to use for reservation deposits
 	HotelReserveDtStart  time.Time           // start of date range for reservations.  Default is DtStop + 1 day
 	HotelReserveDtStop   time.Time           // stop of date range for reservations.  Default is DtStart + 1 year
 	HotelReservePct      float64             // the percent of hotel rooms that are reserved from (HotelReserveDtStart,HotelReserveDtStop)
@@ -164,13 +165,23 @@ func ReadConfig(fname string) (GenDBConf, error) {
 		rlib.Console("Seed = %d, MissPayments = %d%%, MissApply = %d%%\n", b.RSeed, b.RandMissPayment, b.RandMissApply)
 	}
 
+	ctx := context.Background()
+
+	//-----------------------------------------------
+	// Get the reservation deposit Account Rule...
+	//-----------------------------------------------
+	var ar rlib.AR
+	if ar, err = rlib.GetARByName(ctx, 1, "Reservation Deposit"); err != nil {
+		return b, fmt.Errorf("Could not get Reservation Deposit account rule.  err = %s", err.Error())
+	}
+
 	//--------------------------------
 	// BUSINESS PROPERTIES
 	//--------------------------------
-	ctx := context.Background()
 	var bp = rlib.BizProps{
 		PetFees:     []string{},
 		VehicleFees: []string{},
+		ResDepARID:  ar.ARID,
 	}
 	bp.PetFees = a.PetFees
 	bp.VehicleFees = a.VehicleFees
@@ -182,6 +193,7 @@ func ReadConfig(fname string) (GenDBConf, error) {
 	bp.Epochs.Quarterly = epoch
 	bp.Epochs.Yearly = epoch
 	b.Epochs = bp.Epochs
+	b.ResDepARID = bp.ResDepARID
 
 	data, err := json.Marshal(&bp)
 	if err != nil {

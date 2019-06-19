@@ -286,6 +286,7 @@ func saveRentableLeaseStatus(w http.ResponseWriter, r *http.Request, d *ServiceD
 
 		errs := bizlogic.ValidateRentableLeaseStatus(r.Context(), &a)
 		if len(errs) > 0 {
+			rlib.Console("bizlogic.ValidateRentableLeaseStatus returned %d errors\n", len(errs))
 			bizErrs = append(bizErrs, errs...)
 			continue
 		}
@@ -294,6 +295,7 @@ func saveRentableLeaseStatus(w http.ResponseWriter, r *http.Request, d *ServiceD
 		// will determine what it needs to update, delete, and insert in order
 		// to fill the span as
 		if err = rlib.SetRentableLeaseStatus(r.Context(), &a); err != nil {
+			rlib.Console("SetRentableLeaseStatus returned: %s\n", err.Error())
 			e := fmt.Errorf("Error from SetRentableLeaseStatus (%d), RID=%d : %s", a.RLID, a.RID, err.Error())
 			SvcErrorReturn(w, e, funcname)
 			return

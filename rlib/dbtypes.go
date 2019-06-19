@@ -1444,20 +1444,6 @@ type RentableLeaseStatus struct {
 	DtStart          time.Time // start of period
 	DtStop           time.Time // end of period
 	Comment          string    // comment
-	FirstName        string    //
-	LastName         string    //
-	Email            string    //
-	Phone            string    //
-	Address          string    //
-	Address2         string    //
-	City             string    //
-	State            string    //
-	PostalCode       string    //
-	Country          string    //
-	CCName           string    //
-	CCType           string    //
-	CCNumber         string    //
-	CCExpMonth       string    //
 	ConfirmationCode string    //
 	LeaseStatus      int64     // 1-Vacant-rented, 2=VacantNotRented, 3=OnNoticePreLeased, 4=OnNoticeAvailable, 5=Leased, 6=Unavailable
 	LastModTime      time.Time // time of last update to the db record
