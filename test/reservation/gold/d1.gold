@@ -1,0 +1,50 @@
+{
+    "records": [
+        {
+            "BID": 1,
+            "DtStart": "2019-09-12 00:00:00 UTC",
+            "DtStop": "2019-09-21 00:00:00 UTC",
+            "RID": 7,
+            "RLID": 1163,
+            "RTID": 4,
+            "RTRID": 7,
+            "RentableName": "Rentable007",
+            "recid": 0
+        },
+        {
+            "BID": 1,
+            "DtStart": "2019-09-15 00:00:00 UTC",
+            "DtStop": "2019-09-21 00:00:00 UTC",
+            "RID": 3,
+            "RLID": 75,
+            "RTID": 2,
+            "RTRID": 3,
+            "RentableName": "Rentable003",
+            "recid": 1
+        },
+        {
+            "BID": 1,
+            "DtStart": "2019-09-15 00:00:00 UTC",
+            "DtStop": "2019-09-20 00:00:00 UTC",
+            "RID": 5,
+            "RLID": 639,
+            "RTID": 3,
+            "RTRID": 5,
+            "RentableName": "Rentable005",
+            "recid": 2
+        },
+        {
+            "BID": 1,
+            "DtStart": "2019-09-17 00:00:00 UTC",
+            "DtStop": "2019-09-20 00:00:00 UTC",
+            "RID": 4,
+            "RLID": 298,
+            "RTID": 2,
+            "RTRID": 4,
+            "RentableName": "Rentable004",
+            "recid": 3
+        }
+    ],
+    "status": "success",
+    "total": 4
+}

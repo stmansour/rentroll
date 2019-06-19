@@ -660,7 +660,6 @@ while getopts "f:F:" o; do
 	case "${o}" in
 		f | F)
 			F=${OPTARG}
-			exit 0
 			;;
 		*) 	usage
 			exit 1
@@ -673,22 +672,21 @@ shift $((OPTIND-1))
 #  Put modifications to schema in the lines below
 #=====================================================
 cat >${MODFILE} <<EOF
-ALTER TABLE RentableLeaseStatus
-DROP COLUMN FirstName,
-DROP COLUMN LastName,
-DROP COLUMN Email,
-DROP COLUMN Phone,
-DROP COLUMN Address,
-DROP COLUMN Address2,
-DROP COLUMN City,
-DROP COLUMN State,
-DROP COLUMN PostalCode,
-DROP COLUMN Country,
-DROP COLUMN CCName,
-DROP COLUMN CCType,
-DROP COLUMN CCNumber,
-DROP COLUMN CCExpMonth,
-DROP COLUMN CCExpYear;
+ALTER TABLE RentableLeaseStatus DROP FirstName;
+ALTER TABLE RentableLeaseStatus DROP LastName;
+ALTER TABLE RentableLeaseStatus DROP Email;
+ALTER TABLE RentableLeaseStatus DROP Phone;
+ALTER TABLE RentableLeaseStatus DROP Address;
+ALTER TABLE RentableLeaseStatus DROP Address2;
+ALTER TABLE RentableLeaseStatus DROP City;
+ALTER TABLE RentableLeaseStatus DROP State;
+ALTER TABLE RentableLeaseStatus DROP PostalCode;
+ALTER TABLE RentableLeaseStatus DROP Country;
+ALTER TABLE RentableLeaseStatus DROP CCName;
+ALTER TABLE RentableLeaseStatus DROP CCType;
+ALTER TABLE RentableLeaseStatus DROP CCNumber;
+ALTER TABLE RentableLeaseStatus DROP CCExpMonth;
+ALTER TABLE RentableLeaseStatus DROP CCExpYear;
 EOF
 
 #==============================================================================
@@ -702,6 +700,10 @@ EOF
 #         a \n (since  read returns a non-zero exit code when it encounters
 #         EOF).
 #==============================================================================
-while IFS='' read -r f || [[ -n "${f}" ]]; do
-    schemamod "${f}"
-done < dbfiles.txt
+if [ "x${F}" = "x" ]; then
+	while IFS='' read -r f || [[ -n "${f}" ]]; do
+	    schemamod "${f}"
+	done < dbfiles.txt
+else
+	schemamod "${F}"
+fi

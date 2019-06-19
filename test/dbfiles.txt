@@ -28,9 +28,10 @@
 ./rr/test04.sql
 ./rr/test05.sql
 ./rr/rr.sql
+./reservation/xa.sql
 ./reservation/xb.sql
 ./reservation/xc.sql
-./reservation/xa.sql
+./reservation/xd.sql
 ./tws3/rr.sql
 ./websvc3/tasks.sql
 ./payorstmt/pstmt.sql
