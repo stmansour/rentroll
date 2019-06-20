@@ -10,7 +10,7 @@
             "LastModBy": 0,
             "LeaseStatus": 2,
             "RID": 1,
-            "RLID": 3209,
+            "RLID": 5,
             "recid": 0
         },
         {
@@ -23,10 +23,23 @@
             "LastModBy": 0,
             "LeaseStatus": 1,
             "RID": 1,
-            "RLID": 18,
+            "RLID": 3,
             "recid": 1
+        },
+        {
+            "BID": 1,
+            "BUD": "REX",
+            "Comment": "",
+            "CreateBy": 0,
+            "DtStart": "1/1/2018",
+            "DtStop": "6/30/2018",
+            "LastModBy": 0,
+            "LeaseStatus": 0,
+            "RID": 1,
+            "RLID": 1,
+            "recid": 2
         }
     ],
     "status": "success",
-    "total": 2
+    "total": 3
 }

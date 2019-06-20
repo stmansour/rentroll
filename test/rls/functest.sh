@@ -158,7 +158,7 @@ fi
 #       The result should be:
 #
 #       6/21/2019 - 12/31/9999  Reserved
-#       7/ 1/2018 -  6/21/2019  Leased
+#       7/ 1/2018 -  7/01/2019  Leased      // no change - it's setting a time span to the same status it's already set to
 #       1/ 1/2018 -  6/30/2018  Not Leased
 #
 #------------------------------------------------------------------------------
