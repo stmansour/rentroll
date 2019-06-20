@@ -19,7 +19,7 @@ package:
 
 
 clean:
-	rm -f xyz rex.sql onesite.log log llog ll.g err.txt [a-z] [a-z][a-z1-9] [a-z].g gold/*.g fail
+	rm -f xyz restore.sql rex.sql onesite.log log llog ll.g err.txt [a-z] [a-z][a-z1-9] [a-z].g gold/*.g fail
 	@echo "*** CLEAN completed in testdb ***"
 
 # This target deploys the file used as the database for interactive test nodes.
