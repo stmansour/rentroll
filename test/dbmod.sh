@@ -687,6 +687,7 @@ ALTER TABLE RentableLeaseStatus DROP CCType;
 ALTER TABLE RentableLeaseStatus DROP CCNumber;
 ALTER TABLE RentableLeaseStatus DROP CCExpMonth;
 ALTER TABLE RentableLeaseStatus DROP CCExpYear;
+ALTER TABLE RentableLeaseStatus ADD RAID BIGINT NOT NULL DEFAULT 0 AFTER BID;
 EOF
 
 #==============================================================================

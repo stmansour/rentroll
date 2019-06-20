@@ -225,7 +225,7 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     startRentRollServer
 
     # change to Leased = 2/13/2018 - 3/1/2020
-    echo "%7B%22cmd%22%3A%22save%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A0%2C%22offset%22%3A0%2C%22changes%22%3A%5B%7B%22recid%22%3A1%2C%22RLID%22%3A3%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22RID%22%3A1%2C%22LeaseStatus%22%3A1%2C%22DtStart%22%3A%222%2F13%2F2018%22%2C%22DtStop%22%3A%222%2F29%2F2020%22%2C%22Comment%22%3A%22%22%2C%22CreateBy%22%3A0%2C%22LastModBy%22%3A0%2C%22w2ui%22%3A%7B%7D%7D%5D%2C%22RID%22%3A1%7D" > request
+    encodeRequest '{"cmd":"save","selected":[],"limit":0,"offset":0,"changes":[{"recid":1,"RLID":3,"BID":1,"BUD":"REX","RID":1,"LeaseStatus":1,"DtStart":"2/13/2018","DtStop":"2/29/2020","Comment":"","CreateBy":0,"LastModBy":0,"w2ui":{}}],"RID":1}' > request
     dojsonPOST "http://localhost:8270/v1/rentableleasestatus/1/1" "request" "${TFILES}${STEP}"  "RentableTypeRefs-Save"
 
     echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D" > request
