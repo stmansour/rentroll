@@ -143,7 +143,7 @@ func SvcAvailable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		dtStop.Format(rlib.RRDATEFMTSQL),
 		dtStart.Format(rlib.RRDATEFMTSQL),
 	)
-	order := "RentableLeaseStatus.DtStart ASC" // default ORDER
+	order := "RentableLeaseStatus.DtStart ASC,Rentable.RentableName ASC" // default ORDER
 
 	//--------------------------------------------------
 	// get WHERE clause and ORDER clause for sql query

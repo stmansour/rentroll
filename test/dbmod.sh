@@ -627,6 +627,24 @@ EOF
 # June 6, 2019
 # ALTER TABLE RentableLeaseStatus CHANGE TCID RAID BIGINT NOT NULL DEFAULT 0;
 
+# June 19, 2019
+# ALTER TABLE RentableLeaseStatus DROP FirstName;
+# ALTER TABLE RentableLeaseStatus DROP LastName;
+# ALTER TABLE RentableLeaseStatus DROP Email;
+# ALTER TABLE RentableLeaseStatus DROP Phone;
+# ALTER TABLE RentableLeaseStatus DROP Address;
+# ALTER TABLE RentableLeaseStatus DROP Address2;
+# ALTER TABLE RentableLeaseStatus DROP City;
+# ALTER TABLE RentableLeaseStatus DROP State;
+# ALTER TABLE RentableLeaseStatus DROP PostalCode;
+# ALTER TABLE RentableLeaseStatus DROP Country;
+# ALTER TABLE RentableLeaseStatus DROP CCName;
+# ALTER TABLE RentableLeaseStatus DROP CCType;
+# ALTER TABLE RentableLeaseStatus DROP CCNumber;
+# ALTER TABLE RentableLeaseStatus DROP CCExpMonth;
+# ALTER TABLE RentableLeaseStatus DROP CCExpYear;
+# ALTER TABLE RentableLeaseStatus ADD RAID BIGINT NOT NULL DEFAULT 0 AFTER BID;
+
 ########################################
 # schemamod()
 #	Parameters:
@@ -672,22 +690,6 @@ shift $((OPTIND-1))
 #  Put modifications to schema in the lines below
 #=====================================================
 cat >${MODFILE} <<EOF
-ALTER TABLE RentableLeaseStatus DROP FirstName;
-ALTER TABLE RentableLeaseStatus DROP LastName;
-ALTER TABLE RentableLeaseStatus DROP Email;
-ALTER TABLE RentableLeaseStatus DROP Phone;
-ALTER TABLE RentableLeaseStatus DROP Address;
-ALTER TABLE RentableLeaseStatus DROP Address2;
-ALTER TABLE RentableLeaseStatus DROP City;
-ALTER TABLE RentableLeaseStatus DROP State;
-ALTER TABLE RentableLeaseStatus DROP PostalCode;
-ALTER TABLE RentableLeaseStatus DROP Country;
-ALTER TABLE RentableLeaseStatus DROP CCName;
-ALTER TABLE RentableLeaseStatus DROP CCType;
-ALTER TABLE RentableLeaseStatus DROP CCNumber;
-ALTER TABLE RentableLeaseStatus DROP CCExpMonth;
-ALTER TABLE RentableLeaseStatus DROP CCExpYear;
-ALTER TABLE RentableLeaseStatus ADD RAID BIGINT NOT NULL DEFAULT 0 AFTER BID;
 EOF
 
 #==============================================================================
