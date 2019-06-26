@@ -268,7 +268,7 @@ WHERE
 ORDER BY A.DispName ASC
 LIMIT 200;`,
 		d.BID, n, n, n, d.BID, n)
-	rlib.Console("%s: q = %q\n", funcname, q)
+	rlib.Console("%s: q = %s\n", funcname, q)
 
 	rows, err := rlib.RRdb.Dbrr.Query(q)
 	if err != nil {
