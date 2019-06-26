@@ -126,6 +126,13 @@ type TransactantsTypedownResponse struct {
 	Records []rlib.TransactantTypeDown `json:"records"`
 }
 
+// TransactantsTypedownDetailsResponse is the data structure for the response to a search for people
+type TransactantsTypedownDetailsResponse struct {
+	Status  string                            `json:"status"`
+	Total   int64                             `json:"total"`
+	Records []rlib.TransactantDetailsTypeDown `json:"records"`
+}
+
 // DeletePersonForm holds ARID to delete it
 type DeletePersonForm struct {
 	TCID int64
@@ -164,6 +171,142 @@ func SvcTransactantTypeDown(w http.ResponseWriter, r *http.Request, d *ServiceDa
 		g.Records[i].Recid = int64(i)
 	}
 	g.Status = "success"
+	SvcWriteResponse(d.BID, &g, w)
+}
+
+// SvcTransactantDetailsTypeDown handles typedown requests for Transactants.  It returns
+// FirstName, LastName, and TCID
+// wsdoc {
+//  @Title  Get Transactants Details Typedown
+//	@URL /v1/transactantdettd/:BUI?request={"search":"The search string","max":"Maximum number of return items"}
+//	@Method GET
+//	@Synopsis Fast Search for Transactants matching typed characters
+//  @Desc Returns TCID, FirstName, Middlename, and LastName of Transactants that
+//  @Desc match supplied chars at the beginning of FirstName or LastName
+//  @Input WebTypeDownRequest
+//  @Response TransactantsTypedownResponse
+// wsdoc }
+func SvcTransactantDetailsTypeDown(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcTransactantDetailsTypeDown"
+	var g TransactantsTypedownDetailsResponse
+	var dispName string
+	n := d.wsTypeDownReq.Search
+
+	rlib.Console("Entered %s - name - %s\n", funcname, n)
+	q := fmt.Sprintf(`
+SELECT
+	A.BID,
+    A.FirstName,
+    A.MiddleName,
+    A.LastName,
+    A.CompanyName,
+    A.DispName,
+    A.IsCompany,
+    A.PrimaryEmail,
+    A.SecondaryEmail,
+    A.WorkPhone,
+    A.CellPhone,
+    A.Address,
+    A.Address2,
+    A.City,
+    A.State,
+    A.PostalCode
+FROM
+	(
+		( SELECT TCID,
+			BID,
+			FirstName,
+			MiddleName,
+			LastName,
+			CompanyName,
+            CONCAT( FirstName, ' ', MiddleName, ' ', LastName) AS DispName,
+			IsCompany,
+			PrimaryEmail,
+			SecondaryEmail,
+			WorkPhone,
+			CellPhone,
+			Address,
+			Address2,
+			City,
+			State,
+			PostalCode
+		FROM Transactant
+		WHERE BID=%d AND IsCompany = 0 AND
+			(
+				FirstName LIKE '%s%%' OR
+				MiddleName LIKE '%s%%' OR
+				LastName LIKE '%s%%'
+			)
+		)
+	UNION ALL
+		( SELECT TCID,
+			BID,
+			FirstName,
+			MiddleName,
+			LastName,
+			CompanyName,
+            CompanyName AS DispName,
+			IsCompany,
+			PrimaryEmail,
+			SecondaryEmail,
+			WorkPhone,
+			CellPhone,
+			Address,
+			Address2,
+			City,
+			State,
+			PostalCode
+		FROM Transactant
+		WHERE BID=%d AND IsCompany > 0 AND
+			(
+				CompanyName LIKE '%s%%'
+			)
+		)
+    ) A
+WHERE
+    A.BID=1
+ORDER BY A.DispName ASC
+LIMIT 200;`,
+		d.BID, n, n, n, d.BID, n)
+	rlib.Console("%s: q = %q\n", funcname, q)
+
+	rows, err := rlib.RRdb.Dbrr.Query(q)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	defer rows.Close()
+
+	for i := 0; rows.Next(); i++ {
+		var a rlib.TransactantDetailsTypeDown
+		err = rows.Scan(
+			&a.TCID,
+			&a.FirstName,
+			&a.MiddleName,
+			&a.LastName,
+			&a.CompanyName,
+			&dispName,
+			&a.IsCompany,
+			&a.PrimaryEmail,
+			&a.SecondaryEmail,
+			&a.WorkPhone,
+			&a.CellPhone,
+			&a.Address,
+			&a.Address2,
+			&a.City,
+			&a.State,
+			&a.PostalCode)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+		a.Recid = int64(i)
+		g.Records = append(g.Records, a)
+	}
+
+	g.Status = "success"
+	g.Total = int64(len(g.Records))
 	SvcWriteResponse(d.BID, &g, w)
 }
 

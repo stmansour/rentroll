@@ -6,6 +6,7 @@
     showReservationRentable, checkRentableAvailability, cancelReservation, getRTName,
     closeResUpdateDialog, UTCstringToLocaltimeString,applyLocaltimeDateOffset,
     newReservationRecord,feedbackMessage,number_format,
+    ResTCCompare,ResTCDropRender,ResTCRender,resUsePickedTC
 */
 
 "use strict";
@@ -26,8 +27,9 @@ window.newReservationRecord = function() {
         RID: 0,
         RAID: 0,
         TCID: 0,
-        Amounmt: 0.0,
+        Amount: 0.0,
         Deposit: 0.0,
+        DepASMID: 0,
         LeaseStatus: 2, // reserved
         RentableName: '',
         FirstName: '',
@@ -251,6 +253,7 @@ window.buildResUpdateElements = function () {
             { field: 'DtStop',             type: 'date',     required: false,  },
             { field: 'Amount',             type: 'money',    required: false,  },
             { field: 'Deposit',            type: 'money',    required: false,  },
+            { field: 'DepASMID',           type: 'int',      required: false,  },
             { field: 'Discount',           type: 'hidden',   required: false,  },
             { field: 'Nights',             type: 'int',      required: false,  },
             { field: 'UnspecifiedAdults',  type: 'int',      required: false,  },
@@ -263,6 +266,8 @@ window.buildResUpdateElements = function () {
             { field: 'City',               type: 'text',     required: false,  },
             { field: 'State',              type: 'text',     required: false,  },
             { field: 'PostalCode',         type: 'text',     required: false,  },
+            { field: 'CompanyName',        type: 'text',     required: false,  },
+            { field: 'IsCompany',          type: 'checkbox', required: false,  },
             { field: 'CCName',             type: 'text',     required: false,  },
             { field: 'CCType',             type: 'text',     required: false,  },
             { field: 'CCNumber',           type: 'text',     required: false,  },
@@ -273,6 +278,54 @@ window.buildResUpdateElements = function () {
             { field: 'LastModBy',          type: 'int',      required: false,  },
             { field: 'CreateTS',           type: 'time',     required: false,  },
             { field: 'CreateBy',           type: 'int',      required: false,  },
+            { field: 'PGName',             type: 'enum',     required: false,
+                options: {
+                    url:            '/v1/transactantsdettd/' + getCurrentBID(),
+                    match:          'begins',
+                    max:            1,
+                    items:          [],
+                    openOnFocus:    false,
+                    maxDropWidth:   500,
+                    maxDropHeight:  450,
+                    renderItem:     ResTCRender,
+                    renderDrop:     ResTCDropRender,
+                    compare:        ResTCCompare,
+                    onNew: function (event) {
+                        $.extend(event.item, {
+                            TCID: 0,
+                        	FirstName: '',
+                        	MiddleName: '',
+                        	LastName: '',
+                        	CompanyName: '',
+                        	IsCompany: false,
+                        	PrimaryEmail: '',
+                        	SecondaryEmail: '',
+                        	WorkPhone: '',
+                        	CellPhone: '',
+                        	Address: '',
+                        	Address2: '',
+                        	City: '',
+                        	State: '',
+                        	PostalCode: '',
+                        } );
+                    },
+                    onRemove: function(event) {
+                        // event.onComplete = function() {
+                        //     var f = w2ui.bizDetailForm;
+                        //     // reset BUD field related data when removed
+                        //     f.record.ClassCode = 0;
+                        //     f.record.CoCode = 0;
+                        //     f.record.BUD = "";
+                        //
+                        //     // NOTE: have to trigger manually, b'coz we manually change the record,
+                        //     // otherwise it triggers the change event but it won't get change (Object: {})
+                        //     var event = f.trigger({ phase: 'before', target: f.name, type: 'change', event: event }); // event before
+                        //     if (event.cancelled === true) return false;
+                        //     f.trigger($.extend(event, { phase: 'after' })); // event after
+                        // };
+                    },
+                },
+            },
         ],
         toolbar: {
             items: [
@@ -315,14 +368,17 @@ window.buildResUpdateElements = function () {
                 pvtReservation.locked = true; // lock it by default
                 pvtReservation.modified = false;
                 pvtReservation.datesValid = true;
+                f.get("PGName").options.url = '/v1/transactantsdettd/' + getCurrentBID();
             };
         },
         onRender: function(event) {
             setResUpdateRecordForUI(this);
+            this.get("PGName").options.url = '/v1/transactantsdettd/' + getCurrentBID();
         },
         onRefresh: function(event) {
             setResUpdateRecordForUI(this);
             showReservationRentable();
+            this.get("PGName").options.url = '/v1/transactantsdettd/' + getCurrentBID();
         },
         onChange: function(event) {
             event.onComplete = function() {
@@ -332,7 +388,7 @@ window.buildResUpdateElements = function () {
                 var draw=false;
                 var check=false;
                 var extend=true;
-                console.log('event.target = ' + event.target);
+                // console.log('event.target = ' + event.target);
                 switch (event.target) {
                 case "DtStart":
                     x = new Date(event.value_new);

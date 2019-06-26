@@ -431,6 +431,17 @@ func GenerateRandomEmail(lastname string, firstname string) string {
 	return ScrubEmailAddr(s)
 }
 
+// GenerateRandomCompanyEmail returns a string with a random email address
+//-----------------------------------------------------------------------------
+func GenerateRandomCompanyEmail(companyname string) string {
+	suf := []string{"com", "edu", "biz", "org"}
+	as := strings.Split(companyname, " ")
+	domain := as[0]
+	suffix := suf[IG.Rand.Intn(len(suf))]
+	s := "info@" + domain + "." + suffix
+	return ScrubEmailAddr(s)
+}
+
 // GenerateRandomAddress returns a string with a random address
 //-----------------------------------------------------------------------------
 func GenerateRandomAddress() string {

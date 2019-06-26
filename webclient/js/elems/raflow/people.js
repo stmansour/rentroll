@@ -19,7 +19,8 @@
 
 /*
 * Note: Reuse method from transactant.js: getStringListData, getSLStringList, updateRATransactantFormCheckboxes
-* */
+*
+*/
 
 // -------------------------------------------------------------------------------
 // Rental Agreement - People form, People Grid, Background information form

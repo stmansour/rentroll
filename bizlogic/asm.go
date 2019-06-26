@@ -850,7 +850,7 @@ func ValidateAssessment(ctx context.Context, a *rlib.Assessment) []BizError {
 	var e []BizError
 	var raid, bid int64
 	var row *sql.Row
-	// rlib.Console("ValidateAssessment: A\n")
+	// rlib.Console("ValidateAssessment: A   a.RAID = %d, a.BID = %d\n", a.RAID, a.BID)
 	//----------------------------------------------
 	// Validate that we have a RAID that exists...
 	//----------------------------------------------
@@ -952,7 +952,7 @@ func ValidateAssessment(ctx context.Context, a *rlib.Assessment) []BizError {
 		//--------------------------------------------------------------------------
 		// rlib.Console("ValidateAssessment: J0\n")
 		if a.Stop.Before(a.Start) {
-			rlib.Console("ValidateAssessment: J  - start after stop!   a.Start / a.Stop = %s\n", rlib.ConsoleDRange(&a.Start, &a.Stop))
+			// rlib.Console("ValidateAssessment: J  - start after stop!   a.Start / a.Stop = %s\n", rlib.ConsoleDRange(&a.Start, &a.Stop))
 			e = append(e, BizErrors[StartDateAfterStopDate])
 		}
 	}

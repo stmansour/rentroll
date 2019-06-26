@@ -6,6 +6,7 @@
     <div class="w2ui-field"><input type="hidden" name="RTID" /></div>
     <div class="w2ui-field"><input type="hidden" name="RID" /></div>
     <div class="w2ui-field"><input type="hidden" name="BUD" /></div>
+    <div class="w2ui-field"><input type="hidden" name="DepASMID" /></div>
     <div class="w2ui-field"><input type="hidden" name="Discount" /></div>
     <div class="w2ui-field"><input type="hidden" name="ConfirmationCode" /></div>
     <div class="w2ui-field"><input type="hidden" name="LeaseStatus" /></div>
@@ -14,6 +15,17 @@
     <div class="w2ui-field"><input type="hidden" name="CreateTS" /></div>
     <div class="w2ui-field"><input type="hidden" name="CreateBy" /></div>
     <table width="745">
+        <tr>
+            <td colspan="2">
+                <div class="w2ui-field">
+                    <label>Previous Guest:</label>
+                    <div>
+                        <input name="PGName" type="text" style="width: 85%">
+                        <button class="w2ui-btn" onclick='resUsePickedTC();'><i class="fas fa-arrow-down"></i> Use</button>
+                    </div>
+                </div>
+            </td>
+        </tr>
         <tr>
             <td valign="top" width="45%">
                 <!-- <div class="w2ui-field">
@@ -119,15 +131,15 @@
                 </div>
                 <div class="w2ui-field">
                     <label>Company Name:</label>
-                    <div><input name="CompanyName" type="text" /></div>
+                    <div><input name="CompanyName" type="text" style="width: 100%"/></div>
                 </div>
                 <div class="w2ui-field">
                     <label>Unspecified Adults:</label>
-                    <div><input name="UnspecifiedAdults" type="w2int" /></div>
-                </div>
-                <div class="w2ui-field">
-                    <label>Unspecified Children:</label>
-                    <div><input name="UnspecifiedChildren" type="w2int" /></div>
+                    <div>
+                        <input name="UnspecifiedAdults" type="w2int" size="2" />
+                        <span style="color: #666; vertical-align: 2px;">&nbsp;&nbsp;&nbsp;Unspecified Children:</span>
+                        <input name="UnspecifiedChildren" type="w2int" size="2" />
+                    </div>
                 </div>
                 <div class="w2ui-field">
                     <label>Phone:</label>
@@ -147,15 +159,15 @@
                 </div>
                 <div class="w2ui-field">
                     <label>State:</label>
-                    <div><input name="State" type="text" style="width: 100%" /></div>
-                </div>
-                <div class="w2ui-field">
-                    <label>Postal Code:</label>
-                    <div><input name="PostalCode" type="text" style="width: 100%" /></div>
+                    <div>
+                        <input name="State" type="text" size="2" />
+                        <span style="color: #666; vertical-align: 2px;">&nbsp;&nbsp;Postal Code:</span>
+                        <input name="PostalCode" type="text" size="10" />
+                    </div>
                 </div>
                 <div class="w2ui-field">
                     <label>Reservation<br>Comment:</label>
-                    <div><textarea name="Comment" cols="1" rows="5" style="width: 100%; resize: none;" maxlength="2048"></textarea></div>
+                    <div><textarea name="Comment" cols="1" rows="7" style="width: 100%; resize: none;" maxlength="2048"></textarea></div>
                 </div>
             </td>
         </tr>

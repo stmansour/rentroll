@@ -222,6 +222,7 @@ var Svcs = []ServiceHandler{
 	{Cmd: "tls", Handler: SvcSearchHandlerTaskList, NeedBiz: true, NeedSession: true},
 	{Cmd: "transactants", Handler: SvcSearchHandlerTransactants, NeedBiz: true, NeedSession: true},
 	{Cmd: "transactantstd", Handler: SvcTransactantTypeDown, NeedBiz: true, NeedSession: true},
+	{Cmd: "transactantsdettd", Handler: SvcTransactantDetailsTypeDown, NeedBiz: true, NeedSession: true},
 	{Cmd: "tws", Handler: SvcTWS, NeedBiz: true, NeedSession: true},
 	{Cmd: "uilists", Handler: SvcUILists, NeedBiz: false, NeedSession: false},
 	{Cmd: "uival", Handler: SvcUIVal, NeedBiz: false, NeedSession: false},

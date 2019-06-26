@@ -302,9 +302,26 @@ func createTransactants(ctx context.Context, dbConf *GenDBConf) error {
 			PriorLengthOfResidency:   GenerateRandomDurationString(),
 			ThirdPartySource:         GenerateRandomName(),
 		}
-		_, err = rlib.InsertProspect(ctx, &pr)
-		if err != nil {
+		if _, err = rlib.InsertProspect(ctx, &pr); err != nil {
 			return err
+		}
+
+		//-----------------------------------------
+		// CREATE COMPANIES...
+		//-----------------------------------------
+		if IG.Rand.Intn(100) < 50 {
+			co := t
+			co.FirstName = ""
+			co.LastName = ""
+			co.MiddleName = ""
+			co.PreferredName = ""
+			co.SecondaryEmail = ""
+			co.PrimaryEmail = GenerateRandomCompanyEmail(t.CompanyName)
+			co.IsCompany = true
+			co.CellPhone = ""
+			if _, err := rlib.InsertTransactant(ctx, &co); err != nil {
+				return err
+			}
 		}
 
 		//-----------------------------------------

@@ -127,6 +127,25 @@ func HotelBookings(ctx context.Context, dbConf *GenDBConf) error {
 					return err
 				}
 
+				//-----------------------------------------
+				// CREATE COMPANIES...
+				//-----------------------------------------
+				if IG.Rand.Intn(100) < 30 {
+					var t rlib.Transactant
+					t.CompanyName = GenerateRandomCompany()
+					t.Address = GenerateRandomAddress()
+					t.City = GenerateRandomCity()
+					t.State = GenerateRandomState()
+					t.Country = "USA"
+					t.PostalCode = fmt.Sprintf("%05d", rand.Intn(100000))
+					t.PrimaryEmail = GenerateRandomCompanyEmail(t.CompanyName)
+					t.WorkPhone = GenerateRandomPhoneNumber()
+					t.IsCompany = true
+					if _, err := rlib.InsertTransactant(ctx, &t); err != nil {
+						return err
+					}
+				}
+
 				//-------------------------------------------------
 				// create a RentalAgreement...
 				//-------------------------------------------------

@@ -68,6 +68,7 @@ type ResDet struct {
 	DBAmount            rlib.NullFloat64  `json:"DBAmount"`            // amount being charged for the rentable
 	Amount              float64           `json:"Amount"`              // deposit on the rentable
 	Deposit             float64           `json:"Deposit"`             // deposit on the rentable
+	DepASMID            int64             `json:"DepASMID"`            // deposit assessment
 	Discount            float64           `json:"Discount"`            // discount rate
 	LeaseStatus         int64             `json:"LeaseStatus"`         //
 	Nights              int64             `json:"Nights"`              //
@@ -369,26 +370,12 @@ OFFSET {{.OffsetClause}};`
 	SvcWriteResponse(d.BID, &g, w)
 }
 
-// getReservation
-// wsdoc {
-//  @Title  Get Reservation
-//	@URL /v1/reservation/:BUI/[RLID]
-//  @Method  POST
-//	@Synopsis Returns a reservation associated with the supplied RLID
-//  @Description  Saves the ReleaseStatus. If RLID is 0, a new status is created.
-//  @Description  If RLID is > 0 it is simply updated
-//	@Input WebGridSearchRequest
-//  @Response Reservation
-// wsdoc }
+// getReservationStruct
 //------------------------------------------------------------------------------
-func getReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	const funcname = "getReservation"
-	var g GetReservation
-	//var a rlib.RentableLeaseStatus
+func getReservationStruct(id int64) (ResDet, error) {
 	var err error
 	var a ResDet
 
-	rlib.Console("entered %s, getting RLID = %d\n", funcname, d.ID)
 	q := fmt.Sprintf(`SELECT
 	RentableLeaseStatus.RLID,
     RentableLeaseStatus.RID,
@@ -412,7 +399,9 @@ func getReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
     RentableLeaseStatus.Comment,
     RentableLeaseStatus.ConfirmationCode,
     Rentable.RentableName,
-    RentableTypeRef.RTID
+    RentableTypeRef.RTID,
+	Assessments.ASMID,
+	Assessments.Amount
 FROM
     RentableTypeRef
         LEFT JOIN
@@ -429,11 +418,12 @@ FROM
 	Transactant ON (Transactant.TCID = RentalAgreementPayors.TCID)
 		LEFT JOIN
 	AR on (RentableTypes.ARID = AR.ARID)
+		LEFT JOIN
+	Assessments on (Assessments.RAID = RentableLeaseStatus.RAID)
 WHERE
-	RentableLeaseStatus.RLID = %d;`, d.ID)
+	RentableLeaseStatus.RLID = %d;`, id)
 	rlib.Console("Query = %s\n", q)
 	row := rlib.RRdb.Dbrr.QueryRow(q)
-	rlib.Console("Created row\n")
 	err = row.Scan(
 		&a.RLID,
 		&a.RID,
@@ -458,13 +448,37 @@ WHERE
 		&a.ConfirmationCode,
 		&a.RentableName,
 		&a.RTID,
+		&a.DepASMID,
+		&a.Deposit,
 	)
-	if err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
-	}
 	if a.DBAmount.Valid {
 		a.Amount = a.DBAmount.Float64
+	}
+	return a, err
+}
+
+// getReservation
+// wsdoc {
+//  @Title  Get Reservation
+//	@URL /v1/reservation/:BUI/[RLID]
+//  @Method  POST
+//	@Synopsis Returns a reservation associated with the supplied RLID
+//  @Description  Saves the ReleaseStatus. If RLID is 0, a new status is created.
+//  @Description  If RLID is > 0 it is simply updated
+//	@Input WebGridSearchRequest
+//  @Response Reservation
+// wsdoc }
+//------------------------------------------------------------------------------
+func getReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "getReservation"
+	var g GetReservation
+	var err error
+	var a ResDet
+	rlib.Console("entered %s, getting RLID = %d\n", funcname, d.ID)
+
+	if a, err = getReservationStruct(d.ID); err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
 	}
 	g.Status = "success"
 	g.Record = a
@@ -512,7 +526,7 @@ func saveReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//---------------------------------------------------
 	// Read the Reservation Form data from the client
 	//---------------------------------------------------
-	var res ResDet
+	var res, resOld ResDet
 	err = json.Unmarshal([]byte(s), &res)
 	if err != nil {
 		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
@@ -523,6 +537,12 @@ func saveReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	now := rlib.Now()
 	dt := time.Time(res.DtStart).AddDate(0, 0, 1) // give it one day grace period, which will account for all timezone issues
+
+	if res.RLID > 0 {
+		if resOld, err = getReservationStruct(res.RLID); err != nil {
+			SvcErrorReturn(w, err, funcname)
+		}
+	}
 
 	if now.After(dt) {
 		err = fmt.Errorf("You cannot create reservations in the past")
@@ -561,9 +581,9 @@ func saveReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//----------------------------------------------------------
 	var ra rlib.RentalAgreement
 	if res.RAID > 0 {
-		updateResRentalAgreement(ctx, r, d, &res, &t, &ra)
+		updateResRentalAgreement(ctx, r, d, &res, &resOld, &t, &ra)
 	} else {
-		insertResRentalAgreement(ctx, r, d, &res, &t, &ra)
+		insertResRentalAgreement(ctx, r, d, &res, &resOld, &t, &ra)
 	}
 	//----------------------------------------------------------
 	// Create the Rentable Lease Status
@@ -725,6 +745,7 @@ func updateResTransactant(ctx context.Context, r *http.Request, d *ServiceData, 
 
 func initRAfromReservation(ra *rlib.RentalAgreement, res *ResDet, d *ServiceData) {
 	rlib.Console("Entered initRAfromReservation\n")
+	now := rlib.Now()
 
 	x := time.Time(res.DtStart)
 	dt1 := time.Date(x.Year(), x.Month(), x.Day(), 15, 0, 0, 0, rlib.RRdb.Zone) // check in at 3:00pm
@@ -733,7 +754,7 @@ func initRAfromReservation(ra *rlib.RentalAgreement, res *ResDet, d *ServiceData
 	dt2 := time.Date(x.Year(), x.Month(), x.Day(), 11, 0, 0, 0, rlib.RRdb.Zone)  // check in at 11:00am
 	(*ra) = rlib.RentalAgreement{
 		BID:                 res.BID,
-		AgreementStart:      dt1,
+		AgreementStart:      now,
 		AgreementStop:       dt2,
 		PossessionStart:     dt1,
 		PossessionStop:      dt2,
@@ -755,12 +776,13 @@ func initRAfromReservation(ra *rlib.RentalAgreement, res *ResDet, d *ServiceData
 //    r   - the http request
 //    d   - service data
 //    res - the data from the Reservation Form
+//    resOld - existing res info, if resOld.RLID == 0 then ignore
 //    t   - transactant struct prefilled with data from res
 //
 // RETURNS
 //    any error encountered
 //------------------------------------------------------------------------------
-func insertResRentalAgreement(ctx context.Context, r *http.Request, d *ServiceData, res *ResDet, t *rlib.Transactant, ra *rlib.RentalAgreement) error {
+func insertResRentalAgreement(ctx context.Context, r *http.Request, d *ServiceData, res, resOld *ResDet, t *rlib.Transactant, ra *rlib.RentalAgreement) error {
 	var err error
 	rlib.Console("Entered insertResRentalAgreement\n")
 	initRAfromReservation(ra, res, d)
@@ -803,18 +825,19 @@ func insertResRentalAgreement(ctx context.Context, r *http.Request, d *ServiceDa
 		if bp, err = rlib.GetDataFromBusinessPropertyName(ctx, "general", res.BID); err != nil {
 			return err
 		}
-
+		now := rlib.Now()
 		var a = rlib.Assessment{
-			BID:            res.BID,
+			BID:            ra.BID,
 			RID:            res.RID,
-			RAID:           res.RAID,
+			RAID:           ra.RAID,
 			Amount:         res.Deposit,
-			Start:          ra.RentStart,
-			Stop:           ra.RentStop,
+			Start:          now,
+			Stop:           now,
 			RentCycle:      rlib.RECURNONE,
 			ProrationCycle: rlib.RECURNONE,
 			ARID:           bp.ResDepARID,
 		}
+		rlib.Console("InsertAssessment.  a.RAID = %d\n", a.RAID)
 		if be := bizlogic.InsertAssessment(ctx, &a, 0, &noClose); len(be) > 0 {
 			return bizlogic.BizErrorListToError(be)
 		}
@@ -867,13 +890,13 @@ func cancelReservation(ctx context.Context, r *http.Request, d *ServiceData, res
 // RETURNS
 //    any error encountered
 //------------------------------------------------------------------------------
-func updateResRentalAgreement(ctx context.Context, r *http.Request, d *ServiceData, res *ResDet, t *rlib.Transactant, ra *rlib.RentalAgreement) error {
+func updateResRentalAgreement(ctx context.Context, r *http.Request, d *ServiceData, res, resOld *ResDet, t *rlib.Transactant, ra *rlib.RentalAgreement) error {
 	rlib.Console("Entered updateResRentalAgreement\n")
 	var err error
 	if err = cancelReservation(ctx, r, d, res); err != nil {
 		return err
 	}
-	if err = insertResRentalAgreement(ctx, r, d, res, t, ra); err != nil {
+	if err = insertResRentalAgreement(ctx, r, d, res, resOld, t, ra); err != nil {
 		return err
 	}
 	res.RAID = ra.RAID

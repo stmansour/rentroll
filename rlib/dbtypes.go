@@ -877,7 +877,30 @@ type TransactantTypeDown struct {
 	LastName    string
 	CompanyName string
 	IsCompany   bool
-	Recid       int64 `json:"recid"`
+
+	Recid int64 `json:"recid"`
+}
+
+// TransactantDetailsTypeDown is the struct needed to match names in typedown controls
+// and provides a bit more detail about people to disambiguate people with the
+// same name.
+type TransactantDetailsTypeDown struct {
+	TCID           int64
+	FirstName      string
+	MiddleName     string
+	LastName       string
+	CompanyName    string
+	IsCompany      bool
+	PrimaryEmail   string
+	SecondaryEmail string
+	WorkPhone      string
+	CellPhone      string
+	Address        string
+	Address2       string
+	City           string
+	State          string
+	PostalCode     string
+	Recid          int64 `json:"recid"`
 }
 
 // RentableTypeDown is the struct needed to match names in typedown controls
