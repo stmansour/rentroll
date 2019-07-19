@@ -28,6 +28,7 @@ type Businesses struct {
 	DefaultProrationCycle int64             // Default for every Rentable Type, useful in initializing the UI for new RentableTypes
 	DefaultGSRPC          int64             // Default for every Rentable Type, useful in initializing the UI for new RentableTypes
 	ClosePeriodTLID       int64             // Business used for closing a period
+	ResDepARID            int64             // AR to use when creating a deposit for a (hotel) rentable
 	CPTLName              string            // Name of the TaskList
 	FLAGS                 uint64            // the flags -- xlated to bools
 	EDIenabled            bool              // true if EDI is enabled
@@ -94,6 +95,7 @@ type SaveBusinessDef struct {
 	DefaultProrationCycle int64             // Default for every Rentable Type, useful in initializing the UI for new RentableTypes
 	DefaultGSRPC          int64             // Default for every Rentable Type, useful in initializing the UI for new RentableTypes
 	ClosePeriodTLID       int64             // Business used for closing a period
+	ResDepARID            int64             // AR to use when creating a deposit for a (hotel) rentable
 	CPTLName              string            // Name of the TaskList
 	FLAGS                 uint64            // the flags -- xlated to bools
 	EDIenabled            bool              // true if EDI is enabled
@@ -506,9 +508,18 @@ func getBusiness(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
+
+	var bp rlib.BizProps
+	if bp, err = rlib.GetDataFromBusinessPropertyName(r.Context(), "general", a.BID); err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
 	if a.BID > 0 {
 		var gg SaveBusinessDef
 		rlib.MigrateStructVals(&a, &gg)
+		gg.ResDepARID = bp.ResDepARID
+		rlib.Console("\n\n\n***    a.ResDepARID = %d\n\n\n", gg.ResDepARID)
 		gg.BUD = a.Designation
 		gg.EDIenabled = a.FLAGS&(1<<0) != 0
 		gg.AllowBackdatedRA = a.FLAGS&(1<<1) != 0

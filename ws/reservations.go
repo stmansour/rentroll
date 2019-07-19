@@ -564,9 +564,12 @@ func saveReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	t.PrimaryEmail = res.Email
 	t.CellPhone = res.Phone
 	t.Address = res.Street
+	t.IsCompany = res.IsCompany
+	t.CompanyName = res.CompanyName
 	if res.TCID > 0 {
 		err = updateResTransactant(ctx, r, d, &res, &t)
 	} else {
+
 		_, err = rlib.InsertTransactant(ctx, &t)
 	}
 	if err != nil {

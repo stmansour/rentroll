@@ -13,7 +13,7 @@
     tlPickerRender, tlPickerDropRender, tlPickerCompare, getTLName,
     updateAppBusinesses, setToBiz, rebuildBusinessSelect,BUDPickerRender,
     BUDPickerDropRender, BUDPickerCompare, updateBUDLink,setBUDLink,BUDHandler,
-    setBUDSpinner,
+    setBUDSpinner,getBusinessAssessmentRules,
 */
 //-----------------------------------------------------------------------------
 // updateBUDFormList updates the dropdown list of BUDs form interfaces. The
@@ -148,7 +148,7 @@ window.buildBusinessElements = function () {
             };
         },
         onClick: function(event) {
-            event.onComplete = function () {
+            event.onComplete = function (event) {
                 var yes_args = [this, event.recid],
                     no_args = [this],
                     no_callBack = function(grid) {
@@ -162,9 +162,28 @@ window.buildBusinessElements = function () {
                         grid.select(app.last.grid_sel_recid);
 
                         var rec = grid.get(recid);
-                        setToBizForm(rec.BID, app.D1, app.D2);
+
+                        //-----------------------------------------------------------
+                        // before setting to the form, get the list of AcctRules...
+                        //-----------------------------------------------------------
+                        var f = w2ui.bizDetailForm;
+                        var BID = rec.BID;
+                        var BUD = getBUDfromBID(BID);
+                        getBusinessAssessmentRules(BID, BUD)
+                        .done( function(data) {
+                            if ('status' in data && data.status !== 'success') {
+                                f.message(data.message);
+                            } else {
+                                f.get('ResDepARID').options.items = app.AssessmentRules[BUD];
+                                f.refresh();
+                                setToBizForm(rec.BID, app.D1, app.D2);
+                            }
+                        })
+                        .fail( function() {
+                            console.log('Error getting /v1/uival/' + BID + '/app.AssessmentRules');
+                        });
                     };
-                form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);
+                    form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);
             };
         },
         onAdd: function(event) {
@@ -283,6 +302,7 @@ window.buildBusinessElements = function () {
                 },
             },
 
+            { field: 'ResDepARID',              type: 'list',     required: false, options: { items: app.AssessmentRules }},
             { field: 'LastModTime',             type: 'hidden',   required: false },
             { field: 'LastModBy',               type: 'hidden',   required: false },
             { field: 'CreateTS',                type: 'hidden',   required: false },
