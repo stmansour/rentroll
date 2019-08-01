@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"extres"
+	"fmt"
 	"runtime/debug"
 )
 
@@ -148,6 +149,45 @@ func UpdateBusinessPropertiesData(ctx context.Context, jsonDataKey string, jsonD
 		_, err = stmt.Exec(fields...)
 	} else {
 		_, err = RRdb.Prepstmt.UpdateBusinessPropertiesData.Exec(fields...)
+	}
+	return updateError(err, "BusinessProperties", *a)
+}
+
+// UpdateBusinessProperties updates the json fields
+//
+// INPUTS
+// ctx - database context
+// a   - the Business Properties struct containing a valid BPID and other fields
+//       to be updated. But the Data field will be updated from the info
+//       supplied in bp
+// bp  - BizProps struct with the JSON data field updates
+//
+// RETURNS
+//       any error encountered
+//------------------------------------------------------------------------------
+func UpdateBusinessProperties(ctx context.Context, a *BusinessProperties, bp *BizProps) error {
+	var err error
+
+	if err = updateSessionProblem(ctx, &a.CreateBy, &a.LastModBy); err != nil {
+		return err
+	}
+
+	s := fmt.Sprintf(`UPDATE BusinessProperties SET Data = JSON_REPLACE(Data,
+		'$.ResDepARID', %d,
+		'$.ResForfeitARID', %d,
+		'$.ResRefundARID', %d
+		), LastModBy=%d WHERE BPID=%d;`,
+		bp.ResDepARID, bp.ResForfeitARID, bp.ResRefundARID,
+		a.LastModBy, a.BPID)
+
+	//  Console("UpdateBusinessProperties: exec statement = %s\n", s)
+
+	// as a.Data is type of json.RawMessage - convert it to byte stream so that it can be inserted
+	// in mysql `json` type column
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		_, err = tx.Exec(s)
+	} else {
+		_, err = RRdb.Dbrr.Exec(s)
 	}
 	return updateError(err, "BusinessProperties", *a)
 }

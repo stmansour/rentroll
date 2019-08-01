@@ -23,7 +23,7 @@ func HotelBookings(ctx context.Context, dbConf *GenDBConf) error {
 	rlib.Console("Entered HotelBookings\n")
 
 	//--------------------------------
-	// set the epoch time as 1:00 AM
+	// set the time as 1:00 AM
 	// This can be replaced when we save the proper epoch values for each RT
 	//--------------------------------
 	epoch := time.Now()
@@ -149,9 +149,10 @@ func HotelBookings(ctx context.Context, dbConf *GenDBConf) error {
 				//-------------------------------------------------
 				// create a RentalAgreement...
 				//-------------------------------------------------
+				now := rlib.Now()
 				var ra = rlib.RentalAgreement{
 					BID:                 ls.BID,
-					AgreementStart:      ls.DtStart,
+					AgreementStart:      now,
 					AgreementStop:       ls.DtStop,
 					PossessionStart:     ls.DtStart,
 					PossessionStop:      ls.DtStop,
@@ -203,7 +204,7 @@ func HotelBookings(ctx context.Context, dbConf *GenDBConf) error {
 				asm.RAID = ra.RAID
 				asm.BID = ls.BID
 				asm.RID = ls.RID
-				asm.Start = rlib.Now()
+				asm.Start = now
 				asm.Stop = asm.Start
 				asm.RentCycle = rlib.RECURNONE
 				asm.ProrationCycle = rlib.RECURNONE
@@ -214,6 +215,30 @@ func HotelBookings(ctx context.Context, dbConf *GenDBConf) error {
 				if be != nil {
 					return bizlogic.BizErrorListToError(be)
 				}
+
+				//-----------------------------------------------------
+				// Create a RentalAgreement Ledger marker
+				//-----------------------------------------------------
+				var lm = rlib.LedgerMarker{
+					BID:     ra.BID,
+					RAID:    ra.RAID,
+					RID:     0,
+					Dt:      epoch.AddDate(0, -1, 0),
+					Balance: float64(0),
+					State:   rlib.LMINITIAL,
+				}
+				if _, err = rlib.InsertLedgerMarker(ctx, &lm); err != nil {
+					return err
+				}
+
+				//-------------------------------------
+				// Ledger for the RAID's rentable
+				//-------------------------------------
+				lm.RID = ls.RID
+				if _, err = rlib.InsertLedgerMarker(ctx, &lm); err != nil {
+					return err
+				}
+				// rlib.Console("Created LedgerMarker for RAID=%d, RID=%d on %s\n", lm.RAID, lm.RID, rlib.ConDt(&lm.Dt))
 
 				//-------------------------------------
 				// Assign Users...

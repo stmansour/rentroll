@@ -195,6 +195,7 @@ func SvcTransactantDetailsTypeDown(w http.ResponseWriter, r *http.Request, d *Se
 	rlib.Console("Entered %s - name - %s\n", funcname, n)
 	q := fmt.Sprintf(`
 SELECT
+    A.TCID,
 	A.BID,
     A.FirstName,
     A.MiddleName,
@@ -264,10 +265,10 @@ FROM
 		)
     ) A
 WHERE
-    A.BID=1
-ORDER BY A.DispName ASC
+    A.BID=%d
+ORDER BY A.DispName ASC, A.TCID ASC
 LIMIT 200;`,
-		d.BID, n, n, n, d.BID, n)
+		d.BID, n, n, n, d.BID, n, d.BID)
 	rlib.Console("%s: q = %s\n", funcname, q)
 
 	rows, err := rlib.RRdb.Dbrr.Query(q)
@@ -282,6 +283,7 @@ LIMIT 200;`,
 		var a rlib.TransactantDetailsTypeDown
 		err = rows.Scan(
 			&a.TCID,
+			&a.BID,
 			&a.FirstName,
 			&a.MiddleName,
 			&a.LastName,

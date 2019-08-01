@@ -10,6 +10,7 @@ import (
 	"rentroll/rlib"
 	"strconv"
 	"strings"
+	"time"
 )
 
 //-------------------------------------------------------------------
@@ -29,6 +30,8 @@ type Businesses struct {
 	DefaultGSRPC          int64             // Default for every Rentable Type, useful in initializing the UI for new RentableTypes
 	ClosePeriodTLID       int64             // Business used for closing a period
 	ResDepARID            int64             // AR to use when creating a deposit for a (hotel) rentable
+	ResForfeitARID        int64             // AR to use when creating a deposit for a (hotel) rentable
+	ResRefundARID         int64             // AR to use when creating a deposit for a (hotel) rentable
 	CPTLName              string            // Name of the TaskList
 	FLAGS                 uint64            // the flags -- xlated to bools
 	EDIenabled            bool              // true if EDI is enabled
@@ -96,6 +99,8 @@ type SaveBusinessDef struct {
 	DefaultGSRPC          int64             // Default for every Rentable Type, useful in initializing the UI for new RentableTypes
 	ClosePeriodTLID       int64             // Business used for closing a period
 	ResDepARID            int64             // AR to use when creating a deposit for a (hotel) rentable
+	ResForfeitARID        int64             // AR to use when creating a deposit for a (hotel) rentable
+	ResRefundARID         int64             // AR to use when creating a deposit for a (hotel) rentable
 	CPTLName              string            // Name of the TaskList
 	FLAGS                 uint64            // the flags -- xlated to bools
 	EDIenabled            bool              // true if EDI is enabled
@@ -395,6 +400,7 @@ func saveBusiness(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if err := json.Unmarshal(data, &foo); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
 		SvcErrorReturn(w, e, funcname)
+		rlib.Console("%s: err = %s\ndata = %s\n", funcname, err.Error(), d.data)
 		return
 	}
 	var a rlib.Business
@@ -458,8 +464,42 @@ func saveBusiness(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
+		//--------------------------------------
+		// ADD STRINGLISTS for the business
+		//--------------------------------------
 		rlib.Console("Inserting Business stringlists\n")
 		if err = loadStrings(ctx, &a); err != nil {
+			tx.Rollback()
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+		//--------------------------------------
+		// ADD BUSINESS PROPERTIES
+		//--------------------------------------
+		var bp = rlib.BizProps{
+			PetFees:     []string{},
+			VehicleFees: []string{},
+		}
+
+		epoch := time.Date(2017, time.January, 1, 0, 0, 0, 0, time.UTC)
+		bp.Epochs.Daily = epoch
+		bp.Epochs.Weekly = epoch
+		bp.Epochs.Monthly = epoch
+		bp.Epochs.Quarterly = epoch
+		bp.Epochs.Yearly = epoch
+		var data []byte
+		if data, err = json.Marshal(&bp); err != nil {
+			tx.Rollback()
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+		var props = rlib.BusinessProperties{
+			BID:   a.BID,
+			Name:  "general",
+			FLAGS: 0,
+			Data:  data,
+		}
+		if _, err = rlib.InsertBusinessProperties(ctx, &props); err != nil {
 			tx.Rollback()
 			SvcErrorReturn(w, err, funcname)
 			return
@@ -467,6 +507,29 @@ func saveBusiness(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	} else {
 		// rlib.Console("Updating existing Business: %d\n", a.BID) // update existing record
 		if err = rlib.UpdateBusiness(ctx, &a); err != nil {
+			tx.Rollback()
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+		//-----------------------------------------
+		// NOW UPDATE THE BUSINESS PROPERTIES...
+		//-----------------------------------------
+		var bp rlib.BusinessProperties
+		if bp, err = rlib.GetBusinessPropertiesByName(ctx, "general", a.BID); err != nil {
+		}
+		var bizprops rlib.BizProps
+
+		if err = json.Unmarshal(bp.Data, &bizprops); err != nil {
+			tx.Rollback()
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+
+		bizprops.ResDepARID = foo.Record.ResDepARID
+		bizprops.ResForfeitARID = foo.Record.ResForfeitARID
+		bizprops.ResRefundARID = foo.Record.ResRefundARID
+		//		rlib.Console("bizprops:  ResDepARID = %d, ResForfeitARID = %d, ResRefundARID = %d\n", bizprops.ResDepARID, bizprops.ResForfeitARID, bizprops.ResRefundARID)
+		if err = rlib.UpdateBusinessProperties(ctx, &bp, &bizprops); err != nil {
 			tx.Rollback()
 			SvcErrorReturn(w, err, funcname)
 			return
@@ -519,7 +582,10 @@ func getBusiness(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		var gg SaveBusinessDef
 		rlib.MigrateStructVals(&a, &gg)
 		gg.ResDepARID = bp.ResDepARID
-		rlib.Console("\n\n\n***    a.ResDepARID = %d\n\n\n", gg.ResDepARID)
+		gg.ResForfeitARID = bp.ResForfeitARID
+		gg.ResRefundARID = bp.ResRefundARID
+
+		// rlib.Console("\n\n\n***    a.ResDepARID = %d\n\n\n", gg.ResDepARID)
 		gg.BUD = a.Designation
 		gg.EDIenabled = a.FLAGS&(1<<0) != 0
 		gg.AllowBackdatedRA = a.FLAGS&(1<<1) != 0
@@ -534,7 +600,9 @@ func getBusiness(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 		g.Record = gg
 	}
-	rlib.Console("Biz info for BID %d:  ClosePeriodTLID = %d\n", a.BID, a.ClosePeriodTLID)
+
+	// rlib.Console("Biz info for BID %d:  ClosePeriodTLID = %d\n", a.BID, a.ClosePeriodTLID)
+
 	g.Status = "success"
 	SvcWriteResponse(d.BID, &g, w)
 }

@@ -13,6 +13,9 @@ import (
 	"time"
 )
 
+// Forfeit, Refund, hold on account
+// validate that rentable is not in use -- ready and not-occupied
+
 //-------------------------------------------------------------------
 //                        **** SEARCH ****
 //-------------------------------------------------------------------
@@ -87,6 +90,7 @@ type ResDet struct {
 	Country             string            `json:"Country"`             // Transactant
 	State               string            `json:"State"`               // Transactant
 	PostalCode          string            `json:"PostalCode"`          // Transactant
+	FLAGS               uint64            `json:"FLAGS"`               // 0 hold change in deposit on account, 1 - refund deposit change, 2 forfeit deposit,
 	CCName              string            `json:"CCName"`
 	CCType              string            `json:"CCType"`
 	CCNumber            string            `json:"CCNumber"`
@@ -533,7 +537,7 @@ func saveReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcErrorReturn(w, e, funcname)
 		return
 	}
-	rlib.Console("UnspecifiedAdults = %d, UnspecifiedChildren = %d\n", res.UnspecifiedAdults, res.UnspecifiedChildren)
+	//	rlib.Console("UnspecifiedAdults = %d, UnspecifiedChildren = %d\n", res.UnspecifiedAdults, res.UnspecifiedChildren)
 
 	now := rlib.Now()
 	dt := time.Time(res.DtStart).AddDate(0, 0, 1) // give it one day grace period, which will account for all timezone issues
@@ -794,6 +798,29 @@ func insertResRentalAgreement(ctx context.Context, r *http.Request, d *ServiceDa
 		return err
 	}
 
+	//-----------------------------------------------------
+	// Create a RentalAgreement Ledger marker
+	//-----------------------------------------------------
+	var lm = rlib.LedgerMarker{
+		BID:     ra.BID,
+		RAID:    ra.RAID,
+		RID:     0,
+		Dt:      ra.AgreementStart,
+		Balance: float64(0),
+		State:   rlib.LMINITIAL,
+	}
+	if _, err = rlib.InsertLedgerMarker(ctx, &lm); err != nil {
+		return err
+	}
+
+	//----------------------------------------------------------
+	// Add a ledger marker for the specific RID...
+	//----------------------------------------------------------
+	lm.RID = res.RID
+	if _, err = rlib.InsertLedgerMarker(ctx, &lm); err != nil {
+		return err
+	}
+
 	//----------------------------------------------------------
 	// Create RentalAgreementRentable
 	//----------------------------------------------------------
@@ -895,9 +922,29 @@ func cancelReservation(ctx context.Context, r *http.Request, d *ServiceData, res
 //------------------------------------------------------------------------------
 func updateResRentalAgreement(ctx context.Context, r *http.Request, d *ServiceData, res, resOld *ResDet, t *rlib.Transactant, ra *rlib.RentalAgreement) error {
 	rlib.Console("Entered updateResRentalAgreement\n")
+
+	// FIXME:   WE CANNOT JUST CANCEL AND ADD NEW RES
+	//          DEAL WITH THE DEPOSIT - FORFEIT, REFUND, DIFF On Account
+
 	var err error
 	if err = cancelReservation(ctx, r, d, res); err != nil {
 		return err
+	}
+	if res.Deposit < resOld.Deposit {
+		switch res.FLAGS & 0x3 {
+		case 0:
+			// hold the deposit on account
+		case 1:
+			// refund the difference
+			var refund = float64(resOld.Deposit - res.Deposit)
+			rlib.Console("Issuing refund for %8.2f\n", refund)
+		case 2:
+			// forfeit the deposit... book it as revenue
+		}
+	} else if res.Deposit > resOld.Deposit {
+		// create an assessment for the difference and charge
+		// the credit card.  Add a comment to the assessment
+		// explaining what happened.
 	}
 	if err = insertResRentalAgreement(ctx, r, d, res, resOld, t, ra); err != nil {
 		return err
@@ -906,8 +953,80 @@ func updateResRentalAgreement(ctx context.Context, r *http.Request, d *ServiceDa
 	return nil
 }
 
+// deleteReservation is the interface call for Cancelling a reservation
+//
+// INPUTS
+//    ctx - database context
+//    r   - the http request
+//    d   - service data
 func deleteReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	// const funcname = "deleteReservation"
-	// rlib.Console("Entered %s\n", funcname)
-	// rls, err := rlib.GetRentableLeaseStatus(r.Context(), d.ID)
+	const funcname = "deleteReservation"
+	rlib.Console("Entered %s\n", funcname)
+	var err error
+	var tx *sql.Tx
+	var ctx context.Context
+
+	target := `"record":`
+	i := strings.Index(d.data, target)
+	if i < 0 {
+		e := fmt.Errorf("%s: cannot find %s in form json", funcname, target)
+		SvcErrorReturn(w, e, funcname)
+		return
+	}
+	s := d.data[i+len(target):]
+	s = s[:len(s)-1]
+
+	rlib.Console("Data to unmarshal = %s\n", s)
+
+	//---------------------------------------------------
+	// Read the Reservation Form data from the client
+	//---------------------------------------------------
+	var res ResDet
+	err = json.Unmarshal([]byte(s), &res)
+	if err != nil {
+		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
+		SvcErrorReturn(w, e, funcname)
+		return
+	}
+
+	//-------------------------------------------------------------
+	// TRANSACTION:
+	//    1 - cancel the reservation
+	//    2 - based on the flags, make any refunds needed
+	//-------------------------------------------------------------
+	tx, ctx, err = rlib.NewTransactionWithContext(r.Context())
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	if err = cancelReservation(ctx, r, d, &res); err != nil {
+		tx.Rollback()
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	//-------------------------------------------------------------
+	// Handle deposit
+	//-------------------------------------------------------------
+	switch res.FLAGS & 0x3 {
+	case 0:
+		// hold the deposit on account
+	case 1:
+		// refund the difference
+		rlib.Console("Refund deposit for cancelled reservation: %8.2f\n", res.Deposit)
+	case 2:
+		// forfeit the deposit... book it as revenue
+		rlib.Console("Deposit forfeited: %8.2f\n", res.Deposit)
+	}
+
+	//-------------------------------------------------------------
+	// COMMIT TRANSACTION
+	//-------------------------------------------------------------
+	if err := tx.Commit(); err != nil {
+		tx.Rollback()
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
 }

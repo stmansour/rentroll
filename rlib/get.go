@@ -1184,6 +1184,16 @@ func GetBusinessProperties(ctx context.Context, BPID int64) (bizProp BusinessPro
 }
 
 // GetBusinessPropertiesByName returns business properties object by name, BID
+//
+// INPUTS
+//		ctx - database context
+//		Name - biz property name (ex: "general")
+//		BID - id of business
+//
+// RETURNS
+// 		BusinessProperties struct
+//		any error encountered
+//------------------------------------------------------------------------------
 func GetBusinessPropertiesByName(ctx context.Context, Name string, BID int64) (bizProp BusinessProperties, err error) {
 
 	var (

@@ -175,6 +175,8 @@ window.buildBusinessElements = function () {
                                 f.message(data.message);
                             } else {
                                 f.get('ResDepARID').options.items = app.AssessmentRules[BUD];
+                                f.get('ResForfeitARID').options.items = app.AssessmentRules[BUD];
+                                f.get('ResRefundARID').options.items = app.AssessmentRules[BUD];
                                 f.refresh();
                                 setToBizForm(rec.BID, app.D1, app.D2);
                             }
@@ -303,6 +305,8 @@ window.buildBusinessElements = function () {
             },
 
             { field: 'ResDepARID',              type: 'list',     required: false, options: { items: app.AssessmentRules }},
+            { field: 'ResForfeitARID',          type: 'list',     required: false, options: { items: app.AssessmentRules }},
+            { field: 'ResRefundARID',           type: 'list',     required: false, options: { items: app.AssessmentRules }},
             { field: 'LastModTime',             type: 'hidden',   required: false },
             { field: 'LastModBy',               type: 'hidden',   required: false },
             { field: 'CreateTS',                type: 'hidden',   required: false },
@@ -382,6 +386,13 @@ window.buildBusinessElements = function () {
                 business.record.DefaultProrationCycle = x;
                 x = r.DefaultGSRPC.id;
                 business.record.DefaultGSRPC = x;
+                x = r.ResDepARID.id;
+                business.record.ResDepARID = x;
+                x = r.ResForfeitARID.id;
+                business.record.ResForfeitARID = x;
+                x = r.ResRefundARID.id;
+                business.record.ResRefundARID = x;
+
                 var newBID = w2ui.bizDetailForm.record.BID;
                 var dat=JSON.stringify(business);
                 var url='/v1/business/' + newBID;

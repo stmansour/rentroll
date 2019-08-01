@@ -886,6 +886,7 @@ type TransactantTypeDown struct {
 // same name.
 type TransactantDetailsTypeDown struct {
 	TCID           int64
+	BID            int64
 	FirstName      string
 	MiddleName     string
 	LastName       string
@@ -1080,10 +1081,12 @@ type BusinessProperties struct {
 // BizProps is the golang struct for a category of business properties.
 // This struct will be marshaled into JSON data and stored in BusinessProperties
 type BizProps struct {
-	Epochs      BizPropsEpochs // default epochs for recurring assessments
-	PetFees     []string       // AR names of all Pet Fees
-	VehicleFees []string       // AR names of all Vehicle Fees
-	ResDepARID  int64          // Account Rule to use on Reservation Deposits
+	Epochs         BizPropsEpochs // default epochs for recurring assessments
+	PetFees        []string       // AR names of all Pet Fees
+	VehicleFees    []string       // AR names of all Vehicle Fees
+	ResDepARID     int64          // Account Rule to use on Reservation Deposits
+	ResForfeitARID int64          // Account rule for booking forfeited deposits
+	ResRefundARID  int64          // Account rule for Refunds
 }
 
 // Building defines the location of a Building that is part of a Business
