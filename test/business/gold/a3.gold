@@ -7,7 +7,7 @@
             "CPTLName": "",
             "ClosePeriodTLID": 0,
             "CreateBy": 0,
-            "CreateTS": "2019-07-19 15:26:00 UTC",
+            "CreateTS": "2019-08-01 19:30:00 UTC",
             "DefaultGSRPC": 4,
             "DefaultProrationCycle": 4,
             "DefaultRentCycle": 6,
@@ -15,9 +15,11 @@
             "EDIenabled": false,
             "FLAGS": 3,
             "LastModBy": 0,
-            "LastModTime": "2019-07-19 15:26:00 UTC",
+            "LastModTime": "2019-08-01 19:30:00 UTC",
             "Name": "Billy Bob's Bungee Emporium",
             "ResDepARID": 0,
+            "ResForfeitARID": 0,
+            "ResRefundARID": 0,
             "recid": 0
         },
         {
@@ -38,6 +40,8 @@
             "LastModTime": "2018-11-30 12:38:00 UTC",
             "Name": "CALIFORNIA COMMERCE CENTRE OWNERS ASSOCIATION",
             "ResDepARID": 0,
+            "ResForfeitARID": 0,
+            "ResRefundARID": 0,
             "recid": 1
         },
         {
@@ -58,6 +62,8 @@
             "LastModTime": "2018-06-05 16:06:00 UTC",
             "Name": "JGM First, LLC",
             "ResDepARID": 0,
+            "ResForfeitARID": 0,
+            "ResRefundARID": 0,
             "recid": 2
         },
         {
@@ -78,6 +84,8 @@
             "LastModTime": "2018-11-30 12:38:00 UTC",
             "Name": "JGM First, LLC",
             "ResDepARID": 0,
+            "ResForfeitARID": 0,
+            "ResRefundARID": 0,
             "recid": 3
         }
     ],

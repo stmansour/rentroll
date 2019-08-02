@@ -18,6 +18,8 @@
             "LastModTime": "2018-11-30 12:38:00 UTC",
             "Name": "CALIFORNIA COMMERCE CENTRE OWNERS ASSOCIATION",
             "ResDepARID": 0,
+            "ResForfeitARID": 0,
+            "ResRefundARID": 0,
             "recid": 0
         },
         {
@@ -38,6 +40,8 @@
             "LastModTime": "2018-06-05 16:06:00 UTC",
             "Name": "JGM First, LLC",
             "ResDepARID": 0,
+            "ResForfeitARID": 0,
+            "ResRefundARID": 0,
             "recid": 1
         },
         {
@@ -58,6 +62,8 @@
             "LastModTime": "2018-11-30 12:38:00 UTC",
             "Name": "JGM First, LLC",
             "ResDepARID": 0,
+            "ResForfeitARID": 0,
+            "ResRefundARID": 0,
             "recid": 2
         }
     ],
