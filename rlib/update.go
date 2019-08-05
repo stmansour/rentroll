@@ -153,6 +153,8 @@ func UpdateBusinessPropertiesData(ctx context.Context, jsonDataKey string, jsonD
 	return updateError(err, "BusinessProperties", *a)
 }
 
+var jsonFNs = []string{"JSON_SET", "JSON_REPLACE"}
+
 // UpdateBusinessProperties updates the json fields
 //
 // INPUTS
@@ -172,22 +174,36 @@ func UpdateBusinessProperties(ctx context.Context, a *BusinessProperties, bp *Bi
 		return err
 	}
 
-	s := fmt.Sprintf(`UPDATE BusinessProperties SET Data = JSON_REPLACE(Data,
+	//-------------------------------------------------------------------------
+	// The schema for BusinessProperties is changing over time. If a field in
+	// the Sprintf statement below is NOT currently in the JSON schema of the
+	// record of interest, it will not be added to the schema using the
+	// JSON_REPLACE() function. Similarly, if a field already exists then
+	// its value will not be updated by the JSON_SET() function. But if you
+	// issue the JSON_SET followed by the JSON_REPLACE commands, then the
+	// record will be updated any field it was missing, and the field value
+	// will be set the the value bp.
+	//
+	// This may not be the most efficient way to get it done... please update
+	// if there is a better way.
+	//-------------------------------------------------------------------------
+	for i := 0; i < len(jsonFNs); i++ {
+		s := fmt.Sprintf(`UPDATE BusinessProperties SET Data = %s(Data,
 		'$.ResDepARID', %d,
 		'$.ResForfeitARID', %d,
 		'$.ResRefundARID', %d
 		), LastModBy=%d WHERE BPID=%d;`,
-		bp.ResDepARID, bp.ResForfeitARID, bp.ResRefundARID,
-		a.LastModBy, a.BPID)
+			jsonFNs[i],                                         // JSON_SET, then JSON_REPLACE
+			bp.ResDepARID, bp.ResForfeitARID, bp.ResRefundARID, // updated business property vals
+			a.LastModBy, a.BPID) // when and who
 
-	//  Console("UpdateBusinessProperties: exec statement = %s\n", s)
+		//  Console("UpdateBusinessProperties: exec statement = %s\n", s)
 
-	// as a.Data is type of json.RawMessage - convert it to byte stream so that it can be inserted
-	// in mysql `json` type column
-	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		_, err = tx.Exec(s)
-	} else {
-		_, err = RRdb.Dbrr.Exec(s)
+		if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+			_, err = tx.Exec(s)
+		} else {
+			_, err = RRdb.Dbrr.Exec(s)
+		}
 	}
 	return updateError(err, "BusinessProperties", *a)
 }
