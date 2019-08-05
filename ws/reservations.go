@@ -258,7 +258,7 @@ func searchReservations(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 		d.wsSearchReq.SearchDtStop.Format(rlib.RRDATETIMESQL),
 		d.wsSearchReq.SearchDtStart.Format(rlib.RRDATETIMESQL))
 
-	order := "RentableLeaseStatus.DtStart ASC,Transactant.LastName ASC,Transactant.PrimaryEmail ASC" // default ORDER is by start date
+	order := "RentableLeaseStatus.DtStart ASC,Transactant.LastName ASC,Transactant.PrimaryEmail ASC,RentableLeaseStatus.RLID ASC" // default ORDER is by start date
 
 	// get where clause and order clause for sql query
 	whereClause, orderClause := GetSearchAndSortSQL(d, reservationGridFieldsMap)
