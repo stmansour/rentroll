@@ -171,9 +171,30 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0,"record":{"recid":0,"BID":1,"BUD":"REX","RTID":0,"Nights":3,"DtStart":"Tue, 17 Sep 2019 07:00:00 GMT","DtStop":"Fri, 20 Sep 2019 07:00:00 GMT"}}' > request
     dojsonPOST "http://localhost:8270/v1/available/1" "request" "${TFILES}1"  "reservation-searchForAvailableRooms"
 
+    #-------------------------------------------------------------------------
     # Create a Reservation
+    #-------------------------------------------------------------------------
     encodeRequest '{"cmd":"save","record":{"rdBID":1,"BUD":{"id":"REX","text":"REX"},"DtStart":"Tue, 18 Jun 2019 00:00:00 GMT","DtStop":"Fri, 21 Jun 2019 00:00:00 GMT","Nights":3,"RLID":0,"RTRID":0,"rdRTID":4,"RID":7,"RAID":0,"TCID":0,"Amounmt":0,"Deposit":10,"LeaseStatus":2,"RentableName":"Rentable007","FirstName":"Billy Bob","UnspecifiedAdults":0,"UnspecifiedChildren":0,"LastName":"Thorton","IsCompany":false,"CompanyName":"","Email":"bbt@boozer.com","Phone":"1234567890","Street":"123 Elm","City":"Murfreesboro","Country":"","State":"AK","PostalCode":"12345","CCName":"","CCType":"","CCNumber":"","CCExpMonth":"","CCExpYear":"","ConfirmationCode":"","Comment":"","RTID":4,"Amount":25}}' > request
     dojsonPOST "http://localhost:8270/v1/reservation/1/0" "request" "${TFILES}2"  "reservation-saveReservation"
+
+    RLID=$(cat serverreply | sed 's/^.*:\([0-9][0-9]*\)}/\1/')
+    echo "RLID = ${RLID}"
+
+    #-------------------------------------------------------------------------
+    # Read this Reservation back to determine the RAID
+    #-------------------------------------------------------------------------
+    encodeRequest 'request={"cmd":"get","recid":0,"name":"resUpdateForm"}' > request
+    dojsonPOST "http://localhost:8270/v1/reservation/1/${RLID}" "request" "${TFILES}3"  "reservation-saveReservation"
+
+    # #-------------------------------------------------------------------------
+    # # Delete the reservation and keep the deposit on account
+    # #-------------------------------------------------------------------------
+    # CMD='{"cmd":"delete","record":{"rdBID":1,"BUD":{"id":"REX","text":"REX"},"DtStart":"Tue, 18 Jun 2019 00:00:00 GMT","DtStop":"Fri, 21 Jun 2019 00:00:00 GMT","Nights":3,"RLID":'
+    # CMD="${CMD}${RLID}"
+    # CMD=',"RTRID":0,"rdRTID":4,"RID":7,"RAID":0,"TCID":0,"Amounmt":0,"Deposit":10,"LeaseStatus":2,"RentableName":"Rentable007","FirstName":"Billy Bob","UnspecifiedAdults":0,"UnspecifiedChildren":0,"LastName":"Thorton","IsCompany":false,"CompanyName":"","Email":"bbt@boozer.com","Phone":"1234567890","Street":"123 Elm","City":"Murfreesboro","Country":"","State":"AK","PostalCode":"12345","CCName":"","CCType":"","CCNumber":"","CCExpMonth":"","CCExpYear":"","ConfirmationCode":"","Comment":"","RTID":4,"Amount":25}}'
+    #
+    # encodeRequest > request
+    # dojsonPOST "http://localhost:8270/v1/reservation/1/0" "request" "${TFILES}4"  "reservation-saveReservation"
 fi
 
 stopRentRollServer

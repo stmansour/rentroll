@@ -70,8 +70,10 @@ type ResDet struct {
 	Rate                float64           `json:"Rate"`                // base room rate (default amount in default AR for RTID)
 	DBAmount            rlib.NullFloat64  `json:"DBAmount"`            // amount being charged for the rentable
 	Amount              float64           `json:"Amount"`              // deposit on the rentable
+	DBDeposit           rlib.NullFloat64  `json:"DBDeposit"`           // deposit being charged for the rentable
 	Deposit             float64           `json:"Deposit"`             // deposit on the rentable
-	DepASMID            int64             `json:"DepASMID"`            // deposit assessment
+	DepASMID            int64             `json:"DepASMID"`            // deposit assessment... could be null if no deposit was charged
+	DBDepASMID          rlib.NullInt64    `json:"DBDepASMID"`          // deposit assessment... could be null if no deposit was charged
 	Discount            float64           `json:"Discount"`            // discount rate
 	LeaseStatus         int64             `json:"LeaseStatus"`         //
 	Nights              int64             `json:"Nights"`              //
@@ -452,11 +454,17 @@ WHERE
 		&a.ConfirmationCode,
 		&a.RentableName,
 		&a.RTID,
-		&a.DepASMID,
-		&a.Deposit,
+		&a.DBDepASMID,
+		&a.DBDeposit,
 	)
 	if a.DBAmount.Valid {
 		a.Amount = a.DBAmount.Float64
+	}
+	if a.DBDepASMID.Valid {
+		a.DepASMID = a.DBDepASMID.Int64
+	}
+	if a.DBDeposit.Valid {
+		a.Deposit = a.DBDeposit.Float64
 	}
 	return a, err
 }
@@ -953,12 +961,14 @@ func updateResRentalAgreement(ctx context.Context, r *http.Request, d *ServiceDa
 	return nil
 }
 
-// deleteReservation is the interface call for Cancelling a reservation
+// deleteReservation is the interface call for Cancelling a reservation. It is
+// marked as deleted, but stays in the database.
 //
 // INPUTS
 //    ctx - database context
 //    r   - the http request
 //    d   - service data
+//------------------------------------------------------------------------------
 func deleteReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "deleteReservation"
 	rlib.Console("Entered %s\n", funcname)

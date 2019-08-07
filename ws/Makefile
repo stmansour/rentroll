@@ -23,6 +23,7 @@ webdoc:
 	@cp ${WEBDOCDIR}/tester.html doc/
 	rm -rf ${BINDIR}/doc
 	cp -r doc ${BINDIR}/
+	ln -s webdoc ../doc
 
 test:
 	@touch fail

@@ -222,7 +222,7 @@ CREATE TABLE `Business` (
 
 LOCK TABLES `Business` WRITE;
 /*!40000 ALTER TABLE `Business` DISABLE KEYS */;
-INSERT INTO `Business` VALUES (1,'REX','JGM First, LLC',6,4,4,1,'2018-06-05 23:06:51',0,'2017-11-10 23:24:22',0,1);
+INSERT INTO `Business` VALUES (1,'REX','309 South Rexford Drive',6,4,4,1,'2019-08-06 23:25:54',211,'2017-11-10 23:24:22',0,1);
 /*!40000 ALTER TABLE `Business` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -305,7 +305,7 @@ CREATE TABLE `BusinessProperties` (
 
 LOCK TABLES `BusinessProperties` WRITE;
 /*!40000 ALTER TABLE `BusinessProperties` DISABLE KEYS */;
-INSERT INTO `BusinessProperties` VALUES (1,1,'general',0,'{\"Epochs\": {\"Daily\": \"2017-01-01T00:00:00Z\", \"Weekly\": \"2017-01-01T00:00:00Z\", \"Yearly\": \"2017-01-01T00:00:00Z\", \"Monthly\": \"2017-01-01T00:00:00Z\", \"Quarterly\": \"2017-01-01T00:00:00Z\"}, \"PetFees\": [\"Pet Fee\", \"Pet Rent\"], \"ResDepARID\": 45, \"VehicleFees\": [\"Vehicle Registration Fee\"]}','2019-06-17 18:55:30',0,'2019-06-17 18:55:30',0);
+INSERT INTO `BusinessProperties` VALUES (1,1,'general',0,'{\"Epochs\": {\"Daily\": \"2017-01-01T00:00:00Z\", \"Weekly\": \"2017-01-01T00:00:00Z\", \"Yearly\": \"2017-01-01T00:00:00Z\", \"Monthly\": \"2017-01-01T00:00:00Z\", \"Quarterly\": \"2017-01-01T00:00:00Z\"}, \"PetFees\": [\"Pet Fee\", \"Pet Rent\"], \"ResDepARID\": 45, \"VehicleFees\": [\"Vehicle Registration Fee\"], \"ResRefundARID\": 30, \"ResForfeitARID\": 29}','2019-08-06 23:25:54',211,'2019-06-17 18:55:30',0);
 /*!40000 ALTER TABLE `BusinessProperties` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2343,7 +2343,6 @@ CREATE TABLE `TWS` (
 
 LOCK TABLES `TWS` WRITE;
 /*!40000 ALTER TABLE `TWS` DISABLE KEYS */;
-INSERT INTO `TWS` VALUES (6,'RARBcacheBot','','RARBcacheBot','2019-06-17 19:30:52','Steves-MacBook-Pro-2.local',4,'2019-06-17 19:25:52','2019-06-17 19:25:52','2018-06-02 13:09:58','2019-06-17 12:25:52'),(7,'ARSliceCacheBot','','ARSliceCacheBot','2019-06-17 19:30:52','Steves-MacBook-Pro-2.local',4,'2019-06-17 19:25:52','2019-06-17 19:25:52','2018-06-02 13:09:58','2019-06-17 12:25:52'),(9,'ManualTaskBot','','ManualTaskBot','2019-06-18 18:55:32','Steves-MacBook-Pro-2.local',4,'2019-06-17 18:55:32','2019-06-17 18:55:32','2018-06-02 13:09:58','2019-06-17 11:55:31');
 /*!40000 ALTER TABLE `TWS` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2701,4 +2700,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-06-19 13:01:16
+-- Dump completed on 2019-08-06 16:26:06
