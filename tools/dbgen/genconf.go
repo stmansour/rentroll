@@ -41,6 +41,8 @@ type GenDBConf struct {
 	ARIDrent             int64               // Acct Rule for rent assessments
 	ARIDsecdep           int64               // Acct rule for security deposit assessments
 	ARIDCheckPayment     int64               // Acct Rule to use for check payments
+	ARIDsecdepforfeit    int64               // Acct Rule to use for check payments
+	ARIDsecdeprefund     int64               // Acct Rule to use for check payments
 	PTypeCheck           int64               // pmtid for checks
 	PTypeCheckName       string              // name of pmtid for checks
 	OpDepository         int64               // the operational bank depository

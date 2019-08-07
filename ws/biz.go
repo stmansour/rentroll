@@ -524,6 +524,7 @@ func saveBusiness(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
+		// WHat if the properties don't exist in the existing schema...
 
 		bizprops.ResDepARID = foo.Record.ResDepARID
 		bizprops.ResForfeitARID = foo.Record.ResForfeitARID
