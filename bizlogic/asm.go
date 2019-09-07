@@ -709,6 +709,7 @@ func DeallocateAppliedFunds(ctx context.Context, a *rlib.Assessment, asmtRevID i
 //    a = the assessment to insert
 //  exp = if it is a recurring assessment and the start date is in the past, should
 //        past entries be created? 0 = NO, non-zero = YES
+//   lc = last Close period
 //
 // RETURNS
 //    a slice of BizErrors

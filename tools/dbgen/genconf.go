@@ -154,9 +154,10 @@ func ReadConfig(fname string) (GenDBConf, error) {
 	} else {
 		b.HotelReserveDtStop = b.DtStart.AddDate(1, 0, 0)
 	}
-	if a.HotelReservePct == float64(0) {
-		b.HotelReservePct = float64(0.5)
-	}
+	// if a.HotelReservePct == float64(0) {
+	// 	b.HotelReservePct = float64(0.5)
+	// }
+	b.HotelReservePct = a.HotelReservePct / float64(100)
 	b.DtBOT = time.Date(b.DtStart.Year(), time.January, 1, 0, 0, 0, 0, time.UTC)
 	b.DtEOT = rlib.ENDOFTIME
 	if b.RandomizePayments {

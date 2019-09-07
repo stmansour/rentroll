@@ -462,6 +462,7 @@ func VoidRentalAgreement(ctx context.Context, ra *rlib.RentalAgreement, reason i
 	}
 
 	//----------------------------------------------------------------
+	// VALIDATE FIRST
 	// Make sure all instances are after the last close dt...
 	//----------------------------------------------------------------
 	for _, v := range m {
@@ -473,6 +474,7 @@ func VoidRentalAgreement(ctx context.Context, ra *rlib.RentalAgreement, reason i
 		}
 	}
 
+	// rlib.Console("VRA: A\n")
 	//----------------------------------------------------------------
 	// fix lease status for all RA rentables. do this before removing
 	// the records in RentalAgreementRentables and prior to changing
@@ -480,11 +482,12 @@ func VoidRentalAgreement(ctx context.Context, ra *rlib.RentalAgreement, reason i
 	//----------------------------------------------------------------
 	d1 := rlib.Earliest(&ra.PossessionStart, &ra.RentStart)
 	d2 := rlib.Latest(&ra.PossessionStop, &ra.RentStop)
-	rlib.Console("calling SetLeaseStatusPostVoid  d1,d2 = %s\n", rlib.ConsoleDRange(&d1, &d2))
+	// rlib.Console("calling SetLeaseStatusPostVoid  d1,d2 = %s\n", rlib.ConsoleDRange(&d1, &d2))
 	if err = SetLeaseStatusPostVoid(ctx, ra.BID, ra.RAID, &d1, &d2); err != nil {
 		return
 	}
 
+	// rlib.Console("VRA: B\n")
 	//----------------------------------------------------------------
 	// If we get this far, then it's ok to void the RA
 	//----------------------------------------------------------------
@@ -492,6 +495,8 @@ func VoidRentalAgreement(ctx context.Context, ra *rlib.RentalAgreement, reason i
 	if err = rlib.InitBizInternals(ra.BID, &xbiz); err != nil {
 		return err
 	}
+
+	// rlib.Console("VRA: C\n")
 
 	ra.TerminationStarted = now
 	ra.TerminationDate = now
@@ -504,6 +509,7 @@ func VoidRentalAgreement(ctx context.Context, ra *rlib.RentalAgreement, reason i
 		return
 	}
 
+	// rlib.Console("VRA: D\n")
 	//----------------------------------------------------------------
 	// Reverse all assessments...
 	//----------------------------------------------------------------
@@ -515,6 +521,7 @@ func VoidRentalAgreement(ctx context.Context, ra *rlib.RentalAgreement, reason i
 		}
 		if v.PASMID == 0 || (v.PASMID == 0 && v.RentCycle == 0) { // recurring definitions and non-recurring instances
 			if be := bizlogic.ReverseAssessment(ctx, &v, 2 /*all instances*/, &now, &lc); len(be) > 0 {
+				// rlib.Console("ReverseAssessment issue: %v\n", be)
 				err = bizlogic.BizErrorListToError(be)
 				return
 			}
@@ -522,6 +529,7 @@ func VoidRentalAgreement(ctx context.Context, ra *rlib.RentalAgreement, reason i
 		rlib.Console("Reversed ASMID = %d\n", v.ASMID)
 	}
 
+	// rlib.Console("VRA: E\n")
 	//----------------------------------------------------------------
 	// Remove the users / payors from any obligations....
 	//----------------------------------------------------------------
@@ -537,6 +545,7 @@ func VoidRentalAgreement(ctx context.Context, ra *rlib.RentalAgreement, reason i
 	}
 	qry := fmt.Sprintf("DELETE from RentalAgreementRentables WHERE RAID=%d;", ra.RAID)
 	_, err = tx.Exec(qry)
+	// rlib.Console("VRA: F\n")
 	return
 }
 

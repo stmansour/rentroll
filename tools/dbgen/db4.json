@@ -1,6 +1,7 @@
 {
     "DtStart": "7/5/2018",
     "DtStop": "7/1/2019",
+    "HotelReservePct": 0,
     "RT": [
         {
             "Name": "Standard",

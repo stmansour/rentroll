@@ -586,7 +586,7 @@ window.buildResUpdateElements = function () {
                     f.error("You must select a specific " + app.sRentable);
                     return;
                 }
-                f.url = '/v1/reservation/' + BID + '/' + r.RID;
+                f.url = '/v1/reservation/' + BID + '/' + r.RLID;
                 var d1 = applyLocaltimeDateOffset(new Date(r.DtStart));
                 var d2 = applyLocaltimeDateOffset(new Date(r.DtStop));
 

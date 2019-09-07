@@ -425,7 +425,7 @@ FROM
 		LEFT JOIN
 	AR on (RentableTypes.ARID = AR.ARID)
 		LEFT JOIN
-	Assessments on (Assessments.RAID = RentableLeaseStatus.RAID)
+	Assessments on (Assessments.RAID = RentableLeaseStatus.RAID && Assessments.FLAGS & 4 = 0)
 WHERE
 	RentableLeaseStatus.RLID = %d;`, id)
 	rlib.Console("Query = %s\n", q)
@@ -518,7 +518,7 @@ func getReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //------------------------------------------------------------------------------
 func saveReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "saveReservation"
-	var oldRls rlib.RentableLeaseStatus
+	// var oldRls rlib.RentableLeaseStatus
 	var dtOrRIDchanged bool
 	var err error
 
@@ -545,7 +545,13 @@ func saveReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcErrorReturn(w, e, funcname)
 		return
 	}
-	//	rlib.Console("UnspecifiedAdults = %d, UnspecifiedChildren = %d\n", res.UnspecifiedAdults, res.UnspecifiedChildren)
+	// rlib.Console("UnspecifiedAdults = %d, UnspecifiedChildren = %d\n", res.UnspecifiedAdults, res.UnspecifiedChildren)
+
+	if res.RLID != d.ID {
+		e := fmt.Errorf("%s:  URL RLID (%d) does not match content body RLID (%d)", funcname, d.ID, res.RLID)
+		SvcErrorReturn(w, e, funcname)
+		return
+	}
 
 	now := rlib.Now()
 	dt := time.Time(res.DtStart).AddDate(0, 0, 1) // give it one day grace period, which will account for all timezone issues
@@ -568,6 +574,21 @@ func saveReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
+	// //-----------------------------------------------------
+	// // Get the business properties for this business...
+	// //-----------------------------------------------------
+	// var bp rlib.BusinessProperties
+	// if bp, err = rlib.GetBusinessPropertiesByName(ctx, "general", res.BID); err != nil {
+	// }
+	// var bizprops rlib.BizProps
+	// if len(bp.Data) > 0 {
+	// 	if err = json.Unmarshal(bp.Data, &bizprops); err != nil {
+	// 		tx.Rollback()
+	// 		SvcErrorReturn(w, err, funcname)
+	// 		return
+	// 	}
+	// }
+	//
 	//-------------------------------------------
 	// create / update transactant info...
 	//-------------------------------------------
@@ -578,10 +599,10 @@ func saveReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	t.Address = res.Street
 	t.IsCompany = res.IsCompany
 	t.CompanyName = res.CompanyName
+	rlib.Console("\n\n***\n***  res.TCID = %d\n***\n\n", res.TCID)
 	if res.TCID > 0 {
 		err = updateResTransactant(ctx, r, d, &res, &t)
 	} else {
-
 		_, err = rlib.InsertTransactant(ctx, &t)
 	}
 	if err != nil {
@@ -595,15 +616,27 @@ func saveReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// Create / update Rental Agreement...
 	//----------------------------------------------------------
 	var ra rlib.RentalAgreement
+	rlib.Console("%s: A\n", funcname)
 	if res.RAID > 0 {
+		rlib.Console("%s: B\n", funcname)
+		rlib.Console("%s: UPDATING RAID: %d\n", funcname, res.RAID)
 		updateResRentalAgreement(ctx, r, d, &res, &resOld, &t, &ra)
-	} else {
-		insertResRentalAgreement(ctx, r, d, &res, &resOld, &t, &ra)
+		rlib.Console("%s: after updateResRentalAgreement RAID = %d\n", funcname, res.RAID)
 	}
+	res.BID = d.BID
+	ra.BID = d.BID
+
+	if res.RAID == 0 {
+		rlib.Console("%s: C\n", funcname)
+		insertResRentalAgreement(ctx, r, d, &res, &resOld, &t, &ra) // creates deposit assessment if needed
+		res.LeaseStatus = rlib.LEASESTATUSreserved
+	}
+	rlib.Console("%s: D  ra.RAID = %d\n", funcname, ra.RAID)
+
 	//----------------------------------------------------------
 	// Create the Rentable Lease Status
 	//----------------------------------------------------------
-	rlib.Console("res.Comment = %s\n", res.Comment)
+	// rlib.Console("res.Comment = %s\n", res.Comment)
 	var rls = rlib.RentableLeaseStatus{
 		RLID:             res.RLID,
 		RID:              res.RID,
@@ -611,56 +644,71 @@ func saveReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		RAID:             ra.RAID,
 		DtStart:          time.Time(res.DtStart),
 		DtStop:           time.Time(res.DtStop),
-		LeaseStatus:      res.LeaseStatus,
+		LeaseStatus:      rlib.LEASESTATUSreserved,
 		Comment:          res.Comment,
 		ConfirmationCode: res.ConfirmationCode,
 	}
+	rlib.Console("%s: E   rls.RAID = %d\n", funcname, rls.RAID)
 
 	if res.RLID > 0 {
-		if oldRls, err = rlib.GetRentableLeaseStatus(ctx, res.RLID); err != nil {
-			e := fmt.Errorf("Error saving Transactant:  %s", err.Error())
-			tx.Rollback()
-			SvcErrorReturn(w, e, funcname)
-			return
-		}
+		rlib.Console("%s: E   rls.RLID = %d\n", funcname, rls.RLID)
 
 		//-----------------------------------------------------------------------------
 		// If the reservation time changes or the Rentable changes, free the old slot
 		//-----------------------------------------------------------------------------
-		dtOrRIDchanged = !rls.DtStart.Equal(oldRls.DtStart) || !rls.DtStop.Equal(oldRls.DtStop) || rls.RID != oldRls.RID
+		dtOrRIDchanged = !rls.DtStart.Equal(time.Time(resOld.DtStart)) || !rls.DtStop.Equal(time.Time(resOld.DtStop)) || rls.RID != resOld.RID
 		if dtOrRIDchanged {
 			var x = rlib.RentableLeaseStatus{
-				RID:         oldRls.RID,
-				BID:         oldRls.BID,
-				LeaseStatus: rlib.LEASESTATUSnotleased,
-				DtStart:     oldRls.DtStart,
-				DtStop:      oldRls.DtStop,
+				RID:              resOld.RID,
+				BID:              resOld.BID,
+				LeaseStatus:      rlib.LEASESTATUSnotleased, // free up the old slot
+				DtStart:          time.Time(resOld.DtStart),
+				DtStop:           time.Time(resOld.DtStop),
+				RAID:             0,
+				ConfirmationCode: rls.ConfirmationCode,
 			}
+			rlib.Console("%s: F   x.RAID = %d,  setting LeaseStatus to %d for RID = %d during period %s\n", funcname, x.RAID, x.LeaseStatus, x.RID, rlib.ConsoleDRange(&x.DtStart, &x.DtStop))
 			if err = rlib.SetRentableLeaseStatus(ctx, &x); err != nil {
 				e := fmt.Errorf("Error in SetRentableLeaseStatus:  %s", err.Error())
 				tx.Rollback()
 				SvcErrorReturn(w, e, funcname)
 				return
 			}
-		}
-	}
-
-	if rls.RLID == 0 || dtOrRIDchanged {
-		if res.RLID > 0 {
-			rls.ConfirmationCode = oldRls.ConfirmationCode
+			//------------------------------------
+			// Set the new lease status...
+			//------------------------------------
+			rls.RLID = 0 // don't update the old one now after freeing up its time slot
+			if err = rlib.SetRentableLeaseStatus(ctx, &rls); err != nil {
+				e := fmt.Errorf("Error in SetRentableLeaseStatus:  %s", err.Error())
+				tx.Rollback()
+				SvcErrorReturn(w, e, funcname)
+				return
+			}
 		} else {
+			//---------------------------------------------------
+			// Otherwise, just update the existing RLS record
+			//---------------------------------------------------
+			rlib.Console("%s: H   rls.RAID = %d\n", funcname, rls.RAID)
+			if err = rlib.UpdateRentableLeaseStatus(ctx, &rls); err != nil {
+				e := fmt.Errorf("Error in UpdateRentableLeaseStatus:  %s", err.Error())
+				tx.Rollback()
+				SvcErrorReturn(w, e, funcname)
+				return
+			}
+		}
+	} else {
+		rlib.Console("%s: G   res.RAID = %d\n", funcname, res.RAID)
+		if res.RLID > 0 {
+			rlib.Console("%s: G1\n", funcname)
+			rls.ConfirmationCode = resOld.ConfirmationCode
+		} else {
+			rlib.Console("%s: G2\n", funcname)
 			rls.ConfirmationCode = rlib.GenerateUserRefNo()
 		}
 
+		rlib.Console("%s: G3\n", funcname)
 		err = rlib.SetRentableLeaseStatus(ctx, &rls)
 		if err != nil {
-			e := fmt.Errorf("Error in SetRentableLeaseStatus:  %s", err.Error())
-			tx.Rollback()
-			SvcErrorReturn(w, e, funcname)
-			return
-		}
-	} else {
-		if err = rlib.UpdateRentableLeaseStatus(ctx, &rls); err != nil {
 			e := fmt.Errorf("Error in SetRentableLeaseStatus:  %s", err.Error())
 			tx.Rollback()
 			SvcErrorReturn(w, e, funcname)
@@ -694,7 +742,8 @@ func saveReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //------------------------------------------------------------------------------
 func updateResTransactant(ctx context.Context, r *http.Request, d *ServiceData, res *ResDet, t *rlib.Transactant) error {
 	var t0 rlib.Transactant
-	rlib.Console("Entered updateResTransactant\n")
+	funcname := "updateResTransactant"
+	rlib.Console("Entered %s\n", funcname)
 
 	//------------------------------------------------------------------
 	// update existing transactant but don't destroy any fields that
@@ -705,55 +754,69 @@ func updateResTransactant(ctx context.Context, r *http.Request, d *ServiceData, 
 	}
 	count := 0
 	if t.IsCompany != t0.IsCompany {
+		// rlib.Console("%s:  IsCompany mismatch\n", funcname)
 		t0.IsCompany = t.IsCompany
 		count++
 	}
 	if t.CompanyName != t0.CompanyName {
+		// rlib.Console("%s:  Company Name mismatch\n", funcname)
 		t0.CompanyName = t.CompanyName
 		count++
 	}
 	if t.FirstName != t0.FirstName {
+		// rlib.Console("%s:  First Name mismatch\n", funcname)
 		t0.FirstName = t.FirstName
 		count++
 	}
-	if t.MiddleName != t0.MiddleName {
-		t0.MiddleName = t.MiddleName
-		count++
-	}
+	// Reservation form does not have the middle name
+	// if t.MiddleName != t0.MiddleName {
+	//	rlib.Console("%s:  Middle Name mismatch\n", funcname)
+	// 	t0.MiddleName = t.MiddleName
+	// 	count++
+	// }
 	if t.LastName != t0.LastName {
+		// rlib.Console("%s:  Last Name mismatch\n", funcname)
 		t0.LastName = t.LastName
 		count++
 	}
 	if t.PrimaryEmail != t0.PrimaryEmail {
+		rlib.Console("%s:  email mismatch\n", funcname)
 		t0.PrimaryEmail = t.PrimaryEmail
 		count++
 	}
 	if t.CellPhone != t0.CellPhone {
+		rlib.Console("%s:  cellphone mismatch\n", funcname)
 		t0.CellPhone = t.CellPhone
 		count++
 	}
 	if t.Address != t0.Address {
+		rlib.Console("%s:  Address mismatch\n", funcname)
 		t0.Address = t.Address
 		count++
 	}
 	if t.City != t0.City {
+		rlib.Console("%s:  city mismatch\n", funcname)
 		t0.City = t.City
 		count++
 	}
 	if t.Country != t0.Country {
+		rlib.Console("%s:  country mismatch\n", funcname)
 		t0.Country = t.Country
 		count++
 	}
 	if t.State != t0.State {
+		rlib.Console("%s:  State mismatch\n", funcname)
 		t0.State = t.State
 		count++
 	}
 	if t.PostalCode != t0.PostalCode {
+		rlib.Console("%s:  Postal Code mismatch\n", funcname)
 		t0.PostalCode = t.PostalCode
 		count++
 	}
 	if count > 0 {
-		return rlib.UpdateTransactant(ctx, &t0)
+		rlib.Console("%s: Save Reservation will not modify Transactant information\n", funcname)
+		// return rlib.UpdateTransactant(ctx, &t0)
 	}
 	return nil // if nothing changed, no update was necessary
 }
@@ -783,6 +846,19 @@ func initRAfromReservation(ra *rlib.RentalAgreement, res *ResDet, d *ServiceData
 	}
 }
 
+// chargeAssessmentToCC
+// Create a charge to the credit card for the amount of the assessment.
+//
+//
+// RETURNS
+//    any error encountered
+//------------------------------------------------------------------------------
+func chargeAssessmentToCC(ctx context.Context, a *rlib.Assessment) error {
+	// This is a placeholder function
+	rlib.Console("Charge $%6.2f to credit card\n", a.Amount)
+	return nil
+}
+
 // insertResRentalAgreement
 // Create a new rental agreement for the reservation
 //
@@ -799,7 +875,9 @@ func initRAfromReservation(ra *rlib.RentalAgreement, res *ResDet, d *ServiceData
 //------------------------------------------------------------------------------
 func insertResRentalAgreement(ctx context.Context, r *http.Request, d *ServiceData, res, resOld *ResDet, t *rlib.Transactant, ra *rlib.RentalAgreement) error {
 	var err error
-	rlib.Console("Entered insertResRentalAgreement\n")
+	now := rlib.Now()
+
+	rlib.Console("Entered insertResRentalAgreement. res.BID = %d, ra.BID = %d, d.BID = %d\n", res.BID, ra.BID, d.BID)
 	initRAfromReservation(ra, res, d)
 	rlib.Console("New RA: UnspecifiedAdults = %d, UnspecifiedChildren = %d\n", ra.UnspecifiedAdults, ra.UnspecifiedChildren)
 	if _, err = rlib.InsertRentalAgreement(ctx, ra); err != nil {
@@ -847,7 +925,7 @@ func insertResRentalAgreement(ctx context.Context, r *http.Request, d *ServiceDa
 	//----------------------------------------------------------
 	var rap rlib.RentalAgreementPayor
 	rap.BID = res.BID
-	rap.DtStart = time.Time(res.DtStart)
+	rap.DtStart = now // time.Time(res.DtStart) doesn't account for the deposit being made now
 	rap.DtStop = time.Time(res.DtStop)
 	rap.RAID = ra.RAID
 	rap.TCID = t.TCID
@@ -863,7 +941,6 @@ func insertResRentalAgreement(ctx context.Context, r *http.Request, d *ServiceDa
 		if bp, err = rlib.GetDataFromBusinessPropertyName(ctx, "general", res.BID); err != nil {
 			return err
 		}
-		now := rlib.Now()
 		var a = rlib.Assessment{
 			BID:            ra.BID,
 			RID:            res.RID,
@@ -875,16 +952,19 @@ func insertResRentalAgreement(ctx context.Context, r *http.Request, d *ServiceDa
 			ProrationCycle: rlib.RECURNONE,
 			ARID:           bp.ResDepARID,
 		}
-		rlib.Console("InsertAssessment.  a.RAID = %d\n", a.RAID)
+		rlib.Console("InsertAssessment:  a.RAID = %d, Start,Stop = %s\n", a.RAID, rlib.ConsoleDRange(&a.Start, &a.Stop))
 		if be := bizlogic.InsertAssessment(ctx, &a, 0, &noClose); len(be) > 0 {
+			rlib.Console("Error from bizlogic.InsertAssessment: %v\n", be)
 			return bizlogic.BizErrorListToError(be)
 		}
+		rlib.Console("InsertAssessment: success - ASMID = %d\n", a.ASMID)
+		chargeAssessmentToCC(ctx, &a)
 	}
 
 	return nil
 }
 
-// cancelReservation
+// cancelReservationRentalAgreement
 // Void the rental agreement for this reservation, reverse its assessments,
 // and free up its rentables.
 //
@@ -897,11 +977,11 @@ func insertResRentalAgreement(ctx context.Context, r *http.Request, d *ServiceDa
 // RETURNS
 //    any error encountered
 //------------------------------------------------------------------------------
-func cancelReservation(ctx context.Context, r *http.Request, d *ServiceData, res *ResDet) error {
-	funcname := "cancelReservation"
+func cancelReservationRentalAgreement(ctx context.Context, r *http.Request, d *ServiceData, res *ResDet) error {
+	funcname := "cancelReservationRentalAgreement"
 	var err error
 	var ra rlib.RentalAgreement
-	rlib.Console("Entered %s\n", funcname)
+	rlib.Console("Entered %s to cancel RAID = %d\n", funcname, res.RAID)
 
 	//--------------------------------------------------------------------------
 	// Terminate the Rental Agreement, mark the reason as Reservation Canceled.
@@ -910,7 +990,12 @@ func cancelReservation(ctx context.Context, r *http.Request, d *ServiceData, res
 	if ra, err = rlib.GetRentalAgreement(ctx, res.RAID); err != nil {
 		return err
 	}
-	return VoidRentalAgreement(ctx, &ra, rlib.MSGRESCANCELED)
+	if err = VoidRentalAgreement(ctx, &ra, rlib.MSGRESCANCELED); err != nil {
+		return err
+	}
+	res.RAID = 0     // mark that we now need a rental agreement
+	res.DepASMID = 0 // and that we need a deposit assessment
+	return nil
 }
 
 // updateResRentalAgreement
@@ -919,11 +1004,14 @@ func cancelReservation(ctx context.Context, r *http.Request, d *ServiceData, res
 // a new one based on what's in res
 //
 // INPUTS
-//    ctx - database context
-//    r   - the http request
-//    d   - service data
-//    res - the data from the Reservation Form
-//    t   - transactant struct prefilled with data from res
+//    ctx    - database context
+//    r      - the http request
+//    d      - service data
+//    res    - the data from the Reservation Form
+//    resOld - existing reservation
+//    t      - transactant struct prefilled with data from res
+//    ra     - empty RentalAgreement structure.  Its fields must be properly
+//             populated upon return
 //
 // RETURNS
 //    any error encountered
@@ -931,34 +1019,146 @@ func cancelReservation(ctx context.Context, r *http.Request, d *ServiceData, res
 func updateResRentalAgreement(ctx context.Context, r *http.Request, d *ServiceData, res, resOld *ResDet, t *rlib.Transactant, ra *rlib.RentalAgreement) error {
 	rlib.Console("Entered updateResRentalAgreement\n")
 
-	// FIXME:   WE CANNOT JUST CANCEL AND ADD NEW RES
-	//          DEAL WITH THE DEPOSIT - FORFEIT, REFUND, DIFF On Account
+	needed, err := newReservationRequired(ctx, d, res, resOld)
+	if err != nil {
+		return err
+	}
 
-	var err error
-	if err = cancelReservation(ctx, r, d, res); err != nil {
-		return err
-	}
-	if res.Deposit < resOld.Deposit {
-		switch res.FLAGS & 0x3 {
-		case 0:
-			// hold the deposit on account
-		case 1:
-			// refund the difference
-			var refund = float64(resOld.Deposit - res.Deposit)
-			rlib.Console("Issuing refund for %8.2f\n", refund)
-		case 2:
-			// forfeit the deposit... book it as revenue
+	rlib.Console("updateResRentalAgreement: needed = %t\n", needed)
+
+	if needed {
+		if err = cancelReservationRentalAgreement(ctx, r, d, res); err != nil {
+			return err
 		}
-	} else if res.Deposit > resOld.Deposit {
-		// create an assessment for the difference and charge
-		// the credit card.  Add a comment to the assessment
-		// explaining what happened.
+	} else {
+		var a = rlib.RentableLeaseStatus{
+			RLID:             res.RLID,
+			RID:              res.RID,
+			BID:              res.BID,
+			RAID:             res.RAID,
+			DtStart:          time.Time(res.DtStart),
+			DtStop:           time.Time(res.DtStop),
+			Comment:          res.Comment,
+			ConfirmationCode: res.ConfirmationCode,
+			LeaseStatus:      res.LeaseStatus,
+		}
+
+		if err = rlib.UpdateRentableLeaseStatus(ctx, &a); err != nil {
+			return err
+		}
+
+		//--------------------------------------------------------------
+		// Update the non-destructive fields in the Rental Agreement.
+		// Only update if the any of the simple fields need to be updated
+		//--------------------------------------------------------------
+		if *ra, err = rlib.GetRentalAgreement(ctx, res.RAID); err != nil {
+			return err
+		}
+		if ra.UnspecifiedAdults != int64(res.UnspecifiedAdults) || ra.UnspecifiedChildren != int64(res.UnspecifiedChildren) {
+			ra.UnspecifiedAdults = int64(res.UnspecifiedAdults)
+			ra.UnspecifiedChildren = int64(res.UnspecifiedChildren)
+			if err = rlib.UpdateRentalAgreement(ctx, ra); err != nil {
+				return err
+			}
+		}
 	}
-	if err = insertResRentalAgreement(ctx, r, d, res, resOld, t, ra); err != nil {
-		return err
+
+	//-------------------------------------------------
+	// Handle deposit change...
+	//-------------------------------------------------
+	if res.Deposit != resOld.Deposit {
+
+		if res.Deposit < resOld.Deposit {
+			var a rlib.Assessment
+			rlib.Console("DEPOSIT is overpaid. Reverse ASMID %d, and create a new assessment for %6.2f\n", res.DepASMID, res.Deposit)
+			if a, err = rlib.GetAssessment(ctx, res.DepASMID); err != nil {
+				return err
+			}
+			diff := resOld.Deposit - res.Deposit
+			if res.Deposit > 0 {
+				now := rlib.Now()
+				a.Amount = res.Deposit // new amount
+				a.RAID = ra.RAID       // this may have changed
+				a.RID = res.RID        // this may have changed
+				a.Comment += fmt.Sprintf(" ! %s - Deposit changed from %6.2f (ASMID=%d) to %6.2f", rlib.ConDt(&now), resOld.Deposit, res.DepASMID, res.Deposit)
+				be := bizlogic.UpdateAssessment(ctx, &a, 0 /*this instance*/, &now, &noClose, 0 /*donot expand past*/)
+				if len(be) != 0 {
+					return bizlogic.BizErrorListToError(be)
+				}
+				res.DepASMID = a.ASMID // update internally (ASMID will change since old assessment will be reversed)
+			}
+			rlib.Console("OLD Deposit amount %6.2f is > updated deposit amount %6.2f\n", resOld.Deposit, res.Deposit)
+			switch res.FLAGS & 0x3 {
+			case 0:
+				// hold the deposit on account
+				rlib.Console("Holding %6.2f on account\n", diff)
+			case 1:
+				// refund the difference
+				rlib.Console("Issuing refund for %8.2f\n", diff)
+			case 2:
+				// forfeit the deposit... book it as revenue  Is this even a valid case?
+				rlib.LogAndPrint("format")
+			}
+		} else if res.Deposit > resOld.Deposit {
+			// create an assessment for the difference and charge
+			// the credit card.  Add a comment to the assessment
+			// explaining what happened.
+			rlib.Console("OLD Deposit amount %6.2f is < updated deposit amount %6.2f\n", resOld.Deposit, res.Deposit)
+			rlib.Console("DEPOSIT is now underpaid. Create an assessment for the difference\n")
+			var bp rlib.BizProps
+			if bp, err = rlib.GetDataFromBusinessPropertyName(ctx, "general", res.BID); err != nil {
+				return err
+			}
+			now := rlib.Now()
+			var a = rlib.Assessment{
+				BID:            ra.BID,
+				RID:            res.RID,
+				RAID:           ra.RAID,
+				Amount:         res.Deposit - resOld.Deposit,
+				Start:          now,
+				Stop:           now,
+				RentCycle:      rlib.RECURNONE,
+				ProrationCycle: rlib.RECURNONE,
+				ARID:           bp.ResDepARID,
+			}
+			rlib.Console("InsertAssessment.  a.RAID = %d\n", a.RAID)
+			a.Comment += fmt.Sprintf(" | %s - Cover the deposit increase from %6.2f (ASMID=%d) to %6.2f", rlib.ConDt(&now), resOld.Deposit, res.DepASMID, res.Deposit)
+			if be := bizlogic.InsertAssessment(ctx, &a, 0, &noClose); len(be) > 0 {
+				return bizlogic.BizErrorListToError(be)
+			}
+			chargeAssessmentToCC(ctx, &a)
+
+		}
+		// if err = insertResRentalAgreement(ctx, r, d, res, resOld, t, ra); err != nil {
+		// 	return err
+		// }
 	}
+
 	res.RAID = ra.RAID
 	return nil
+}
+
+// newReservationRequired compare the current version of the reservation to the
+// newly submitted update.  It does a field by field comparison on the fields that
+// would cause the old reservation to be deleted and recreated.
+//
+// INPUTS
+//    ctx    - database context
+//    d      - service data
+//    res    - new reservation data from the UI
+//    resOld - existing reservation
+//
+// RETURNS
+//    true  - if any key elements of the reservation have been changed that
+//            require a new rental agreement
+//    false - no need to cancel the rental agreement, just update it with new info
+//------------------------------------------------------------------------------
+func newReservationRequired(ctx context.Context, d *ServiceData, res, resOld *ResDet) (bool, error) {
+	resDtStart := time.Time(res.DtStart)
+	resOldDtStart := time.Time(resOld.DtStart)
+	resDtStop := time.Time(res.DtStop)
+	resOldDtStop := time.Time(resOld.DtStop)
+	return (res.RID != resOld.RID || res.BID != resOld.BID || !resDtStart.Equal(resOldDtStart) || !resDtStop.Equal(resOldDtStop)), nil
 }
 
 // deleteReservation is the interface call for Cancelling a reservation. It is
@@ -1010,24 +1210,49 @@ func deleteReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	if err = cancelReservation(ctx, r, d, &res); err != nil {
+	if err = cancelReservationRentalAgreement(ctx, r, d, &res); err != nil {
 		tx.Rollback()
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
+	// free up the rentable...
+	var resOld ResDet
+	if resOld, err = getReservationStruct(res.RLID); err != nil {
+		SvcErrorReturn(w, err, funcname)
+	}
+
+	var rls rlib.RentableLeaseStatus
+	if rls, err = rlib.GetRentableLeaseStatus(ctx, res.RLID); err != nil {
+		SvcErrorReturn(w, err, funcname)
+	}
+
+	rls.LeaseStatus = 0 // available
+	rlib.SetRentableLeaseStatus(ctx, &rls)
+
 	//-------------------------------------------------------------
 	// Handle deposit
 	//-------------------------------------------------------------
-	switch res.FLAGS & 0x3 {
-	case 0:
-		// hold the deposit on account
-	case 1:
-		// refund the difference
-		rlib.Console("Refund deposit for cancelled reservation: %8.2f\n", res.Deposit)
-	case 2:
-		// forfeit the deposit... book it as revenue
-		rlib.Console("Deposit forfeited: %8.2f\n", res.Deposit)
+	rlib.Console("Canceled RAID = %d\n", res.RAID)
+	rlib.Console("Associated Assessment = %d\n", resOld.DepASMID)
+	if res.Deposit > 0 {
+		switch res.FLAGS & 0x3 {
+		case 0:
+			// Hold the deposit on account.  The reversal of the
+			// deposit assessment effectively does this. So, no
+			// further action is needed
+			rlib.Console("Deposit is being held on account: %8.2f\n", res.Deposit)
+		case 1:
+			// Refund the difference
+			// That is, apply the security ARID again, just negate the
+			// amount deposited.
+			rlib.Console("Refund deposit for cancelled reservation: %8.2f\n", res.Deposit)
+		case 2:
+			// forfeit the deposit... book it as revenue
+			rlib.Console("Deposit forfeited: %8.2f\n", res.Deposit)
+		}
+	} else {
+		rlib.Console("No deposit was held for this reservation\n")
 	}
 
 	//-------------------------------------------------------------
@@ -1038,5 +1263,7 @@ func deleteReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
+
+	SvcWriteSuccessResponse(res.BID, w)
 
 }

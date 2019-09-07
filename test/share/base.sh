@@ -901,6 +901,7 @@ stopRentRollServer() {
 #       $2 = json file
 # 		$3 = base file name
 #		$4 = title
+#       $5 = if present, the name of a property to ignore in the check
 ########################################################################
 dojsonPOST () {
 	((TESTCOUNT++))
@@ -952,6 +953,13 @@ dojsonPOST () {
 			perl -pe "$f" qqx > qqx1; mv qqx1 qqx
 			perl -pe "$f" qqy > qqy1; mv qqy1 qqy
 		done
+
+		if [ "x${5}" != "x" ]; then
+			# echo "  [ CHECKING FOR ${5} ]"
+			f="s/([ \t]+\"${5}\":).*/\$1 CONFCODE/"
+			perl -pe "$f" qqx > qqx1; mv qqx1 qqx
+			perl -pe "$f" qqy > qqy1; mv qqy1 qqy
+		fi
 
 		UDIFFS=$(diff qqx qqy | wc -l)
 		if [ ${UDIFFS} -eq 0 ]; then

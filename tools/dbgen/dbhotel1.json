@@ -3,6 +3,8 @@
     "DtStop": "3/1/2020",
     "HotelReserveDtStart": "3/1/2019",
     "HotelReserveDtStop": "3/1/2022",
+    "HotelReserveDtStop": "3/1/2022",
+    "HotelReservePct": 50,
     "RT": [
         {
             "Name": "HotelStd",

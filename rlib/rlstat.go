@@ -342,6 +342,7 @@ func RentableLeaseStatusCompare(a, b *RentableLeaseStatus) bool {
 
 	if a.RID != b.RID ||
 		a.BID != b.BID ||
+		a.RAID != b.RAID ||
 		a.Comment != b.Comment ||
 		a.ConfirmationCode != b.ConfirmationCode ||
 		a.LeaseStatus != b.LeaseStatus {

@@ -53,7 +53,7 @@ HotelReserveDtStop  (optional)
 
 HotelReservePct  (optional)
     This specifies the percent of hotel rooms that are reserved in the future.
-    The default is 50%
+    The default is 0%
 
 RT  (required)
     This is an array of RentableType structures.

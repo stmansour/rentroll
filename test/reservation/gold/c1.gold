@@ -12,6 +12,8 @@
         "ConfirmationCode": "JUK4J5F45KUIXSJQB2EB",
         "Country": "",
         "DBAmount": 65,
+        "DBDepASMID": 1,
+        "DBDeposit": 1000,
         "DepASMID": 1,
         "Deposit": 1000,
         "Discount": 0,
