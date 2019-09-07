@@ -521,6 +521,7 @@ func saveReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// var oldRls rlib.RentableLeaseStatus
 	var dtOrRIDchanged bool
 	var err error
+	var asmOld rlib.Assessment
 
 	rlib.Console("Entered %s\n", funcname)
 	target := `"record":`
@@ -572,6 +573,12 @@ func saveReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
+	}
+
+	if res.DepASMID > 0 {
+		if asmOld, err = rlib.GetAssessment(ctx, res.DepASMID); err != nil {
+			SvcErrorReturn(w, err, funcname)
+		}
 	}
 
 	// //-----------------------------------------------------
@@ -628,7 +635,7 @@ func saveReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	if res.RAID == 0 {
 		rlib.Console("%s: C\n", funcname)
-		insertResRentalAgreement(ctx, r, d, &res, &resOld, &t, &ra) // creates deposit assessment if needed
+		insertResRentalAgreement(ctx, r, d, &res, &resOld, &t, &ra, &asmOld) // creates deposit assessment if needed
 		res.LeaseStatus = rlib.LEASESTATUSreserved
 	}
 	rlib.Console("%s: D  ra.RAID = %d\n", funcname, ra.RAID)
@@ -849,13 +856,19 @@ func initRAfromReservation(ra *rlib.RentalAgreement, res *ResDet, d *ServiceData
 // chargeAssessmentToCC
 // Create a charge to the credit card for the amount of the assessment.
 //
+// INPUTS
+//    ctx   - db context
+//      a   - new assessment, reflects new deposit amount
+//    amt   - actual amount to charge credit card.  May be different than
+//            the assessment amount if the reservation was updated and the
+//            deposit amount changed.
 //
 // RETURNS
 //    any error encountered
 //------------------------------------------------------------------------------
-func chargeAssessmentToCC(ctx context.Context, a *rlib.Assessment) error {
+func chargeAssessmentToCC(ctx context.Context, a *rlib.Assessment, amt float64) error {
 	// This is a placeholder function
-	rlib.Console("Charge $%6.2f to credit card\n", a.Amount)
+	rlib.Console("Charge $%6.2f to credit card\n", amt)
 	return nil
 }
 
@@ -873,7 +886,7 @@ func chargeAssessmentToCC(ctx context.Context, a *rlib.Assessment) error {
 // RETURNS
 //    any error encountered
 //------------------------------------------------------------------------------
-func insertResRentalAgreement(ctx context.Context, r *http.Request, d *ServiceData, res, resOld *ResDet, t *rlib.Transactant, ra *rlib.RentalAgreement) error {
+func insertResRentalAgreement(ctx context.Context, r *http.Request, d *ServiceData, res, resOld *ResDet, t *rlib.Transactant, ra *rlib.RentalAgreement, aOld *rlib.Assessment) error {
 	var err error
 	now := rlib.Now()
 
@@ -958,7 +971,12 @@ func insertResRentalAgreement(ctx context.Context, r *http.Request, d *ServiceDa
 			return bizlogic.BizErrorListToError(be)
 		}
 		rlib.Console("InsertAssessment: success - ASMID = %d\n", a.ASMID)
-		chargeAssessmentToCC(ctx, &a)
+		amt := a.Amount // start with charging this much
+		if aOld != nil && aOld.ASMID > 0 {
+			amt -= aOld.Amount // this is how much they've already paid.  We only charge for the difference
+
+		}
+		chargeAssessmentToCC(ctx, &a, amt)
 	}
 
 	return nil
@@ -1103,30 +1121,31 @@ func updateResRentalAgreement(ctx context.Context, r *http.Request, d *ServiceDa
 			// create an assessment for the difference and charge
 			// the credit card.  Add a comment to the assessment
 			// explaining what happened.
-			rlib.Console("OLD Deposit amount %6.2f is < updated deposit amount %6.2f\n", resOld.Deposit, res.Deposit)
-			rlib.Console("DEPOSIT is now underpaid. Create an assessment for the difference\n")
 			var bp rlib.BizProps
 			if bp, err = rlib.GetDataFromBusinessPropertyName(ctx, "general", res.BID); err != nil {
 				return err
 			}
+			diff := res.Deposit - resOld.Deposit
+			comment := fmt.Sprintf("Deposit amount: %6.2f, %6.2f previous reservation, CC charge is %6.2f", res.Deposit, resOld.Deposit, diff)
+			rlib.Console("Assessment comment: %s\n", comment)
 			now := rlib.Now()
 			var a = rlib.Assessment{
 				BID:            ra.BID,
 				RID:            res.RID,
 				RAID:           ra.RAID,
-				Amount:         res.Deposit - resOld.Deposit,
+				Amount:         res.Deposit,
 				Start:          now,
 				Stop:           now,
 				RentCycle:      rlib.RECURNONE,
 				ProrationCycle: rlib.RECURNONE,
 				ARID:           bp.ResDepARID,
+				Comment:        comment,
 			}
 			rlib.Console("InsertAssessment.  a.RAID = %d\n", a.RAID)
-			a.Comment += fmt.Sprintf(" | %s - Cover the deposit increase from %6.2f (ASMID=%d) to %6.2f", rlib.ConDt(&now), resOld.Deposit, res.DepASMID, res.Deposit)
 			if be := bizlogic.InsertAssessment(ctx, &a, 0, &noClose); len(be) > 0 {
 				return bizlogic.BizErrorListToError(be)
 			}
-			chargeAssessmentToCC(ctx, &a)
+			chargeAssessmentToCC(ctx, &a, diff)
 
 		}
 		// if err = insertResRentalAgreement(ctx, r, d, res, resOld, t, ra); err != nil {
