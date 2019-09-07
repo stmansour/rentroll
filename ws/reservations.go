@@ -966,16 +966,16 @@ func insertResRentalAgreement(ctx context.Context, r *http.Request, d *ServiceDa
 			ARID:           bp.ResDepARID,
 		}
 		rlib.Console("InsertAssessment:  a.RAID = %d, Start,Stop = %s\n", a.RAID, rlib.ConsoleDRange(&a.Start, &a.Stop))
+		amt := a.Amount // start with charging this much
+		if aOld != nil && aOld.ASMID > 0 {
+			amt -= aOld.Amount // this is how much they've already paid.  We only charge for the difference
+			a.Comment = fmt.Sprintf("Deposit increased from $%6.2f (ASMID %d) to $%6.2f.  CC charge = $%6.2f", aOld.Amount, aOld.ASMID, a.Amount, amt)
+		}
 		if be := bizlogic.InsertAssessment(ctx, &a, 0, &noClose); len(be) > 0 {
 			rlib.Console("Error from bizlogic.InsertAssessment: %v\n", be)
 			return bizlogic.BizErrorListToError(be)
 		}
 		rlib.Console("InsertAssessment: success - ASMID = %d\n", a.ASMID)
-		amt := a.Amount // start with charging this much
-		if aOld != nil && aOld.ASMID > 0 {
-			amt -= aOld.Amount // this is how much they've already paid.  We only charge for the difference
-
-		}
 		chargeAssessmentToCC(ctx, &a, amt)
 	}
 
