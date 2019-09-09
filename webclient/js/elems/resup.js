@@ -6,7 +6,7 @@
     showReservationRentable, checkRentableAvailability, cancelReservation, getRTName,
     closeResUpdateDialog, UTCstringToLocaltimeString,applyLocaltimeDateOffset,
     newReservationRecord,feedbackMessage,number_format,
-    ResTCCompare,ResTCDropRender,ResTCRender,resUsePickedTC
+    ResTCCompare,ResTCDropRender,ResTCRender,resUsePickedTC,stringToDate,
 */
 
 "use strict";
@@ -494,10 +494,10 @@ window.buildResUpdateElements = function () {
                 },
             },
             {field: 'DtStart',      caption: 'Check in',            size: '90px',  hidden: false, sortable: true, style: 'text-align: right',
-                render: function(record/*, index, col_index*/) { return w2uiDateControlString(new Date(record.DtStart)); },
+                render: function(record/*, index, col_index*/) { return w2uiDateControlString(new stringToDate(record.DtStart)); },
             },
             {field: 'DtStop',       caption: 'Check out',             size: '90px',  hidden: false, sortable: true, style: 'text-align: right',
-                render: function(record/*, index, col_index*/) { return w2uiDateControlString(new Date(record.DtStop)); },
+                render: function(record/*, index, col_index*/) { return w2uiDateControlString(new stringToDate(record.DtStop)); },
             },
             {
                 field: 'Book',

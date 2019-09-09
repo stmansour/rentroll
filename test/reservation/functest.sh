@@ -481,10 +481,15 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     #
     # Update the reservation:
     #   1. change the deposit to $25
-    #   2. change dates to Sep 7 2019 - Sep 9 2019
-    #   3. change RID to 7
+    #   2. change dates from Sep 4 - 6 to Sep 7 2019 - Sep 9 2019
+    #   3. change RID from 6 to 7
     #   4. change RTID to 8
     #
+    # This should result in a new RentalAgreement
+    # The old RentableLeaseStatus for RID 6 should be set to NOTLEASED
+    # ASMID 847 should be reversed
+    # A new assessment must be created for $25 and with a comment that the
+    #       cc was charged an additional $15
     #
     #-------------------------------------------------------------------------
     echo "Updating RLID = ${RLID}"
@@ -505,7 +510,16 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     encodeRequest 'request={"cmd":"get","recid":0,"name":"resUpdateForm"}' > request
     dojsonPOST "http://localhost:8270/v1/reservation/1/${RLID}" "request" "${TFILES}3"  "reservation-saveReservation" "ConfirmationCode"
 
+    #-------------------------------------------------------------------------
+    # Make sure that the new deposit assessment is correct and that the
+    # credit card charges are correct.
+    #-------------------------------------------------------------------------
+    ASMID=$(python -m json.tool serverreply | grep DepASMID | grep -v DB | sed 's/^.*: *\([0-9][0-9][0-9]\).*/\1/')
+    echo "ASMID = ${ASMID}"
+    encodeRequest '{"cmd":"get","record":{}}'
+    dojsonPOST "http://localhost:8270/v1/asm/1/${ASMID}" "request" "${TFILES}4"  "readDepositAssessment"
 fi
+
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
 

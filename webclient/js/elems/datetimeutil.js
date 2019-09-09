@@ -3,7 +3,7 @@
 /*global
   app, setDateControl, dateMonthBack, getDateFromDT, getTimeFromDT, dateFromString,
   dateFmtStr, zeroPad, yearFwd, dateYearFwd, yearBack, dateYearBack, applyLocaltimeDateOffset,
-  UTCDateStringToW2UIValidDate,
+  UTCDateStringToW2UIValidDate,stringToDate,
 */
 
 //-----------------------------------------------------------------------------
@@ -14,6 +14,31 @@
 window.UTCstringToLocaltimeString = function(u) {
     var x = new Date(u);
     return x.toString();  // this will be a localtime value
+};
+
+// stringToDate takes a string of the form '2019-09-04' and converts it to
+// a Date value in local time where the year is 2019, the month is 9 (Sep)
+// and the day is 4.  The time will be 00:00:00
+//
+//   0123456789
+//  '2019-09-04'
+//
+// INPUTS
+//    s = a string in the format 'yyyy?mm?dd'.
+//        y = digits of year
+//        m = digits of month 01,02,03 ... 12
+//        d = digits of day 01, 02, ... 31
+//        ? = any character... typically it will be '-' or '/'
+//
+// RETURNS
+//    localtime value with the supplied year, month, and day
+//------------------------------------------------------------------------------
+window.stringToDate = function(s) {
+    var y = parseInt(s,10);
+    var m = parseInt(s.substr(5,2),10);
+    var d = parseInt(s.substr(8,2),10);
+    var dt = new Date(y,m,d);
+    return dt;
 };
 
 // applyLocaltimeDateOffset returns a date with the hours properly adjusted so
