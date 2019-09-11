@@ -336,6 +336,14 @@ goldpath() {
 }
 
 #############################################################################
+# printServerReply - a utility function that formats the server reply
+#                    for easy reading.
+#############################################################################
+printServerReply() {
+	python -m json.tool serverreply
+}
+
+#############################################################################
 # docsvtest()
 #           The purpose of this routine is to call rrloadcsv with the
 #                   parameters supplied in $2 and send its output to a file

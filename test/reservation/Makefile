@@ -7,7 +7,7 @@ reservation:
 	@echo "*** Completed in ${THISDIR} ***"
 
 clean:
-	rm -f db1.json rentroll.log log llog *.g ./gold/*.g err.txt [a-z] [a-z][a-z0-9] qq? ${THISDIR} fail conf*.json request serverreply svrresponse xxqq xxxe.sql
+	rm -f db1.json rentroll.log log llog *.g ./gold/*.g err.txt [a-z] [a-z][a-z0-9] [a-z][a-z0-9][a-z0-9] qq? ${THISDIR} fail conf*.json request serverreply svrresponse xxqq xxxe.sql
 	@echo "*** CLEAN completed in ${THISDIR} ***"
 
 test:

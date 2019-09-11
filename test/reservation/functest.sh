@@ -460,10 +460,12 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     #-------------------------------------------------------------------------
     # Create a Reservation.  Set initial deposit to $10
     #-------------------------------------------------------------------------
-    encodeRequest '{"cmd":"save","record":{"rdBID":1,"BUD":{"id":"REX","text":"REX"},"DtStart":"Wed, 04 Sep 2019 00:00:00 GMT","DtStop":"Fri, 06 Sep 2019 00:00:00 GMT","Nights":2,"RLID":0,"RTRID":0,"rdRTID":3,"RID":6,"RAID":0,"TCID":1089,"Amount":250,"Deposit":10,"DepASMID":0,"LeaseStatus":2,"RentableName":"Rentable006","FirstName":"William","UnspecifiedAdults":0,"UnspecifiedChildren":0,"LastName":"Thorton","IsCompany":false,"CompanyName":"Hicks R Us","Email":"bb@backwoods.com","Phone":"123-890-7654","Street":"123 Hayseed St","City":"Broken Pine","State":"AK","PostalCode":"64549","CCName":"BILLYBOB THORTON","CCType":"VISA","CCNumber":"1234567890","CCExpMonth":"2","CCExpYear":"2022","ConfirmationCode":"","Comment":"","PGName":[{"TCID":1089,"BID":1,"FirstName":"William","MiddleName":"Robert","LastName":"Thorton","CompanyName":"Hicks R Us","IsCompany":false,"PrimaryEmail":"bb@backwoods.com","SecondaryEmail":"","WorkPhone":"123-456-7890","CellPhone":"123-890-7654","Address":"123 Hayseed St","Address2":"","City":"Broken Pine","State":"AK","PostalCode":"64549","recid":64}],"RTID":3}}' > request
+    encodeRequest '{"cmd":"save","record":{"rdBID":1,"BUD":{"id":"REX","text":"REX"},"DtStart":"Wed, 04 Sep 2019 00:00:00 GMT","DtStop":"Fri, 06 Sep 2019 00:00:00 GMT","Nights":2,"RLID":0,"RTRID":0,"rdRTID":3,"RID":6,"RAID":0,"TCID":1109,"Amount":250,"Deposit":10,"DepASMID":0,"LeaseStatus":2,"RentableName":"Rentable006","FirstName":"William","UnspecifiedAdults":0,"UnspecifiedChildren":0,"LastName":"Thorton","IsCompany":false,"CompanyName":"Hicks R Us","Email":"bb@backwoods.com","Phone":"123-890-7654","Street":"123 Hayseed St","City":"Broken Pine","State":"AK","PostalCode":"64549","CCName":"BILLYBOB THORTON","CCType":"VISA","CCNumber":"1234567890","CCExpMonth":"2","CCExpYear":"2022","ConfirmationCode":"","Comment":"","PGName":[{"TCID":1109,"BID":1,"FirstName":"William","MiddleName":"Robert","LastName":"Thorton","CompanyName":"Hicks R Us","IsCompany":false,"PrimaryEmail":"bb@backwoods.com","SecondaryEmail":"","WorkPhone":"123-456-7890","CellPhone":"123-890-7654","Address":"123 Hayseed St","Address2":"","City":"Broken Pine","State":"AK","PostalCode":"64549","recid":64}],"RTID":3}}' > request
     dojsonPOST "http://localhost:8270/v1/reservation/1/0" "request" "${TFILES}0"  "reservation-saveReservation"
 
     parseServerReply
+
+    echo "RLID = ${RLID}"
 
     #-------------------------------------------------------------------------
     # Read this Reservation back to determine the RAID
@@ -473,6 +475,9 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     #-------------------------------------------------------------------------
     encodeRequest 'request={"cmd":"get","recid":0,"name":"resUpdateForm"}' > request
     dojsonPOST "http://localhost:8270/v1/reservation/1/${RLID}" "request" "${TFILES}1"  "reservation-saveReservation" "ConfirmationCode"
+
+    # printServerReply
+
 
     #-------------------------------------------------------------------------
     # At this point, the reservation has the following associated records:
@@ -493,13 +498,14 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     #
     #-------------------------------------------------------------------------
     echo "Updating RLID = ${RLID}"
-    PART1='{"cmd":"save","record":{"recid":0,"rdBID":0,"TCID":1089,"RAID":837,"DtStart":"Sat, 07 Sep 2019 00:00:00 GMT","DtStop":"Mon, 09 Sep 2019 00:00:00 GMT","RLID":'
-    PART2=',"RTRID":0,"rdRTID":4,"RID":7,"Rate":0,"DBAmount":75,"Amount":75,"DBDeposit":10,"Deposit":25,"DepASMID":847,"DBDepASMID":847,"Discount":0,"LeaseStatus":2,"Nights":2,"UnspecifiedAdults":0,"UnspecifiedChildren":0,"RentableName":"Rentable007","IsCompany":false,"CompanyName":"Hicks R Us","FirstName":"William","MiddleName":"","LastName":"Thorton","Email":"bb@backwoods.com","Phone":"123-890-7654","Street":"123 Hayseed St","City":"Broken Pine","Country":"","State":"AK","PostalCode":"64549","FLAGS":0,"CCName":"","CCType":"","CCNumber":"","CCExpMonth":"","CCExpYear":"","ConfirmationCode":"JZT17T1CHB1MODFXMEAQ","Comment":"","BUD":"","RTID":4}}'
+    PART1='{"cmd":"save","record":{"recid":0,"rdBID":0,"TCID":1109,"RAID":837,"DtStart":"Sat, 07 Sep 2019 00:00:00 GMT","DtStop":"Mon, 09 Sep 2019 00:00:00 GMT","RLID":'
+    PART2=',"RTRID":0,"rdRTID":4,"RID":7,"Rate":0,"DBAmount":75,"Amount":75,"DBDeposit":10,"Deposit":25,"DepASMID":866,"DBDepASMID":866,"Discount":0,"LeaseStatus":2,"Nights":2,"UnspecifiedAdults":0,"UnspecifiedChildren":0,"RentableName":"Rentable007","IsCompany":false,"CompanyName":"Hicks R Us","FirstName":"William","MiddleName":"","LastName":"Thorton","Email":"bb@backwoods.com","Phone":"123-890-7654","Street":"123 Hayseed St","City":"Broken Pine","Country":"","State":"AK","PostalCode":"64549","FLAGS":0,"CCName":"","CCType":"","CCNumber":"","CCExpMonth":"","CCExpYear":"","ConfirmationCode":"JZT17T1CHB1MODFXMEAQ","Comment":"","BUD":"","RTID":4}}'
     CMD="${PART1}${RLID}${PART2}"
 
     encodeRequest "${CMD}" > request
     dojsonPOST "http://localhost:8270/v1/reservation/1/${RLID}" "request" "${TFILES}2"  "reservation-updateReservation"
     parseServerReply
+    # echo "RLID = ${RLID}"
 
     #-------------------------------------------------------------------------
     # Read this Reservation back to determine the ASMID which should be 846
@@ -510,14 +516,27 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     encodeRequest 'request={"cmd":"get","recid":0,"name":"resUpdateForm"}' > request
     dojsonPOST "http://localhost:8270/v1/reservation/1/${RLID}" "request" "${TFILES}3"  "reservation-saveReservation" "ConfirmationCode"
 
+    # printServerReply
+
+
     #-------------------------------------------------------------------------
     # Make sure that the new deposit assessment is correct and that the
     # credit card charges are correct.
     #-------------------------------------------------------------------------
     ASMID=$(python -m json.tool serverreply | grep DepASMID | grep -v DB | sed 's/^.*: *\([0-9][0-9][0-9]\).*/\1/')
-    echo "ASMID = ${ASMID}"
+    # echo "ASMID = ${ASMID}"
     encodeRequest '{"cmd":"get","record":{}}'
     dojsonPOST "http://localhost:8270/v1/asm/1/${ASMID}" "request" "${TFILES}4"  "readDepositAssessment"
+
+    #python -m json.tool serverreply
+
+    #-------------------------------------------------------------------------
+    # Make sure that RID 6 is now available to be rented from Sep 4 - 6
+    #-------------------------------------------------------------------------
+    encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0,"record":{"recid":0,"BID":1,"BUD":"REX","RTID":3,"Nights":2,"DtStart":"Wed, 04 Sep 2019 07:00:00 GMT","DtStop":"Fri, 06 Sep 2019 07:00:00 GMT"}}'
+    dojsonPOST "http://localhost:8270/v1/available/1" "request" "${TFILES}5"  "readDepositAssessment"
+
+    # printServerReply
 fi
 
 stopRentRollServer

@@ -1,0 +1,28 @@
+{
+    "records": [
+        {
+            "BID": 1,
+            "DtStart": "2019-09-04 00:00:00 UTC",
+            "DtStop": "2019-09-10 00:00:00 UTC",
+            "RID": 5,
+            "RLID": 652,
+            "RTID": 3,
+            "RTRID": 5,
+            "RentableName": "Rentable005",
+            "recid": 0
+        },
+        {
+            "BID": 1,
+            "DtStart": "2019-09-04 00:00:00 UTC",
+            "DtStop": "2019-09-06 00:00:00 UTC",
+            "RID": 6,
+            "RLID": 1575,
+            "RTID": 3,
+            "RTRID": 6,
+            "RentableName": "Rentable006",
+            "recid": 1
+        }
+    ],
+    "status": "success",
+    "total": 2
+}
