@@ -155,7 +155,7 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
 
     # save rentable Lease status with LeaseStatus: Reserved
     encodeRequest '{"cmd":"save","recid":0,"name":"bookResForm","record":{"BID":1,"BUD":"","RTID":1,"RID":1129,"Nights":1,"DtStart":"1/1/2016","DtStop":"12/31/9999","RLID":0,"FirstName":"Steve","LastName":"Mansour","Email":"sman@stevemansour.com","Phone":"4089219957","Street":"","City":"Milpitas","Country":"United+States","State":"CA","PostalCode":"95035","CCName":"STEVE MANSOUR","CCType":"VISA","CCNumber":"1234111112341111","CCExpMonth":"09","CCExpYear":"2014","Comment":"","RentableName":"Rentable010","Address":"2215+Wellington+Drive","Address2":""}}' > request
-    dojsonPOST "http://localhost:8270/v1/reservation/1/1129" "request" "ws40b"  "WebService--SaveRentableLeaseStatus-Rentable(1129)"
+    dojsonPOST "http://localhost:8270/v1/reservation/1/0" "request" "ws40b"  "WebService--SaveRentableLeaseStatus-Rentable(1129)"
 
     # save rentable type ref
     echo "%7B%22cmd%22%3A%22save%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22changes%22%3A%5B%7B%22recid%22%3A0%2C%22RTRID%22%3A0%2C%22RTID%22%3A1%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22RID%22%3A1129%2C%22OverrideRentCycle%22%3A0%2C%22OverrideProrationCycle%22%3A0%2C%22DtStart%22%3A%221%2F1%2F2016%22%2C%22DtStop%22%3A%221%2F1%2F9999%22%2C%22CreateBy%22%3A0%2C%22LastModBy%22%3A0%7D%5D%7D" > request
