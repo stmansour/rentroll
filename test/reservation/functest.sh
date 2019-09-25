@@ -539,11 +539,13 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     # printServerReply
 fi
 #------------------------------------------------------------------------------
-#  TEST h
+#  TEST i
 #
-#  Change the Dates associated with a rexervation. In this case the Rental
-#  Agreement will change and the Deposit Assessment will be reversed and a
-#  new Assessment will replace it
+#  Check-In a reservation.   Note that we set the server date to: 9/13/2019
+#  The server date must match the reservation date on the client in order for
+#  the check-in to happen.
+#
+#  The reservation that we'll check-in is RLID 195
 #
 #  Scenario:
 #  see individual calls below
@@ -551,12 +553,18 @@ fi
 #  Expected Results:
 #   see individual commands below
 #------------------------------------------------------------------------------
-TFILES="h"
+TFILES="i"
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
-    RENTROLLSERVERNOW="-testDtNow 9/1/2019"
+    RENTROLLSERVERNOW="-testDtNow 9/13/2019"
     stopRentRollServer
     mysql --no-defaults rentroll < x${TFILES}.sql
     startRentRollServer
+
+    #-------------------------------------------------------------------------
+    # Check in RLID 195
+    #-------------------------------------------------------------------------
+    encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0,"record":{"recid":0,"BID":1,"BUD":"REX","RLID":195}}'
+    dojsonPOST "http://localhost:8270/v1/checkin/1/195" "request" "${TFILES}0"  "checkIn-reservation"
 fi
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"

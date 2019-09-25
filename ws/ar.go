@@ -393,28 +393,28 @@ func saveARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	a.FLAGS &= ^uint64(0x4 & 0x2 & 0x1) // 1<<0 and 1<< 1 and 1<<2:  these are the three flags that can be set.  Assume we turn them off
 	if foo.Record.ApplyRcvAccts {
-		a.FLAGS |= 0x1
+		a.FLAGS |= (1 << 0)
 	}
 	if foo.Record.AutoPopulateToNewRA {
-		a.FLAGS |= 0x2
+		a.FLAGS |= (1 << 1)
 	}
 	if foo.Record.RAIDrqd && a.ARType == rlib.ARRECEIPT {
-		a.FLAGS |= 0x4
+		a.FLAGS |= (1 << 2)
 	}
 	if foo.Record.IsRentASM { // IsRentASM - 1<<4
-		a.FLAGS |= 0x10
+		a.FLAGS |= (1 << 4)
 	}
 	if foo.Record.IsSecDepASM { // IsSecDepASM - 1<<5
-		a.FLAGS |= 0x20
+		a.FLAGS |= (1 << 5)
 	}
 	if foo.Record.IsNonRecurCharge { // IsNonRecurCharge - 1<<6
-		a.FLAGS |= 0x40
+		a.FLAGS |= (1 << 6)
 	}
 	if foo.Record.PETIDReq { // PETID required - 1<<7
-		a.FLAGS |= 0x80
+		a.FLAGS |= (1 << 7)
 	}
 	if foo.Record.VIDReq { // VID required - 1<<8
-		a.FLAGS |= 0x100
+		a.FLAGS |= (1 << 8)
 	}
 	rlib.Console("=============>>>>>>>>>> a.FLAGS = %x\n", a.FLAGS)
 
@@ -539,28 +539,28 @@ func getARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		gg.PriorToRAStart = raReqMappedVal[0]
 		gg.PriorToRAStop = raReqMappedVal[1]
 
-		if gg.FLAGS&0x1 != 0 {
+		if gg.FLAGS&(1<<0) != 0 {
 			gg.ApplyRcvAccts = true
 		}
-		if gg.FLAGS&0x2 != 0 {
+		if gg.FLAGS&(1<<1) != 0 {
 			gg.AutoPopulateToNewRA = true
 		}
-		if gg.FLAGS&0x4 != 0 {
+		if gg.FLAGS&(1<<2) != 0 {
 			gg.RAIDrqd = true
 		}
-		if gg.FLAGS&0x10 != 0 {
+		if gg.FLAGS&(1<<4) != 0 {
 			gg.IsRentASM = true
 		}
-		if gg.FLAGS&0x20 != 0 {
+		if gg.FLAGS&(1<<5) != 0 {
 			gg.IsSecDepASM = true
 		}
-		if gg.FLAGS&0x40 != 0 {
+		if gg.FLAGS&(1<<6) != 0 {
 			gg.IsNonRecurCharge = true
 		}
-		if gg.FLAGS&0x80 != 0 {
+		if gg.FLAGS&(1<<7) != 0 {
 			gg.PETIDReq = true
 		}
-		if gg.FLAGS&0x100 != 0 {
+		if gg.FLAGS&(1<<8) != 0 {
 			gg.VIDReq = true
 		}
 

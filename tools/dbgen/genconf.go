@@ -85,7 +85,8 @@ type GenDBRead struct {
 	CPRentCycle          int64    // 0 = nonrecur, 1 = secondly, 2 ... as defined in ./rlib/dbtypes
 	CPProrateCycle       int64    // just like RentCycle
 	PTypeCheckName       string   // name of ptid for checks
-	RT                   []RType  `json:"RT"` // defines the rentable types and the count of Rentables
+	ResDepAR             string   `json:"ResDepAR"` // AR to use for reservation deposits (need not be the same as ARIDsecdep)
+	RT                   []RType  `json:"RT"`       // defines the rentable types and the count of Rentables
 	PetFees              []string // array of Account Rule names for pet fees on a new Rental Agreement
 	VehicleFees          []string // array of Account Rule names for vehicle fees on a new Rental Agreement
 	HotelReserveDtStart  string   `json:"HotelReserveDtStart"` // start of date range for reservations.  Default is DtStop + 1 day
@@ -174,8 +175,11 @@ func ReadConfig(fname string) (GenDBConf, error) {
 	// Get the reservation deposit Account Rule...
 	//-----------------------------------------------
 	var ar rlib.AR
-	if ar, err = rlib.GetARByName(ctx, 1, "Reservation Deposit"); err != nil {
-		return b, fmt.Errorf("Could not get Reservation Deposit account rule.  err = %s", err.Error())
+	if len(a.ResDepAR) > 0 {
+		if ar, err = rlib.GetARByName(ctx, 1, a.ResDepAR); err != nil {
+			return b, fmt.Errorf("Could not get Reservation Deposit account rule.  err = %s", err.Error())
+		}
+		b.ResDepARID = ar.ARID
 	}
 
 	//--------------------------------

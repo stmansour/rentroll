@@ -53,5 +53,6 @@
     "CPProrateCycle": 4,
     "RandNames" : true,
     "PetFees": ["Pet Fee","Pet Rent"],
-    "VehicleFees": ["Vehicle Registration Fee"]
+    "VehicleFees": ["Vehicle Registration Fee"],
+    "ResDepARID": "Security Deposit Assessment"
 }
