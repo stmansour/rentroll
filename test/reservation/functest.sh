@@ -538,7 +538,26 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
 
     # printServerReply
 fi
-
+#------------------------------------------------------------------------------
+#  TEST h
+#
+#  Change the Dates associated with a rexervation. In this case the Rental
+#  Agreement will change and the Deposit Assessment will be reversed and a
+#  new Assessment will replace it
+#
+#  Scenario:
+#  see individual calls below
+#
+#  Expected Results:
+#   see individual commands below
+#------------------------------------------------------------------------------
+TFILES="h"
+if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
+    RENTROLLSERVERNOW="-testDtNow 9/1/2019"
+    stopRentRollServer
+    mysql --no-defaults rentroll < x${TFILES}.sql
+    startRentRollServer
+fi
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
 

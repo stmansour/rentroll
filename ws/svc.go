@@ -161,6 +161,7 @@ var Svcs = []ServiceHandler{
 	{Cmd: "buildtime", Handler: SvcHandlerBuildTime, NeedBiz: false, NeedSession: false},
 	{Cmd: "buildmachine", Handler: SvcHandlerBuildMachine, NeedBiz: false, NeedSession: false},
 	{Cmd: "business", Handler: SvcHandlerBusiness, NeedBiz: false, NeedSession: true},
+	{Cmd: "checkin", Handler: SvcCheckIn, NeedBiz: true, NeedSession: true},
 	{Cmd: "closeinfo", Handler: SvcGetCloseInfo, NeedBiz: true, NeedSession: true},
 	{Cmd: "closeperiod", Handler: SvcHandlerClosePeriod, NeedBiz: true, NeedSession: true},
 	{Cmd: "dep", Handler: SvcHandlerDepository, NeedBiz: true, NeedSession: true},

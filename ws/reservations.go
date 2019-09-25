@@ -1295,7 +1295,5 @@ func deleteReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
-
 	SvcWriteSuccessResponse(res.BID, w)
-
 }

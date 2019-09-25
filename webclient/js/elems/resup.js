@@ -226,6 +226,18 @@ window.buildResUpdateElements = function () {
         w2ui.resFormLayout.content('bottom', w2ui.resUpFormBtns);
     };
 
+    //---------------------------------------------------------------------------------
+    // SetResUpFormTitle - Set the form title to "New Reservation" if RLID == 0
+    //  Otherwise, indicate the RLID in the title
+    //---------------------------------------------------------------------------------
+    function SetResUpFormTitle(f) {
+        if (f.record.RLID > 0) {
+            f.header = "Change Reservation (RLID " + f.record.RLID + ")";
+        } else {
+            f.header = "New Reservation";
+        }
+    }
+
     //------------------------------------------------------------------------
     //          resUpdateForm
     //
@@ -358,6 +370,7 @@ window.buildResUpdateElements = function () {
             event.onComplete = function() {
                 var f = this;
                 var r = this.record;
+                SetResUpFormTitle(f);
                 r.BUD = getBUDfromBID(r.rdBID);
                 var y = new Date(r.DtStart);
                 r.DtStart = dateFmtStr(y);
@@ -376,6 +389,7 @@ window.buildResUpdateElements = function () {
             this.get("PGName").options.url = '/v1/transactantsdettd/' + getCurrentBID();
         },
         onRefresh: function(event) {
+            SetResUpFormTitle(this);
             setResUpdateRecordForUI(this);
             showReservationRentable();
             this.get("PGName").options.url = '/v1/transactantsdettd/' + getCurrentBID();
