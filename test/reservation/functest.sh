@@ -541,11 +541,11 @@ fi
 #------------------------------------------------------------------------------
 #  TEST i
 #
-#  Check-In a reservation.   Note that we set the server date to: 9/13/2019
+#  Check-In a reservation.   Note that we set the server date to: 9/20/2019
 #  The server date must match the reservation date on the client in order for
 #  the check-in to happen.
 #
-#  The reservation that we'll check-in is RLID 195
+#  The reservation that we'll check-in is RLID 224
 #
 #  Scenario:
 #  see individual calls below
@@ -555,16 +555,16 @@ fi
 #------------------------------------------------------------------------------
 TFILES="i"
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
-    RENTROLLSERVERNOW="-testDtNow 9/13/2019"
+    RENTROLLSERVERNOW="-testDtNow 9/20/2019"
     stopRentRollServer
     mysql --no-defaults rentroll < x${TFILES}.sql
     startRentRollServer
 
     #-------------------------------------------------------------------------
-    # Check in RLID 195
+    # Check in RLID 224
     #-------------------------------------------------------------------------
-    encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0,"record":{"recid":0,"BID":1,"BUD":"REX","RLID":195}}'
-    dojsonPOST "http://localhost:8270/v1/checkin/1/195" "request" "${TFILES}0"  "checkIn-reservation"
+    encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0,"record":{"recid":0,"BID":1,"BUD":"REX","RLID":224,"TZOffset":420}}'
+    dojsonPOST "http://localhost:8270/v1/checkin/1/224" "request" "${TFILES}0"  "checkIn-reservation"
 fi
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
