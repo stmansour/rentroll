@@ -150,6 +150,7 @@ func HotelBookings(ctx context.Context, dbConf *GenDBConf) error {
 				// create a RentalAgreement...
 				//-------------------------------------------------
 				now := rlib.Now()
+				// rlib.Console("now = %s\n", rlib.ConDt(&now))
 				var ra = rlib.RentalAgreement{
 					BID:                 ls.BID,
 					AgreementStart:      now,

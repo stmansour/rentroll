@@ -134,6 +134,8 @@ func main() {
 		os.Exit(1)
 	}
 
+	rlib.InitQAInfra() // makes rlib.Now() faster
+
 	dbConf.BIZ, err = rlib.GetAllBusinesses(ctx)
 	if err != nil {
 		fmt.Printf("Error loading businesses: %s\n", err.Error())

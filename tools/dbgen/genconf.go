@@ -85,6 +85,7 @@ type GenDBRead struct {
 	CPRentCycle          int64    // 0 = nonrecur, 1 = secondly, 2 ... as defined in ./rlib/dbtypes
 	CPProrateCycle       int64    // just like RentCycle
 	PTypeCheckName       string   // name of ptid for checks
+	TestDtNow            string   // override system date with this date
 	ResDepAR             string   `json:"ResDepAR"` // AR to use for reservation deposits (need not be the same as ARIDsecdep)
 	RT                   []RType  `json:"RT"`       // defines the rentable types and the count of Rentables
 	PetFees              []string // array of Account Rule names for pet fees on a new Rental Agreement
@@ -117,6 +118,18 @@ func ReadConfig(fname string) (GenDBConf, error) {
 		os.Exit(1)
 	}
 	// rlib.Console("after unmarshal, a = %#v\n", a)
+
+	if len(a.TestDtNow) > 0 {
+		var err error
+		// fmt.Printf("System date for this run: %s\n", a.TestDtNow)
+		rlib.QAInfra.Now, err = rlib.StringToDate(a.TestDtNow)
+		if err != nil {
+			fmt.Printf("Error from StringToDate %q - %s\n", a.TestDtNow, err.Error())
+			os.Exit(1)
+		}
+		fmt.Printf("QAInfra.Now set to %s\n", rlib.QAInfra.Now.Format(rlib.RRDATETIMEFMT))
+		fmt.Printf("rlib.Now = %s\n", rlib.Now().Format(rlib.RRDATETIMEFMT))
+	}
 
 	b.PeopleCount = a.PeopleCount
 	b.RACount = a.RACount

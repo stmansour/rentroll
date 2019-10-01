@@ -21,6 +21,7 @@ data.  The RSeed value is there in case you want to reproduce exactly the same
 database.
 
 
+
 Attribute Definitions
 ---------------------
 Carports  (optional)
@@ -143,6 +144,17 @@ RandMissPayment  (optional)
 RandMissApply  (optional)
     Specifies the percent (0-99) of payments that will not be applied. The
     default value is 0.
+
+TestDtNow
+    Many dates are created using the current system time. In order to create some
+    test databases, we need to control what the server thinks the current date is.
+    When this is necessary, use this option TestDtNow yyyy-mm-dd to
+    set the current date that dbgen uses.  Example:
+
+        TestDtNow: 2019-05-15
+
+    This will cause the system date to be May 15, 2019 when dbgen is running.
+
 
 VehicleFees [] (optional)
     VehiclesFees is a BusinessProperty. It is an array of strings. The strings

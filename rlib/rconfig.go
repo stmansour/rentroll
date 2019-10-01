@@ -14,6 +14,7 @@ var AppConfig extres.ExternalResources
 
 // RRReadConfig will read the configuration file "config.json" if
 // it exists in the current directory
+//-------------------------------------------------------------------
 func RRReadConfig(fPath ...string) error {
 	// Console("Entered RRReadConfig\n")
 	var (

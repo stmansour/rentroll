@@ -37,6 +37,7 @@ var islocalhost, isNotProd, haveTime bool
 // will cause it to return time.Now()
 //------------------------------------------------------------------------------
 func Now() time.Time {
+	// Console("islocalhost = %t, isNotProd =  %t, haveTime = %t\n", islocalhost, isNotProd, haveTime)
 	if islocalhost && isNotProd && haveTime {
 		return QAInfra.Now
 	}
