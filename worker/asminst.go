@@ -15,7 +15,7 @@ import (
 //-----------------------------------------------------------------------------
 func CreateAssessmentInstances(item *tws.Item) {
 	tws.ItemWorking(item)
-	now := time.Now()
+	now := rlib.Now()
 	ctx := context.Background()
 	CreateAsmInstCore(ctx, &now)
 

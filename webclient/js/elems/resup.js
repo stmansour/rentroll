@@ -7,6 +7,7 @@
     closeResUpdateDialog, UTCstringToLocaltimeString,applyLocaltimeDateOffset,
     newReservationRecord,feedbackMessage,number_format,
     ResTCCompare,ResTCDropRender,ResTCRender,resUsePickedTC,stringToDate,
+    checkIn,checkOut,reservationLSIndicator,
 */
 
 "use strict";
@@ -30,7 +31,7 @@ window.newReservationRecord = function() {
         Amount: 0.0,
         Deposit: 0.0,
         DepASMID: 0,
-        LeaseStatus: 2, // reserved
+        LeaseStatus: 0, // not leased
         RentableName: '',
         FirstName: '',
         UnspecifiedAdults: 0,
@@ -93,7 +94,7 @@ window.buildResUpdateElements = function () {
             toolbarInput    : true,
             searchAll       : true,
             toolbarReload   : false,
-            toolbarColumns  : false,
+            toolbarColumns  : true,
         },
         columns: [
             {field: 'recid',            caption: 'recid',           size: '60px', hidden: true, sortable: true },
@@ -238,6 +239,50 @@ window.buildResUpdateElements = function () {
         }
     }
 
+    function ResUpHideSave() {
+        $(w2ui.resUpFormBtns.box).find("button[name=save]").addClass("hidden");
+    }
+    function ResUpShowSave() {
+        $(w2ui.resUpFormBtns.box).find("button[name=save]").removeClass("hidden");
+    }
+    function ResUpSetSaveButton() {
+        switch (w2ui.resUpdateForm.record.LeaseStatus) {
+            case 1:
+                ResUpHideSave();
+                break;
+            case 2:
+                ResUpShowSave();
+                break;
+        }
+    }
+
+    //---------------------------------------------------------------------------------
+    // reservationLSIndicator - show the lease status:
+    //
+    //  0 = available
+    //  1 = booked
+    //  2 = reserved
+    //---------------------------------------------------------------------------------
+    window.reservationLSIndicator = function () {
+        var a = "border-radius: 5px 5px 5px;padding: 5px;font-size:10pt;";
+        var s;
+        switch (w2ui.resUpdateForm.record.LeaseStatus) {
+            case 0: // available
+                s = "";
+                break;
+            case 1: // rented
+                s = '<span style="background-color:#caffca;color:#008800;border: 2px solid #008800;'+a+'">ACTIVE</span>';
+                break;
+            case 2: // reserved
+                s = '<span style="background-color:#ddddba;color:#606000;border: 2px solid #606000;'+a+'">BOOKED</span>';
+                break;
+            default:
+                s = "??";
+                break;
+        }
+        feedbackMessage("resupReservationBannerText",s);
+    };
+
     //------------------------------------------------------------------------
     //          resUpdateForm
     //
@@ -349,6 +394,8 @@ window.buildResUpdateElements = function () {
                 { id: 'btnClose',          type: 'button', icon: 'fas fa-times' },
             ],
             onClick: function (event) {
+                var f = w2ui.resUpdateForm;
+                var r = f.record;
                 switch(event.target) {
                 case 'btnClose':
                     var no_callBack = function() { return false; },
@@ -358,9 +405,13 @@ window.buildResUpdateElements = function () {
                     form_dirty_alert(yes_callBack, no_callBack);
                     break;
                 case 'cancelReservation':
-                    var f = w2ui.resUpdateForm;
-                    var r = f.record;
                     cancelReservation(r.RLID);
+                    break;
+                case 'checkIn':
+                    checkIn(r.RLID);
+                    break;
+                case 'checkOut':
+                    checkOut(r.RLID);
                     break;
                 }
             },
@@ -371,6 +422,7 @@ window.buildResUpdateElements = function () {
                 var f = this;
                 var r = this.record;
                 SetResUpFormTitle(f);
+                reservationLSIndicator();
                 r.BUD = getBUDfromBID(r.rdBID);
                 var y = new Date(r.DtStart);
                 r.DtStart = dateFmtStr(y);
@@ -392,6 +444,7 @@ window.buildResUpdateElements = function () {
             SetResUpFormTitle(this);
             setResUpdateRecordForUI(this);
             showReservationRentable();
+            reservationLSIndicator();
             this.get("PGName").options.url = '/v1/transactantsdettd/' + getCurrentBID();
         },
         onChange: function(event) {
@@ -634,6 +687,11 @@ window.buildResUpdateElements = function () {
                 // saveRentableCore(finishRentableSaveAdd);
             }
         },
+        onRefresh: function(event) {
+            event.onComplete = function() {
+                ResUpSetSaveButton();
+            };
+        },
     });
 };
 
@@ -807,8 +865,109 @@ window.getRTName = function(RTID) {
 //
 //---------------------------------------------------------------------------------
 window.cancelReservation = function(RLID) {
+    // console.log("cancel RLID = " + RLID);
+    var rtF = w2ui.resUpdateForm;
+
+    // extend rest of the options
+    var dlg_options = $.extend(true, {}, delete_confirm_options);
+    dlg_options.msg = "<p>Are you sure you want to cancel this reservation?</p>";
+
+    // confirm before deactivate
+    w2confirm(dlg_options)
+    .yes(function() {
+        var rtG = w2ui.resUpdateForm;
+        var rec = rtF.record;
+        var RTID = rec.rdRTID.id;
+        rec.rdRTID = RTID;
+        var params = {cmd: 'delete', formname: rtF.resUpdateForm, record: rec };
+        var dat = JSON.stringify(params);
+        var url = '/v1/reservation/1/' + rtF.record.RLID;
+
+        // deactivate rentable type request
+        $.post(url, dat, null, "json")
+        .done(function(data) {
+            if (data.status === "error") {
+                return;
+            }
+
+            w2ui.toplayout.hide('right',true);
+            w2ui.resUpdateGrid.render();
+        })
+        .fail(function(data){
+            rtF.error("Failed to cancel reservation: " + data);
+            return;
+        });
+    })
+    .no(function() {
+        return;
+    });
+
+};
+
+//---------------------------------------------------------------------------------
+// checkIn - check in the supplied RLID
+//
+// @params
+//     RLID = the Reservation ID
+//
+// encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0,"record":{"recid":0,"BID":1,"BUD":"REX","RLID":34,"TZOffset":420}}'
+// dojsonPOST "http://localhost:8270/v1/checkin/1/34" "request" "${TFILES}0"  "checkIn-reservation"
+
+// @return
+//
+//---------------------------------------------------------------------------------
+window.checkIn = function(RLID) {
+    console.log("CheckIn RLID = " + RLID);
+    var rtF = w2ui.resUpdateForm;
+    var dt = new Date();
+    var rec = {
+        TZOffset: dt.getTimezoneOffset(),
+    };
+    // if (typeof rec.rdRTID != "undefined") {
+    //     if (typeof rec.rdRTID.id != "undefined") {
+    //         var RTID = rec.rdRTID.id;
+    //         rec.rdRTID = RTID;
+    //     }
+    // }
+    var params = {cmd: 'get', formname: rtF.resUpdateForm, record: rec };
+    var dat = JSON.stringify(params);
+    var url = '/v1/checkin/1/' + rtF.record.RLID;
+
+    // deactivate rentable type request
+    $.post(url, dat, null, "json")
+    .done(function(data) {
+        if (data.status === "error") {
+            rtF.error("Failed to checkin reservation: " + data.message);
+            return;
+        }
+        w2ui.toplayout.hide('right',true);
+        w2ui.resUpdateGrid.render();
+        var rec  = rtF.record;
+        var name = rec.IsCompany ? rec.CompanyName : rec.FirstName + " " + rec.LastName;
+        w2popup.open({
+            title: "Check-in Successful",
+            body: '<div class="w2ui-centered">Successfully checked in ' + name + '<br>Check In: ' + rec.DtStart + '<br>Check Out: ' + rec.DtStop,
+        });
+    })
+    .fail(function(data){
+        rtF.error("Failed to checkin reservation: " + data.message);
+        return;
+    });
+};
+
+//---------------------------------------------------------------------------------
+// checkOut - check in the supplied RLID
+//
+// @params
+//     RLID = the Reservation ID
+//
+// @return
+//
+//---------------------------------------------------------------------------------
+window.checkOut = function(RLID) {
     console.log("cancel RLID = " + RLID);
 };
+
 //---------------------------------------------------------------------------------
 // closeResUpdateDialog - closes the form
 //

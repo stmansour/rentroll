@@ -17,7 +17,9 @@
 ./business/dba.sql
 ./setup/accord.sql
 ./rr/rr.sql
+./reservation/xk.sql
 ./reservation/xh.sql
+./reservation/xi.sql
 ./reservation/xd.sql
 ./reservation/xb.sql
 ./reservation/xc.sql

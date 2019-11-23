@@ -24,7 +24,7 @@
         "FirstName": "Billy Bob",
         "IsCompany": false,
         "LastName": "Thorton",
-        "LeaseStatus": 0,
+        "LeaseStatus": 2,
         "MiddleName": "",
         "Nights": 0,
         "Phone": "1234567890",

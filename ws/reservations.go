@@ -80,13 +80,13 @@ type ResDet struct {
 	UnspecifiedAdults   int               `json:"UnspecifiedAdults"`   //
 	UnspecifiedChildren int               `json:"UnspecifiedChildren"` //
 	RentableName        string            `json:"RentableName"`        //
-	IsCompany           bool              `json:"IsCompany"`           // Transactant
-	CompanyName         string            `json:"CompanyName"`         // Transactant
-	FirstName           string            `json:"FirstName"`           // Transactant
+	IsCompany           rlib.NullBool     `json:"IsCompany"`           // Transactant
+	CompanyName         rlib.NullString   `json:"CompanyName"`         // Transactant
+	FirstName           rlib.NullString   `json:"FirstName"`           // Transactant
 	MiddleName          string            `json:"MiddleName"`          // Transactant
-	LastName            string            `json:"LastName"`            // Transactant
-	Email               string            `json:"Email"`               // Transactant
-	Phone               string            `json:"Phone"`               // Transactant
+	LastName            rlib.NullString   `json:"LastName"`            // Transactant
+	Email               rlib.NullString   `json:"Email"`               // Transactant
+	Phone               rlib.NullString   `json:"Phone"`               // Transactant
 	Street              string            `json:"Street"`              // Transactant
 	City                string            `json:"City"`                // Transactant
 	Country             string            `json:"Country"`             // Transactant
@@ -251,7 +251,7 @@ func searchReservations(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 		AND RentableTypeRef.DtStart < %q
 		AND RentableTypeRef.DtStop > %q
 		AND RentableTypes.FLAGS & 8 = 0
-		AND RentableLeaseStatus.LeaseStatus=2
+		AND (RentableLeaseStatus.LeaseStatus=2 OR RentableLeaseStatus.LeaseStatus=1)
 		AND RentableLeaseStatus.DtStart < %q
 		AND RentableLeaseStatus.DtStop > %q`,
 		d.BID,
@@ -404,6 +404,7 @@ func getReservationStruct(id int64) (ResDet, error) {
     Transactant.PostalCode,
     RentableLeaseStatus.Comment,
     RentableLeaseStatus.ConfirmationCode,
+	RentableLeaseStatus.LeaseStatus,
     Rentable.RentableName,
     RentableTypeRef.RTID,
 	Assessments.ASMID,
@@ -452,6 +453,7 @@ WHERE
 		&a.PostalCode,
 		&a.Comment,
 		&a.ConfirmationCode,
+		&a.LeaseStatus,
 		&a.RentableName,
 		&a.RTID,
 		&a.DBDepASMID,
@@ -588,7 +590,7 @@ func saveReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 		// rlib.Console("res.DepASMID = %d, asmOld.ASMID = %d ($%6.2f)\n", res.DepASMID, asmOld.ASMID, asmOld.Amount)
 	}
-	// rlib.Console("%s: HH\n", funcname)
+	rlib.Console("%s: HH\n", funcname)
 
 	// //-----------------------------------------------------
 	// // Get the business properties for this business...
@@ -609,12 +611,35 @@ func saveReservation(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// create / update transactant info...
 	//-------------------------------------------
 	var t rlib.Transactant
-	rlib.MigrateStructVals(&res, &t)
-	t.PrimaryEmail = res.Email
-	t.CellPhone = res.Phone
+	rlib.Console("%s: HH2, res.City = %s\n", funcname, res.City)
+	t.BID = res.BID
+	t.TCID = res.TCID
+	t.City = res.City
+	t.State = res.State
 	t.Address = res.Street
-	t.IsCompany = res.IsCompany
-	t.CompanyName = res.CompanyName
+	t.Country = res.Country
+	t.PostalCode = res.PostalCode
+
+	if res.Email.Valid {
+		t.PrimaryEmail = res.Email.String
+	}
+	if res.Phone.Valid {
+		t.CellPhone = res.Phone.String
+	}
+	t.Address = res.Street
+	if res.IsCompany.Valid {
+		t.IsCompany = res.IsCompany.Bool
+	}
+	if res.CompanyName.Valid {
+		t.CompanyName = res.CompanyName.String
+	}
+	if res.FirstName.Valid {
+		t.FirstName = res.FirstName.String
+	}
+	if res.LastName.Valid {
+		t.LastName = res.LastName.String
+	}
+
 	// rlib.Console("\n\n***\n***  res.TCID = %d\n***\n\n", res.TCID)
 	if res.TCID > 0 {
 		err = updateResTransactant(ctx, r, d, &res, &t)

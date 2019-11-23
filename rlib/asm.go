@@ -25,6 +25,10 @@ func (a *Assessment) GetRecurrences(d1, d2 *time.Time) []time.Time {
 // assessments for the time period d1-d2 if they do not already exist. Then
 // creates a journal entry for the assessment.
 //
+// NOTE: this routine does not check the current system date to limit the
+//       expansion of recurring assessments.  The caller is responsible
+//       for setting the correct date range.
+//
 // INPUTS
 //            ctx = db context
 //              a - the assessment of interest
@@ -61,11 +65,11 @@ func ExpandAssessment(ctx context.Context, a *Assessment, xbiz *XBusiness, d1, d
 	}
 
 	if a.RentCycle == RECURNONE {
-		// Console("%s: calling ProcessNewAssessmentInstance(ctx, xbiz, %s, %s, a.ASMID = %d)\n", d1.Format(RRDATEFMT3), d2.Format(RRDATEFMT3), a.ASMID)
+		// Console("%s: calling ProcessNewAssessmentInstance(ctx, xbiz, %s, %s, a.ASMID = %d)\n", funcname, d1.Format(RRDATEFMT3), d2.Format(RRDATEFMT3), a.ASMID)
 		j, err = ProcessNewAssessmentInstance(ctx, xbiz, d1, d2, a)
 		if err != nil {
 			LogAndPrintError(funcname, err)
-			// Console("%s exiting. e0 Error = %s\n", err.Error())
+			// Console("%s exiting. e0 Error = %s\n", funcname, err.Error())
 			return err
 		}
 
@@ -73,7 +77,7 @@ func ExpandAssessment(ctx context.Context, a *Assessment, xbiz *XBusiness, d1, d
 			_, err = GenerateLedgerEntriesFromJournal(ctx, xbiz, &j, d1, d2)
 			if err != nil {
 				LogAndPrintError(funcname, err)
-				// Console("%s exiting. e1 Error = %s\n", err.Error())
+				// Console("%s exiting. e1 Error = %s\n", funcname, err.Error())
 				return err
 			}
 		}
@@ -160,16 +164,16 @@ func ExpandAssessment(ctx context.Context, a *Assessment, xbiz *XBusiness, d1, d
 		// DEBUG: code to get the difference between dl and dl1
 		//-------------------------------------------------------------------
 		// dl1 := a.GetRecurrences(&dtLimitStart, &dtLimitStop)
-		// // // Console("\n\n***<<<<< OLD LIMITS:  Start = %s, Stop = %s\n", a.Start.Format(RRDATEFMT4), a.Stop.Format(RRDATEFMT4))
-		// // Console("***>>>>> NEW LIMITS:  Start = %s, Stop = %s\n", dtLimitStart.Format(RRDATEFMT4), dtLimitStop.Format(RRDATEFMT4))
-		// // Console("%s: 2.4   len(dl) = %d,  len(dl1) = %d\n", funcname, len(dl), len(dl1))
+		// Console("\n\n***<<<<< OLD LIMITS:  Start = %s, Stop = %s\n", a.Start.Format(RRDATEFMT4), a.Stop.Format(RRDATEFMT4))
+		// Console("***>>>>> NEW LIMITS:  Start = %s, Stop = %s\n", dtLimitStart.Format(RRDATEFMT4), dtLimitStop.Format(RRDATEFMT4))
+		// Console("%s: 2.4   len(dl) = %d,  len(dl1) = %d\n", funcname, len(dl), len(dl1))
 		// dbug := true
 		// if dbug && len(dl) != len(dl1) {
-		// 	// Console("**** YIPES  -- different expansions!\n")
-		// 	// Console("       dl[]         dl1[]\n")
+		// Console("**** YIPES  -- different expansions!\n")
+		// Console("       dl[]         dl1[]\n")
 		// 	ra, err := GetRentalAgreement(ctx, a.RAID)
 		// 	if err != nil {
-		// 		// Console("error getting RAID = %s\n", err.Error())
+		// Console("error getting RAID = %s\n", err.Error())
 		// 	}
 		// 	l := len(dl)
 		// 	l1 := len(dl1)
@@ -187,9 +191,9 @@ func ExpandAssessment(ctx context.Context, a *Assessment, xbiz *XBusiness, d1, d
 		// 		if k < l1 {
 		// 			s1 += fmt.Sprintf("%12s", dl1[k].Format(RRDATEFMT3))
 		// 		}
-		// 		// Console("%s\n", s1)
+		// Console("%s\n", s1)
 		// 	}
-		// 	// Console("%s: 2.5   RAID = %d, RentStart = %s, RentStop = %s\n\n", funcname, ra.RAID, ra.RentStart.Format(RRDATEFMT3), ra.RentStop.Format(RRDATEFMT3))
+		// Console("%s: 2.5   RAID = %d, RentStart = %s, RentStop = %s\n\n", funcname, ra.RAID, ra.RentStart.Format(RRDATEFMT3), ra.RentStop.Format(RRDATEFMT3))
 		// }
 
 		rangeDuration := d2.Sub(dtLimitStart)
@@ -303,7 +307,7 @@ func ExpandAssessment(ctx context.Context, a *Assessment, xbiz *XBusiness, d1, d
 				//-------------------------------------------------------------------
 				if dte.After(a.Stop) {
 					dte = a.Stop
-					// Console("%s: 4.23 - calling SimpleProrateAmount( amount %8.2f ,rentcycle %d, prorate %d, %s, %s, %s )\n", a.Amount, a.RentCycle, a.ProrationCycle, dtb.Format(RRDATEFMT4), dte.Format(RRDATEFMT4), a.Start.Format(RRDATEFMT4))
+					// Console("%s: 4.23 - calling SimpleProrateAmount( amount %8.2f ,rentcycle %d, prorate %d, %s, %s, %s )\n", funcname, a.Amount, a.RentCycle, a.ProrationCycle, dtb.Format(RRDATEFMT4), dte.Format(RRDATEFMT4), a.Start.Format(RRDATEFMT4))
 					amt, num, den := SimpleProrateAmount(a.Amount, a.RentCycle, a.ProrationCycle, &dtb, &dte, &a.Start)
 					a1.Amount = amt
 					a1.AppendComment(ProrateComment(num, den, a.ProrationCycle))

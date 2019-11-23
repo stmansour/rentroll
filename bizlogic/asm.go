@@ -818,7 +818,7 @@ func InsertAssessment(ctx context.Context, a *rlib.Assessment, exp int, lc *rlib
 	// rlib.Console("    Note that lc.ExpandAsmDtStart,Stop = %s\n", // rlib.ConsoleDRange(&lc.ExpandAsmDtStart, &lc.ExpandAsmDtStop))
 
 	rlib.InitLedgerCache()
-
+	// rlib.Console("C0:  exp=%d, PASMID=%d, FLAGS=0x%x\n", exp, a.PASMID, a.FLAGS)
 	a.Comment = originalComment        // set this back to the original comment, it will be updated as necessary
 	if a.RentCycle == rlib.RECURNONE { // for nonrecurring, use existng struct: a
 		rlib.ExpandAssessment(ctx, a, &xbiz, &d1, &d2, true, lc) // generates assessment instances
@@ -835,6 +835,45 @@ func InsertAssessment(ctx context.Context, a *rlib.Assessment, exp int, lc *rlib
 		}
 	}
 	// rlib.Console("D - exiting %s\n", funcname)
+	return nil
+}
+
+// createInstancesToDate creates all instances of a recurring Assessments up to the
+// supplied date
+//
+// INPUTS
+//     a = the recurring assessment
+//  xbiz = Business information
+//    lc = date to use which is past the last close date
+// start = start date on assessment before any snapping that occurred due to
+//         checking closed period
+//
+// RETURNS
+//
+//-------------------------------------------------------------------------------------
+func createInstancesToDate(ctx context.Context, a *rlib.Assessment, xbiz *rlib.XBusiness, lc *rlib.ClosePeriod, start *time.Time) error {
+	// rlib.Console("\n\n*** Entered createInstancesToDate   start = %s,  lc.dt = %s\n", start.Format(rlib.RRDATEFMT3), lc.Dt.Format(rlib.RRDATEFMT3))
+	// rlib.Console("a.Start = %s, a.Stop = %s\n", a.Start.Format(rlib.RRDATEFMT3), a.Stop.Format(rlib.RRDATEFMT3))
+
+	//-------------------------------------------------------------------------
+	// Create instances from original start date to now. ExpandAssessment will
+	// handle expanding the instances and snapping to open period dates as necessary.
+	//-------------------------------------------------------------------------
+	d1 := *start
+	d2 := rlib.Now()                                                          // never go further in the future than the current time
+	if lc.ExpandAsmDtStop.After(rlib.TIME0) && d2.After(lc.ExpandAsmDtStop) { // snap to expansion stop date if needed
+		d2 = a.Stop
+	}
+
+	// rlib.Console("\n\n**** createInstancesToDate calling ExpandAssessment ASMID = %d, d1 = %s, d2 = %s\n", a.ASMID, d1.Format(rlib.RRDATEFMT3), d2.Format(rlib.RRDATEFMT3))
+	// rlib.Console("createInstancesToDate: lc.ExpandAsmDtStart,Stop = %s\n", rlib.ConsoleDRange(&lc.ExpandAsmDtStart, &lc.ExpandAsmDtStop))
+	err := rlib.ExpandAssessment(ctx, a, xbiz, &d1, &d2, true, lc) // this generates the assessment instances
+	if err != nil {
+		// rlib.Console("Exiting createInstancesToDate err = %s\n", err.Error())
+		return err
+	}
+
+	// rlib.Console("Exiting createInstancesToDate\n\n\n")
 	return nil
 }
 
@@ -959,43 +998,4 @@ func ValidateAssessment(ctx context.Context, a *rlib.Assessment) []BizError {
 	}
 	// rlib.Console("ValidateAssessment: exiting.  len(errlist) = %d\n", len(e))
 	return e
-}
-
-// createInstancesToDate creates all instances of a recurring Assessments up to the
-// supplied date
-//
-// INPUTS
-//     a = the recurring assessment
-//  xbiz = Business information
-//    lc = date to use which is past the last close date
-// start = start date on assessment before any snapping that occurred due to
-//         checking closed period
-//
-// RETURNS
-//
-//-------------------------------------------------------------------------------------
-func createInstancesToDate(ctx context.Context, a *rlib.Assessment, xbiz *rlib.XBusiness, lc *rlib.ClosePeriod, start *time.Time) error {
-	// rlib.Console("\n\n*** Entered createInstancesToDate   start = %s,  lc.dt = %s\n", start.Format(rlib.RRDATEFMT3), lc.Dt.Format(rlib.RRDATEFMT3))
-	// rlib.Console("a.Start = %s, a.Stop = %s\n", a.Start.Format(rlib.RRDATEFMT3), a.Stop.Format(rlib.RRDATEFMT3))
-
-	//-------------------------------------------------------------------------
-	// Create instances from original start date to now. ExpandAssessment will
-	// handle expanding the instances and snapping to open period dates as necessary.
-	//-------------------------------------------------------------------------
-	d1 := *start
-	d2 := rlib.Now()                                                          // never go further in the future than the current time
-	if lc.ExpandAsmDtStop.After(rlib.TIME0) && d2.After(lc.ExpandAsmDtStop) { // snap to expansion stop date if needed
-		d2 = a.Stop
-	}
-
-	// rlib.Console("\n\n**** createInstancesToDate calling ExpandAssessment ASMID = %d, d1 = %s, d2 = %s\n", a.ASMID, d1.Format(rlib.RRDATEFMT3), d2.Format(rlib.RRDATEFMT3))
-	// rlib.Console("createInstancesToDate: lc.ExpandAsmDtStart,Stop = %s\n", rlib.ConsoleDRange(&lc.ExpandAsmDtStart, &lc.ExpandAsmDtStop))
-	err := rlib.ExpandAssessment(ctx, a, xbiz, &d1, &d2, true, lc) // this generates the assessment instances
-	if err != nil {
-		// rlib.Console("Exiting createInstancesToDate err = %s\n", err.Error())
-		return err
-	}
-
-	// rlib.Console("Exiting createInstancesToDate\n\n\n")
-	return nil
 }

@@ -4,12 +4,12 @@
     "DtStop": "3/1/2020",
     "HotelReserveDtStart": "10/1/2019",
     "HotelReserveDtStop": "1/1/2020",
-    "HotelReservePct": 50,
+    "HotelReservePct": 0,
     "RT": [
         {
             "Name": "HotelStd",
             "Style": "H11",
-            "Count": 1,
+            "Count": 2,
             "MarketRate": 65,
             "Reserve": false,
             "RentCycle": 4,

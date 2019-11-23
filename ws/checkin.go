@@ -134,7 +134,7 @@ func SvcCheckIn(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	rlib.Console("rls:  %#v\n", rls)
+	rlib.Console("rls:  RLID=%d, start/stop = %s\n", rls.RLID, rlib.ConsoleDRange(&rls.DtStart, &rls.DtStop))
 
 	var amt float64
 	var rc, pc, ar int64
@@ -177,8 +177,33 @@ func SvcCheckIn(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	// create a rent assessment
+	//---------------------------------------
+	// create a recurring rent assessment
+	//---------------------------------------
 	if be := bizlogic.InsertAssessment(ctx, &asm, 0, &noClose); len(be) > 0 {
+		err = bizlogic.BizErrorListToError(be)
+		tx.Rollback()
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	//---------------------------------------
+	// Create the first instance assessment
+	//---------------------------------------
+	var ai = rlib.Assessment{
+		BID:            rls.BID,
+		RID:            rls.RID,
+		RAID:           rls.RAID,
+		PASMID:         asm.ASMID,
+		Amount:         amt,
+		Start:          rls.DtStart,
+		Stop:           rls.DtStart,
+		RentCycle:      rc,
+		ProrationCycle: pc,
+		ARID:           ar,
+		Comment:        fmt.Sprintf("Reservation %s (RLID=%d)", rls.ConfirmationCode, rls.RLID),
+	}
+	if be := bizlogic.InsertAssessment(ctx, &ai, 0, &noClose); len(be) > 0 {
 		err = bizlogic.BizErrorListToError(be)
 		tx.Rollback()
 		SvcErrorReturn(w, err, funcname)

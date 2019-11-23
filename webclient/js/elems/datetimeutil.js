@@ -43,7 +43,7 @@ window.stringToDate = function(s) {
 
 // applyLocaltimeDateOffset returns a date with the hours properly adjusted so
 // that the UTC dates are at 00:00:00.  This can be useful when working with
-// dates so that you don't lose or gain days due to editing accross timezones.
+// dates so that you don't lose or gain days due to editing across timezones.
 // Example:
 //    4/30/2019 00:00:00 UTC is equivalent to  4/29/2019 17:00:00 GMT-0700
 //    If your browser is in localtime GMT-0700 and you load the date into

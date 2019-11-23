@@ -138,7 +138,7 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
     startRentRollServer
 
     #--------------------------------------------------------------------------
-    # search for reservations in a time range. There should be six
+    # This should find RLID=167
     #--------------------------------------------------------------------------
     encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0,"searchDtStart":"4/20/2018","searchDtStop":"4/23/2018"}' > request
     dojsonPOST "http://localhost:8270/v1/reservation/1" "request" "${TFILES}0"  "reservation-searchReservations"
@@ -538,6 +538,7 @@ if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFI
 
     # printServerReply
 fi
+
 #------------------------------------------------------------------------------
 #  TEST i
 #
@@ -545,7 +546,11 @@ fi
 #  The server date must match the reservation date on the client in order for
 #  the check-in to happen.
 #
-#  The reservation that we'll check-in is RLID 224
+#  The reservation that we'll check-in is RLID 34
+#
+#  RAID: 12
+#  Transactant:  Hayden Gardner
+#  TCID: 27
 #
 #  Scenario:
 #  see individual calls below
@@ -555,17 +560,103 @@ fi
 #------------------------------------------------------------------------------
 TFILES="i"
 if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
-    RENTROLLSERVERNOW="-testDtNow 9/20/2019"
+    RENTROLLSERVERNOW="-testDtNow 9/22/2019"
     stopRentRollServer
     mysql --no-defaults rentroll < x${TFILES}.sql
     startRentRollServer
 
     #-------------------------------------------------------------------------
-    # Check in RLID 224
+    # Check-In RLID 34
     #-------------------------------------------------------------------------
-    encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0,"record":{"recid":0,"BID":1,"BUD":"REX","RLID":224,"TZOffset":420}}'
-    dojsonPOST "http://localhost:8270/v1/checkin/1/224" "request" "${TFILES}0"  "checkIn-reservation"
+    encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0,"record":{"recid":0,"BID":1,"BUD":"REX","RLID":34,"TZOffset":420}}'
+    dojsonPOST "http://localhost:8270/v1/checkin/1/34" "request" "${TFILES}0"  "checkIn-reservation"
+
+    #-------------------------------------------------------------------------
+    # Get the payor's statement
+    #-------------------------------------------------------------------------
+    encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0,"searchDtStart":"9/1/2019","searchDtStop":"10/1/2019"}'
+    dojsonPOST "http://localhost:8270/v1/payorstmt/1/27" "request" "${TFILES}1"  "PayorStatement--GridDetail"
+
+    #-------------------------------------------------------------------------
+    # Make sure we get an error if we try to checkin again...
+    #-------------------------------------------------------------------------
+    encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0,"record":{"recid":0,"BID":1,"BUD":"REX","RLID":34,"TZOffset":420}}'
+    dojsonPOST "http://localhost:8270/v1/checkin/1/34" "request" "${TFILES}2"  "checkIn-should-error"
 fi
+
+#------------------------------------------------------------------------------
+#  TEST j
+#
+#  A tool to generate a reservation on "today" (the system date).
+#
+#  The reservation that we'll check-in is RLID 34
+#
+#  RAID: 12
+#  Transactant:  Hayden Gardner
+#  TCID: 27
+#
+#  Scenario:
+#      just create a reservation
+#
+#  Expected Results:
+#      none
+#------------------------------------------------------------------------------
+TFILES="j"
+if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
+    stopRentRollServer
+    mysql --no-defaults rentroll < xi.sql
+    startRentRollServer
+
+    #-------------------------------------------------------------------------
+    # Create a Reservation.  Set initial deposit to $10
+    #-------------------------------------------------------------------------
+    encodeRequest '{"cmd":"save","record":{"rdBID":1,"BUD":{"id":"REX","text":"REX"},"DtStart":"Sat, 16 Nov 2019 00:00:00 GMT","DtStop":"Sun, 17 Nov 2019 00:00:00 GMT","Nights":2,"RLID":0,"RTRID":0,"rdRTID":3,"RID":1,"RAID":0,"TCID":0,"Amount":250,"Deposit":10,"DepASMID":0,"LeaseStatus":2,"RentableName":"Rentable006","FirstName":"William","UnspecifiedAdults":0,"UnspecifiedChildren":0,"LastName":"Thorton","IsCompany":false,"CompanyName":"Hicks R Us","Email":"bb@backwoods.com","Phone":"123-890-7654","Street":"123 Hayseed St","City":"Broken Pine","State":"AK","PostalCode":"64549","CCName":"BILLYBOB THORTON","CCType":"VISA","CCNumber":"1234567890","CCExpMonth":"2","CCExpYear":"2022","ConfirmationCode":"","Comment":"","PGName":[{"TCID":1109,"BID":1,"FirstName":"William","MiddleName":"Robert","LastName":"Thorton","CompanyName":"Hicks R Us","IsCompany":false,"PrimaryEmail":"bb@backwoods.com","SecondaryEmail":"","WorkPhone":"123-456-7890","CellPhone":"123-890-7654","Address":"123 Hayseed St","Address2":"","City":"Broken Pine","State":"AK","PostalCode":"64549","recid":64}],"RTID":3}}' > request
+    dojsonPOST "http://localhost:8270/v1/reservation/1/0" "request" "${TFILES}0"  "reservation-saveReservation"
+
+    parseServerReply
+
+    echo "RLID = ${RLID}"
+fi
+
+#------------------------------------------------------------------------------
+#  TEST k
+#
+#  Test the check-out service.  This function does nothing if the current date
+#  matches or is later than the stop date of the RentalAgreement.  However, if
+#  the date is
+#
+#  The reservation that we'll check-in is RLID 34
+#
+#  RAID: 12
+#  Transactant:  Hayden Gardner
+#  TCID: 27
+#
+#  Scenario:
+#      just create a reservation
+#
+#  Expected Results:
+#      none
+#------------------------------------------------------------------------------
+TFILES="k"
+if [ "${SINGLETEST}${TFILES}" = "${TFILES}" -o "${SINGLETEST}${TFILES}" = "${TFILES}${TFILES}" ]; then
+    stopRentRollServer
+    mysql --no-defaults rentroll < x${TFILES}.sql
+    startRentRollServer
+
+    #-------------------------------------------------------------------------
+    # Check out early on an existing reservation
+    #-------------------------------------------------------------------------
+    encodeRequest '{"cmd":"get","selected":[],"limit":100,"offset":0,"record":{"recid":0,"BID":1,"BUD":"REX","RLID":34,"TZOffset":420}}'
+    dojsonPOST "http://localhost:8270/v1/checkout/1/34" "request" "${TFILES}0"  "checkIn-reservation"
+
+    #-------------------------------------------------------------------------
+    # Check-In RLID 34
+    #-------------------------------------------------------------------------
+    parseServerReply
+
+    echo "RLID = ${RLID}"
+fi
+
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
 

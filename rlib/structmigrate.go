@@ -57,27 +57,35 @@ func MigrateStructVals(pa interface{}, pb interface{}) error {
 	for i := 0; i < ar.NumField(); i++ {
 		fa := ar.Field(i)
 		afldname := ar.Type().Field(i).Name
+		// Console("MSV 1  field = %s\n", afldname)
 		if !fa.IsValid() {
 			continue
 		}
+		// Console("MSV 2\n")
 		bdx, ok := m[afldname]
 		if !ok {
 			continue
 		}
+		// Console("MSV 3\n")
 		br := reflect.ValueOf(pb).Elem()
 		fb := br.Field(bdx)
 		if !fb.CanSet() { // BEWARE: if a field name begins with a lowercase letter it cannot be set
 			continue
 		}
-		// fmt.Printf("Can set b field\n")
+		// Console("MSV 4: Can set b field\n")
 		if fa.Type() == fb.Type() {
+			// Console("MSV 5\n")
 			fb.Set(reflect.ValueOf(fa.Interface()))
+			// Console("MSV 6\n")
 		} else {
+			// Console("MSV 7\n")
 			err := XJSONprocess(&fa, &fb)
 			if err != nil {
+				// Console("MSV 8\n")
 				val := reflect.ValueOf(fa.Interface()) // instantiate new pa value
 				fb.Set(val.Convert(fb.Type()))         // set pb to the value of the new type value
 			}
+			// Console("MSV (8)\n")
 		}
 	}
 	return nil

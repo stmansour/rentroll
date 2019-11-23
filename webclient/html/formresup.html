@@ -182,11 +182,16 @@
             </table>
             <table id="reservationTable" width="745" style="border-spacing:1px; background-color:#BEBEBE;">
                 <tr>
-                    <td style='padding:4px; color:#F3F3F3; background-color:#2C2C2C; font-size:14pt;' colspan="4">
+                    <td style='padding:4px; color:#F3F3F3; font-size:14pt;' colspan="4" bgcolor="#2C2C2C">
+                        <div id="resupReservationBanner" style="background-color:#2C2C2C;">
                         <span id="rrReservationLock" align="left">
                             <button onclick="toggleReservationLock();">&nbsp;<i class="fas fa-lock fa-2x"></i>&nbsp;</button>
                         </span>
-                        <span align="center">Reservation</span>
+                        <!-- <span align="center"> -->
+                            Reservation &nbsp;&nbsp;&nbsp;
+                            <span id="resupReservationBannerText">status</span>
+                        <!-- </span> -->
+                        </div>
                     </td>
                 </tr>
                 <tr>
