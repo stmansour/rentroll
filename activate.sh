@@ -2,7 +2,7 @@
 #------------------------------------------------------------------------------
 # RentRoll Activation Script
 #
-# This script performs most server management tasks such as
+# This script performs most server management tasks such as:
 #       startup
 #       shutdown
 #       restart
